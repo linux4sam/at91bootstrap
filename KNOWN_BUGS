@@ -1,0 +1,7 @@
+The AT91SAM9261EK has a problem with SPI chip select.
+SPI CS0 and CS3 are connected together, and you
+need to disable the CS0 by H/W to get this to work.
+
+No effort is done to initialize the Bus Matrix.
+This is needed for large screens.
+

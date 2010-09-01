@@ -1,0 +1,138 @@
+menu "Memory selection"
+
+
+config CONFIG_SDRAM
+	bool
+	default n
+	help
+	  Initialize SDRAM controller before copying
+
+config CONFIG_SDDRC
+	bool
+	default n
+	help
+	  Initialize DDR SDRAM controller before copying
+
+config CONFIG_DDR2
+	bool
+	default n
+	help
+	  Initialize DDR-2 SDRAM controller before copying
+
+config	ALLOW_DATAFLASH
+	bool
+	default n
+
+config	ALLOW_FLASH
+	bool
+	default n
+
+config	ALLOW_NANDFLASH
+	bool
+	default n
+
+config	ALLOW_SDCARD
+	bool
+	default n
+
+config	ALLOW_HSMCI
+	bool
+	default n
+	
+config	ALLOW_PSRAM
+	bool
+	default n
+
+config	ALLOW_SDRAM_16BIT
+	bool
+	default n
+
+choice
+	prompt "RAM size"
+	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDR2
+	default CONFIG_RAM_64MB
+
+config	CONFIG_RAM_32MB
+	bool "32 MB"
+
+config	CONFIG_RAM_64MB
+	bool "64 MB"
+
+config	CONFIG_RAM_128MB
+	bool "128 MB"
+
+config	CONFIG_RAM_256MB
+	bool "256 MB"
+
+endchoice
+
+config	CONFIG_SDRAM_16BIT
+	bool "Use 16 bit SDRAM"
+	depends on ALLOW_SDRAM_16BIT
+	help
+	  
+
+config	CONFIG_PSRAM
+	bool "Enable PSRAM on EBI1"
+	depends on ALLOW_PSRAM
+	help
+	  
+
+choice
+	prompt "Flash memory technology"
+	default CONFIG_DATAFLASH
+	help
+	  Select memory for at91bootstrap
+
+config	CONFIG_DATAFLASH
+	bool "Dataflash"
+	depends on ALLOW_DATAFLASH
+
+config	CONFIG_FLASH
+	bool "Parallel NOR flash"
+	depends on ALLOW_FLASH
+
+config	CONFIG_NANDFLASH
+	bool "NAND flash"
+	depends on ALLOW_NANDFLASH
+
+
+config	CONFIG_SDCARD
+	bool "SD card"
+	depends on ALLOW_SDCARD
+
+endchoice
+
+config	CONFIG_ENABLE_SW_ECC
+	bool "Support NAND flash software ECC"
+	depends on CONFIG_NANDFLASH
+
+config CONFIG_MEMORY
+	string
+	default "dataflash"	if CONFIG_DATAFLASH
+	default "flash"		if CONFIG_FLASH
+	default "nandflash"	if CONFIG_NANDFLASH
+	default "sdcard"	if CONFIG_SDCARD
+
+config CONFIG_SDCARD_HS
+	bool
+	default y if CONFIG_AT91SAM9G45EK
+	default y if CONFIG_AT91SAM9G45EKES
+	default y if CONFIG_AT91SAM9M10EK
+	default y if CONFIG_AT91SAM9M10EKES
+	default n
+
+source "driver/Config.in.dataflash"
+
+source "driver/Config.in.nandflash"
+
+config CONFIG_BOOTSTRAP_MAXSIZE
+	string
+	default "4096"  if CONFIG_AT91SAM9260EK
+	default "8192"  if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
+	default "12288"  if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
+	default "4096"  if CONFIG_AFEB9260
+	default "23000"
+
+endmenu
+

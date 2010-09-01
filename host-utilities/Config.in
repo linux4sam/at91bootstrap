@@ -1,0 +1,19 @@
+config CONFIG_SX_AT91
+	bool "Build 'sx_at91' an accurate X-Modem for minicom"
+	default y
+	help
+	  Minicom X-Modem is unreliable, this works.
+
+
+config CONFIG_RAW_AT91
+	bool "Build 'raw_at91' for downloading the u-boot environment via minicom"
+	default y
+	help
+	  If you cut and paste a file to an U-Boot terminal,
+	  U-Boot cannot handle this.
+	  raw-at91 will send the file line by line with a long delay
+	  between each line.
+	  Note: do not program any flash memory or perform a
+	  network transfer as part of the file.
+	  The delay is not THAT long
+

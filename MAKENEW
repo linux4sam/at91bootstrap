@@ -1,0 +1,46 @@
+#!/bin/sh
+rm -rf log
+mkdir -p log/FAIL
+skip=0
+rm -f .config
+
+if [ -f ../gcc.sh ] ; then
+source ../gcc.sh
+else
+	echo "You need to supply a good Makefile environment similar to:"
+	cat gcc.sh
+	exit 0
+fi
+
+MAKEFLAGS="CROSS_COMPILE=${CROSS_COMPILE} CONFIG_NO_DWARF_CFI_ASM=y"
+
+function build()
+{
+	if [ ${skip} == "0" ] ; then
+		rm .config
+		make $1_defconfig
+		make menuconfig
+		make BOARD=$2 update
+#		make ${MAKEFLAGS}	> log/$1.log 2>&1 || mv log/$1.log log/FAIL/$1.log.FAIL
+	fi
+}
+
+
+if [ "$1" == "" ] ; then
+build	at91sam9g45ek	at91sam9g45ek
+build	at91sam9g45df	at91sam9g45ek
+build	at91sam9g45nf	at91sam9g45ek
+
+build	at91sam9g45dfes	at91sam9g45ekes
+build	at91sam9g45nfes	at91sam9g45ekes
+
+build	at91sam9m10ek	at91sam9m10ek
+build	at91sam9m10df	at91sam9m10ek
+build	at91sam9m10nf	at91sam9m10ek
+
+
+else
+
+build	$1
+
+fi

@@ -1,0 +1,11 @@
+menu  "NAND Flash configuration"
+	depends on CONFIG_NANDFLASH
+
+config CONFIG_NANDFLASH_SMALL_BLOCKS
+	bool "Use NAND flash with small blocks"
+	default n
+	help
+	  Use NAND Flash with small blocks
+
+endmenu
+

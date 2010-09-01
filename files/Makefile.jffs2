@@ -1,0 +1,48 @@
+# Makefile to create an Empty JFFS2 file system
+MKFS=mkfs.jffs2
+
+
+SIZE=1
+#ROOTFS_SIZE=0xC000000
+#ROOTFS_SIZE=0x400000
+ROOTFS_SIZE=0x`dc -e "16 o $(SIZE) 1024 * 1024 * p"`
+
+SOURCE_DIR=root
+PAGE_SIZE=4096
+ERASEBLOCK_SIZE=0x20000
+OUTPUT_FILE=NAND-empty-$(SIZE)MB.jffs2
+
+OPTIONS=""
+OPTIONS+="--pad=$(ROOTFS_SIZE)"
+OPTIONS+="--pagesize=$(PAGE_SIZE)"
+OPTIONS+="--eraseblock=$(ERASEBLOCK_SIZE)"
+#OPTIONS+="--cleanmarker=$()"
+# No cleanmarkers for NAND Flash
+OPTIONS+="-n"
+OPTIONS+="--little-endian"
+OPTIONS+="-v"
+
+# OPTIONS+="=$()"
+# OPTIONS+=""
+
+
+all:	$(OUTPUT_FILE)
+
+$(OUTPUT_FILE):	$(SOURCE_DIR) Makefile
+	$(MKFS) $(OPTIONS) --root=$(SOURCE_DIR) --output=$(OUTPUT_FILE)
+
+empty:	$(OUTPUT_FILE)
+
+user:	opt Makefile
+	$(MKFS) $(OPTIONS) --output=user.jffs2 --root=opt
+
+$(SOURCE_DIR):
+	mkdir -p $(SOURCE_DIR)
+
+clean:
+	rm -f NAND*.jffs2
+	rm -fr $(SOURCE_DIR)
+
+debug:
+	echo ROOTFS_SIZE=$(ROOTFS_SIZE)
+

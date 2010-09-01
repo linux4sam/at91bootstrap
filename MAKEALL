@@ -1,0 +1,63 @@
+#!/bin/sh
+rm -f binaries/*
+rm -rf log
+mkdir -p log/FAIL
+skip=0
+
+function build()
+{
+	make distclean
+	make $1_defconfig
+	make > log/$1.log 2>&1 || mv log/$1.log log/FAIL/$1.log.FAIL
+}
+
+#build	at91cap9adk
+#build	at91cap9df
+#build	at91cap9f
+
+#build	at91cap9stk
+#build	at91cap9stkdf
+#build	at91cap9stkf
+
+build	at91sam9g20df
+build	at91sam9g20sd
+build	at91sam9g20nf
+
+build	at91sam9g10df
+build	at91sam9g10sd
+build	at91sam9g10nf
+
+build	at91sam9g45dfes
+build	at91sam9g45sdes
+build	at91sam9g45nfes
+
+build	at91sam9g45df
+build	at91sam9g45sd
+build	at91sam9g45nf
+
+build	at91sam9m10df
+build	at91sam9m10sd
+build	at91sam9m10nf
+
+build	at91sam9rldf
+build	at91sam9rlsd
+build	at91sam9rlnf
+
+#build	at91sam9xedfc
+#build	at91sam9xedf
+#build	at91sam9xeek
+#build	at91sam9xenf
+
+build	at91sam9260df
+build	at91sam9260nf
+
+build	at91sam9261df
+build	at91sam9261nf
+
+build	at91sam9263df
+build	at91sam9263nf
+
+echo
+echo
+echo "### Done!"
+

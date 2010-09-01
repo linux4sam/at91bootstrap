@@ -1,0 +1,15 @@
+# Makefile for AT91-Bootstrap libc directory
+
+LIBC_COBJS-y				+=	string.o
+LIBC_COBJS-y				+=	div0.o
+LIBC_COBJS-y				+=	udiv.o
+
+LIBC_SOBJS-y				+=	_udivsi3.o
+LIBC_SOBJS-y				+=	_umodsi3.o
+
+#.c.o:
+#	$(CC) $(CPPFLAGS) -o $(obj)$* $*.c
+#
+#.S.o
+#	$(AS) $(ASFLAGS) -c -o $(obj)$* $*.S
+

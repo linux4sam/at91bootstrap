@@ -1,0 +1,152 @@
+menu  "SPI configuration"
+	depends on CONFIG_DATAFLASH
+
+config	CONFIG_SPI_CLK
+	int "SPI clock speed"
+	depends on CONFIG_DATAFLASH
+	default 33000000
+	help
+	  Which speed (in Hz) should the SPI run at.
+
+config CONFIG_SMALL_DATAFLASH
+	bool	"Support < 32 Mbit dataflashes"
+	default	y
+	depends on CONFIG_DATAFLASH
+	help
+	  Deselect this to save some bytes of memory
+	  at the expense of flexibility in selecting memory sizes.
+
+config CONFIG_DATAFLASH_RECOVERY
+	bool "Support Dataflash recovery by pressing a button"
+	default y
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_DATAFLASH_RECOVERY
+	help
+	  Let bootstrap disassemble the first 7 double words
+	  and check that all, except the reserved vector
+	  contains a jump/branch
+
+config ALLOW_DATAFLASH_RECOVERY
+	bool
+	default	n
+
+# ------- SPI boot source -----------------------------------------------------
+
+choice
+	prompt "Chip Select"
+	depends on CONFIG_DATAFLASH
+	default CONFIG_SPI_CS0
+	help
+	  Determine which SPI chip select is to be used
+
+config	CONFIG_SPI_BOOT_CS0
+	bool	"Boot from chip select 0"
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_BOOT_FROM_DATAFLASH_CS0
+
+config	CONFIG_SPI_BOOT_CS1
+	bool	"Boot from chip select 1"
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_BOOT_FROM_DATAFLASH_CS1
+
+config	CONFIG_SPI_BOOT_CS2
+	bool	"Boot from chip select 2"
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_BOOT_FROM_DATAFLASH_CS2
+
+config	CONFIG_SPI_BOOT_CS3
+	bool	"Boot from chip select 3"
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_BOOT_FROM_DATAFLASH_CS3
+
+endchoice
+
+config	ALLOW_BOOT_FROM_DATAFLASH_CS0
+	bool
+	default n
+
+config	ALLOW_BOOT_FROM_DATAFLASH_CS1
+	bool
+	default n
+
+config	ALLOW_BOOT_FROM_DATAFLASH_CS2
+	bool
+	default n
+
+config	ALLOW_BOOT_FROM_DATAFLASH_CS3
+	bool
+	default n
+
+config DATAFLASHCARD_ON_CS0
+	bool
+	default n
+
+config DATAFLASHCARD_ON_CS1
+	bool
+	default n
+
+config DATAFLASHCARD_ON_CS2
+	bool
+	default n
+
+config DATAFLASHCARD_ON_CS3
+	bool
+	default n
+
+config CONFIG_DATAFLASHCARD
+	bool
+	default y if DATAFLASHCARD_ON_CS0 && CONFIG_SPI_BOOT_CS0
+	default y if DATAFLASHCARD_ON_CS1 && CONFIG_SPI_BOOT_CS1
+	default y if DATAFLASHCARD_ON_CS2 && CONFIG_SPI_BOOT_CS2
+	default y if DATAFLASHCARD_ON_CS3 && CONFIG_SPI_BOOT_CS3
+	default n
+
+config CONFIG_CARD_SUFFIX
+	string
+	default "card" if CONFIG_DATAFLASHCARD
+	default ""
+
+config CONFIG_SPI_BOOT
+	string
+	default "AT91C_SPI_PCS0_DATAFLASH"	if CONFIG_SPI_BOOT_CS0
+	default "AT91C_SPI_PCS1_DATAFLASH"	if CONFIG_SPI_BOOT_CS1
+	default "AT91C_SPI_PCS2_DATAFLASH"	if CONFIG_SPI_BOOT_CS2
+	default "AT91C_SPI_PCS3_DATAFLASH"	if CONFIG_SPI_BOOT_CS3
+
+# ------- SPI mode ------------------------------------------------------------
+choice
+	prompt "SPI Mode"
+	depends on CONFIG_DATAFLASH
+	default CONFIG_SPI_MODE_0
+	help
+	  Determine which SPI chip select is to be used
+
+config	CONFIG_SPI_MODE_0
+	bool	"Run SPI in Mode 0"
+	depends on CONFIG_DATAFLASH
+
+config	CONFIG_SPI_MODE_1
+	bool	"Run SPI in Mode 1"
+	depends on CONFIG_DATAFLASH
+
+config	CONFIG_SPI_MODE_2
+	bool	"Run SPI in Mode 2"
+	depends on CONFIG_DATAFLASH
+
+config	CONFIG_SPI_MODE_3
+	bool	"Run SPI in Mode 3"
+	depends on CONFIG_DATAFLASH
+
+endchoice
+
+config	CONFIG_SPI_MODE
+	int
+	default 0 if CONFIG_SPI_MODE_0
+	default 1 if CONFIG_SPI_MODE_1
+	default 2 if CONFIG_SPI_MODE_2
+	default 3 if CONFIG_SPI_MODE_3
+	help
+	  SPI Mode (clocking and data)
+
+endmenu
+

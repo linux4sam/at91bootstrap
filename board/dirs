@@ -1,0 +1,11 @@
+DIRS=\
+    at91sam9260ek \
+    at91sam9261ek \
+    at91sam9263ek \
+    at91sam9rlek \
+    at91sam9g10ek \
+    at91sam9g20ek \
+    at91sam9g45ek \
+    at91sam9m10ek \
+    at91sam9g45ekes \
+    at91sam9m10ekes \

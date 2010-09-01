@@ -1,0 +1,340 @@
+-------------------------------------------------------------------------------------------------
+AT91CAP9ADK BOOTING FROM DATAFLASH
+
+
+#define AT91C_SPI_CLK 		 	8000000				/* SPI CLOCK */
+
+#define AT91C_SPI_PCS_DATAFLASH		AT91C_SPI_PCS0_DATAFLASH	/* Boot on SPI NCS0 */
+
+#define IMG_ADDRESS 			0x8400				/* Image Address in DataFlash */
+#define	IMG_SIZE			0x35a00				/* Image Size in DataFlash    */
+
+#define MACH_TYPE       		1442       			/* AT91CAP9ADK */
+#define JUMP_ADDR			0x73000000			/* Final Jump Address 	      */
+
+#define CONFIG_HW_INIT
+#define CONFIG_SDDRC
+#define	CONFIG_DEBUG
+
+#define CONFIG_DATAFLASH
+
+-------------------------------------------------------------------------------------------------
+AT91CAP9ADK BOOTING FROM NANDFLASH
+
+
+#define IMG_ADDRESS 			0x8000			/* Image Address in DataFlash */
+#define	IMG_SIZE			0x38000			/* Image Size in NorFlash    */
+
+#define MACH_TYPE       		1442       		/* AT91CAP9ADK */
+#define JUMP_ADDR			0x73000000		/* Final Jump Address 	      */
+
+#define CONFIG_HW_INIT
+#define CONFIG_SDDRC
+#define	CONFIG_DEBUG
+
+#define CONFIG_FLASH
+
+=================================================================================================
+-------------------------------------------------------------------------------------------------
+AT91SAM92G20EK BOOTING FROM DATAFLASH
+
+
+#define AT91C_SPI_CLK 			33000000			/* SPI CLOCK */
+
+#define AT91C_SPI_PCS_DATAFLASH	AT91C_SPI_PCS1_DATAFLASH	/* Boot on SPI NCS1 */
+
+#define IMG_ADDRESS			0x8400				/* Image Address in DataFlash */
+#define	IMG_SIZE			0x33900				/* Image Size in DataFlash */
+
+#define MACH_TYPE			0x658				/* AT91SAM9G20-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address */
+
+#undef CONFIG_DEBUG
+#define CONFIG_DATAFLASH
+#define	CONFIG_SDRAM
+#define	CONFIG_HW_INIT
+
+-------------------------------------------------------------------------------------------------
+AT91SAM92G20EK BOOTING FROM FLASH
+
+
+-------------------------------------------------------------------------------------------------
+AT91SAM92G20EK BOOTING FROM NANDFLASH
+
+#define IMG_ADDRESS 			0x20000				/* Image Address in NandFlash */
+#define	IMG_SIZE			0x40000				/* Image Size in NandFlash */
+
+#define MACH_TYPE			0x658				/* AT91SAM9G20-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address */
+
+#undef CONFIG_DEBUG
+#undef CONFIG_DATAFLASH
+
+#define CONFIG_NANDFLASH
+#undef	NANDFLASH_SMALL_BLOCKS	/* NANDFLASH_LARGE_BLOCKS used instead */
+
+#define	CONFIG_SDRAM
+#define	CONFIG_HW_INIT
+
+
+=================================================================================================
+-------------------------------------------------------------------------------------------------
+AT91SAM9RLEK BOOTING FROM DATAFLASH
+
+
+#define AT91C_SPI_CLK 			33000000			/* SPI CLOCK */
+
+#define AT91C_SPI_PCS_DATAFLASH		AT91C_SPI_PCS0_DATAFLASH	/* Boot on SPI NCS0 */
+
+#define IMG_ADDRESS 			0x8400				/* Image Address in DataFlash */
+#define	IMG_SIZE			0x33900				/* Image Size in DataFlash    */
+
+#define MACH_TYPE			1326       			/* AT91SAM9RL-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#undef CONFIG_DEBUG
+#define CONFIG_DATAFLASH
+#define CONFIG_HW_INIT
+#define CONFIG_SDRAM
+-------------------------------------------------------------------------------------------------
+AT91SAM9RLEK BOOTING FROM FLASH
+
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9RLEK BOOTING FROM NANDFLASH
+
+#define IMG_ADDRESS			0x20000				/* Image Address in NandFlash */
+#define	IMG_SIZE			0x40000				/* Image Size in NandFlash    */
+
+#define MACH_TYPE			1326       			/* AT91SAM9RL-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#undef CONFIG_DEBUG
+
+#define CONFIG_NANDFLASH
+#undef	NANDFLASH_SMALL_BLOCKS	/* NANDFLASH_LARGE_BLOCKS used instead */
+
+#define CONFIG_HW_INIT
+#define CONFIG_SDRAM
+
+
+
+=================================================================================================
+-------------------------------------------------------------------------------------------------
+AT91SAM9XEEK BOOTING FROM DATAFLASH
+
+#define AT91C_SPI_CLK 			33000000			/* SPI CLOCK */
+#define AT91C_SPI_PCS_DATAFLASH		AT91C_SPI_PCS1_DATAFLASH	/* Boot on SPI NCS1 */
+
+#define IMG_ADDRESS 			0x8400				/* Image Address in DataFlash */
+#define	IMG_SIZE			0x33900				/* Image Size in DataFlash    */
+
+#define MACH_TYPE			0x44B				/* AT91SAM9XE-EK same id as AT91SAM9260-EK*/
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#undef CONFIG_DEBUG
+#define CONFIG_DATAFLASH
+#define	CONFIG_SDRAM
+#define	CONFIG_HW_INIT
+
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9XEEK BOOTING FROM FLASH
+
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9XEEK BOOTING FROM NANDFLASH
+
+#define IMG_ADDRESS			0x20000				/* Image Address in NandFlash */
+#define	IMG_SIZE			0x40000				/* Image Size in NandFlash    */
+
+#define MACH_TYPE			0x44B				/* AT91SAM9XE-EK same id as AT91SAM9260-EK*/
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#undef CONFIG_DEBUG
+#undef CONFIG_DATAFLASH
+
+#define CONFIG_NANDFLASH
+#undef	NANDFLASH_SMALL_BLOCKS	/* NANDFLASH_LARGE_BLOCKS used instead */
+
+#define CONFIG_HW_INIT
+#define CONFIG_SDRAM
+
+=================================================================================================
+=================================================================================================
+-------------------------------------------------------------------------------------------------
+AT91SAM9260EK BOOTING FROM DATAFLASH
+#define AT91C_SPI_CLK 		 	33000000			/* SPI CLOCK */
+
+#define AT91C_SPI_PCS_DATAFLASH		AT91C_SPI_PCS1_DATAFLASH	/* Boot on SPI NCS0 */
+
+#define IMG_ADDRESS 			0x8400				/* Image Address in DataFlash */
+#define	IMG_SIZE			0x33900				/* Image Size in DataFlash    */
+
+#define MACH_TYPE			0x44B				/* AT91SAM9260-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#undef CONFIG_DEBUG
+#define CONFIG_DATAFLASH
+#define	CONFIG_SDRAM
+#define	CONFIG_HW_INIT
+
+
+
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9260EK BOOTING FROM FLASH
+
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9260EK BOOTING FROM NANDFLASH
+
+#define IMG_ADDRESS			0x20000				/* Image Address in NandFlash */
+#define	IMG_SIZE			0x40000				/* Image Size in NandFlash    */
+
+#define MACH_TYPE			0x44B				/* AT91SAM9260-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#undef CONFIG_DEBUG
+#undef CONFIG_DATAFLASH
+
+#define CONFIG_NANDFLASH
+#undef	NANDFLASH_SMALL_BLOCKS	/* NANDFLASH_LARGE_BLOCKS used instead */
+
+#define CONFIG_HW_INIT
+#define CONFIG_SDRAM
+
+
+=================================================================================================
+-------------------------------------------------------------------------------------------------
+AT91SAM9261EK BOOTING FROM DATAFLASH
+
+#define AT91C_SPI_CLK			33000000			/* SPI CLOCK */
+
+#define AT91C_SPI_PCS_DATAFLASH		AT91C_SPI_PCS0_DATAFLASH	/* Boot on SPI NCS0 */
+
+#define IMG_ADDRESS			0x8400				/* Image Address in DataFlash */
+#define	IMG_SIZE			0x33900				/* Image Size in DataFlash    */
+
+#define MACH_TYPE			0x350				/* AT91SAM9261-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#undef CONFIG_DEBUG
+#define CONFIG_DATAFLASH
+#define CONFIG_HW_INIT
+#define CONFIG_SDRAM
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9261EK BOOTING FROM FLASH
+
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9261EK BOOTING FROM NANDFLASH
+
+#define IMG_ADDRESS			0x20000				/* Image Address in NandFlash */
+#define	IMG_SIZE			0x40000				/* Image Size in NandFlash    */
+
+#define MACH_TYPE			0x350				/* AT91SAM9261-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#define CONFIG_DEBUG
+#undef CONFIG_DATAFLASH
+
+#define CONFIG_NANDFLASH
+#undef	NANDFLASH_SMALL_BLOCKS	/* NANDFLASH_LARGE_BLOCKS used instead */
+
+#define CONFIG_HW_INIT
+#define CONFIG_SDRAM
+
+
+=================================================================================================
+-------------------------------------------------------------------------------------------------
+AT91SAM9263EK BOOTING FROM DATAFLASH
+
+
+#define AT91C_SPI_CLK 		 	8000000				/* SPI CLOCK */
+
+#define AT91C_SPI_PCS_DATAFLASH		AT91C_SPI_PCS0_DATAFLASH	/* Boot on SPI NCS0 */
+
+#define IMG_ADDRESS 			0x8400				/* Image Address in DataFlash */
+#define	IMG_SIZE			0x33900				/* Image Size in DataFlash    */
+
+#define MACH_TYPE       		0x4B2				/* AT91SAM9263-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#define CONFIG_HW_INIT
+#define CONFIG_SDRAM
+#undef 	CONFIG_DEBUG
+
+#define CONFIG_DATAFLASH
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9263EK BOOTING FROM FLASH
+
+-------------------------------------------------------------------------------------------------
+AT91SAM9263EK BOOTING FROM NANDFLASH
+
+#define IMG_ADDRESS			0x20000				/* Image Address in NandFlash */
+#define	IMG_SIZE			0x40000				/* Image Size in NandFlash    */
+
+#define MACH_TYPE			1202				/* AT91SAM9263-EK */
+#define JUMP_ADDR			0x23F00000			/* Final Jump Address 	      */
+
+#undef CONFIG_DEBUG
+#undef CONFIG_DATAFLASH
+
+#define CONFIG_NANDFLASH
+#undef	NANDFLASH_SMALL_BLOCKS	/* NANDFLASH_LARGE_BLOCKS used instead */
+
+#define CONFIG_HW_INIT
+#define CONFIG_SDRAM
+
+
+
+
+at91sam9260dfc_defconfig:	clean
+	echo	BOARDNAME=at91sam9260dfc	>	.config
+	echo	BOARD=at91sam9260ek		>>	.config
+	echo	PROJECT=dataflashcard		>>	.config
+	echo	CONFIG_DATAFLASH=y		>>	.config
+	echo	SPI_MODE=$(CONFIG_SPI_MODE)	>>	.config
+	echo	SPI_BOOT=SPI_BOOT_CS0		>>	.config
+	echo	SPI_CLK=$(CONFIG_SPI_CLK)	>>	.config
+
+at91sam9260ek_defconfig:	clean
+	echo	BOARDNAME=at91sam9260ek		>	.config
+	echo	BOARD=at91sam9260ek		>>	.config
+	echo	PROJECT=$(MEMORY)		>>	.config
+	echo	CONFIG_$(CFG_MEMORY)=y		>>	.config
+	echo	SPI_MODE=$(CONFIG_SPI_MODE)	>>	.config
+	echo	SPI_BOOT=SPI_BOOT_CS1		>>	.config
+	echo	SPI_CLK=$(CONFIG_SPI_CLK)	>>	.config
+
+at91sam9260pf_defconfig:	clean
+	echo	BOARDNAME=at91sam9260pf		>	.config
+	echo	BOARD=at91sam9260ek		>>	.config
+	echo	PROJECT=$(MEMORY)		>>	.config
+	echo	CONFIG_$(CFG_MEMORY)=y		>>	.config
+	echo	SPI_MODE=$(CONFIG_SPI_MODE)	>>	.config
+	echo	SPI_BOOT=SPI_BOOT_CS0		>>	.config
+	echo	SPI_CLK=$(CONFIG_SPI_CLK)	>>	.config
+
+at91sam9261ek_defconfig:	clean
+	echo	BOARDNAME=at91sam9261ek		>	.config
+	echo	BOARD=at91sam9261ek		>>	.config
+	echo	PROJECT=$(MEMORY)		>>	.config
+	echo	CONFIG_$(CFG_MEMORY)=y		>>	.config
+	echo	SPI_MODE=$(CONFIG_SPI_MODE)	>>	.config
+	echo	SPI_BOOT=SPI_BOOT_CS0		>>	.config
+	echo	SPI_CLK=$(CONFIG_SPI_CLK)	>>	.config
+
+at91sam9263ek_defconfig:	clean
+	echo	BOARDNAME=at91sam9263ek		>	.config
+	echo	BOARD=at91sam9263ek		>>	.config
+	echo	PROJECT=$(MEMORY)		>>	.config
+	echo	CONFIG_$(CFG_MEMORY)=y		>>	.config
+	echo	SPI_MODE=$(CONFIG_SPI_MODE)	>>	.config
+	echo	SPI_BOOT=SPI_BOOT_CS0		>>	.config
+	echo	SPI_CLK=$(CONFIG_SPI_CLK)	>>	.config
+
+
