@@ -286,7 +286,10 @@ void nandflash_hw_init(void)
         {"NANDALE", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDCLE", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDCS", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_OUTPUT},
-        {"RDY_BSY", AT91C_PIN_PD(5), 0, PIO_PULLUP, PIO_INPUT},
+        {"RDY_BSY", AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_INPUT}, //REVISIT
+#if 0
+		//Dedicated Pins?
+
         {"NANDD0", AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDD1", AT91C_PIN_PD(7), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDD2", AT91C_PIN_PD(8), 0, PIO_PULLUP, PIO_PERIPH_A},
@@ -295,6 +298,7 @@ void nandflash_hw_init(void)
         {"NANDD5", AT91C_PIN_PD(11), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDD6", AT91C_PIN_PD(12), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDD7", AT91C_PIN_PD(13), 0, PIO_PULLUP, PIO_PERIPH_A},
+#endif
         {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
     };
 
@@ -302,7 +306,7 @@ void nandflash_hw_init(void)
      * Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface 
      */
 #if 1
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM | AT91C_EBI_NFD0_ON_D16 | AT91C_EBI_DDR_MP_EN,
+    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM | AT91C_EBI_DDR_MP_EN,
            AT91C_BASE_CCFG + CCFG_EBICSA);
 #endif
 
