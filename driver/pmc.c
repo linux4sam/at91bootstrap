@@ -46,12 +46,56 @@ static inline unsigned int read_pmc(unsigned int offset)
     return readl(offset + AT91C_BASE_PMC);
 }
 
+void lowlevel_clock_init_good()
+{
+	volatile unsigned int read;
+
+	read = read_pmc(PMC_MCKR);
+	read &= ~7;
+	read |= AT91C_PMC_CSS_MAIN_CLK;
+	write_pmc(PMC_MCKR, read);
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+
+	write_pmc(PMC_MOR, (0x37 << 16) | AT91C_CKGR_MOSCXTEN | (0x40 << 8) | (1 << 24) | AT91C_CKGR_MOSCRCEN);
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
+		;
+
+	write_pmc(PMC_PLLAR, 0);
+	write_pmc(PMC_PLLAR, PLLA_SETTINGS);
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_LOCKA))
+		;
+
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+
+	read = read_pmc(PMC_MCKR);
+	read &= ~AT91C_PMC_MDIV;
+	read |= ((3 << 8) | AT91C_PMC_PLLADIV2_2);
+	write_pmc(PMC_MCKR, read);
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+
+	read = read_pmc(PMC_MCKR);
+	read &= ~AT91C_PMC_PRES;
+	write_pmc(PMC_MCKR, read);
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+
+	read = read_pmc(PMC_MCKR);
+	read &= ~7;
+	read |= AT91C_PMC_CSS_PLLA_CLK;
+	write_pmc(PMC_MCKR, read);
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+}
+
 void lowlevel_clock_init()
 {
 #if defined(CONFIG_AT91SAM9X5EK)
 	if (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS)) {
 		/* Enable 12MHz Main Oscillator */
-		write_pmc(PMC_MOR, (0x37 << 16) | AT91C_CKGR_MOSCXTEN | (0x40 << 8));
+		write_pmc(PMC_MOR, (0x37 << 16) | AT91C_CKGR_MOSCXTEN | (0x40 << 8) | (1 << 24));
 
 		/* Wait until 12MHz Main Oscillator is stable */
 		while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
@@ -89,6 +133,15 @@ void lowlevel_clock_init()
 //*----------------------------------------------------------------------------*/
 int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout)
 {
+#if 1
+	volatile unsigned int i = 1000;
+	i = read_pmc(PMC_MCKR);
+	i &= 0xFFFFFFFC;
+	write_pmc(PMC_MCKR, i);
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+#endif
+
     write_pmc((unsigned int)PMC_PLLAR, pmc_pllar);
 
     while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKA)) ;
@@ -122,7 +175,8 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 {
     write_pmc(PMC_MCKR, pmc_mckr);
 
-    while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+    //while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+    while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
     return (timeout) ? 0 : (-1);
 }
 

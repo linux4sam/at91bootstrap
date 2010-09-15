@@ -41,7 +41,7 @@
 /* PLL initialization is done later in the hw_init() function                    */
 /* ***************************************************************************** */
 #define MASTER_CLOCK		(132096000)
-#define PLL_LOCK_TIMEOUT	1000000
+#define PLL_LOCK_TIMEOUT	10000
 
 #define BOARD_MAINOSC               12000000
 #define BOARD_MCK                   ((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200 ))   // 133MHz
@@ -91,7 +91,7 @@
 #define NAND_DISABLE_CE() do { *(volatile unsigned int *)AT91C_PIOD_SODR = AT91C_PIO_PD4;} while(0)
 #define NAND_ENABLE_CE() do { *(volatile unsigned int *)AT91C_PIOD_CODR = AT91C_PIO_PD4;} while(0)
 
-#define NAND_WAIT_READY() while (!(*(volatile unsigned int *)AT91C_PIOD_PDSR & AT91C_PIO_PD5))
+#define NAND_WAIT_READY() while (!(*(volatile unsigned int *)AT91C_PIOD_PDSR & AT91C_PIO_PD6))
 
 /* ******************************************************************** */
 /* SMC Chip Select 3 Timings for NandFlash for MASTER_CLOCK = 133000000 */

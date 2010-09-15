@@ -75,12 +75,13 @@ void hw_init(void)
      */
     const struct pio_desc hw_pio[] = {
 #ifdef CONFIG_DEBUG
-        {"RXD", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"TXD", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+        {"RXD", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+        {"TXD", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
 #endif
         {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
     };
 
+#if 1
     /*
      * Disable watchdog 
      */
@@ -111,6 +112,7 @@ void hw_init(void)
      * Configure PLLB 
      */
     //pmc_cfg_pllutmi(PLLUTMI_SETTINGS, PLL_LOCK_TIMEOUT);
+#endif
 
     /*
      * Enable External Reset 
@@ -122,12 +124,13 @@ void hw_init(void)
      * Configure CP15 
      */
     cp15 = get_cp15();
-    //cp15 |= I_CACHE;
+    cp15 |= I_CACHE;
     set_cp15(cp15);
 
     /*
      * Configure the PIO controller 
      */
+	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
     pio_setup(hw_pio);
 
 #ifdef CONFIG_DEBUG
@@ -287,33 +290,19 @@ void nandflash_hw_init(void)
         {"NANDCLE", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDCS", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_OUTPUT},
         {"RDY_BSY", AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_INPUT}, //REVISIT
-#if 0
-		//Dedicated Pins?
-
-        {"NANDD0", AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_PERIPH_A},
-        {"NANDD1", AT91C_PIN_PD(7), 0, PIO_PULLUP, PIO_PERIPH_A},
-        {"NANDD2", AT91C_PIN_PD(8), 0, PIO_PULLUP, PIO_PERIPH_A},
-        {"NANDD3", AT91C_PIN_PD(9), 0, PIO_PULLUP, PIO_PERIPH_A},
-        {"NANDD4", AT91C_PIN_PD(10), 0, PIO_PULLUP, PIO_PERIPH_A},
-        {"NANDD5", AT91C_PIN_PD(11), 0, PIO_PULLUP, PIO_PERIPH_A},
-        {"NANDD6", AT91C_PIN_PD(12), 0, PIO_PULLUP, PIO_PERIPH_A},
-        {"NANDD7", AT91C_PIN_PD(13), 0, PIO_PULLUP, PIO_PERIPH_A},
-#endif
         {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
     };
 
     /*
      * Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface 
      */
-#if 1
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM | AT91C_EBI_DDR_MP_EN,
+    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM)  & ~AT91C_EBI_NFD0_ON_D16,
            AT91C_BASE_CCFG + CCFG_EBICSA);
-#endif
 
     /*
      * EBI IO in 1.8V mode 
      */
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~(1 << 16),
+    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~(3 << 16),
            AT91C_BASE_CCFG + CCFG_EBICSA);
 
     /*

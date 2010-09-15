@@ -199,6 +199,15 @@ static void AT91F_NandInit(PSNandInfo pNandInfo, PSNandInitInfo pNandInitInfo)
     }
 }
 
+static void reset_nandflash(void)
+{
+	NAND_ENABLE_CE();
+	WRITE_NAND_COMMAND(0xFF);
+	NAND_WAIT_READY();
+	NAND_WAIT_READY();
+	NAND_DISABLE_CE();
+}
+
 static PSNandInitInfo AT91F_NandReadID(void)
 {
     unsigned int uChipID;
@@ -623,6 +632,7 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
         dataLeft;
 
     nandflash_hw_init();
+	reset_nandflash();
 
     /*
      * Read Nand Chip ID 
@@ -631,7 +641,7 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
 
     if (!pNandInitInfo) {
         dbg_log(DEBUG_INFO, "\n\r-E- No NandFlash detected !!!\n\r");
-        return -1;
+        //return -1;
     }
 	dbg_log(1, "Copy %d bytes from %d to %d\r\n", len, offset, dst);
 
@@ -681,6 +691,8 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
 		}
 
 		dbg_log(1, "\n\r\n\r------ Done ------\r\n");
+		while (1)
+			;
 	}
 
     /*
