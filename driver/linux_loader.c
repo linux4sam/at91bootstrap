@@ -343,6 +343,7 @@ void LoadLinux()
                    (int)IMG_SIZE);
 #endif
 #ifdef CONFIG_SDCARD
+	dbg_log(1, "=== Loadlinux::load_SDCard\n\r");
     load_SDCard();
 #endif
 

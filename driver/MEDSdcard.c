@@ -456,35 +456,37 @@ unsigned char MEDSdcard_Initialize(Media * media, unsigned char mciID)
 #endif
     // Initialize the MCI driver
     if (mciID == 0) {
-//        IRQ_ConfigureIT(BOARD_SD_MCI_ID,  1, MCI0_IrqHandler);
+        //IRQ_ConfigureIT(BOARD_SD_MCI_ID,  1, MCI0_IrqHandler);
         (*(unsigned int *)(AT91C_BASE_AIC + AIC_IDCR)) = 1 << BOARD_SD_MCI_ID;
         MCI_Init(mciDrv, BOARD_SD_MCI_BASE, BOARD_SD_MCI_ID, BOARD_SD_SLOT,
                  MCI_POLLING_MODE);
-//        IRQ_EnableIT(BOARD_SD_MCI_ID);
+		dbg_log(1, "<-- MCI_Init 0 ...\n\r");
+        //IRQ_EnableIT(BOARD_SD_MCI_ID);
     } else {
-//              dbg_print("pos2.2\r\n");
+		dbg_log(1, "Before MCI_Init 1 ...\n\r");
+        //dbg_print("pos2.2\r\n");
 #ifdef BOARD_SD_MCI1_ID
-//        IRQ_ConfigureIT(BOARD_SD_MCI1_ID,  1, MCI0_IrqHandler);
+        //IRQ_ConfigureIT(BOARD_SD_MCI1_ID,  1, MCI0_IrqHandler);
         MCI_Init(mciDrv, BOARD_SD_MCI1_BASE, BOARD_SD_MCI1_ID,
                  BOARD_SD_MCI1_SLOT, MCI_POLLING_MODE);
-//        IRQ_EnableIT(BOARD_SD_MCI1_ID);
+        //IRQ_EnableIT(BOARD_SD_MCI1_ID);
 #else
 
 #endif
     }
-//      dbg_print("pos2.3\r\n");
+
 #if MCI_BUSY_CHECK_FIX && defined(BOARD_SD_DAT0)
     MCI_SetBusyFix(mciDrv, &pinSdDAT0);
 #endif
 
     // Initialize the SD card driver
     if (SD_Init(sdDrv, (SdDriver *) mciDrv)) {
-
+		dbg_log(1, "*** SD_Init: failed\n\r");
         return 0;
     } else {
-
-        //SD_DisplayRegisterCSD(&sdDrv);
-
+		dbg_log(1, "=== SD_Init: OK\n\r");
+        SD_DisplayRegisterCSD(&sdDrv);
+		SD_DisplayRegisterCID(&sdDrv);
     }
 
     MCI_SetSpeed(mciDrv, sdDrv->transSpeed, sdDrv->transSpeed, BOARD_MCK);
@@ -566,7 +568,7 @@ unsigned char MEDSdusb_Initialize(Media * media, unsigned char mciID)
 
     // Initialize the SD card driver
     if (SD_Init(sdDrv, (SdDriver *) mciDrv)) {
-
+		dbg_log(1, "*** SD_Init 1#: failed\n\r");
         return 0;
     } else {
 
@@ -673,22 +675,32 @@ unsigned int load_SDCard()
     DWORD dwAddress;
 
     unsigned int ByteRead = 0;
+	unsigned char *ret;
 
-    MEDSdcard_Initialize(&medias[0], BOARD_SD_MCI_ID_USE);
+	dbg_log(1, "=== MEDSdcard_Initialize\n\r");
+    ret = MEDSdcard_Initialize(&medias[0], BOARD_SD_MCI_ID_USE);
+	dbg_log(1, "=== MEDSdcard_Initialize: %d\n\r", ret);
 
     memset(&fs, 0, sizeof (FATFS));     // Clear file system object    
 
+	dbg_log(1, "-->fmount\n\r");
     res = f_mount(0, &fs);
+	dbg_log(1, "<--fmount\n\r");
     if (res != FR_OK) {
-
+		dbg_log(1, "*** f_mount: error!\n\r");
         return 0;
     }
 
-    res = f_open(&fileObject, OS_IMAGE_NAME, FA_OPEN_EXISTING | FA_READ);
+    //res = f_open(&fileObject, OS_IMAGE_NAME, FA_OPEN_EXISTING | FA_READ);
+	dbg_log(1, "-->fopen\n\r");
+    res = f_open(&fileObject, "boot.bin", FA_OPEN_EXISTING | FA_READ);
+	dbg_log(1, "<--fopen\n\r");
 
     if (res != FR_OK) {
+		dbg_log(1, "failed to open file\n\r");
         return 0;
     }
+	dbg_log(1, "OK to open file\n\r");
 
     dwAddress = JUMP_ADDR;
 

@@ -7224,6 +7224,7 @@
 #define AT91C_ID_TSADC            (19) // Touch Screen Controller
 #define AT91C_ID_HDMA0            (20) // DMA Controller 0
 #define AT91C_ID_HDMA1            (21) // DMA Controller 1
+#define AT91C_ID_HDMA             (20) // DMA Controller 0
 #define AT91C_ID_UHPHS            (22) // USB Host High Speed
 #define AT91C_ID_UDPHS            (23) // USB Device HS
 #define AT91C_ID_EMAC0            (24) // Ethernet MAC 0
@@ -7345,6 +7346,17 @@
 #define AT91C_BASE_HDMA1_CH_6     (0xFFFFEF2C) // (HDMA1_CH_6) Base Address
 #define AT91C_BASE_HDMA1_CH_7     (0xFFFFEF54) // (HDMA1_CH_7) Base Address
 #define AT91C_BASE_HDMA1          (0xFFFFEE00) // (HDMA1) Base Address
+
+#define AT91C_BASE_HDMA_CH_0     (0xFFFFEC3C) // (HDMA_CH_0) Base Address
+#define AT91C_BASE_HDMA_CH_1     (0xFFFFEC64) // (HDMA_CH_1) Base Address
+#define AT91C_BASE_HDMA_CH_2     (0xFFFFEC8C) // (HDMA_CH_2) Base Address
+#define AT91C_BASE_HDMA_CH_3     (0xFFFFECB4) // (HDMA_CH_3) Base Address
+#define AT91C_BASE_HDMA_CH_4     (0xFFFFECDC) // (HDMA_CH_4) Base Address
+#define AT91C_BASE_HDMA_CH_5     (0xFFFFED04) // (HDMA_CH_5) Base Address
+#define AT91C_BASE_HDMA_CH_6     (0xFFFFED2C) // (HDMA_CH_6) Base Address
+#define AT91C_BASE_HDMA_CH_7     (0xFFFFED54) // (HDMA_CH_7) Base Address
+#define AT91C_BASE_HDMA          (0xFFFFEC00) // (HDMA) Base Address
+
 #define AT91C_BASE_BCH_ECC_0      (0xFFFFE040) // (BCH_ECC_0) Base Address
 #define AT91C_BASE_BCH_ECC_1      (0xFFFFE080) // (BCH_ECC_1) Base Address
 #define AT91C_BASE_BCH_ECC_2      (0xFFFFE0C0) // (BCH_ECC_2) Base Address
@@ -7409,4 +7421,18 @@
 #define AT91C_EBI_CS5	            (0x60000000) // EBI Chip Select 5 base address
 #define AT91C_EBI_CS5_SIZE	       (0x10000000) // EBI Chip Select 5 size in byte (262144 Kbytes)
 
+#define MCI2_INTERFACE
 
+#define CHIP_DMA_CHANNEL_NUM   8
+
+#define BOARD_SD_DMA_HW_SRC_REQ_ID      0
+#define BOARD_SD_DMA_HW_DEST_REQ_ID     (0x0 <<  4)
+
+#define BOARD_MCI_DMA_CHANNEL       0
+
+#define BOARD_SD_MCI_BASE AT91C_BASE_MCI0
+#define BOARD_SD_MCI_ID             AT91C_ID_MCI0
+#define BOARD_SD_SLOT               MCI_SD_SLOTA
+#define BOARD_SD_MCI_ID_USE			0
+
+#define CHIP_SRAM0_BASEADDR 0x300000

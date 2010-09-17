@@ -686,6 +686,7 @@ unsigned char MCI_SendCommand(Mci * pMci, MciCmd * pCommand)
         perChunkSize = 1;
         //if ((pCommand->blockSize % 16) == 0) perChunkSize = 4;
         mciDma = READ_MCI(pMciHw, MCI_DMA) | AT91C_MCI_DMAEN_ENABLE;
+		mciDma &=  ~AT91C_MCI_CHKSIZE;   // for chunkSize == 1
         WRITE_MCI(pMciHw, MCI_DMA, mciDma);
 #endif
 
@@ -844,19 +845,21 @@ void MCI_Handler(Mci * pMci)
 
     unsigned char i;
 
+
     // Read the status register
     status0 = READ_MCI(pMciHw, MCI_SR);
     mask = READ_MCI(pMciHw, MCI_IMR);
     //TRACE_INFO("iST %x\n\r", status);
     status = status0 & mask;
     //TRACE_INFO("iSM %x\n\r", status);
+	dbg_log(1, "\n\r-->MCI_Handler, status0: %d, mask: %d\n\r");
 
     // Check if an error has occured
     if ((status & STATUS_ERRORS) != 0) {
-
+		dbg_log(1, "status error?\n\r");
         // Check error code
         if ((status & STATUS_ERRORS) == AT91C_MCI_RTOE) {
-
+			dbg_log(1, "status no response!!\n\r");
             pCommand->status = MCI_STATUS_NORESPONSE;
         }
         // if the command is SEND_OP_COND the CRC error flag is always present
@@ -864,16 +867,17 @@ void MCI_Handler(Mci * pMci)
         else if (((status & STATUS_ERRORS) != AT91C_MCI_RCRCE)
                  || ((pCommand->cmd != SDCARD_APP_OP_COND_CMD)
                      && (pCommand->cmd != MMC_SEND_OP_COND_CMD))) {
-
+			dbg_log(1, "status error!!\n\r");
             pCommand->status = MCI_STATUS_ERROR;
         }
         // printf("iErr%x\n\r", (status & STATUS_ERRORS));
     }
     mask &= ~STATUS_ERRORS;
 
+	//dbg_log(1, "status: %d, mask: %d, masked_status: %d\n\r", status0, mask, status);
     // Check if a command has been completed
     if (status & AT91C_MCI_CMDRDY) {
-
+		dbg_log(1, "== AT91C_MCI_CMDRDY\n\r");
         WRITE_MCI(pMciHw, MCI_IDR, AT91C_MCI_CMDRDY);
         if (pCommand->isRead == 0 && pCommand->tranType == MCI_STOP_TRANSFER) {
             if (status0 & AT91C_MCI_XFRDONE) {
@@ -890,6 +894,7 @@ void MCI_Handler(Mci * pMci)
     }
     // Check if transfer stopped
     if (status & AT91C_MCI_XFRDONE) {
+		dbg_log(1, "AT91C_MCI_XFRDONE\r\n");
         mask &= ~AT91C_MCI_XFRDONE;
         MCI_DISABLE(pMciHw);
     }
@@ -897,6 +902,7 @@ void MCI_Handler(Mci * pMci)
 
     // Check FIFOEMPTY
     if (status & AT91C_MCI_FIFOEMPTY) {
+		dbg_log(1, "AT91C_MCI_FIFOEMPTY\r\n");
         mask &= ~AT91C_MCI_FIFOEMPTY;
         MCI_DISABLE(pMciHw);
     }
@@ -904,6 +910,8 @@ void MCI_Handler(Mci * pMci)
     if (status & AT91C_MCI_DMADONE) {
 
         unsigned int intFlag;
+		
+		dbg_log(1, "AT91C_MCI_DMADONE\n\r");
 
         intFlag = DMA_GetInterruptMask();
         intFlag = ~intFlag;
@@ -920,9 +928,12 @@ void MCI_Handler(Mci * pMci)
     }
 #endif
 
+	//dbg_log(1, "mask: %d, status: %d\n\r", mask, pCommand->status);
+
     // All non-error mask done, complete the command
     if (!mask || pCommand->status != MCI_STATUS_PENDING) {
 
+		dbg_log(1, "All non-error mask done, complete the command\n\r");
         // Store the card response in the provided buffer
         if (pCommand->pResp) {
             unsigned char resSize;
@@ -967,7 +978,9 @@ void MCI_Handler(Mci * pMci)
         if (pCommand->callback) {
             (pCommand->callback) (pCommand->status, (void *)pCommand);
         }
-    }
+    } else {
+		dbg_log(1, "status: %d, mask: %d, cmd->status: %d\n\r", status0, mask, pCommand->status);
+	}
 }
 
 //------------------------------------------------------------------------------

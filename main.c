@@ -72,6 +72,7 @@ int main(void)
     user_hw_init();
 #endif
 
+	dbg_log(1, "Begin to load image...\n\r");
     /*
      * ==================== 2nd step: Load from media ==================== 
      *

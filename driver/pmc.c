@@ -46,6 +46,7 @@ static inline unsigned int read_pmc(unsigned int offset)
     return readl(offset + AT91C_BASE_PMC);
 }
 
+#if 0
 void lowlevel_clock_init_good()
 {
 	volatile unsigned int read;
@@ -89,6 +90,7 @@ void lowlevel_clock_init_good()
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 }
+#endif
 
 void lowlevel_clock_init()
 {
