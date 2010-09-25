@@ -18,4 +18,6 @@ result
 binaries
 *~
 *.orig
-
+*.o
+tags
+*.swp
