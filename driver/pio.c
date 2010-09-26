@@ -71,7 +71,7 @@ static void PIO_SetPeripheralA(unsigned int pio,
     (*(volatile unsigned int *)(pio + PIO_ASR(0))) = mask;
 #elif defined(CONFIG_HAS_PIO3)
 	{
-		unsigned long data;
+		unsigned int data;
 		
 		data = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
 		*(volatile unsigned int *)(pio + PIO_SP1(0)) = data & ~mask;

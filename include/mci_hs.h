@@ -83,6 +83,7 @@
 #define MCI_MMC_SLOTA           (AT91C_MCI_SCDSEL_SLOTA | AT91C_MCI_SCDBUS_1BIT)
 /// MCI configuration with 4-bit data bus on slot A (for SD cards).
 #define MCI_SD_SLOTA            (AT91C_MCI_SCDSEL_SLOTA | AT91C_MCI_SCDBUS_4BITS)
+
 #ifdef AT91C_MCI_SCDBUS_8BITS
 /// MCI configuration with 1-bit data bus on slot A (for MMC cards).
 #define MCI_MMC4_SLOTA          (AT91C_MCI_SCDSEL_SLOTA | AT91C_MCI_SCDBUS_8BITS)

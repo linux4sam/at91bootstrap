@@ -449,6 +449,7 @@ unsigned char MEDSdcard_Initialize(Media * media, unsigned char mciID)
 /*    if (!CardIsConnected(mciID)) return 0;
 */
     // Configure SDcard pins
+
     ConfigurePIO(mciID);
 
 #if defined(MCI2_INTERFACE) && defined(MCI_DMA_ENABLE)
@@ -460,10 +461,8 @@ unsigned char MEDSdcard_Initialize(Media * media, unsigned char mciID)
         (*(unsigned int *)(AT91C_BASE_AIC + AIC_IDCR)) = 1 << BOARD_SD_MCI_ID;
         MCI_Init(mciDrv, BOARD_SD_MCI_BASE, BOARD_SD_MCI_ID, BOARD_SD_SLOT,
                  MCI_POLLING_MODE);
-		dbg_log(1, "<-- MCI_Init 0 ...\n\r");
         //IRQ_EnableIT(BOARD_SD_MCI_ID);
     } else {
-		dbg_log(1, "Before MCI_Init 1 ...\n\r");
         //dbg_print("pos2.2\r\n");
 #ifdef BOARD_SD_MCI1_ID
         //IRQ_ConfigureIT(BOARD_SD_MCI1_ID,  1, MCI0_IrqHandler);
@@ -482,9 +481,10 @@ unsigned char MEDSdcard_Initialize(Media * media, unsigned char mciID)
     // Initialize the SD card driver
     if (SD_Init(sdDrv, (SdDriver *) mciDrv)) {
 		dbg_log(1, "*** SD_Init: failed\n\r");
+		while (1)
+			;
         return 0;
     } else {
-		dbg_log(1, "=== SD_Init: OK\n\r");
         SD_DisplayRegisterCSD(&sdDrv);
 		SD_DisplayRegisterCID(&sdDrv);
     }
@@ -569,7 +569,8 @@ unsigned char MEDSdusb_Initialize(Media * media, unsigned char mciID)
     // Initialize the SD card driver
     if (SD_Init(sdDrv, (SdDriver *) mciDrv)) {
 		dbg_log(1, "*** SD_Init 1#: failed\n\r");
-        return 0;
+        while (1)
+			;
     } else {
 
     }
@@ -677,30 +678,24 @@ unsigned int load_SDCard()
     unsigned int ByteRead = 0;
 	unsigned char *ret;
 
-	dbg_log(1, "=== MEDSdcard_Initialize\n\r");
     ret = MEDSdcard_Initialize(&medias[0], BOARD_SD_MCI_ID_USE);
-	dbg_log(1, "=== MEDSdcard_Initialize: %d\n\r", ret);
 
     memset(&fs, 0, sizeof (FATFS));     // Clear file system object    
 
-	dbg_log(1, "-->fmount\n\r");
     res = f_mount(0, &fs);
-	dbg_log(1, "<--fmount\n\r");
     if (res != FR_OK) {
 		dbg_log(1, "*** f_mount: error!\n\r");
-        return 0;
+		while (1)
+			;
     }
 
-    //res = f_open(&fileObject, OS_IMAGE_NAME, FA_OPEN_EXISTING | FA_READ);
-	dbg_log(1, "-->fopen\n\r");
-    res = f_open(&fileObject, "boot.bin", FA_OPEN_EXISTING | FA_READ);
-	dbg_log(1, "<--fopen\n\r");
+    res = f_open(&fileObject, OS_IMAGE_NAME, FA_OPEN_EXISTING | FA_READ);
 
     if (res != FR_OK) {
-		dbg_log(1, "failed to open file\n\r");
-        return 0;
+		dbg_log(1, "*** f_open, File name: [%s]: error!\n\r", OS_IMAGE_NAME);
+		while (1)
+			;
     }
-	dbg_log(1, "OK to open file\n\r");
 
     dwAddress = JUMP_ADDR;
 
@@ -708,12 +703,12 @@ unsigned int load_SDCard()
         ByteRead = 0;
         res = f_read(&fileObject, (void *)(dwAddress), SIZE_EBOOT, &ByteRead);
         dwAddress += SIZE_EBOOT;
-//              dbg_log(BOOTSTRAP_DEBUG_LEVEL,"%x, %x\r\n", dwAddress, ByteRead);
     } while (ByteRead >= SIZE_EBOOT);
 
     if (res != FR_OK) {
-
-        return 0;
+		dbg_log(1, "*** f_read: error!\n\r");
+		while (1)
+			;
     }
 #if !defined(at91sam9g10)
 
@@ -726,7 +721,7 @@ unsigned int load_SDCard()
 
     StopReading((SdCard *) medias[0].interface);
 
-//      Configure_System_Paramters();
+	//Configure_System_Paramters();
 
     return 1;
 }

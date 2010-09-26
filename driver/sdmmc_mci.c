@@ -653,7 +653,7 @@ void Delay(volatile unsigned int loop)
 static unsigned char SendCommand(SdCard * pSd)
 {
     SdCmd *pCommand = &(pSd->command);
-	unsigned int count = 100000;
+	unsigned int count = 1000000;
 
     SdDriver *pSdDriver = pSd->pSdDriver;
 
@@ -667,7 +667,9 @@ static unsigned char SendCommand(SdCard * pSd)
     }
     // Wait for command to complete (if no callback defined)
     if (pCommand->callback == 0) {
-        while (!MCI_IsTxComplete((Mci *) pSdDriver) && --count)
+        //while (!MCI_IsTxComplete((Mci *) pSdDriver) && --count)
+		//	;
+        while (!MCI_IsTxComplete((Mci *) pSdDriver))
 			;
     }
     // Check for using fifo to transfer data
@@ -850,7 +852,6 @@ static unsigned char Cmd3(SdCard * pSd)
     // Send command
     error = SendCommand(pSd);
     if (error) {
-		dbg_log(1, "*** Cmd3 error!\n\r");
         return error;
     }
     // Save card address in driver
@@ -860,8 +861,6 @@ static unsigned char Cmd3(SdCard * pSd)
         // Default MMC RCA is 0x0001
         pSd->cardAddress = 1;
     }
-
-	dbg_log(1, "=== Card address: %d\n\r", pSd->cardAddress);
 
     return 0;
 }
@@ -1354,11 +1353,10 @@ static unsigned char Acmd13(SdCard * pSd, unsigned int *pSdSTAT)
 
     unsigned int response[1];
 
-	dbg_log(1, "-->Cmd55\n\r");
     error = Cmd55(pSd);
-	dbg_log(1, "<--Cmd55\n\r");
     if (error) {
 
+		dbg_log(1, "Cmd55: failed!\n\r");
         return error;
     }
 
@@ -1377,9 +1375,7 @@ static unsigned char Acmd13(SdCard * pSd, unsigned int *pSdSTAT)
     pCommand->tranType = MCI_NEW_TRANSFER;
 
     // Send command
-	dbg_log(1, "-->SendCommand\n\r");
     error = SendCommand(pSd);
-	dbg_log(1, "<--SendCommand\n\r");
 
     return error;
 }
@@ -1915,15 +1911,12 @@ static unsigned char MmcSelectCard(SdCard * pSd, unsigned short address)
 
     // At this stage the Initialization and identification process is achieved
     // The SD card is supposed to be in Stand-by State
-	dbg_log(1, "--> MmcSelectCard\n\r");
     while (1) {
         error = Cmd13(pSd, &status);
         if (error) {
 
             return error;
         }
-
-		dbg_log(1, "status: %x\n\r", status);
 
         if ((status & STATUS_READY_FOR_DATA)) {
             unsigned int currState = status & STATUS_STATE;
@@ -1938,14 +1931,12 @@ static unsigned char MmcSelectCard(SdCard * pSd, unsigned short address)
         }
     }
 
-	dbg_log(1, "<-- MmcSelectCard\n\r");
     // witch to TRAN mode to Select the current SD/MMC
     // so that SD ACMD6 can process or EXT_CSD can read.
     error = Cmd7(pSd, address);
     if (error == SD_ERROR_NOT_INITIALIZED && address == 0) {
     } else if (error) {
-
-    }
+	}
 
     return error;
 }
@@ -1963,11 +1954,8 @@ static unsigned char MmcGetExtInformation(SdCard * pSd)
 
     // MMC 4.0 Higher version
     if (SD_CSD_STRUCTURE(pSd) >= 2) {
-		dbg_log(1, "---> Cmd8\n\r");
         error = Cmd8(pSd, 0, pSd->extData);
-		dbg_log(1, "<--- Cmd8\n\r");
         if (error) {
-
         }
     }
     return 0;
@@ -1986,20 +1974,15 @@ static unsigned char SdGetExtInformation(SdCard * pSd)
 
     // SD Status
     if (pSd->optCmdBitMap & SD_ACMD13_SUPPORT) {
-		dbg_log(1, "---> Acmd13\n\r");
         error = Acmd13(pSd, &pSd->extData[SD_EXT_OFFSET_SD_STAT]);
-		dbg_log(1, "<--- Acmd13\n\r");
         if (error) {
 
             pSd->optCmdBitMap &= ~SD_ACMD13_SUPPORT;
         }
     }
     // SD SCR
-	dbg_log(1, "---> Acmd51\n\r");
     error = Acmd51(pSd, &pSd->extData[SD_EXT_OFFSET_SD_SCR]);
-	dbg_log(1, "<--- Acmd51\n\r");
     if (error) {
-
     }
 
     return 0;
@@ -2018,34 +2001,24 @@ static unsigned char SdMmcUpdateInformation(SdCard * pSd,
 {
     unsigned char error;
 
-	dbg_log(1, "== %s\n\r", __FUNCTION__);
     // Update CSD for new TRAN_SPEED value
     if (csd) {
-		dbg_log(1, "111\n\r");
         MmcSelectCard(pSd, 0);
-		dbg_log(1, "222\n\r");
         Delay(800);
         error = Cmd9(pSd);
         if (error) {
 
             return error;
         }
-		dbg_log(1, "333\n\r");
         error = MmcSelectCard(pSd, pSd->cardAddress);
-		dbg_log(1, "444\n\r");
     }
     if (pSd->cardType >= CARD_MMC) {
-		dbg_log(1, "555555\n\r");
         MmcGetExtInformation(pSd);
-		dbg_log(1, "555\n\r");
 	}
     else if (pSd->cardType >= CARD_SD) {
-		dbg_log(1, "666666\n\r");
         SdGetExtInformation(pSd);
-		dbg_log(1, "666\n\r");
 	}
 
-	dbg_log(1, "777\n\r");
     GetTransSpeedValue(pSd);
 
     return 0;
@@ -2239,7 +2212,6 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
 		dbg_log(1, "*** SwReset: failed\n\r");
         return error;
     }
-	dbg_log(1, "<-- SwReset: OK\n\r");
     // CMD8 is newly added in the Physical Layer Specification Version 2.00 to
     // support multiple voltage ranges and used to check whether the card
     // supports supplied voltage. The version 2.00 host shall issue CMD8 and
@@ -2251,14 +2223,10 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
     }
     while ((error == SD_ERROR_NORESPONSE) && (cmd8Retries-- > 0));
 
-	dbg_log(1, "<-- Cmd8 \n\r");
-
     if (error == SD_ERROR_NORESPONSE) {
         // No response : Ver2.00 or later SD Memory Card(voltage mismatch)
         // or Ver1.X SD Memory Card
         // or not SD Memory Card
-
-		dbg_log(1, "Ver2.00 or later SD Memory Card(voltage mismatch)\n\r");
 
         Delay(800);
 
@@ -2303,11 +2271,8 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
     } else if (!error) {
 
         // Valid response : Ver2.00 or later SD Memory Card
-		dbg_log(1, "Valid response : Ver2.00 or later SD Memory Card\n\r");
         error = Acmd41(pSd, 1, &isCCSet);
         if (error) {
-
-			dbg_log(1, "*** Cmd41: failed\n\r");
             return error;
         }
         if (isCCSet) {
@@ -2317,11 +2282,7 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
 
             pSd->cardType = CARD_SD;
         }
-		dbg_log(1, "card type: %d\n\r", pSd->cardType);
     } else {
-		dbg_log(1, "*** XXX\n\r");
-		for (;;)
-			;
         return error;
     }
 
@@ -2334,7 +2295,6 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
 		dbg_log(1, "*** Cmd2: failed\n\r");
         return error;
     }
-	dbg_log(1, "<=== Cmd2 \n\r");
     // Thereafter, the host issues CMD3 (SEND_RELATIVE_ADDR) asks the
     // card to publish a new relative card address (RCA), which is shorter than
     // CID and which is used to address the card in the future data transfer
@@ -2347,7 +2307,6 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
 		dbg_log(1, "*** Cmd3: failed\n\r");
         return error;
     }
-	dbg_log(1, "<=== Cmd3\n\r");
     // SEND_CSD (CMD9) to obtain the Card Specific Data (CSD register),
     // e.g. block length, card storage capacity, etc...
     error = Cmd9(pSd);
@@ -2355,13 +2314,7 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
 		dbg_log(1, "*** Cmd9: failed\n\r");
         return error;
     }
-	dbg_log(1, "<=== Cmd9: inprogress\n\r");
-	{
-		unsigned char *p = (unsigned char *)pSd->csd;
-		int i;
-		for (i = 0; i < 16; i++)
-			dbg_log(1, "%d:\n\r", p[i]);
-	}
+
 	SD_DisplayRegisterCSD(pSd);
 	SD_DisplayRegisterCID(pSd);
 
@@ -2371,18 +2324,15 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
 		dbg_log(1, "*** MmcSelectCard: failed\n\r");
         return error;
     }
-	dbg_log(1, "<=== MmcSelectCard \n\r");
+
     // Now in TRAN, reset bus width to 1bit and obtain setup information
     MCI_SetBusWidth((Mci *) pSd->pSdDriver, MCI_SDCBUS_1BIT);
-	dbg_log(1, "<=== MCI_SetBusWidth \n\r");
 
     // If the card support EXT_CSD, read it!
 
 #if !(defined(CONFIG_AT91SAM9G10EK))
     // Get extended information of the card
-	dbg_log(1, "===> SdMmcUpdateInformation \n\r");
     SdMmcUpdateInformation(pSd, 0, 0);
-	dbg_log(1, "<=== SdMmcUpdateInformation \n\r");
 
     // Advanced settings for HD & HS card
     if (pSd->cardType >= CARD_MMC) {
@@ -2453,11 +2403,9 @@ static unsigned short SdMmcInit(SdCard * pSd, SdDriver * pSdDriver)
 
         // Switch to 4-bits bus width
         // (All SD Card shall support 1-bit, 4 bitswidth)
-		dbg_log(1, "=== Acmd6: inprogress\n\r");
         error = Acmd6(pSd, 4);
 
         if (error) {
-			dbg_log(1, "*** Acmd6: failed\n\r");
             return error;
         }
         MCI_SetBusWidth((Mci *) pSd->pSdDriver, MCI_SDCBUS_4BIT);
@@ -2558,13 +2506,11 @@ unsigned char SD_Init(SdCard * pSd, SdDriver * pSdDriver)
 
     // Power On Init Special Command
     //TRACE_DEBUG("Pon()\n\r");
-    dbg_log(1, "=== Begin Pon\n\r");
 	error = Pon(pSd);
 	if (error) {
 		dbg_log(1, "*** Pon: error\n\r");
 		return error;
 	}
-    dbg_log(1, "<=== Begin Pon\n\r");
     // After power-on or CMD0, all cards?CMD lines are in input mode, waiting
     // for start bit of the next command.
     // The cards are initialized with a default relative card address
@@ -2878,12 +2824,12 @@ unsigned char MMC_StopBootMode()
 void SD_DisplayRegisterCID(SdCard * pSd)
 {
 
-#if 1
+#if 0
 
     dbg_log(1, "CID MID Manufacturer ID:%x\n\r", SD_CID_MID(pSd));
     dbg_log(1, "CID serial number %x:%x\n\r",
                SD_CID_PRV_2(pSd), SD_CID_PRV_1(pSd));
-#else
+
     TRACE_INFO("CID MID Manufacturer ID       %02X\n\r", SD_CID_MID(pSd));
 
     TRACE_INFO("CID OID OEM/Application ID    %c%c\n\r",
@@ -2912,10 +2858,9 @@ void SD_DisplayRegisterCID(SdCard * pSd)
 //------------------------------------------------------------------------------
 void SD_DisplayRegisterCSD(SdCard * pSd)
 {
+#if 0
     dbg_log(1, "SD_TOTAL_SIZE: %x\r\n", SD_CSD_TOTAL_SIZE_HC(pSd));
     dbg_log(1, "SD_TOTAL_BLOCK: %x\r\n", SD_CSD_BLOCKNR_HC(pSd));
-#if 0
-#if 0
     {
         unsigned int i;
 
@@ -2929,9 +2874,8 @@ void SD_DisplayRegisterCSD(SdCard * pSd)
         TRACE_INFO_WP("\n\r");
         TRACE_INFO("------------------------\n\r");
     }
-#else
+
     TRACE_INFO_WP("\n\r");
-#endif
     TRACE_INFO(" .CSD_STRUCTURE      0x%x\r\n", SD_CSD_STRUCTURE(pSd));
     TRACE_INFO(" .SPEC_VERS          0x%x\r\n", SD_CSD_SPEC_VERS(pSd));
     TRACE_INFO(" .TAAC               0x%X\r\n", SD_CSD_TAAC(pSd));

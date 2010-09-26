@@ -694,11 +694,11 @@ unsigned char MCI_SendCommand(Mci * pMci, MciCmd * pCommand)
         if (pCommand->tranType == MCI_NEW_TRANSFER) {
 
             // Set block size
-            WRITE_MCI(pMciHw, MCI_MR, mciMr | AT91C_MCI_RDPROOF
-                      | AT91C_MCI_WRPROOF | (pCommand->blockSize << 16));
+            WRITE_MCI(pMciHw, MCI_MR, mciMr | AT91C_MCI_RDPROOF | AT91C_MCI_WRPROOF );
 
             mciBlkr = READ_MCI(pMciHw, MCI_BLKR) & (~AT91C_MCI_BCNT);
-            WRITE_MCI(pMciHw, MCI_BLKR, mciBlkr | pCommand->nbBlock);
+			mciBlkr &= (~AT91C_MCI_BLKLEN);
+            WRITE_MCI(pMciHw, MCI_BLKR, mciBlkr | pCommand->nbBlock | (pCommand->blockSize << 16));
         }
 
         transSize = (pCommand->nbBlock * pCommand->blockSize) / 4;
@@ -737,11 +737,11 @@ unsigned char MCI_SendCommand(Mci * pMci, MciCmd * pCommand)
     // Start an infinite block transfer (but no data in current command)
     else if (pCommand->dataTran) {
         // Set block size
-        WRITE_MCI(pMciHw, MCI_MR, mciMr | AT91C_MCI_RDPROOF
-                  | AT91C_MCI_WRPROOF | (pCommand->blockSize << 16));
+        WRITE_MCI(pMciHw, MCI_MR, mciMr | AT91C_MCI_RDPROOF | AT91C_MCI_WRPROOF );
         // Set data length: 0
         mciBlkr = READ_MCI(pMciHw, MCI_BLKR) & (~AT91C_MCI_BCNT);
-        WRITE_MCI(pMciHw, MCI_BLKR, mciBlkr);
+        //WRITE_MCI(pMciHw, MCI_BLKR, mciBlkr);
+        WRITE_MCI(pMciHw, MCI_BLKR, pCommand->blockSize << 16);
         mciIer = AT91C_MCI_CMDRDY | STATUS_ERRORS;
     }
     // No data transfer: stop at the end of the command
@@ -852,14 +852,11 @@ void MCI_Handler(Mci * pMci)
     //TRACE_INFO("iST %x\n\r", status);
     status = status0 & mask;
     //TRACE_INFO("iSM %x\n\r", status);
-	dbg_log(1, "\n\r-->MCI_Handler, status0: %d, mask: %d\n\r");
 
     // Check if an error has occured
     if ((status & STATUS_ERRORS) != 0) {
-		dbg_log(1, "status error?\n\r");
         // Check error code
         if ((status & STATUS_ERRORS) == AT91C_MCI_RTOE) {
-			dbg_log(1, "status no response!!\n\r");
             pCommand->status = MCI_STATUS_NORESPONSE;
         }
         // if the command is SEND_OP_COND the CRC error flag is always present
@@ -867,17 +864,14 @@ void MCI_Handler(Mci * pMci)
         else if (((status & STATUS_ERRORS) != AT91C_MCI_RCRCE)
                  || ((pCommand->cmd != SDCARD_APP_OP_COND_CMD)
                      && (pCommand->cmd != MMC_SEND_OP_COND_CMD))) {
-			dbg_log(1, "status error!!\n\r");
             pCommand->status = MCI_STATUS_ERROR;
         }
         // printf("iErr%x\n\r", (status & STATUS_ERRORS));
     }
     mask &= ~STATUS_ERRORS;
 
-	//dbg_log(1, "status: %d, mask: %d, masked_status: %d\n\r", status0, mask, status);
     // Check if a command has been completed
     if (status & AT91C_MCI_CMDRDY) {
-		dbg_log(1, "== AT91C_MCI_CMDRDY\n\r");
         WRITE_MCI(pMciHw, MCI_IDR, AT91C_MCI_CMDRDY);
         if (pCommand->isRead == 0 && pCommand->tranType == MCI_STOP_TRANSFER) {
             if (status0 & AT91C_MCI_XFRDONE) {
@@ -894,7 +888,6 @@ void MCI_Handler(Mci * pMci)
     }
     // Check if transfer stopped
     if (status & AT91C_MCI_XFRDONE) {
-		dbg_log(1, "AT91C_MCI_XFRDONE\r\n");
         mask &= ~AT91C_MCI_XFRDONE;
         MCI_DISABLE(pMciHw);
     }
@@ -902,7 +895,6 @@ void MCI_Handler(Mci * pMci)
 
     // Check FIFOEMPTY
     if (status & AT91C_MCI_FIFOEMPTY) {
-		dbg_log(1, "AT91C_MCI_FIFOEMPTY\r\n");
         mask &= ~AT91C_MCI_FIFOEMPTY;
         MCI_DISABLE(pMciHw);
     }
@@ -911,8 +903,6 @@ void MCI_Handler(Mci * pMci)
 
         unsigned int intFlag;
 		
-		dbg_log(1, "AT91C_MCI_DMADONE\n\r");
-
         intFlag = DMA_GetInterruptMask();
         intFlag = ~intFlag;
         intFlag |= (AT91C_HDMA_BTC0 << BOARD_MCI_DMA_CHANNEL);
@@ -928,12 +918,9 @@ void MCI_Handler(Mci * pMci)
     }
 #endif
 
-	//dbg_log(1, "mask: %d, status: %d\n\r", mask, pCommand->status);
-
     // All non-error mask done, complete the command
     if (!mask || pCommand->status != MCI_STATUS_PENDING) {
 
-		dbg_log(1, "All non-error mask done, complete the command\n\r");
         // Store the card response in the provided buffer
         if (pCommand->pResp) {
             unsigned char resSize;
@@ -978,9 +965,7 @@ void MCI_Handler(Mci * pMci)
         if (pCommand->callback) {
             (pCommand->callback) (pCommand->status, (void *)pCommand);
         }
-    } else {
-		dbg_log(1, "status: %d, mask: %d, cmd->status: %d\n\r", status0, mask, pCommand->status);
-	}
+    }
 }
 
 //------------------------------------------------------------------------------
