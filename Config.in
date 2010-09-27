@@ -142,6 +142,10 @@ config CONFIG_LINUX_IMG_NAND_OFFSET
 	default "0x200000"
 endmenu
 
+config CONFIG_OS_IMAGE_NAME
+	depends on CONFIG_SDCARD && CONFIG_LOAD_UBOOT
+	default "uboot.bin"
+
 #
 # WinCE Image Storage Setup
 #
