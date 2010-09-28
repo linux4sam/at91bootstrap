@@ -408,8 +408,8 @@ void menu_finalize(struct menu *parent)
 
     if (sym && !sym_is_optional(sym) && parent->prompt) {
         sym->rev_dep.expr = expr_alloc_or(sym->rev_dep.expr,
-                                          expr_alloc_and(parent->
-                                                         prompt->visible.expr,
+                                          expr_alloc_and(parent->prompt->
+                                                         visible.expr,
                                                          expr_alloc_symbol
                                                          (&symbol_mod)));
     }

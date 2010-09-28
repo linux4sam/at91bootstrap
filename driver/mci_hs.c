@@ -686,7 +686,7 @@ unsigned char MCI_SendCommand(Mci * pMci, MciCmd * pCommand)
         perChunkSize = 1;
         //if ((pCommand->blockSize % 16) == 0) perChunkSize = 4;
         mciDma = READ_MCI(pMciHw, MCI_DMA) | AT91C_MCI_DMAEN_ENABLE;
-		mciDma &=  ~AT91C_MCI_CHKSIZE;   // for chunkSize == 1
+        mciDma &= ~AT91C_MCI_CHKSIZE;   // for chunkSize == 1
         WRITE_MCI(pMciHw, MCI_DMA, mciDma);
 #endif
 
@@ -694,11 +694,14 @@ unsigned char MCI_SendCommand(Mci * pMci, MciCmd * pCommand)
         if (pCommand->tranType == MCI_NEW_TRANSFER) {
 
             // Set block size
-            WRITE_MCI(pMciHw, MCI_MR, mciMr | AT91C_MCI_RDPROOF | AT91C_MCI_WRPROOF );
+            WRITE_MCI(pMciHw, MCI_MR,
+                      mciMr | AT91C_MCI_RDPROOF | AT91C_MCI_WRPROOF);
 
             mciBlkr = READ_MCI(pMciHw, MCI_BLKR) & (~AT91C_MCI_BCNT);
-			mciBlkr &= (~AT91C_MCI_BLKLEN);
-            WRITE_MCI(pMciHw, MCI_BLKR, mciBlkr | pCommand->nbBlock | (pCommand->blockSize << 16));
+            mciBlkr &= (~AT91C_MCI_BLKLEN);
+            WRITE_MCI(pMciHw, MCI_BLKR,
+                      mciBlkr | pCommand->nbBlock | (pCommand->
+                                                     blockSize << 16));
         }
 
         transSize = (pCommand->nbBlock * pCommand->blockSize) / 4;
@@ -737,7 +740,8 @@ unsigned char MCI_SendCommand(Mci * pMci, MciCmd * pCommand)
     // Start an infinite block transfer (but no data in current command)
     else if (pCommand->dataTran) {
         // Set block size
-        WRITE_MCI(pMciHw, MCI_MR, mciMr | AT91C_MCI_RDPROOF | AT91C_MCI_WRPROOF );
+        WRITE_MCI(pMciHw, MCI_MR,
+                  mciMr | AT91C_MCI_RDPROOF | AT91C_MCI_WRPROOF);
         // Set data length: 0
         mciBlkr = READ_MCI(pMciHw, MCI_BLKR) & (~AT91C_MCI_BCNT);
         //WRITE_MCI(pMciHw, MCI_BLKR, mciBlkr);
@@ -845,7 +849,6 @@ void MCI_Handler(Mci * pMci)
 
     unsigned char i;
 
-
     // Read the status register
     status0 = READ_MCI(pMciHw, MCI_SR);
     mask = READ_MCI(pMciHw, MCI_IMR);
@@ -902,7 +905,7 @@ void MCI_Handler(Mci * pMci)
     if (status & AT91C_MCI_DMADONE) {
 
         unsigned int intFlag;
-		
+
         intFlag = DMA_GetInterruptMask();
         intFlag = ~intFlag;
         intFlag |= (AT91C_HDMA_BTC0 << BOARD_MCI_DMA_CHANNEL);

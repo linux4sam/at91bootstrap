@@ -70,15 +70,11 @@ static void PIO_SetPeripheralA(unsigned int pio,
 #if defined(AT91C_PIOA_ASR)
     (*(volatile unsigned int *)(pio + PIO_ASR(0))) = mask;
 #elif defined(CONFIG_HAS_PIO3)
-	{
-		unsigned int data;
-		
-		data = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
-		*(volatile unsigned int *)(pio + PIO_SP1(0)) = data & ~mask;
-		
-		data = (*(volatile unsigned int *)(pio + PIO_SP2(0)));
-		*(volatile unsigned int *)(pio + PIO_SP2(0)) = data & ~mask;
-	}
+    abmr = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
+    *(volatile unsigned int *)(pio + PIO_SP1(0)) = abmr & ~mask;
+
+    abmr = (*(volatile unsigned int *)(pio + PIO_SP2(0)));
+    *(volatile unsigned int *)(pio + PIO_SP2(0)) = abmr & ~mask;
 #else
     abmr = (*(volatile unsigned int *)(pio + PIO_ABSR(0)));
     (*(volatile unsigned int *)(pio + PIO_ABSR(0))) &= (~mask & abmr);
@@ -117,15 +113,11 @@ static void PIO_SetPeripheralB(unsigned int pio,
 #if defined(AT91C_PIOA_BSR)
     (*(volatile unsigned int *)(pio + PIO_BSR(0))) = mask;
 #elif defined(CONFIG_HAS_PIO3)
-	{
-		unsigned long data;
-	
-		data = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
-		*(volatile unsigned int *)(pio + PIO_SP1(0)) = data | mask;
-		
-		data = (*(volatile unsigned int *)(pio + PIO_SP2(0)));
-		*(volatile unsigned int *)(pio + PIO_SP2(0)) = data & ~mask;
-	}
+    abmr = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
+    *(volatile unsigned int *)(pio + PIO_SP1(0)) = abmr | mask;
+
+    abmr = (*(volatile unsigned int *)(pio + PIO_SP2(0)));
+    *(volatile unsigned int *)(pio + PIO_SP2(0)) = abmr & ~mask;
 #else
 
     abmr = (*(volatile unsigned int *)(pio + PIO_ABSR(0)));
@@ -135,6 +127,7 @@ static void PIO_SetPeripheralB(unsigned int pio,
     (*(volatile unsigned int *)(pio + PIO_PDR(0))) = mask;
 }
 
+#if 0
 #ifdef CONFIG_HAS_PIO3
 //------------------------------------------------------------------------------
 /// Configures one or more pin(s) of a PIO controller as being controlled by
@@ -148,6 +141,7 @@ static void PIO_SetPeripheralB(unsigned int pio,
 static void PIO_SetPeripheralC(unsigned int pio,
                                unsigned int mask, unsigned char enablePullUp)
 {
+    unsigned int abmr;
     // Disable interrupts on the pin(s)
     (*(volatile unsigned int *)(pio + PIO_IDR(0))) = mask;
 
@@ -159,15 +153,11 @@ static void PIO_SetPeripheralC(unsigned int pio,
     }
 
     // Configure pin
-	{
-		unsigned long data;
-	
-		data = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
-		*(volatile unsigned int *)(pio + PIO_SP1(0)) = data & ~mask;
-		
-		data = (*(volatile unsigned int *)(pio + PIO_SP2(0)));
-		*(volatile unsigned int *)(pio + PIO_SP2(0)) = data | mask;
-	}
+    abmr = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
+    *(volatile unsigned int *)(pio + PIO_SP1(0)) = abmr & ~mask;
+
+    abmr = (*(volatile unsigned int *)(pio + PIO_SP2(0)));
+    *(volatile unsigned int *)(pio + PIO_SP2(0)) = abmr | mask;
 
     (*(volatile unsigned int *)(pio + PIO_PDR(0))) = mask;
 }
@@ -184,7 +174,8 @@ static void PIO_SetPeripheralC(unsigned int pio,
 static void PIO_SetPeripheralD(unsigned int pio,
                                unsigned int mask, unsigned char enablePullUp)
 {
-	// Disable interrupts on the pin(s)
+    unsigned int abmr;
+    // Disable interrupts on the pin(s)
     (*(volatile unsigned int *)(pio + PIO_IDR(0))) = mask;
 
     // Enable the pull-up(s) if necessary
@@ -195,19 +186,16 @@ static void PIO_SetPeripheralD(unsigned int pio,
     }
 
     // Configure pin
-	{
-		unsigned long data;
-	
-		data = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
-		*(volatile unsigned int *)(pio + PIO_SP1(0)) = data | mask;
-		
-		data = (*(volatile unsigned int *)(pio + PIO_SP2(0)));
-		*(volatile unsigned int *)(pio + PIO_SP2(0)) = data | mask;
-	}
+    abmr = (*(volatile unsigned int *)(pio + PIO_SP1(0)));
+    *(volatile unsigned int *)(pio + PIO_SP1(0)) = abmr | mask;
+
+    abmr = (*(volatile unsigned int *)(pio + PIO_SP2(0)));
+    *(volatile unsigned int *)(pio + PIO_SP2(0)) = abmr | mask;
 
     (*(volatile unsigned int *)(pio + PIO_PDR(0))) = mask;
 }
-#endif /* CONFIG_HAS_PIO3 */
+#endif                          /* CONFIG_HAS_PIO3 */
+#endif /* if 0 */
 
 #if defined(AT91C_PIOA_IFDGSR)  //Glitch or Debouncing filter selection supported
 //------------------------------------------------------------------------------

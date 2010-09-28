@@ -79,8 +79,8 @@ static int pio_set_A_periph(unsigned pin, int use_pullup)
 #ifndef CONFIG_HAS_PIO3
     write_pio(PIO_ASR(pio), mask);
 #else
-	write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) & ~mask);
-	write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) & ~mask);
+    write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) & ~mask);
+    write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) & ~mask);
 #endif
     write_pio(PIO_PDR(pio), mask);
     return 0;
@@ -93,6 +93,7 @@ static int pio_set_A_periph(unsigned pin, int use_pullup)
 static int pio_set_B_periph(unsigned pin, int use_pullup)
 {
     unsigned pio = pin_to_controller(pin);
+
     unsigned mask = pin_to_mask(pin);
 
     if (pio >= AT91C_NR_PIO)
@@ -103,13 +104,14 @@ static int pio_set_B_periph(unsigned pin, int use_pullup)
 #ifndef CONFIG_HAS_PIO3
     write_pio(PIO_BSR(pio), mask);
 #else
-	write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) | mask);
-	write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) & ~mask);
+    write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) | mask);
+    write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) & ~mask);
 #endif
     write_pio(PIO_PDR(pio), mask);
     return 0;
 }
 
+#if 0
 #ifdef CONFIG_HAS_PIO3
 /*------------------------------------------------------------------------------*/
 /* \fn    pio_set_C_periph							*/
@@ -127,8 +129,8 @@ static int pio_set_C_periph(unsigned pin, int use_pullup)
     write_pio(PIO_IDR(pio), mask);
     write_pio((use_pullup ? PIO_PPUER(pio) : PIO_PPUDR(pio)), mask);
 
-	write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) & ~mask);
-	write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) | mask);
+    write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) & ~mask);
+    write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) | mask);
 
     write_pio(PIO_PDR(pio), mask);
     return 0;
@@ -150,13 +152,14 @@ static int pio_set_D_periph(unsigned pin, int use_pullup)
     write_pio(PIO_IDR(pio), mask);
     write_pio((use_pullup ? PIO_PPUER(pio) : PIO_PPUDR(pio)), mask);
 
-	write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) | mask);
-	write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) | mask);
+    write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) | mask);
+    write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) | mask);
 
     write_pio(PIO_PDR(pio), mask);
     return 0;
 }
-#endif /* CONFIG_HAS_PIO3 */
+#endif                          /* CONFIG_HAS_PIO3 */
+#endif /* #if 0 */
 
 /*------------------------------------------------------------------------------*/
 /* \fn    pio_set_gpio_input							*/

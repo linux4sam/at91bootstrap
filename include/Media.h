@@ -151,119 +151,31 @@ extern unsigned int numMedias;
 //------------------------------------------------------------------------------
 //      Inline Functions
 //------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-//! \brief  Writes data on a media
-//! \param  media    Pointer to a Media instance
-//! \param  address  Address at which to write
-//! \param  data     Pointer to the data to write
-//! \param  length   Size of the data buffer
-//! \param  callback Optional pointer to a callback function to invoke when
-//!                   the write operation terminates
-//! \param  argument Optional argument for the callback function
-//! \return Operation result code
-//! \see    TransferCallback
-//------------------------------------------------------------------------------
-static unsigned char MED_Write(Media * media,
-                               unsigned int address,
-                               void *data,
-                               unsigned int length,
-                               MediaCallback callback, void *argument)
-{
-    return media->write(media, address, data, length, callback, argument);
-}
+unsigned char MED_Write(Media * media,
+                        unsigned int address,
+                        void *data,
+                        unsigned int length,
+                        MediaCallback callback, void *argument);
 
-//------------------------------------------------------------------------------
-//! \brief  Reads a specified amount of data from a media
-//! \param  media    Pointer to a Media instance
-//! \param  address  Address of the data to read
-//! \param  data     Pointer to the buffer in which to store the retrieved
-//!                   data
-//! \param  length   Length of the buffer
-//! \param  callback Optional pointer to a callback function to invoke when
-//!                   the operation is finished
-//! \param  argument Optional pointer to an argument for the callback
-//! \return Operation result code
-//! \see    TransferCallback
-//------------------------------------------------------------------------------
-static unsigned char MED_Read(Media * media,
-                              unsigned int address,
-                              void *data,
-                              unsigned int length,
-                              MediaCallback callback, void *argument)
-{
-    return media->read(media, address, data, length, callback, argument);
-}
+unsigned char MED_Read(Media * media,
+                       unsigned int address,
+                       void *data,
+                       unsigned int length,
+                       MediaCallback callback, void *argument);
 
-//------------------------------------------------------------------------------
-//! \brief  Locks all the regions in the given address range.
-//! \param  media    Pointer to a Media instance
-/// \param  start  Start address of lock range.
-/// \param  end  End address of lock range.
-/// \param  pActualStart  Start address of the actual lock range (optional).
-/// \param  pActualEnd  End address of the actual lock range (optional).
-/// \return 0 if successful; otherwise returns an error code.
-//------------------------------------------------------------------------------
-static unsigned char MED_Lock(Media * media,
-                              unsigned int start,
-                              unsigned int end,
-                              unsigned int *pActualStart,
-                              unsigned int *pActualEnd)
-{
-    if (media->lock) {
-        return media->lock(media, start, end, pActualStart, pActualEnd);
-    } else {
-        return MED_STATUS_SUCCESS;
-    }
-}
+unsigned char MED_Lock(Media * media,
+                       unsigned int start,
+                       unsigned int end,
+                       unsigned int *pActualStart, unsigned int *pActualEnd);
 
-//------------------------------------------------------------------------------
-//! \brief  Unlocks all the regions in the given address range
-//! \param  media    Pointer to a Media instance
-/// \param start  Start address of unlock range.
-/// \param end  End address of unlock range.
-/// \param pActualStart  Start address of the actual unlock range (optional).
-/// \param pActualEnd  End address of the actual unlock range (optional).
-/// \return 0 if successful; otherwise returns an error code.
-//------------------------------------------------------------------------------
-static unsigned char MED_Unlock(Media * media,
-                                unsigned int start,
-                                unsigned int end,
-                                unsigned int *pActualStart,
-                                unsigned int *pActualEnd)
-{
-    if (media->unlock) {
-        return media->unlock(media, start, end, pActualStart, pActualEnd);
-    } else {
-        return MED_STATUS_SUCCESS;
-    }
-}
+unsigned char MED_Unlock(Media * media,
+                         unsigned int start,
+                         unsigned int end,
+                         unsigned int *pActualStart, unsigned int *pActualEnd);
 
-//------------------------------------------------------------------------------
-//! \brief  
-//! \param  media Pointer to the Media instance to use
-//------------------------------------------------------------------------------
-static unsigned char MED_Flush(Media * media)
-{
-    if (media->flush) {
+unsigned char MED_Flush(Media * media);
 
-        return media->flush(media);
-    } else {
-
-        return MED_STATUS_SUCCESS;
-    }
-}
-
-//------------------------------------------------------------------------------
-//! \brief  Invokes the interrupt handler of the specified media
-//! \param  media Pointer to the Media instance to use
-//------------------------------------------------------------------------------
-static void MED_Handler(Media * media)
-{
-    if (media->handler) {
-
-        media->handler(media);
-    }
-}
+void MED_Handler(Media * media);
 
 //------------------------------------------------------------------------------
 //      Exported functions

@@ -354,7 +354,7 @@ static int df_read(AT91PS_DF pDf,
 
     page_counter = 32;
     while (size) {
-		dbg_log(1, "+");
+        dbg_log(1, "+");
 /*		SizeToRead = (size < AT91C_MAX_PDC_SIZE)? size : AT91C_MAX_PDC_SIZE; */
         SizeToRead = (size < 0x8400) ? size : 0x8400;
         /*
@@ -385,7 +385,7 @@ static int df_read(AT91PS_DF pDf,
         }
     }
 
-	dbg_log(1, "\r\n");
+    dbg_log(1, "\r\n");
     return SUCCESS;
 }
 

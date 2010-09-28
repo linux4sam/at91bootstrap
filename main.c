@@ -72,7 +72,7 @@ int main(void)
     user_hw_init();
 #endif
 
-	dbg_log(1, "Begin to load image...\n\r");
+    dbg_log(1, "Begin to load image...\n\r");
     /*
      * ==================== 2nd step: Load from media ==================== 
      *
@@ -119,7 +119,7 @@ int main(void)
 #endif
 #endif
 
-	dbg_log(1, "Loading image done.\n\r");
+    dbg_log(1, "Loading image done.\n\r");
     /*
      * ==================== 3rd step:  Process the Image =================== 
      */
@@ -152,7 +152,7 @@ int main(void)
 #else
     Jump(JUMP_ADDR);
 #endif
-#else /* !WINCE */
+#else                           /* !WINCE */
 #ifdef CONFIG_LOAD_NK
     return (JUMP_ADDR + 0x1000);
 #else

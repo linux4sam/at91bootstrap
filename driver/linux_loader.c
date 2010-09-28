@@ -348,7 +348,8 @@ void LoadLinux()
 
     hdr = (image_header_t *) JUMP_ADDR;
     if (ntohl(hdr->ih_magic) != IMAGE_MAGIC) {
-        dbg_log(1, "*** Bad Image Magic Number found! %d\n\r", ntohl(hdr->ih_magic));
+        dbg_log(1, "*** Bad Image Magic Number found! %d\n\r",
+                ntohl(hdr->ih_magic));
         return;
     }
 
@@ -366,14 +367,17 @@ void LoadLinux()
 
     //clean_environment();
 
-    dbg_log(1, "relocating linux kernel, dst: %x, src: %x, len: %d, machid: %d\n\r",
-            load_addr, (unsigned long)JUMP_ADDR + sizeof (image_header_t), len, MACH_TYPE);
+    dbg_log(1,
+            "relocating linux kernel, dst: %x, src: %x, len: %d, machid: %d\n\r",
+            load_addr, (unsigned long)JUMP_ADDR + sizeof (image_header_t), len,
+            MACH_TYPE);
     memcpy((void *)load_addr,
            (void *)((unsigned long)JUMP_ADDR + sizeof (image_header_t)), len);
     dbg_log(1, "... %d bytes data transferred!\n\r", len);
 
     setup_tags();
-    dbg_log(1, "\n\rStarting linux kernel ..., machid: %d, tags: %x\n\r\n\r", MACH_TYPE, (OS_MEM_BANK + 0x100));
+    dbg_log(1, "\n\rStarting linux kernel ..., machid: %d, tags: %x\n\r\n\r",
+            MACH_TYPE, (OS_MEM_BANK + 0x100));
 
     theKernel(0, MACH_TYPE, (unsigned int)(OS_MEM_BANK + 0x100));
 

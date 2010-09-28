@@ -349,6 +349,7 @@ static unsigned char MEDSdcard_Write(Media * media,
 //------------------------------------------------------------------------------
 //! \brief Callback invoked when SD/MMC transfer done
 //------------------------------------------------------------------------------
+#if 0
 static void SdMmcCallback(unsigned char status, void *pCommand)
 {
     SdCmd *pCmd = (SdCmd *) pCommand;
@@ -370,6 +371,7 @@ static void SdMmcCallback(unsigned char status, void *pCommand)
                        status, pXfr->length * pMed->blockSize, 0);
     }
 }
+#endif
 
 //------------------------------------------------------------------------------
 //! \brief  Writes data on a SDRAM media
@@ -480,13 +482,12 @@ unsigned char MEDSdcard_Initialize(Media * media, unsigned char mciID)
 
     // Initialize the SD card driver
     if (SD_Init(sdDrv, (SdDriver *) mciDrv)) {
-		dbg_log(1, "*** SD_Init: failed\n\r");
-		while (1)
-			;
+        dbg_log(1, "*** SD_Init: failed\n\r");
+        while (1) ;
         return 0;
     } else {
-        SD_DisplayRegisterCSD(&sdDrv);
-		SD_DisplayRegisterCID(&sdDrv);
+        //SD_DisplayRegisterCSD(&sdDrv);
+        //SD_DisplayRegisterCID(&sdDrv);
     }
 
     MCI_SetSpeed(mciDrv, sdDrv->transSpeed, sdDrv->transSpeed, BOARD_MCK);
@@ -568,9 +569,8 @@ unsigned char MEDSdusb_Initialize(Media * media, unsigned char mciID)
 
     // Initialize the SD card driver
     if (SD_Init(sdDrv, (SdDriver *) mciDrv)) {
-		dbg_log(1, "*** SD_Init 1#: failed\n\r");
-        while (1)
-			;
+        dbg_log(1, "*** SD_Init 1#: failed\n\r");
+        while (1) ;
     } else {
 
     }
@@ -676,7 +676,8 @@ unsigned int load_SDCard()
     DWORD dwAddress;
 
     unsigned int ByteRead = 0;
-	unsigned char *ret;
+
+    unsigned char ret;
 
     ret = MEDSdcard_Initialize(&medias[0], BOARD_SD_MCI_ID_USE);
 
@@ -684,17 +685,15 @@ unsigned int load_SDCard()
 
     res = f_mount(0, &fs);
     if (res != FR_OK) {
-		dbg_log(1, "*** f_mount: error!\n\r");
-		while (1)
-			;
+        dbg_log(1, "*** f_mount: error!\n\r");
+        while (1) ;
     }
 
     res = f_open(&fileObject, OS_IMAGE_NAME, FA_OPEN_EXISTING | FA_READ);
 
     if (res != FR_OK) {
-		dbg_log(1, "*** f_open, File name: [%s]: error!\n\r", OS_IMAGE_NAME);
-		while (1)
-			;
+        dbg_log(1, "*** f_open, File name: [%s]: error!\n\r", OS_IMAGE_NAME);
+        while (1) ;
     }
 
     dwAddress = JUMP_ADDR;
@@ -706,9 +705,8 @@ unsigned int load_SDCard()
     } while (ByteRead >= SIZE_EBOOT);
 
     if (res != FR_OK) {
-		dbg_log(1, "*** f_read: error!\n\r");
-		while (1)
-			;
+        dbg_log(1, "*** f_read: error!\n\r");
+        while (1) ;
     }
 #if !defined(at91sam9g10)
 
@@ -721,7 +719,7 @@ unsigned int load_SDCard()
 
     StopReading((SdCard *) medias[0].interface);
 
-	//Configure_System_Paramters();
+    //Configure_System_Paramters();
 
     return 1;
 }

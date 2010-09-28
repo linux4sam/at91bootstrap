@@ -130,7 +130,7 @@ void hw_init(void)
     /*
      * Configure the PIO controller 
      */
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+    writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
     pio_setup(hw_pio);
 
 #ifdef CONFIG_DEBUG
@@ -167,10 +167,9 @@ void ddramc_hw_init(void)
     ddram_config.ddramc_cr = (AT91C_DDRC2_NC_DDR10_SDR9 |       // 10 column bits (1K)
                               AT91C_DDRC2_NR_13 |       // 13 row bits    (8K)
                               AT91C_DDRC2_CAS_3 |       // CAS Latency 3
-							  (1 << 20)			|
-                              AT91C_DDRC2_DLL_RESET_DISABLED);  // DLL not reset
+                              (1 << 20) | AT91C_DDRC2_DLL_RESET_DISABLED);      // DLL not reset
 
-    ddram_config.ddramc_rtr = 0x411; /* Refresh timer: 7.8125us */
+    ddram_config.ddramc_rtr = 0x411;    /* Refresh timer: 7.8125us */
 
     ddram_config.ddramc_t0pr = (AT91C_DDRC2_TRAS_6 |    //  6 * 7.5 = 45   ns
                                 AT91C_DDRC2_TRCD_2 |    //  2 * 7.5 = 22.5 ns
@@ -296,8 +295,8 @@ void nandflash_hw_init(void)
     /*
      * Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface 
      */
-    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM)  & ~AT91C_EBI_NFD0_ON_D16,
-           AT91C_BASE_CCFG + CCFG_EBICSA);
+    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM) &
+           ~AT91C_EBI_NFD0_ON_D16, AT91C_BASE_CCFG + CCFG_EBICSA);
 
     /*
      * EBI IO in 1.8V mode 
@@ -370,6 +369,6 @@ void sclk_enable(void)
     for (i = 0; i < 0x1000; i++) ;
 #endif
 }
-#endif /* CONFIG_SCLK */
+#endif                          /* CONFIG_SCLK */
 
 #endif                          /* CONFIG_AT91SAM9G45EK */

@@ -16,20 +16,24 @@ class QSettings {
         if (ok)
             *ok = FALSE;
         return def;
-    } int readNumEntry(const QString & key, int def = 0, bool * ok = 0) const {
+    }
+    int readNumEntry(const QString & key, int def = 0, bool * ok = 0) const {
         if (ok)
             *ok = FALSE;
         return def;
-    } QString readEntry(const QString & key, const QString & def =
-                        QString::null, bool * ok = 0)const {
+    }
+    QString readEntry(const QString & key, const QString & def =
+                      QString::null, bool * ok = 0)const {
         if (ok)
             *ok = FALSE;
         return def;
-    } QStringList readListEntry(const QString & key, bool * ok = 0)const {
+    }
+    QStringList readListEntry(const QString & key, bool * ok = 0)const {
         if (ok)
             *ok = FALSE;
         return QStringList();
-    } template < class t > bool writeEntry(const QString & key, t value) {
+    }
+    template < class t > bool writeEntry(const QString & key, t value) {
         return TRUE;
     }
 };
@@ -66,7 +70,8 @@ class ConfigList:public QListView {
     void reinit(void);
     ConfigView *parent(void) const {
         return (ConfigView *) Parent::parent();
-    } ConfigItem *findConfigItem(struct menu *);
+    }
+    ConfigItem *findConfigItem(struct menu *);
 
  protected:
     void keyPressEvent(QKeyEvent * e);
@@ -77,7 +82,7 @@ class ConfigList:public QListView {
     void focusInEvent(QFocusEvent * e);
     void contextMenuEvent(QContextMenuEvent * e);
 
-    public slots: void setRootMenu(struct menu *menu);
+    public slots:void setRootMenu(struct menu *menu);
 
     void updateList(ConfigItem * item);
     void setValue(ConfigItem * item, tristate val);
@@ -99,7 +104,8 @@ class ConfigList:public QListView {
     }
     ConfigItem *firstChild() const {
         return (ConfigItem *) Parent::firstChild();
-    } int mapIdx(colIdx idx) {
+    }
+    int mapIdx(colIdx idx) {
         return colMap[idx];
     }
     void addColumn(colIdx idx, const QString & label) {
@@ -174,22 +180,27 @@ class ConfigItem:public QListViewItem {
 
     ConfigList *listView() const {
         return (ConfigList *) Parent::listView();
-    } ConfigItem *firstChild() const {
+    }
+    ConfigItem *firstChild() const {
         return (ConfigItem *) Parent::firstChild();
-    } ConfigItem *nextSibling() const {
+    }
+    ConfigItem *nextSibling() const {
         return (ConfigItem *) Parent::nextSibling();
-    } void setText(colIdx idx, const QString & text) {
+    }
+    void setText(colIdx idx, const QString & text) {
         Parent::setText(listView()->mapIdx(idx), text);
     }
     QString text(colIdx idx) const {
         return Parent::text(listView()->mapIdx(idx));
-    } void setPixmap(colIdx idx, const QPixmap & pm) {
+    }
+    void setPixmap(colIdx idx, const QPixmap & pm) {
         Parent::setPixmap(listView()->mapIdx(idx), pm);
     }
     const QPixmap *pixmap(colIdx idx) const {
         return Parent::pixmap(listView()->mapIdx(idx));
-    } void paintCell(QPainter * p, const QColorGroup & cg, int column,
-                     int width, int align);
+    }
+    void paintCell(QPainter * p, const QColorGroup & cg, int column,
+                   int width, int align);
 
     ConfigItem *nextItem;
 
@@ -206,7 +217,8 @@ class ConfigLineEdit:public QLineEdit {
      ConfigLineEdit(ConfigView * parent);
     ConfigView *parent(void) const {
         return (ConfigView *) Parent::parent();
-    } void show(ConfigItem * i);
+    }
+    void show(ConfigItem * i);
     void keyPressEvent(QKeyEvent * e);
 
  public:
@@ -223,17 +235,21 @@ class ConfigView:public QVBox {
 
     bool showAll(void) const {
         return list->showAll;
-    } bool showName(void)const {
+    }
+    bool showName(void)const {
         return list->showName;
-    } bool showRange(void)const {
+    }
+    bool showRange(void)const {
         return list->showRange;
-    } bool showData(void)const {
+    }
+    bool showData(void)const {
         return list->showData;
-    } public slots:void setShowAll(bool);
+    }
+    public slots:void setShowAll(bool);
     void setShowName(bool);
     void setShowRange(bool);
     void setShowData(bool);
-     signals: void showAllChanged(bool);
+     signals:void showAllChanged(bool);
     void showNameChanged(bool);
     void showRangeChanged(bool);
     void showDataChanged(bool);
@@ -251,12 +267,13 @@ class ConfigInfoView:public QTextBrowser {
      ConfigInfoView(QWidget * parent, const char *name = 0);
     bool showDebug(void) const {
         return _showDebug;
-    } public slots:void setInfo(struct menu *menu);
+    }
+    public slots:void setInfo(struct menu *menu);
     void saveSettings(void);
     void setSource(const QString & name);
     void setShowDebug(bool);
 
-     signals: void showDebugChanged(bool);
+     signals:void showDebugChanged(bool);
     void menuSelected(struct menu *);
 
  protected:

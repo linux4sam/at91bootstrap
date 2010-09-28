@@ -153,13 +153,13 @@ WORD LfnBuf[_MAX_LFN + 1];
 /*-----------------------------------------------------------------------*/
 
 /* Copy memory to memory */
-void memcpy(void *dst, const void *src, int cnt);
+extern void* memcpy(void *dst, const void *src, int cnt);
 
 /* Fill memory */
-void memset(void *dst, int val, int cnt);
+extern void* memset(void *dst, int val, int cnt);
 
 /* Compare memory to memory */
-int memcmp(const void *dst, const void *src, int cnt);
+extern int memcmp(const void *dst, const void *src, int cnt);
 
 /* Check if chr is contained in the string */
 static

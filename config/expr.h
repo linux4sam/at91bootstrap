@@ -32,7 +32,7 @@ extern "C" {
 
     enum expr_type {
         E_NONE, E_OR, E_AND, E_NOT, E_EQUAL, E_UNEQUAL, E_LIST, E_SYMBOL,
-            E_RANGE
+        E_RANGE
     };
 
     union expr_data {
@@ -217,7 +217,8 @@ extern "C" {
 
     static inline int expr_is_yes(struct expr *e) {
         return !e || (e->type == E_SYMBOL && e->left.sym == &symbol_yes);
-    } static inline int expr_is_no(struct expr *e) {
+    }
+    static inline int expr_is_no(struct expr *e) {
         return e && (e->type == E_SYMBOL && e->left.sym == &symbol_no);
     }
 #endif
