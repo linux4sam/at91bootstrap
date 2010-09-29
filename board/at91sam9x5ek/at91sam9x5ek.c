@@ -81,7 +81,6 @@ void hw_init(void)
         {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
     };
 
-#if 1
     /*
      * Disable watchdog 
      */
@@ -112,7 +111,6 @@ void hw_init(void)
      * Configure PLLB 
      */
     //pmc_cfg_pllutmi(PLLUTMI_SETTINGS, PLL_LOCK_TIMEOUT);
-#endif
 
     /*
      * Enable External Reset 
