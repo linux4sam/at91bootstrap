@@ -47,10 +47,6 @@
 #include "nandflash.h"
 #endif
 
-#ifdef CONFIG_DATAFLASH
-#include "dataflash.h"
-#endif
-
 int get_cp15(void);
 
 void set_cp15(unsigned int value);
@@ -191,29 +187,10 @@ void ddramc_hw_init(void)
     // ENABLE DDR2 clock 
     writel(AT91C_PMC_DDR, AT91C_BASE_PMC + PMC_SCER);
 
-#if 0
-    /*
-     * DDRAM2 controller 
-     */
-    ddram_init(AT91C_BASE_DDR2C, AT91C_DDR2, &ddram_config);
-#endif
-
-    /*
-     * Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface 
-     */
-#if 0
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS1A_SDRAMC,
-           AT91C_BASE_CCFG + CCFG_EBICSA);
-#endif
-
-    writel(0x01020002, AT91C_BASE_CCFG + CCFG_EBICSA);
     /*
      * EBI IO in 1.8V mode 
      */
-#if 1
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~(1 << 16),
-           AT91C_BASE_CCFG + CCFG_EBICSA);
-#endif
+    writel(AT91C_EBI_CS1A_SDRAMC, AT91C_BASE_CCFG + CCFG_EBICSA);
 
     /*
      * DDRAM2 Controller
@@ -221,45 +198,6 @@ void ddramc_hw_init(void)
     ddram_init(AT91C_BASE_DDR2C, AT91C_EBI_CS1, &ddram_config);
 }
 #endif                          /* CONFIG_DDR2 */
-
-#ifdef CONFIG_DATAFLASH
-#if	defined(CONFIG_DATAFLASH_RECOVERY)
-/*------------------------------------------------------------------------------*/
-/* \fn    df_recovery								*/
-/* \brief This function erases DataFlash Page 0 if BP4 is pressed 		*/
-/*        during boot sequence							*/
-/*------------------------------------------------------------------------------*/
-void df_recovery(AT91PS_DF pDf)
-{
-
-}
-#endif
-/*------------------------------------------------------------------------------*/
-/* \fn    df_hw_init								*/
-/* \brief This function performs DataFlash HW initialization			*/
-/*------------------------------------------------------------------------------*/
-void df_hw_init(void)
-{
-#if 0
-    /*
-     * Configure PIOs 
-     */
-    const struct pio_desc df_pio[] = {
-        {"MISO", AT91C_PIN_PB(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"MOSI", AT91C_PIN_PB(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"SPCK", AT91C_PIN_PB(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"NPCS0", AT91C_PIN_PB(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"NPCS1", AT91C_PIN_PC(11), 0, PIO_DEFAULT, PIO_PERIPH_B},
-        {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-    };
-
-    /*
-     * Configure the PIO controller 
-     */
-    pio_setup(df_pio);
-#endif
-}
-#endif                          /* CONFIG_DATAFLASH */
 
 #ifdef CONFIG_NANDFLASH
 /*------------------------------------------------------------------------------*/
