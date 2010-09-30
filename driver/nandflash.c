@@ -85,21 +85,6 @@
 #define READ_NAND16() ((unsigned short)(*(volatile unsigned short *) \
 						(unsigned long)AT91C_SMARTMEDIA_BASE))
 
-#if 0
-static struct SNandInitInfo NandFlash_InitInfo[] = {
-    /*
-     * ID    blk    blk_size pg_size spare_size bus_width spare_scheme chip_name 
-     */
-    {0x2cca, 0x800, 0x20000, 0x800, 0x40, 0x1, &Spare_2048, "MT29F2G16AAB\0"},
-    {0x2cda, 0x800, 0x20000, 0x800, 0x40, 0x0, &Spare_2048, "MT29F2G08AAC\0"},
-    {0x2caa, 0x800, 0x20000, 0x800, 0x40, 0x0, &Spare_2048, "MT29F2G08ABD\0"},
-    {0xecda, 0x800, 0x20000, 0x800, 0x40, 0x0, &Spare_2048, "K9F2G08U0M\0"},
-    {0xecaa, 0x800, 0x20000, 0x800, 0x40, 0x0, &Spare_2048, "K9F2G08U0A\0"},
-    {0x20aa, 0x800, 0x20000, 0x800, 0x40, 0x0, &Spare_2048, "ST NAND02GR3B\0"},
-    {0,}
-};
-#endif
-
 static inline struct SNandInitInfo *AT91F_GetNandInitInfo(unsigned short chipID)
 {
     static struct SNandInitInfo info;
@@ -135,10 +120,6 @@ static void AT91F_NandInit(PSNandInfo pNandInfo, PSNandInitInfo pNandInitInfo)
 {
     unsigned int uSectorSize, i = 0;
 
-#if 0
-    div_t result;
-#endif
-
     /*
      * Nb of blocks in device 
      */
@@ -162,26 +143,6 @@ static void AT91F_NandInit(PSNandInfo pNandInfo, PSNandInitInfo pNandInitInfo)
         pNandInfo->uSpareNbBytes;
     pNandInfo->pSpareScheme = pNandInitInfo->pSpareScheme;
 
-#if 0
-    /*
-     * Nb of sector in a block 
-     */
-    /*
-     * pNandInfo->uBlockNbSectors = pNandInfo->uBlockNbData / pNandInfo->uDataNbBytes; 
-     */
-    result = udiv(pNandInfo->uBlockNbData, pNandInfo->uDataNbBytes);
-    if (result.rem != 0)
-        result.quot++;
-    pNandInfo->uBlockNbSectors = result.quot;   /* Nb of sector in a block */
-
-    pNandInfo->uBlockNbSpares = pNandInfo->uSpareNbBytes * pNandInfo->uBlockNbSectors;  /* Nb of SpareBytes in a block */
-    pNandInfo->uBlockNbBytes = pNandInfo->uSectorNbBytes * pNandInfo->uBlockNbSectors;  /* Total nb of bytes in a block */
-
-    pNandInfo->uNbSectors = pNandInfo->uBlockNbSectors * pNandInfo->uNbBlocks;  /* Total nb of sectors in device */
-    pNandInfo->uNbData = pNandInfo->uBlockNbBytes * pNandInfo->uNbBlocks;       /* Nb of DataBytes in device */
-    pNandInfo->uNbSpares = pNandInfo->uBlockNbSpares * pNandInfo->uNbBlocks;    /* Nb of SpareBytes in device */
-    pNandInfo->uNbBytes = pNandInfo->uNbData + pNandInfo->uNbSpares;    /* Total nb of bytes in device */
-#endif
     pNandInfo->uDataBusWidth = pNandInitInfo->uNandBusWidth;    /* Data Bus Width (8/16 bits) */
 
     uSectorSize = pNandInfo->uDataNbBytes - 1;
@@ -239,19 +200,6 @@ static PSNandInitInfo AT91F_NandReadID(void)
     uChipID = (bManufacturerID << 8) | bDeviceID;
 
     return AT91F_GetNandInitInfo(uChipID);
-#if 0
-    /*
-     * Search in NandFlash_InitInfo[] 
-     */
-    while (NandFlash_InitInfo[i].uNandID != 0) {
-        if (NandFlash_InitInfo[i].uNandID == uChipID)
-            return &NandFlash_InitInfo[i];
-
-        i++;
-    }
-
-    return 0;
-#endif
 }
 
 static void AT91F_WriteLarge_BlkAdr(unsigned int Adr)
