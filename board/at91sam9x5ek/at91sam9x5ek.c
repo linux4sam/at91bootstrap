@@ -286,6 +286,7 @@ void nandflash_cfg_8bits_dbw_init(void)
 #ifdef CONFIG_SCLK
 void sclk_enable(void)
 {
+    return;
 }
 #endif                          /* CONFIG_SCLK */
 
