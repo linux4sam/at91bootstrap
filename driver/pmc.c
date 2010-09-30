@@ -118,13 +118,15 @@ int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout)
     //while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKA))
     while (!(read_pmc(PMC_SR) & AT91C_PMC_LOCKA))
         ;
-    while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+    while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+        ;
 
     return 0;
 #else
     write_pmc((unsigned int)PMC_PLLAR, pmc_pllar);
 
-    while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKA)) ;
+    while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKA))
+        ;
     return (timeout) ? 0 : (-1);
 #endif
 }
@@ -138,7 +140,9 @@ int pmc_cfg_pllb(unsigned int pmc_pllbr, unsigned int timeout)
 {
     write_pmc(PMC_PLLBR, pmc_pllbr);
 
-    while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKB)) ;
+    while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKB))
+        ;
+
     return (timeout) ? 0 : (-1);
 }
 #else
@@ -156,8 +160,9 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 {
     write_pmc(PMC_MCKR, pmc_mckr);
 
-    //while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
-    while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+    while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+        ;
+
     return (timeout) ? 0 : (-1);
 }
 
@@ -169,6 +174,8 @@ int pmc_cfg_pck(unsigned char x, unsigned int clk_sel, unsigned int prescaler)
 {
     write_pmc(PMC_PCKR + x * 4, clk_sel | prescaler);
     write_pmc(PMC_SCER, 1 << (x + 8));
-    while (!(read_pmc(PMC_SR) & (1 << (x + 8)))) ;
+    while (!(read_pmc(PMC_SR) & (1 << (x + 8))))
+        ;
+
     return 0;
 }
