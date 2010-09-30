@@ -232,7 +232,7 @@ void nandflash_hw_init(void)
     /*
      * EBI IO in 1.8V mode 
      */
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~(3 << 16),
+    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~AT91C_EBI_DRV,
            AT91C_BASE_CCFG + CCFG_EBICSA);
 
     /*
