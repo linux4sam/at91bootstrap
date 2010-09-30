@@ -263,10 +263,8 @@ void nandflash_hw_init(void)
 /*------------------------------------------------------------------------------*/
 void nandflash_cfg_16bits_dbw_init(void)
 {
-#if 0
     writel(readl(AT91C_BASE_SMC + SMC_CTRL3) | AT91C_SMC_DBW_WIDTH_SIXTEEN_BITS,
            AT91C_BASE_SMC + SMC_CTRL3);
-#endif
 }
 
 /*------------------------------------------------------------------------------*/
@@ -275,10 +273,8 @@ void nandflash_cfg_16bits_dbw_init(void)
 /*------------------------------------------------------------------------------*/
 void nandflash_cfg_8bits_dbw_init(void)
 {
-#if 0
     writel((readl(AT91C_BASE_SMC + SMC_CTRL3) & ~(AT91C_SMC_DBW)) |
            AT91C_SMC_DBW_WIDTH_EIGTH_BITS, AT91C_BASE_SMC + SMC_CTRL3);
-#endif
 }
 
 #endif                          /* #ifdef CONFIG_NANDFLASH */
