@@ -125,6 +125,7 @@ void hw_init(void)
     /*
      * Enable Debug messages on the DBGU 
      */
+#ifdef CONFIG_DEBUG
     dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
     dbgu_print("Start AT91Bootstrap...\n\r");
 #endif
