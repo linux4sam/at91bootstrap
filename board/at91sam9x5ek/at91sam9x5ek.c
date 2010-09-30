@@ -183,9 +183,11 @@ void ddramc_hw_init(void)
     writel(AT91C_PMC_DDR, AT91C_BASE_PMC + PMC_SCER);
 
     /*
-     * EBI IO in 1.8V mode 
+     * Chip select 1 is for DDR2/SDRAM
      */
-    writel(AT91C_EBI_CS1A_SDRAMC, AT91C_BASE_CCFG + CCFG_EBICSA);
+    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS1A_SDRAMC),
+            AT91C_BASE_CCFG + CCFG_EBICSA);
+
 
     /*
      * DDRAM2 Controller
@@ -224,13 +226,20 @@ void nandflash_hw_init(void)
     };
 
     /*
-     * Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface 
+     * Setup Nand flash logic
      */
-    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM) &
-           ~AT91C_EBI_NFD0_ON_D16, AT91C_BASE_CCFG + CCFG_EBICSA);
+    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM),
+            AT91C_BASE_CCFG + CCFG_EBICSA);
 
     /*
-     * EBI IO in 1.8V mode 
+     * Setup Nand flash data bus configuration (D0-D15 or D16-D31)
+     * Note: for EK early kits choose D0-15
+     */
+    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~AT91C_EBI_NFD0_ON_D16),
+            AT91C_BASE_CCFG + CCFG_EBICSA);
+
+    /*
+     * EBI IO drive configuration
      */
     writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~AT91C_EBI_DRV,
            AT91C_BASE_CCFG + CCFG_EBICSA);
