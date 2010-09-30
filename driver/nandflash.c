@@ -645,60 +645,6 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
     }
     dbg_log(1, "Copy %d bytes from %d to %d\r\n", len, offset, dst);
 
-    if (1) {
-        unsigned long *p = (unsigned long *)0x20000000;
-
-        unsigned long pattern[4];
-
-        unsigned int i;
-
-        dbg_log(1, "Forget the above line, do DDR test!\n\r");
-
-        pattern[0] = 0x12345678;
-        pattern[1] = 0x87654321;
-        pattern[2] = 0x55aa55aa;
-        pattern[3] = 0xaa55aa55;
-
-        for (i = 0; i < 8 * 1024 * 1024; i += 16) {
-            p[i + 0] = pattern[0];
-            p[i + 1] = pattern[1];
-            p[i + 2] = pattern[2];
-            p[i + 3] = pattern[3];
-
-            if ((i % (1024 * 1024)) == 0)
-                dbg_log(1, "%d M bytes are written!\n\r", i / 1024 / 1024);
-        }
-
-        for (i = 0; i < 8 * 1024 * 1024; i += 16) {
-            if (p[i + 0] != pattern[0]) {
-                dbg_log(1,
-                        "Mis-match, offset: %d, value: %d, should be: %d\n\r",
-                        i + 0, p[i + 0], pattern[0]);
-            }
-            if (p[i + 1] != pattern[1]) {
-                dbg_log(1,
-                        "Mis-match, offset: %d, value: %d, should be: %d\n\r",
-                        i + 1, p[i + 1], pattern[1]);
-            }
-            if (p[i + 2] != pattern[2]) {
-                dbg_log(1,
-                        "Mis-match, offset: %d, value: %d, should be: %d\n\r",
-                        i + 2, p[i + 2], pattern[2]);
-            }
-            if (p[i + 0] != pattern[0]) {
-                dbg_log(1,
-                        "Mis-match, offset: %d, value: %d, should be: %d\n\r",
-                        i + 3, p[i + 3], pattern[3]);
-            }
-
-            if ((i % (1024 * 1024)) == 0)
-                dbg_log(1, "%d M bytes have been tested!\n\r", i / 1024 / 1024);
-        }
-
-        dbg_log(1, "\n\r\n\r------ Done ------\r\n");
-        while (1) ;
-    }
-
     /*
      * Initialize NandInfo Structure 
      */
