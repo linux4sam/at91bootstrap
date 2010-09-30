@@ -777,7 +777,6 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
          */
         length -= sizeToRead;
     }
-    dbg_log(1, "\r\n");
 
     return 0;
 }

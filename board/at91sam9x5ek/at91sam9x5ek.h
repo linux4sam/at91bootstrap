@@ -58,27 +58,8 @@
                                 | BOARD_MULA \
                                 | BOARD_DIVA)
 
-//#define PLLA_SETTINGS 0x202A3F01
 #define PLLUTMI
 #define PLLUTMI_SETTINGS	0x10193F05
-
-/* Switch MCK on PLLA output PCK = PLLA/2 = 3 * MCK */
-//#define MCKR_SETTINGS         0x1300
-#define MCKR_CSS_SETTINGS	0x1302
-//(AT91C_PMC_CSS_PLLA_CLK | MCKR_SETTINGS)
-
-/* ******************************************************************* */
-/* DataFlash Settings                                                  */
-/* ******************************************************************* */
-#define AT91C_BASE_SPI	AT91C_BASE_SPI0
-#define AT91C_ID_SPI	AT91C_ID_SPI0
-
-/* AC characteristics */
-/* DLYBS = tCSS= 250ns min and DLYBCT = tCSH = 250ns */
-#define DATAFLASH_TCSS		(0x22 << 16)
-#define DATAFLASH_TCHS		(0x1 << 24)
-
-#define DF_CS_SETTINGS 		(AT91C_SPI_NCPHA | (AT91C_SPI_DLYBS & DATAFLASH_TCSS) | (AT91C_SPI_DLYBCT & DATAFLASH_TCHS) | ((MASTER_CLOCK / AT91C_SPI_CLK) << 8))
 
 /* ******************************************************************* */
 /* NandFlash Settings                                                  */
@@ -112,11 +93,6 @@
 #define AT91C_SM_NRD_CYCLE	(4 << 16)
 
 #define AT91C_SM_TDF	        (3 << 16)
-
-#if 0
-#define BOARD_SD_PIN_CD \
-    {AT91C_PIO_PD10, AT91C_BASE_PIOD, AT91C_ID_PIOD_E, PIO_INPUT, PIO_PULLUP}
-#endif
 
 #define BOARD_SD_PINS \
     {(0x1D << 16), AT91C_BASE_PIOA, AT91C_ID_PIOA_B, PIO_PERIPH_A, PIO_PULLUP}, \

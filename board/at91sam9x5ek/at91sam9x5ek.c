@@ -104,11 +104,6 @@ void hw_init(void)
     pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
 
     /*
-     * Configure PLLB 
-     */
-    //pmc_cfg_pllutmi(PLLUTMI_SETTINGS, PLL_LOCK_TIMEOUT);
-
-    /*
      * Enable External Reset 
      */
     writel(AT91C_RSTC_KEY_UNLOCK
@@ -127,7 +122,6 @@ void hw_init(void)
     writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
     pio_setup(hw_pio);
 
-#ifdef CONFIG_DEBUG
     /*
      * Enable Debug messages on the DBGU 
      */
@@ -291,19 +285,6 @@ void nandflash_cfg_8bits_dbw_init(void)
 #ifdef CONFIG_SCLK
 void sclk_enable(void)
 {
-#if 0
-    volatile int i;
-
-    //unsigned int dwRegSave;
-
-    (*(volatile unsigned int *)AT91C_SYS_SLCKSEL) =
-        AT91C_SLCKSEL_OSC32EN | AT91C_SLCKSEL_RCEN;
-    for (i = 0; i < 0x100000; i++) ;    //wait for a slow clock  startup time
-
-    (*(volatile unsigned int *)AT91C_SYS_SLCKSEL) =
-        AT91C_SLCKSEL_OSC32EN | AT91C_SLCKSEL_RCEN | AT91C_SLCKSEL_OSCSEL;
-    for (i = 0; i < 0x1000; i++) ;
-#endif
 }
 #endif                          /* CONFIG_SCLK */
 
