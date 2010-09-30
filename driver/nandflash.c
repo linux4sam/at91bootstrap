@@ -641,7 +641,7 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
 
     if (!pNandInitInfo) {
         dbg_log(DEBUG_INFO, "\n\r-E- No NandFlash detected !!!\n\r");
-        //return -1;
+        return -1;
     }
     dbg_log(1, "Copy %d bytes from %d to %d\r\n", len, offset, dst);
 
