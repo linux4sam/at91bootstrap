@@ -50,23 +50,6 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
     return readl((address + offset));
 }
 
-void Wait(unsigned int count)
-{
-    volatile unsigned int i;
-
-#ifdef WINCE
-    volatile unsigned int j = 0;
-#endif
-
-    for (i = 0; i < count; i++) {
-#ifdef WINCE
-        j++;
-#else
-        asm("    nop");
-#endif
-    }
-}
-
 //*----------------------------------------------------------------------------
 //* \fn    sdram_init
 //* \brief Initialize the SDDRC Controller

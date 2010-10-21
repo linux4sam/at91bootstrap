@@ -52,6 +52,8 @@ typedef enum _BOOL { FALSE, TRUE } BOOL;
 
 #define I_CACHE		(1<<12)
 
+extern void Wait(unsigned int count);
+
 extern void hw_init(void);
 
 extern div_t udiv(unsigned int dividend, unsigned int divisor);

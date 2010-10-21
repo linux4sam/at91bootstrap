@@ -52,6 +52,27 @@ void LoadLinux();
 void LoadWince();
 
 /*------------------------------------------------------------------------------*/
+/* Function Name       : Wait							*/
+/* Object              : software loop waiting function				*/
+/*------------------------------------------------------------------------------*/
+void Wait(unsigned int count)
+{
+    volatile unsigned int i;
+
+#ifdef WINCE
+    volatile unsigned int j = 0;
+#endif
+
+    for (i = 0; i < count; i++) {
+#ifdef WINCE
+        j++;
+#else
+        asm("    nop");
+#endif
+    }
+}
+
+/*------------------------------------------------------------------------------*/
 /* Function Name       : main							*/
 /* Object              : Main function						*/
 /* Input Parameters    : none							*/
