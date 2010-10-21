@@ -164,6 +164,7 @@ int main(void)
 #endif                          /* LINUX_ARG */
 
 #ifdef CONFIG_SCLK
+    /* Switch slow clock late so that external oscillator has time to startup */
     sclk_enable();
 #endif
 
