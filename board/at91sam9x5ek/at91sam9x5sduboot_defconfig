@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Tue Sep 28 14:38:31 2010
+# Thu Oct 21 19:02:31 2010
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9x5ek"
@@ -95,5 +95,6 @@ CONFIG_DEBUG_INFO=y
 CONFIG_HW_INIT=y
 # CONFIG_USER_HW_INIT is not set
 CONFIG_THUMB=y
+CONFIG_SCLK=y
 # CONFIG_SX_AT91 is not set
 # CONFIG_RAW_AT91 is not set
