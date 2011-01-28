@@ -166,7 +166,7 @@ static int pio_set_D_periph(unsigned pin, int use_pullup)
 /* \brief mux the pin to the gpio controller (instead of "A" or "B" peripheral),*/
 /*        and configure it for an input.					*/
 /*------------------------------------------------------------------------------*/
-static int pio_set_gpio_input(unsigned pin, int use_pullup)
+int pio_set_gpio_input(unsigned pin, int use_pullup)
 {
     unsigned pio = pin_to_controller(pin);
 
@@ -187,7 +187,7 @@ static int pio_set_gpio_input(unsigned pin, int use_pullup)
 /* \brief mux the pin to the gpio controller (instead of "A" or "B" peripheral),*/
 /*        and configure it for an output.										*/
 /*------------------------------------------------------------------------------*/
-static int pio_set_gpio_output(unsigned pin, int value)
+int pio_set_gpio_output(unsigned pin, int value)
 {
     unsigned pio = pin_to_controller(pin);
 

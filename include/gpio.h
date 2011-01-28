@@ -65,6 +65,9 @@ extern int pio_get_value(unsigned pin);
 /* pio_device_pio_setup: Configure PIO in periph mode according to the platform informations */
 extern int pio_setup(const struct pio_desc *pio_desc);
 
+extern int pio_set_gpio_input(unsigned pin, int use_pullup);
+extern int pio_set_gpio_output(unsigned pin, int value);
+
 /* these pin numbers double as IRQ numbers, like AT91C_ID_* values */
 #define PIO_NB_IO		32      /* Number of IO handled by one PIO controller */
 #define	AT91C_PIN_PA(io)	(0 * PIO_NB_IO + io)

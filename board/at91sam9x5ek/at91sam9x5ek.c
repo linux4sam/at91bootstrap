@@ -288,6 +288,17 @@ void nandflash_cfg_8bits_dbw_init(void)
 
 #endif                          /* #ifdef CONFIG_NANDFLASH */
 
+void one_wire_hw_init(void)
+{
+	const struct pio_desc wire_pio[] = {
+		{"1-Wire", AT91C_PIN_PB(18), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pio_setup(wire_pio);
+}
+
 #ifdef CONFIG_SCLK
 void sclk_enable(void)
 {
