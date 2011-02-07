@@ -622,10 +622,9 @@ static int get_board_info(struct one_wire_info *p)
 	return 0;
 }
 
-void load_1wire_info()
+void load_1wire_info(unsigned int *sn, unsigned int *rev)
 {
 	int i, cnt;
-	unsigned int sn = 0, rev = 0;
 	int size = sizeof(struct one_wire_info);
 
 	dbg_log(1, "Loading 1-Wire info...\n\r");
@@ -650,19 +649,19 @@ void load_1wire_info()
 
 		switch (board_type) {
 		case BOARD_TYPE_CPU:
-			sn  |= (board_id & 0x1F);
-			sn  |= ((vendor_id & 0x1F) << 5);
-			rev |= (revision_code - 'A');
+			*sn  |= (board_id & 0x1F);
+			*sn  |= ((vendor_id & 0x1F) << 5);
+			*rev |= (revision_code - 'A');
 			break;
 		case BOARD_TYPE_DM:
-			sn  |= ((board_id & 0x1F) << 10);
-			sn  |= ((vendor_id & 0x1F) << 15);
-			rev |= ((revision_code - 'A') << 5);
+			*sn  |= ((board_id & 0x1F) << 10);
+			*sn  |= ((vendor_id & 0x1F) << 15);
+			*rev |= ((revision_code - 'A') << 5);
 			break;
 		case BOARD_TYPE_EK:
-			sn  |= ((board_id & 0x1F) << 20);
-			sn  |= ((vendor_id & 0x1F) << 25);
-			rev |= ((revision_code - 'A') << 10);
+			*sn  |= ((board_id & 0x1F) << 20);
+			*sn  |= ((vendor_id & 0x1F) << 25);
+			*rev |= ((revision_code - 'A') << 10);
 			break;
 		default:
 			dbg_log(1, "Unknown board type!\n\r");
@@ -672,11 +671,11 @@ void load_1wire_info()
 		}
 	}
 
-	dbg_log(1, "sn: %x;   rev: %x\n\r", sn, rev);
+	dbg_log(1, "sn: %x;   rev: %x\n\r", *sn, *rev);
 
 	/* save to GPBR #2 and #3 */
-	writel(sn, AT91C_SYS_GPBR + 4 * 2);
-	writel(rev, AT91C_SYS_GPBR + 4 * 3);
+	writel(*sn, AT91C_SYS_GPBR + 4 * 2);
+	writel(*rev, AT91C_SYS_GPBR + 4 * 3);
 
 	return;
 }

@@ -94,8 +94,21 @@ int main(void)
 #endif
 
 #if defined(CONFIG_AT91SAM9X5EK)
-    extern load_1wire_info();
-    load_1wire_info();
+
+#define CM_REV		0x1f
+#define CM_REV_OFF	0
+#define cm_rev(rev)	(((rev) & CM_REV) >> CM_REV_OFF)
+
+#define cm_is_revB(rev)	(cm_rev(rev) == ('B' - 'A'))
+
+    extern void load_1wire_info(unsigned int *, unsigned int *);
+    unsigned int sn = 0;
+    unsigned int rev = 0;
+    load_1wire_info(&sn, &rev);
+    dbg_log(1, "serial: %x;   revision: %x\n\r", sn, rev);
+    if (cm_is_revB(rev))
+	    dbg_log(1, "Board is rev B\n\r");
+
 #endif
 
     dbg_log(1, "Begin to load image...\n\r");

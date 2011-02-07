@@ -255,7 +255,7 @@ int pio_set_value(unsigned pin, int value)
     return 0;
 }
 #endif
-#if !defined (CONFIG_SDCARD)
+
 /*------------------------------------------------------------------------------*/
 /* \fn    pio_get_value								*/
 /* \brief read the pin's value (works even if it's not muxed as a gpio).	*/
@@ -274,7 +274,7 @@ int pio_get_value(unsigned pin)
     pdsr = read_pio(PIO_PDSR(pio));
     return (pdsr & mask) != 0;
 }
-#endif
+
 /*------------------------------------------------------------------------------*/
 /* \fn    pio_device_pio_setup							*/
 /* \brief Configure PIO in periph mode according to the platform informations	*/
