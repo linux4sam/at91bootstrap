@@ -304,13 +304,13 @@ void sclk_enable(void)
 {
     writel(readl(AT91C_SYS_SLCKSEL) | AT91C_SLCKSEL_OSC32EN, AT91C_SYS_SLCKSEL);
     /* must wait for slow clock startup time ~ 1000ms
-     * (~10 core cycles per iteration, core is at 396MHz: 38500000 min loops) */
-    Wait(38500000);
+     * (~6 core cycles per iteration, core is at 400MHz: 66666000 min loops) */
+    Wait(66700000);
 
     writel(readl(AT91C_SYS_SLCKSEL) | AT91C_SLCKSEL_OSCSEL, AT91C_SYS_SLCKSEL);
     /* must wait 5 slow clock cycles = ~153 us
-     * (~10 core cycles per iteration, core is at 396MHz: min 6100 loops) */
-    Wait(6100);
+     * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops) */
+    Wait(10200);
 
     /* now disable the internal RC oscillator */
     writel(readl(AT91C_SYS_SLCKSEL) & ~AT91C_SLCKSEL_RCEN, AT91C_SYS_SLCKSEL);
