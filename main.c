@@ -55,22 +55,24 @@ void LoadWince();
 /* Function Name       : Wait							*/
 /* Object              : software loop waiting function				*/
 /*------------------------------------------------------------------------------*/
+#ifdef WINCE
 void Wait(unsigned int count)
 {
     volatile unsigned int i;
-
-#ifdef WINCE
     volatile unsigned int j = 0;
-#endif
 
-    for (i = 0; i < count; i++) {
-#ifdef WINCE
+    for (i = 0; i < count; i++)
         j++;
-#else
-        asm("    nop");
-#endif
-    }
 }
+#else
+void Wait(unsigned int count)
+{
+    unsigned int i;
+
+    for (i = 0; i < count; i++)
+        asm volatile ("    nop");
+}
+#endif
 
 /*------------------------------------------------------------------------------*/
 /* Function Name       : main							*/
