@@ -134,6 +134,8 @@ struct vendor_info {
 }__attribute__ ((packed)) vendor_list[] = {
 	{"EMBEST",		VENDOR_EMBEST},
 	{"FLEX",		VENDOR_FLEX},
+	{"RONETIX",		VENDOR_RONETIX},
+	{"COGENT",		VENDOR_COGENT},
 	{0,			0},
 };
 
