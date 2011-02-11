@@ -73,8 +73,6 @@
 #define NAND_DISABLE_CE() do { *(volatile unsigned int *)AT91C_PIOD_SODR = AT91C_PIO_PD4;} while(0)
 #define NAND_ENABLE_CE() do { *(volatile unsigned int *)AT91C_PIOD_CODR = AT91C_PIO_PD4;} while(0)
 
-#define NAND_WAIT_READY() while (!(*(volatile unsigned int *)AT91C_PIOD_PDSR & AT91C_PIO_PD6))
-
 /* ******************************************************************** */
 /* SMC Chip Select 3 Timings for NandFlash for MASTER_CLOCK = 133000000 */
 /* Please refer to SMC section in AT91SAM9 datasheet to learn how       */

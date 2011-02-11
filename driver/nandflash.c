@@ -40,6 +40,10 @@
 #include "nandflash.h"
 #include "hamming.h"
 
+#ifndef NAND_WAIT_READY
+extern void NAND_WAIT_READY();
+#endif
+
 /*----------------------------------------------------------------------------*/
 /* NAND Commands							      */
 /*----------------------------------------------------------------------------*/

@@ -47,6 +47,8 @@
 #include "nandflash.h"
 #endif
 
+#include "onewire_info.h"
+
 int get_cp15(void);
 
 void set_cp15(unsigned int value);
@@ -212,37 +214,47 @@ static void nand_recovery(void)
 /*------------------------------------------------------------------------------*/
 void nandflash_hw_init(void)
 {
+    unsigned int reg;
     /*
      * Configure PIOs 
      */
-    const struct pio_desc nand_pio[] = {
+    const struct pio_desc nand_pio_hi[] = {
         {"NANDOE", AT91C_PIN_PD(0), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDWE", AT91C_PIN_PD(1), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDALE", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDCLE", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
         {"NANDCS", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_OUTPUT},
-        {"RDY_BSY", AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_INPUT}, //REVISIT
+        {"RDY_BSY", AT91C_PIN_PD(5), 0, PIO_PULLUP, PIO_INPUT},
+        {"D0", AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"D1", AT91C_PIN_PD(7), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"D2", AT91C_PIN_PD(8), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"D3", AT91C_PIN_PD(9), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"D4", AT91C_PIN_PD(10), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"D5", AT91C_PIN_PD(11), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"D6", AT91C_PIN_PD(12), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"D7", AT91C_PIN_PD(13), 0, PIO_PULLUP, PIO_PERIPH_A},
         {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
     };
 
-    /*
-     * Setup Nand flash logic
-     */
-    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM),
-            AT91C_BASE_CCFG + CCFG_EBICSA);
+    const struct pio_desc nand_pio_lo[] = {
+        {"NANDOE", AT91C_PIN_PD(0), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"NANDWE", AT91C_PIN_PD(1), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"NANDALE", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"NANDCLE", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
+        {"NANDCS", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_OUTPUT},
+        {"RDY_BSY", AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_INPUT},
+        {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+    };
 
-    /*
-     * Setup Nand flash data bus configuration (D0-D15 or D16-D31)
-     * Note: for EK early kits choose D0-15
-     */
-    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~AT91C_EBI_NFD0_ON_D16),
-            AT91C_BASE_CCFG + CCFG_EBICSA);
-
-    /*
-     * EBI IO drive configuration
-     */
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) & ~AT91C_EBI_DRV,
-           AT91C_BASE_CCFG + CCFG_EBICSA);
+    reg = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
+    reg |= AT91C_EBI_CS3A_SM;
+    if ((get_cm_rev() == 'A') && (get_cm_vendor() == VENDOR_EMBEST)) {
+        reg &= ~AT91C_EBI_NFD0_ON_D16;
+    } else {
+        reg |= (AT91C_EBI_DDR_MP_EN | AT91C_EBI_NFD0_ON_D16);
+    }
+    reg &= ~AT91C_EBI_DRV;
+    writel(reg, AT91C_BASE_CCFG + CCFG_EBICSA);
 
     /*
      * Configure SMC CS3 
@@ -261,9 +273,22 @@ void nandflash_hw_init(void)
      * Configure the PIO controller 
      */
     writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
-    pio_setup(nand_pio);
+    if ((get_cm_rev() == 'A') && (get_cm_vendor() == VENDOR_EMBEST))
+        pio_setup(nand_pio_lo);
+    else
+        pio_setup(nand_pio_hi);
 
     nand_recovery();
+}
+
+void NAND_WAIT_READY()
+{
+    if ((get_cm_rev() == 'A') && (get_cm_vendor() == VENDOR_EMBEST))
+        while (!(*(volatile unsigned int *)AT91C_PIOD_PDSR & AT91C_PIO_PD6))
+            ;
+    else
+        while (!(*(volatile unsigned int *)AT91C_PIOD_PDSR & AT91C_PIO_PD5))
+            ;
 }
 
 /*------------------------------------------------------------------------------*/

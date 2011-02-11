@@ -32,7 +32,7 @@
 #include "pmc.h"
 #include "main.h"
 #include "debug.h"
-#include "ds24xx.h"
+#include "onewire_info.h"
 
 #define ROM_COMMAND_READ		0x33
 #define ROM_COMMAND_MATCH		0x55
@@ -65,33 +65,50 @@
 #define DS2433_SCRATCHPAD_SIZE		0x20
 
 #define MAX_RETRY			10
+#define MAX_BUF_LEN			256
 
 #define BOARD_TYPE_CPU			1
 #define BOARD_TYPE_EK			2
 #define BOARD_TYPE_DM			3
+
+#define MAX_ITEMS			5
+#define CHIP_ADDR_LEN			8
+
+#define BOARD_NAME_LEN			12
+#define VENDOR_NAME_LEN			10
+
+#define CM_SN_MASK			0x1F
+#define CM_SN_OFFSET			0
+#define CM_VENDOR_MASK			(0x1F << 5)
+#define CM_VENDOR_OFFSET		5
+#define CM_REV_MASK			0x1F
+#define CM_REV_OFFSET			0
 
 extern char *strcpy(char *dst, const char *src);
 extern int strcmp(const char *p1, const char *p2);
 extern void *memset(void *dst, int val, int cnt);
 extern void *memcpy(void *dst, const void *src, int cnt);
 
+static unsigned int sn;
+static unsigned int rev;
+
 /* global search state */
-static unsigned char device_id_array[5][8];
+static unsigned char device_id_array[MAX_ITEMS][CHIP_ADDR_LEN];
 static unsigned char LastDiscrepancy;
 static unsigned char LastFamilyDiscrepancy;
 static unsigned char LastDeviceFlag;
 static unsigned char crc8;
 
-static unsigned char buf[256];
-static unsigned char cmp[256];
+static unsigned char buf[MAX_BUF_LEN];
+static unsigned char cmp[MAX_BUF_LEN];
 
 static unsigned char board_type, board_id, vendor_id, revision_code;
 
 struct one_wire_info {
 	unsigned char total_bytes;
-	char vendor_name[10];
+	char vendor_name[VENDOR_NAME_LEN];
 	char vendor_country[2];
-	char board_name[12];
+	char board_name[BOARD_NAME_LEN];
 	unsigned char year;
 	unsigned char week;
 	unsigned char revision_code;
@@ -115,8 +132,8 @@ struct vendor_info {
 	char *vendor_name;
 	char vendor_id;
 }__attribute__ ((packed)) vendor_list[] = {
-	{"EMBEST",		1},
-	{"FLEX",		2},
+	{"EMBEST",		VENDOR_EMBEST},
+	{"FLEX",		VENDOR_FLEX},
 	{0,			0},
 };
 
@@ -251,6 +268,7 @@ static unsigned char ds24xx_read_byte()
 	return result;
 }
 
+/* MAXIM App. Note #187 */
 static int ds24xx_search_rom()
 {
 	int id_bit_number;
@@ -513,7 +531,7 @@ static void write_data()
 	p->vendor_country[1] = 'N';
 	p->year = 11;
 	p->week = 5;
-	p->revision_code = 'B';
+	p->revision_code = 'A';
 	ds24xx_write_memory(0, 0, 0, sizeof(struct one_wire_info), buf);
 
 	memset(buf, 0, sizeof(struct one_wire_info));
@@ -524,7 +542,7 @@ static void write_data()
 	p->vendor_country[1] = 'N';
 	p->year = 11;
 	p->week = 5;
-	p->revision_code = 'C';
+	p->revision_code = 'A';
 	ds24xx_write_memory(1, 0, 0, sizeof(struct one_wire_info), buf);
 
 	memset(buf, 0, sizeof(struct one_wire_info));
@@ -535,7 +553,7 @@ static void write_data()
 	p->vendor_country[1] = 'N';
 	p->year = 11;
 	p->week = 5;
-	p->revision_code = 'D';
+	p->revision_code = 'A';
 	ds24xx_write_memory(2, 0, 0, sizeof(struct one_wire_info), buf);
 }
 #endif
@@ -589,7 +607,7 @@ static int get_board_info(struct one_wire_info *p)
 	char tmp[20];
 
 	memset(tmp, 0, 20);
-	memcpy(tmp, p->board_name, 12);
+	memcpy(tmp, p->board_name, BOARD_NAME_LEN);
 	for (i = 0; ; i++) {
 		if (board_list[i].board_name == 0) {
 			dbg_log(1, "No board name found!\n\r");
@@ -606,7 +624,7 @@ static int get_board_info(struct one_wire_info *p)
 	dbg_log(1, "Board name: %s; ", tmp);
 
 	memset(tmp, 0, 20);
-	memcpy(tmp, p->vendor_name, 10);
+	memcpy(tmp, p->vendor_name, VENDOR_NAME_LEN);
 	for (i = 0; ; i++) {
 		if (vendor_list[i].vendor_name == 0) {
 			dbg_log(1, "No vendor name found!\n\r");
@@ -622,7 +640,7 @@ static int get_board_info(struct one_wire_info *p)
 	return 0;
 }
 
-void load_1wire_info(unsigned int *sn, unsigned int *rev)
+void load_1wire_info()
 {
 	int i, cnt;
 	int size = sizeof(struct one_wire_info);
@@ -649,19 +667,19 @@ void load_1wire_info(unsigned int *sn, unsigned int *rev)
 
 		switch (board_type) {
 		case BOARD_TYPE_CPU:
-			*sn  |= (board_id & 0x1F);
-			*sn  |= ((vendor_id & 0x1F) << 5);
-			*rev |= (revision_code - 'A');
+			sn  |= (board_id & 0x1F);
+			sn  |= ((vendor_id & 0x1F) << 5);
+			rev |= (revision_code - 'A');
 			break;
 		case BOARD_TYPE_DM:
-			*sn  |= ((board_id & 0x1F) << 10);
-			*sn  |= ((vendor_id & 0x1F) << 15);
-			*rev |= ((revision_code - 'A') << 5);
+			sn  |= ((board_id & 0x1F) << 10);
+			sn  |= ((vendor_id & 0x1F) << 15);
+			rev |= ((revision_code - 'A') << 5);
 			break;
 		case BOARD_TYPE_EK:
-			*sn  |= ((board_id & 0x1F) << 20);
-			*sn  |= ((vendor_id & 0x1F) << 25);
-			*rev |= ((revision_code - 'A') << 10);
+			sn  |= ((board_id & 0x1F) << 20);
+			sn  |= ((vendor_id & 0x1F) << 25);
+			rev |= ((revision_code - 'A') << 10);
 			break;
 		default:
 			dbg_log(1, "Unknown board type!\n\r");
@@ -671,11 +689,26 @@ void load_1wire_info(unsigned int *sn, unsigned int *rev)
 		}
 	}
 
-	dbg_log(1, "sn: %x;   rev: %x\n\r", *sn, *rev);
+	dbg_log(1, "sn: %x;   rev: %x\n\r", sn, rev);
 
 	/* save to GPBR #2 and #3 */
-	writel(*sn, AT91C_SYS_GPBR + 4 * 2);
-	writel(*rev, AT91C_SYS_GPBR + 4 * 3);
+	writel(sn, AT91C_SYS_GPBR + 4 * 2);
+	writel(rev, AT91C_SYS_GPBR + 4 * 3);
 
 	return;
+}
+
+unsigned int get_cm_sn()
+{
+	return (sn & CM_SN_MASK) >> CM_SN_OFFSET;
+}
+
+unsigned int get_cm_vendor()
+{
+	return (sn & CM_VENDOR_MASK) >> CM_VENDOR_OFFSET;
+}
+
+char get_cm_rev()
+{
+	return 'A' + ((rev & CM_REV_MASK) >> CM_REV_OFFSET);
 }
