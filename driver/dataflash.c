@@ -41,6 +41,8 @@
 #if defined(CONFIG_DATAFLASH) || defined(CONFIG_DATAFLASHCARD)
 
 extern div_t udiv(unsigned int dividend, unsigned int divisor);
+extern void df_cs_active(int cs);
+extern void df_cs_deactive(int cs);
 
 /* Write SPI register */
 static inline void write_spi(unsigned int offset, const unsigned int value)
@@ -52,72 +54,6 @@ static inline void write_spi(unsigned int offset, const unsigned int value)
 static inline unsigned int read_spi(unsigned int offset)
 {
     return readl(offset + AT91C_BASE_SPI);
-}
-
-static void msg_df_detect(int i)
-{
-#if	defined(CONFIG_VERBOSE)
-    char *pn;
-
-#ifdef	CONFIG_DEBUG
-#if 0
-    msg_print(MSG_PROMPT);
-    msg_print(MSG_DATAFLASH);
-    msg_print(MSG_SPACE);
-    msg_print(MSG_CODE);
-    msg_print(MSG_SPACE);
-    dbg_print_hex(i);
-    msg_print(MSG_NEWLINE);
-#endif
-#endif
-#if 0
-    msg_print(MSG_PROMPT);
-    msg_print(MSG_AT45);
-    msg_print(MSG_DB);
-#endif
-    switch (i) {
-    case AT45DB011D:
-        pn = "011D";
-        break;
-    case AT45DB021D:
-        pn = "021D";
-        break;
-    case AT45DB041D:
-        pn = "041D";
-        break;
-    case AT45DB081D:
-        pn = "081D";
-        break;
-    case AT45DB161D:
-        pn = "161D";
-        break;
-    case AT45DB321D:
-        pn = "321D";
-        break;
-    case AT45DB642D:
-        pn = "642D";
-        break;
-#if	0
-    case AT45DB1282D:
-        pn = "1282";
-        break;
-    case AT45DB2562D:
-        pn = "2562";
-        break;
-    case AT45DB5122D:
-        pn = "5122";
-        break;
-#endif
-    default:
-        pn = "????";
-        break;
-    }
-#if 0
-    dbg_print(pn);
-    msg_print_ws(MSG_DETECTED);
-    msg_print(MSG_NEWLINE);
-#endif
-#endif
 }
 
 /*------------------------------------------------------------------------------*/
@@ -185,6 +121,71 @@ static int df_spi_init(unsigned int pcs, unsigned int spi_csr)
     return SUCCESS;
 }
 
+#ifdef CONFIG_AT91SAM9X5EK
+void df_write_spi(unsigned short data)
+{
+    while ((read_spi(SPI_SR) & AT91C_SPI_TXEMPTY) == 0)
+	; /* Loop wait */
+    write_spi(SPI_TDR, data);
+    while ((read_spi(SPI_SR) & AT91C_SPI_TDRE) == 0)
+	; /* Loop wait */
+}
+
+unsigned int df_read_spi()
+{
+    while ((read_spi(SPI_SR) & AT91C_SPI_RDRF) == 0)
+	; /* Loop wait */
+    return read_spi(SPI_RDR) & 0xffff;
+}
+
+/*---------------------------------------------------------------------------*/
+/* \fn    df_send_command                                                    */
+/* \brief send a command to the dataflash without using PDC. 9x5 has no PDC. */
+/*---------------------------------------------------------------------------*/
+char df_send_command(AT91PS_DF pDataFlash,
+			unsigned char bCmd,	/* Command value */
+			unsigned char bCmdSize,	/* Command Size */
+			char *pData,		/* Data to be sent */
+			unsigned int dDataSize,	/* Data Size */
+			unsigned int dAddress)
+{
+    int i;
+    /* command array contains 8 bytes */
+    unsigned char *pcmd = (unsigned char *)pDataFlash->command;
+    pcmd[0] = bCmd;
+
+    if (bCmdSize > 1) {
+	pcmd[1] = dAddress >> 16;
+	pcmd[2] = dAddress >> 8;
+	pcmd[3] = dAddress;
+	pcmd[4] = 0;
+    }
+
+    if ((pDataFlash->bSemaphore) != UNLOCKED)
+	return (char)FAILURE;
+    pDataFlash->bSemaphore = LOCKED;
+    df_cs_active(0);
+
+    for (i = 0; i < bCmdSize; i++) {
+	df_write_spi(pcmd[i]);
+	df_read_spi();
+    }
+
+    for (i = 0; i < dDataSize; i++) {
+	df_write_spi(0);
+	pData[i] = df_read_spi();
+    }
+
+    write_spi(SPI_CR, AT91C_SPI_LASTXFER);
+
+    df_cs_deactive(0);
+
+    pDataFlash->bSemaphore = UNLOCKED;
+
+    return SUCCESS;
+}
+
+#else
 /*------------------------------------------------------------------------------*/
 /* \fn    df_is_busy								*/
 /* \brief Test if SPI has received a buffer or not				*/
@@ -211,7 +212,7 @@ static AT91S_DF_SEM df_is_busy(AT91PS_DF pDataFlash)
 
 /*------------------------------------------------------------------------------*/
 /* \fn    df_send_command							*/
-/* \brief Generic function to send a command to the dataflash			*/
+/* \brief Generic function to send a command to the dataflash using PDC.     */
 /*------------------------------------------------------------------------------*/
 char df_send_command(AT91PS_DF pDataFlash, unsigned char bCmd,  /* Command value */
                      unsigned char bCmdSize,    /* Command Size */
@@ -280,6 +281,96 @@ char df_send_command(AT91PS_DF pDataFlash, unsigned char bCmd,  /* Command value
     return SUCCESS;
 }
 
+static void at45_msg_df_detect(int i)
+{
+#if	defined(CONFIG_VERBOSE)
+	char *pn;
+
+#ifdef	CONFIG_DEBUG
+#if 0
+	msg_print(MSG_PROMPT);
+	msg_print(MSG_DATAFLASH);
+	msg_print(MSG_SPACE);
+	msg_print(MSG_CODE);
+	msg_print(MSG_SPACE);
+	dbg_print_hex(i);
+	msg_print(MSG_NEWLINE);
+#endif
+#endif
+#if 0
+	msg_print(MSG_PROMPT);
+	msg_print(MSG_AT45);
+	msg_print(MSG_DB);
+#endif
+	switch (i) {
+	case AT45DB011D:
+		pn = "011D";
+		break;
+	case AT45DB021D:
+		pn = "021D";
+		break;
+	case AT45DB041D:
+		pn = "041D";
+		break;
+	case AT45DB081D:
+		pn = "081D";
+		break;
+	case AT45DB161D:
+		pn = "161D";
+		break;
+	case AT45DB321D:
+		pn = "321D";
+		break;
+	case AT45DB642D:
+		pn = "642D";
+		break;
+#if	0
+	case AT45DB1282D:
+		pn = "1282";
+		break;
+	case AT45DB2562D:
+		pn = "2562";
+		break;
+	case AT45DB5122D:
+		pn = "5122";
+		break;
+#endif
+	default:
+		pn = "????";
+		break;
+	}
+#if 0
+	dbg_print(pn);
+	msg_print_ws(MSG_DETECTED);
+	msg_print(MSG_NEWLINE);
+#endif
+#endif
+}
+
+/*----------------------------------------------------------------------*/
+/* \fn    at45_df_probe							*/
+/* \brief Returns DataFlash ID						*/
+/*----------------------------------------------------------------------*/
+static int at45_df_probe(AT91PS_DF pDf)
+{
+    char *pResult = (char *)(pDf->command);
+
+    df_get_status(pDf);
+
+    /* Check if DataFlash has been configured in binary page mode */
+    if ((pResult[1] & 0x1) == 0x1) {
+	pDf->dfDescription.binaryPageMode = 1;
+#ifdef CONFIG_VERBOSE
+	/* dbg_print("> DataFlash in binary mode\n\r"); */
+#endif                          /* CONFIG_DEBUG */
+    } else {
+	pDf->dfDescription.binaryPageMode = 0;
+    }
+
+    return (pResult[1] & 0x3C);
+}
+#endif
+
 /*------------------------------------------------------------------------------*/
 /* \fn    df_wait_ready								*/
 /* \brief wait for DataFlash to be ready					*/
@@ -341,11 +432,11 @@ void df_write(AT91PS_DF pDf, unsigned int addr, int size, unsigned long offset)
     }
 }
 
-/*------------------------------------------------------------------------------*/
-/* \fn    df_read								*/
-/* \brief Read a block in dataflash						*/
-/*------------------------------------------------------------------------------*/
-static int df_read(AT91PS_DF pDf,
+/*---------------------------------------------------------------------------*/
+/* \fn    at45_df_read                                                       */
+/* \brief Read a block in dataflash                                          */
+/*---------------------------------------------------------------------------*/
+static int at45_df_read(AT91PS_DF pDf,
                    unsigned int addr, unsigned char *buffer, unsigned int size)
 {
     unsigned int SizeToRead;
@@ -389,6 +480,20 @@ static int df_read(AT91PS_DF pDf,
     return SUCCESS;
 }
 
+/*---------------------------------------------------------------------------*/
+/* \fn    at25_df_read                                                       */
+/* \brief Read a at25 dataflash                                              */
+/*---------------------------------------------------------------------------*/
+static int at25_df_read(AT91PS_DF pDf,
+		unsigned int addr, char *buffer, unsigned int size)
+{
+    int status = SUCCESS;
+
+    status = df_read_bytes_at25(pDf, buffer, size, addr);
+
+    return status;
+}
+
 /*----------------------------------------------------------------------*/
 /* \fn    df_download							*/
 /* \brief load the content of the dataflash				*/
@@ -396,41 +501,37 @@ static int df_read(AT91PS_DF pDf,
 static int df_download(AT91PS_DF pDf, unsigned int img_addr,
                        unsigned int img_size, unsigned int img_dest)
 {
+    int status = SUCCESS;
+    /* TODO: the family should be from reading flash id */
+    int data_flash_family;
+#ifdef CONFIG_AT91SAM9X5EK
+	data_flash_family = DF_FAMILY_AT26DF;
+#else
+	data_flash_family = DF_FAMILY_AT45;
+#endif
     /*
-     * read bytes in the dataflash 
+     * read bytes in the dataflash
      */
-    if (df_read(pDf, img_addr, (unsigned char *)img_dest, img_size) == FAILURE) {
-        dbg_log(1, "df_read, failed!\r\n");
-        return FAILURE;
+    if (data_flash_family == DF_FAMILY_AT26DF) {
+	/* 9x5 using at25 dataflash */
+	if (at25_df_read(pDf, img_addr, (char *)img_dest, img_size)
+				== FAILURE) {
+		dbg_log(1, "at25_df_read, failed!\r\n");
+		status = FAILURE;
+	    }
+    } else if (data_flash_family == DF_FAMILY_AT45) {
+	if (at45_df_read(pDf, img_addr, (unsigned char *)img_dest, img_size)
+				== FAILURE) {
+		dbg_log(1, "at45_df_read, failed!\r\n");
+		status = FAILURE;
+	}
+
+	/*
+	 * wait the dataflash ready status
+	 */
+	status = df_wait_ready(pDf);
     }
-
-    /*
-     * wait the dataflash ready status 
-     */
-    return df_wait_ready(pDf);
-}
-
-/*----------------------------------------------------------------------*/
-/* \fn    df_probe							*/
-/* \brief Returns DataFlash ID						*/
-/*----------------------------------------------------------------------*/
-static int df_probe(AT91PS_DF pDf)
-{
-    char *pResult = (char *)(pDf->command);
-
-    df_get_status(pDf);
-
-    // Check if DataFlash has been configured in binary page mode
-    if ((pResult[1] & 0x1) == 0x1) {
-        pDf->dfDescription.binaryPageMode = 1;
-#ifdef CONFIG_VERBOSE
-        //dbg_print("> DataFlash in binary mode\n\r");
-#endif                          /* CONFIG_DEBUG */
-    } else {
-        pDf->dfDescription.binaryPageMode = 0;
-    }
-
-    return (pResult[1] & 0x3C);
+    return status;
 }
 
 /*----------------------------------------------------------------------*/
@@ -439,10 +540,22 @@ static int df_probe(AT91PS_DF pDf)
 /*----------------------------------------------------------------------*/
 static int df_init(AT91PS_DF pDf)
 {
-    int dfcode = 0;
-
     int status = SUCCESS;
 
+#ifdef CONFIG_AT91SAM9X5EK
+    static char id[5];
+    df_get_flashid(pDf, id);
+    dbg_log(DEBUG_INFO, "detected dataflash id = %x %x %x %x %x.\r\n",
+			id[0], id[1], id[2], id[3], id[4]);
+
+    /*
+     * Default: AT25DF321
+     */
+    pDf->dfDescription.pages_number = 16 * 16 * 64;
+    pDf->dfDescription.pages_size = 256;
+    pDf->dfDescription.page_offset = 0;
+#else
+    int dfcode = 0;
     /*
      * Default: AT45DB321B 
      */
@@ -450,9 +563,9 @@ static int df_init(AT91PS_DF pDf)
     pDf->dfDescription.pages_size = 528;
     pDf->dfDescription.page_offset = 10;
 
-    dfcode = df_probe(pDf);
+    dfcode = at45_df_probe(pDf);
 
-    msg_df_detect(dfcode);
+    at45_msg_df_detect(dfcode);
 
     switch (dfcode) {
 #if	defined(CONFIG_SMALL_DATAFLASH)
@@ -520,6 +633,7 @@ static int df_init(AT91PS_DF pDf)
         break;
     }
 
+#endif
     return status;
 }
 

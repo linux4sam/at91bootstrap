@@ -63,6 +63,15 @@
 #define PLLUTMI_SETTINGS	0x10193F05
 
 /* ******************************************************************* */
+/* DataFlash Settings                                                  */
+/*                                                                     */
+/* ******************************************************************* */
+#define AT91C_BASE_SPI	AT91C_BASE_SPI0
+#define AT91C_ID_SPI	AT91C_ID_SPI0
+
+#define DF_CS_SETTINGS	(AT91C_SPI_CPOL | ((MASTER_CLOCK / AT91C_SPI_CLK) << 8))
+
+/* ******************************************************************* */
 /* NandFlash Settings                                                  */
 /* ******************************************************************* */
 #define AT91C_SMARTMEDIA_BASE	0x40000000

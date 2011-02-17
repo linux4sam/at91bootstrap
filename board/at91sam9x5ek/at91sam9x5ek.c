@@ -208,6 +208,58 @@ void ddramc_hw_init(void)
 }
 #endif                          /* CONFIG_DDR2 */
 
+#ifdef CONFIG_DATAFLASH
+/*---------------------------------------------------------------------------*/
+/* \fn    df_hw_init                                                         */
+/* \brief This function performs DataFlash HW initialization                 */
+/*---------------------------------------------------------------------------*/
+void df_hw_init(void)
+{
+    /*
+     * Configure PIOs for SPI0
+     */
+    const struct pio_desc df_pio[] = {
+	{"MISO", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+	{"MOSI", AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+	{"SPCK", AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+	{"NPCS0", AT91C_PIN_PA(14), 1, PIO_DEFAULT, PIO_OUTPUT}, /* Using GPIO as cs pin, set 1 is disable */
+	{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+    };
+
+    /*
+     * Configure the PIO controller
+     */
+    writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+    pio_setup(df_pio);
+}
+
+void df_cs_active(int cs)
+{
+	switch (cs) {
+	case 0:
+		pio_set_value(AT91C_PIN_PA(14), 0);
+		break;
+	case 1:
+		pio_set_value(AT91C_PIN_PA(7), 0);
+		break;
+	}
+}
+
+void df_cs_deactive(int cs)
+{
+	switch (cs) {
+	case 0:
+		pio_set_value(AT91C_PIN_PA(14), 1);
+		break;
+	case 1:
+		pio_set_value(AT91C_PIN_PA(7), 1);
+		break;
+	}
+}
+
+#endif                          /* CONFIG_DATAFLASH */
+
+
 #ifdef CONFIG_NANDFLASH
 /*------------------------------------------------------------------------------*/
 /* \fn    nand_recovery						*/

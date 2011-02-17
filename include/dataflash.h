@@ -49,7 +49,9 @@
 /* Command Definition											*/
 /*//////////////////////////////////////////////////////////////////////////////////////////////////////*/
 
-/* READ COMMANDS */
+#define READ_JEDEC_ID			0x9F	/* Read id */
+
+/* AT45 READ COMMANDS */
 #define DB_CONTINUOUS_ARRAY_READ   	0xE8    /* Continuous array read */
 #define DB_BURST_ARRAY_READ        	0xE8    /* Burst array read */
 #define DB_PAGE_READ               	0xD2    /* Main memory page read */
@@ -57,7 +59,10 @@
 #define DB_BUF2_READ               	0xD6    /* Buffer 2 read */
 #define DB_STATUS                  	0xD7    /* Status Register */
 
-/* PROGRAM and ERASE COMMANDS */
+/* AT25 READ COMMANDS */
+#define READ_ARRAY_FAST			0x0B	/* Array read */
+
+/* AT45 PROGRAM and ERASE COMMANDS */
 #define DB_BUF1_WRITE              	0x84    /* Buffer 1 write */
 #define DB_BUF2_WRITE              	0x87    /* Buffer 2 write */
 #define DB_BUF1_PAGE_ERASE_PGM     	0x83    /* Buffer 1 to main memory page program with built-In erase */
@@ -75,7 +80,7 @@
 #define DB_PAGE_PGM_BUF2           	0x85    /* Main memory page through buffer 2 */
 #define DB_PAGE_FastPGM_BUF2       	0x95    /* Main memory page through buffer 2, Fast program */
 
-/* ADDITIONAL COMMANDS */
+/* AT45 ADDITIONAL COMMANDS */
 #define DB_PAGE_2_BUF1_TRF         	0x53    /* Main memory page to buffer 1 transfert */
 #define DB_PAGE_2_BUF2_TRF         	0x55    /* Main memory page to buffer 2 transfert */
 #define DB_PAGE_2_BUF1_CMP         	0x60    /* Main memory page to buffer 1 compare */
@@ -140,6 +145,12 @@ typedef struct _AT91S_DF {
     AT91S_DF_DESC dfDescription;
 } AT91S_DF, *AT91PS_DF;
 
+/* DataFlash family IDs, as obtained from the second idcode byte */
+#define DF_FAMILY_AT26F			0
+#define DF_FAMILY_AT45			1
+#define DF_FAMILY_AT26DF		2	/* AT25DF and AT26DF */
+#define DF_FAMILY_UNSUPPORT		(-1)
+
 #define AT91C_DF_NB_BLOCS(pDf)  (pDf->dfDescription.pages_number / pDf->dfDescription.block_size)
 #define AT91C_DF_BLOC_SIZE(pDf) (pDf->dfDescription.block_size * pDf->dfDescription.pages_size)
 #define AT91C_DF_NB_PAGE(pDf)   (pDf->dfDescription.pages_number)
@@ -157,6 +168,13 @@ typedef struct _AT91S_DF {
     df_send_command(pDf, DB_BUF2_READ, 5, pData, dDataSize, dAddress)
 #define df_get_status(pDf) \
     df_send_command(pDf, DB_STATUS, 2, (char *) 0, 0, 0)
+
+#define df_get_flashid(pDf, pData) \
+    df_send_command(pDf, READ_JEDEC_ID, 1, pData, 5, 0)
+
+/* ============ AT25 READ COMMANDS =========== */
+#define df_read_bytes_at25(pDf, pData, dDataSize, dAddress) \
+	df_send_command(pDf, READ_ARRAY_FAST, 5, pData, dDataSize, dAddress)
 
 /* ============ WRITE COMMANDS =============== */
 #define df_write_buf1(pDf, pData, dDataSize, dAddress) \
