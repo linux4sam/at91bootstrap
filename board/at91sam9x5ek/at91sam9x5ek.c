@@ -136,7 +136,7 @@ void hw_init(void)
     /*
      * Configure DDRAM Controller 
      */
-    dbgu_print("Init DDR ...");
+    dbgu_print("Init DDR... ");
     ddramc_hw_init();
     dbgu_print("Done!\n\r");
 #endif                          /* CONFIG_DDR2 */
