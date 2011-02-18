@@ -149,35 +149,44 @@ static SDdramConfig ddram_config;
 /*------------------------------------------------------------------------------*/
 /* \fn    ddramc_hw_init							*/
 /* \brief This function performs DDRAMC HW initialization			*/
+/*										*/
+/* Using the Micron MT47H64M16HR-3										*/
 /*------------------------------------------------------------------------------*/
 void ddramc_hw_init(void)
 {
     ddram_config.ddramc_mdr =
         (AT91C_DDRC2_DBW_16_BITS | AT91C_DDRC2_MD_DDR2_SDRAM);
 
-    ddram_config.ddramc_cr = (AT91C_DDRC2_NC_DDR10_SDR9 |       // 10 column bits (1K)
-                              AT91C_DDRC2_NR_13 |       // 13 row bits    (8K)
-                              AT91C_DDRC2_CAS_3 |       // CAS Latency 3
-                              (1 << 20) | AT91C_DDRC2_DLL_RESET_DISABLED);      // DLL not reset
+    ddram_config.ddramc_cr = (AT91C_DDRC2_NC_DDR10_SDR9 |      // 10 column bits (1K)
+                              AT91C_DDRC2_NR_13 |              // 13 row bits    (8K)
+                              AT91C_DDRC2_CAS_3 |              // CAS Latency 3
+                              AT91C_DDRC2_NB_BANKS_8 |         // 8 banks
+                              AT91C_DDRC2_DLL_RESET_DISABLED); // DLL not reset
 
+    /* The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
+     * With a 133 MHz frequency, the refresh timer count register must to be
+     * set with (15.625 x 133 MHz) ~ 2084 i.e. 0x824
+     * or (7.81 x 133 MHz) ~ 1040 i.e. 0x410.
+     */
     ddram_config.ddramc_rtr = 0x411;    /* Refresh timer: 7.8125us */
 
+    /* One clock cycle @ 133 MHz = 7.5 ns */
     ddram_config.ddramc_t0pr = (AT91C_DDRC2_TRAS_6 |    //  6 * 7.5 = 45   ns
                                 AT91C_DDRC2_TRCD_2 |    //  2 * 7.5 = 22.5 ns
                                 AT91C_DDRC2_TWR_2 |     //  2 * 7.5 = 15   ns
                                 AT91C_DDRC2_TRC_8 |     //  8 * 7.5 = 75   ns
-                                AT91C_DDRC2_TRP_2 |     //  2 * 7.5 = 22.5 ns
-                                AT91C_DDRC2_TRRD_2 |    //  2 * 7.5 = 15   ns
-                                AT91C_DDRC2_TWTR_1 |    //  1 clock cycle
+                                AT91C_DDRC2_TRP_2 |     //  2 * 7.5 = 15   ns
+                                AT91C_DDRC2_TRRD_2 |    //  2 * 7.5 = 15   ns (x16 memory)
+                                AT91C_DDRC2_TWTR_2 |    //  2 clock cycles min
                                 AT91C_DDRC2_TMRD_2);    //  2 clock cycles
 
-    ddram_config.ddramc_t1pr = (AT91C_DDRC2_TXP_2 |     //  2 * 7.5 = 15 ns
-                                200 << 16 |     // 200 clock cycles, TXSRD: Exit self refresh delay to Read command
-                                19 << 8 |       // 16 * 7.5 = 120 ns TXSNR: Exit self refresh delay to non read command
-                                AT91C_DDRC2_TRFC_18 << 0);      // 14 * 7.5 = 142 ns (must be 140 ns for 1Gb DDR)
+    ddram_config.ddramc_t1pr = (AT91C_DDRC2_TXP_2 |     //  2 clock cycles
+                                200 << 16 |             //  200 clock cycles
+                                19 << 8 |               //  19 * 7.5 = 142.5 ns ( > 128 + 10 ns)
+                                AT91C_DDRC2_TRFC_18);   //  18 * 7.5 = 135   ns (must be 128 ns for 1Gb DDR)
 
-    ddram_config.ddramc_t2pr = (AT91C_DDRC2_TRTP_1 |    //  1 * 7.5 = 7.5 ns
-                                AT91C_DDRC2_TRPA_3 |    //  0 * 7.5 = 0 ns
+    ddram_config.ddramc_t2pr = (AT91C_DDRC2_TRTP_2 |    //  2 clock cycles min
+                                AT91C_DDRC2_TRPA_3 |    //  3 * 7.5 = 22.5 ns
                                 AT91C_DDRC2_TXARDS_7 |  //  7 clock cycles
                                 AT91C_DDRC2_TXARD_2);   //  2 clock cycles
 

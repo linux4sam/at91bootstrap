@@ -31,6 +31,8 @@
  * Creation            :
  *-----------------------------------------------------------------------------
  */
+#include "dbgu.h"
+#include "debug.h"
 #include "../include/part.h"
 #include "../include/main.h"
 #include "../include/ddramc.h"
@@ -57,160 +59,182 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 int ddram_init(unsigned int ddram_controller_address,
                unsigned int ddram_address, struct SDdramConfig *ddram_config)
 {
+    unsigned int ba_offset;
     unsigned int cr = 0;
 
+    /* compute BA[] offset according to CR configuration */
+    ba_offset = (ddram_config->ddramc_cr & AT91C_DDRC2_NC) + 9;          // number of column bits for DDR
+    ba_offset += ((ddram_config->ddramc_cr & AT91C_DDRC2_NR) >> 2) + 11; // number of row bits
+    ba_offset += (ddram_config->ddramc_mdr & AT91C_DDRC2_DBW) ? 1 : 2;   // bus width
+
+    dbg_log(3, " ba_offset = %x ... ", ba_offset);
+
     // Step 1: Program the memory device type
-    // Configure the DDR controller
     write_ddramc(ddram_controller_address, HDDRSDRC2_MDR,
                  ddram_config->ddramc_mdr);
 
-    // Program the DDR Controller
+    // Step 2: Program the DDR features and timings
     write_ddramc(ddram_controller_address, HDDRSDRC2_CR,
                  ddram_config->ddramc_cr);
 
-    // assume timings for 7.5ns min clock period
+    // assume timings for 7.5 ns min clock period
     write_ddramc(ddram_controller_address, HDDRSDRC2_T0PR,
                  ddram_config->ddramc_t0pr);
 
-    // pSDDRC->HDDRSDRC2_T1PR 
     write_ddramc(ddram_controller_address, HDDRSDRC2_T1PR,
                  ddram_config->ddramc_t1pr);
 
-    // pSDDRC->HDDRSDRC2_T2PR 
     write_ddramc(ddram_controller_address, HDDRSDRC2_T2PR,
                  ddram_config->ddramc_t2pr);
 
-    // Initialization Step 3: NOP command -> allow to enable clk
+    // Step 3: NOP command -> allow to enable clk
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_NOP_CMD);
     *((unsigned volatile int *)ddram_address) = 0;
 
-    // Initialization Step 3 (must wait 200 us) (6 core cycles per iteration, core is at 396MHz: min 13200 loops)
-    Wait(13300);
+    // must wait 200 us (6 core cycles per iteration, core is at 396MHz: min 13340 loops)
+    Wait(13340);
 
-    // Step 4:  An NOP command is issued to the DDR2-SDRAM 
+    // Step 4:  An NOP command is issued to the DDR2-SDRAM
     // NOP command -> allow to enable cke
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_NOP_CMD);
     *((unsigned volatile int *)ddram_address) = 0;
 
     // wait 400 ns min
-    Wait(100);
+    Wait(27);
 
-    // Initialization Step 5: Set All Bank Precharge
+    // Step 5: Set All Bank Precharge
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_PRCGALL_CMD);
     *((unsigned volatile int *)ddram_address) = 0;
 
-    // wait 400 ns min
-    Wait(100);
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
 
-    // Initialization Step 6: Set EMR operation (EMRS2)
+    // Step 6: Set EMR operation (EMRS2)
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_EXT_LMR_CMD);
-    *((unsigned int *)(ddram_address + 0x2000000)) = 0;
+    /* Perform a write access to DDR address so that BA[1] is set to 1 and BA[0] is set to 0. */
+    *((unsigned int *)(ddram_address + (0x2 << ba_offset))) = 0;
 
-    // wait 2 cycles min
-    Wait(100);
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
 
-    // Initialization Step 7: Set EMR operation (EMRS3)
+    // Step 7: Set EMR operation (EMRS3)
+    /* Perform a write access to DDR address so that BA[1] is set to 1 and BA[0] is set to 1. */
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_EXT_LMR_CMD);
-    *((unsigned int *)(ddram_address + 0x3000000)) = 0;
+    *((unsigned int *)(ddram_address + (0x3 << ba_offset))) = 0;
 
-    // wait 2 cycles min
-    Wait(100);
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
 
-    // Initialization Step 8: Set EMR operation (EMRS1)
+    // Step 8: Set EMR operation (EMRS1)
+    /* Perform a write access to DDR address so that BA[1] is set to 0 and BA[0] is set to 1. */
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_EXT_LMR_CMD);
-    *((unsigned int *)(ddram_address + 0x1000000)) = 0;
+    *((unsigned int *)(ddram_address + (0x1 << ba_offset))) = 0;
 
-    // wait 200 cycles min
-    Wait(10000);
+    // wait 200 cycles min (of tCK) = 1500 ns min
+    Wait(100);
 
-    // Initialization Step 9: enable DLL reset
+    // Step 9: enable DLL reset
     cr = read_ddramc(ddram_controller_address, HDDRSDRC2_CR);
     write_ddramc(ddram_controller_address, HDDRSDRC2_CR,
                  cr | AT91C_DDRC2_DLL_RESET_ENABLED);
 
-    // Initialization Step 10: reset DLL
+    // Step 10: reset DLL
+    /* Perform a write access to DDR address so that BA[1] is set to 0 and BA[0] is set to 0. */
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
-                 AT91C_DDRC2_MODE_EXT_LMR_CMD);
-    *(((unsigned volatile int *)ddram_address)) = 0;
+                 AT91C_DDRC2_MODE_LMR_CMD);
+    *((unsigned int *)(ddram_address + (0x0 << ba_offset))) = 0;
 
-    // wait 2 cycles min
-    Wait(100);
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
 
-    // Initialization Step 11: Set All Bank Precharge
+    // Step 11: Set All Bank Precharge
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_PRCGALL_CMD);
     *(((unsigned volatile int *)ddram_address)) = 0;
 
-    // wait 400 ns min
-    Wait(100);
+    // wait 400 ns min (not needed on certain DDR2 devices)
+    Wait(27);
 
-    // Initialization Step 12: Two auto-refresh (CBR) cycles are provided. Program the auto refresh command (CBR) into the Mode Register.
+    // Step 12: Two auto-refresh (CBR) cycles are provided. Program the auto refresh command (CBR) into the Mode Register.
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_RFSH_CMD);
     *(((unsigned volatile int *)ddram_address)) = 0;
 
-    // wait 10 cycles min
-    Wait(100);
+    // wait TRFC cycles min (135 ns min) extended to 400 ns
+    Wait(27);
 
     // Set 2nd CBR
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_RFSH_CMD);
     *(((unsigned volatile int *)ddram_address)) = 0;
 
-    // wait 10 cycles min
-    Wait(100);
+    // wait TRFC cycles min (135 ns min) extended to 400 ns
+    Wait(27);
 
-    // Initialization Step 13: Program DLL field into the Configuration Register to low(Disable DLL reset).
+    // Step 13: Program DLL field into the Configuration Register to low(Disable DLL reset).
     cr = read_ddramc(ddram_controller_address, HDDRSDRC2_CR);
     write_ddramc(ddram_controller_address, HDDRSDRC2_CR,
                  cr & (~AT91C_DDRC2_DLL_RESET_ENABLED));
 
-    // Initialization Step 14: A Mode Register set (MRS) cycle is issued to program the parameters of the DDR2-SDRAM devices.
+    // Step 14: A Mode Register set (MRS) cycle is issued to program the parameters of the DDR2-SDRAM devices.
+    /* Perform a write access to DDR address so that BA[1] is set to 0 and BA[0] is set to 0. */
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_LMR_CMD);
-    *(((unsigned volatile int *)ddram_address)) = 0;
+    *((unsigned int *)(ddram_address + (0x0 << ba_offset))) = 0;
+
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
 
     // Step 15: Program OCD field into the Configuration Register to high (OCD calibration default).
     cr = read_ddramc(ddram_controller_address, HDDRSDRC2_CR);
     write_ddramc(ddram_controller_address, HDDRSDRC2_CR,
                  cr | AT91C_DDRC2_OCD_DEFAULT);
 
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
+
     // Step 16: An Extended Mode Register set (EMRS1) cycle is issued to OCD default value.
+    /* Perform a write access to DDR address so that BA[1] is set to 0 and BA[0] is set to 1. */
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_EXT_LMR_CMD);
-    *(((unsigned int *)(ddram_address + 0x1000000))) = 0;
+    *((unsigned int *)(ddram_address + (0x1 << ba_offset))) = 0;
 
-    // wait 2 cycles min
-    Wait(100);
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
 
     // Step 17: Program OCD field into the Configuration Register to low (OCD calibration mode exit).
     cr = read_ddramc(ddram_controller_address, HDDRSDRC2_CR);
     write_ddramc(ddram_controller_address, HDDRSDRC2_CR,
-                 cr & (~AT91C_DDRC2_OCD_EXIT));
+                 cr & (~AT91C_DDRC2_OCD_DEFAULT));
+
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
 
     // Step 18: An Extended Mode Register set (EMRS1) cycle is issued to enable OCD exit.
+    /* Perform a write access to DDR address so that BA[1] is set to 0 and BA[0] is set to 1. */
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_EXT_LMR_CMD);
-    *(((unsigned int *)(ddram_address + 0x1000000))) = 0;
+    *((unsigned int *)(ddram_address + (0x1 << ba_offset))) = 0;
 
-    // wait 2 cycles min
-    Wait(100);
+    // wait 2 cycles min (of tCK) = 15 ns min
+    Wait(2);
 
-    // Step 19,20: A mode Normal command is provided. Program the Normal mode into Mode Register.
+    // Step 19: A mode Normal command is provided. Program the Normal mode into Mode Register.
     write_ddramc(ddram_controller_address, HDDRSDRC2_MR,
                  AT91C_DDRC2_MODE_NORMAL_CMD);
     *(((unsigned volatile int *)ddram_address)) = 0;
 
-    // Step 21: Write the refresh rate into the count field in the Refresh Timer register. The DDR2-SDRAM device requires a
-    // refresh every 15.625 ¦Is or 7.81 ¦Ìs. With a 100MHz frequency, the refresh timer count register must to be set with
-    // (15.625 /100 MHz) = 1562 i.e. 0x061A or (7.81 /100MHz) = 781 i.e. 0x030d.
+    // Step 20: Yes it is needed.
+    /* Perform a write access to any DDR address */
+    *(((unsigned volatile int *)ddram_address)) = 0;
 
+    // Step 21: Write the refresh rate into the count field in the Refresh Timer register.
     // Set Refresh timer
     write_ddramc(ddram_controller_address, HDDRSDRC2_RTR,
                  ddram_config->ddramc_rtr);

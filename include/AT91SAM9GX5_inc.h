@@ -276,6 +276,9 @@
 #define AT91C_DDRC2_ENRDM         (0x1UL << 17) // (HDDRSDRC2) DQS/DATA phase error correction
 #define 	AT91C_DDRC2_ENRDM_OFF                  (0x0UL << 17)    // (HDDRSDRC2) phase error correction disabled
 #define 	AT91C_DDRC2_ENRDM_ON                   (0x1UL << 17)    // (HDDRSDRC2) phase error correction enabled
+#define AT91C_DDRC2_NB_BANKS      (0x1UL << 20) // (HDDRSDRC2) Number of Banks
+#define 	AT91C_DDRC2_NB_BANKS_4              (0x0UL << 20)    // (HDDRSDRC2) 4 banks
+#define 	AT91C_DDRC2_NB_BANKS_8              (0x1UL << 20)    // (HDDRSDRC2) 8 banks
 // -------- HDDRSDRC2_T0PR : (HDDRSDRC2 Offset: 0xc) Timing0 Register -------- 
 #define AT91C_DDRC2_TRAS          (0xFUL <<  0) // (HDDRSDRC2) Active to precharge delay
 #define 	AT91C_DDRC2_TRAS_0                    (0x0UL)   // (HDDRSDRC2) Value :  0
@@ -379,9 +382,15 @@
 #define 	AT91C_DDRC2_TRRD_13                   (0xDUL << 20)     // (HDDRSDRC2) Value : 13
 #define 	AT91C_DDRC2_TRRD_14                   (0xEUL << 20)     // (HDDRSDRC2) Value : 14
 #define 	AT91C_DDRC2_TRRD_15                   (0xFUL << 20)     // (HDDRSDRC2) Value : 15
-#define AT91C_DDRC2_TWTR          (0x1UL << 24) // (HDDRSDRC2) Internal write to read delay
-#define 	AT91C_DDRC2_TWTR_0                    (0x0UL << 24)     // (HDDRSDRC2) Value :  0
-#define 	AT91C_DDRC2_TWTR_1                    (0x1UL << 24)     // (HDDRSDRC2) Value :  1
+#define AT91C_DDRC2_TWTR          (0x7UL << 24) // (HDDRSDRC2) Internal write to read delay
+#define 	AT91C_DDRC2_TWTR_0                    (0x0UL << 24)
+#define 	AT91C_DDRC2_TWTR_1                    (0x1UL << 24)
+#define 	AT91C_DDRC2_TWTR_2                    (0x2UL << 24)
+#define 	AT91C_DDRC2_TWTR_3                    (0x3UL << 24)
+#define 	AT91C_DDRC2_TWTR_4                    (0x4UL << 24)
+#define 	AT91C_DDRC2_TWTR_5                    (0x5UL << 24)
+#define 	AT91C_DDRC2_TWTR_6                    (0x6UL << 24)
+#define 	AT91C_DDRC2_TWTR_7                    (0x7UL << 24)
 #define AT91C_DDRC2_TMRD          (0xFUL << 28) // (HDDRSDRC2) Load mode register command to active or refresh command
 #define 	AT91C_DDRC2_TMRD_0                    (0x0UL << 28)     // (HDDRSDRC2) Value :  0
 #define 	AT91C_DDRC2_TMRD_1                    (0x1UL << 28)     // (HDDRSDRC2) Value :  1
