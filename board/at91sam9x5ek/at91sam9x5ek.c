@@ -161,7 +161,8 @@ void ddramc_hw_init(void)
                               AT91C_DDRC2_NR_13 |              // 13 row bits    (8K)
                               AT91C_DDRC2_CAS_3 |              // CAS Latency 3
                               AT91C_DDRC2_NB_BANKS_8 |         // 8 banks
-                              AT91C_DDRC2_DLL_RESET_DISABLED); // DLL not reset
+                              AT91C_DDRC2_DLL_RESET_DISABLED | // DLL not reset
+                              AT91C_DDRC2_DECOD_INTERLEAVED);  // Interleaved decoding
 
     /* The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
      * With a 133 MHz frequency, the refresh timer count register must to be

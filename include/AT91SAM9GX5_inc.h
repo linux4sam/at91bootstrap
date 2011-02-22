@@ -279,6 +279,9 @@
 #define AT91C_DDRC2_NB_BANKS      (0x1UL << 20) // (HDDRSDRC2) Number of Banks
 #define 	AT91C_DDRC2_NB_BANKS_4              (0x0UL << 20)    // (HDDRSDRC2) 4 banks
 #define 	AT91C_DDRC2_NB_BANKS_8              (0x1UL << 20)    // (HDDRSDRC2) 8 banks
+#define AT91C_DDRC2_DECOD         (0x1UL << 22) // (HDDRSDRC2) Type of Decoding
+#define 	AT91C_DDRC2_DECOD_SEQUENTIAL        (0x0UL << 22)
+#define 	AT91C_DDRC2_DECOD_INTERLEAVED       (0x1UL << 22)
 // -------- HDDRSDRC2_T0PR : (HDDRSDRC2 Offset: 0xc) Timing0 Register -------- 
 #define AT91C_DDRC2_TRAS          (0xFUL <<  0) // (HDDRSDRC2) Active to precharge delay
 #define 	AT91C_DDRC2_TRAS_0                    (0x0UL)   // (HDDRSDRC2) Value :  0

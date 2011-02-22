@@ -52,6 +52,15 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
     return readl((address + offset));
 }
 
+static BOOL ddram_decod_seq(unsigned int ddramc_cr)
+{
+#ifdef AT91SAM9X5
+    if (ddramc_cr & AT91C_DDRC2_DECOD_INTERLEAVED)
+	    return FALSE;
+#endif
+    return TRUE;
+}
+
 //*----------------------------------------------------------------------------
 //* \fn    sdram_init
 //* \brief Initialize the SDDRC Controller
@@ -64,7 +73,8 @@ int ddram_init(unsigned int ddram_controller_address,
 
     /* compute BA[] offset according to CR configuration */
     ba_offset = (ddram_config->ddramc_cr & AT91C_DDRC2_NC) + 9;          // number of column bits for DDR
-    ba_offset += ((ddram_config->ddramc_cr & AT91C_DDRC2_NR) >> 2) + 11; // number of row bits
+    if (ddram_decod_seq(ddram_config->ddramc_cr))
+        ba_offset += ((ddram_config->ddramc_cr & AT91C_DDRC2_NR) >> 2) + 11; // number of row bits
     ba_offset += (ddram_config->ddramc_mdr & AT91C_DDRC2_DBW) ? 1 : 2;   // bus width
 
     dbg_log(3, " ba_offset = %x ... ", ba_offset);
