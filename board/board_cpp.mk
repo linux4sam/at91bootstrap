@@ -92,3 +92,7 @@ endif
 ifeq ($(CONFIG_HAS_PIO3),y)
 CPPFLAGS += -DCONFIG_HAS_PIO3
 endif
+
+ifeq ($(CPU_HAS_PMECC),y)
+CPPFLAGS += -DCPU_HAS_PMECC
+endif
