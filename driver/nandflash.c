@@ -88,6 +88,65 @@ extern void NAND_WAIT_READY();
 
 #define READ_NAND16() ((unsigned short)(*(volatile unsigned short *) \
 						(unsigned long)AT91C_SMARTMEDIA_BASE))
+#undef CONFIG_USE_PMECC
+#if defined(CPU_HAS_PMECC) && !defined(CONFIG_ENABLE_SW_ECC)
+#define CONFIG_USE_PMECC
+#endif
+
+#ifdef CONFIG_USE_PMECC
+#define TT_MAX  25
+
+/* ECC offset in spare area */
+#define ECC_START_ADDR		48
+#define ECC_END_ADDR		63
+
+#ifdef CONFIG_AT91SAM9X5EK
+#define PMECC_ALGO_FCT_ADDR     0x00100008
+#define LOOKUP_TABLE_ALPHA_TO   0x10C000;
+#define LOOKUP_TABLE_INDEX_OF   0x108000;
+#endif
+
+struct _PMECC_paramDesc_struct {
+    unsigned int pageSize;
+    unsigned int spareSize;
+    unsigned int sectorSize;  // 0 for 512, 1 for 1024 bytes, like in PMECCFG register
+    unsigned int errBitNbrCapability;
+    unsigned int eccSizeByte;
+    unsigned int eccStartAddr;
+    unsigned int eccEndAddr;
+
+    unsigned int nandWR;
+    unsigned int spareEna;
+    unsigned int modeAuto;
+    unsigned int clkCtrl;
+    unsigned int interrupt;
+
+    int tt;
+    int mm;
+    int nn;
+
+    short *alpha_to;
+    short *index_of;
+
+    short partialSyn[100];
+    short si[100];
+
+    /* sigma table */
+    short smu[TT_MAX + 2][2 * TT_MAX + 1];
+    /* polynom order */
+    short lmu[TT_MAX + 1];
+
+} PMECC_paramDesc_struct;
+
+typedef int (*PMECC_CorrectionAlgo_Rom_Func)(unsigned long pPMECC,
+                                unsigned long pPMERRLOC,
+                                struct _PMECC_paramDesc_struct *PMECC_desc,
+                                unsigned int PMECC_status,
+                                void *pageBuffer);
+
+PMECC_CorrectionAlgo_Rom_Func PMECC_CorrectionAlgo;
+
+#endif /* CONFIG_USE_PMECC */
 
 static inline struct SNandInitInfo *AT91F_GetNandInitInfo(unsigned short chipID)
 {
@@ -412,6 +471,31 @@ static BOOL AT91F_NandReadSector(PSNandInfo pNandInfo, unsigned int uSectorAddr,
 
     unsigned int Addr;
 
+#ifdef CONFIG_USE_PMECC
+    unsigned int bch_status;
+    unsigned char *pbuf = pOutBuffer;
+
+    PMECC_paramDesc_struct.modeAuto = AT91C_BCH_AUTO_ENA;
+    PMECC_paramDesc_struct.nandWR = 0;
+
+    writel(AT91C_BCH_RST, AT91C_BCH_PMECCTRL);
+    writel(AT91C_BCH_DISABLE, AT91C_BCH_PMECCTRL);
+    writel(PMECC_paramDesc_struct.errBitNbrCapability |
+        PMECC_paramDesc_struct.sectorSize |
+        PMECC_paramDesc_struct.pageSize |
+        PMECC_paramDesc_struct.nandWR |
+        PMECC_paramDesc_struct.spareEna |
+        PMECC_paramDesc_struct.modeAuto, AT91C_BCH_PMECCFG0);
+    writel(PMECC_paramDesc_struct.spareSize - 1, AT91C_BCH_PMECCFG1);
+    writel(PMECC_paramDesc_struct.eccStartAddr, AT91C_BCH_PMECCFG2);
+    writel(PMECC_paramDesc_struct.eccEndAddr, AT91C_BCH_PMECCFG3);
+    writel(PMECC_paramDesc_struct.clkCtrl, AT91C_BCH_PMECCFG4);
+    writel(0xFF, AT91C_BCH_PMECCIDR);
+    writel(AT91C_BCH_ENABLE, AT91C_BCH_PMECCTRL);
+    writel(AT91C_BCH_DATAMODE, AT91C_BCH_PMECCTRL);
+
+    fZone = ZONE_DATA | ZONE_INFO;
+#endif
     /*
      * WARNING : During a read procedure you can't call the ReadStatus flash cmd
      * * The ReadStatus fill the read register with 0xC0 and then corrupt the read
@@ -489,6 +573,18 @@ static BOOL AT91F_NandReadSector(PSNandInfo pNandInfo, unsigned int uSectorAddr,
             *pOutBuffer++ = READ_NAND();
         }
     }
+
+#ifdef CONFIG_USE_PMECC
+    while (readl(AT91C_BCH_PMECCSR) & 1)
+        ;
+    bch_status = readl(AT91C_BCH_PMECCISR);
+    i = 0;
+    if (bch_status)
+        i = PMECC_CorrectionAlgo(AT91C_BCH_PMECCFG0, AT91C_BCHEL_PMECCELCR,
+            &PMECC_paramDesc_struct, bch_status, pbuf);
+    if (i != 0)
+        bRet = FALSE;
+#endif
 
  exit:
     /*
@@ -605,6 +701,37 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
     if (!sNandInfo.uDataBusWidth)
         nandflash_cfg_8bits_dbw_init();
 
+#ifdef CONFIG_USE_PMECC
+    PMECC_CorrectionAlgo = (PMECC_CorrectionAlgo_Rom_Func)
+        (*(unsigned int *)PMECC_ALGO_FCT_ADDR);
+    switch(sNandInfo.uDataNbBytes) {
+    case 2048:
+        PMECC_paramDesc_struct.pageSize = AT91C_BCH_PAGESIZE_4;
+        PMECC_paramDesc_struct.sectorSize = AT91C_BCH_BLKSIZE_512;
+        PMECC_paramDesc_struct.spareSize = 64;
+        PMECC_paramDesc_struct.errBitNbrCapability = 0; /* 2bits correction */
+        PMECC_paramDesc_struct.eccSizeByte = 16;
+        PMECC_paramDesc_struct.eccStartAddr = ECC_START_ADDR;
+        PMECC_paramDesc_struct.eccEndAddr = ECC_END_ADDR;
+        PMECC_paramDesc_struct.spareEna = 0;
+        PMECC_paramDesc_struct.clkCtrl = 2;  /* stated in datasheet */
+        PMECC_paramDesc_struct.interrupt = 0;
+        PMECC_paramDesc_struct.tt = 2;
+        PMECC_paramDesc_struct.mm = 13;
+        PMECC_paramDesc_struct.nn = (1 << PMECC_paramDesc_struct.mm) - 1;
+        PMECC_paramDesc_struct.alpha_to = (short *)LOOKUP_TABLE_ALPHA_TO;
+        PMECC_paramDesc_struct.index_of = (short *)LOOKUP_TABLE_INDEX_OF;
+        break;
+    case 512:
+    case 1024:
+    case 4096:
+        /* TODO */
+    default:
+        dbg_log(1, "Not supported page size: %d\n\r", sNandInfo.uDataNbBytes);
+        return -1;
+    }
+#endif
+
     /*
      * Initialize the block offset 
      */
@@ -679,4 +806,4 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
     return 0;
 }
 
-#endif                          /* CONFIG_NANDFLASH */
+#endif /* CONFIG_NANDFLASH */
