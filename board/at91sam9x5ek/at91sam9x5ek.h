@@ -92,15 +92,15 @@
 #define AT91C_SM_NRD_SETUP	(1 << 16)
 #define AT91C_SM_NCS_RD_SETUP	(0 << 24)
 
-#define AT91C_SM_NWE_PULSE 	(4 << 0)
-#define AT91C_SM_NCS_WR_PULSE	(3 << 8)
-#define AT91C_SM_NRD_PULSE	(3 << 16)
-#define AT91C_SM_NCS_RD_PULSE	(2 << 24)
+#define AT91C_SM_NWE_PULSE 	(3 << 0)
+#define AT91C_SM_NCS_WR_PULSE	(5 << 8)
+#define AT91C_SM_NRD_PULSE	(4 << 16)
+#define AT91C_SM_NCS_RD_PULSE	(6 << 24)
 
-#define AT91C_SM_NWE_CYCLE 	(7 << 0)
-#define AT91C_SM_NRD_CYCLE	(4 << 16)
+#define AT91C_SM_NWE_CYCLE 	(5 << 0)
+#define AT91C_SM_NRD_CYCLE	(6 << 16)
 
-#define AT91C_SM_TDF	        (3 << 16)
+#define AT91C_SM_TDF	        (1 << 16)
 
 #define BOARD_SD_PINS \
     {(0x1D << 16), AT91C_BASE_PIOA, AT91C_ID_PIOA_B, PIO_PERIPH_A, PIO_PULLUP}, \
