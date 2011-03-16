@@ -122,9 +122,13 @@ struct board_info {
 	unsigned char board_type;
 	unsigned char board_id;
 }__attribute__ ((packed)) board_list[] = {
-	{"SAM9G35-CM",		BOARD_TYPE_CPU,		1},
-	{"SAM9x5-EK",		BOARD_TYPE_EK,		2},
-	{"SAM9x5-DM",		BOARD_TYPE_DM,		3},
+	{"SAM9x5-EK",		BOARD_TYPE_EK,		0},
+	{"SAM9x5-DM",		BOARD_TYPE_DM,		1},
+	{"SAM9G15-CM",		BOARD_TYPE_CPU,		2},
+	{"SAM9G25-CM",		BOARD_TYPE_CPU,		3},
+	{"SAM9G35-CM",		BOARD_TYPE_CPU,		4},
+	{"SAM9X25-CM",		BOARD_TYPE_CPU,		5},
+	{"SAM9X35-CM",		BOARD_TYPE_CPU,		6},
 	{0,			0,			0},
 };
 
@@ -612,7 +616,7 @@ static int get_board_info(struct one_wire_info *p)
 	memcpy(tmp, p->board_name, BOARD_NAME_LEN);
 	for (i = 0; ; i++) {
 		if (board_list[i].board_name == 0) {
-			dbg_log(1, "No board name found!\n\r");
+			dbg_log(1, "No board name [%s] found!\n\r", tmp);
 			return -1;
 		}
 		if (strcmp(board_list[i].board_name, tmp) == 0) {
@@ -629,7 +633,7 @@ static int get_board_info(struct one_wire_info *p)
 	memcpy(tmp, p->vendor_name, VENDOR_NAME_LEN);
 	for (i = 0; ; i++) {
 		if (vendor_list[i].vendor_name == 0) {
-			dbg_log(1, "No vendor name found!\n\r");
+			dbg_log(1, "No vendor name [%s] found!\n\r", tmp);
 			return -1;
 		}
 		if (strcmp(vendor_list[i].vendor_name, tmp) == 0) {
