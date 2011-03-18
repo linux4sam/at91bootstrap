@@ -5,6 +5,10 @@
 #include "dataflash.h"
 #include "nandflash.h"
 
+#if defined(CONFIG_AT91SAM9X5EK)
+#include "onewire_info.h"
+#endif
+
 #ifdef CONFIG_LOAD_LINUX
 
 #ifdef WINCE
@@ -297,7 +301,7 @@ void setup_tags()
     struct tag *tag = (struct tag *)(OS_MEM_BANK + 0x100);
 
     /*
-     * start tag 
+     * Start tag
      */
     tag->hdr.tag = ATAG_CORE;
     tag->hdr.size = tag_size(tag_core);
@@ -307,7 +311,7 @@ void setup_tags()
     tag = tag_next(tag);
 
     /*
-     * mem tag 
+     * Mem tag
      */
     tag->hdr.tag = ATAG_MEM;
     tag->hdr.size = tag_size(tag_mem32);
@@ -315,11 +319,33 @@ void setup_tags()
     tag->u.mem.size = OS_MEM_SIZE;
     tag = tag_next(tag);
 
+    /*
+     * Command line tag
+     */
     setup_cmdline_tag(tag, LINUX_KERNEL_ARG_STRING);
     tag = tag_next(tag);
 
+#if defined(CONFIG_AT91SAM9X5EK)
     /*
-     * end tag 
+     * System Rev tag
+     */
+    tag->hdr.tag = ATAG_REVISION;
+    tag->hdr.size = tag_size(tag_revision);
+    tag->u.revision.rev = get_sys_rev();
+    tag = tag_next(tag);
+
+    /*
+     * Board Serial tag
+     */
+    tag->hdr.tag = ATAG_SERIAL;
+    tag->hdr.size = tag_size(tag_serialnr);
+    tag->u.serialnr.low = get_sys_sn();
+    tag->u.serialnr.high = 0;
+    tag = tag_next(tag);
+#endif
+
+    /*
+     * end tag
      */
     tag->hdr.tag = ATAG_NONE;
     tag->hdr.size = 0;

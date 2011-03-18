@@ -89,8 +89,8 @@ extern int strcmp(const char *p1, const char *p2);
 extern void *memset(void *dst, int val, int cnt);
 extern void *memcpy(void *dst, const void *src, int cnt);
 
-static unsigned int sn;
-static unsigned int rev;
+static unsigned int sn=0xffffffff;
+static unsigned int rev=0xffffffff;
 
 /* global search state */
 static unsigned char device_id_array[MAX_ITEMS][CHIP_ADDR_LEN];
@@ -653,6 +653,8 @@ void load_1wire_info()
 
 	dbg_log(1, "Loading 1-Wire info...\n\r");
 
+	sn = rev = 0;
+
 	one_wire_hw_init();
 	cnt = enumerate_all_rom();
 
@@ -702,6 +704,24 @@ void load_1wire_info()
 	writel(rev, AT91C_SYS_GPBR + 4 * 3);
 
 	return;
+}
+
+unsigned int get_sys_sn()
+{
+	if (sn == 0xffffffff) {
+		dbg_log(1, "Fatal, read system_sn before load 1-wire info!\n\r");
+		die();
+	}
+	return sn;
+}
+
+unsigned int get_sys_rev()
+{
+	if (rev == 0xffffffff) {
+		dbg_log(1, "Fatal, read system_rev before load 1-wire info!\n\r");
+		die();
+	}
+	return rev;
 }
 
 unsigned int get_cm_sn()
