@@ -520,57 +520,57 @@
 #define 	AT91C_DDRC2_TXARD_13                   (0xD)    // (HDDRSDRC2) Value : 13
 #define 	AT91C_DDRC2_TXARD_14                   (0xE)    // (HDDRSDRC2) Value : 14
 #define 	AT91C_DDRC2_TXARD_15                   (0xF)    // (HDDRSDRC2) Value : 15
-#define AT91C_DDRC2_TXARDS        (0xF <<  8)   // (HDDRSDRC2) Exit active power down delay to read command in 'Slow Exit' mode.
-#define 	AT91C_DDRC2_TXARDS_0                    (0x0 <<  8)     // (HDDRSDRC2) Value :  0
-#define 	AT91C_DDRC2_TXARDS_1                    (0x1 <<  8)     // (HDDRSDRC2) Value :  1
-#define 	AT91C_DDRC2_TXARDS_2                    (0x2 <<  8)     // (HDDRSDRC2) Value :  2
-#define 	AT91C_DDRC2_TXARDS_3                    (0x3 <<  8)     // (HDDRSDRC2) Value :  3
-#define 	AT91C_DDRC2_TXARDS_4                    (0x4 <<  8)     // (HDDRSDRC2) Value :  4
-#define 	AT91C_DDRC2_TXARDS_5                    (0x5 <<  8)     // (HDDRSDRC2) Value :  5
-#define 	AT91C_DDRC2_TXARDS_6                    (0x6 <<  8)     // (HDDRSDRC2) Value :  6
-#define 	AT91C_DDRC2_TXARDS_7                    (0x7 <<  8)     // (HDDRSDRC2) Value :  7
-#define 	AT91C_DDRC2_TXARDS_8                    (0x8 <<  8)     // (HDDRSDRC2) Value :  8
-#define 	AT91C_DDRC2_TXARDS_9                    (0x9 <<  8)     // (HDDRSDRC2) Value :  9
-#define 	AT91C_DDRC2_TXARDS_10                   (0xA <<  8)     // (HDDRSDRC2) Value : 10
-#define 	AT91C_DDRC2_TXARDS_11                   (0xB <<  8)     // (HDDRSDRC2) Value : 11
-#define 	AT91C_DDRC2_TXARDS_12                   (0xC <<  8)     // (HDDRSDRC2) Value : 12
-#define 	AT91C_DDRC2_TXARDS_13                   (0xD <<  8)     // (HDDRSDRC2) Value : 13
-#define 	AT91C_DDRC2_TXARDS_14                   (0xE <<  8)     // (HDDRSDRC2) Value : 14
-#define 	AT91C_DDRC2_TXARDS_15                   (0xF <<  8)     // (HDDRSDRC2) Value : 15
-#define AT91C_DDRC2_TRPA          (0xF << 16)   // (HDDRSDRC2) Row precharge all delay
-#define 	AT91C_DDRC2_TRPA_0                    (0x0 << 16)       // (HDDRSDRC2) Value :  0
-#define 	AT91C_DDRC2_TRPA_1                    (0x1 << 16)       // (HDDRSDRC2) Value :  1
-#define 	AT91C_DDRC2_TRPA_2                    (0x2 << 16)       // (HDDRSDRC2) Value :  2
-#define 	AT91C_DDRC2_TRPA_3                    (0x3 << 16)       // (HDDRSDRC2) Value :  3
-#define 	AT91C_DDRC2_TRPA_4                    (0x4 << 16)       // (HDDRSDRC2) Value :  4
-#define 	AT91C_DDRC2_TRPA_5                    (0x5 << 16)       // (HDDRSDRC2) Value :  5
-#define 	AT91C_DDRC2_TRPA_6                    (0x6 << 16)       // (HDDRSDRC2) Value :  6
-#define 	AT91C_DDRC2_TRPA_7                    (0x7 << 16)       // (HDDRSDRC2) Value :  7
-#define 	AT91C_DDRC2_TRPA_8                    (0x8 << 16)       // (HDDRSDRC2) Value :  8
-#define 	AT91C_DDRC2_TRPA_9                    (0x9 << 16)       // (HDDRSDRC2) Value :  9
-#define 	AT91C_DDRC2_TRPA_10                   (0xA << 16)       // (HDDRSDRC2) Value : 10
-#define 	AT91C_DDRC2_TRPA_11                   (0xB << 16)       // (HDDRSDRC2) Value : 11
-#define 	AT91C_DDRC2_TRPA_12                   (0xC << 16)       // (HDDRSDRC2) Value : 12
-#define 	AT91C_DDRC2_TRPA_13                   (0xD << 16)       // (HDDRSDRC2) Value : 13
-#define 	AT91C_DDRC2_TRPA_14                   (0xE << 16)       // (HDDRSDRC2) Value : 14
-#define 	AT91C_DDRC2_TRPA_15                   (0xF << 16)       // (HDDRSDRC2) Value : 15
-#define AT91C_DDRC2_TRTP          (0xF << 24)   // (HDDRSDRC2) Read to Precharge delay
-#define 	AT91C_DDRC2_TRTP_0                    (0x0 << 24)       // (HDDRSDRC2) Value :  0
-#define 	AT91C_DDRC2_TRTP_1                    (0x1 << 24)       // (HDDRSDRC2) Value :  1
-#define 	AT91C_DDRC2_TRTP_2                    (0x2 << 24)       // (HDDRSDRC2) Value :  2
-#define 	AT91C_DDRC2_TRTP_3                    (0x3 << 24)       // (HDDRSDRC2) Value :  3
-#define 	AT91C_DDRC2_TRTP_4                    (0x4 << 24)       // (HDDRSDRC2) Value :  4
-#define 	AT91C_DDRC2_TRTP_5                    (0x5 << 24)       // (HDDRSDRC2) Value :  5
-#define 	AT91C_DDRC2_TRTP_6                    (0x6 << 24)       // (HDDRSDRC2) Value :  6
-#define 	AT91C_DDRC2_TRTP_7                    (0x7 << 24)       // (HDDRSDRC2) Value :  7
-#define 	AT91C_DDRC2_TRTP_8                    (0x8 << 24)       // (HDDRSDRC2) Value :  8
-#define 	AT91C_DDRC2_TRTP_9                    (0x9 << 24)       // (HDDRSDRC2) Value :  9
-#define 	AT91C_DDRC2_TRTP_10                   (0xA << 24)       // (HDDRSDRC2) Value : 10
-#define 	AT91C_DDRC2_TRTP_11                   (0xB << 24)       // (HDDRSDRC2) Value : 11
-#define 	AT91C_DDRC2_TRTP_12                   (0xC << 24)       // (HDDRSDRC2) Value : 12
-#define 	AT91C_DDRC2_TRTP_13                   (0xD << 24)       // (HDDRSDRC2) Value : 13
-#define 	AT91C_DDRC2_TRTP_14                   (0xE << 24)       // (HDDRSDRC2) Value : 14
-#define 	AT91C_DDRC2_TRTP_15                   (0xF << 24)       // (HDDRSDRC2) Value : 15
+#define AT91C_DDRC2_TXARDS        (0xF <<  4)   // (HDDRSDRC2) Exit active power down delay to read command in 'Slow Exit' mode.
+#define 	AT91C_DDRC2_TXARDS_0                    (0x0 <<  4)     // (HDDRSDRC2) Value :  0
+#define 	AT91C_DDRC2_TXARDS_1                    (0x1 <<  4)     // (HDDRSDRC2) Value :  1
+#define 	AT91C_DDRC2_TXARDS_2                    (0x2 <<  4)     // (HDDRSDRC2) Value :  2
+#define 	AT91C_DDRC2_TXARDS_3                    (0x3 <<  4)     // (HDDRSDRC2) Value :  3
+#define 	AT91C_DDRC2_TXARDS_4                    (0x4 <<  4)     // (HDDRSDRC2) Value :  4
+#define 	AT91C_DDRC2_TXARDS_5                    (0x5 <<  4)     // (HDDRSDRC2) Value :  5
+#define 	AT91C_DDRC2_TXARDS_6                    (0x6 <<  4)     // (HDDRSDRC2) Value :  6
+#define 	AT91C_DDRC2_TXARDS_7                    (0x7 <<  4)     // (HDDRSDRC2) Value :  7
+#define 	AT91C_DDRC2_TXARDS_8                    (0x8 <<  4)     // (HDDRSDRC2) Value :  8
+#define 	AT91C_DDRC2_TXARDS_9                    (0x9 <<  4)     // (HDDRSDRC2) Value :  9
+#define 	AT91C_DDRC2_TXARDS_10                   (0xA <<  4)     // (HDDRSDRC2) Value : 10
+#define 	AT91C_DDRC2_TXARDS_11                   (0xB <<  4)     // (HDDRSDRC2) Value : 11
+#define 	AT91C_DDRC2_TXARDS_12                   (0xC <<  4)     // (HDDRSDRC2) Value : 12
+#define 	AT91C_DDRC2_TXARDS_13                   (0xD <<  4)     // (HDDRSDRC2) Value : 13
+#define 	AT91C_DDRC2_TXARDS_14                   (0xE <<  4)     // (HDDRSDRC2) Value : 14
+#define 	AT91C_DDRC2_TXARDS_15                   (0xF <<  4)     // (HDDRSDRC2) Value : 15
+#define AT91C_DDRC2_TRPA          (0xF << 8)   // (HDDRSDRC2) Row precharge all delay
+#define 	AT91C_DDRC2_TRPA_0                    (0x0 << 8)       // (HDDRSDRC2) Value :  0
+#define 	AT91C_DDRC2_TRPA_1                    (0x1 << 8)       // (HDDRSDRC2) Value :  1
+#define 	AT91C_DDRC2_TRPA_2                    (0x2 << 8)       // (HDDRSDRC2) Value :  2
+#define 	AT91C_DDRC2_TRPA_3                    (0x3 << 8)       // (HDDRSDRC2) Value :  3
+#define 	AT91C_DDRC2_TRPA_4                    (0x4 << 8)       // (HDDRSDRC2) Value :  4
+#define 	AT91C_DDRC2_TRPA_5                    (0x5 << 8)       // (HDDRSDRC2) Value :  5
+#define 	AT91C_DDRC2_TRPA_6                    (0x6 << 8)       // (HDDRSDRC2) Value :  6
+#define 	AT91C_DDRC2_TRPA_7                    (0x7 << 8)       // (HDDRSDRC2) Value :  7
+#define 	AT91C_DDRC2_TRPA_8                    (0x8 << 8)       // (HDDRSDRC2) Value :  8
+#define 	AT91C_DDRC2_TRPA_9                    (0x9 << 8)       // (HDDRSDRC2) Value :  9
+#define 	AT91C_DDRC2_TRPA_10                   (0xA << 8)       // (HDDRSDRC2) Value : 10
+#define 	AT91C_DDRC2_TRPA_11                   (0xB << 8)       // (HDDRSDRC2) Value : 11
+#define 	AT91C_DDRC2_TRPA_12                   (0xC << 8)       // (HDDRSDRC2) Value : 12
+#define 	AT91C_DDRC2_TRPA_13                   (0xD << 8)       // (HDDRSDRC2) Value : 13
+#define 	AT91C_DDRC2_TRPA_14                   (0xE << 8)       // (HDDRSDRC2) Value : 14
+#define 	AT91C_DDRC2_TRPA_15                   (0xF << 8)       // (HDDRSDRC2) Value : 15
+#define AT91C_DDRC2_TRTP          (0xF << 12)   // (HDDRSDRC2) Read to Precharge delay
+#define 	AT91C_DDRC2_TRTP_0                    (0x0 << 12)       // (HDDRSDRC2) Value :  0
+#define 	AT91C_DDRC2_TRTP_1                    (0x1 << 12)       // (HDDRSDRC2) Value :  1
+#define 	AT91C_DDRC2_TRTP_2                    (0x2 << 12)       // (HDDRSDRC2) Value :  2
+#define 	AT91C_DDRC2_TRTP_3                    (0x3 << 12       // (HDDRSDRC2) Value :  3
+#define 	AT91C_DDRC2_TRTP_4                    (0x4 << 12)       // (HDDRSDRC2) Value :  4
+#define 	AT91C_DDRC2_TRTP_5                    (0x5 << 12)       // (HDDRSDRC2) Value :  5
+#define 	AT91C_DDRC2_TRTP_6                    (0x6 << 12)       // (HDDRSDRC2) Value :  6
+#define 	AT91C_DDRC2_TRTP_7                    (0x7 << 12)       // (HDDRSDRC2) Value :  7
+#define 	AT91C_DDRC2_TRTP_8                    (0x8 << 12)       // (HDDRSDRC2) Value :  8
+#define 	AT91C_DDRC2_TRTP_9                    (0x9 << 12)       // (HDDRSDRC2) Value :  9
+#define 	AT91C_DDRC2_TRTP_10                   (0xA << 12)       // (HDDRSDRC2) Value : 10
+#define 	AT91C_DDRC2_TRTP_11                   (0xB << 12)       // (HDDRSDRC2) Value : 11
+#define 	AT91C_DDRC2_TRTP_12                   (0xC << 12)       // (HDDRSDRC2) Value : 12
+#define 	AT91C_DDRC2_TRTP_13                   (0xD << 12)       // (HDDRSDRC2) Value : 13
+#define 	AT91C_DDRC2_TRTP_14                   (0xE << 12)       // (HDDRSDRC2) Value : 14
+#define 	AT91C_DDRC2_TRTP_15                   (0xF << 12)       // (HDDRSDRC2) Value : 15
 // -------- HDDRSDRC2_T3PR : (HDDRSDRC2 Offset: 0x18) Timing3 Register --------
 #define AT91C_DDRC2_TANPD         (0xF <<  0)   // (HDDRSDRC2) ODT to power down entry
 #define 	AT91C_DDRC2_TANPD_0                    (0x0)    // (HDDRSDRC2) Value :  0
@@ -780,10 +780,10 @@
 // -------- SMC_CTRL : (SMC Offset: 0xc) Control Register for CS x --------
 #define AT91C_SMC_READMODE        (0x1 <<  0)   // (SMC) Read Mode
 #define AT91C_SMC_WRITEMODE       (0x1 <<  1)   // (SMC) Write Mode
-#define AT91C_SMC_NWAITM          (0x3 <<  5)   // (SMC) NWAIT Mode
-#define 	AT91C_SMC_NWAITM_NWAIT_DISABLE        (0x0 <<  5)       // (SMC) External NWAIT disabled.
-#define 	AT91C_SMC_NWAITM_NWAIT_ENABLE_FROZEN  (0x2 <<  5)       // (SMC) External NWAIT enabled in frozen mode.
-#define 	AT91C_SMC_NWAITM_NWAIT_ENABLE_READY   (0x3 <<  5)       // (SMC) External NWAIT enabled in ready mode.
+#define AT91C_SMC_NWAITM          (0x3 <<  4)   // (SMC) NWAIT Mode
+#define 	AT91C_SMC_NWAITM_NWAIT_DISABLE        (0x0 <<  4)       // (SMC) External NWAIT disabled.
+#define 	AT91C_SMC_NWAITM_NWAIT_ENABLE_FROZEN  (0x2 <<  4)       // (SMC) External NWAIT enabled in frozen mode.
+#define 	AT91C_SMC_NWAITM_NWAIT_ENABLE_READY   (0x3 <<  4)       // (SMC) External NWAIT enabled in ready mode.
 #define AT91C_SMC_BAT             (0x1 <<  8)   // (SMC) Byte Access Type
 #define 	AT91C_SMC_BAT_BYTE_SELECT          (0x0 <<  8)  // (SMC) Write controled by ncs, nbs0, nbs1, nbs2, nbs3. Read controled by ncs, nrd, nbs0, nbs1, nbs2, nbs3.
 #define 	AT91C_SMC_BAT_BYTE_WRITE           (0x1 <<  8)  // (SMC) Write controled by ncs, nwe0, nwe1, nwe2, nwe3. Read controled by ncs and nrd.
