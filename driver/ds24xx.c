@@ -612,7 +612,7 @@ static int get_board_info(struct one_wire_info *p)
 	int i;
 	char tmp[20];
 
-	memset(tmp, 0, 20);
+	memset(tmp, 0, sizeof(tmp));
 	memcpy(tmp, p->board_name, BOARD_NAME_LEN);
 	for (i = 0; ; i++) {
 		if (board_list[i].board_name == 0) {
@@ -629,7 +629,7 @@ static int get_board_info(struct one_wire_info *p)
 	}
 	dbg_log(1, "Board name: %s; ", tmp);
 
-	memset(tmp, 0, 20);
+	memset(tmp, 0, sizeof(tmp));
 	memcpy(tmp, p->vendor_name, VENDOR_NAME_LEN);
 	for (i = 0; ; i++) {
 		if (vendor_list[i].vendor_name == 0) {
