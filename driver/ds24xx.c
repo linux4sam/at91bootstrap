@@ -614,6 +614,7 @@ static int get_board_info(struct one_wire_info *p)
 
 	memset(tmp, 0, sizeof(tmp));
 	memcpy(tmp, p->board_name, BOARD_NAME_LEN);
+	tmp[BOARD_NAME_LEN - 1] = '\0';
 	for (i = 0; ; i++) {
 		if (board_list[i].board_name == 0) {
 			dbg_log(1, "No board name [%s] found!\n\r", tmp);
@@ -631,6 +632,7 @@ static int get_board_info(struct one_wire_info *p)
 
 	memset(tmp, 0, sizeof(tmp));
 	memcpy(tmp, p->vendor_name, VENDOR_NAME_LEN);
+	tmp[VENDOR_NAME_LEN - 1] = '\0';
 	for (i = 0; ; i++) {
 		if (vendor_list[i].vendor_name == 0) {
 			dbg_log(1, "No vendor name [%s] found!\n\r", tmp);
