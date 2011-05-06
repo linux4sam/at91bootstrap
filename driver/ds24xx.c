@@ -84,8 +84,10 @@
 #define CM_REV_MASK			0x1F
 #define CM_REV_OFFSET			0
 
+size_t strlen(const char *str);
 extern char *strcpy(char *dst, const char *src);
 extern int strcmp(const char *p1, const char *p2);
+extern int strncmp(const char *p1, const char *p2, size_t cnt);
 extern void *memset(void *dst, int val, int cnt);
 extern void *memcpy(void *dst, const void *src, int cnt);
 
@@ -620,7 +622,8 @@ static int get_board_info(struct one_wire_info *p)
 			dbg_log(1, "No board name [%s] found!\n\r", tmp);
 			return -1;
 		}
-		if (strcmp(board_list[i].board_name, tmp) == 0) {
+		if (strncmp(board_list[i].board_name, tmp,
+			    strlen(board_list[i].board_name)) == 0) {
 			board_type = board_list[i].board_type;
 			board_id = board_list[i].board_id;
 			revision_code = p->revision_code;
@@ -628,7 +631,7 @@ static int get_board_info(struct one_wire_info *p)
 			break;
 		}
 	}
-	dbg_log(1, "Board name: %s; ", tmp);
+	dbg_log(1, "Board name: %s; ", board_list[i].board_name);
 
 	memset(tmp, 0, sizeof(tmp));
 	memcpy(tmp, p->vendor_name, VENDOR_NAME_LEN);
@@ -638,12 +641,13 @@ static int get_board_info(struct one_wire_info *p)
 			dbg_log(1, "No vendor name [%s] found!\n\r", tmp);
 			return -1;
 		}
-		if (strcmp(vendor_list[i].vendor_name, tmp) == 0) {
+		if (strncmp(vendor_list[i].vendor_name, tmp,
+			    strlen(vendor_list[i].vendor_name)) == 0) {
 			vendor_id = vendor_list[i].vendor_id;
 			break;
 		}
 	}
-	dbg_log(1, "Vendor name: %s\n\r", tmp);
+	dbg_log(1, "Vendor name: %s\n\r", vendor_list[i].vendor_name);
 
 	return 0;
 }
