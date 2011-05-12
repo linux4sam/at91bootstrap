@@ -255,6 +255,7 @@ config CONFIG_JUMP_ADDR
 	default "0x73F00000" if CONFIG_AT91SAM9G45EK
 	default "0x73F00000" if CONFIG_AT91SAM9M10EK
 	default "0x73F00000" if CONFIG_AT91SAM9M10EKES
+	default "0x26F00000" if CONFIG_AT91SAM9X5EK
 	default "0x23F00000"
 	help
 	  The entry point to which the bootstrap will pass control.
