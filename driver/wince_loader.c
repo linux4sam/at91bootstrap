@@ -4,7 +4,7 @@
 #include "dataflash.h"
 #include "nandflash.h"
 
-unsigned int load_SDCard();
+unsigned int load_SDCard(void *dst);
 
 typedef struct {
     unsigned int dwSize;
@@ -232,7 +232,7 @@ void LoadWince()
                    (int)IMG_SIZE);
 #endif
 #ifdef CONFIG_SDCARD
-    load_SDCard();
+    load_SDCard((void *)JUMP_ADDR);
 #endif
 
 #ifdef CONFIG_LOAD_EBOOT

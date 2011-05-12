@@ -355,7 +355,7 @@ void LoadLinux()
 {
     unsigned long ep, load_addr, len;
 
-    void load_SDCard();
+    void load_SDCard(void *dst);
 
     void (*theKernel) (int zero, int arch, unsigned int params);
 
@@ -369,7 +369,7 @@ void LoadLinux()
                    (int)IMG_SIZE);
 #endif
 #ifdef CONFIG_SDCARD
-    load_SDCard();
+    load_SDCard((void *)JUMP_ADDR);
 #endif
 
     hdr = (image_header_t *) JUMP_ADDR;

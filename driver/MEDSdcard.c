@@ -56,7 +56,7 @@
 #define NUM_SD_SLOTS            1
 #define MAX_LUNS        1
 
-#define SIZE_EBOOT 0x40000
+#define CHUNK_SIZE 0x40000
 #define SIZE_SETTING 0x1000
 
 //------------------------------------------------------------------------------
@@ -671,7 +671,7 @@ SdCard *MEDSdcard_GetDriver(unsigned int slot)
 }
 #endif
 
-unsigned int load_SDCard()
+unsigned int load_SDCard(void *dst)
 {
     DWORD dwAddress;
 
@@ -696,13 +696,13 @@ unsigned int load_SDCard()
         while (1) ;
     }
 
-    dwAddress = JUMP_ADDR;
+    dwAddress = (DWORD)dst;
 
     do {
         ByteRead = 0;
-        res = f_read(&fileObject, (void *)(dwAddress), SIZE_EBOOT, &ByteRead);
-        dwAddress += SIZE_EBOOT;
-    } while (ByteRead >= SIZE_EBOOT);
+        res = f_read(&fileObject, (void *)(dwAddress), CHUNK_SIZE, &ByteRead);
+        dwAddress += CHUNK_SIZE;
+    } while (ByteRead >= CHUNK_SIZE);
 
     if (res != FR_OK) {
         dbg_log(1, "*** f_read: error!\n\r");

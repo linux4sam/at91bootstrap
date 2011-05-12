@@ -37,13 +37,15 @@
 #include "dataflash.h"
 #include "nandflash.h"
 #include "flash.h"
+
 #ifdef CONFIG_USER_HW_INIT
 void user_hw_init(void);
 #endif
 
-extern void Jump(unsigned int addr);    // Function import from startup.s file
+/* Function import from startup.s file */
+extern void Jump(unsigned int addr);
 
-extern unsigned int load_SDCard();
+extern unsigned int load_SDCard(void *dst);
 
 void sclk_enable(void);
 
@@ -82,11 +84,6 @@ void Wait(unsigned int count)
 /*------------------------------------------------------------------------------*/
 int main(void)
 {
-    /*
-     * ================== 1st step: Hardware Initialization ================= 
-     *
-     * Performs the hardware initialization 
-     */
 #ifdef CONFIG_HW_INIT
     hw_init();
 #endif
@@ -100,75 +97,28 @@ int main(void)
     load_1wire_info();
 #endif
 
-    dbg_log(1, "Begin to load image...\n\r");
-    /*
-     * ==================== 2nd step: Load from media ==================== 
-     *
-     * Load from Dataflash in RAM 
-     */
-#if defined(CONFIG_DATAFLASH) || defined(CONFIG_DATAFLASH_CARD)
+    dbg_log(1, "Downloading image...\n\r");
+
 #if defined(CONFIG_LOAD_LINUX)
     LoadLinux();
 #elif defined(CONFIG_LOAD_NK) || defined(CONFIG_LOAD_EBOOT)
     LoadWince();
 #else
+/* Booting stand-alone application, e.g. U-Boot */
+#if defined (CONFIG_DATAFLASH)
     load_df(AT91C_SPI_PCS_DATAFLASH, IMG_ADDRESS, IMG_SIZE, JUMP_ADDR);
-#endif
-#endif
-
-    /*
-     * Load from Nandflash in RAM 
-     */
-#if defined(CONFIG_NANDFLASH)
-#if defined(CONFIG_LOAD_LINUX)
-    LoadLinux();
-#elif defined(CONFIG_LOAD_NK) || defined(CONFIG_LOAD_EBOOT)
-    LoadWince();
-#else
+#elif defined(CONFIG_NANDFLASH)
     read_nandflash((unsigned char *)JUMP_ADDR, (unsigned long)IMG_ADDRESS,
-                   (int)IMG_SIZE);
-#endif
-#endif
-
-    /*
-     * Load from Norflash in RAM 
-     */
-#ifdef CONFIG_FLASH
-    load_norflash(IMG_ADDRESS, IMG_SIZE, JUMP_ADDR);
-#endif
-
-#if defined(CONFIG_SDCARD)
-#if defined(CONFIG_LOAD_LINUX)
-    LoadLinux();
-#elif defined(CONFIG_LOAD_NK) || defined(CONFIG_LOAD_EBOOT)
-    LoadWince();
+        (int)IMG_SIZE);
+#elif defined(CONFIG_SDCARD)
+    load_SDCard((void *)JUMP_ADDR);
 #else
-    load_SDCard();
-#endif
-#endif
-
-    dbg_log(1, "Loading image done.\n\r");
-    /*
-     * ==================== 3rd step:  Process the Image =================== 
-     */
-    /*
-     * Uncompress the image 
-     */
-#ifdef CONFIG_GUNZIP
-    decompress_image((void *)IMG_ADDRESS, (void *)JUMP_ADDR, IMG_SIZE); /* NOT IMPLEMENTED YET */
-    msg_print(MSG_DECOMPRESS);
+#error "No booting media specified!"
 #endif
 
-    /*
-     * ==================== 4th step: Start the application =================== 
-     */
-    /*
-     * Set linux arguments 
-     */
-#ifdef CONFIG_LINUX_ARG
-    linux_arg(LINUX_ARG);       /* NOT IMPLEMENTED YET */
-    msg_print(MSG_LINUX);
-#endif                          /* LINUX_ARG */
+#endif
+
+    dbg_log(1, "Done!\n\r");
 
 #ifdef CONFIG_SCLK
     /* Switch slow clock late so that external oscillator has time to startup */
