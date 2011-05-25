@@ -47,8 +47,6 @@ extern void Jump(unsigned int addr);
 
 extern unsigned int load_SDCard(void *dst);
 
-void sclk_enable(void);
-
 void LoadLinux();
 
 void LoadWince();
@@ -119,11 +117,6 @@ int main(void)
 #endif
 
     dbg_log(1, "Done!\n\r");
-
-#ifdef CONFIG_SCLK
-    /* Switch slow clock late so that external oscillator has time to startup */
-    sclk_enable();
-#endif
 
 #ifdef WINCE
 #ifdef CONFIG_LOAD_NK

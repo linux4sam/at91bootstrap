@@ -57,6 +57,24 @@ int get_cpsr(void);
 
 void set_cpsr(unsigned int value);
 
+#ifdef CONFIG_SCLK
+void sclk_enable(void)
+{
+    writel(readl(AT91C_SYS_SLCKSEL) | AT91C_SLCKSEL_OSC32EN, AT91C_SYS_SLCKSEL);
+    /* must wait for slow clock startup time ~ 1000ms
+     * (~6 core cycles per iteration, core is at 400MHz: 66666000 min loops) */
+    Wait(66700000);
+
+    writel(readl(AT91C_SYS_SLCKSEL) | AT91C_SLCKSEL_OSCSEL, AT91C_SYS_SLCKSEL);
+    /* must wait 5 slow clock cycles = ~153 us
+     * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops) */
+    Wait(10200);
+
+    /* now disable the internal RC oscillator */
+    writel(readl(AT91C_SYS_SLCKSEL) & ~AT91C_SLCKSEL_RCEN, AT91C_SYS_SLCKSEL);
+}
+#endif                          /* CONFIG_SCLK */
+
 #ifdef CONFIG_HW_INIT
 /*----------------------------------------------------------------------------*/
 /* \fn    hw_init							      */
@@ -118,6 +136,9 @@ void hw_init(void)
     cp15 |= I_CACHE;
     set_cp15(cp15);
 
+#ifdef CONFIG_SCLK
+    sclk_enable();
+#endif
     /*
      * Configure the PIO controller 
      */
@@ -385,23 +406,5 @@ void one_wire_hw_init(void)
 	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
 	pio_setup(wire_pio);
 }
-
-#ifdef CONFIG_SCLK
-void sclk_enable(void)
-{
-    writel(readl(AT91C_SYS_SLCKSEL) | AT91C_SLCKSEL_OSC32EN, AT91C_SYS_SLCKSEL);
-    /* must wait for slow clock startup time ~ 1000ms
-     * (~6 core cycles per iteration, core is at 400MHz: 66666000 min loops) */
-    Wait(66700000);
-
-    writel(readl(AT91C_SYS_SLCKSEL) | AT91C_SLCKSEL_OSCSEL, AT91C_SYS_SLCKSEL);
-    /* must wait 5 slow clock cycles = ~153 us
-     * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops) */
-    Wait(10200);
-
-    /* now disable the internal RC oscillator */
-    writel(readl(AT91C_SYS_SLCKSEL) & ~AT91C_SLCKSEL_RCEN, AT91C_SYS_SLCKSEL);
-}
-#endif                          /* CONFIG_SCLK */
 
 #endif                          /* CONFIG_AT91SAM9X5EK */
