@@ -404,4 +404,4 @@ void sclk_enable(void)
 }
 #endif                          /* CONFIG_SCLK */
 
-#endif                          /* CONFIG_AT91SAM9G45EK */
+#endif                          /* CONFIG_AT91SAM9X5EK */
