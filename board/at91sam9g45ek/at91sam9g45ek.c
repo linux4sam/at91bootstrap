@@ -57,6 +57,23 @@ int get_cpsr(void);
 
 void set_cpsr(unsigned int value);
 
+#ifdef CONFIG_SCLK
+void sclk_enable(void)
+{
+    volatile int i;
+
+    //unsigned int dwRegSave;
+
+    (*(volatile unsigned int *)AT91C_SYS_SLCKSEL) =
+        AT91C_SLCKSEL_OSC32EN | AT91C_SLCKSEL_RCEN;
+    for (i = 0; i < 0x100000; i++) ;    //wait for a slow clock  startup time
+
+    (*(volatile unsigned int *)AT91C_SYS_SLCKSEL) =
+        AT91C_SLCKSEL_OSC32EN | AT91C_SLCKSEL_RCEN | AT91C_SLCKSEL_OSCSEL;
+    for (i = 0; i < 0x1000; i++) ;
+}
+#endif
+
 #ifdef CONFIG_HW_INIT
 /*----------------------------------------------------------------------------*/
 /* \fn    hw_init							      */
@@ -123,6 +140,9 @@ void hw_init(void)
     //cp15 |= I_CACHE;
     set_cp15(cp15);
 
+#ifdef CONFIG_SCLK
+    sclk_enable();
+#endif
     /*
      * Configure the PIO controller 
      */
@@ -329,22 +349,5 @@ void nandflash_cfg_8bits_dbw_init(void)
 }
 
 #endif                          /* #ifdef CONFIG_NANDFLASH */
-
-#ifdef CONFIG_SCLK
-void sclk_enable(void)
-{
-    volatile int i;
-
-    //unsigned int dwRegSave;
-
-    (*(volatile unsigned int *)AT91C_SYS_SLCKSEL) =
-        AT91C_SLCKSEL_OSC32EN | AT91C_SLCKSEL_RCEN;
-    for (i = 0; i < 0x100000; i++) ;    //wait for a slow clock  startup time
-
-    (*(volatile unsigned int *)AT91C_SYS_SLCKSEL) =
-        AT91C_SLCKSEL_OSC32EN | AT91C_SLCKSEL_RCEN | AT91C_SLCKSEL_OSCSEL;
-    for (i = 0; i < 0x1000; i++) ;
-}
-#endif
 
 #endif                          /* CONFIG_AT91SAM9G45EK */
