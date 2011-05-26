@@ -181,6 +181,7 @@ void ddramc_hw_init(void)
     ddram_config.ddramc_cr = (AT91C_DDRC2_NC_DDR10_SDR9 |       // 10 column bits (1K)
                               AT91C_DDRC2_NR_14 |       // 14 row bits    (8K)
                               AT91C_DDRC2_CAS_3 |       // CAS Latency 3
+			      AT91C_DDRC2_DQMS  |       // DQM is shared with other controller
                               AT91C_DDRC2_DLL_RESET_DISABLED);  // DLL not reset
 
     ddram_config.ddramc_rtr = 0x24B;
