@@ -252,8 +252,7 @@ include		driver/driver_cpp.mk
 #  -lgcc   : 	tells the linker to tie in newlib
 LDFLAGS+=-nostartfiles -Map=$(BINDIR)/$(BOOT_NAME).map --cref
 #LDFLAGS+=-lc -lgcc
-#LDFLAGS+=-T elf32-littlearm.lds $(GC_SECTIONS) -Ttext $(LINK_ADDR)
-LDFLAGS+=-T elf32-littlearm.lds $(GC_SECTIONS) -Ttext 0x300000
+LDFLAGS+=-T elf32-littlearm.lds $(GC_SECTIONS) -Ttext $(LINK_ADDR)
 
 ifneq ($(DATA_SECTION_ADDR),)
 LDFLAGS+=-Tdata $(DATA_SECTION_ADDR)
