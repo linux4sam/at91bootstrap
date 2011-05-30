@@ -261,17 +261,13 @@ void DMA_SetSourceBufferMode(unsigned char channel,
     value = (*(volatile unsigned int *)
              (AT91C_BASE_HDMA_CH_0 + channel * 40 + HDMA_CTRLB));
     value &= ~(AT91C_SRC_DSCR | AT91C_SRC_INCR | 1 << 31);
-    switch (transferMode) {
-    case DMA_TRANSFER_SINGLE:
+    if (transferMode == DMA_TRANSFER_SINGLE) {
         value |= AT91C_SRC_DSCR | addressingType << 24;
-        break;
-    case DMA_TRANSFER_LLI:
+    } else if(transferMode == DMA_TRANSFER_LLI)  {
         value |= addressingType << 24;
-        break;
-    case DMA_TRANSFER_RELOAD:
-    case DMA_TRANSFER_CONTIGUOUS:
+    } else if((transferMode == DMA_TRANSFER_RELOAD)
+           || (transferMode == DMA_TRANSFER_CONTIGUOUS)) {
         value |= AT91C_SRC_DSCR | addressingType << 24 | 1 << 31;
-        break;
     }
     (*(volatile unsigned int *)
      (AT91C_BASE_HDMA_CH_0 + channel * 40 + HDMA_CTRLB)) = value;
@@ -313,15 +309,10 @@ void DMA_SetDestBufferMode(unsigned char channel,
              (AT91C_BASE_HDMA_CH_0 + channel * 40 + HDMA_CTRLB));
     value &= ~(unsigned int)(AT91C_DST_DSCR | AT91C_DST_INCR);
 
-    switch (transferMode) {
-    case DMA_TRANSFER_SINGLE:
-    case DMA_TRANSFER_RELOAD:
-    case DMA_TRANSFER_CONTIGUOUS:
-        value |= AT91C_DST_DSCR | addressingType << 28;
-        break;
-    case DMA_TRANSFER_LLI:
+    if(transferMode == DMA_TRANSFER_LLI) {
         value |= addressingType << 28;
-        break;
+    } else {	/* DMA_TRANSFER_SINGLE, DMA_TRANSFER_RELOAD, DMA_TRANSFER_CONTIGUOUS */
+        value |= AT91C_DST_DSCR | addressingType << 28;
     }
     (*(volatile unsigned int *)
      (AT91C_BASE_HDMA_CH_0 + channel * 40 + HDMA_CTRLB)) = value;
