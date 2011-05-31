@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Thu Oct 21 19:02:31 2010
+# Mon May 30 13:54:05 2011
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9x5ek"
@@ -60,8 +60,8 @@ ALLOW_HSMCI=y
 # ALLOW_PSRAM is not set
 # ALLOW_SDRAM_16BIT is not set
 # CONFIG_RAM_32MB is not set
-CONFIG_RAM_64MB=y
-# CONFIG_RAM_128MB is not set
+# CONFIG_RAM_64MB is not set
+CONFIG_RAM_128MB=y
 # CONFIG_RAM_256MB is not set
 # CONFIG_DATAFLASH is not set
 # CONFIG_FLASH is not set
@@ -81,7 +81,7 @@ CONFIG_LOAD_UBOOT=y
 # CONFIG_LOAD_64KB is not set
 # CONFIG_LOAD_1MB is not set
 # CONFIG_LOAD_4MB is not set
-CONFIG_OS_IMAGE_NAME="uboot.bin"
+CONFIG_OS_IMAGE_NAME="u-boot.bin"
 CONFIG_IMG_ADDRESS="0x00000000"
 CONFIG_SETTING_ADDRESS="0x00000000"
 CONFIG_SETTING_SIZE="0x00001000"
