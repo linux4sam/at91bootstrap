@@ -147,12 +147,6 @@ struct vendor_info {
 	{0,			0},
 };
 
-static inline void die(void)
-{
-	for (;;)
-		;
-}
-
 static inline void set_wire_low()
 {
 	pio_set_gpio_output(AT91C_PIN_PB(18), 0);
@@ -160,7 +154,6 @@ static inline void set_wire_low()
 
 static inline void set_wire_input()
 {
-	/* TODO */
 	pio_set_gpio_input(AT91C_PIN_PB(18), 0);
 }
 
@@ -566,13 +559,12 @@ void load_1wire_info()
 	for (i = 0; i < cnt; i++) {
 		if (ds24xx_read_memory(i, 0, 0, size, buf) < 0) {
 			dbg_log(1, "Failed to read from 1-Wire chip!\n\r");
-			/* Hang: we can not continue */
-			die();
+			goto err;
 		}
 
 		board_type = board_id = vendor_id = revision_code = revision_id = 0xff;
 		if (get_board_info((struct one_wire_info *)buf) < 0)
-			die();
+			goto err;
 
 		switch (board_type) {
 		case BOARD_TYPE_CPU:
@@ -595,9 +587,7 @@ void load_1wire_info()
 			break;
 		default:
 			dbg_log(1, "Unknown board type!\n\r");
-			/* Hang: we can not continue */
-			die();
-			break;
+			goto err;
 		}
 	}
 
@@ -608,13 +598,16 @@ void load_1wire_info()
 	writel(rev, AT91C_SYS_GPBR + 4 * 3);
 
 	return;
+err:
+	/* Hang: we can not continue */
+        while (1);
 }
 
 unsigned int get_sys_sn()
 {
 	if (sn == 0xffffffff) {
-		dbg_log(1, "Fatal, read system_sn before load 1-wire info!\n\r");
-		die();
+		dbg_log(1, "Error: no system_sn defined, using 0!\n\r");
+		return 0;
 	}
 	return sn;
 }
@@ -622,8 +615,8 @@ unsigned int get_sys_sn()
 unsigned int get_sys_rev()
 {
 	if (rev == 0xffffffff) {
-		dbg_log(1, "Fatal, read system_rev before load 1-wire info!\n\r");
-		die();
+		dbg_log(1, "Error: no system_rev defined, using 0!\n\r");
+		return 0;
 	}
 	return rev;
 }
