@@ -660,7 +660,7 @@ BOOL AT91F_NandRead(PSNandInfo pNandInfo, unsigned int uBlockNb,
         error =
             Hamming_Verify256x(pOutBuffer, pNandInfo->uDataNbBytes, hamming);
         if (error && (error != Hamming_ERROR_SINGLEBIT)) {
-            dbg_log(1, "ECC error!\n\r");
+            dbg_log(1, "Hamming ECC error!\n\r");
             return FALSE;
         }
     }
