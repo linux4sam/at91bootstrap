@@ -144,7 +144,7 @@ endmenu
 
 config CONFIG_OS_IMAGE_NAME
 	depends on CONFIG_SDCARD && CONFIG_LOAD_UBOOT
-	default "uboot.bin"
+	default "u-boot.bin"
 
 #
 # WinCE Image Storage Setup
