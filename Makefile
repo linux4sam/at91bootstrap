@@ -268,9 +268,9 @@ endif
 
 TARGETS=$(obj) $(AT91BOOTSTRAP)
 
-PHONY:=all gen_bin
+PHONY:=all
 
-all: PrintFlags gen_bin ChkFileSize
+all: PrintFlags $(AT91BOOTSTRAP) ChkFileSize
 
 PrintFlags:
 	@echo as FLAGS
@@ -283,12 +283,12 @@ PrintFlags:
 	@echo ========
 	@echo $(LDFLAGS) && echo
 
-gen_bin: $(OBJS)
+$(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
 	@echo "  LD        "$(BOOT_NAME).elf
 	@$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
-	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
+	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 
 %.o : %.c .config
 	@echo "  CC        "$<
@@ -334,7 +334,7 @@ $(BINDIR)/sx-at91:	$(BINDIR)
 
 rebuild: clean all
 
-ChkFileSize:
+ChkFileSize: $(AT91BOOTSTRAP)
 	@( fsize=`stat -c%s $(BINDIR)/$(BOOT_NAME).bin`; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
