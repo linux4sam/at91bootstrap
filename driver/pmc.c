@@ -72,14 +72,6 @@ void lowlevel_clock_init()
         while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
             ;
     }
-    /*
-     * After stablization, switch to 12MHz Main Oscillator 
-     */
-    if ((read_pmc(PMC_MCKR) & AT91C_PMC_CSS) == AT91C_PMC_CSS_SLOW_CLK) {
-        write_pmc(PMC_MCKR, AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK);
-        while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-            ;
-    }
 #else
     if (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCS)) {
         /*
