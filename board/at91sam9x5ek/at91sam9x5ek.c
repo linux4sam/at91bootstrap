@@ -194,9 +194,9 @@ void ddramc_hw_init(void)
 
     /* One clock cycle @ 133 MHz = 7.5 ns */
     ddram_config.ddramc_t0pr = (AT91C_DDRC2_TRAS_6 |    //  6 * 7.5 = 45   ns
-                                AT91C_DDRC2_TRCD_2 |    //  2 * 7.5 = 22.5 ns
+                                AT91C_DDRC2_TRCD_2 |    //  2 * 7.5 = 15   ns
                                 AT91C_DDRC2_TWR_2 |     //  2 * 7.5 = 15   ns
-                                AT91C_DDRC2_TRC_8 |     //  8 * 7.5 = 75   ns
+                                AT91C_DDRC2_TRC_8 |     //  8 * 7.5 = 60   ns
                                 AT91C_DDRC2_TRP_2 |     //  2 * 7.5 = 15   ns
                                 AT91C_DDRC2_TRRD_2 |    //  2 * 7.5 = 15   ns (x16 memory)
                                 AT91C_DDRC2_TWTR_2 |    //  2 clock cycles min
