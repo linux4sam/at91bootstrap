@@ -569,6 +569,23 @@
 #define 	AT91C_DDRC2_TRTP_13                   (0xDUL << 12)     // (HDDRSDRC2) Value : 13
 #define 	AT91C_DDRC2_TRTP_14                   (0xEUL << 12)     // (HDDRSDRC2) Value : 14
 #define 	AT91C_DDRC2_TRTP_15                   (0xFUL << 12)     // (HDDRSDRC2) Value : 15
+#define AT91C_DDRC2_TFAW          (0xFUL << 16) // (HDDRSDRC2) Four Active window
+#define 	AT91C_DDRC2_TFAW_0                    (0x0UL << 12)     // (HDDRSDRC2) Value :  0
+#define 	AT91C_DDRC2_TFAW_1                    (0x1UL << 12)     // (HDDRSDRC2) Value :  1
+#define 	AT91C_DDRC2_TFAW_2                    (0x2UL << 12)     // (HDDRSDRC2) Value :  2
+#define 	AT91C_DDRC2_TFAW_3                    (0x3UL << 12)     // (HDDRSDRC2) Value :  3
+#define 	AT91C_DDRC2_TFAW_4                    (0x4UL << 12)     // (HDDRSDRC2) Value :  4
+#define 	AT91C_DDRC2_TFAW_5                    (0x5UL << 12)     // (HDDRSDRC2) Value :  5
+#define 	AT91C_DDRC2_TFAW_6                    (0x6UL << 12)     // (HDDRSDRC2) Value :  6
+#define 	AT91C_DDRC2_TFAW_7                    (0x7UL << 12)     // (HDDRSDRC2) Value :  7
+#define 	AT91C_DDRC2_TFAW_8                    (0x8UL << 12)     // (HDDRSDRC2) Value :  8
+#define 	AT91C_DDRC2_TFAW_9                    (0x9UL << 12)     // (HDDRSDRC2) Value :  9
+#define 	AT91C_DDRC2_TFAW_10                   (0xAUL << 12)     // (HDDRSDRC2) Value : 10
+#define 	AT91C_DDRC2_TFAW_11                   (0xBUL << 12)     // (HDDRSDRC2) Value : 11
+#define 	AT91C_DDRC2_TFAW_12                   (0xCUL << 12)     // (HDDRSDRC2) Value : 12
+#define 	AT91C_DDRC2_TFAW_13                   (0xDUL << 12)     // (HDDRSDRC2) Value : 13
+#define 	AT91C_DDRC2_TFAW_14                   (0xEUL << 12)     // (HDDRSDRC2) Value : 14
+#define 	AT91C_DDRC2_TFAW_15                   (0xFUL << 12)     // (HDDRSDRC2) Value : 15
 // -------- HDDRSDRC2_T3PR : (HDDRSDRC2 Offset: 0x18) Timing3 Register -------- 
 #define AT91C_DDRC2_TANPD         (0xFUL <<  0) // (HDDRSDRC2) ODT to power down entry
 #define 	AT91C_DDRC2_TANPD_0                    (0x0UL)  // (HDDRSDRC2) Value :  0
