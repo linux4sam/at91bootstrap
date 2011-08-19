@@ -207,8 +207,8 @@ void ddramc_hw_init(void)
                                 19 << 8 |               //  19 * 7.5 = 142.5 ns ( > 128 + 10 ns)
                                 AT91C_DDRC2_TRFC_18);   //  18 * 7.5 = 135   ns (must be 128 ns for 1Gb DDR)
 
-    ddram_config.ddramc_t2pr = (AT91C_DDRC2_TFAW_7 |	//  7 * 7.5 = 52.5 ns
-    				AT91C_DDRC2_TRTP_2 |    //  2 clock cycles min
+    ddram_config.ddramc_t2pr = (AT91C_DDRC2_TFAW_7 |    //  7 * 7.5 = 52.5 ns
+                                AT91C_DDRC2_TRTP_2 |    //  2 clock cycles min
                                 AT91C_DDRC2_TRPA_3 |    //  3 * 7.5 = 22.5 ns
                                 AT91C_DDRC2_TXARDS_7 |  //  7 clock cycles
                                 AT91C_DDRC2_TXARD_2);   //  2 clock cycles
