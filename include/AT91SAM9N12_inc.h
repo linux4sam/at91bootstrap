@@ -1901,6 +1901,7 @@
 #define AT91C_MCI_PDCMODE         (0x1UL << 15) // (MCI) PDC Oriented Mode
 #define 	AT91C_MCI_PDCMODE_DISABLE              (0x0UL << 15)    // (MCI) Disables PDC Transfer
 #define 	AT91C_MCI_PDCMODE_ENABLE               (0x1UL << 15)    // (MCI) Enables PDC Transfer
+#define AT91C_MCI_CLKODD          (0x1UL << 16) // (MCI) CLKODD
 #define AT91C_MCI_BLKLEN          (0xFFFFUL << 16)      // (MCI) Data Block Length
 // -------- MCI_DTOR : (MCI Offset: 0x8) MCI Data Timeout Register -------- 
 #define AT91C_MCI_DTOCYC          (0xFUL <<  0) // (MCI) Data Timeout Cycle Number
