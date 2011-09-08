@@ -54,7 +54,7 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 
 static BOOL ddram_decod_seq(unsigned int ddramc_cr)
 {
-#ifdef AT91SAM9X5
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12)
     if (ddramc_cr & AT91C_DDRC2_DECOD_INTERLEAVED)
 	    return FALSE;
 #endif
