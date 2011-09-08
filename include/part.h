@@ -112,4 +112,9 @@
 #include "at91sam9x5ek.h"
 #endif
 
+#ifdef AT91SAM9N12
+#include "AT91SAM9N12_inc.h"
+#include "at91sam9n12ek.h"
+#endif
+
 #endif                          /* _PART_H */
