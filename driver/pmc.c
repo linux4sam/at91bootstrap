@@ -46,47 +46,53 @@ static inline unsigned int read_pmc(unsigned int offset)
     return readl(offset + AT91C_BASE_PMC);
 }
 
+void die()
+{
+    for (;;) ;
+}
+
 void lowlevel_clock_init()
 {
-#if defined(CONFIG_AT91SAM9X5EK)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12)
     unsigned long tmp;
 
-    tmp = read_pmc(PMC_MCKR);
-    tmp &= ~AT91C_PMC_CSS;
-    tmp |= AT91C_PMC_CSS_MAIN_CLK;
-    write_pmc(PMC_MCKR, tmp);
-    while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-        ;
-
-    if (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS)) {
+    /* Enable external crystal */
+    tmp = read_pmc(PMC_MOR);
+    if ((tmp & AT91C_CKGR_MOSCXTEN) == 0) {
+        write_pmc(PMC_MOR, (0x37 << 16) | AT91C_CKGR_MOSCXTEN | (0x40 << 8) |
+            AT91C_CKGR_MOSCSEL);
         /*
-         * Enable 12MHz Main Oscillator 
-         */
-        write_pmc(PMC_MOR,
-                  (0x37 << 16) | AT91C_CKGR_MOSCXTEN | (0x40 << 8) |
-                  AT91C_CKGR_MOSCSEL | AT91C_CKGR_MOSCRCEN);
-
-        /*
-         * Wait until 12MHz Main Oscillator is stable 
+         * Wait until Main Oscillator is stable 
          */
         while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
             ;
     }
+
+    /* Switch to external crystal if needed */
+    tmp = read_pmc(PMC_MCKR);
+    if ((tmp & AT91C_PMC_CSS) != AT91C_PMC_CSS_MAIN_CLK) {
+        tmp &= ~AT91C_PMC_CSS;
+        tmp |= AT91C_PMC_CSS_MAIN_CLK;
+        write_pmc(PMC_MCKR, tmp);
+        while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+            ;
+    }
+
 #else
     if (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCS)) {
         /*
-         * Enable 12MHz Main Oscillator 
+         * Enable Main Oscillator 
          */
         write_pmc(PMC_MOR, AT91C_CKGR_MOSCEN | (0x40 << 8));
 
         /*
-         * Wait until 12MHz Main Oscillator is stable 
+         * Wait until Main Oscillator is stable 
          */
         while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCS))
             ;
     }
     /*
-     * After stablization, switch to 12MHz Main Oscillator 
+     * After stablization, switch to Main Oscillator 
      */
     if ((read_pmc(PMC_MCKR) & AT91C_PMC_CSS) == AT91C_PMC_CSS_SLOW_CLK) {
         unsigned long tmp;
@@ -115,7 +121,7 @@ void lowlevel_clock_init()
 //*----------------------------------------------------------------------------*/
 int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout)
 {
-#if defined(CONFIG_AT91SAM9X5EK)
+#if defined(CONFIG_AT91SAM9X5EK) || defined(AT91SAM9N12)
     write_pmc(PMC_PLLAR, 0);
     write_pmc(PMC_PLLAR, pmc_pllar);
     //while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKA))
