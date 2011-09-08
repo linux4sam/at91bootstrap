@@ -565,41 +565,35 @@ unsigned int MCI_SetSpeed(Mci * pMci,
                           unsigned int mciLimit, unsigned int mck)
 {
     unsigned int pMciHw = pMci->pMciHw;
-
     unsigned int mciMr;
-
     unsigned int clkdiv;
-
     unsigned int divLimit = 0;
 
-    mciMr = READ_MCI(pMciHw, MCI_MR) & (~AT91C_MCI_CLKDIV);
+    /* Invalid parameters */
+    if (mciSpeed == 0)
+	    return 0;
 
-    // Multimedia Card Interface clock (MCCK or MCI_CK) is Master Clock (MCK)
-    // divided by (2*(CLKDIV+1))
-    // mciSpeed = MCK / (2*(CLKDIV+1))
-    if (mciLimit) {
-        divLimit = (mck / 2 / mciLimit);
-        if ((mck / 2) % mciLimit)
-            divLimit++;
-    }
-    if (mciSpeed > 0) {
-        clkdiv = (mck / 2 / mciSpeed);
-        if (mciLimit && clkdiv < divLimit)
-            clkdiv = divLimit;
-        if (clkdiv > 0)
-            clkdiv -= 1;
+    if (mciLimit != 0)
+	    divLimit = (mck + mciLimit) / mciLimit;
 
-    } else
-        clkdiv = 0;
+    clkdiv = (mck + mciSpeed) / mciSpeed;
+    if ((mciLimit > 0) && (clkdiv < divLimit))
+	    clkdiv = divLimit;
 
-    // Actual MCI speed
-    mciSpeed = mck / 2 / (clkdiv + 1);
+    mciMr = READ_MCI(pMciHw, MCI_MR);
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12)
+    mciMr &= ~(AT91C_MCI_CLKDIV | AT91C_MCI_CLKODD);
+    clkdiv -= 2;
+    mciMr |= (clkdiv >> 1);
+    if (clkdiv & 1)
+	    mciMr |= AT91C_MCI_CLKODD;
+#else
+    mciMr &= ~AT91C_MCI_CLKDIV;
+    clkdiv = clkdiv / 2 - 1;
+    mciMr |= clkdiv;
+#endif
 
-    // Set the Data Timeout Register & Completion Timeout
-    // Data timeout is 500ms, completion timeout 1s.
-    //MCI_SetTimeout(pMciHw, mciSpeed / 2, mciSpeed);
-
-    WRITE_MCI(pMciHw, MCI_MR, mciMr | clkdiv);
+    WRITE_MCI(pMciHw, MCI_MR, mciMr);
     return (mciSpeed);
 }
 
