@@ -175,6 +175,8 @@ static SDdramConfig ddram_config;
 /*------------------------------------------------------------------------------*/
 void ddramc_hw_init(void)
 {
+    unsigned long csa;
+
     ddram_config.ddramc_mdr =
         (AT91C_DDRC2_DBW_16_BITS | AT91C_DDRC2_MD_DDR2_SDRAM);
 
@@ -218,8 +220,13 @@ void ddramc_hw_init(void)
     /*
      * Chip select 1 is for DDR2/SDRAM
      */
-    writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS1A_SDRAMC),
-            AT91C_BASE_CCFG + CCFG_EBICSA);
+    csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
+    csa |= AT91C_EBI_CS1A_SDRAMC;
+    csa &= ~AT91C_EBI_DBPUC;
+    csa |= AT91C_EBI_DBPDC;
+    csa |= AT91C_EBI_DRV_HD;
+
+    writel(csa,AT91C_BASE_CCFG + CCFG_EBICSA);
 
 
     /*
