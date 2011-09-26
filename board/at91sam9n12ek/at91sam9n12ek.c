@@ -340,7 +340,7 @@ void nandflash_hw_init(void)
     reg |= AT91C_EBI_CS3A_SM;
 
     /* eric ERVISIT */
-#if 0
+#if 1
     reg |= AT91C_EBI_NFD0_ON_D16; /* nandflash connect to D16~D31 */
 #endif
 
@@ -366,7 +366,7 @@ void nandflash_hw_init(void)
     writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
 
     /* eric ERVISIT */
-#if 0
+#if 1
     pio_setup(nand_pio_hi);
 #endif
     //pio_setup(nand_pio_lo);
