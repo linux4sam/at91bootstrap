@@ -43,9 +43,7 @@
 #define MASTER_CLOCK                (132096000)
 #define PLL_LOCK_TIMEOUT            10000
 
-// eric #define BOARD_MAINOSC               12000000
 #define BOARD_MAINOSC               16000000
-// eric #define BOARD_MCK                   ((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200 ))       // 133MHz
 #define BOARD_MCK                   133000000
 #define BOARD_OSCOUNT               (AT91C_CKGR_OSCOUNT & (64 << 8))
 #define BOARD_CKGR_PLLA             (AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
