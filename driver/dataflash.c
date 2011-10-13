@@ -121,7 +121,7 @@ static int df_spi_init(unsigned int pcs, unsigned int spi_csr)
     return SUCCESS;
 }
 
-#ifdef CONFIG_AT91SAM9X5EK
+#if defined(CONFIG_AT91SAM9X5EK) || defined(CONFIG_AT91SAM9N12EK)
 void df_write_spi(unsigned short data)
 {
     while ((read_spi(SPI_SR) & AT91C_SPI_TXEMPTY) == 0)
@@ -504,7 +504,7 @@ static int df_download(AT91PS_DF pDf, unsigned int img_addr,
     int status = SUCCESS;
     /* TODO: the family should be from reading flash id */
     int data_flash_family;
-#ifdef CONFIG_AT91SAM9X5EK
+#if defined(CONFIG_AT91SAM9X5EK) || defined(CONFIG_AT91SAM9N12EK)
 	data_flash_family = DF_FAMILY_AT26DF;
 #else
 	data_flash_family = DF_FAMILY_AT45;
@@ -542,7 +542,7 @@ static int df_init(AT91PS_DF pDf)
 {
     int status = SUCCESS;
 
-#ifdef CONFIG_AT91SAM9X5EK
+#if defined(CONFIG_AT91SAM9X5EK) || defined(CONFIG_AT91SAM9N12EK)
     static char id[5];
     df_get_flashid(pDf, id);
     dbg_log(DEBUG_INFO, "detected dataflash id = %x %x %x %x %x.\r\n",
