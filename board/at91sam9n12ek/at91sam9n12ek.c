@@ -339,10 +339,7 @@ void nandflash_hw_init(void)
     reg = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
     reg |= AT91C_EBI_CS3A_SM;
 
-    /* eric ERVISIT */
-#if 1
-    reg |= AT91C_EBI_NFD0_ON_D16; /* nandflash connect to D16~D31 */
-#endif
+    reg &= ~AT91C_EBI_NFD0_ON_D16; /* nandflash connect to D0~D15 */
 
     reg |= AT91C_EBI_DRV; /* according to IAR verification package */
     writel(reg, AT91C_BASE_CCFG + CCFG_EBICSA);
@@ -365,11 +362,8 @@ void nandflash_hw_init(void)
      */
     writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
 
-    /* eric ERVISIT */
-#if 1
-    pio_setup(nand_pio_hi);
-#endif
-    //pio_setup(nand_pio_lo);
+//    pio_setup(nand_pio_hi);
+    pio_setup(nand_pio_lo);
 
 
     nand_recovery();
