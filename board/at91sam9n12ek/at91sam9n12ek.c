@@ -362,9 +362,7 @@ void nandflash_hw_init(void)
      */
     writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
 
-//    pio_setup(nand_pio_hi);
     pio_setup(nand_pio_lo);
-
 
     nand_recovery();
 }
