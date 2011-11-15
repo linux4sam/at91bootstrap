@@ -36,7 +36,7 @@
 #include "NandSpareScheme.h"
 
 typedef struct SNandInitInfo {
-    //unsigned short         uNandID; /* Nand Chip ID */
+    unsigned short uNandID; /* Nand Chip ID */
     unsigned short uNandNbBlocks;
     unsigned int uNandBlockSize;
     unsigned short uNandSectorSize;
@@ -143,6 +143,15 @@ typedef struct _SectorInfo {
 
 #define NAND_BUS_WIDTH_8BITS		0x0
 #define NAND_BUS_WIDTH_16BITS		0x1
+
+/* NandFlash ONFI */
+#define CMD_READ_ONFI				0xEC
+#define ONFI_PARAM_TABLE_SIZE		96 /** Not all 256 bytes are useful */
+#define NBBLOCKS_OFFSET				96
+#define SECTORSIZE_OFFSET			80
+#define BLOCKSIZE_OFFSET			92
+#define SPARESIZE_OFFSET			84
+#define BUSWIDTH_OFFSET				6
 
 /* NandFlash functions */
 extern void nandflash_hw_init(void);

@@ -148,39 +148,71 @@ PMECC_CorrectionAlgo_Rom_Func PMECC_CorrectionAlgo;
 
 #endif /* CONFIG_USE_PMECC */
 
-static inline struct SNandInitInfo *AT91F_GetNandInitInfo(unsigned short chipID)
+static struct SNandInitInfo NandFlash_DefaultInfo = {
+    .uNandID         = 0x0, /* Set ONFI parameter here*/
+    .uNandNbBlocks   = 0x0,
+    .uNandBlockSize  = 0x0,
+    .uNandSectorSize = 0x0,
+    .uNandSpareSize  = 0x0,
+    .uNandBusWidth   = 0x0,
+    .pSpareScheme    = 0,
+/* pSpareScheme depands on uNandSectorSize,
+   if uNandSectorSize =2048,pSpareScheme = &Spare_2048 */
+};
+
+static BOOL AT91F_GetNandOnfiInfo(PSNandInitInfo info)
 {
-    static struct SNandInitInfo info;
+    int i;
+    unsigned char onfi_param_table[ONFI_PARAM_TABLE_SIZE];
 
-    //info.uNandID = chipID;
-    info.uNandNbBlocks = 0x800;
-    info.uNandBlockSize = 0x20000;
-    info.uNandSectorSize = 0x800;
-    info.uNandSpareSize = 0x40;
-    info.uNandBusWidth = 0;
-    info.pSpareScheme = &Spare_2048;
+    NAND_ENABLE_CE();
 
-    dbg_log(1, "chip id: %x\n\r", chipID);
+    /*
+    * Ask the Nand its Onfi parameter
+    */
+    WRITE_NAND_COMMAND(CMD_READ_ONFI);
+    WRITE_NAND_ADDRESS(0x00);
 
-    switch (chipID) {
-    case 0x2cca:
-        info.uNandBusWidth = 0x1;
-        break;
-    case 0x2cdc:
-        info.uNandNbBlocks = 0x1000;
-        break;
-    case 0x2cda:
-    case 0x2caa:
-    case 0xecda:
-    case 0xecaa:
-    case 0x20aa:
-    case 0xadda:
-        break;
-    default:
-        return 0;
+    NAND_WAIT_READY();
+
+    /* Read the parameter table */
+    for (i = 0; i < ONFI_PARAM_TABLE_SIZE; i++)
+        onfi_param_table[i] = READ_NAND();
+
+    if ((onfi_param_table[0] != 'O') ||
+        (onfi_param_table[1] != 'N') ||
+        (onfi_param_table[2] != 'F') ||
+        (onfi_param_table[3] != 'I')) {
+        dbg_log(1, "wrong onfi parameter\n\r");
+        return FALSE;
     }
 
-    return &info;
+    NAND_DISABLE_CE();
+
+    info->uNandNbBlocks = *(unsigned short *)(onfi_param_table+NBBLOCKS_OFFSET) ;
+    info->uNandSectorSize = *(unsigned short *)(onfi_param_table + SECTORSIZE_OFFSET);
+    info->uNandBlockSize = *(unsigned int  *)(onfi_param_table + BLOCKSIZE_OFFSET) * info->uNandSectorSize;
+    info->uNandSpareSize = *(unsigned char *)(onfi_param_table + SPARESIZE_OFFSET);
+    info->uNandBusWidth = (*(unsigned char *)(onfi_param_table + BUSWIDTH_OFFSET)) & 0x01;
+
+    switch (info->uNandSectorSize) {
+    case 256:
+        info->pSpareScheme = &Spare_256;
+        break;
+    case 512:
+        info->pSpareScheme = &Spare_512;
+        break;
+    case 2048:
+        info->pSpareScheme = &Spare_2048;
+        break;
+    case 4096:
+         /* TODO */
+    default:
+        dbg_log(1, "Not supported page size: %d\n\r", info->uNandSectorSize);
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 static void AT91F_NandInit(PSNandInfo pNandInfo, PSNandInitInfo pNandInitInfo)
@@ -236,15 +268,40 @@ static void reset_nandflash(void)
     NAND_DISABLE_CE();
 }
 
-static PSNandInitInfo AT91F_NandReadID(void)
+BOOL AT91F_NandIsOnfi(void)
+{
+    unsigned char onfi_param_table[ONFI_PARAM_TABLE_SIZE];
+
+    NAND_ENABLE_CE();
+
+    /*
+    * Check if the Nandflash is ONFI compliant
+    */
+    WRITE_NAND_COMMAND(CMD_READID);
+    WRITE_NAND_ADDRESS(0x20);
+
+    onfi_param_table[0] = READ_NAND();
+    onfi_param_table[1] = READ_NAND();
+    onfi_param_table[2] = READ_NAND();
+    onfi_param_table[3] = READ_NAND();
+
+    NAND_DISABLE_CE();
+
+    if ((onfi_param_table[0] == 'O') &&
+        (onfi_param_table[1] == 'N') &&
+        (onfi_param_table[2] == 'F') &&
+        (onfi_param_table[3] == 'I')) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static unsigned int AT91F_NandReadID(void)
 {
     unsigned int uChipID;
 
     unsigned char bManufacturerID, bDeviceID;
 
-    /*
-     * Enable chipset 
-     */
     NAND_ENABLE_CE();
 
     /*
@@ -259,14 +316,13 @@ static PSNandInitInfo AT91F_NandReadID(void)
     bManufacturerID = READ_NAND();
     bDeviceID = READ_NAND();
 
-    /*
-     * Disable chipset before returning 
-     */
     NAND_DISABLE_CE();
 
     uChipID = (bManufacturerID << 8) | bDeviceID;
 
-    return AT91F_GetNandInitInfo(uChipID);
+    dbg_log(DEBUG_INFO, "chip id %x\n\r", uChipID);
+
+    return uChipID;
 }
 
 static void AT91F_WriteLarge_BlkAdr(unsigned int Adr)
@@ -674,9 +730,11 @@ BOOL AT91F_NandRead(PSNandInfo pNandInfo, unsigned int uBlockNb,
 
 int read_nandflash(unsigned char *dst, unsigned long offset, int len)
 {
+    unsigned int uChipID;
+
     SNandInfo sNandInfo;
 
-    PSNandInitInfo pNandInitInfo;
+    PSNandInitInfo pNandInitInfo = &NandFlash_DefaultInfo; /* initialize pNandInitInfo */
 
     unsigned char *pOutBuffer = dst;
 
@@ -687,14 +745,19 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
     reset_nandflash();
 
     /*
-     * Read Nand Chip ID 
+     * Check if the Nandflash is ONFI compliant
      */
-    pNandInitInfo = AT91F_NandReadID();
+    if (!AT91F_NandIsOnfi()) {
+        if(!AT91F_GetNandOnfiInfo(pNandInitInfo))
+            return FALSE;
+    } else {
+        uChipID = AT91F_NandReadID();
+            if (uChipID == 0 || uChipID != NandFlash_DefaultInfo.uNandID) {
+                dbg_log(DEBUG_INFO, "No ONFI and bad parameters in NandFlash_DefaultInfo !!!\n\r");
+                return FALSE;
+            }
+        }
 
-    if (!pNandInitInfo) {
-        dbg_log(DEBUG_INFO, "\n\r-E- No NandFlash detected !!!\n\r");
-        return -1;
-    }
     dbg_log(1, "Copy %d bytes from %d to %d\r\n", len, offset, dst);
 
     /*
