@@ -747,7 +747,7 @@ int read_nandflash(unsigned char *dst, unsigned long offset, int len)
     /*
      * Check if the Nandflash is ONFI compliant
      */
-    if (!AT91F_NandIsOnfi()) {
+    if (AT91F_NandIsOnfi()) {
         if(!AT91F_GetNandOnfiInfo(pNandInitInfo))
             return FALSE;
     } else {
