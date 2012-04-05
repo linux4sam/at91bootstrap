@@ -42,12 +42,24 @@
 void user_hw_init(void);
 #endif
 
-/* Function import from startup.s file */
-extern void Jump(unsigned int addr);
-
 extern unsigned int load_SDCard(void *dst);
 
-void LoadLinux();
+extern void LoadLinux();
+
+const char version_string[] =
+	AT91BOOTSTRAP_VERSION" ( "__DATE__" - "__TIME__" )";
+
+/*------------------------------------------------------------------------------*/
+/* Function Name       : display_banner						*/
+/* Object              : 							*/
+/* Input Parameters    : none							*/
+/* Output Parameters   : 0							*/
+/*------------------------------------------------------------------------------*/
+static int display_banner (void)
+{
+	dbg_log(1, "\n\nAT91Bootstrap %s\n\n\r", version_string);
+	return 0;
+}
 
 /*------------------------------------------------------------------------------*/
 /* Function Name       : Wait							*/
@@ -55,10 +67,10 @@ void LoadLinux();
 /*------------------------------------------------------------------------------*/
 void Wait(unsigned int count)
 {
-    unsigned int i;
+	unsigned int i;
 
-    for (i = 0; i < count; i++)
-        asm volatile ("    nop");
+	for (i = 0; i < count; i++)
+		asm volatile ("    nop");
 }
 
 /*------------------------------------------------------------------------------*/
@@ -70,38 +82,37 @@ void Wait(unsigned int count)
 int main(void)
 {
 #ifdef CONFIG_HW_INIT
-    hw_init();
+	hw_init();
 #endif
 
 #ifdef CONFIG_USER_HW_INIT
-    user_hw_init();
+	user_hw_init();
 #endif
 
 #if defined(CONFIG_AT91SAM9X5EK)
-    extern void load_1wire_info();
-    load_1wire_info();
+	extern void load_1wire_info();
+	load_1wire_info();
 #endif
+	display_banner();
 
-    dbg_log(1, "Downloading image...\n\r");
+	dbg_log(1, "Downloading image...\n\r");
 
 #if defined(CONFIG_LOAD_LINUX)
-    LoadLinux();
-    LoadWince();
+	LoadLinux();
 #else
 /* Booting stand-alone application, e.g. U-Boot */
 #if defined (CONFIG_DATAFLASH)
-    load_df(AT91C_SPI_PCS_DATAFLASH, IMG_ADDRESS, IMG_SIZE, JUMP_ADDR);
+	load_df(AT91C_SPI_PCS_DATAFLASH, IMG_ADDRESS, IMG_SIZE, JUMP_ADDR);
 #elif defined(CONFIG_NANDFLASH)
-    read_nandflash((unsigned char *)JUMP_ADDR, (unsigned long)IMG_ADDRESS,
-        (int)IMG_SIZE);
+	read_nandflash((unsigned char *)JUMP_ADDR, (unsigned long)IMG_ADDRESS, (int)IMG_SIZE);
 #elif defined(CONFIG_SDCARD)
-    load_SDCard((void *)JUMP_ADDR);
+	load_SDCard((void *)JUMP_ADDR);
 #else
 #error "No booting media specified!"
 #endif
 #endif
 
-    dbg_log(1, "Done!\n\r");
+	dbg_log(1, "Done!\n\r");
 
-    return JUMP_ADDR;
+	return JUMP_ADDR;
 }

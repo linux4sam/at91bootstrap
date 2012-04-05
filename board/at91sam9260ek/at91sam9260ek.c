@@ -136,7 +136,7 @@ void hw_init(void)
      */
 #ifdef CONFIG_DEBUG
     dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
-    dbgu_print("Starting AT91Bootstrap...\r\n");
+//    dbgu_print("Starting AT91Bootstrap...\r\n");
 #endif
 
 #ifdef CONFIG_SDRAM
