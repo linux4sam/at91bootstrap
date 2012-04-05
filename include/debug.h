@@ -71,11 +71,11 @@ extern int dbg_log(const char level, const char *fmt_str, ...);
 
 #else                           /* CONFIG_DEBUG */
 
-#if defined(WINCE) && !defined(WINCE600)
-#define dbg_log()
-#else
+//#if defined(WINCE) && !defined(WINCE600)
+//#define dbg_log()
+//#else
 #define dbg_log(...)
-#endif
+//#endif
 
 #endif
 

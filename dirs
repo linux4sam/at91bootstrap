@@ -1,5 +1,0 @@
-DIRS=\
-    driver \
-    lib \
-    board \
-    wince \

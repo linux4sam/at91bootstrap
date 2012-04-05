@@ -11,8 +11,8 @@
 
 #ifdef CONFIG_LOAD_LINUX
 
-#ifdef WINCE
-
+//#ifdef WINCE
+#if 0
 #ifdef CONFIG_AT91SAM9260EK
 #ifdef CONFIG_DATAFLASH
 #define LINUX_KERNEL_ARG_STRING "mem=64M console=ttyS0,115200 root=/dev/mtdblock1 rw rootfstype=jffs2"
@@ -244,7 +244,7 @@ static void setup_cmdline_tag(struct tag *tag, char *commandline)
 
 void clean_environment()
 {
-#ifndef WINCE
+//#ifndef WINCE
     /*
      * Disable ARM Core interrupt 
      */
@@ -291,7 +291,7 @@ void clean_environment()
 
     dbg_log(1, "End clean environment...\n\r");
 #endif
-#endif
+//#endif
 }
 
 //struct tag *tags = (struct tag *)(OS_MEM_BANK + 0x100);

@@ -29,9 +29,9 @@
  * Creation            : NLe Aug 8th 2006
  *-----------------------------------------------------------------------------
  */
-#if defined(WINCE) && !defined(CONFIG_AT91SAM9263EK)
+//#if defined(WINCE) && !defined(CONFIG_AT91SAM9263EK)
 
-#else
+//#else
 
 #include "part.h"
 #include "main.h"
@@ -480,4 +480,4 @@ void nandflash_cfg_8bits_dbw_init(void)
 
 #endif                          /* #ifdef CONFIG_NANDFLASH */
 
-#endif
+//#endif

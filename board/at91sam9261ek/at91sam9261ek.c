@@ -31,9 +31,9 @@
  * ODi Nov 9th         : dstp #3507 "Bad PIO descriptors in at91samxxxek.c"
  *-----------------------------------------------------------------------------
  */
-#if defined(WINCE) && !defined(CONFIG_AT91SAM9261EK)
+//#if defined(WINCE) && !defined(CONFIG_AT91SAM9261EK)
 
-#else
+//#else
 
 #include "part.h"
 #include "main.h"
@@ -299,4 +299,4 @@ void nandflash_cfg_8bits_dbw_init(void)
 
 #endif                          /* #ifdef CONFIG_NANDFLASH */
 
-#endif
+//#endif

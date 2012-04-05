@@ -49,22 +49,10 @@ extern unsigned int load_SDCard(void *dst);
 
 void LoadLinux();
 
-void LoadWince();
-
 /*------------------------------------------------------------------------------*/
 /* Function Name       : Wait							*/
 /* Object              : software loop waiting function				*/
 /*------------------------------------------------------------------------------*/
-#ifdef WINCE
-void Wait(unsigned int count)
-{
-    volatile unsigned int i;
-    volatile unsigned int j = 0;
-
-    for (i = 0; i < count; i++)
-        j++;
-}
-#else
 void Wait(unsigned int count)
 {
     unsigned int i;
@@ -72,7 +60,6 @@ void Wait(unsigned int count)
     for (i = 0; i < count; i++)
         asm volatile ("    nop");
 }
-#endif
 
 /*------------------------------------------------------------------------------*/
 /* Function Name       : main							*/
@@ -99,7 +86,6 @@ int main(void)
 
 #if defined(CONFIG_LOAD_LINUX)
     LoadLinux();
-#elif defined(CONFIG_LOAD_NK) || defined(CONFIG_LOAD_EBOOT)
     LoadWince();
 #else
 /* Booting stand-alone application, e.g. U-Boot */
@@ -113,22 +99,9 @@ int main(void)
 #else
 #error "No booting media specified!"
 #endif
-
 #endif
 
     dbg_log(1, "Done!\n\r");
 
-#ifdef WINCE
-#ifdef CONFIG_LOAD_NK
-    Jump(JUMP_ADDR + 0x1000);
-#else
-    Jump(JUMP_ADDR);
-#endif
-#else                           /* !WINCE */
-#ifdef CONFIG_LOAD_NK
-    return (JUMP_ADDR + 0x1000);
-#else
     return JUMP_ADDR;
-#endif
-#endif
 }

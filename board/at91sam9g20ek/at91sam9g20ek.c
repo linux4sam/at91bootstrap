@@ -30,9 +30,9 @@
  * Creation            : NFe Jan 2008
  *-----------------------------------------------------------------------------
  */
-#if defined(WINCE) && !defined(CONFIG_AT91SAM9G20EK)
+//#if defined(WINCE) && !defined(CONFIG_AT91SAM9G20EK)
 
-#else
+//#else
 
 #include "part.h"
 #include "main.h"
@@ -361,4 +361,4 @@ void nandflash_cfg_8bits_dbw_init(void)
 
 #endif                          /* #ifdef CONFIG_NANDFLASH */
 
-#endif                          /* CONFIG_AT91SAM9G20EK */
+//#endif                          /* CONFIG_AT91SAM9G20EK */

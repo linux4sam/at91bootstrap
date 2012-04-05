@@ -30,8 +30,8 @@
  * Creation            : HXu Aug. 2010
  *-----------------------------------------------------------------------------
  */
-#if defined(WINCE) && !defined(CONFIG_AT91SAM9X5EK)
-
+//#if defined(WINCE) && !defined(CONFIG_AT91SAM9X5EK)
+//
 #else
 
 #include "part.h"
@@ -408,4 +408,4 @@ void one_wire_hw_init(void)
 	pio_setup(wire_pio);
 }
 
-#endif                          /* CONFIG_AT91SAM9X5EK */
+//#endif                          /* CONFIG_AT91SAM9X5EK */

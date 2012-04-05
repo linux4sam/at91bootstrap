@@ -30,9 +30,9 @@
  * Creation            : HXu Aug. 2010
  *-----------------------------------------------------------------------------
  */
-#if defined(WINCE) && !defined(CONFIG_AT91SAM9X5EK)
+//#if defined(WINCE) && !defined(CONFIG_AT91SAM9X5EK)
 
-#else
+//#else
 
 #include "part.h"
 #include "gpio.h"
@@ -395,4 +395,4 @@ void nandflash_cfg_8bits_dbw_init(void)
 
 #endif                          /* #ifdef CONFIG_NANDFLASH */
 
-#endif                          /* CONFIG_AT91SAM9X5EK */
+//#endif                          /* CONFIG_AT91SAM9X5EK */
