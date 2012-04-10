@@ -26,70 +26,56 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ----------------------------------------------------------------------------
  * File Name           : dbgu.c
- * Object              : Operations related to DBGU
- * Creation            : Hong Apr 6th 2010
+ * Object              : 
+ * Creation            : 
  *-----------------------------------------------------------------------------
  */
-#include "part.h"
-#include "main.h"
-#include "dbgu.h"
+#include "hardware.h"
+#include "arch/at91_dbgu.h"
 
-#ifdef CONFIG_DEBUG
 /* Write DBGU register */
-static inline void write_dbgu(unsigned int offset, const unsigned int value)
+static /*inline*/ void write_dbgu(unsigned int offset, const unsigned int value)
 {
-    writel(value, offset + AT91C_BASE_DBGU);
+	writel(value, offset + AT91C_BASE_DBGU);
 }
 
 /* Read DBGU registers */
-static inline unsigned int read_dbgu(unsigned int offset)
+static /*inline*/ unsigned int read_dbgu(unsigned int offset)
 {
-    return readl(offset + AT91C_BASE_DBGU);
+	return readl(offset + AT91C_BASE_DBGU);
 }
 
 void dbgu_init(unsigned int baudrate)
 {
-    /*
-     * Disable interrupts 
-     */
-    write_dbgu(US_IDR, -1);
-    /*
-     * Reset the receiver and transmitter 
-     */
-    write_dbgu(US_CR, AT91C_US_RSTRX | AT91C_US_RSTTX | AT91C_US_RXDIS
-               | AT91C_US_TXDIS);
-    /*
-     * Configure the baudrate 
-     */
-    write_dbgu(US_BRGR, baudrate);
-    /*
-     * Configure USART in Asynchronous mode 
-     */
-    write_dbgu(US_MR, AT91C_US_PAR);
-    /*
-     * Enable RX and Tx 
-     */
-    write_dbgu(US_CR, AT91C_US_RXEN | AT91C_US_TXEN);
+	/* Disable interrupts */
+	write_dbgu(DBGU_IDR, -1);
+
+	/* Reset the receiver and transmitter */
+	write_dbgu(DBGU_CR, AT91C_DBGU_RSTRX | AT91C_DBGU_RSTTX | AT91C_DBGU_RXDIS | AT91C_DBGU_TXDIS);
+
+	/* Configure the baudrate */
+	write_dbgu(DBGU_BRGR, baudrate);
+
+	/* Configure USART in Asynchronous mode */
+	write_dbgu(DBGU_MR, AT91C_DBGU_PAR);
+
+	/* Enable RX and Tx */
+	write_dbgu(DBGU_CR, AT91C_DBGU_RXEN | AT91C_DBGU_TXEN);
 }
 
-//*----------------------------------------------------------------------------
-//* \fn    dbg_print
-//* \brief This function is used to send data to DBGU
-//*---------------------------------------------------------------------------*/
 void dbgu_print(const char *ptr)
 {
-    int i = 0;
+	int i = 0;
 
-    while (ptr[i] != '\0') {
-        while (!(read_dbgu(DBGU_CSR) & AT91C_US_TXRDY)) ;
-        write_dbgu(DBGU_THR, ptr[i]);
-        i++;
-    }
+	while (ptr[i] != '\0') {
+		while (!(read_dbgu(DBGU_CSR) & AT91C_DBGU_TXRDY)) ;
+		write_dbgu(DBGU_THR, ptr[i]);
+		i++;
+	}
 }
 
 char dbgu_getc(void)
 {
-    while (!(read_dbgu(DBGU_CSR) & AT91C_US_RXRDY)) ;
-    return (char)read_dbgu(DBGU_RHR);
+	while (!(read_dbgu(DBGU_CSR) & AT91C_DBGU_RXRDY)) ;
+	return (char)read_dbgu(DBGU_RHR);
 }
-#endif

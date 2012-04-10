@@ -27,24 +27,12 @@
  * ----------------------------------------------------------------------------
  * File Name           : sdramc.h
  * Object              :
- * Creation            : NLe Jul 11th 2006
+ * Creation            :
  *-----------------------------------------------------------------------------
  */
-#ifndef DDRAMC_H_
-#define DDRAMC_H_
+#ifndef _DDRAMC_H_
+#define _DDRAMC_H_
 
-typedef struct SDdramConfig {
-    unsigned int ddramc_mdr;
-    unsigned int ddramc_cr;
-    unsigned int ddramc_rtr;
-    unsigned int ddramc_t0pr;
-    unsigned int ddramc_t1pr;
-    unsigned int ddramc_t2pr;
-} SDdramConfig, *PSDdramConfig;
+extern void ddramc_init(void);
 
-extern int ddram_init(unsigned int ddram_controller_address,
-                      unsigned int ddram_address,
-                      struct SDdramConfig *ddram_config);
-extern void ddramc_hw_init(void);
-
-#endif                          /*SDRAMC_H_ */
+#endif /* #ifndef _DDRAMC_H_ */

@@ -64,19 +64,9 @@
 #define DEBUG_VERY_LOUD   4
 
 #ifdef	CONFIG_DEBUG
-
-#define MAX_BUFFER 128
-
 extern int dbg_log(const char level, const char *fmt_str, ...);
-
-#else                           /* CONFIG_DEBUG */
-
-//#if defined(WINCE) && !defined(WINCE600)
-//#define dbg_log()
-//#else
+#else
 #define dbg_log(...)
-//#endif
-
 #endif
 
-#endif /*_DEBUG_H_*/
+#endif /* #ifndef _DEBUG_H_ */

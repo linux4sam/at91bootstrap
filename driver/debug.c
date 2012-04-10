@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -27,115 +27,107 @@
  * ----------------------------------------------------------------------------
  * File Name           : debug.c
  * Object              :
- * Creation            : ODi Apr 19th 2006
+ * Creation            : 
  *-----------------------------------------------------------------------------
  */
-#include "part.h"
-#include "main.h"
 #include "dbgu.h"
 #include "debug.h"
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef	CONFIG_DEBUG
-
+#define MAX_BUFFER	128
 static char dbg_buf[MAX_BUFFER];
 
 static inline short fill_char(char *buf, char val)
 {
-    *buf = val;
+	*buf = val;
 
-    return 1;
+	return 1;
 }
 
 static inline short fill_string(char *buf, char *p)
 {
-    short num = 0;
+	short num = 0;
 
-    while (*p != 0) {
-        *buf++ = *p++;
-        num++;
-    }
+	while (*p != 0) {
+		*buf++ = *p++;
+		num++;
+	}
 
-    return num;
+	return num;
 }
 
 static inline short fill_hex_int(char *buf, unsigned int data)
 {
-    short num = 0;
+	short num = 0;
 
-    if ((data >> 4) > 0) {
-        num += fill_hex_int(buf, data >> 4);
-        buf += num;
-    }
+	if ((data >> 4) > 0) {
+		num += fill_hex_int(buf, data >> 4);
+		buf += num;
+	}
 
-    if ((data & 0xF) < 10)
-        fill_char(buf, (data & 0xF) + '0');
-    else
-        fill_char(buf, (data & 0xF) - 10 + 'a');
-    num++;
+	if ((data & 0xF) < 10)
+		fill_char(buf, (data & 0xF) + '0');
+	else
+		fill_char(buf, (data & 0xF) - 10 + 'a');
+	num++;
 
-    return num;
+	return num;
 }
 
 int dbg_log(const char level, const char *fmt_str, ...)
 {
-    va_list ap;
+	va_list ap;
 
-    char *p = dbg_buf;
+	char *p = dbg_buf;
 
-    short num = 0;
+	short num = 0;
 
-    if (level > BOOTSTRAP_DEBUG_LEVEL)
-        return 0;
+	if (level > BOOTSTRAP_DEBUG_LEVEL)
+		return 0;
 
-    va_start(ap, fmt_str);
-    while (*fmt_str != 0) {
-        if (*fmt_str != '%')
-            *p++ = *fmt_str++;
-        /*
-         * For %% 
-         */
-        else if (*(fmt_str + 1) == '%') {
-            *p++ = '%';
-            fmt_str += 2;
-        } else {
-            fmt_str++;          /* skip % */
-            switch (*fmt_str) {
-            case 'd':
-            case 'i':
-            case 'u':
-            case 'x':
-                *p++ = '0';
-                *p++ = 'x';
-                num = fill_hex_int(p, va_arg(ap, unsigned int));
+	va_start(ap, fmt_str);
+	while (*fmt_str != 0) {
+		if (*fmt_str != '%')
+			*p++ = *fmt_str++;
+		else if (*(fmt_str + 1) == '%') {
+			*p++ = '%';
+			fmt_str += 2;
+		} else {
+			fmt_str++;	/* skip % */
+			switch (*fmt_str) {
+			case 'd':
+			case 'i':
+			case 'u':
+			case 'x':
+				*p++ = '0';
+				*p++ = 'x';
+				num = fill_hex_int(p, va_arg(ap, unsigned int));
 
-                break;
-            case 's':
-                num = fill_string(p, va_arg(ap, char *));
+				break;
+			case 's':
+				num = fill_string(p, va_arg(ap, char *));
 
-                break;
-            case 'c':
-                num = fill_char(p, (char)va_arg(ap, signed long));
+				break;
+			case 'c':
+				num =
+				    fill_char(p, (char)va_arg(ap, signed long));
 
-                break;
-            default:
-                return -1;
-            }
+				break;
+			default:
+				return -1;
+			}
 
-            fmt_str++;
-            p += num;
-        }
-    }
-    va_end(ap);
+			fmt_str++;
+			p += num;
+		}
+	}
+	va_end(ap);
 
-    /*
-     * Terminate the result string 
-     */
-    *p = '\0';
+	/* Terminate the result string */
+	*p = '\0';
 
-    dbgu_print(dbg_buf);
+	dbgu_print(dbg_buf);
 
-    return 0;
+	return 0;
 }
-#endif

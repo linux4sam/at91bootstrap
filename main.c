@@ -30,9 +30,8 @@
  * Creation            : ODi Apr 19th 2006
  *-----------------------------------------------------------------------------
  */
-#include "part.h"
-#include "main.h"
-#include "dbgu.h"
+#include "hardware.h"
+#include "board.h"
 #include "debug.h"
 #include "dataflash.h"
 #include "nandflash.h"
@@ -49,36 +48,12 @@ extern void LoadLinux();
 const char version_string[] =
 	AT91BOOTSTRAP_VERSION" ( "__DATE__" - "__TIME__" )";
 
-/*------------------------------------------------------------------------------*/
-/* Function Name       : display_banner						*/
-/* Object              : 							*/
-/* Input Parameters    : none							*/
-/* Output Parameters   : 0							*/
-/*------------------------------------------------------------------------------*/
 static int display_banner (void)
 {
 	dbg_log(1, "\n\nAT91Bootstrap %s\n\n\r", version_string);
 	return 0;
 }
 
-/*------------------------------------------------------------------------------*/
-/* Function Name       : Wait							*/
-/* Object              : software loop waiting function				*/
-/*------------------------------------------------------------------------------*/
-void Wait(unsigned int count)
-{
-	unsigned int i;
-
-	for (i = 0; i < count; i++)
-		asm volatile ("    nop");
-}
-
-/*------------------------------------------------------------------------------*/
-/* Function Name       : main							*/
-/* Object              : Main function						*/
-/* Input Parameters    : none							*/
-/* Output Parameters   : True							*/
-/*------------------------------------------------------------------------------*/
 int main(void)
 {
 #ifdef CONFIG_HW_INIT
@@ -104,7 +79,7 @@ int main(void)
 #if defined (CONFIG_DATAFLASH)
 	load_df(AT91C_SPI_PCS_DATAFLASH, IMG_ADDRESS, IMG_SIZE, JUMP_ADDR);
 #elif defined(CONFIG_NANDFLASH)
-	read_nandflash((unsigned char *)JUMP_ADDR, (unsigned long)IMG_ADDRESS, (int)IMG_SIZE);
+	load_nandflash((unsigned int)IMG_ADDRESS, (unsigned int)IMG_SIZE, (unsigned char *)JUMP_ADDR);
 #elif defined(CONFIG_SDCARD)
 	load_SDCard((void *)JUMP_ADDR);
 #else
