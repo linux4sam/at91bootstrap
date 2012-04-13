@@ -129,105 +129,27 @@ void hw_init(void)
 }
 #endif /* CONFIG_HW_INIT */
 
-#if 0
-#ifdef CONFIG_DDR2
-static SDdramConfig ddram_config;
-
-/*------------------------------------------------------------------------------*/
-/* \fn    ddramc_hw_init							*/
-/* \brief This function performs DDRAMC HW initialization			*/
-/*										*/
-/* Using the Micron MT47H64M16HR-3										*/
-/*------------------------------------------------------------------------------*/
-void ddramc_hw_init(void)
-{
-	unsigned long csa;
-
-	ddram_config.ddramc_mdr =
-	    (AT91C_DDRC2_DBW_16_BITS | AT91C_DDRC2_MD_DDR2_SDRAM);
-
-	ddram_config.ddramc_cr = (AT91C_DDRC2_NC_DDR10_SDR9 |	// 10 column bits (1K)
-				  AT91C_DDRC2_NR_13 |	// 13 row bits    (8K)
-				  AT91C_DDRC2_CAS_3 |	// CAS Latency 3
-				  AT91C_DDRC2_NB_BANKS_8 |	// 8 banks
-				  AT91C_DDRC2_DLL_RESET_DISABLED |	// DLL not reset
-				  AT91C_DDRC2_DECOD_INTERLEAVED);	// Interleaved decoding
-
-	/* The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
-	 * With a 133 MHz frequency, the refresh timer count register must to be
-	 * set with (15.625 x 133 MHz) ~ 2084 i.e. 0x824
-	 * or (7.81 x 133 MHz) ~ 1040 i.e. 0x410.
-	 */
-	ddram_config.ddramc_rtr = 0x411;	/* Refresh timer: 7.8125us */
-
-	/* One clock cycle @ 133 MHz = 7.5 ns */
-	ddram_config.ddramc_t0pr = (AT91C_DDRC2_TRAS_6 |	//  6 * 7.5 = 45   ns
-				    AT91C_DDRC2_TRCD_2 |	//  2 * 7.5 = 22.5 ns
-				    AT91C_DDRC2_TWR_2 |	//  2 * 7.5 = 15   ns
-				    AT91C_DDRC2_TRC_8 |	//  8 * 7.5 = 75   ns
-				    AT91C_DDRC2_TRP_2 |	//  2 * 7.5 = 15   ns
-				    AT91C_DDRC2_TRRD_2 |	//  2 * 7.5 = 15   ns (x16 memory)
-				    AT91C_DDRC2_TWTR_2 |	//  2 clock cycles min
-				    AT91C_DDRC2_TMRD_2);	//  2 clock cycles
-
-	ddram_config.ddramc_t1pr = (AT91C_DDRC2_TXP_2 |	//  2 clock cycles
-				    200 << 16 |	//  200 clock cycles
-				    19 << 8 |	//  19 * 7.5 = 142.5 ns ( > 128 + 10 ns)
-				    AT91C_DDRC2_TRFC_18);	//  18 * 7.5 = 135   ns (must be 128 ns for 1Gb DDR)
-
-	ddram_config.ddramc_t2pr = (AT91C_DDRC2_TRTP_2 |	//  2 clock cycles min
-				    AT91C_DDRC2_TRPA_3 |	//  3 * 7.5 = 22.5 ns
-				    AT91C_DDRC2_TXARDS_7 |	//  7 clock cycles
-				    AT91C_DDRC2_TXARD_2);	//  2 clock cycles
-
-	// ENABLE DDR2 clock 
-	writel(AT91C_PMC_DDR, AT91C_BASE_PMC + PMC_SCER);
-
-	/*
-	 * Chip select 1 is for DDR2/SDRAM
-	 */
-	csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
-	csa |= AT91C_EBI_CS1A_SDRAMC;
-	csa &= ~AT91C_EBI_DBPUC;
-	csa |= AT91C_EBI_DBPDC;
-	csa |= AT91C_EBI_DRV_HD;
-
-	writel(csa, AT91C_BASE_CCFG + CCFG_EBICSA);
-
-	/*
-	 * DDRAM2 Controller
-	 */
-	ddram_init(AT91C_BASE_DDR2C, AT91C_EBI_CS1, &ddram_config);
-}
-#endif /* CONFIG_DDR2 */
-#endif
-
 #ifdef CONFIG_DATAFLASH
-/*---------------------------------------------------------------------------*/
-/* \fn    df_hw_init                                                         */
-/* \brief This function performs DataFlash HW initialization                 */
-/*---------------------------------------------------------------------------*/
-void df_hw_init(void)
+void at91_spi0_hw_init(void)
 {
-	/*
-	 * Configure PIOs for SPI0
-	 */
-	const struct pio_desc df_pio[] = {
-		{"MISO", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MOSI", AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPCK", AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"NPCS0", AT91C_PIN_PA(14), 1, PIO_DEFAULT, PIO_OUTPUT},	/* Using GPIO as cs pin, set 1 is disable */
+	/* Configure PIN for SPI0 */
+	const struct pio_desc spi0_pins[] = {
+		{"MISO",  AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MOSI",  AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPCK",  AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"NPCS0", AT91C_PIN_PA(14), 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	/*
-	 * Configure the PIO controller
-	 */
+	/* Configure the PIO controller */
 	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
-	pio_setup(df_pio);
+	pio_configure(spi0_pins);
+
+	/* Enable the clock */
+	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
 }
 
-void df_cs_active(int cs)
+void spi_cs_activate(int cs)
 {
 	switch (cs) {
 	case 0:
@@ -239,7 +161,7 @@ void df_cs_active(int cs)
 	}
 }
 
-void df_cs_deactive(int cs)
+void spi_cs_deactivate(int cs)
 {
 	switch (cs) {
 	case 0:
@@ -250,7 +172,6 @@ void df_cs_deactive(int cs)
 		break;
 	}
 }
-
 #endif /* CONFIG_DATAFLASH */
 
 #ifdef CONFIG_NANDFLASH

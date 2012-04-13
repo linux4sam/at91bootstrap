@@ -77,7 +77,7 @@ int main(void)
 #else
 /* Booting stand-alone application, e.g. U-Boot */
 #if defined (CONFIG_DATAFLASH)
-	load_df(AT91C_SPI_PCS_DATAFLASH, IMG_ADDRESS, IMG_SIZE, JUMP_ADDR);
+	load_dataflash((unsigned int)IMG_ADDRESS, (unsigned int)IMG_SIZE, (unsigned char *)JUMP_ADDR);
 #elif defined(CONFIG_NANDFLASH)
 	load_nandflash((unsigned int)IMG_ADDRESS, (unsigned int)IMG_SIZE, (unsigned char *)JUMP_ADDR);
 #elif defined(CONFIG_SDCARD)

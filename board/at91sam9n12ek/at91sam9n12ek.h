@@ -64,16 +64,19 @@
 			| BOARD_PLLACOUNT \
 			| BOARD_MULA \
 			| BOARD_DIVA)
-
+/*
 #define PLLUTMI
 #define PLLUTMI_SETTINGS	0x10193F05
+*/
 
 /*
 * DataFlash Settings
 */
-#define AT91C_BASE_SPI		AT91C_BASE_SPI0
-#define AT91C_ID_SPI		AT91C_ID_SPI0
-#define DF_CS_SETTINGS		(AT91C_SPI_CPOL | ((MASTER_CLOCK / AT91C_SPI_CLK) << 8))
+#define CONFIG_SPI_CLOCK	AT91C_SPI_CLK
+#define CONFIG_SPI_BUS		0
+#define CONFIG_SPI_CS		0
+//#define CONFIG_SPI_MAX_H	1000000
+#define CONFIG_SPI_MODE		SPI_MODE_3
 
 /*
  * NandFlash Settings
@@ -85,9 +88,6 @@
 
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91C_PIN_PD(4)
 #define CONFIG_SYS_NAND_READY_PIN	AT91C_PIN_PD(5)
-
-//#define NAND_DISABLE_CE() do { *(volatile unsigned int *)AT91C_PIOD_SODR = AT91C_PIO_PD4;} while(0)
-//#define NAND_ENABLE_CE() do { *(volatile unsigned int *)AT91C_PIOD_CODR = AT91C_PIO_PD4;} while(0)
 
 /*
  * MCI Settings
@@ -102,5 +102,9 @@ extern void hw_init(void);
 
 extern void nandflash_hw_init(void);
 extern void nandflash_config_buswidth(unsigned char busw);
+
+extern void at91_spi0_hw_init(void);
+extern void spi_cs_activate(int cs);
+extern void spi_cs_deactivate(int cs);
 
 #endif /* #ifndef _AT91SAM9N12EK_H_ */
