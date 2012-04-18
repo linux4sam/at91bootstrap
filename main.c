@@ -35,13 +35,12 @@
 #include "debug.h"
 #include "dataflash.h"
 #include "nandflash.h"
+#include "sdcard.h"
 #include "flash.h"
 
 #ifdef CONFIG_USER_HW_INIT
 void user_hw_init(void);
 #endif
-
-extern unsigned int load_SDCard(void *dst);
 
 extern void LoadLinux();
 
@@ -81,7 +80,7 @@ int main(void)
 #elif defined(CONFIG_NANDFLASH)
 	load_nandflash((unsigned int)IMG_ADDRESS, (unsigned int)IMG_SIZE, (unsigned char *)JUMP_ADDR);
 #elif defined(CONFIG_SDCARD)
-	load_SDCard((void *)JUMP_ADDR);
+	load_sdcard((void *)JUMP_ADDR);
 #else
 #error "No booting media specified!"
 #endif

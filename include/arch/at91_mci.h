@@ -42,6 +42,9 @@
 #define MCI_BLKR	0x18	/* MCI Block Register */
 #define MCI_CSTOR	0x1C	/* MCI Completion Signal Timeout Register */
 #define MCI_RSPR	0x20	/* MCI Response Register */
+#define MCI_RSPR1	0x24	/* MCI Response Register1 */
+#define MCI_RSPR2	0x28	/* MCI Response Register2 */
+#define MCI_RSPR3	0x2C	/* MCI Response Register3 */
 #define MCI_RDR		0x30	/* MCI Receive Data Register */
 #define MCI_TDR		0x34	/* MCI Transmit Data Register */
 #define MCI_SR		0x40	/* MCI Status Register */
@@ -58,26 +61,12 @@
 
 /* -------- MCI_CR : (MCI Offset: 0x0) MCI Control Register --------*/ 
 #define AT91C_MCI_MCIEN		(0x1UL << 0)	/* (MCI) Multimedia Interface Enable*/
-#define 	AT91C_MCI_MCIEN_0		(0x0UL << 0)
-#define 	AT91C_MCI_MCIEN_1		(0x1UL << 0)
-#define AT91C_MCI_MCIDIS	(0x1UL <<  1)	/* (MCI) Multimedia Interface Disable */
-#define 	AT91C_MCI_MCIDIS_0		(0x0UL << 1)
-#define 	AT91C_MCI_MCIDIS_1		(0x1UL << 1)
-#define AT91C_MCI_PWSEN		(0x1UL <<  2)	/* (MCI) Power Save Mode Enable */
-#define 	AT91C_MCI_PWSEN_0		(0x0UL << 2)
-#define 	AT91C_MCI_PWSEN_1		(0x1UL << 2)
-#define AT91C_MCI_PWSDIS	(0x1UL <<  3)	/* (MCI) Power Save Mode Disable */
-#define 	AT91C_MCI_PWSDIS_0		(0x0UL << 3)
-#define 	AT91C_MCI_PWSDIS_1		(0x1UL << 3)
-#define AT91C_MCI_IOWAITEN	(0x1UL <<  4)	/* (MCI) SDIO Read Wait Enable */
-#define 	AT91C_MCI_IOWAITEN_0		(0x0UL << 4)
-#define 	AT91C_MCI_IOWAITEN_1		(0x1UL << 4)
-#define AT91C_MCI_IOWAITDIS	(0x1UL <<  5)	/* (MCI) SDIO Read Wait Disable */
-#define 	AT91C_MCI_IOWAITDIS_0		(0x0UL << 5)
-#define 	AT91C_MCI_IOWAITDIS_1		(0x1UL << 5)
-#define AT91C_MCI_SWRST		(0x1UL <<  7)	/* (MCI) MCI Software rese */t
-#define 	AT91C_MCI_SWRST_0		(0x0UL << 7)
-#define 	AT91C_MCI_SWRST_1		(0x1UL << 7)
+#define AT91C_MCI_MCIDIS	(0x1UL << 1)	/* (MCI) Multimedia Interface Disable */
+#define AT91C_MCI_PWSEN		(0x1UL << 2)	/* (MCI) Power Save Mode Enable */
+#define AT91C_MCI_PWSDIS	(0x1UL << 3)	/* (MCI) Power Save Mode Disable */
+#define AT91C_MCI_IOWAITEN	(0x1UL << 4)	/* (MCI) SDIO Read Wait Enable */
+#define AT91C_MCI_IOWAITDIS	(0x1UL << 5)	/* (MCI) SDIO Read Wait Disable */
+#define AT91C_MCI_SWRST		(0x1UL << 7)	/* (MCI) MCI Software rese */
 
 // -------- MCI_MR : (MCI Offset: 0x4) MCI Mode Register -------- 
 #define AT91C_MCI_CLKDIV(x)	(x << 0)	// (MCI) Clock Divider
@@ -195,23 +184,23 @@
 #define AT91C_MCI_SDIOIRQC	(0x1UL << 10)	// (MCI) SDIO Interrupt for Slot C
 #define AT91C_MCI_SDIOIRQD	(0x1UL << 11)	// (MCI) SDIO Interrupt for Slot D
 #define AT91C_MCI_SDIOWAIT	(0x1UL << 12)	// (MCI) SDIO Read Wait operation flag
-#define AT91C_MCI_CSRCV		(0x1UL << 13)// (MCI) CE-ATA Completion Signal flag
-#define AT91C_MCI_RXBUFF	(0x1UL << 14)// (MCI) RX Buffer Full flag
-#define AT91C_MCI_TXBUFE	(0x1UL << 15)// (MCI) TX Buffer Empty flag
-#define AT91C_MCI_RINDE		(0x1UL << 16)// (MCI) Response Index Error flag
-#define AT91C_MCI_RDIRE		(0x1UL << 17)// (MCI) Response Direction Error flag
-#define AT91C_MCI_RCRCE		(0x1UL << 18)// (MCI) Response CRC Error flag
-#define AT91C_MCI_RENDE		(0x1UL << 19)// (MCI) Response End Bit Error flag
-#define AT91C_MCI_RTOE		(0x1UL << 20)// (MCI) Response Time-out Error flag
-#define AT91C_MCI_DCRCE		(0x1UL << 21)// (MCI) data CRC Error flag
-#define AT91C_MCI_DTOE		(0x1UL << 22)// (MCI) Data timeout Error flag
-#define AT91C_MCI_CSTOE		(0x1UL << 23)// (MCI) Completion Signal timeout Error flag
-#define AT91C_MCI_BLKOVRE	(0x1UL << 24)// (MCI) DMA Block Overrun Error flag
-#define AT91C_MCI_DMADONE	(0x1UL << 25)// (MCI) DMA Transfer Done flag
-#define AT91C_MCI_FIFOEMPTY	(0x1UL << 26)// (MCI) FIFO Empty flag
-#define AT91C_MCI_XFRDONE	(0x1UL << 27)// (MCI) Transfer Done flag
-#define AT91C_MCI_OVRE		(0x1UL << 30)// (MCI) Overrun flag
-#define AT91C_MCI_UNRE		(0x1UL << 31)// (MCI) Underrun flag
+#define AT91C_MCI_CSRCV		(0x1UL << 13)	// (MCI) CE-ATA Completion Signal flag
+#define AT91C_MCI_RXBUFF	(0x1UL << 14)	// (MCI) RX Buffer Full flag
+#define AT91C_MCI_TXBUFE	(0x1UL << 15)	// (MCI) TX Buffer Empty flag
+#define AT91C_MCI_RINDE		(0x1UL << 16)	// (MCI) Response Index Error flag
+#define AT91C_MCI_RDIRE		(0x1UL << 17)	// (MCI) Response Direction Error flag
+#define AT91C_MCI_RCRCE		(0x1UL << 18)	// (MCI) Response CRC Error flag
+#define AT91C_MCI_RENDE		(0x1UL << 19)	// (MCI) Response End Bit Error flag
+#define AT91C_MCI_RTOE		(0x1UL << 20)	// (MCI) Response Time-out Error flag
+#define AT91C_MCI_DCRCE		(0x1UL << 21)	// (MCI) data CRC Error flag
+#define AT91C_MCI_DTOE		(0x1UL << 22)	// (MCI) Data timeout Error flag
+#define AT91C_MCI_CSTOE		(0x1UL << 23)	// (MCI) Completion Signal timeout Error flag
+#define AT91C_MCI_BLKOVRE	(0x1UL << 24)	// (MCI) DMA Block Overrun Error flag
+#define AT91C_MCI_DMADONE	(0x1UL << 25)	// (MCI) DMA Transfer Done flag
+#define AT91C_MCI_FIFOEMPTY	(0x1UL << 26)	// (MCI) FIFO Empty flag
+#define AT91C_MCI_XFRDONE	(0x1UL << 27)	// (MCI) Transfer Done flag
+#define AT91C_MCI_OVRE		(0x1UL << 30)	// (MCI) Overrun flag
+#define AT91C_MCI_UNRE		(0x1UL << 31)	// (MCI) Underrun flag
 // -------- MCI_IER : (MCI Offset: 0x44) MCI Interrupt Enable Register -------- 
 // -------- MCI_IDR : (MCI Offset: 0x48) MCI Interrupt Disable Register -------- 
 // -------- MCI_IMR : (MCI Offset: 0x4c) MCI Interrupt Mask Register -------- 

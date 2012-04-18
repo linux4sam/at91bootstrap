@@ -92,10 +92,8 @@
 /*
  * MCI Settings
  */
-#define BOARD_SD_PINS \
-    {(0x01 << 16), AT91C_BASE_PIOA, AT91C_ID_PIOA_B, PIO_PERIPH_A, PIO_PULLUP}, \
-    {(0x39 << 15), AT91C_BASE_PIOA, AT91C_ID_PIOA_B, PIO_PERIPH_A, PIO_PULLUP}, \
-    {(0x01 << 17), AT91C_BASE_PIOA, AT91C_ID_PIOA_B, PIO_PERIPH_A, PIO_DEFAULT}
+#define AT91_BASE_MCI	AT91C_BASE_MCI 
+#define AT91_ID_MCI	AT91C_ID_MCI
 
 /* function */
 extern void hw_init(void);
@@ -106,5 +104,7 @@ extern void nandflash_config_buswidth(unsigned char busw);
 extern void at91_spi0_hw_init(void);
 extern void spi_cs_activate(int cs);
 extern void spi_cs_deactivate(int cs);
+
+extern void at91_mci_hw_init(void);
 
 #endif /* #ifndef _AT91SAM9N12EK_H_ */

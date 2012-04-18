@@ -6,7 +6,7 @@
 #endif
 
 #define	left_shift_64(hi,lo) 	hi <<= 1;\
-		if(lo	& 0x80000000) hi |= 0x00000001; \
+		if(lo & 0x80000000) hi |= 0x00000001; \
 		lo <<= 1;
 
 #ifdef	DEBUG

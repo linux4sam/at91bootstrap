@@ -212,9 +212,9 @@ COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 DIRS:=$(TOPDIR) $(TOPDIR)/board/$(BOARDNAME) $(TOPDIR)/lib $(TOPDIR)/driver
 
-
-include 	lib/libc.mk
-include		driver/driver.mk
+include	lib/libc.mk
+include	driver/driver.mk
+include	fs/fat.mk
 
 # $(SOBJS-y:.o=.S)
 
