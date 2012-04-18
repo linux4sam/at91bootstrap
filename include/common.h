@@ -26,20 +26,25 @@ extern void udelay(unsigned long usec);
 	 (((x) & 0x000000000000ff00##sfx) << 40) | \
 	 (((x) & 0x00000000000000ff##sfx) << 56))
 
-# define uswap_64(x) _uswap_64(x, ull)
+#define uswap_64(x) _uswap_64(x, ull)
 
-# define cpu_to_le16(x)		(x)
-# define cpu_to_le32(x)		(x)
-# define cpu_to_le64(x)		(x)
-# define le16_to_cpu(x)		(x)
-# define le32_to_cpu(x)		(x)
-# define le64_to_cpu(x)		(x)
-# define cpu_to_be16(x)		uswap_16(x)
-# define cpu_to_be32(x)		uswap_32(x)
-# define cpu_to_be64(x)		uswap_64(x)
-# define be16_to_cpu(x)		uswap_16(x)
-# define be32_to_cpu(x)		uswap_32(x)
-# define be64_to_cpu(x)		uswap_64(x)
+#define cpu_to_le16(x)		(x)
+#define cpu_to_le32(x)		(x)
+#define cpu_to_le64(x)		(x)
+#define le16_to_cpu(x)		(x)
+#define le32_to_cpu(x)		(x)
+#define le64_to_cpu(x)		(x)
+#define cpu_to_be16(x)		uswap_16(x)
+#define cpu_to_be32(x)		uswap_32(x)
+#define cpu_to_be64(x)		uswap_64(x)
+#define be16_to_cpu(x)		uswap_16(x)
+#define be32_to_cpu(x)		uswap_32(x)
+#define be64_to_cpu(x)		uswap_64(x)
+
+#define htonl(x)		cpu_to_be32(x)
+#define htons(x)		cpu_to_be16(x)
+#define ntohl(x)		be32_to_cpu(x)
+#define ntohs(x)		be16_to_cpu(x)
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 

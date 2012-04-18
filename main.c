@@ -42,7 +42,7 @@
 void user_hw_init(void);
 #endif
 
-extern void LoadLinux();
+extern void load_kernel(void);
 
 const char version_string[] =
 	AT91BOOTSTRAP_VERSION" ( "__DATE__" - "__TIME__" )";
@@ -72,7 +72,7 @@ int main(void)
 	dbg_log(1, "Downloading image...\n\r");
 
 #if defined(CONFIG_LOAD_LINUX)
-	LoadLinux();
+	load_kernel();
 #else
 /* Booting stand-alone application, e.g. U-Boot */
 #if defined (CONFIG_DATAFLASH)

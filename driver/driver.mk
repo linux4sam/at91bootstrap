@@ -22,8 +22,8 @@ DRIVERS_SRC:=$(TOPDIR)/driver
 #COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/pio.o
 #COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/sdmmc_mci.o
 #COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/ff.o
-COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/at91_mci.o
-COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/sdcard.o
+COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/at91_mci.o
+COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/sdcard.o
 
 COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/dbgu.o
 COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/debug.o
@@ -44,9 +44,7 @@ COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/dataflash.o
 
 COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o
 
-
-
-COBJS-$(CONFIG_LOAD_LINUX) += $(DRIVERS_SRC)/linux_loader.o
+COBJS-$(CONFIG_LOAD_LINUX)	+= $(DRIVERS_SRC)/load_kernel.o
 
 # Currently, 9x5 only
 COBJS-$(CONFIG_AT91SAM9X5EK) += $(DRIVERS_SRC)/ds24xx.o

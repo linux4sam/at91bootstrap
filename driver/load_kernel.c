@@ -2,7 +2,6 @@
 #include "hardware.h"
 #include "arch/at91_pmc.h"
 #include "string.h"
-#include "setup.h"
 #include "dataflash.h"
 #include "nandflash.h"
 #include "sdcard.h"
@@ -13,6 +12,71 @@
 #include "onewire_info.h"
 #endif
 
+/*
+ * The new way of passing information: a list of tagged entries
+ */
+
+/* The list ends with an ATAG_NONE node. */
+#define ATAG_NONE	0x00000000
+
+struct tag_header {
+	unsigned int size;
+	unsigned int tag;
+};
+
+/* The list must start with an ATAG_CORE node */
+#define ATAG_CORE	0x54410001
+
+struct tag_core {
+	unsigned int flags;		/* bit 0 = read-only */
+	unsigned int pagesize;
+	unsigned int rootdev;
+};
+
+/* it is allowed to have multiple ATAG_MEM nodes */
+#define ATAG_MEM	0x54410002
+
+struct tag_mem32 {
+	unsigned int	size;
+	unsigned int	start;	/* physical start address */
+};
+
+/* board serial number. "64 bits should be enough for everybody" */
+#define ATAG_SERIAL	0x54410006
+
+struct tag_serialnr {
+	unsigned int low;
+	unsigned int high;
+};
+
+/* board revision */
+#define ATAG_REVISION	0x54410007
+
+struct tag_revision {
+	unsigned int rev;
+};
+
+/* command line: \0 terminated string */
+#define ATAG_CMDLINE	0x54410009
+
+struct tag_cmdline {
+	char	cmdline[1];	/* this is the minimum size */
+};
+
+struct tag {
+	struct tag_header hdr;
+	union {
+		struct tag_core		core;
+		struct tag_mem32	mem;
+		struct tag_serialnr	serialnr;
+		struct tag_revision	revision;
+		struct tag_cmdline	cmdline;
+	} u;
+};
+
+#define tag_next(t)	((struct tag *)((unsigned int *)(t) + (t)->hdr.size))
+#define tag_size(type)	((sizeof(struct tag_header) + sizeof(struct type)) >> 2)
+
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
 #define IH_NMLEN	32		/* Image Name Length		*/
 
@@ -21,18 +85,18 @@
  * all data in network byte order (aka natural aka bigendian).
  */
 typedef struct image_header {
-	uint32_t	ih_magic;	/* Image Header Magic Number	*/
-	uint32_t	ih_hcrc;	/* Image Header CRC Checksum	*/
-	uint32_t	ih_time;	/* Image Creation Timestamp	*/
-	uint32_t	ih_size;	/* Image Data Size		*/
-	uint32_t	ih_load;	/* Data	 Load  Address		*/
-	uint32_t	ih_ep;		/* Entry Point Address		*/
-	uint32_t	ih_dcrc;	/* Image Data CRC Checksum	*/
-	uint8_t		ih_os;		/* Operating System		*/
-	uint8_t		ih_arch;	/* CPU architecture		*/
-	uint8_t		ih_type;	/* Image Type			*/
-	uint8_t		ih_comp;	/* Compression Type		*/
-	uint8_t		ih_name[IH_NMLEN];	/* Image Name		*/
+	unsigned int	ih_magic;	/* Image Header Magic Number	*/
+	unsigned int	ih_hcrc;	/* Image Header CRC Checksum	*/
+	unsigned int	ih_time;	/* Image Creation Timestamp	*/
+	unsigned int	ih_size;	/* Image Data Size		*/
+	unsigned int	ih_load;	/* Data	 Load  Address		*/
+	unsigned int	ih_ep;		/* Entry Point Address		*/
+	unsigned int	ih_dcrc;	/* Image Data CRC Checksum	*/
+	unsigned char	ih_os;		/* Operating System		*/
+	unsigned char	ih_arch;	/* CPU architecture		*/
+	unsigned char	ih_type;	/* Image Type			*/
+	unsigned char	ih_comp;	/* Compression Type		*/
+	unsigned char	ih_name[IH_NMLEN];	/* Image Name		*/
 } image_header_t;
 
 static struct tag *params = (struct tag *)(OS_MEM_BANK + 0x100);
@@ -99,7 +163,7 @@ static void setup_serial_tag (void)
 
 static void setup_revision_tag(void)
 {
-	u32 rev = 0;
+	unsigned int rev = 0;
 
 	rev = get_sys_rev();
 	params->hdr.tag = ATAG_REVISION;
@@ -140,12 +204,12 @@ static void setup_boot_tags(void)
 
 void load_kernel(void)
 {
-#if 0
+#if 1
 	unsigned long	load_addr, image_size;
 	image_header_t	*image_header;
 	unsigned long	magic_number;
 	
-	void (*kernel_entry)(int zero, int arch, uint params);
+	void (*kernel_entry)(int zero, int arch, unsigned int params);
 #endif
 
 #ifdef CONFIG_DATAFLASH
@@ -161,7 +225,7 @@ void load_kernel(void)
 #endif
 	setup_boot_tags();
 
-	writel(0xffffffff, ATMEL_BASE_PMC + AT91_PMC_PCER1);
+	//writel(0xffffffff, ATMEL_BASE_PMC + AT91_PMC_PCER1);
 
 ///* enable all clocks unmanaged by Linux */
 //(*(volatile unsigned int *)(0xfffffd00)) = (0xffffffff);
@@ -178,7 +242,7 @@ reg &= 0xffffffcc;
 reg |= 0x00000344;
 (*(volatile unsigned int *)(0xF0038038)) = reg;
 #endif
-#if 0
+#if 1
 	/* Check the image header magic */
 	image_header = (image_header_t *)JUMP_ADDR;
 	magic_number = ntohl(image_header->ih_magic);
@@ -200,7 +264,7 @@ reg |= 0x00000344;
 		return;
 	}
 #endif
-	kernel_entry = (void (*)(int, int, uint))ntohl(image_header->ih_ep);
+	kernel_entry = (void (*)(int, int, unsigned int))ntohl(image_header->ih_ep);
 
 	dbg_log(1, "Load_kernel: relocating kernel image, dest: %x, src: %x, image_size: %d, machid: %d\n\r",  
 			load_addr, (unsigned long)JUMP_ADDR + sizeof (image_header_t), 
