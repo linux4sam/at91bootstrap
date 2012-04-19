@@ -24,11 +24,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_mci.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
 #ifndef _AT91_MCI_H_
 #define _AT91_MCI_H_

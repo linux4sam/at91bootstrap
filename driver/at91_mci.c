@@ -24,7 +24,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
  */
 #include "common.h"
 #include "string.h"
@@ -74,6 +73,8 @@
 
 
 #define CONFIG_SYS_MMC_CLK_OD		150000
+//#define CONFIG_SYS_MMC_CLK_PP		5000000
+#define CONFIG_SYS_MMC_CLK_PP		25000000
 #define MMC_DEFAULT_BLKLEN		512
 #define CONFIG_SYS_MMC_MAX_BLK_COUNT	65535
 
@@ -102,7 +103,9 @@ static void mci_set_mode(unsigned int clock, unsigned int blklen)
 	clkdiv -= 2;
 	reg |= (clkdiv >> 1);
 	if (clkdiv & 1)
-		reg |=	AT91C_MCI_CLKODD; 
+		reg |=	AT91C_MCI_CLKODD;
+
+	//dbg_log(1, "mci_set_mode MCI_MR: %d\n\r",reg);
 
 	mci_writel(MCI_MR, reg);
 #else
@@ -146,11 +149,11 @@ static int mci_set_busw(unsigned int buswidth)
 
 	reg = AT91C_MCI_SCDSEL_SLOTA;
 	
-	if (buswidth == 8) {
+	if (buswidth == 8)
 		reg |=  AT91C_MCI_SCDBUS_8BIT;
-	} else if (buswidth == 4) {
+	else if (buswidth == 4)
 		reg |= AT91C_MCI_SCDBUS_4BIT;
-	} else
+	else
 		reg |= AT91C_MCI_SCDBUS_1BIT;
 
 	mci_writel(MCI_SDCR, reg);
@@ -188,6 +191,7 @@ static int mmc_cmd(unsigned short cmd,
 			unsigned int flags,
 			unsigned int *response)
 {
+	unsigned int cmdr;
 	unsigned int status;
 	unsigned int error_flags = ERROR_FLAGS;
 
@@ -203,9 +207,11 @@ static int mmc_cmd(unsigned short cmd,
 	else if (resp_type & MMC_RSP_PRESENT)
 		flags |= AT91C_MCI_RSPTYP_48;
 	
+	cmdr = cmd | flags;
+
 	/* Send the command */
 	mci_writel(MCI_ARGR, cmdarg);
-	mci_writel(MCI_CMDR, cmd | flags);
+	mci_writel(MCI_CMDR, cmdr);
 
 	/* Wait for the command to complete */
 	while (!((status = mci_readl(MCI_SR)) & AT91C_MCI_CMDRDY));
@@ -225,66 +231,6 @@ static int mmc_cmd(unsigned short cmd,
 
 	return 0;
 }
-
-static int mmc_acmd(unsigned short cmd,
-			unsigned int resp_type,
-			unsigned int cmdarg,
-			unsigned int flags,
-			unsigned int *response)
-{
-	unsigned int aresp[4];
-	int ret;
-
-	/*
-	 * Seems like the APP_CMD part of an ACMD has 64 cycles max
-	 * latency even though the ACMD part doesn't. This isn't
-	 * entirely clear in the SD Card spec, but some cards refuse
-	 * to work if we attempt to use 5 cycles max latency here...
-	 */
-
-	ret = mmc_cmd(MMC_CMD_APP_CMD, MMC_RSP_R1, 0, 0, &aresp[0]);
-	if (ret)
-		return ret;
-	
-	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
-	return ret;
-}
-
-#if 0
-static unsigned int mci_data_read(unsigned int *data, unsigned int error_flags)
-{
-	unsigned int status;
-
-	do {
-		status = mci_readl(MCI_SR);
-		if (status & (error_flags | AT91C_MCI_OVRE))
-			return status;
-
-	} while (!(status & AT91C_MCI_RXRDY));
-
-	if (status & AT91C_MCI_RXRDY) {
-		*data = mci_readl(MCI_RDR);
-		return 0;
-	}
-}
-
-static unsigned int mci_data_write(unsigned int *data, unsigned int error_flags)
-{
-	unsigned int status;
-
-	do {
-		status = mci_readl(MCI_SR);
-		if (status & (error_flags | AT91C_MCI_UNRE))
-			return status;
-	
-	} while (!(status & AT91C_MCI_TXRDY));
-
-	if (status & AT91C_MCI_TXRDY) {
-		mci_writel(*data, MCI_TDR);
-		return 0;
-	}
-}
-#endif
 
 static int mmc_go_idle(void)
 {
@@ -350,15 +296,14 @@ static int sd_send_op_cond(struct mmc *mmc)
 	int timeout = 1000;
 
 	do {
-//		cmd.cmdidx = MMC_CMD_APP_CMD;
-//		cmd.resp_type = MMC_RSP_R1;
-//		cmd.cmdarg = 0;
-//		cmd.flags = 0;
+		cmd = MMC_CMD_APP_CMD;
+		resp_type = MMC_RSP_R1;
+		cmdarg = 0;
+		flags = 0;
 
-//		err = mmc_send_cmd(mmc, &cmd, NULL);
-
-//		if (err)
-//			return err;
+		ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+		if (ret)
+			return ret;
 
 		cmd = SD_CMD_APP_SEND_OP_COND;
 		resp_type = MMC_RSP_R3;
@@ -370,8 +315,6 @@ static int sd_send_op_cond(struct mmc *mmc)
 		 * how to manage low voltages SD card is not yet
 		 * specified.
 		 */
-//		cmd.cmdarg = mmc_host_is_spi(mmc) ? 0 :
-//			(mmc->voltages & 0xff8000);
 
 		cmdarg = mmc->voltages & 0xff8000;
 
@@ -380,7 +323,7 @@ static int sd_send_op_cond(struct mmc *mmc)
 	
 		flags = 0;
 
-		ret = mmc_acmd(cmd, resp_type, cmdarg, flags, response);
+		ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
 		if (ret)
 			return ret;
 
@@ -393,19 +336,7 @@ static int sd_send_op_cond(struct mmc *mmc)
 
 	if (mmc->version != SD_VERSION_2)
 		mmc->version = SD_VERSION_1_0;
-#if 0
-	if (mmc_host_is_spi(mmc)) { /* read OCR for spi */
-		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
-		cmd.resp_type = MMC_RSP_R3;
-		cmd.cmdarg = 0;
-		cmd.flags = 0;
 
-		err = mmc_send_cmd(mmc, &cmd, NULL);
-
-		if (err)
-			return err;
-	}
-#endif
 	mmc->ocr = response[0];
 
 	mmc->high_capacity = ((mmc->ocr & OCR_HCS) == OCR_HCS);
@@ -423,9 +354,6 @@ static int mmc_send_op_cond(struct mmc *mmc)
 	unsigned int  response[4];
 	int ret;
 	int timeout = 10000;
-
-	/* Some cards seem to need this */
-//	mmc_go_idle(mmc);
 
  	/* Asking to the card its capabilities */
  	cmd = MMC_CMD_SEND_OP_COND;
@@ -455,19 +383,7 @@ static int mmc_send_op_cond(struct mmc *mmc)
 
 	if (timeout <= 0)
 		return UNUSABLE_ERR;
-#if 0
-	if (mmc_host_is_spi(mmc)) { /* read OCR for spi */
-		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
-		cmd.resp_type = MMC_RSP_R3;
-		cmd.cmdarg = 0;
-		cmd.flags = 0;
 
-		err = mmc_send_cmd(mmc, &cmd, NULL);
-
-		if (err)
-			return err;
-	}
-#endif
 	mmc->version = MMC_VERSION_UNKNOWN;
 	mmc->ocr = response[0];
 
@@ -592,37 +508,6 @@ static int mmc_send_rca(struct mmc *mmc)
 	return 0;
 }
 
-/* frequency bases */
-/* divided by 10 to be nice to platforms without floating point */
-static const int fbase[] = {
-	10000,
-	100000,
-	1000000,
-	10000000,
-};
-
-/* Multiplier values for TRAN_SPEED.  Multiplied by 10 to be nice
- * to platforms without floating point.
- */
-static const int multipliers[] = {
-	0,	/* reserved */
-	10,
-	12,
-	13,
-	15,
-	20,
-	25,
-	30,
-	35,
-	40,
-	45,
-	50,
-	55,
-	60,
-	70,
-	80,
-};
-
 static int mmc_send_csd(struct mmc *mmc)
 {
 	unsigned short cmd;
@@ -632,9 +517,6 @@ static int mmc_send_csd(struct mmc *mmc)
 	unsigned int  response[4];
 	int ret;
 	int timeout = 1000;
-
-	unsigned int mult, freq;
-	int cmult, csize;
 
 	cmd = MMC_CMD_SEND_CSD;
 	resp_type = MMC_RSP_R2;
@@ -678,38 +560,10 @@ static int mmc_send_csd(struct mmc *mmc)
 		}
 	}
 
-	/* divide frequency by 10, since the mults are 10x bigger */
-	freq = fbase[(mmc->csd[0] & 0x7)];
-	mult = multipliers[((mmc->csd[0] >> 3) & 0xf)];
-
-	mmc->tran_speed = freq * mult;
-
 	mmc->read_bl_len = 1 << ((mmc->csd[1] >> 16) & 0xf);
-
-	if (IS_SD(mmc))
-		mmc->write_bl_len = mmc->read_bl_len;
-	else
-		mmc->write_bl_len = 1 << ((mmc->csd[3] >> 22) & 0xf);
-
-	if (mmc->high_capacity) {
-		csize = (mmc->csd[1] & 0x3f) << 16
-			| (mmc->csd[2] & 0xffff0000) >> 16;
-		cmult = 8;
-	} else {
-		csize = (mmc->csd[1] & 0x3ff) << 2
-			| (mmc->csd[2] & 0xc0000000) >> 30;
-		cmult = (mmc->csd[2] & 0x00038000) >> 15;
-	}
-
-	mmc->capacity = (csize + 1) << (cmult + 2);
-	mmc->capacity *= mmc->read_bl_len;
-
 	if (mmc->read_bl_len > 512)
 		mmc->read_bl_len = 512;
 
-	if (mmc->write_bl_len > 512)
-		mmc->write_bl_len = 512;
-	
 	return 0;
 }
 
@@ -747,13 +601,14 @@ static int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
 	unsigned int blocksize = 512;
 	
 	unsigned int status;
+	unsigned int i;
 
 	/* Get the Card Status Register */
 	cmd = MMC_CMD_SEND_EXT_CSD;
 	resp_type = MMC_RSP_R1;
 	cmdarg = 0;
-	flags = 0;
-	
+	flags = AT91C_MCI_TRCMD_START | AT91C_MCI_TRDIR_READ;
+
 	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
 	if (ret)
 		return ret;
@@ -771,6 +626,21 @@ static int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
 			word_count++;
 		}
 	} while (word_count < (blocksize / 4));
+
+	i = 0;
+	do {
+		status = mci_readl(MCI_SR);
+		if (status & ERROR_FLAGS) {
+			dbg_log(1, "MCI_SR:%d\n\r", status);
+			return COMM_ERR;
+		}
+		i++;
+	} while ((status & AT91C_MCI_DTIP) && (i < 50000));
+
+	if (status & AT91C_MCI_DTIP) {
+//		dbg_log(1, "MCI_SR:%d\n\r", status);
+	//	return COMM_ERR;
+	}
 
 	return 0;
 }
@@ -810,9 +680,6 @@ int mmc_change_freq(struct mmc *mmc)
 	char cardtype;
 
 	mmc->card_caps = 0;
-
-//	if (mmc_host_is_spi(mmc))
-//		return 0;
 
 	/* Only version 4 supports high-speed */
 	if (mmc->version < MMC_VERSION_4)
@@ -866,6 +733,7 @@ static int sd_switch(struct mmc *mmc,
 	unsigned int *p = (unsigned int *)resp;
 	unsigned int word_count = 0;
 	unsigned int blocksize = 64;
+	unsigned int i;
 
 	/* Switch the frequency */
 	cmd = SD_CMD_SWITCH_FUNC;
@@ -873,11 +741,12 @@ static int sd_switch(struct mmc *mmc,
 	cmdarg = (mode << 31) | 0xffffff;
 	cmdarg &= ~(0xf << (group * 4));
 	cmdarg |= value << (group * 4);
-	flags = 0;
+	flags = AT91C_MCI_TRCMD_START | AT91C_MCI_TRDIR_READ;
 
 	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
 	if (ret)
 		return ret;
+
 	do {
 		do {
 			status = mci_readl(MCI_SR);
@@ -891,6 +760,21 @@ static int sd_switch(struct mmc *mmc,
 			word_count++;
 		}
 	} while (word_count < (blocksize / 4));
+
+	i = 0;
+	do {
+		status = mci_readl(MCI_SR);
+		if (status & ERROR_FLAGS) {
+			dbg_log(1, "MCI_SR:%d\n\r", status);
+			return COMM_ERR;
+		}
+		i++;
+	} while ((status & AT91C_MCI_DTIP) && (i < 100000));
+
+	if (status & AT91C_MCI_DTIP) {
+//		dbg_log(1, "MCI_SR:%d\n\r", status);
+//		return COMM_ERR;
+	}
 
 	return 0;
 }
@@ -913,32 +797,30 @@ int sd_change_freq(struct mmc *mmc)
 	unsigned int blocksize;
 	unsigned int word_count;
 	unsigned int status;
+	unsigned int i;
 
 	mmc->card_caps = 0;
 
-//	if (mmc_host_is_spi(mmc))
-//		return 0;
-	
 	/* Read the SCR to find out if this card supports higher speeds */
-//	cmd = MMC_CMD_APP_CMD;
-//	resp_type = MMC_RSP_R1;
-//	cmdarg = mmc->rca << 16;
-//	flags = 0;
-	
-//	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response, NULL);
-//	if (ret)
-//		return ret;
+	cmd = MMC_CMD_APP_CMD;
+	resp_type = MMC_RSP_R1;
+	cmdarg = mmc->rca << 16;
+	flags = 0;
+
+	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+	if (ret)
+		return ret;
 
 	cmd = SD_CMD_APP_SEND_SCR;
 	resp_type = MMC_RSP_R1;
 	cmdarg = 0;
-	flags = 0;
+	flags = AT91C_MCI_TRCMD_START | AT91C_MCI_TRDIR_READ;
 
 	timeout = 3;
 	p = scr;
 
 retry_scr:
-	ret = mmc_acmd(cmd, resp_type, cmdarg, flags, response);
+	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
 	if (ret) {
 		if (timeout--)
 			goto retry_scr;
@@ -961,6 +843,21 @@ retry_scr:
 			word_count++;
 		}
 	} while (word_count < (blocksize / 4));
+
+	i = 0;
+	do {
+		status = mci_readl(MCI_SR);
+		if (status & ERROR_FLAGS) {
+			dbg_log(1, "MCI_SR:%d\n\r", status);
+			return COMM_ERR;
+		}
+		i++;
+	} while ((status & AT91C_MCI_DTIP) && (i < 10000));
+
+	if (status & AT91C_MCI_DTIP) {
+//`		dbg_log(1, "MCI_SR:%d\n\r", status);
+		//return COMM_ERR;
+	}
 
 	mmc->scr[0] = be32_to_cpu(scr[0]);
 	mmc->scr[1] = be32_to_cpu(scr[1]);
@@ -987,8 +884,9 @@ retry_scr:
 	if (mmc->version == SD_VERSION_1_0)
 		return 0;
 
-	timeout = 4;
+	timeout = 6;
 	while (timeout--) {
+		udelay(10000);
 		ret = sd_switch(mmc, SD_SWITCH_CHECK, 0, 1, (unsigned char *)&switch_status);
 		if (ret)
 			return ret;
@@ -1003,6 +901,8 @@ retry_scr:
 		return 0;
 
 	ret = sd_switch(mmc, SD_SWITCH_SWITCH, 0, 1, (unsigned char *)&switch_status);
+	udelay(10000);
+//	dbg_log(1, "sd_change_freq, 03 ret: %d\n\r", ret);
 	if (ret)
 		return ret;
 
@@ -1014,9 +914,17 @@ retry_scr:
 
 static void mmc_set_clock(struct mmc *mmc, unsigned int clock)
 {
+	if (clock > mmc->f_max)
+		clock = mmc->f_max;
+
+	if (clock < mmc->f_min)
+		clock = mmc->f_min;
+
 	mmc->clock = clock;
 
-	mci_set_mode(clock, MMC_DEFAULT_BLKLEN);
+//	dbg_log(1, "mmc_set_clock, clock: %d, mmc->f_max: %d,mmc->f_min: %d\n\r", clock, mmc->f_max, mmc->f_min);
+
+	mci_set_mode(mmc->clock, MMC_DEFAULT_BLKLEN);
 
 }
 
@@ -1037,9 +945,9 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 	unsigned int  response[4];
 	int ret;
 
-	if (IS_SD(mmc))
+	if (IS_SD(mmc)){
 		ret = sd_change_freq(mmc);
-	else
+	} else
 		ret = mmc_change_freq(mmc);
 
 	if (ret)
@@ -1050,32 +958,32 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 
 	if (IS_SD(mmc)) {
 		if (mmc->card_caps & MMC_MODE_4BIT) {
-		/*	cmd.cmdidx = MMC_CMD_APP_CMD;
-			cmd.resp_type = MMC_RSP_R1;
-			cmd.cmdarg = mmc->rca << 16;
-			cmd.flags = 0;
+			cmd = MMC_CMD_APP_CMD;
+			resp_type = MMC_RSP_R1;
+			cmdarg = mmc->rca << 16;
+			flags = 0;
 
-			err = mmc_send_cmd(mmc, &cmd, NULL);
-			if (err)
-				return err;
-*/
+			ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+			if (ret)
+				return ret;
+
 			cmd = SD_CMD_APP_SET_BUS_WIDTH;
 			resp_type = MMC_RSP_R1;
 			cmdarg = 2;
 			flags = 0;
 
-			ret = mmc_acmd(cmd, resp_type, cmdarg, flags, response);
+			ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
 			if (ret)
 				return ret; 
 
 			mmc_set_bus_width(mmc, 4);
+
 		}
 
-		if (mmc->card_caps & MMC_MODE_HS){
+		if (mmc->card_caps & MMC_MODE_HS)
 			mmc_set_clock(mmc, 50000000);
-		} else {
+		else
 			mmc_set_clock(mmc, 25000000);
-		}
 	} else {
 		if (mmc->card_caps & MMC_MODE_4BIT) {
 			/* Set the card to use 4 bit*/
@@ -1118,16 +1026,19 @@ int mmc_initialize(void)
 {
 	struct mmc *mmc = &atmel_mmc;
 	int ret;
-	char ext_csd[512];
-
-	mci_init();
 	
-	mmc_set_bus_width(mmc, 1);
-	mmc_set_clock(mmc, 1);
+	unsigned int clock = CONFIG_SYS_MMC_CLK_PP;
 	
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS;
 	mmc->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
+	mmc->f_min = clock / (2 * 256);
+	mmc->f_max = clock / (2 * 1);
+
+	mci_init();
+
+	mmc_set_bus_width(mmc, 1);
+	mmc_set_clock(mmc, 1);
 
 	ret = sd_init_card(mmc);
 	if (ret == TIMEOUT) {
@@ -1155,27 +1066,12 @@ int mmc_initialize(void)
 	if (ret)
 		return ret;
 
-
 	/* Select the card, and put it into Transfer Mode */
 	ret = mmc_send_select_card(mmc);
 	if (ret)
 		return ret;
 
-//	mmc->part_config = MMCPART_NOAVAILABLE;
-	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
-		/* check  ext_csd version and capacity */
-		ret = mmc_send_ext_csd(mmc, ext_csd);
-		if (!ret & (ext_csd[192] >= 2)) {
-			mmc->capacity = ext_csd[212] << 0 | ext_csd[213] << 8 |
-					ext_csd[214] << 16 | ext_csd[215] << 24;
-			mmc->capacity *= 512;
-		}
-
-		/* store the partition info of emmc */
-//		if (ext_csd[160] & PART_SUPPORT)
-//			mmc->part_config = ext_csd[179];
-	}
-	
+	/* store the partition info of emmc */
 	ret = mmc_set_busw_clock(mmc);
 	if (ret)
 		return ret;
@@ -1250,7 +1146,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 	unsigned int status;
 	unsigned int *p = (unsigned int *)dest;
 	
-	int timeout = 1000;
+	unsigned int i;
 
 	mci_set_blkr(blkcnt, blocklen);
 
@@ -1263,7 +1159,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 
 	if (mmc->high_capacity) 
 		cmdarg = start;
-	else 
+	else
 		cmdarg = start * mmc->read_bl_len;
 
 	resp_type = MMC_RSP_R1;
@@ -1273,12 +1169,14 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 		return ret;
 
 	status = 0;
-	for (block_count = 0; block_count < blkcnt && !status; block_count++) {
+	for (block_count = 0; block_count < blkcnt && !status;
+		block_count++) {
 		word_count = 0;
 		do {
 			do {
 				status = mci_readl(MCI_SR);
-				if (status & (ERROR_FLAGS | AT91C_MCI_OVRE)) break;
+				if (status & (ERROR_FLAGS | AT91C_MCI_OVRE))
+					break;
 			} while (!(status & AT91C_MCI_RXRDY));
 			
 			if (status & AT91C_MCI_RXRDY) {
@@ -1289,18 +1187,19 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 	}
 
 	/* Wait for Transfer End */
+	i = 0;
 	do {
 		status = mci_readl(MCI_SR);
 		if (status & ERROR_FLAGS) {
 			dbg_log(1, "MCI_SR:%d\n\r", status);
 			return COMM_ERR;
 		}
-		timeout--;
-	} while ((status & AT91C_MCI_DTIP) && (timeout > 0));
+		i++ ;
+	} while ((status & AT91C_MCI_DTIP) && (i < 10000));
 
 	if (status & AT91C_MCI_DTIP) {
-		dbg_log(1, "MCI_SR:%d\n\r", status);
-		return COMM_ERR;
+//		dbg_log(1, "MCI_SR:%d\n\r", status);
+		//return COMM_ERR;
 	}
 
 	if (blkcnt > 1) 

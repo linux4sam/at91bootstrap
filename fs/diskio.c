@@ -23,7 +23,7 @@ DSTATUS disk_initialize(BYTE drv        /* Physical drive number (0..) */
 {
 	if (drv) return STA_NOINIT;	
 	
-	if (mmc_initialize())
+	if (mmc_initialize() == 0)
 		Stat &= ~STA_NOINIT;
 
 	return Stat;

@@ -25,14 +25,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "string.h"
 #include "hardware.h"
 #include "board.h"
 
 #include "ff/ff.h"
 
 #include "debug.h"
-
 
 #define CHUNK_SIZE	0x40000
 
@@ -46,8 +44,6 @@ unsigned int load_sdcard(void *dest)
 	UINT byte_to_read = CHUNK_SIZE;
 	UINT byte_read;
 	char *filename = OS_IMAGE_NAME;
-
-	memset(&fs, 0, sizeof(fs));
 
 	at91_mci_hw_init();
 

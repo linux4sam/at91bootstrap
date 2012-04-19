@@ -24,7 +24,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
  */
 #ifndef _MMC_H_
 #define _MMC_H_
@@ -129,96 +128,11 @@
 #define EXT_CSD_BUS_WIDTH_4	1	/* Card is in 4 bit mode */
 #define EXT_CSD_BUS_WIDTH_8	2	/* Card is in 8 bit mode */
 
-/*struct mmc_cid {
-	unsigned long psn;
-	unsigned short oid;
-	unsigned char mid;
-	unsigned char prv;
-	unsigned char mdt;
-	char pnm[7];
-};*/
-
-/*
- * WARNING!
- *
- * This structure is used by atmel_mci.c only.
- * It works for the AVR32 architecture but NOT
- * for ARM/AT91 architectures.
- * Its use is highly depreciated.
- * After the atmel_mci.c driver for AVR32 has
- * been replaced this structure will be removed.
- */
-/*struct mmc_csd
-{
-	u8	csd_structure:2,
-		spec_vers:4,
-		rsvd1:2;
-	u8	taac;
-	u8	nsac;
-	u8	tran_speed;
-	u16	ccc:12,
-		read_bl_len:4;
-	u64	read_bl_partial:1,
-		write_blk_misalign:1,
-		read_blk_misalign:1,
-		dsr_imp:1,
-		rsvd2:2,
-		c_size:12,
-		vdd_r_curr_min:3,
-		vdd_r_curr_max:3,
-		vdd_w_curr_min:3,
-		vdd_w_curr_max:3,
-		c_size_mult:3,
-		sector_size:5,
-		erase_grp_size:5,
-		wp_grp_size:5,
-		wp_grp_enable:1,
-		default_ecc:2,
-		r2w_factor:3,
-		write_bl_len:4,
-		write_bl_partial:1,
-		rsvd3:5;
-	u8	file_format_grp:1,
-		copy:1,
-		perm_write_protect:1,
-		tmp_write_protect:1,
-		file_format:2,
-		ecc:2;
-	u8	crc:7;
-	u8	one:1;
-};
-i*/
-
-#if 0
-struct mmc_cmd {
-	unsigned short	cmdidx;
-	unsigned int	resp_type;
-	unsigned int	cmdarg;
-	unsigned int	response[4];
-	unsigned int	flags;
-};
-
-struct mmc_data {
-	union {
-		char *dest;
-		const char *src; /* src buffers don't get written to */
-	};
-	unsigned int	flags;
-	unsigned int	blocks;
-	unsigned int	blocksize;
-};
-#endif
-
-
 struct mmc {
-//	struct list_head link;
-	char name[32];
-//	void *priv;
 	unsigned int voltages;
 	unsigned int version;
-	unsigned int has_init;
-//	unsigned int f_min;
-//	unsigned int f_max;
+	unsigned int f_min;
+	unsigned int f_max;
 	int high_capacity;
 	unsigned int bus_width;
 	unsigned int clock;
@@ -229,14 +143,7 @@ struct mmc {
 	unsigned int csd[4];
 	unsigned int cid[4];
 	unsigned short rca;
-//	char part_config;
-//	char part_num;
-	unsigned int tran_speed;
 	unsigned int read_bl_len;
-	unsigned int write_bl_len;
-//	u64 capacity;
-	unsigned int capacity;
-	//block_dev_desc_t block_dev;
 	unsigned int b_max;
 };
 

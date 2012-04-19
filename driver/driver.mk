@@ -4,24 +4,6 @@
 DRIVERS:=
 DRIVERS_SRC:=$(TOPDIR)/driver
 
-#ifeq ($(ALLOW_HSMCI),y)
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/mci_hs.o
-#else
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/mci.o
-#endif
-
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/Media.o
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/diskio.o
-
-
-#ifeq ($(ALLOW_HSMCI),y)
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/dma.o
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/dmad.o
-#endif
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/MEDSdcard.o
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/pio.o
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/sdmmc_mci.o
-#COBJS-$(CONFIG_SDCARD)             +=  $(DRIVERS_SRC)/ff.o
 COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/at91_mci.o
 COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/sdcard.o
 
@@ -47,4 +29,4 @@ COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o
 COBJS-$(CONFIG_LOAD_LINUX)	+= $(DRIVERS_SRC)/load_kernel.o
 
 # Currently, 9x5 only
-COBJS-$(CONFIG_AT91SAM9X5EK) += $(DRIVERS_SRC)/ds24xx.o
+COBJS-$(CONFIG_AT91SAM9X5EK)	+= $(DRIVERS_SRC)/ds24xx.o
