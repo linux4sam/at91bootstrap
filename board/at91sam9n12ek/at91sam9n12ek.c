@@ -24,11 +24,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : at91sam9n12ek.c
- * Object              :
- * Creation            :
- *-----------------------------------------------------------------------------
  */
 #include "common.h"
 #include "hardware.h"
@@ -202,25 +197,6 @@ void nandflash_hw_init(void)
 	unsigned int reg;
 
 	/* Configure nand pins */
-#if 0
-	const struct pio_desc nand_pins_hi[] = {
-		{"NANDOE", AT91C_PIN_PD(0), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDWE", AT91C_PIN_PD(1), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDALE", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCLE", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCS", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_OUTPUT},
-		{"RDY_BSY", AT91C_PIN_PD(5), 0, PIO_PULLUP, PIO_INPUT},
-		{"D0", AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D1", AT91C_PIN_PD(7), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D2", AT91C_PIN_PD(8), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D3", AT91C_PIN_PD(9), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D4", AT91C_PIN_PD(10), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D5", AT91C_PIN_PD(11), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D6", AT91C_PIN_PD(12), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D7", AT91C_PIN_PD(13), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-#endif
 	const struct pio_desc nand_pins_lo[] = {
 		{"NANDOE", AT91C_PIN_PD(0), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"NANDWE", AT91C_PIN_PD(1), 0, PIO_PULLUP, PIO_PERIPH_A},
@@ -266,11 +242,6 @@ void nandflash_hw_init(void)
 	/* Configure the nand controller pins*/
 	writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
 	pio_configure(nand_pins_lo);
-}
-
-void NAND_DISABLE_CE(void)
-{
-	pio_set_value(AT91C_PIN_PD(4), 1);
 }
 
 void nandflash_config_buswidth(unsigned char busw)

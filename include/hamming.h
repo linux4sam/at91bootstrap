@@ -24,11 +24,10 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
  */
 
-#ifndef HAMMING_H
-#define HAMMING_H
+#ifndef _HAMMING_H_
+#define _HAMMING_H_
 
 //------------------------------------------------------------------------------
 //         Defines
@@ -59,10 +58,10 @@
 //------------------------------------------------------------------------------
 
 extern void Hamming_Compute256x(const unsigned char *data,
-                                unsigned int size, unsigned char *code);
+				unsigned int size, unsigned char *code);
 
 extern unsigned char Hamming_Verify256x(unsigned char *data,
-                                        unsigned int size,
-                                        const unsigned char *code);
+					unsigned int size,
+					const unsigned char *code);
 
-#endif                          //#ifndef HAMMING_H
+#endif /* #ifndef _HAMMING_H_ */

@@ -24,11 +24,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : nandflash.c
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
 #include "common.h"
 #include "hardware.h"
@@ -43,50 +38,6 @@
 #include "hamming.h"
 #include "nand_ids.h"
 
-/*
- * NAND Commands
- */
-/* 8 bits devices */
-#define WRITE_NAND_COMMAND(d) do { \
-	*(volatile unsigned char *) \
-	((unsigned long)AT91C_SMARTMEDIA_BASE | AT91_SMART_MEDIA_CLE) = \
-	(unsigned char)(d); \
-	} while(0)
-
-#define WRITE_NAND_ADDRESS(d) do { \
-	*(volatile unsigned char *) \
-	((unsigned long)AT91C_SMARTMEDIA_BASE | AT91_SMART_MEDIA_ALE) = \
-	(unsigned char)(d); \
-	} while(0)
-
-#define WRITE_NAND(d) do { \
-	*(volatile unsigned char *) \
-	((unsigned long)AT91C_SMARTMEDIA_BASE) = (unsigned char)d; \
-	} while(0)
-
-#define READ_NAND() ((unsigned char)(*(volatile unsigned char *) \
-	(unsigned long)AT91C_SMARTMEDIA_BASE))
-
-/* 16 bits devices */
-#define WRITE_NAND_COMMAND16(d) do { \
-	*(volatile unsigned short *) \
-	((unsigned long)AT91C_SMARTMEDIA_BASE | AT91_SMART_MEDIA_CLE) = \
-	(unsigned short)(d); \
-	} while(0)
-
-#define WRITE_NAND_ADDRESS16(d) do { \
-	*(volatile unsigned short *) \
-	((unsigned long)AT91C_SMARTMEDIA_BASE | AT91_SMART_MEDIA_ALE) = \
-	(unsigned short)(d); \
-	} while(0)
-
-#define WRITE_NAND16(d) do { \
-	*(volatile unsigned short *) \
-	((unsigned long)AT91C_SMARTMEDIA_BASE) = (unsigned short)d; \
-	} while(0)
-
-#define READ_NAND16() ((unsigned short)(*(volatile unsigned short *) \
-	(unsigned long)AT91C_SMARTMEDIA_BASE))
 
 #undef CONFIG_USE_PMECC
 #if defined(CPU_HAS_PMECC) && !defined(CONFIG_ENABLE_SW_ECC)
@@ -220,6 +171,53 @@ static struct nand_chip nand_chip_default = {
 
 static struct nand_onfi_params onfi_params;
 
+/*
+ * NAND Commands
+ */
+static unsigned char *IO_ADDR_R =
+		(unsigned char *)(unsigned long)CONFIG_SYS_NAND_BASE;
+static unsigned char *IO_ADDR_W =
+		(unsigned char *)(unsigned long)CONFIG_SYS_NAND_BASE;
+
+/* 8 bits devices */
+static void nand_command(unsigned char cmd)
+{
+	*(volatile unsigned char *)
+		((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE) = cmd;
+}
+
+static void nand_address(unsigned char addr)
+{
+	*(volatile unsigned char *)
+		((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE) = addr;
+}
+
+static unsigned char read_byte(void)
+{
+	return (unsigned char)(*(volatile unsigned char *)(unsigned long)IO_ADDR_R);
+}
+
+#if 0
+/* 16 bits devices */
+static void nand_command16(unsigned short cmd)
+{
+	*(volatile unsigned short *)
+		((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE) = cmd;
+}
+
+static void nand_address16(unsigned short addr)
+{
+	*(volatile unsigned short *)
+		((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE) = addr;
+}
+#endif
+
+static unsigned short read_word(void)
+{
+	return (unsigned short)
+		(*(volatile unsigned short *)(unsigned long)IO_ADDR_R);
+}
+
 static void nand_wait_ready(void)
 {
 #ifdef CONFIG_SYS_NAND_READY_PIN
@@ -265,13 +263,13 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	
 	nand_cs_enable();
 
-	WRITE_NAND_COMMAND(CMD_READID);
-	WRITE_NAND_ADDRESS(0x20);
+	nand_command(CMD_READID);
+	nand_address(0x20);
 
-	onfi_ind[0] = READ_NAND();
-	onfi_ind[1] = READ_NAND();
-	onfi_ind[2] = READ_NAND();
-	onfi_ind[3] = READ_NAND();
+	onfi_ind[0] = read_byte();
+	onfi_ind[1] = read_byte();
+	onfi_ind[2] = read_byte();
+	onfi_ind[3] = read_byte();
 
 	nand_cs_disable();
 
@@ -286,8 +284,8 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	nand_cs_enable();
 
 	/* read the nand ONFI parameter */
-	WRITE_NAND_COMMAND(CMD_READ_ONFI);
-	WRITE_NAND_ADDRESS(0x00);
+	nand_command(CMD_READ_ONFI);
+	nand_address(0x00);
 	
 	nand_wait_ready();
 	
@@ -295,7 +293,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 		param = (unsigned char *)p;
 		/* Read the parameter table */
 		for (j = 0; j < sizeof(onfi_params); j++)
-			*param++ = READ_NAND();
+			*param++ = read_byte();
 
 		if (onfi_crc16(ONFI_CRC_BASE, (unsigned char *)p, 254) == p->crc) {
 			dbg_log(1, "ONFI param page %d valid\n\r", i);
@@ -351,12 +349,12 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	struct nandflash_dev *type;
 
 	nand_cs_enable();
-	WRITE_NAND_COMMAND(CMD_READID);
-	WRITE_NAND_ADDRESS(0x00);
-	manf_id  = READ_NAND();
-	dev_id   = READ_NAND();
-	cellinfo = READ_NAND();
-	extid    = READ_NAND();
+	nand_command(CMD_READID);
+	nand_address(0x00);
+	manf_id  = read_byte();
+	dev_id   = read_byte();
+	cellinfo = read_byte();
+	extid    = read_byte();
 	nand_cs_disable();
 
 	type = (struct nandflash_dev *)&nandflash_ids[0];
@@ -446,7 +444,7 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 static void nandflash_reset(void)
 {
 	nand_cs_enable();
-	WRITE_NAND_COMMAND(0xFF);
+	nand_command(0xFF);
 	nand_wait_ready();
 	nand_wait_ready();
 	nand_cs_disable();
@@ -478,14 +476,14 @@ static int nandflash_get_type(struct nand_info *nand)
 
 static void send_large_block_address(unsigned int addr)
 {
-	WRITE_NAND_ADDRESS((addr >> 0) & 0xFF);
-	WRITE_NAND_ADDRESS((addr >> 8) & 0xFF);
+	nand_address((addr >> 0) & 0xFF);
+	nand_address((addr >> 8) & 0xFF);
 }
 
 static void send_sector_address(unsigned int addr)
 {
 	send_large_block_address(addr);
-	WRITE_NAND_ADDRESS((addr >> 16) & 0xFF);
+	nand_address((addr >> 16) & 0xFF);
 }
 
 int nand_erase_block_0(void)
@@ -494,20 +492,20 @@ int nand_erase_block_0(void)
 
 	nand_cs_enable();
 
-	WRITE_NAND_COMMAND(CMD_ERASE_1);
+	nand_command(CMD_ERASE_1);
 
 	send_sector_address(block);
 
-	WRITE_NAND_COMMAND(CMD_ERASE_2);
+	nand_command(CMD_ERASE_2);
 
 	/* Wait for nand to be ready */
 	nand_wait_ready();
 	nand_wait_ready();
 
 	/* Check status bit for error notification */
-	WRITE_NAND_COMMAND(CMD_STATUS);
+	nand_command(CMD_STATUS);
 	nand_wait_ready();
-	if (READ_NAND() & STATUS_ERROR)
+	if (read_byte() & STATUS_ERROR)
 		return 1;
 
 	nand_cs_disable();
@@ -632,23 +630,23 @@ static int nand_read_sector(struct nand_info *nand,
 
 	/* Write specific command, Read from start */
 	if (nand->buswidth) { /* 16 bits */
-		WRITE_NAND_COMMAND16(command);
+		nand_command16(command);
 	} else {
-		WRITE_NAND_COMMAND(command);
+		nand_command(command);
 	}
 
 	sectoraddr >>= nand->page_shift;
 
 	if (nand->buswidth) { /* 16 bits */
-		WRITE_NAND_ADDRESS16(0x00);
-		WRITE_NAND_ADDRESS16((sectoraddr >> 0) & 0xFF);
-		WRITE_NAND_ADDRESS16((sectoraddr >> 8) & 0xFF);
-		WRITE_NAND_ADDRESS16((sectoraddr >> 16) & 0xFF);
+		nand_address16(0x00);
+		nand_address16((sectoraddr >> 0) & 0xFF);
+		nand_address16((sectoraddr >> 8) & 0xFF);
+		nand_address16((sectoraddr >> 16) & 0xFF);
 	} else {
-		WRITE_NAND_ADDRESS(0x00);
-		WRITE_NAND_ADDRESS((sectoraddr >> 0) & 0xFF);
-		WRITE_NAND_ADDRESS((sectoraddr >> 8) & 0xFF);
-		WRITE_NAND_ADDRESS((sectoraddr >> 16) & 0xFF);
+		nand_address(0x00);
+		nand_address((sectoraddr >> 0) & 0xFF);
+		nand_address((sectoraddr >> 8) & 0xFF);
+		nand_address((sectoraddr >> 16) & 0xFF);
 	}
 
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
@@ -658,34 +656,34 @@ static int nand_read_sector(struct nand_info *nand,
 	/* Read loop */
 	if (nand->buswidth) { /* 16bits */
 		for (i = 0; i < readbytes / 2; i++) {	// Div2 because of 16bits
-			*((short *)buffer) = READ_NAND16();
+			*((short *)buffer) = read_word();
 			buffer += 2;
 		}
 	} else { /* 8 bits */
 		if (command == CMD_READ_C) {
 			for (i = 0; i < readbytes; i++) {
-				*buffer = READ_NAND();
+				*buffer = read_byte();
 				buffer++;
 			}
 		} else {
 			for (i = 0; i < readbytes / 2; i++) {
-				*buffer = READ_NAND();
+				*buffer = read_byte();
 				buffer++;
 			}
 
 			command = CMD_READ_A1;
-			WRITE_NAND_COMMAND(command);
-			WRITE_NAND_ADDRESS(0x00);
-			WRITE_NAND_ADDRESS((sectoraddr >> 0) & 0xFF);
-			WRITE_NAND_ADDRESS((sectoraddr >> 8) & 0xFF);
-			WRITE_NAND_ADDRESS((sectoraddr >> 16) & 0xFF);
+			nand_command(command);
+			nand_address(0x00);
+			nand_address((sectoraddr >> 0) & 0xFF);
+			nand_address((sectoraddr >> 8) & 0xFF);
+			nand_address((sectoraddr >> 16) & 0xFF);
 
 			/* Need to be done twice, READY detected too early the first time? */
 			nand_wait_ready();
 			nand_wait_ready();
 
 			for (i = 0; i < (readbytes / 2); i++) {
-				*buffer = READ_NAND();
+				*buffer = read_byte();
 				buffer++;
 			}
 		}
@@ -737,7 +735,7 @@ static int nand_read_sector(struct nand_info *nand,
 	 */
 	nand_cs_enable();
 
-	WRITE_NAND_COMMAND(CMD_READ_1);
+	nand_command(CMD_READ_1);
 
 	address = 0x00;
 	switch (zone_flag) {
@@ -767,7 +765,7 @@ static int nand_read_sector(struct nand_info *nand,
 	sectoraddr >>= nand->page_shift;
 	send_sector_address(sectoraddr);
 
-	WRITE_NAND_COMMAND(CMD_READ_2);
+	nand_command(CMD_READ_2);
 
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
 	nand_wait_ready();
@@ -776,12 +774,12 @@ static int nand_read_sector(struct nand_info *nand,
 	/* Read loop */
 	if (nand->buswidth) {
 		for (i = 0; i < readbytes / 2; i++) { /* Div2 because of 16bits  */
-			*((short *)buffer) = READ_NAND16();
+			*((short *)buffer) = read_word();
 			buffer += 2;
 		}
 	} else {
 		for (i = 0; i < readbytes; i++)
-			*buffer++ = READ_NAND();
+			*buffer++ = read_byte();
 	}
 
 #ifdef CONFIG_USE_PMECC
@@ -789,7 +787,7 @@ static int nand_read_sector(struct nand_info *nand,
 
 	status = pmecc_readl(PMECC_ISR);
 	if (status)
-		ret = pmecc_correction((AT91C_BASE_PMECC + PMECC_CFG),
+		ret = (*pmecc_correction)((AT91C_BASE_PMECC + PMECC_CFG),
 					(AT91C_BASE_PMERRLOC + PMERRLOC_ELCFG),
 					&PMECC_paramDesc_struct,
 					status,

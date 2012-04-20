@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : nand.h
- * Object              :
- * Creation            : NLe Sep 28th 2006
- *-----------------------------------------------------------------------------
  */
-#ifndef _NANDFLASH_H_
-#define _NANDFLASH_H_
+#ifndef _NAND_H_
+#define _NAND_H_
 
 #define MAX_ECC_BYTES		48 /* maximum bytes of ecc */
 #define MAX_OOB_AVAIL_BYTES	78 /* maximum bytes of oob available  */
@@ -192,4 +187,4 @@ struct nandflash_dev {
 
 #define NAND_BUSWIDTH_16		0x00000002
 
-#endif /* #ifndef _NAND_H */
+#endif /* #ifndef _NAND_H_ */
