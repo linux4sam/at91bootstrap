@@ -1,4 +1,3 @@
-
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
@@ -25,11 +24,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : gpio.h
- * Object              :
- * Creation            :
- *-----------------------------------------------------------------------------
  */
 #ifndef _SPI_H_
 #define _SPI_H_
@@ -43,27 +37,20 @@
 #define	SPI_MODE_1	(0|SPI_CPHA)
 #define	SPI_MODE_2	(SPI_CPOL|0)
 #define	SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
-#define	SPI_CS_HIGH	0x04			/* CS active high */
-#define	SPI_LSB_FIRST	0x08			/* per-word bits-on-wire */
-#define	SPI_3WIRE	0x10			/* SI/SO signals shared */
-#define	SPI_LOOP	0x20			/* loopback mode */
 
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
 #define SPI_XFER_END	0x02			/* Deassert CS after transfer */
 
-struct spi_slave {
-	unsigned int	bus;
-	unsigned int	cs;
-	void		*base;
-	unsigned int	mr;
-};
+/* function */
 
-extern struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int clock, unsigned int mode);
-extern int spi_claim_bus(struct spi_slave *slave);
-extern void spi_release_bus(struct spi_slave *slave);
-extern int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
+extern int at91_spi_init(unsigned int clock, unsigned int mode);
+
+extern int at91_spi_enable(void);
+
+extern void at91_spi_disable(void);
+
+extern int spi_xfer(unsigned int len, const void *dout,
 		void *din, unsigned long flags);
 
 #endif	/* #ifndef _SPI_H_ */

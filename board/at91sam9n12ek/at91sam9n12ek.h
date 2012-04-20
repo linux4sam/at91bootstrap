@@ -65,11 +65,6 @@
 			| BOARD_MULA \
 			| BOARD_DIVA)
 /*
-#define PLLUTMI
-#define PLLUTMI_SETTINGS	0x10193F05
-*/
-
-/*
 * DataFlash Settings
 */
 #define CONFIG_SPI_CLOCK	AT91C_SPI_CLK
@@ -78,6 +73,11 @@
 //#define CONFIG_SPI_MAX_H	1000000
 #define CONFIG_SPI_MODE		SPI_MODE_3
 
+#if CONFIG_SPI_BUS == 0
+#define AT91_BASE_SPI		AT91C_BASE_SPI0
+#elif CONFIG_SPI_BUS == 1
+#define AT91_BASE_SPI		AT91C_BASE_SPI1
+#endif
 /*
  * NandFlash Settings
  */

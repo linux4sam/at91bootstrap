@@ -26,36 +26,27 @@
 #include "arch/at91_spi.h"
 #include "debug.h"
 
-struct spi_slave atmel_spi;
-
 /* Register access macros */
-#define spi_readl(as, reg)			\
-	readl(as->base + reg)
-#define spi_writel(as, reg, value)		\
-	writel(value, as->base + reg)
+#define spi_readl(reg)			\
+	readl(AT91_BASE_SPI + reg)
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-			unsigned int clock, unsigned int mode)
+#define spi_writel(reg, value)		\
+	writel(value, AT91_BASE_SPI + reg)
+
+static unsigned int at91_spi_get_cs(void)
 {
-	struct spi_slave  *slave = &atmel_spi;
+	unsigned int cs;
+
+	cs = CONFIG_SPI_CS;
+	return cs;
+}
+
+int at91_spi_init(unsigned int clock, unsigned int mode)
+{
 	unsigned int	scbr;
 	unsigned int 	csrx;
-	void		*regs;
-	unsigned int	tmp;
-
-	switch (bus) {
-	case 0:
-		regs = (void *)AT91C_BASE_SPI0;
-		break;
-#ifdef AT91C_BASE_SPI1 
-	case 1:
-		regs = (void *)AT91C_BASE_SPI1;
-		break;
-#endif
-	default:
-		return NULL;
-	}
-
+	unsigned int	mr;
+	unsigned int	cs = at91_spi_get_cs();
 
 	scbr = MASTER_CLOCK/ clock;
 	csrx = AT91C_SPI_SCBR(scbr);
@@ -65,71 +56,43 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (mode & SPI_CPOL)
 		csrx |= AT91C_SPI_CPOL;
 
-	slave->bus = bus;
-	slave->cs = cs;
-	slave->base = regs;
+	mr = AT91C_SPI_MSTR 
+			| AT91C_SPI_MODFDIS
+			| AT91C_SPI_PCS((~(1 << cs) & 0xf));
 
-	tmp = ~(1 << cs) & 0xf;
-	slave->mr = AT91C_SPI_MSTR | AT91C_SPI_MODFDIS | AT91C_SPI_PCS(tmp);
-	//		| AT91C_SPI_PCS(~(0x01UL << cs) & 0xf);
-
-	spi_writel(slave, SPI_CSR(cs), csrx);
-	
-	return slave;
-}
-
-int spi_claim_bus(struct spi_slave *slave)
-{
-	/* Enable the SPI hardware */
-	spi_writel(slave, SPI_CR, AT91C_SPI_SPIEN);
-
-	/*
-	 * Select the slave. This should set SCK to the correct
-	 * initial state, etc.
-	 */
-	spi_writel(slave, SPI_MR, slave->mr);
+	spi_writel(SPI_CSR(cs), csrx);
+	spi_writel(SPI_MR, mr);
 
 	return 0;
 }
 
-void spi_release_bus(struct spi_slave *slave)
+int at91_spi_enable(void)
 {
-	/* Disable the SPI hardware */
-	spi_writel(slave, SPI_CR, AT91C_SPI_SPIDIS);
+	/* Enable the SPI hardware */
+	spi_writel(SPI_CR, AT91C_SPI_SPIEN);
+
+	return 0;
 }
 
-int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
+void at91_spi_disable(void)
+{
+	/* Disable the SPI hardware */
+	spi_writel(SPI_CR, AT91C_SPI_SPIDIS);
+}
+
+int spi_xfer(unsigned int len, const void *dout, 
+		void *din, unsigned long flags)
 {
 	unsigned int	len_tx;
 	unsigned int	len_rx;
-	unsigned int	len;
-	int		ret;
-	unsigned int 	status;
 	const unsigned char	*txp = dout;
 	unsigned char		*rxp = din;
+	unsigned int 	status;
 	unsigned char	value;
+	unsigned int	cs = at91_spi_get_cs();
 
-	ret = 0;
-	if (bitlen == 0)
-		/* Finish any previously submitted transfers */
+	if (len == 0)
 		goto out;
-
-	/*
-	 * TODO: The controller can do non-multiple-of-8 bit
-	 * transfers, but this driver currently doesn't support it.
-	 *
-	 * It's also not clear how such transfers are supposed to be
-	 * represented as a stream of bytes...this is a limitation of
-	 * the current SPI interface.
-	 */
-	if (bitlen % 8) {
-		/* Errors always terminate an ongoing transfer */
-		flags |= SPI_XFER_END;
-		goto out;
-	}
-
-	len = bitlen / 8;
 
 	/*
 	 * The controller can do automatic CS control, but it is
@@ -137,7 +100,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	 * in the context of U-Boot.
 	 */
 	if (flags & SPI_XFER_BEGIN) {
-		spi_cs_activate(slave->cs);
+		spi_cs_activate(cs);
 		/*
 		 * sometimes the RDR is not empty when we get here,
 		 * in theory that should not happen, but it DOES happen.
@@ -145,14 +108,15 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		 * That also clears the OVRES flag. Required if the
 		 * following loop exits due to OVRES!
 		 */
-		spi_readl(slave, SPI_RDR);
-		spi_readl(slave, SPI_SR);
+		spi_readl(SPI_RDR);
+		spi_readl(SPI_SR);
 	}
 
 	for (len_tx = 0, len_rx = 0; len_rx < len; ) {
+		/* send data */
 		if (len_tx < len) {
 			do {
-				status = spi_readl(slave, SPI_SR);
+				status = spi_readl(SPI_SR);
 			} while ((status & AT91C_SPI_TDRE) == 0);
 
 			if (txp)
@@ -160,19 +124,20 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 			else
 				value = 0;
 
-			spi_writel(slave, SPI_TDR, value);
+			spi_writel(SPI_TDR, value);
 			len_tx++;
 		}
 
+		/* recv data */
 		do {
-			status = spi_readl(slave, SPI_SR);
+			status = spi_readl(SPI_SR);
 			if (status & AT91C_SPI_OVRES) {
-				spi_cs_deactivate(slave->cs);
+				spi_cs_deactivate(cs);
 				return -1;
 			}
 		} while ((status & AT91C_SPI_RDRF) == 0);
 
-		value = spi_readl(slave, SPI_RDR);
+		value = spi_readl(SPI_RDR);
 		if (rxp)
 			*rxp++ = value;
 		len_rx++;
@@ -185,10 +150,10 @@ out:
 		 * we deactivate CS.
 		 */
 		do {
-			status = spi_readl(slave, SPI_SR);
+			status = spi_readl(SPI_SR);
 		} while (!(status & AT91C_SPI_TXEMPTY));
 
-		spi_cs_deactivate(slave->cs);
+		spi_cs_deactivate(cs);
 	}
 
 	return 0;
