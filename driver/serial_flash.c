@@ -365,7 +365,7 @@ int load_dataflash(unsigned int offset, unsigned int size, unsigned char *dest)
 
 	at91_spi0_hw_init();
 
-	ret = atmel_sf_probe(CONFIG_SPI_CLOCK, CONFIG_SPI_MODE);
+	ret = atmel_sf_probe(CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
 	if (ret) {
 		dbg_log(1, "SF: Fail to probe atmel serial flash\n\r");
 		return -1;

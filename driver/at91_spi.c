@@ -28,16 +28,16 @@
 
 /* Register access macros */
 #define spi_readl(reg)			\
-	readl(AT91_BASE_SPI + reg)
+	readl(CONFIG_SYS_BASE_SPI + reg)
 
 #define spi_writel(reg, value)		\
-	writel(value, AT91_BASE_SPI + reg)
+	writel(value, CONFIG_SYS_BASE_SPI + reg)
 
 static unsigned int at91_spi_get_cs(void)
 {
 	unsigned int cs;
 
-	cs = CONFIG_SPI_CS;
+	cs = CONFIG_SYS_SPI_CS;
 	return cs;
 }
 
