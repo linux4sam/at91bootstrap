@@ -64,19 +64,16 @@
 #define SD_CMD_APP_SEND_OP_COND		41
 #define SD_CMD_APP_SEND_SCR		51
 
+#define CONFIG_SYS_MMC_DEFAULT_CLK	1000000
+#define CONFIG_SYS_MMC_DEFAULT_BLKLEN	512
+#define CONFIG_SYS_MMC_MAX_BLK_COUNT	65535
+
 /* function macro */
 #define mci_readl(reg)					\
-	readl((void *)AT91_BASE_MCI + reg)
+	readl((void *)CONFIG_SYS_BASE_MCI + reg)
 
 #define mci_writel(reg, value)				\
-	writel((value), (void *)AT91_BASE_MCI + reg)
-
-
-#define CONFIG_SYS_MMC_CLK_OD		150000
-//#define CONFIG_SYS_MMC_CLK_PP		5000000
-#define CONFIG_SYS_MMC_CLK_PP		25000000
-#define MMC_DEFAULT_BLKLEN		512
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	65535
+	writel((value), (void *)CONFIG_SYS_BASE_MCI + reg)
 
 /* Setup for MCI Clock and Block Size */
 static void mci_set_mode(unsigned int clock, unsigned int blklen)
@@ -122,28 +119,7 @@ static void mci_set_mode(unsigned int clock, unsigned int blklen)
 #endif
 }
 
-static void mci_init(void)
-{
-	/* software reset */
-	mci_writel(MCI_CR, AT91C_MCI_SWRST);
-	/* disable power save */
-	mci_writel(MCI_CR, AT91C_MCI_PWSDIS);
-	/* enable mci */
-	mci_writel(MCI_CR, AT91C_MCI_MCIEN);
-	/* select port */
-	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA);	
-
-	/* Initialize Timeout Register */
-	mci_writel(MCI_DTOR, 0x5f);
-
-	/* Disable Interrupt */
-	mci_writel(MCI_IDR, ~0L);
-	
-	/* Set default clocks and blocklen */
-	mci_set_mode(CONFIG_SYS_MMC_CLK_OD, MMC_DEFAULT_BLKLEN);
-}
-
-static int mci_set_busw(unsigned int buswidth)
+static int mci_set_bus_width(unsigned int buswidth)
 {
 	unsigned int reg;
 
@@ -159,6 +135,30 @@ static int mci_set_busw(unsigned int buswidth)
 	mci_writel(MCI_SDCR, reg);
 	
 	return 0;
+}
+
+static void mci_init(void)
+{
+	/* software reset */
+	mci_writel(MCI_CR, AT91C_MCI_SWRST);
+	/* disable power save */
+	mci_writel(MCI_CR, AT91C_MCI_PWSDIS);
+	/* enable mci */
+	mci_writel(MCI_CR, AT91C_MCI_MCIEN);
+	/* select port */
+	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA);
+
+	/* initialize timeout register */
+	mci_writel(MCI_DTOR, 0x5f);
+
+	/* disable Interrupt */
+	mci_writel(MCI_IDR, ~0L);
+
+	/* set default bus width */
+	mci_set_bus_width(1);
+
+	/* set default clocks and blocklen */
+	mci_set_mode(CONFIG_SYS_MMC_DEFAULT_CLK, CONFIG_SYS_MMC_DEFAULT_BLKLEN);
 }
 
 /* response type definition */
@@ -912,28 +912,9 @@ retry_scr:
 	return 0;
 }
 
-static void mmc_set_clock(struct mmc *mmc, unsigned int clock)
+static void mmc_set_clock(unsigned int clock)
 {
-	if (clock > mmc->f_max)
-		clock = mmc->f_max;
-
-	if (clock < mmc->f_min)
-		clock = mmc->f_min;
-
-	mmc->clock = clock;
-
-//	dbg_log(1, "mmc_set_clock, clock: %d, mmc->f_max: %d,mmc->f_min: %d\n\r", clock, mmc->f_max, mmc->f_min);
-
-	mci_set_mode(mmc->clock, MMC_DEFAULT_BLKLEN);
-
-}
-
-static void mmc_set_bus_width(struct mmc *mmc, unsigned int width)
-{
-	mmc->bus_width = width;
-	
-	mci_set_busw(width);
-
+	mci_set_mode(clock, CONFIG_SYS_MMC_DEFAULT_BLKLEN);
 }
 
 static int mmc_set_busw_clock(struct mmc *mmc)
@@ -976,14 +957,14 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 			if (ret)
 				return ret; 
 
-			mmc_set_bus_width(mmc, 4);
+			mci_set_bus_width(4);
 
 		}
 
 		if (mmc->card_caps & MMC_MODE_HS)
-			mmc_set_clock(mmc, 50000000);
+			mmc_set_clock(50000000); /* NEED to try to */
 		else
-			mmc_set_clock(mmc, 25000000);
+			mmc_set_clock(18000000); /* The value got from Trying */
 	} else {
 		if (mmc->card_caps & MMC_MODE_4BIT) {
 			/* Set the card to use 4 bit*/
@@ -994,7 +975,7 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 			if (ret)
 				return ret;
 
-			mmc_set_bus_width(mmc, 4);
+			mci_set_bus_width(4);
 		} else if (mmc->card_caps & MMC_MODE_8BIT) {
 			/* Set the card to use 8 bit*/
 			ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
@@ -1004,17 +985,16 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 			if (ret)
 				return ret;
 
-			mmc_set_bus_width(mmc, 8);
+			mci_set_bus_width(8);
 		}
 
 		if (mmc->card_caps & MMC_MODE_HS) {
-			if (mmc->card_caps & MMC_MODE_HS_52MHz){
-				mmc_set_clock(mmc, 52000000);
-			} else {
-				mmc_set_clock(mmc, 26000000);
-			}
+			if (mmc->card_caps & MMC_MODE_HS_52MHz)
+				mmc_set_clock(52000000);
+			else
+				mmc_set_clock(26000000);
 		} else
-			mmc_set_clock(mmc, 20000000);
+			mmc_set_clock(20000000);
 	}
 
 	return 0;
@@ -1027,18 +1007,10 @@ int mmc_initialize(void)
 	struct mmc *mmc = &atmel_mmc;
 	int ret;
 	
-	unsigned int clock = CONFIG_SYS_MMC_CLK_PP;
-	
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
 	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS;
-	mmc->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
-	mmc->f_min = clock / (2 * 256);
-	mmc->f_max = clock / (2 * 1);
 
 	mci_init();
-
-	mmc_set_bus_width(mmc, 1);
-	mmc_set_clock(mmc, 1);
 
 	ret = sd_init_card(mmc);
 	if (ret == TIMEOUT) {
@@ -1220,7 +1192,8 @@ unsigned int mmc_bread(unsigned int start, unsigned int blkcnt, void *dest)
 		return 0;
 
 	do {
-		cur_blocks = (blocks_todo > mmc->b_max) ?  mmc->b_max : blocks_todo;
+		cur_blocks = (blocks_todo > CONFIG_SYS_MMC_MAX_BLK_COUNT) ?
+					CONFIG_SYS_MMC_MAX_BLK_COUNT: blocks_todo;
 		if(mmc_read_blocks(mmc, dest, start, cur_blocks) != cur_blocks)
 			return 0;
 		blocks_todo -= cur_blocks;

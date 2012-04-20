@@ -92,8 +92,8 @@
 /*
  * MCI Settings
  */
-#define AT91_BASE_MCI	AT91C_BASE_MCI 
-#define AT91_ID_MCI	AT91C_ID_MCI
+#define CONFIG_SYS_BASE_MCI	AT91C_BASE_MCI
+#define CONFIG_SYS_ID_MCI	AT91C_ID_MCI
 
 /* function */
 extern void hw_init(void);

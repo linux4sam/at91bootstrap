@@ -192,7 +192,7 @@ void at91_mci_hw_init(void)
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
-	writel((1 << AT91_ID_MCI), (PMC_PCER + AT91C_BASE_PMC));
+	writel((1 << CONFIG_SYS_ID_MCI), (PMC_PCER + AT91C_BASE_PMC));
 }
 #endif /* #ifdef CONFIG_SDCARD */
 

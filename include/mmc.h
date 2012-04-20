@@ -131,11 +131,7 @@
 struct mmc {
 	unsigned int voltages;
 	unsigned int version;
-	unsigned int f_min;
-	unsigned int f_max;
 	int high_capacity;
-	unsigned int bus_width;
-	unsigned int clock;
 	unsigned int card_caps;
 	unsigned int host_caps;
 	unsigned int ocr;
@@ -144,7 +140,6 @@ struct mmc {
 	unsigned int cid[4];
 	unsigned short rca;
 	unsigned int read_bl_len;
-	unsigned int b_max;
 };
 
 #endif /* #ifndef _MMC_H_ */
