@@ -100,14 +100,6 @@ NM= $(CROSS_COMPILE)nm
 SIZE=$(CROSS_COMPILE)size
 OBJCOPY=$(CROSS_COMPILE)objcopy
 OBJDUMP=$(CROSS_COMPILE)objdump
-#CONFIG_NO_DWARF_CFI_ASM=y
-#CONFIG_THUMB=
-
-ifeq ($(CONFIG_NO_DWARF_CFI_ASM),)
-NO_DWARF_CFI_ASM=
-else
-NO_DWARF_CFI_ASM=-fno-dwarf2-cfi-asm
-endif
 
 PROJECT := $(strip $(subst ",,$(CONFIG_PROJECT)))
 
@@ -191,10 +183,6 @@ SYMLINK=at91bootstrap.bin
 endif
 
 EXTRA_INSTALL=
-#ifeq ($(CONFIG_AT91SAM9G45EKES),y)
-#EXTRA_INSTALL+=files/AT91SAM9G45_RomCode_Replacement_13.bin.zip
-#EXTRA_INSTALL+=files/README.TXT
-#endif
 EXTRA_INSTALL+=scripts/fixboot.py
 EXTRA_INSTALL+=files/Makefile.jffs2
 EXTRA_INSTALL+=files/NAND-empty-1MB.jffs2.bz2
@@ -217,29 +205,22 @@ include	lib/libc.mk
 include	driver/driver.mk
 include	fs/src/fat.mk
 
-# $(SOBJS-y:.o=.S)
+#$(SOBJS-y:.o=.S)
 
 SRCS	:= $(COBJS-y:.o=.c)
 
 OBJS	:= $(SOBJS-y) $(COBJS-y)
 
 INCL=board/$(BOARD)
-
-#AT91_CUSTOM_FLAGS:=-mcpu=arm9
-#AT91_CUSTOM_FLAGS:=-mcpu=arm926ej-s
 GC_SECTIONS=--gc-sections
 
-CPPFLAGS=-ffunction-sections -g -Os -Wall -I$(INCL) -Iinclude -Ifs/include	\
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"	\
-	$(NO_DWARF_CFI_ASM) \
-	$(AT91_CUSTOM_FLAGS) 
+CPPFLAGS=-ffunction-sections -g -Os -Wall -I$(INCL) -Iinclude -Ifs/include \
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"
 
-CPPFLAGS_UTIL=-g -Os -Wall -I$(INCL) -Iinclude	\
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\" 
+#CPPFLAGS_UTIL=-g -Os -Wall -I$(INCL) -Iinclude	\
+#	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\" 
 
-
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude	\
-	$(AT91_CUSTOM_FLAGS)
+ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
 
 include	toplevel_cpp.mk
 include	board/board_cpp.mk
