@@ -63,6 +63,9 @@ config	CONFIG_RAM_128MB
 config	CONFIG_RAM_256MB
 	bool "256 MB"
 
+config	CONFIG_RAM_512MB
+	bool "512 MB"
+
 endchoice
 
 config	CONFIG_SDRAM_16BIT
@@ -92,7 +95,6 @@ config	CONFIG_FLASH
 config	CONFIG_NANDFLASH
 	bool "NAND flash"
 	depends on ALLOW_NANDFLASH
-
 
 config	CONFIG_SDCARD
 	bool "SD card"

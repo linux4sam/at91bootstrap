@@ -286,7 +286,7 @@ choice
 	  Select the crystal frequency
 
 config CONFIG_CRYSTAL_12_000MHZ
-	bool "Build for use of an 12.000 MHz crystal (not yet supported)"
+	bool "Build for use of an 12.000 MHz crystal"
 	depends on ALLOW_CRYSTAL_12_000MHZ
 
 config CONFIG_CRYSTAL_16_000MHZ

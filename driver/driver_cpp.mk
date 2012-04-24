@@ -44,6 +44,10 @@ ifeq ($(CONFIG_RAM_256MB),y)
 CPPFLAGS += -DCONFIG_RAM_256MB
 endif
 
+ifeq ($(CONFIG_RAM_512MB),y)
+CPPFLAGS += -DCONFIG_RAM_512MB
+endif
+
 # Boot flash type
 
 ifeq ($(CONFIG_DATAFLASH),y)
@@ -65,14 +69,6 @@ endif
 ifeq ($(CONFIG_LOAD_LINUX),y)
 CPPFLAGS += -DCONFIG_LOAD_LINUX
 endif
-
-#ifeq ($(CONFIG_LOAD_NK),y)
-#CPPFLAGS += -DCONFIG_LOAD_NK
-#endif
-
-#ifeq ($(CONFIG_LOAD_EBOOT),y)
-#CPPFLAGS += -DCONFIG_LOAD_EBOOT
-#endif
 
 ifeq ($(CONFIG_FLASH),y)
 CPPFLAGS += -DCONFIG_FLASH
