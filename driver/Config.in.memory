@@ -1,6 +1,5 @@
 menu "Memory selection"
 
-
 config CONFIG_SDRAM
 	bool
 	default n
@@ -71,13 +70,11 @@ config	CONFIG_SDRAM_16BIT
 	depends on ALLOW_SDRAM_16BIT
 	help
 	  
-
 config	CONFIG_PSRAM
 	bool "Enable PSRAM on EBI1"
 	depends on ALLOW_PSRAM
 	help
 	  
-
 choice
 	prompt "Flash memory technology"
 	default CONFIG_DATAFLASH
@@ -117,9 +114,7 @@ config CONFIG_MEMORY
 config CONFIG_SDCARD_HS
 	bool
 	default y if CONFIG_AT91SAM9G45EK
-	default y if CONFIG_AT91SAM9G45EKES
 	default y if CONFIG_AT91SAM9M10EK
-	default y if CONFIG_AT91SAM9M10EKES
 	default y if CONFIG_AT91SAM9X5EK
 	default y if CONFIG_AT91SAM9N12EK
 	default y if CONFIG_AT91SAMA5D3XEK
@@ -134,7 +129,6 @@ config CONFIG_BOOTSTRAP_MAXSIZE
 	default "4096"  if CONFIG_AT91SAM9260EK
 	default "8192"  if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
 	default "12288"  if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
-	default "4096"  if CONFIG_AFEB9260
 	default "23000"
 
 endmenu

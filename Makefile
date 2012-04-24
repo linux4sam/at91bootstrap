@@ -191,10 +191,10 @@ SYMLINK=at91bootstrap.bin
 endif
 
 EXTRA_INSTALL=
-ifeq ($(CONFIG_AT91SAM9G45EKES),y)
-EXTRA_INSTALL+=files/AT91SAM9G45_RomCode_Replacement_13.bin.zip
-EXTRA_INSTALL+=files/README.TXT
-endif
+#ifeq ($(CONFIG_AT91SAM9G45EKES),y)
+#EXTRA_INSTALL+=files/AT91SAM9G45_RomCode_Replacement_13.bin.zip
+#EXTRA_INSTALL+=files/README.TXT
+#endif
 EXTRA_INSTALL+=scripts/fixboot.py
 EXTRA_INSTALL+=files/Makefile.jffs2
 EXTRA_INSTALL+=files/NAND-empty-1MB.jffs2.bz2
