@@ -31,29 +31,12 @@ config CONFIG_LOAD_UBOOT
 	  like U-boot into the last MB of SDRAM.
 
 #
-# Load EBoot
-#
-#config CONFIG_LOAD_EBOOT
-#	bool "Support loading EBoot"
-#	help
-#	  Use this mode to load EBoot
-
-#
 # Load Linux
 #
 config CONFIG_LOAD_LINUX
 	bool "Support loading Linux directly"
 	---help---
 	   Load Linux kernel directly from storage media
-
-#
-# Load WinCE
-#
-#config CONFIG_LOAD_NK
-#	bool "Support loading WinCE directly"
-#	depends on CONFIG_NANDFLASH || CONFIG_SDCARD
-#	help
-#	  Use this mode to load WinCE NK Image
 
 config CONFIG_LOAD_64KB
 	bool "Load 64 kB into the start of SDRAM"
@@ -95,6 +78,7 @@ config CONFIG_OS_MEM_BANK
 	default "0x70000000" if CONFIG_AT91SAM9M10EKES
 	default "0x20000000" if CONFIG_AT91SAM9X5EK
 	default "0x20000000" if CONFIG_AT91SAM9N12EK
+	default "0x20000000" if CONFIG_AT91SAMA5D3XEK
 	
 config CONFIG_OS_MEM_SIZE
 	string "OS Memory Bank Size"
@@ -113,6 +97,7 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9G45EKES && !CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9X5EK && !CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9N12EK && !CONFIG_SDCARD
+	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAMA5D3XEK && !CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9M10EK && !CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9M10EKES && !CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9RLEK && CONFIG_SDCARD
@@ -123,6 +108,7 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9G45EKES && CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9X5EK && CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9N12EK && CONFIG_SDCARD
+	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAMA5D3XEK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9M10EK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9M10EKES && CONFIG_SDCARD
 
@@ -149,74 +135,17 @@ config CONFIG_OS_IMAGE_NAME
 	depends on CONFIG_SDCARD && CONFIG_LOAD_UBOOT
 	default "u-boot.bin"
 
-#
-# WinCE Image Storage Setup
-#
-#menu "WinCE Image Storage Setup"
-#	depends on CONFIG_LOAD_NK
-#config CONFIG_OS_MEM_BANK
-#	string "OS Memory Bank Base Address"
-#	default "0x20000000" if CONFIG_AT91SAM9260EK
-#	default "0x20000000" if CONFIG_AT91SAM9261EK
-#	default "0x20000000" if CONFIG_AT91SAM9263EK
-#	default "0x20000000" if CONFIG_AT91SAM9RLEK
-#	default "0x20000000" if CONFIG_AT91SAM9G10EK
-#	default "0x20000000" if CONFIG_AT91SAM9G20EK
-#	default "0x70000000" if CONFIG_AT91SAM9G45EK
-#	default "0x70000000" if CONFIG_AT91SAM9G45EKES
-#	default "0x70000000" if CONFIG_AT91SAM9M10EK
-#	default "0x70000000" if CONFIG_AT91SAM9M10EKES
-#	default "0x20000000" if CONFIG_AT91SAM9X5EK
-#	default "0x20000000" if CONFIG_AT91SAM9N12EK
-#	
-#config CONFIG_OS_MEM_SIZE
-#	string "OS Memory Bank Size"
-#	default "0x4000000"
-#
-#config CONFIG_CE_LOAD_ADDR
-#	string "Memory address to load NK.nb0"
-#	default "537292800" if CONFIG_AT91SAM9260EK
-#	default "537300992" if CONFIG_AT91SAM9261EK
-#	default "537313280" if CONFIG_AT91SAM9263EK
-#	default "537313280" if CONFIG_AT91SAM9RLEK
-#	default "537300992" if CONFIG_AT91SAM9G10EK
-#	default "537292800" if CONFIG_AT91SAM9G20EK
-#	default "1879490560" if CONFIG_AT91SAM9G45EK
-#	default "1879490560" if CONFIG_AT91SAM9G45EKES
-#	default "1879490560" if CONFIG_AT91SAM9M10EK
-#	default "1879490560" if CONFIG_AT91SAM9M10EKES
-#	default "537292800" if CONFIG_AT91SAM9X5EK
-#	default "537292800" if CONFIG_AT91SAM9N12EK
-#
-#config CONFIG_OS_IMAGE_NAME
-#	depends on CONFIG_SDCARD
-#	string "WinCE Kernel Image Name on SD Card"
-#	default "NK.nb0"
-#
-#config CONFIG_OS_IMG_SIZE
-#	string "OS Image Size"
-#	default "0x2000000"
-#
-#config CONFIG_WINCE_IMG_NAND_OFFSET
-#	depends on CONFIG_NANDFLASH
-#	string "NandFlash offset for Linux kernel"
-#	default "0x200000"
-#endmenu
-
 config CONFIG_IMG_ADDRESS
 	string
 	depends on CONFIG_LOAD_UBOOT || CONFIG_LOAD_LINUX 
 	default "0x00008000" if CONFIG_FLASH
-#	default "0x00004000" if CONFIG_DATAFLASH && CONFIG_LOAD_EBOOT && CONFIG_AT91SAM9260EK
 	default "0x00004000" if CONFIG_DATAFLASH && CONFIG_AT91SAM9260EK
-#	default "0x00005000" if CONFIG_DATAFLASH && CONFIG_LOAD_EBOOT && !CONFIG_AT91SAM9260EK
 	default "0x00005000" if CONFIG_DATAFLASH && !CONFIG_AT91SAM9260EK
 	default "0x00008400" if CONFIG_DATAFLASH && CONFIG_LOAD_UBOOT
 	default "0x00042000" if CONFIG_DATAFLASH && CONFIG_LOAD_LINUX
 	default "0x00020000" if CONFIG_NANDFLASH && CONFIG_LOAD_UBOOT && !CONFIG_AT91SAM9X5EK
 	default "0x00040000" if CONFIG_NANDFLASH && CONFIG_LOAD_UBOOT && CONFIG_AT91SAM9X5EK
 	default "0x00200000" if CONFIG_NANDFLASH && CONFIG_LOAD_LINUX
-#	default "0x00200000" if CONFIG_NANDFLASH && CONFIG_LOAD_NK
 	default "0x00200000" if CONFIG_NANDFLASH 
 	default	"0x00000000" if CONFIG_SDCARD
 	help
@@ -226,7 +155,6 @@ config CONFIG_IMG_ADDRESS
 #
 config CONFIG_IMG_ADDRESS
 	string
-#	depends on !CONFIG_LOAD_UBOOT && !CONFIG_LOAD_NK && !CONFIG_LOAD_LINUX && !CONFIG_LOAD_EBOOT
 	depends on !CONFIG_LOAD_UBOOT && !CONFIG_LOAD_LINUX 
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00020000" if CONFIG_NANDFLASH && !CONFIG_AT91SAM9X5EK
@@ -247,13 +175,11 @@ config CONFIG_SETTING_SIZE
 	
 config CONFIG_IMG_SIZE
 	string
-#	default	"0x00050000"	if CONFIG_LOAD_UBOOT || CONFIG_LOAD_EBOOT
 	default	"0x00050000"	if CONFIG_LOAD_UBOOT 
 	default	"0x00010000"	if CONFIG_LOAD_64KB
 	default	"0x00100000"	if CONFIG_LOAD_1MB
 	default	"0x00400000"	if CONFIG_LOAD_4MB
 	default "0x00280000"	if CONFIG_LOAD_LINUX
-#	default "0x02000000"	if CONFIG_LOAD_NK
 	help
 	  at91bootstrap will copy this amount of data
 
@@ -268,31 +194,11 @@ config CONFIG_JUMP_ADDR
 	default "0x73F00000" if CONFIG_AT91SAM9M10EKES
 	default "0x26F00000" if CONFIG_AT91SAM9X5EK
 	default "0x26F00000" if CONFIG_AT91SAM9N12EK
+	default "0x26F00000" if CONFIG_AT91SAMA5D3XEK
 	default "0x23F00000"
 	help
 	  The entry point to which the bootstrap will pass control.
 
-#config CONFIG_JUMP_ADDR
-#	string
-#	depends on CONFIG_LOAD_NK
-#	default "0x70000000" if CONFIG_AT91CAP9ADK
-#	default "0x70000000" if CONFIG_AT91CAP9STK
-#	default "0x7006c000" if CONFIG_AT91SAM9G45EKES
-#	default "0x7006c000" if CONFIG_AT91SAM9G45EK
-#	default "0x7006c000" if CONFIG_AT91SAM9M10EK
-#	default "0x7006c000" if CONFIG_AT91SAM9M10EKES
-#	default "0x20067000" if CONFIG_AT91SAM9G20EK
-#	default "0x2006c000" if CONFIG_AT91SAM9263EK
-#	default "0x20059000" if CONFIG_AT91SAM9261EK
-#	default "0x20067000" if CONFIG_AT91SAM9260EK
-#	default "0x2006c000" if CONFIG_AT91SAM9RLEK
-#	default "0x20069000" if CONFIG_AT91SAM9G10EK
-#	default "0x20067000" if CONFIG_AT91SAM9X5EK
-#	default "0x20067000" if CONFIG_AT91SAM9N12EK
-#	default "0x23F00000"
-#	help
-#	  The entry point to which the bootstrap will pass control.
-	
 config CONFIG_JUMP_ADDR
 	string
 	depends on CONFIG_LOAD_LINUX
@@ -310,13 +216,13 @@ config CONFIG_JUMP_ADDR
 	default "0x22000000" if CONFIG_AT91SAM9G10EK
 	default "0x22000000" if CONFIG_AT91SAM9X5EK
 	default "0x22000000" if CONFIG_AT91SAM9N12EK
+	default "0x22000000" if CONFIG_AT91SAMA5D3XEK
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.
 
 config CONFIG_JUMP_ADDR
 	string
-#	depends on !CONFIG_LOAD_UBOOT && !CONFIG_LOAD_NK && !CONFIG_LOAD_LINUX
 	depends on !CONFIG_LOAD_UBOOT && !CONFIG_LOAD_LINUX
 	default "0x70000000" if CONFIG_AT91CAP9ADK
 	default "0x70000000" if CONFIG_AT91SAM9G45EK
@@ -343,6 +249,7 @@ config CONFIG_GLBDRV_ADDR
 	default "0x20068000" if CONFIG_AT91SAM9G10EK
 	default "0x20068000" if CONFIG_AT91SAM9X5EK
 	default "0x20068000" if CONFIG_AT91SAM9N12EK
+	default "0x20068000" if CONFIG_AT91SAMA5D3XEK
 	default "0x23F00000"
 	help
 	
@@ -384,7 +291,8 @@ config CONFIG_THUMB
 	  Build code in thumb mode
 
 config CONFIG_SCLK	  
-	depends on CONFIG_AT91SAM9RLEK || CONFIG_AT91SAM9G45EK || CONFIG_AT91SAM9G45EKES || CONFIG_AT91SAM9M10EK || CONFIG_AT91SAM9M10EKES || CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
+	depends on CONFIG_AT91SAM9RLEK || CONFIG_AT91SAM9G45EK || CONFIG_AT91SAM9G45EKES || CONFIG_AT91SAM9M10EK \
+	|| CONFIG_AT91SAM9M10EKES || CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK || CONFIG_AT91SAMA5D3XEK
 	bool "Use external 32KHZ oscillator as source of slow clock"
 	help
 	  Use external 32KHZ oscillator as source of slow clock

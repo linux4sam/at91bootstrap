@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         ATMEL Microcontroller Software Support  -  ROUSSET  -
  * ----------------------------------------------------------------------------
- * Copyright (c) 2008, Atmel Corporation
+ * Copyright (c) 2012, Atmel Corporation
 
  * All rights reserved.
  *
@@ -27,48 +27,48 @@
  */
 #include "common.h"
 #include "hardware.h"
-#include "at91sam9n12ek.h"
-#include "arch/at91_matrix.h"
-#include "arch/at91_wdt.h"
-#include "arch/at91_rstc.h"
-#include "arch/at91_pmc.h"
-#include "arch/at91_slowclk.h"
-#include "arch/at91_smc.h"
-#include "arch/at91_pio.h"
-#include "gpio.h"
+#include "at91sama5d3xek.h"
 #include "pmc.h"
 #include "dbgu.h"
 #include "debug.h"
 #include "ddramc.h"
+#include "mpddrsdramc.h"
+#include "spi.h"
+#include "gpio.h"
 
-#ifdef CONFIG_NANDFLASH
-#include "nandflash.h"
-#endif
-
-#include "onewire_info.h"
+#include "arch/at91_pmc.h"
+#include "arch/at91_wdt.h"
+#include "arch/at91_rstc.h"
+#include "arch/at91sama5_smc.h"
+#include "arch/at91_slowclk.h"
+#include "arch/at91_pio.h"
 
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
+#ifdef CONFIG_DEBUG
 static void initialize_dbgu(void);
+#endif
+
+static void initialize_ddr2(void);
 
 #ifdef CONFIG_SCLK
 static void slow_clk_enable(void)
 {
-	writel(readl(AT91C_SYS_SLCKSEL) | AT91C_SLCKSEL_OSC32EN, AT91C_SYS_SLCKSEL);
+	writel(readl(AT91C_SYS_SCKCR) | AT91C_SLCKSEL_OSC32EN, AT91C_SYS_SCKCR);
 	/* must wait for slow clock startup time ~ 1000ms
 	 * (~6 core cycles per iteration, core is at 400MHz: 66666000 min loops) */
 	delay(66700000);
 
-	writel(readl(AT91C_SYS_SLCKSEL) | AT91C_SLCKSEL_OSCSEL, AT91C_SYS_SLCKSEL);
+	writel(readl(AT91C_SYS_SCKCR) | AT91C_SLCKSEL_OSCSEL, AT91C_SYS_SCKCR);
 	/* must wait 5 slow clock cycles = ~153 us
 	 * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops) */
 	delay(10200);
 
 	/* now disable the internal RC oscillator */
-	writel(readl(AT91C_SYS_SLCKSEL) & ~AT91C_SLCKSEL_RCEN, AT91C_SYS_SLCKSEL);
+	writel(readl(AT91C_SYS_SCKCR) & ~AT91C_SLCKSEL_RCEN, AT91C_SYS_SCKCR);
 }
-#endif /* CONFIG_SCLK */
+#endif /* #ifdef CONFIG_SCLK */
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
@@ -103,31 +103,38 @@ void hw_init(void)
 #endif
 
 #ifdef CONFIG_DEBUG
-	/* Initialize dbgu */
+	/* initialize the dbgu */
 	initialize_dbgu();
 #endif
 
 #ifdef CONFIG_DDR2
-	/* Initialize DDRAM Controller */
-	ddramc_init();
+	/* Initialize MPDDR Controller */
+	initialize_ddr2();
+#endif
+
+#ifdef CONFIG_USER_HW_INIT
+	hw_init_hook();
 #endif
 }
-#endif /* CONFIG_HW_INIT */
+#endif /* #ifdef CONFIG_HW_INIT */
 
 #ifdef CONFIG_DEBUG
 static void at91_dbgu_hw_init(void)
 {
 	/* Configure DBGU pin */
 	const struct pio_desc dbgu_pins[] = {
-		{"RXD", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"TXD", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"RXD", AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TXD", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	pio_configure(dbgu_pins);
 
 	/*  Configure the dbgu pins */
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+
+	/* Enable clock */
+	writel(1 << AT91C_ID_DBGU, (PMC_PCER + AT91C_BASE_PMC));
 }
 
 static void initialize_dbgu(void)
@@ -137,20 +144,31 @@ static void initialize_dbgu(void)
 }
 #endif /* #ifdef CONFIG_DEBUG */
 
+#ifdef CONFIG_DDR2
+static void initialize_ddr2(void)
+{
+	writel(1 << (AT91C_ID_MPDDRC - 32),  (PMC_PCER1 + AT91C_BASE_PMC));
+	writel(AT91C_PMC_DDR, (PMC_SCER + AT91C_BASE_PMC));
+
+	init_mpddr_sdramc();
+
+}
+#endif /* #ifdef CONFIG_DDR2 */
+
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)
 {
 	/* Configure PIN for SPI0 */
 	const struct pio_desc spi0_pins[] = {
-		{"MISO",  AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MOSI",  AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPCK",  AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"NPCS0", AT91C_PIN_PA(14), 1, PIO_DEFAULT, PIO_OUTPUT},
+		{"MISO",  AT91C_PIN_PD(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MOSI",  AT91C_PIN_PD(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPCK",  AT91C_PIN_PD(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"NPCS0", AT91C_PIN_PD(13), 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	writel((1 << AT91C_ID_PIOD), (PMC_PCER + AT91C_BASE_PMC));
 	pio_configure(spi0_pins);
 
 	/* Enable the clock */
@@ -161,10 +179,10 @@ void spi_cs_activate(int cs)
 {
 	switch (cs) {
 	case 0:
-		pio_set_value(AT91C_PIN_PA(14), 0);
+		pio_set_value(AT91C_PIN_PD(13), 0);
 		break;
 	case 1:
-		pio_set_value(AT91C_PIN_PA(7), 0);
+		pio_set_value(AT91C_PIN_PD(14), 0);
 		break;
 	}
 }
@@ -173,30 +191,30 @@ void spi_cs_deactivate(int cs)
 {
 	switch (cs) {
 	case 0:
-		pio_set_value(AT91C_PIN_PA(14), 1);
+		pio_set_value(AT91C_PIN_PD(13), 1);
 		break;
 	case 1:
-		pio_set_value(AT91C_PIN_PA(7), 1);
+		pio_set_value(AT91C_PIN_PD(14), 1);
 		break;
 	}
 }
-#endif /* CONFIG_DATAFLASH */
+#endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
 void at91_mci_hw_init(void)
 {
 	const struct pio_desc mci_pins[] = {
-		{"MCCK", AT91C_PIN_PA(17), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCCDA", AT91C_PIN_PA(16), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCDA0", AT91C_PIN_PA(15), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCDA1", AT91C_PIN_PA(18), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCDA2", AT91C_PIN_PA(19), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCDA3", AT91C_PIN_PA(20), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCCK", AT91C_PIN_PD(9), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCCDA", AT91C_PIN_PD(0), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCDA0", AT91C_PIN_PD(1), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCDA1", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCDA2", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCDA3", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_PERIPH_A},
 
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	writel((1 << AT91C_ID_PIOD), (PMC_PCER + AT91C_BASE_PMC));
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
@@ -207,69 +225,65 @@ void at91_mci_hw_init(void)
 #ifdef CONFIG_NANDFLASH
 void nandflash_hw_init(void)
 {
-	unsigned int reg;
-
 	/* Configure nand pins */
-	const struct pio_desc nand_pins_lo[] = {
-		{"NANDOE", AT91C_PIN_PD(0), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDWE", AT91C_PIN_PD(1), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDALE", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCLE", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCS", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_OUTPUT},
-		{"RDY_BSY", AT91C_PIN_PD(5), 0, PIO_PULLUP, PIO_INPUT},
+	const struct pio_desc nand_pins[] = {
+		{"NANDALE", AT91C_PIN_PE(21), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"NANDCLE", AT91C_PIN_PE(22), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
-
-	reg = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
-	reg |= AT91C_EBI_CS3A_SM;
-
-	reg &= ~AT91C_EBI_NFD0_ON_D16;	/* nandflash connect to D0~D15 */
-
-	reg |= AT91C_EBI_DRV;	/* according to IAR verification package */
-	writel(reg, AT91C_BASE_CCFG + CCFG_EBICSA);
-
-	/* Configure SMC CS3 */
-	writel((AT91C_SMC_NWESETUP_(1)
-		| AT91C_SMC_NCS_WRSETUP_(0)
-		| AT91C_SMC_NRDSETUP_(2) 
-		| AT91C_SMC_NCS_RDSETUP_(0)), 
-		AT91C_BASE_SMC + SMC_SETUP3);
-
-	writel((AT91C_SMC_NWEPULSE_(3)
-		| AT91C_SMC_NCS_WRPULSE_(5) 
-		| AT91C_SMC_NRDPULSE_(4) 
-		| AT91C_SMC_NCS_RDPULSE_(6)), 
-		AT91C_BASE_SMC + SMC_PULSE3);
-
-	writel((AT91C_SMC_NWECYCLE_(5)
-		|  AT91C_SMC_NRDCYCLE_(7)),
-		AT91C_BASE_SMC + SMC_CYCLE3);
-
-	writel((AT91C_SMC_READMODE 
-		| AT91C_SMC_WRITEMODE 
-		| AT91C_SMC_NWAITM_NWAIT_DISABLE 
-		| AT91C_SMC_DBW_WIDTH_BITS_8
-		| AT91_SMC_TDF_(1)), 
-		AT91C_BASE_SMC + SMC_CTRL3);
-
 	/* Configure the nand controller pins*/
-	writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
-	pio_configure(nand_pins_lo);
+	pio_configure(nand_pins);
+	writel((1 << AT91C_ID_PIOE), (PMC_PCER + AT91C_BASE_PMC));
+
+	/* Enable the clock */
+	writel(1 << AT91C_ID_SMC, (PMC_PCER + AT91C_BASE_PMC));
+
+	/* Configure SMC CS3 for NAND/SmartMedia */
+	writel(AT91C_SMC_SETUP_NWE(1)
+		| AT91C_SMC_SETUP_NCS_WR(1) 
+		| AT91C_SMC_SETUP_NRD(2) 
+		| AT91C_SMC_SETUP_NCS_RD(1), 
+		ATMEL_BASE_SMC + SMC_SETUP3);
+
+	writel(AT91C_SMC_PULSE_NWE(5)
+		| AT91C_SMC_PULSE_NCS_WR(7)
+		| AT91C_SMC_PULSE_NRD(5)
+		| AT91C_SMC_PULSE_NCS_RD(7), 
+	 	ATMEL_BASE_SMC + SMC_PULSE3);
+
+	writel(AT91C_SMC_CYCLE_NWE(8)
+		| AT91C_SMC_CYCLE_NRD(9), 
+		ATMEL_BASE_SMC + SMC_CYCLE3);
+
+	writel(AT91C_SMC_TIMINGS_TCLR(3)
+		| AT91C_SMC_TIMINGS_TADL(10)
+		| AT91C_SMC_TIMINGS_TAR(3)
+		| AT91C_SMC_TIMINGS_TRR(4)
+		| AT91C_SMC_TIMINGS_TWB(5)
+		| AT91C_SMC_TIMINGS_RBNSEL(3)
+		| AT91C_SMC_TIMINGS_NFSEL,
+		ATMEL_BASE_SMC + SMC_TIMINGS3);
+
+	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL
+		| AT91C_SMC_MODE_WRITEMODE_NWE_CTRL
+		| AT91C_SMC_MODE_EXNWMODE_DISABLED
+		| AT91C_SMC_MODE_DBW_8
+		| AT91C_SMC_MODE_TDF_CYCLES(1),
+		ATMEL_BASE_SMC + SMC_MODE3);
+
 }
 
-void nandflash_config_buswidth(unsigned char busw)
+void nandflash_config_buswidth(unsigned char buswidth)
 {
 	unsigned long csa;
+	
+	csa = readl(ATMEL_BASE_SMC + SMC_MODE3);
+	if (buswidth == 0)	/* 8 bits bus */
+		csa |= AT91C_SMC_MODE_DBW_8;	
+	else 
+		csa |= AT91C_SMC_MODE_DBW_16;
 
-	csa = readl(AT91C_BASE_SMC + SMC_CTRL3);
-
-	if (busw == 0)
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
-	else
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
-
-	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
+	writel(csa, ATMEL_BASE_SMC + SMC_MODE3);
 }
-
 #endif /* #ifdef CONFIG_NANDFLASH */
 

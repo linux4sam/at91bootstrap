@@ -24,18 +24,13 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_wdt.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef _AT91_SLOWCLK_H_
-#define _AT91_SLOWCLK_H_
+#ifndef __AT91_SLOWCLK_H__
+#define __AT91_SLOWCLK_H__
 
 #define AT91C_SLCKSEL_RCEN	(0x1UL << 0)
 #define AT91C_SLCKSEL_OSC32EN	(0x1UL << 1)
 #define AT91C_SLCKSEL_OSC32BYP	(0x1UL << 2)
 #define AT91C_SLCKSEL_OSCSEL	(0x1UL << 3)
 
-#endif /* #ifndef _AT91_SLOWCLK_H_ */
+#endif /* #ifndef __AT91_SLOWCLK_H__ */

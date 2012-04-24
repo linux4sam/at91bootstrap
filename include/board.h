@@ -25,17 +25,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : board.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef BOARD_H
-#define BOARD_H
-
-//#define	FAILURE	0
-//#define	SUCCESS	1
+#ifndef __BOARD_H__
+#define __BOARD_H__
 
 
 #ifdef AT91SAM9260
@@ -83,4 +75,8 @@
 #include "at91sam9n12ek.h"
 #endif
 
-#endif /* #ifndef BOARD_H */
+#ifdef AT91SAMA5D3X
+#include "at91sama5d3xek.h"
+#endif
+
+#endif /* #ifndef __BOARD_H__ */

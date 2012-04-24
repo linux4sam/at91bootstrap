@@ -122,6 +122,7 @@ config CONFIG_SDCARD_HS
 	default y if CONFIG_AT91SAM9M10EKES
 	default y if CONFIG_AT91SAM9X5EK
 	default y if CONFIG_AT91SAM9N12EK
+	default y if CONFIG_AT91SAMA5D3XEK
 	default n
 
 source "driver/Config.in.dataflash"

@@ -24,15 +24,11 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_smc.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef _AT91_SMC_H_
-#define _AT91_SMC_H_
+#ifndef __AT91_SMC_H__
+#define __AT91_SMC_H__
 
+/**** Register offset in AT91C SMC structure ***/
 #define SMC_SETUP0	0x00	/* Setup Register for CS 0 */
 #define SMC_PULSE0	0x04	/* Pulse Register for CS 0 */
 #define SMC_CYCLE0	0x08	/* Cycle Register for CS 0 */

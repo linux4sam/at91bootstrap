@@ -371,7 +371,7 @@ int load_dataflash(unsigned int offset, unsigned int size, unsigned char *dest)
 		return -1;
 	}
 
-	dbg_log(1, "SF: Copy %d bytes from %d to %d\r\n", size, offset, dest);
+	dbg_log(1, "SF: Copy %d bytes from %d to %d\n\r", size, offset, dest);
 
 	ret = (*sf_read)(offset, size, dest);
 	if (ret) {

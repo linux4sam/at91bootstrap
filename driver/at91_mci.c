@@ -87,7 +87,7 @@ static void mci_set_mode(unsigned int clock, unsigned int blklen)
 
 	blklen &= 0xfffc;
 
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5) 
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
 	/* set blklen in Block Register */	
 	reg = mci_readl(MCI_BLKR);
 	reg &= ~(((0x1 << 16) -1) << 16);
