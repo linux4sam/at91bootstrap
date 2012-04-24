@@ -28,7 +28,7 @@
 #include "hardware.h"
 #include "board.h"
 
-#include "ff/ff.h"
+#include "ff.h"
 
 #include "debug.h"
 

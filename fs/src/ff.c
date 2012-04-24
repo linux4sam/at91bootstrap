@@ -92,8 +92,8 @@
 /                   Added f_fdisk(). (_MULTI_PARTITION = 2)
 /---------------------------------------------------------------------------*/
 
-#include "ff/ff.h"		/* FatFs configurations and declarations */
-#include "ff/diskio.h"		/* Declarations of low level disk I/O functions */
+#include "ff.h"		/* FatFs configurations and declarations */
+#include "diskio.h"		/* Declarations of low level disk I/O functions */
 
 /*--------------------------------------------------------------------------
 

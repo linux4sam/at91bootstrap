@@ -215,7 +215,7 @@ DIRS:=$(TOPDIR) $(TOPDIR)/board/$(BOARDNAME) $(TOPDIR)/lib $(TOPDIR)/driver
 
 include	lib/libc.mk
 include	driver/driver.mk
-include	fs/fat.mk
+include	fs/src/fat.mk
 
 # $(SOBJS-y:.o=.S)
 
@@ -229,21 +229,21 @@ INCL=board/$(BOARD)
 #AT91_CUSTOM_FLAGS:=-mcpu=arm926ej-s
 GC_SECTIONS=--gc-sections
 
-CPPFLAGS=-ffunction-sections -g -Os -Wall 	-I$(INCL) -Iinclude	\
+CPPFLAGS=-ffunction-sections -g -Os -Wall -I$(INCL) -Iinclude -Ifs/include	\
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"	\
 	$(NO_DWARF_CFI_ASM) \
 	$(AT91_CUSTOM_FLAGS) 
 
-CPPFLAGS_UTIL=-g -Os -Wall 	-I$(INCL) -Iinclude	\
+CPPFLAGS_UTIL=-g -Os -Wall -I$(INCL) -Iinclude	\
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\" 
 
 
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude  		\
+ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude	\
 	$(AT91_CUSTOM_FLAGS)
 
-include		toplevel_cpp.mk
-include		board/board_cpp.mk
-include		driver/driver_cpp.mk
+include	toplevel_cpp.mk
+include	board/board_cpp.mk
+include	driver/driver_cpp.mk
 
 # Linker flags.
 #  -Wl,...:     tell GCC to pass this to linker.

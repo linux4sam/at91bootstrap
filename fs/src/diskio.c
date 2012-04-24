@@ -4,9 +4,9 @@
 /* This is a stub disk I/O module that acts as front end of the existing */
 /* disk I/O modules and attach it to FatFs module with common interface. */
 /*-----------------------------------------------------------------------*/
-#include "ff/diskio.h"
-#include "ff/ffconf.h"
-#include "ff/integer.h"
+#include "diskio.h"
+#include "ffconf.h"
+#include "integer.h"
 #include "media.h"
 
 //------------------------------------------------------------------------------

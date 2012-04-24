@@ -7,7 +7,7 @@
 #define _READONLY	1	/* 1: Remove write functions */
 #define _USE_IOCTL	0	/* 1: Use disk_ioctl fucntion */
 
-#include "ff/integer.h"
+#include "integer.h"
 
 
 /* Status of Disk Functions */
