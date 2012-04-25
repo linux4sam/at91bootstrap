@@ -33,10 +33,10 @@
 /* SPI mode flags */
 #define	SPI_CPHA	0x01			/* clock phase */
 #define	SPI_CPOL	0x02			/* clock polarity */
-//#define	SPI_MODE_0	(0|0)			/* (original MicroWire) */
-#define	SPI_MODE_1	(0|SPI_CPHA)
-#define	SPI_MODE_2	(SPI_CPOL|0)
-#define	SPI_MODE_3	(SPI_CPOL|SPI_CPHA)
+#define	SPI_MODE0	(0|0)			/* (original MicroWire) */
+#define	SPI_MODE1	(0|SPI_CPHA)
+#define	SPI_MODE2	(SPI_CPOL|0)
+#define	SPI_MODE3	(SPI_CPOL|SPI_CPHA)
 
 /* SPI transfer flags */
 #define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
