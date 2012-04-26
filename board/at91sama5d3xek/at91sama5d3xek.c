@@ -46,6 +46,10 @@
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
+#ifdef CONFIG_USER_HW_INIT
+extern void hw_init_hook(void);
+#endif
+
 #ifdef CONFIG_DEBUG
 static void initialize_dbgu(void);
 #endif

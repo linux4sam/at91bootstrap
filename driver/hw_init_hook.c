@@ -1,4 +1,4 @@
-void user_hw_init(void)
+void hw_init_hook(void)
 {
     /*
      * This is a placeholder for the users custom init routine

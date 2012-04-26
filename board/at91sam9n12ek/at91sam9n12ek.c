@@ -50,6 +50,10 @@
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
+#ifdef CONFIG_USER_HW_INIT
+extern void hw_init_hook(void);
+#endif
+
 static void initialize_dbgu(void);
 
 #ifdef CONFIG_SCLK
@@ -110,6 +114,10 @@ void hw_init(void)
 #ifdef CONFIG_DDR2
 	/* Initialize DDRAM Controller */
 	ddramc_init();
+#endif
+
+#ifdef CONFIG_USER_HW_INIT
+	hw_init_hook();
 #endif
 }
 #endif /* CONFIG_HW_INIT */

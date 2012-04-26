@@ -24,11 +24,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : main.c
- * Object              :
- * Creation            : ODi Apr 19th 2006
- *-----------------------------------------------------------------------------
  */
 #include "hardware.h"
 #include "board.h"
@@ -37,10 +32,6 @@
 #include "nandflash.h"
 #include "sdcard.h"
 #include "flash.h"
-
-#ifdef CONFIG_USER_HW_INIT
-void user_hw_init(void);
-#endif
 
 extern void load_kernel(void);
 
@@ -57,10 +48,6 @@ int main(void)
 {
 #ifdef CONFIG_HW_INIT
 	hw_init();
-#endif
-
-#ifdef CONFIG_USER_HW_INIT
-	user_hw_init();
 #endif
 
 #if defined(CONFIG_AT91SAM9X5EK)
