@@ -122,8 +122,8 @@
 /*
  * System Peripherals physical base addresses.
  */
-#define AT91C_BASE_SYS		0xffff0000
-#define AT91C_BASE_SMC		0xffff0000
+#define AT91C_BASE_SYS		0xffffc000
+#define AT91C_BASE_SMC		0xffffc000
 /* Reserved */
 #define AT91C_BASE_FUSE		0xffffe400
 #define AT91C_BASE_DMAC0	0xffffe600
