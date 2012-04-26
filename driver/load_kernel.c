@@ -232,7 +232,7 @@ static void setup_boot_tags(void)
 
 void load_kernel(void)
 {
-#if 1
+#if 0
 	unsigned long	load_addr, image_size;
 	image_header_t	*image_header;
 	unsigned long	magic_number;
@@ -253,7 +253,7 @@ void load_kernel(void)
 #endif
 	setup_boot_tags();
 
-	//writel(0xffffffff, ATMEL_BASE_PMC + AT91_PMC_PCER1);
+	writel(0xffffffff, (PMC_PCER1 + AT91C_BASE_PMC));
 
 ///* enable all clocks unmanaged by Linux */
 //(*(volatile unsigned int *)(0xfffffd00)) = (0xffffffff);
@@ -270,7 +270,7 @@ reg &= 0xffffffcc;
 reg |= 0x00000344;
 (*(volatile unsigned int *)(0xF0038038)) = reg;
 #endif
-#if 1
+#if 0
 	/* Check the image header magic */
 	image_header = (image_header_t *)JUMP_ADDR;
 	magic_number = ntohl(image_header->ih_magic);

@@ -79,10 +79,21 @@
 #include "arch/at91sama5d3x.h"
 #endif
 
-#define writel(value, address) \
-	(*(volatile unsigned int *)(address)) = (value)
-#define readl(address) \
-	(*(volatile unsigned int *)(address))
+/* I/O Function Macro */
+#define writel(value, addr) \
+	(*(volatile unsigned int *)(addr)) = (value)
+#define readl(addr) \
+	(*(volatile unsigned int *)(addr))
+
+#define writew(value, addr) \
+	 (*(volatile unsigned short *)(addr) = (value))
+#define readw(addr) \
+	(*(volatile unsigned short *)(addr))
+
+#define writeb(value, addr) \
+	 (*(volatile unsigned char *)(addr) = (value))
+#define readb(addr) \
+	(*(volatile unsigned char *)(addr))
 
 #define I_CACHE		(1<<12)
 

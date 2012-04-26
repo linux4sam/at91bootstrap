@@ -52,7 +52,7 @@ void die()
 
 void lowlevel_clock_init()
 {
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X) 
 	unsigned long tmp;
 
 	/* Enable external crystal */
@@ -108,7 +108,7 @@ void lowlevel_clock_init()
 
 int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout)
 {
-#if defined(CONFIG_AT91SAM9X5EK) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
 	write_pmc(PMC_PLLAR, 0);
 	write_pmc(PMC_PLLAR, pmc_pllar);
 	//while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKA))

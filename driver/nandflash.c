@@ -38,7 +38,6 @@
 #include "hamming.h"
 #include "nand_ids.h"
 
-
 #undef CONFIG_USE_PMECC
 #if defined(CPU_HAS_PMECC) && !defined(CONFIG_ENABLE_SW_ECC)
 #define CONFIG_USE_PMECC
@@ -51,7 +50,7 @@
 #define ECC_START_ADDR		48
 #define ECC_END_ADDR		63
 
-#if defined(CONFIG_AT91SAM9X5EK) || defined(CONFIG_AT91SAM9N12EK)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined (AT91SAMA5D3X)
 #define PMECC_ALGO_FCT_ADDR		0x00100008
 #define LOOKUP_TABLE_ALPHA_TO		0x10C000;
 #define LOOKUP_TABLE_INDEX_OF		0x108000;
@@ -99,7 +98,6 @@ typedef int (*PMECC_CorrectionAlgo_Rom_Func) (unsigned long pPMECC,
 				void *pageBuffer);
 
 PMECC_CorrectionAlgo_Rom_Func pmecc_correction;
-
 
 static int pmecc_readl(unsigned int reg)
 {
@@ -182,40 +180,37 @@ static unsigned char *IO_ADDR_W =
 /* 8 bits devices */
 static void nand_command(unsigned char cmd)
 {
-	*(volatile unsigned char *)
-		((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE) = cmd;
+	writeb(cmd, ((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE));
+	udelay(100);
 }
 
 static void nand_address(unsigned char addr)
 {
-	*(volatile unsigned char *)
-		((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE) = addr;
+	writeb(addr, ((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE));
+	udelay(100);
 }
 
 static unsigned char read_byte(void)
 {
-	return (unsigned char)(*(volatile unsigned char *)(unsigned long)IO_ADDR_R);
+	return(readb((unsigned long)IO_ADDR_R));
 }
 
 #if 0
 /* 16 bits devices */
 static void nand_command16(unsigned short cmd)
 {
-	*(volatile unsigned short *)
-		((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE) = cmd;
+	writew(cmd, (unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE);
 }
 
 static void nand_address16(unsigned short addr)
 {
-	*(volatile unsigned short *)
-		((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE) = addr;
+	writew(addr, (unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE);
 }
 #endif
 
 static unsigned short read_word(void)
 {
-	return (unsigned short)
-		(*(volatile unsigned short *)(unsigned long)IO_ADDR_R);
+	return(readw((unsigned long)IO_ADDR_R));
 }
 
 static void nand_wait_ready(void)
@@ -434,7 +429,7 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 		nand->page_shift++;
 		i++;
 	}
-
+  
 	if (nand->buswidth)
 		nand->badblockpos = 2 * nand->ecclayout->badblockpos;
 	else
@@ -443,10 +438,16 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 
 static void nandflash_reset(void)
 {
+	unsigned int timeout = 200000;
+
 	nand_cs_enable();
-	nand_command(0xFF);
+	nand_command(CMD_RESET);
+	//nand_wait_ready();
 	nand_wait_ready();
-	nand_wait_ready();
+	
+	nand_command(CMD_STATUS);
+	nand_command(-1);
+	while( (!(read_byte() & STATUS_READY)) && timeout--);
 	nand_cs_disable();
 }
 
@@ -468,9 +469,9 @@ static int nandflash_get_type(struct nand_info *nand)
 	
 	if (nand->buswidth == 0)
 		nandflash_config_buswidth(0);
-	else 
+	else
 		nandflash_config_buswidth(1);
-	
+
 	return 0;
 }
 
@@ -499,7 +500,7 @@ int nand_erase_block_0(void)
 	nand_command(CMD_ERASE_2);
 
 	/* Wait for nand to be ready */
-	nand_wait_ready();
+	//nand_wait_ready();
 	nand_wait_ready();
 
 	/* Check status bit for error notification */
@@ -650,7 +651,7 @@ static int nand_read_sector(struct nand_info *nand,
 	}
 
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
-	nand_wait_ready();
+	//nand_wait_ready();
 	nand_wait_ready();
 
 	/* Read loop */
@@ -679,7 +680,7 @@ static int nand_read_sector(struct nand_info *nand,
 			nand_address((sectoraddr >> 16) & 0xFF);
 
 			/* Need to be done twice, READY detected too early the first time? */
-			nand_wait_ready();
+			//nand_wait_ready();
 			nand_wait_ready();
 
 			for (i = 0; i < (readbytes / 2); i++) {
@@ -768,7 +769,7 @@ static int nand_read_sector(struct nand_info *nand,
 	nand_command(CMD_READ_2);
 
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
-	nand_wait_ready();
+	//nand_wait_ready();
 	nand_wait_ready();
 
 	/* Read loop */
@@ -783,7 +784,9 @@ static int nand_read_sector(struct nand_info *nand,
 	}
 
 #ifdef CONFIG_USE_PMECC
+	dbg_log(1,"pmecc_readl(PMECC_SR)01\n\r");
 	while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY) ;
+	dbg_log(1,"pmecc_readl(PMECC_SR)02\n\r");
 
 	status = pmecc_readl(PMECC_ISR);
 	if (status)
@@ -873,7 +876,7 @@ int load_nandflash(unsigned long offset, unsigned int size, unsigned char *dest)
 	struct nand_info nand;
 	unsigned char *buffer = dest;
 	unsigned int block, length, readsize, numpage, page;
-
+	
 	nandflash_hw_init();
 	
 	if (nandflash_get_type(&nand)) 
@@ -915,6 +918,7 @@ int load_nandflash(unsigned long offset, unsigned int size, unsigned char *dest)
 		}
 		length -= readsize;
 	}
+
 	return 0;
 }
 

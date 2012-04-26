@@ -55,11 +55,13 @@ unsigned int load_sdcard(void *dest)
 		return 1;
 	}
 
+	dbg_log(1, "load_sdcard01\n\r");
 	fret = f_open(&file, filename, FA_OPEN_EXISTING | FA_READ);
 	if (fret != FR_OK) {
 		dbg_log(1, "*** FATFS: f_open, filename: [%s]: error\n\r", filename);
 		return 1 ;
 	}
+	dbg_log(1, "load_sdcard02\n\r");
 
 	do {
 		byte_read = 0;
@@ -71,6 +73,7 @@ unsigned int load_sdcard(void *dest)
 		dbg_log(1, "*** FATFS: f_read: error\n\r");
 		 return 1;
 	}
+	dbg_log(1, "load_sdcard03\n\r");
 
 	fret = f_close(&file);
 

@@ -47,9 +47,9 @@
 #define SMC_MODE2	0x38	/* Mode Register for CS 2 */
 #define SMC_SETUP3	0x3C	/* Setup Register for CS 3 */
 #define SMC_PULSE3	0x40	/* Pulse Register for CS 3 */
-#define SMC_CYCLE3	0x48	/* Cycle Register for CS 3 */
-#define SMC_TIMINGS3	0x4C	/* Timings Register for CS 3 */
-#define SMC_MODE3	0x50	/* Mode Register for CS 3 */
+#define SMC_CYCLE3	0x44	/* Cycle Register for CS 3 */
+#define SMC_TIMINGS3	0x48	/* Timings Register for CS 3 */
+#define SMC_MODE3	0x4C	/* Mode Register for CS 3 */
 
 #define AT91C_SMC_SETUP_NWE(x)		(x & 0x3f)
 #define AT91C_SMC_SETUP_NCS_WR(x)	((x & 0x3f) << 8)

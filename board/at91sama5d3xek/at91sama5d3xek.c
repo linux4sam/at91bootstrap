@@ -206,6 +206,7 @@ void at91_mci_hw_init(void)
 	const struct pio_desc mci_pins[] = {
 		{"MCCK", AT91C_PIN_PD(9), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"MCCDA", AT91C_PIN_PD(0), 0, PIO_PULLUP, PIO_PERIPH_A},
+
 		{"MCDA0", AT91C_PIN_PD(1), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"MCDA1", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"MCDA2", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
@@ -223,6 +224,8 @@ void at91_mci_hw_init(void)
 #endif /* #ifdef CONFIG_SDCARD */
 
 #ifdef CONFIG_NANDFLASH
+static unsigned int mode ;
+
 void nandflash_hw_init(void)
 {
 	/* Configure nand pins */
@@ -264,26 +267,24 @@ void nandflash_hw_init(void)
 		| AT91C_SMC_TIMINGS_NFSEL,
 		ATMEL_BASE_SMC + SMC_TIMINGS3);
 
-	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL
+	mode = AT91C_SMC_MODE_READMODE_NRD_CTRL
 		| AT91C_SMC_MODE_WRITEMODE_NWE_CTRL
 		| AT91C_SMC_MODE_EXNWMODE_DISABLED
 		| AT91C_SMC_MODE_DBW_8
-		| AT91C_SMC_MODE_TDF_CYCLES(1),
-		ATMEL_BASE_SMC + SMC_MODE3);
+		| AT91C_SMC_MODE_TDF_CYCLES(1);
 
+	writel(mode, (ATMEL_BASE_SMC + SMC_MODE3));
 }
 
 void nandflash_config_buswidth(unsigned char buswidth)
 {
-	unsigned long csa;
-	
-	csa = readl(ATMEL_BASE_SMC + SMC_MODE3);
+	mode &= ~AT91C_SMC_MODE_DBW;
 	if (buswidth == 0)	/* 8 bits bus */
-		csa |= AT91C_SMC_MODE_DBW_8;	
+		mode |= AT91C_SMC_MODE_DBW_8;	
 	else 
-		csa |= AT91C_SMC_MODE_DBW_16;
+		mode |= AT91C_SMC_MODE_DBW_16;
 
-	writel(csa, ATMEL_BASE_SMC + SMC_MODE3);
+	writel(mode, ATMEL_BASE_SMC + SMC_MODE3);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
 

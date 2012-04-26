@@ -24,49 +24,50 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_pmc.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
 
-#ifndef AT91_PMC_H
-#define AT91_PMC_H
+#ifndef __AT91_PMC_H__
+#define __AT91_PMC_H__
 
-/* Register offset in AT91S_PMC structure */
-#define PMC_SCER	( 0)	/* System Clock Enable Register */
-#define PMC_SCDR	( 4)	/* System Clock Disable Register */
-#define PMC_SCSR	( 8)	/* System Clock Status Register */
-#define PMC_PCER	(16)	/* Peripheral Clock Enable Register  (0:31 PERI_ID) */
-#define PMC_PCDR	(20)	/* Peripheral Clock Disable Register (0:31 PERI_ID) */
-#define PMC_PCSR	(24)	/* Peripheral Clock Status Register  (0:31 PERI_ID) */
-#define PMC_UCKR	(28)	/* UTMI Clock Configuration Register */
-#define PMC_MOR		(32)	/* Main Oscillator Register */
-#define PMC_MCFR	(36)	/* Main Clock  Frequency Register */
-#define PMC_PLLAR	(40)	/* PLL A Register */
-#define PMC_PLLBR	(44)	/* PLL B Register */
-#define PMC_MCKR	(48)	/* Master Clock Register */
-#define PMC_USB		(56)	/* USB clock register */
-#define PMC_SMD		(60)	/* SMD clock register */
-#define PMC_PCKR	(64)	/* Programmable Clock 0 Register */
-#define PMC_IER		(96)	/* Interrupt Enable Register */
-#define PMC_IDR		(100)	/* Interrupt Disable Register */
-#define PMC_SR		(104)	/* Status Register */
-#define PMC_IMR		(108)	/* Interrupt Mask Register */
-#define PMC_FSMR	(112)	/* Fast Startup Mode Register */
-#define PMC_FSPR	(116)	/* Fast Startup Polarity Register */
-#define PMC_FOCR	(120)	/* Fault Output Clear Register */
-#define PMC_PLLICPR	(128)	/* PLL Charge Pump Current Register */
-#define PMC_ADDRSIZE	(236)
-#define PMC_NAME1	(240)
-#define PMC_NAME2	(244)
-#define PMC_FEATURES	(248)
-#define PMC_VERSION	(252)
-#define PMC_PCER1	(256)	/* Peripheral Clock Enable Register  32:63 PERI_ID */
-#define PMC_PCDR1	(260)	/* Peripheral Clock Disable Register 32:63 PERI_ID */
-#define PMC_PCSR1	(264)	/* Peripheral Clock Status Register  32:63 PERI_ID */
-#define PMC_PCR		(268)	/* Peripheral Control Register */
+/* Register offset in AT91C_PMC structure */
+#define PMC_SCER	0x00	/* System Clock Enable Register */
+#define PMC_SCDR	0x04	/* System Clock Disable Register */
+#define PMC_SCSR	0x08	/* System Clock Status Register */
+/* 0x0C Reversed */
+#define PMC_PCER	0x10	/* Peripheral Clock Enable Register  (0:31 PERI_ID) */
+#define PMC_PCDR	0x14	/* Peripheral Clock Disable Register (0:31 PERI_ID) */
+#define PMC_PCSR	0x18	/* Peripheral Clock Status Register  (0:31 PERI_ID) */
+#define PMC_UCKR	0x1C	/* UTMI Clock Configuration Register */
+#define PMC_MOR		0x20	/* Main Oscillator Register */
+#define PMC_MCFR	0x24	/* Main Clock  Frequency Register */
+#define PMC_PLLAR	0x28	/* PLL A Register */
+#define PMC_PLLBR	0x2C	/* PLL B Register */
+#define PMC_MCKR	0x30	/* Master Clock Register */
+/* 0x34 Reserved */
+#define PMC_USB		0x38	/* USB clock register */
+#define PMC_SMD		0x3C	/* SMD clock register */
+#define PMC_PCKR	0x40	/* Programmable Clock 0 Register */
+#define PMC_PCKR1	0x44	/* Programmable Clock 1 Register */
+/* 0x48 ~ 0x5C */
+#define PMC_IER		0x60	/* Interrupt Enable Register */
+#define PMC_IDR		0x64	/* Interrupt Disable Register */
+#define PMC_SR		0x68	/* Status Register */
+#define PMC_IMR		0x6C	/* Interrupt Mask Register */
+#define PMC_FSMR	0x70	/* Fast Startup Mode Register */
+#define PMC_FSPR	0x74	/* Fast Startup Polarity Register */
+#define PMC_FOCR	0x78	/* Fault Output Clear Register */
+/* 0x7C Reserved */
+#define PMC_PLLICPR	0x80	/* PLL Charge Pump Current Register */
+/* 0x84 ~ 0xE0 Reserved */
+#define PMC_WPMR	0xE4	/* Write Protect Mode Register */
+#define PMC_WPSR	0xE8	/* Write Protect Status Register */
+/* 0xEC ~ 0xF8 */
+#define PMC_VERSION	0xFC	/* Version Register */
+#define PMC_PCER1	0x100	/* Peripheral Clock Enable Register1  32:63 PERI_ID */
+#define PMC_PCDR1	0x104	/* Peripheral Clock Disable Register1 32:63 PERI_ID */
+#define PMC_PCSR1	0x108	/* Peripheral Clock Status Register1  32:63 PERI_ID */
+#define PMC_PCR		0x10C	/* Peripheral Control Register */
+#define PMC_OCR		0x110	/* Oscillator Calibration Register */
 
 /* -------- PMC_SCER : (PMC Offset: 0x0) System Clock Enable Register --------*/ 
 #define AT91C_PMC_DDR		(0x1UL <<  2)
@@ -278,4 +279,4 @@
 #define AT91C_PMC_DIV		(0x3UL << 16)
 #define AT91C_PMC_EN		(0x1UL << 28)
 
-#endif /* #ifndef AT91_PMC_H */
+#endif /* #ifndef __AT91_PMC_H__ */
