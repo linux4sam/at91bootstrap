@@ -87,7 +87,6 @@ defconfig: $(CONFIG)/conf
 else
 ##  Have DOT Config
 #
-CROSS_COMPILE=/home/wyang/opt/arm-2010q1/bin/arm-none-linux-gnueabi-
 
 ifeq ($(CROSS_COMPILE),)
 $(error Environment variable "CROSS_COMPILE" must be defined!)

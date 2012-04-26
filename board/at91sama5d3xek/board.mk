@@ -1,8 +1,6 @@
 CPPFLAGS += \
 	-DCONFIG_AT91SAMA5D3XEK \
-	-mcpu=cortex-a5
 
 ASFLAGS += \
 	-DCONFIG_AT91SAMA5D3XEK \
-	-mcpu=cortex-a5
 
