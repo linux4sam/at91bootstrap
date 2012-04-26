@@ -252,9 +252,9 @@ void load_kernel(void)
 	load_sdcard((void *)JUMP_ADDR);
 #endif
 	setup_boot_tags();
-
+#if 1
 	writel(0xffffffff, (PMC_PCER1 + AT91C_BASE_PMC));
-
+#endif
 ///* enable all clocks unmanaged by Linux */
 //(*(volatile unsigned int *)(0xfffffd00)) = (0xffffffff);
 /* enable lcd clock */

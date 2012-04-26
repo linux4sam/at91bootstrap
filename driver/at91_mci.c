@@ -217,6 +217,7 @@ static int mmc_cmd(unsigned short cmd,
 	while (!((status = mci_readl(MCI_SR)) & AT91C_MCI_CMDRDY));
 
 	if (status & error_flags) {
+		dbg_log(1, "Comm Error MCI_SR:%d\n\r", status);
 		return COMM_ERR;
 	}
 
@@ -616,9 +617,10 @@ static int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
 	do {
 		do {
 			status = mci_readl(MCI_SR);
-			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE))
+			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE)) {
+				dbg_log(1, "Comm/Overrun Error, MCI_SR:%d\n\r", status);
 				return status;
-
+			}
 		} while (!(status & AT91C_MCI_RXRDY));
 
 		if (status & AT91C_MCI_RXRDY) {
@@ -631,7 +633,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
 	do {
 		status = mci_readl(MCI_SR);
 		if (status & ERROR_FLAGS) {
-			dbg_log(1, "MCI_SR:%d\n\r", status);
+			dbg_log(1, "Comm Error, MCI_SR:%d\n\r", status);
 			return COMM_ERR;
 		}
 		i++;
@@ -750,9 +752,10 @@ static int sd_switch(struct mmc *mmc,
 	do {
 		do {
 			status = mci_readl(MCI_SR);
-			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE))
+			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE)) {
+				dbg_log(1, "Comm/Overrun Error, MCI_SR:%d\n\r", status);
 				return status;
-
+			}
 		} while (!(status & AT91C_MCI_RXRDY));
 
 		if (status & AT91C_MCI_RXRDY) {
@@ -765,7 +768,7 @@ static int sd_switch(struct mmc *mmc,
 	do {
 		status = mci_readl(MCI_SR);
 		if (status & ERROR_FLAGS) {
-			dbg_log(1, "MCI_SR:%d\n\r", status);
+			dbg_log(1, "Comm Error MCI_SR:%d\n\r", status);
 			return COMM_ERR;
 		}
 		i++;
@@ -833,9 +836,10 @@ retry_scr:
 	do {
 		do {
 			status = mci_readl(MCI_SR);
-			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE))
+			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE)) {
+				dbg_log(1, "Comm/Overrun Error, MCI_SR:%d\n\r", status);
 				return status;
-
+			}
 		} while (!(status & AT91C_MCI_RXRDY));
 
 		if (status & AT91C_MCI_RXRDY) {
@@ -848,7 +852,7 @@ retry_scr:
 	do {
 		status = mci_readl(MCI_SR);
 		if (status & ERROR_FLAGS) {
-			dbg_log(1, "MCI_SR:%d\n\r", status);
+			dbg_log(1, "Comm Error MCI_SR:%d\n\r", status);
 			return COMM_ERR;
 		}
 		i++;
@@ -958,13 +962,12 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 				return ret; 
 
 			mci_set_bus_width(4);
-
 		}
 
 		if (mmc->card_caps & MMC_MODE_HS)
-			mmc_set_clock(50000000); /* NEED to try to */
+			mmc_set_clock(30000000); /* NEED to try to */
 		else
-			mmc_set_clock(18000000); /* The value got from Trying */
+			mmc_set_clock(12000000); /* The value got from Trying */
 	} else {
 		if (mmc->card_caps & MMC_MODE_4BIT) {
 			/* Set the card to use 4 bit*/
@@ -1147,8 +1150,10 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 		do {
 			do {
 				status = mci_readl(MCI_SR);
-				if (status & (ERROR_FLAGS | AT91C_MCI_OVRE))
+				if (status & (ERROR_FLAGS | AT91C_MCI_OVRE)) {
+					dbg_log(1, "Comm/Overrun Error, MCI_SR:%d\n\r", status);
 					break;
+				}
 			} while (!(status & AT91C_MCI_RXRDY));
 			
 			if (status & AT91C_MCI_RXRDY) {
@@ -1163,7 +1168,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 	do {
 		status = mci_readl(MCI_SR);
 		if (status & ERROR_FLAGS) {
-			dbg_log(1, "MCI_SR:%d\n\r", status);
+			dbg_log(1, "Comm Error, MCI_SR:%d\n\r", status);
 			return COMM_ERR;
 		}
 		i++ ;
