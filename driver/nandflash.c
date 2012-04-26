@@ -299,7 +299,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	nand_cs_disable();
 
 	if (i == 3)
-		return 1;
+		return -1;
 
 	/* check version */
 	if (p->revision & (1 << 5))
@@ -317,7 +317,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 
 	if (!onfi_version) {
 		dbg_log(1, "%s: unsupported ONFI version: %d\n\r", __func__, p->revision);
-		return 1;
+		return -1;
 	}
 
 	chip->numblocks = p->blocks_per_lun;
@@ -333,7 +333,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	case 4096: break;
 	default:
 		dbg_log(1, "Not supported page size: %d\n\r", chip->pagesize);
-		return 1;
+		return -1;
 	}
 	return 0;
 }
@@ -363,7 +363,7 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 			&& dev_id != 0x00 && dev_id != 0xff)
 			dbg_log(1, "unknown NAND device: Manufacturer ID: %d", 
 				"Chip ID: 0x%d\n\r", manf_id, dev_id);
-		return 1;
+		return -1;
 	}
 	
 	dbg_log(1, "NAND device: %s, Manufacturer ID: %d Chip ID: %d\n\r",
@@ -398,7 +398,7 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	case 4096: break;
 	default:
 		dbg_log(1, "Not supported page size: %d\n\r", chip->pagesize);
-		return 1;
+		return -1;
 	}
 
 	return 0;
@@ -461,7 +461,7 @@ static int nandflash_get_type(struct nand_info *nand)
 	if (nandflash_detect_onfi(chip)) {
 		if (nandflash_detect_non_onfi(chip)) {
 			dbg_log(1, "Not Find Support NAND Device!\n\r");
-			return 1;
+			return -1;
 		}
 	}
 
@@ -507,7 +507,7 @@ int nand_erase_block_0(void)
 	nand_command(CMD_STATUS);
 	nand_wait_ready();
 	if (read_byte() & STATUS_ERROR)
-		return 1;
+		return -1;
 
 	nand_cs_disable();
 
@@ -543,7 +543,7 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, u
 	default:
 		dbg_log(1, "Not supported page size: %d\n\r",
 			pagesize);
-		return 1;
+		return -1;
 	}
 	return 0;
 } 
@@ -588,7 +588,7 @@ static int init_pmecc(unsigned int pagesize)
 			(*(unsigned int *)PMECC_ALGO_FCT_ADDR);
 
 	if (init_pmecc_descripter(&PMECC_paramDesc_struct, pagesize) != 0)
-		return 1;
+		return -1;
 	
 	init_pmecc_core(&PMECC_paramDesc_struct);
 
@@ -624,7 +624,7 @@ static int nand_read_sector(struct nand_info *nand,
 		command = CMD_READ_A0;
 		break;
 	default:
-		return 1;
+		return -1;
 	}
 
 	nand_cs_enable();
@@ -706,7 +706,7 @@ static int nand_read_sector(struct nand_info *nand,
 
 #ifdef CONFIG_USE_PMECC
 	int ret = 0; 
-	unsigned int status;
+	unsigned int erris;
 	unsigned char *pbuf = buffer;
 
 	PMECC_paramDesc_struct.modeAuto = AT91C_PMECC_SPAREENA_ENA;
@@ -758,7 +758,7 @@ static int nand_read_sector(struct nand_info *nand,
 		break;
 
 	default:
-		return 1;
+		return -1;
 	}
 
 	send_large_block_address(address);
@@ -784,18 +784,22 @@ static int nand_read_sector(struct nand_info *nand,
 	}
 
 #ifdef CONFIG_USE_PMECC
-	dbg_log(1,"pmecc_readl(PMECC_SR)01\n\r");
 	while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY) ;
-	dbg_log(1,"pmecc_readl(PMECC_SR)02\n\r");
 
-	status = pmecc_readl(PMECC_ISR);
-	if (status)
+	erris = pmecc_readl(PMECC_ISR);
+	if (erris) {
+		dbg_log(1, "PMECC found the sector %d is corrupted, Now PMECC is correcting...\n\r", erris);
 		ret = (*pmecc_correction)((AT91C_BASE_PMECC + PMECC_CFG),
 					(AT91C_BASE_PMERRLOC + PMERRLOC_ELCFG),
 					&PMECC_paramDesc_struct,
-					status,
+					erris,
 					pbuf);
-	if (ret != 0) return 1;
+		if (ret != 0) {
+			dbg_log(1, "PMECC failed to correct!\n\r");
+			return -1;
+		}
+	}
+
 #endif
 
 	nand_cs_disable();
@@ -816,7 +820,7 @@ static int nand_check_badblock(struct nand_info *nand,
 		nand_read_sector(nand, sectoraddr + i * nand->pagesize, buffer, ZONE_INFO);
 		
 		if (*(buffer + nand->pagesize + nand->badblockpos) != 0xFF)
-			return 1;
+			return -1;
 	}
 
 	return 0;
@@ -842,9 +846,9 @@ static int nand_read_page(struct nand_info *nand,
 {
 	unsigned int sectoraddr = block * nand->blocksize + page * nand->pagesize;
 
-	if (nand_check_badblock(nand, block, buffer) == 1) {
+	if (nand_check_badblock(nand, block, buffer)) {
 		dbg_log(1, "Bad block: #%d\n\r", block);
-		return 1;
+		return -1;
 	}
 
 #ifndef CONFIG_ENABLE_SW_ECC
@@ -857,14 +861,14 @@ static int nand_read_page(struct nand_info *nand,
 	retval = nand_read_sector(nand, sectoraddr, buffer,ZONE_DATA | ZONE_INFO);
 
 	if (retval)
-		return 1;
+		return -1;
 
 	nand_read_ecc(nand->ecclayout, buffer + nand->pagesize, hamming);
 
 	error = Hamming_Verify256x(buffer, nand->pagesize, hamming);
 	if (error && (error != Hamming_ERROR_SINGLEBIT)) {
 		dbg_log(1, "Hamming ECC error!\n\r");
-		return 1;
+		return -1;
 	}
 
 	return 0;
@@ -880,11 +884,11 @@ int load_nandflash(unsigned long offset, unsigned int size, unsigned char *dest)
 	nandflash_hw_init();
 	
 	if (nandflash_get_type(&nand)) 
-		return 1;
+		return -1;
 
 #ifdef CONFIG_USE_PMECC
 	if (init_pmecc(nand.pagesize))
-		return 1;
+		return -1;
 #endif
 
 	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, dest);
@@ -906,7 +910,7 @@ int load_nandflash(unsigned long offset, unsigned int size, unsigned char *dest)
 		/* Loop until a valid block has been read */
 		while (1) {
 			for (page = 0; page < numpage; page++) {
-				if (nand_read_page(&nand, block, page, ZONE_DATA, buffer) == 1) /* skip this block */
+				if (nand_read_page(&nand, block, page, ZONE_DATA, buffer)) /* skip this block */
 					break;
 				else
 					buffer += nand.pagesize;
