@@ -224,8 +224,6 @@ void at91_mci_hw_init(void)
 #endif /* #ifdef CONFIG_SDCARD */
 
 #ifdef CONFIG_NANDFLASH
-static unsigned int mode ;
-
 void nandflash_hw_init(void)
 {
 	/* Configure nand pins */
@@ -234,6 +232,7 @@ void nandflash_hw_init(void)
 		{"NANDCLE", AT91C_PIN_PE(22), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+
 	/* Configure the nand controller pins*/
 	pio_configure(nand_pins);
 	writel((1 << AT91C_ID_PIOE), (PMC_PCER + AT91C_BASE_PMC));
@@ -246,17 +245,17 @@ void nandflash_hw_init(void)
 		| AT91C_SMC_SETUP_NCS_WR(1) 
 		| AT91C_SMC_SETUP_NRD(2) 
 		| AT91C_SMC_SETUP_NCS_RD(1), 
-		ATMEL_BASE_SMC + SMC_SETUP3);
+		(ATMEL_BASE_SMC + SMC_SETUP3));
 
 	writel(AT91C_SMC_PULSE_NWE(5)
 		| AT91C_SMC_PULSE_NCS_WR(7)
 		| AT91C_SMC_PULSE_NRD(5)
 		| AT91C_SMC_PULSE_NCS_RD(7), 
-	 	ATMEL_BASE_SMC + SMC_PULSE3);
+	 	(ATMEL_BASE_SMC + SMC_PULSE3));
 
 	writel(AT91C_SMC_CYCLE_NWE(8)
 		| AT91C_SMC_CYCLE_NRD(9), 
-		ATMEL_BASE_SMC + SMC_CYCLE3);
+		(ATMEL_BASE_SMC + SMC_CYCLE3));
 
 	writel(AT91C_SMC_TIMINGS_TCLR(3)
 		| AT91C_SMC_TIMINGS_TADL(10)
@@ -265,26 +264,29 @@ void nandflash_hw_init(void)
 		| AT91C_SMC_TIMINGS_TWB(5)
 		| AT91C_SMC_TIMINGS_RBNSEL(3)
 		| AT91C_SMC_TIMINGS_NFSEL,
-		ATMEL_BASE_SMC + SMC_TIMINGS3);
+		(ATMEL_BASE_SMC + SMC_TIMINGS3));
 
-	mode = AT91C_SMC_MODE_READMODE_NRD_CTRL
+	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL
 		| AT91C_SMC_MODE_WRITEMODE_NWE_CTRL
 		| AT91C_SMC_MODE_EXNWMODE_DISABLED
 		| AT91C_SMC_MODE_DBW_8
-		| AT91C_SMC_MODE_TDF_CYCLES(1);
-
-	writel(mode, (ATMEL_BASE_SMC + SMC_MODE3));
+		| AT91C_SMC_MODE_TDF_CYCLES(1),
+		(ATMEL_BASE_SMC + SMC_MODE3));
 }
 
 void nandflash_config_buswidth(unsigned char buswidth)
 {
+	unsigned int mode; 
+
+	mode = readl(ATMEL_BASE_SMC + SMC_MODE3);
+
 	mode &= ~AT91C_SMC_MODE_DBW;
 	if (buswidth == 0)	/* 8 bits bus */
 		mode |= AT91C_SMC_MODE_DBW_8;	
 	else 
 		mode |= AT91C_SMC_MODE_DBW_16;
 
-	writel(mode, ATMEL_BASE_SMC + SMC_MODE3);
+	writel(mode, (ATMEL_BASE_SMC + SMC_MODE3));
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
 

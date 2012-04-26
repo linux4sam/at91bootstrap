@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support 
  * ----------------------------------------------------------------------------
  * Copyright (c) 2012, Atmel Corporation
 
@@ -60,32 +60,6 @@
 					BOARD_PLLACOUNT | \
 					BOARD_MULA | \
 					BOARD_DIVA)
-#if 0
-#define MASTER_CLOCK		(132096000)
-#define PLL_LOCK_TIMEOUT	10000
-
-#define BOARD_MAINOSC		12000000
-#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200 ))       // 133MHz
-
-#define BOARD_OSCOUNT		(AT91C_PMC_OSCOUNT & (64 << 8))
-#define BOARD_CKGR_PLLA		(AT91C_CKGR_OUTA_0) 
-#define BOARD_PLLACOUNT		(0x3F << 8)
-#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (65 << 18))
-#define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
-
-#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 | \
-					AT91C_PMC_MDIV_3 | \
-					AT91C_PMC_CSS_MAIN_CLK)
-
-#define BOARD_PRESCALER_PLLA		(AT91C_PMC_PLLADIV2_2 | \
-					AT91C_PMC_MDIV_3 | \
-					AT91C_PMC_CSS_PLLA_CLK )
-
-#define PLLA_SETTINGS			(BOARD_CKGR_PLLA | \
-					BOARD_PLLACOUNT | \
-					BOARD_MULA | \
-					BOARD_DIVA)
-#endif
 /*
 * DataFlash Settings
 */
@@ -127,4 +101,4 @@ extern void spi_cs_deactivate(int cs);
 
 extern void at91_mci_hw_init(void);
 
-#endif /* #ifndef AT91SAMA5EK_H */
+#endif /* #ifndef __AT91SAMA5EK_H__ */
