@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _AT91_NAND_ECC_H_
-#define _AT91_NAND_ECC_H_
+#ifndef __AT91_NAND_ECC_H__
+#define __AT91_NAND_ECC_H__
 
 /* PMECC Register Definitions */
 #define PMECC_CFG	0x00	/* PMECC Configuration Register */
@@ -40,8 +40,9 @@
 #define PMECC_IDR	0x20	/* PMECC Interrupt Disable Register */
 #define PMECC_IMR	0x24	/* PMECC Interrupt Mask Register */
 #define PMECC_ISR	0x28	/* PMECC Interrupt Status Register */
-#define PMECC_ECC	0x40	/* BCH Redundancy structure */
-#define PMECC_REM	0x240	/* BCH Syndrome   structure */
+/* 0x2c ~ 0x3c */
+#define PMECC_ECC	0x40	/* PMECC Redundancy structure */
+#define PMECC_REM	0x240	/* PMECC Remainder structure */
 
 /* -------- PMECC_CFG: (Offset: 0x0) PMECC Configuration Register --------*/ 
 #define AT91_PMECC_BCH_ERR	(0x7UL << 0)	/* Error Correct Capability */
@@ -102,7 +103,7 @@
 /* -------- PMECC_ISR: (Offset: 0x28) PMECC Interrupt Status Register -------- */
 #define AT91C_PMECC_ERRIS	(0xFFUL << 0)	/* (BCH) Error interrupt Status */
 
-/* *** Register offset in AT91S_BCHEL structure ****/
+/**** Register offset in AT91C_BCHEL structure ****/
 /* PMERRLOC Register Definitions */
 #define PMERRLOC_ELCFG		0x000	/* Error Location Configuration Register */
 #define PMERRLOC_ELPRIM		0x004	/* Error Location Primitive Register */
@@ -113,9 +114,9 @@
 #define PMERRLOC_ELIDR		0x018	/* Error Location Interrupt Disable Register */
 #define PMERRLOC_ELIMR		0x01C	/* Error Location Interrupt Mask Register */
 #define PMERRLOC_ELISR		0x020	/* Error Location Interrupt Status Register */
+/* 0x24 reserved */
+#define PMERRLOC_SIGMA0		0x028	/* PMECC Error Location SIGMA0 Register */
 
-#define PMERRLOC_SIGMA0		0x028	/* PMECC SIGMA0 Register */
+#define PMERRLOC_EL0		0x08C	/* PMECC Error Location 0 Register */
 
-#define PMERRLOC_EL0		0x08C	/* PMECC Error Location Error position 0 Register */
-
-#endif /* #ifndef _AT91_NAND_ECC_H  */
+#endif /* #ifndef __AT91_NAND_ECC_H__  */
