@@ -21,17 +21,15 @@ DATE:=$(shell date +%Y%m%d)
 
 VERSION:=3.2
 
- 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
 # Check first if we want to configure at91bootstrap
 #
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
-#$(if $(wildcard .config),,$(error No .config found!))
--include	.config
+-include .config
 endif
 
-include		host-utilities/host.mk
+include	host-utilities/host.mk
 
 ifeq ($(HAVE_DOT_CONFIG),)
 
@@ -84,9 +82,7 @@ defconfig: $(CONFIG)/conf
 		$(CONFIG)/conf -d $(CONFIG_CONFIG_IN)
 
 
-else
-##  Have DOT Config
-#
+else #  Have DOT Config
 
 ifeq ($(CROSS_COMPILE),)
 $(error Environment variable "CROSS_COMPILE" must be defined!)
@@ -101,55 +97,35 @@ OBJCOPY=$(CROSS_COMPILE)objcopy
 OBJDUMP=$(CROSS_COMPILE)objdump
 
 PROJECT := $(strip $(subst ",,$(CONFIG_PROJECT)))
-
 IMG_ADDRESS := $(strip $(subst ",,$(CONFIG_IMG_ADDRESS)))
-
 IMG_SIZE := $(strip $(subst ",,$(CONFIG_IMG_SIZE)))
-
 JUMP_ADDR := $(strip $(subst ",,$(CONFIG_JUMP_ADDR)))
-
 BOOTSTRAP_MAXSIZE := $(strip $(subst ",,$(CONFIG_BOOTSTRAP_MAXSIZE)))
-
 MEMORY := $(strip $(subst ",,$(CONFIG_MEMORY)))
-
 CARD_SUFFIX := $(strip $(subst ",,$(CONFIG_CARD_SUFFIX)))
-
 OS_MEM_BANK := $(strip $(subst ",,$(CONFIG_OS_MEM_BANK)))
-
 OS_MEM_SIZE := $(strip $(subst ",,$(CONFIG_OS_MEM_SIZE)))
-
 OS_IMG_SIZE := $(strip $(subst ",,$(CONFIG_OS_IMG_SIZE)))
-
 OS_IMAGE_NAME := $(strip $(subst ",,$(CONFIG_OS_IMAGE_NAME)))
-
 LINUX_IMG_NAND_OFFSET := $(strip $(subst ",,$(CONFIG_LINUX_IMG_NAND_OFFSET)))
-
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
-
 GLBDRV_ADDR := $(strip $(subst ",,$(CONFIG_GLBDRV_ADDR)))
 
 # Board definitions
-
 BOARDNAME=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
 
 # CHIP is UNUSED
 CHIP:=$(strip $(subst ",,$(CONFIG_CHIP)))
-
 BOARD:=$(strip $(subst ",,$(CONFIG_BOARD)))
-
 MACH_TYPE:=$(strip $(subst ",,$(CONFIG_MACH_TYPE)))
-
 LINK_ADDR:=$(strip $(subst ",,$(CONFIG_LINK_ADDR)))
-
 DATA_SECTION_ADDR:=$(strip $(subst ",,$(CONFIG_DATA_SECTION_ADDR)))
-
 TOP_OF_MEMORY:=$(strip $(subst ",,$(CONFIG_TOP_OF_MEMORY)))
 
 # CRYSTAL is UNUSED
 CRYSTAL:=$(strip $(subst ",,$(CONFIG_CRYSTAL)))
 
 # driver definitions
-
 SPI_CLK:=$(strip $(subst ",,$(CONFIG_SPI_CLK)))
 
 ifeq ($(REVISION),)
@@ -161,7 +137,6 @@ endif
 obj=build/$(BOARDNAME)/
 
 BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(VERSION)$(REV)
-
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
 ifeq ($(DESTDIR),)
@@ -176,21 +151,6 @@ ifeq ($(SYMLINK),)
 SYMLINK=at91bootstrap.bin
 endif
 
-EXTRA_INSTALL=
-EXTRA_INSTALL+=scripts/fixboot.py
-EXTRA_INSTALL+=files/Makefile.jffs2
-EXTRA_INSTALL+=files/NAND-empty-1MB.jffs2.bz2
-EXTRA_INSTALL+=files/SD-card-tools.tar.bz2
-
-ifeq ($(CONFIG_RAW_AT91),y)
-RAW_AT91=$(BINDIR)raw-at91
-EXTRA_INSTALL+=$(BINDIR)raw-at91
-endif
-ifeq ($(CONFIG_SX_AT91),y)
-SX_AT91=$(BINDIR)/sx-at91
-EXTRA_INSTALL+=$(BINDIR)/sx-at91
-endif
-
 COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 DIRS:=$(TOPDIR) $(TOPDIR)/board/$(BOARDNAME) $(TOPDIR)/lib $(TOPDIR)/driver
@@ -201,18 +161,13 @@ include	fs/src/fat.mk
 
 #$(SOBJS-y:.o=.S)
 
-SRCS	:= $(COBJS-y:.o=.c)
-
-OBJS	:= $(SOBJS-y) $(COBJS-y)
-
+SRCS:= $(COBJS-y:.o=.c)
+OBJS:= $(SOBJS-y) $(COBJS-y)
 INCL=board/$(BOARD)
 GC_SECTIONS=--gc-sections
 
 CPPFLAGS=-ffunction-sections -g -Os -Wall -I$(INCL) -Iinclude -Ifs/include \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"
-
-#CPPFLAGS_UTIL=-g -Os -Wall -I$(INCL) -Iinclude	\
-#	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\" 
 
 ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
 
@@ -227,7 +182,6 @@ include	driver/driver_cpp.mk
 #  -lc 	   : 	tells the linker to tie in newlib
 #  -lgcc   : 	tells the linker to tie in newlib
 LDFLAGS+=-nostartfiles -Map=$(BINDIR)/$(BOOT_NAME).map --cref
-#LDFLAGS+=-lc -lgcc
 LDFLAGS+=-T elf32-littlearm.lds $(GC_SECTIONS) -Ttext $(LINK_ADDR)
 
 ifneq ($(DATA_SECTION_ADDR),)
@@ -279,7 +233,7 @@ $(AT91BOOTSTRAP).fixboot:	$(AT91BOOTSTRAP)
 
 boot:	$(AT91BOOTSTRAP).fixboot
 
-install:	bootstrap	utilities
+install:	bootstrap
 
 bootstrap:	$(AT91BOOTSTRAP).fixboot
 	-install -d $(DESTDIR)
@@ -290,23 +244,6 @@ bootstrap:	$(AT91BOOTSTRAP).fixboot
 	)
 
 PHONY+= boot install bootstrap
-
-utilities:
-	-install -d $(DESTDIR)/Utilities
-	(for f in $(EXTRA_INSTALL) ; do \
-		install $$f $(DESTDIR)/Utilities/`basename $$f`; \
-	done)
-
-
-host-utilities:	$(RAW_AT91) $(SX_AT91) 
-
-PHONY+=utilities host-utilities
-
-$(BINDIR)/raw-at91:	$(BINDIR)
-	$(HOSTCC) -o $(BINDIR)/raw-at91 host-utilities/raw-at91.c
-
-$(BINDIR)/sx-at91:	$(BINDIR)
-	$(HOSTCC) -o $(BINDIR)/sx-at91 host-utilities/sx-at91.c
 
 rebuild: clean all
 

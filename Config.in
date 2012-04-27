@@ -63,6 +63,7 @@ endchoice
 #
 menu "Linux Image Storage Setup"
 	depends on CONFIG_LOAD_LINUX
+
 config CONFIG_OS_MEM_BANK
 	string "OS Memory Bank Base Address"
 	default "0x20000000" if CONFIG_AT91SAM9260EK
@@ -140,7 +141,6 @@ config CONFIG_IMG_ADDRESS
 	default "0x00020000" if CONFIG_NANDFLASH && CONFIG_LOAD_UBOOT && !CONFIG_AT91SAM9X5EK
 	default "0x00040000" if CONFIG_NANDFLASH && CONFIG_LOAD_UBOOT && CONFIG_AT91SAM9X5EK
 	default "0x00200000" if CONFIG_NANDFLASH && CONFIG_LOAD_LINUX
-	default "0x00200000" if CONFIG_NANDFLASH 
 	default	"0x00000000" if CONFIG_SDCARD
 	help
 
@@ -245,12 +245,16 @@ config CONFIG_DEBUG
 choice
 	prompt "Debug Level"
 	depends on CONFIG_DEBUG
+
 config CONFIG_DEBUG_INFO
 	bool "General debug information"
+
 config CONFIG_DEBUG_LOUD
 	bool "Loud debug output"
+
 config CONFIG_DEBUG_VERY_LOUD
 	bool "Even louder debug output"
+
 endchoice
 
 config CONFIG_HW_INIT
@@ -275,4 +279,3 @@ config CONFIG_SCLK
 	help
 	  Use external 32KHZ oscillator as source of slow clock
 	  
-source "host-utilities/Config.in"
