@@ -894,7 +894,7 @@ int load_nandflash(struct image_info *img_info)
 		return -1;
 #endif
 
-	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, dest);
+	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, buffer);
 
 	block = offset / nand.blocksize;
 	length = size;

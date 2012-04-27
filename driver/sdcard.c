@@ -35,7 +35,7 @@
 
 #define CHUNK_SIZE	0x40000
 
-unsigned int load_sdcard( struct image_infoi *img_info)
+int load_sdcard(struct image_info *img_info)
 {
 	FATFS	fs;
 	FIL 	file;

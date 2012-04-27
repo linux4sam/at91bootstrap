@@ -315,5 +315,6 @@ reg |= 0x00000344;
 
 	kernel_entry(0, MACH_TYPE, (unsigned int)(OS_MEM_BANK + 0x100));
 #endif
+	return 0;
 }
 
