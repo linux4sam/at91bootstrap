@@ -52,13 +52,13 @@ unsigned int load_sdcard(void *dest)
 	fret = f_mount(0, &fs);
 	if (fret != FR_OK) {
 		dbg_log(1, "*** FATFS: f_mount error **\n\r");
-		return 1;
+		return -1;
 	}
 
 	fret = f_open(&file, filename, FA_OPEN_EXISTING | FA_READ);
 	if (fret != FR_OK) {
 		dbg_log(1, "*** FATFS: f_open, filename: [%s]: error\n\r", filename);
-		return 1 ;
+		return -1 ;
 	}
 
 	do {
@@ -69,7 +69,7 @@ unsigned int load_sdcard(void *dest)
 
 	if (fret != FR_OK) {
 		dbg_log(1, "*** FATFS: f_read: error\n\r");
-		 return 1;
+		 return -1;
 	}
 
 	fret = f_close(&file);

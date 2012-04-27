@@ -34,11 +34,13 @@
  * The main oscillator is enabled as soon as possible in the lowlevel_clock_init
  * and MCK is switched on the main oscillator.
  */ 
-#define MASTER_CLOCK		(132096000)
 #define PLL_LOCK_TIMEOUT	10000
 
 #define BOARD_MAINOSC		12000000
-#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200 ))       // 133MHz
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 66 ) / 2 ))		/* 396M */ 
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 66 ) / 2 / 3))	/* 132M */ 
+
+#define MASTER_CLOCK		132000000
 
 #define BOARD_OSCOUNT		(AT91C_CKGR_MOSCXTST & (64 << 8)) /* Main Crystal Oscillator Start-up Time */
 
