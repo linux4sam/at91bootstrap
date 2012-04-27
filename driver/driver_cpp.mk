@@ -85,12 +85,10 @@ endif
 # Dataflash support
 
 ifeq ($(MEMORY),dataflash)
-CPPFLAGS += -D$(SPI_MODE) -DAT91C_SPI_CLK=$(SPI_CLK)
-CPPFLAGS += -DAT91C_SPI_PCS_DATAFLASH=$(SPI_BOOT) 
+CPPFLAGS += -DAT91C_SPI_CLK=$(SPI_CLK)
 endif
 ifeq ($(MEMORY),dataflashcard)
-CPPFLAGS += -D$(SPI_MODE) -DAT91C_SPI_CLK=$(SPI_CLK)
-CPPFLAGS += -DAT91C_SPI_PCS_DATAFLASH=$(SPI_BOOT) 
+CPPFLAGS += -DAT91C_SPI_CLK=$(SPI_CLK)
 endif
 
 # NAND flash support
