@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2006, Atmel Corporation
+ * Copyright (c) 2012, Atmel Corporation
 
  * All rights reserved.
  *
@@ -25,9 +25,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _NANDFLASH_H_
-#define _NANDFLASH_H_
+#ifndef __NANDFLASH_H__
+#define __NANDFLASH_H__
 
-extern int load_nandflash(unsigned long offset, unsigned int size, unsigned char *dest);
+extern int load_nandflash(struct image_info *img_info);
 
-#endif /* #ifndef _NANDFLASH_H */
+#endif /* #ifndef __NANDFLASH_H__ */

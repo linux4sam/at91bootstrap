@@ -25,6 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "common.h"
 #include "hardware.h"
 #include "board.h"
 #include "debug.h"
@@ -33,47 +34,65 @@
 #include "sdcard.h"
 #include "flash.h"
 
-extern void load_kernel(void);
+extern int load_kernel(struct image_info *img_info);
 
-const char version_string[] =
-	AT91BOOTSTRAP_VERSION" ( "__DATE__" - "__TIME__" )";
+typedef int (*load_function)(struct image_info *img_info);
 
-static int display_banner (void)
+static load_function load_image;
+
+static int init_loadfunction(void)
 {
-	dbg_log(1, "\n\nAT91Bootstrap %s\n\n\r", version_string);
-	return 0;
-}
-
-int main(void)
-{
-#ifdef CONFIG_HW_INIT
-	hw_init();
-#endif
-
-#if defined(CONFIG_AT91SAM9X5EK)
-	extern void load_1wire_info();
-	load_1wire_info();
-#endif
-	display_banner();
-
-	dbg_log(1, "Downloading image...\n\r");
-
 #if defined(CONFIG_LOAD_LINUX)
-	load_kernel();
+	load_image = &load_kernel;
 #else
-/* Booting stand-alone application, e.g. U-Boot */
 #if defined (CONFIG_DATAFLASH)
-	load_dataflash((unsigned int)IMG_ADDRESS, (unsigned int)IMG_SIZE, (unsigned char *)JUMP_ADDR);
+	load_image = &load_dataflash;
 #elif defined(CONFIG_NANDFLASH)
-	load_nandflash((unsigned int)IMG_ADDRESS, (unsigned int)IMG_SIZE, (unsigned char *)JUMP_ADDR);
+	load_image = &load_nandflash;
 #elif defined(CONFIG_SDCARD)
-	load_sdcard((void *)JUMP_ADDR);
+	load_image = &load_sdcard;
 #else
 #error "No booting media specified!"
 #endif
 #endif
+	return 0;
+}
 
-	dbg_log(1, "Done!\n\r");
+static void display_banner (void)
+{
+	dbg_log(1, "\n\nAT91Bootstrap %s\n\n\r",
+			AT91BOOTSTRAP_VERSION" ( "__DATE__" - "__TIME__" )");
+}
+
+int main(void)
+{
+	struct image_info image_info;
+	int ret;
+
+	image_info.dest = (unsigned char *)JUMP_ADDR;
+	image_info.offset = IMG_ADDRESS;
+	image_info.length = IMG_SIZE;
+	image_info.filename = OS_IMAGE_NAME;
+
+#ifdef CONFIG_HW_INIT
+	hw_init();
+#endif
+
+	display_banner();
+
+	init_loadfunction();
+
+	dbg_log(1, "Downloading image...\n\r");
+
+	ret = (*load_image)(&image_info);
+	if (ret == 0){
+		dbg_log(1, "Done!\n\r");
+		return JUMP_ADDR;
+	}
+	if (ret == -1) {
+		dbg_log(1, "Failed to load image\n\r");
+		while(1);
+	}
 
 	return JUMP_ADDR;
 }

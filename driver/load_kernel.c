@@ -230,8 +230,9 @@ static void setup_boot_tags(void)
 	setup_end_tag();
 }
 
-void load_kernel(void)
+int load_kernel(struct image_info *img_info)
 {
+	int ret;
 #if 0
 	unsigned long	load_addr, image_size;
 	image_header_t	*image_header;
@@ -241,16 +242,19 @@ void load_kernel(void)
 #endif
 
 #ifdef CONFIG_DATAFLASH
-	load_dataflash((unsigned int)IMG_ADDRESS, (unsigned int)IMG_SIZE, (unsigned char *)JUMP_ADDR);
+	ret = load_dataflash(img_info);
 #endif
 
 #ifdef CONFIG_NANDFLASH
-	load_nandflash((unsigned int)IMG_ADDRESS, (unsigned int)IMG_SIZE, (unsigned char *)JUMP_ADDR);
+	ret = load_nandflash(img_info);
 #endif
 
 #ifdef CONFIG_SDCARD
-	load_sdcard((void *)JUMP_ADDR);
+	ret = load_sdcard(img_info);
 #endif
+	if (ret != 0)
+		return -1;
+
 	setup_boot_tags();
 #if 1
 	writel(0xffffffff, (PMC_PCER1 + AT91C_BASE_PMC));

@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2006, Atmel Corporation
+ * Copyright (c) 2012, Atmel Corporation
 
  * All rights reserved.
  *
@@ -25,10 +25,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef _DATAFLASH_H_
-#define _DATAFLASH_H_
+#ifndef __DATAFLASH_H__
+#define __DATAFLASH_H__
 
-extern int load_dataflash(unsigned int offset, unsigned int size, unsigned char *dest);
+extern int load_dataflash(struct image_info *img_info);
 
 #endif
 

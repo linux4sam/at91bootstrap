@@ -1,8 +1,7 @@
-
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2006, Atmel Corporation
+ * Copyright (c) 2012, Atmel Corporation
 
  * All rights reserved.
  *
@@ -25,16 +24,10 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : sdcard.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
+#ifndef __SDCARD_H__
+#define __SDCARD_H__
 
-#ifndef SDCARD_H
-#define SDCARD_H
+extern unsigned int load_sdcard( struct image_info *img_info);
 
-extern unsigned int load_sdcard(void *dest);
-
-#endif /* #ifndef SDCARD_H */
+#endif /* #ifndef __SDCARD_H__ */

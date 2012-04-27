@@ -875,10 +875,13 @@ static int nand_read_page(struct nand_info *nand,
 #endif /* #ifndef CONFIG_ENABLE_SW_ECC */
 }
 
-int load_nandflash(unsigned long offset, unsigned int size, unsigned char *dest)
+int load_nandflash(struct image_info *img_info)
 {
 	struct nand_info nand;
-	unsigned char *buffer = dest;
+	unsigned int offset = img_info->offset;
+	unsigned int size = img_info->length;
+	unsigned char *buffer = img_info->dest;
+
 	unsigned int block, length, readsize, numpage, page;
 	
 	nandflash_hw_init();

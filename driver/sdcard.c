@@ -25,6 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "common.h"
 #include "hardware.h"
 #include "board.h"
 
@@ -34,16 +35,16 @@
 
 #define CHUNK_SIZE	0x40000
 
-unsigned int load_sdcard(void *dest)
+unsigned int load_sdcard( struct image_infoi *img_info)
 {
 	FATFS	fs;
 	FIL 	file;
 	FRESULT	fret;
 	
-	BYTE *pdata = dest;
+	BYTE *pdata = img_info->dest;
 	UINT byte_to_read = CHUNK_SIZE;
 	UINT byte_read;
-	char *filename = OS_IMAGE_NAME;
+	char *filename = img_info->filename;
 
 	at91_mci_hw_init();
 

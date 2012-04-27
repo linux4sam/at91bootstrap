@@ -359,8 +359,11 @@ err:
 	return -1;
 }
 
-int load_dataflash(unsigned int offset, unsigned int size, unsigned char *dest)
+int load_dataflash(struct image_info *img_info)
 {
+	unsigned int offset = img_info->offset;
+	unsigned int size = img_info->length;
+	unsigned char *dest = img_info->dest;
 	int ret;
 
 	at91_spi0_hw_init();
