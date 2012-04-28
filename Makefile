@@ -17,9 +17,8 @@ endif
 
 BINDIR:=$(TOPDIR)/binaries
 
-DATE:=$(shell date +%Y%m%d)
-
-VERSION:=3.2
+DATE := $(shell date)
+VERSION := 3.2
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
@@ -167,7 +166,7 @@ INCL=board/$(BOARD)
 GC_SECTIONS=--gc-sections
 
 CPPFLAGS=-ffunction-sections -g -Os -Wall -I$(INCL) -Iinclude -Ifs/include \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"  -DCOMPILE_TIME="\"$(DATE)\""
 
 ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
 

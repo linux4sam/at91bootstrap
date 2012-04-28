@@ -61,7 +61,7 @@ static int init_loadfunction(void)
 static void display_banner (void)
 {
 	dbg_log(1, "\n\nAT91Bootstrap %s\n\n\r",
-			AT91BOOTSTRAP_VERSION" ( "__DATE__" - "__TIME__" )");
+			AT91BOOTSTRAP_VERSION" ( "COMPILE_TIME" )");
 }
 
 int main(void)
