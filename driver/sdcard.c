@@ -48,7 +48,7 @@ int load_sdcard(struct image_info *img_info)
 
 	at91_mci_hw_init();
 
-	dbg_log(1, "Reading file %s from SD Card\n\r", filename);
+	dbg_log(1, "Reading file %s from SD Card to %d\n\r", filename, pdata);
 	
 	fret = f_mount(0, &fs);
 	if (fret != FR_OK) {
