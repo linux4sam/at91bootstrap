@@ -24,15 +24,23 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : sdramc.h
- * Object              :
- * Creation            :
- *-----------------------------------------------------------------------------
  */
-#ifndef _DDRAMC_H_
-#define _DDRAMC_H_
+#ifndef __DDRAMC_H__
+#define __DDRAMC_H__
+
+struct ddramc_register {
+	unsigned int mdr;
+	unsigned int cr;
+	unsigned int rtr;
+	unsigned int t0pr;
+	unsigned int t1pr;
+	unsigned int t2pr;
+};
+
+extern struct ddramc_register	ddramc_reg;
+
+extern void ddramc_reg_config(struct ddramc_register *ddramc_config);
 
 extern void ddramc_init(void);
 
-#endif /* #ifndef _DDRAMC_H_ */
+#endif /* #ifndef __DDRAMC_H__ */
