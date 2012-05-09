@@ -38,6 +38,8 @@
 #include "hamming.h"
 #include "nand_ids.h"
 
+#define ECC_CORRECT_ERROR  0xfe
+
 #undef CONFIG_USE_PMECC
 #if defined(CPU_HAS_PMECC) && !defined(CONFIG_ENABLE_SW_ECC)
 #define CONFIG_USE_PMECC
@@ -589,7 +591,7 @@ static int init_pmecc(unsigned int pagesize)
 
 	if (init_pmecc_descripter(&PMECC_paramDesc_struct, pagesize) != 0)
 		return -1;
-	
+
 	init_pmecc_core(&PMECC_paramDesc_struct);
 
 	return 0;
@@ -630,11 +632,10 @@ static int nand_read_sector(struct nand_info *nand,
 	nand_cs_enable();
 
 	/* Write specific command, Read from start */
-	if (nand->buswidth) { /* 16 bits */
+	if (nand->buswidth) /* 16 bits */
 		nand_command16(command);
-	} else {
+	else
 		nand_command(command);
-	}
 
 	sectoraddr >>= nand->page_shift;
 
@@ -796,7 +797,7 @@ static int nand_read_sector(struct nand_info *nand,
 					pbuf);
 		if (ret != 0) {
 			dbg_log(1, "PMECC failed to correct!\n\r");
-			return -1;
+			return ECC_CORRECT_ERROR;
 		}
 	}
 
@@ -868,7 +869,7 @@ static int nand_read_page(struct nand_info *nand,
 	error = Hamming_Verify256x(buffer, nand->pagesize, hamming);
 	if (error && (error != Hamming_ERROR_SINGLEBIT)) {
 		dbg_log(1, "Hamming ECC error!\n\r");
-		return -1;
+		return ECC_CORRECT_ERROR;
 	}
 
 	return 0;
@@ -883,6 +884,7 @@ int load_nandflash(struct image_info *img_info)
 	unsigned char *buffer = img_info->dest;
 
 	unsigned int block, length, readsize, numpage, page;
+	int ret;
 	
 	nandflash_hw_init();
 	
@@ -913,7 +915,10 @@ int load_nandflash(struct image_info *img_info)
 		/* Loop until a valid block has been read */
 		while (1) {
 			for (page = 0; page < numpage; page++) {
-				if (nand_read_page(&nand, block, page, ZONE_DATA, buffer)) /* skip this block */
+				ret = nand_read_page(&nand, block, page, ZONE_DATA, buffer);
+				if (ret == ECC_CORRECT_ERROR)
+					return -1;
+				else if (ret == -1) /* skip this block */
 					break;
 				else
 					buffer += nand.pagesize;
