@@ -274,7 +274,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 		|| (onfi_ind[1] != 'N')
 		|| (onfi_ind[2] != 'F')
 		|| (onfi_ind[3] != 'I')) 
-		return 1;
+		return -1;
 	
 	dbg_log(1, "ONFI flash detected\n\r");
 
@@ -460,12 +460,11 @@ static int nandflash_get_type(struct nand_info *nand)
 	nandflash_reset();
 
 	/* Check if the Nandflash is ONFI compliant */
-	if (nandflash_detect_onfi(chip)) {
+	if (nandflash_detect_onfi(chip))
 		if (nandflash_detect_non_onfi(chip)) {
 			dbg_log(1, "Not Find Support NAND Device!\n\r");
 			return -1;
 		}
-	}
 
 	nand_info_init(nand, chip);
 	
@@ -543,8 +542,7 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, u
 	case 4096:
 		/* TODO */
 	default:
-		dbg_log(1, "Not supported page size: %d\n\r",
-			pagesize);
+		dbg_log(1, "Not supported page size: %d\n\r", pagesize);
 		return -1;
 	}
 	return 0;
@@ -552,18 +550,12 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, u
 
 static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 {
-	pmecc_params->modeAuto = AT91C_PMECC_SPAREENA_ENA;
-	pmecc_params->nandWR = 0;
+	pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;
+	pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;
 
 	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
 	pmecc_writel(AT91C_PMECC_DISABLE, PMECC_CTRL);
-/*	writel(pmecc_params->errBitNbrCapability |
-	       pmecc_params->sectorSize |
-	       pmecc_params->pageSize |
-	       pmecc_params->nandWR |
-	       pmecc_params->spareEna |
-	       pmecc_params->modeAuto, AT91C_BCH_PMECCFG0);
-*/
+
 	pmecc_writel(pmecc_params->errBitNbrCapability |
 		pmecc_params->sectorSize |
 		pmecc_params->pageSize |
@@ -572,16 +564,14 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 		pmecc_params->modeAuto, PMECC_CFG);
 		
 	pmecc_writel((pmecc_params->spareSize - 1), PMECC_SAREA);
-	
 	pmecc_writel(pmecc_params->eccStartAddress, PMECC_SADDR);
 	pmecc_writel(pmecc_params->eccEndAddress, PMECC_EADDR);
 	pmecc_writel(pmecc_params->clkCtrl, PMECC_CLK);
-	pmecc_writel(0xFF, PMECC_IDR);
+	pmecc_writel(0xff, PMECC_IDR);
+
 	pmecc_writel(AT91C_PMECC_ENABLE, PMECC_CTRL);
-	pmecc_writel(AT91C_PMECC_DATA, PMECC_CTRL);
 
 	return 0;
-
 }
 
 static int init_pmecc(unsigned int pagesize)
@@ -656,18 +646,18 @@ static int nand_read_sector(struct nand_info *nand,
 	nand_wait_ready();
 
 	/* Read loop */
-	if (nand->buswidth) { /* 16bits */
+	if (nand->buswidth) /* 16bits */
 		for (i = 0; i < readbytes / 2; i++) {	// Div2 because of 16bits
 			*((short *)buffer) = read_word();
 			buffer += 2;
 		}
-	} else { /* 8 bits */
-		if (command == CMD_READ_C) {
+	else /* 8 bits */
+		if (command == CMD_READ_C)
 			for (i = 0; i < readbytes; i++) {
 				*buffer = read_byte();
 				buffer++;
 			}
-		} else {
+		else {
 			for (i = 0; i < readbytes / 2; i++) {
 				*buffer = read_byte();
 				buffer++;
@@ -709,23 +699,16 @@ static int nand_read_sector(struct nand_info *nand,
 	int ret = 0; 
 	unsigned int erris;
 	unsigned char *pbuf = buffer;
-
-	PMECC_paramDesc_struct.modeAuto = AT91C_PMECC_SPAREENA_ENA;
-	PMECC_paramDesc_struct.nandWR = 0;
+	unsigned int val;
 
 	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
 	pmecc_writel(AT91C_PMECC_DISABLE, PMECC_CTRL);
-	pmecc_writel(PMECC_paramDesc_struct.errBitNbrCapability |
-	       PMECC_paramDesc_struct.sectorSize |
-	       PMECC_paramDesc_struct.pageSize |
-	       PMECC_paramDesc_struct.nandWR |
-	       PMECC_paramDesc_struct.spareEna |
-	       PMECC_paramDesc_struct.modeAuto, PMECC_CFG);
-//	writel(PMECC_paramDesc_struct.spareSize - 1, AT91C_BCH_PMECCFG1);
-//	writel(PMECC_paramDesc_struct.eccStartAddress, AT91C_BCH_PMECCFG2);
-//	writel(PMECC_paramDesc_struct.eccEndAddress, AT91C_BCH_PMECCFG3);
-//	writel(PMECC_paramDesc_struct.clkCtrl, AT91C_BCH_PMECCFG4);
-//	writel(0xFF, AT91C_BCH_PMECCIDR);
+
+	val = pmecc_readl(PMECC_CFG);
+	val &= ~AT91C_PMECC_NANDWR_1;
+	val |= AT91C_PMECC_AUTO_ENA;
+	pmecc_writel(val, PMECC_CFG);
+
 	pmecc_writel(AT91C_PMECC_ENABLE, PMECC_CTRL);
 	pmecc_writel(AT91C_PMECC_DATA, PMECC_CTRL);
 
@@ -749,9 +732,8 @@ static int nand_read_sector(struct nand_info *nand,
 		readbytes = nand->oobsize;
 		buffer += nand->pagesize;
 		address = nand->pagesize;
-		if (nand->buswidth) {	/* 16 bits */
-			address = address / 2; /* Div 2 is because we address in word and not in byte */
-		}
+		if (nand->buswidth)		/* 16 bits */
+			address = address / 2;	/* Div 2 is because we address in word and not in byte */
 		break;
 
 	case ZONE_DATA | ZONE_INFO:
@@ -774,18 +756,18 @@ static int nand_read_sector(struct nand_info *nand,
 	nand_wait_ready();
 
 	/* Read loop */
-	if (nand->buswidth) {
+	if (nand->buswidth)
 		for (i = 0; i < readbytes / 2; i++) { /* Div2 because of 16bits  */
 			*((short *)buffer) = read_word();
 			buffer += 2;
 		}
-	} else {
+	else
 		for (i = 0; i < readbytes; i++)
 			*buffer++ = read_byte();
-	}
 
 #ifdef CONFIG_USE_PMECC
-	while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY) ;
+	while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY)
+		udelay(1);
 
 	erris = pmecc_readl(PMECC_ISR);
 	if (erris) {
@@ -800,7 +782,6 @@ static int nand_read_sector(struct nand_info *nand,
 			return ECC_CORRECT_ERROR;
 		}
 	}
-
 #endif
 
 	nand_cs_disable();
