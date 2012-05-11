@@ -66,7 +66,7 @@
 
 #define CONFIG_SYS_MMC_DEFAULT_CLK	1000000
 #define CONFIG_SYS_MMC_DEFAULT_BLKLEN	512
-#define CONFIG_SYS_MMC_MAX_BLK_COUNT	65535
+#define CONFIG_SYS_MCI_SUPPORT_MAX_BLKS 1
 
 /* function macro */
 #define mci_readl(reg)					\
@@ -967,7 +967,7 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 		if (mmc->card_caps & MMC_MODE_HS)
 			mmc_set_clock(30000000); /* NEED to try to */
 		else
-			mmc_set_clock(12000000); /* The value got from Trying */
+			mmc_set_clock(4000000); /* The value got from Trying */
 	} else {
 		if (mmc->card_caps & MMC_MODE_4BIT) {
 			/* Set the card to use 4 bit*/
@@ -1126,11 +1126,13 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 	mci_set_blkr(blkcnt, blocklen);
 
 	flags = AT91C_MCI_TRCMD_START | AT91C_MCI_TRDIR_READ;
-	if (blkcnt > 1){
+	if (blkcnt > 1) {
 		cmd = MMC_CMD_READ_MULTIPLE_BLOCK;
 		flags |= AT91C_MCI_TRTYP_MULTIPLE;
-	} else
+	} else {
 		cmd = MMC_CMD_READ_SINGLE_BLOCK;
+		flags |= AT91C_MCI_TRTYP_SINGLE;
+	}
 
 	if (mmc->high_capacity) 
 		cmdarg = start;
@@ -1175,7 +1177,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 	} while ((status & AT91C_MCI_DTIP) && (i < 10000));
 
 	if (status & AT91C_MCI_DTIP) {
-//		dbg_log(1, "MCI_SR:%d\n\r", status);
+		dbg_log(1, "MCI_SR:%d\n\r", status);
 		//return COMM_ERR;
 	}
 
@@ -1197,8 +1199,8 @@ unsigned int mmc_bread(unsigned int start, unsigned int blkcnt, void *dest)
 		return 0;
 
 	do {
-		cur_blocks = (blocks_todo > CONFIG_SYS_MMC_MAX_BLK_COUNT) ?
-					CONFIG_SYS_MMC_MAX_BLK_COUNT: blocks_todo;
+		cur_blocks = (blocks_todo > CONFIG_SYS_MCI_SUPPORT_MAX_BLKS) ?
+					CONFIG_SYS_MCI_SUPPORT_MAX_BLKS : blocks_todo;
 		if(mmc_read_blocks(mmc, dest, start, cur_blocks) != cur_blocks)
 			return 0;
 		blocks_todo -= cur_blocks;
