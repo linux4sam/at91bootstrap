@@ -60,39 +60,17 @@
 
 #define DF_CS_SETTINGS 		(AT91C_SPI_NCPHA | (AT91C_SPI_DLYBS & DATAFLASH_TCSS) | (AT91C_SPI_DLYBCT & DATAFLASH_TCHS) | ((MASTER_CLOCK / AT91C_SPI_CLK) << 8))
 
-/* ******************************************************************* */
-/* NandFlash Settings                                                  */
-/*                                                                     */
-/* ******************************************************************* */
-#define AT91C_SMARTMEDIA_BASE	0x40000000
+/*
+ * NandFlash Settings
+ */
+#define CONFIG_SYS_NAND_BASE		AT91C_BASE_CS3
+#define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
+#define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 
-#define AT91_SMART_MEDIA_ALE    (1 << 21)	/* our ALE is AD21 */
-#define AT91_SMART_MEDIA_CLE    (1 << 22)	/* our CLE is AD22 */
+#define CONFIG_SYS_NAND_ENABLE_PIN	AT91C_PIN_PC(14)
+#define CONFIG_SYS_NAND_READY_PIN	AT91C_PIN_PC(13)
 
-#define NAND_DISABLE_CE() do { *(volatile unsigned int *)AT91C_PIOC_SODR = AT91C_PIO_PC14;} while(0)
-#define NAND_ENABLE_CE() do { *(volatile unsigned int *)AT91C_PIOC_CODR = AT91C_PIO_PC14;} while(0)
 
-#define NAND_WAIT_READY() while (!(*(volatile unsigned int *)AT91C_PIOC_PDSR & AT91C_PIO_PC13))
-
-/* ******************************************************************** */
-/* SMC Chip Select 3 Timings for NandFlash for MASTER_CLOCK = 133000000.*/
-/* Please refer to SMC section in AT91SAM9 datasheet to learn how 	*/
-/* to generate these values. 						*/
-/* ******************************************************************** */
-#define AT91C_SM_NWE_SETUP	(2 << 0)
-#define AT91C_SM_NCS_WR_SETUP	(0 << 8)
-#define AT91C_SM_NRD_SETUP	(2 << 16)
-#define AT91C_SM_NCS_RD_SETUP	(0 << 24)
-
-#define AT91C_SM_NWE_PULSE 	(4 << 0)
-#define AT91C_SM_NCS_WR_PULSE	(4 << 8)
-#define AT91C_SM_NRD_PULSE	(4 << 16)
-#define AT91C_SM_NCS_RD_PULSE	(4 << 24)
-
-#define AT91C_SM_NWE_CYCLE 	(7 << 0)
-#define AT91C_SM_NRD_CYCLE	(7 << 16)
-
-#define AT91C_SM_TDF	        (3 << 16)
 
 #define OP_BOOTSTRAP_MCI_on
 #define BOARD_SD_PIN_CD \

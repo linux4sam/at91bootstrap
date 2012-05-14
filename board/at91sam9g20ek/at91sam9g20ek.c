@@ -44,6 +44,8 @@
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
+extern int nand_erase_block_0(void);
+
 static void initialize_dbgu(void);
 static void sdramc_init(void);
 
@@ -261,99 +263,83 @@ void df_hw_init(void)
 #endif /* CONFIG_DATAFLASH */
 
 #ifdef CONFIG_NANDFLASH
-/*------------------------------------------------------------------------------*/
-/* \fn    nand_recovery						*/
-/* \brief This function erases NandFlash Block 0 if BP4 is pressed 		*/
-/*        during boot sequence							*/
-/*------------------------------------------------------------------------------*/
 static void nand_recovery(void)
 {
-	/*
-	 * Configure PIOs 
-	 */
-	const struct pio_desc bp4_pio[] = {
-		{"BP4", AT91C_PIN_PA(31), 0, PIO_PULLUP, PIO_INPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	/* Configure PIOs */
+	const struct pio_desc bp4_pins[] = {
+		{"BP4",		AT91C_PIN_PA(31), 0, PIO_PULLUP, PIO_INPUT},
+		{(char *)0,	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	/*
-	 * Configure the PIO controller 
-	 */
+	/* Configure the PIO controller */
 	writel((1 << AT91C_ID_PIOA), PMC_PCER + AT91C_BASE_PMC);
-	pio_setup(bp4_pio);
+	pio_setup(bp4_pins);
 
-	/*
-	 * If BP4 is pressed during Boot sequence 
-	 */
-	/*
-	 * Erase NandFlash block 0
-	 */
+	/* If BP4 is pressed during Boot sequence, Erase NandFlash block 0 */
 	if (!pio_get_value(AT91C_PIN_PA(31)))
-		AT91F_NandEraseBlock0();
+		nand_erase_block_0();
 }
 
-/*------------------------------------------------------------------------------*/
-/* \fn    nandflash_hw_init							*/
-/* \brief NandFlash HW init							*/
-/*------------------------------------------------------------------------------*/
 void nandflash_hw_init(void)
 {
-	/*
-	 * Configure PIOs 
-	 */
-	const struct pio_desc nand_pio[] = {
-		{"RDY_BSY", AT91C_PIN_PC(13), 0, PIO_PULLUP, PIO_INPUT},
-		{"NANDCS", AT91C_PIN_PC(14), 0, PIO_PULLUP, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	unsigned int reg;
+
+	/* Configure PIOs */
+	const struct pio_desc nand_pins[] = {
+		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+		{"RDY_BSY",	CONFIG_SYS_NAND_READY_PIN, 0, PIO_PULLUP, PIO_INPUT},
+		{(char *)0, 	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	/*
-	 * Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface 
-	 */
-	writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS3A_SM,
-	       AT91C_BASE_CCFG + CCFG_EBICSA);
+	/* Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface  */
+	reg = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
+	reg |= AT91C_EBI_CS3A_SM;
 
-	/*
-	 * Configure SMC CS3 
-	 */
-	writel((AT91C_SM_NWE_SETUP | AT91C_SM_NCS_WR_SETUP | AT91C_SM_NRD_SETUP
-		| AT91C_SM_NCS_RD_SETUP), AT91C_BASE_SMC + SMC_SETUP3);
-	writel((AT91C_SM_NWE_PULSE | AT91C_SM_NCS_WR_PULSE | AT91C_SM_NRD_PULSE
-		| AT91C_SM_NCS_RD_PULSE), AT91C_BASE_SMC + SMC_PULSE3);
-	writel((AT91C_SM_NWE_CYCLE | AT91C_SM_NRD_CYCLE),
-	       AT91C_BASE_SMC + SMC_CYCLE3);
-	writel((AT91C_SMC_READMODE | AT91C_SMC_WRITEMODE |
-		AT91C_SMC_NWAITM_NWAIT_DISABLE |
-		AT91C_SMC_DBW_WIDTH_SIXTEEN_BITS | AT91C_SM_TDF),
-	       AT91C_BASE_SMC + SMC_CTRL3);
+	writel(reg, AT91C_BASE_CCFG + CCFG_EBICSA);
 
-	/*
-	 * Configure the PIO controller 
-	 */
+	/* Configure SMC CS3 */
+	writel((AT91C_SMC_NWESETUP_(2)
+		| AT91C_SMC_NCS_WRSETUP_(0)
+		| AT91C_SMC_NRDSETUP_(2)
+		| AT91C_SMC_NCS_RDSETUP_(0)),
+		AT91C_BASE_SMC + SMC_SETUP3);
+
+	writel((AT91C_SMC_NWEPULSE_(4)
+		| AT91C_SMC_NCS_WRPULSE_(4)
+		| AT91C_SMC_NRDPULSE_(4)
+		| AT91C_SMC_NCS_RDPULSE_(4)),
+		AT91C_BASE_SMC + SMC_PULSE3);
+
+	writel((AT91C_SMC_NWECYCLE_(7)
+		|  AT91C_SMC_NRDCYCLE_(7)),
+		AT91C_BASE_SMC + SMC_CYCLE3);
+
+	writel((AT91C_SMC_READMODE
+		| AT91C_SMC_WRITEMODE
+		| AT91C_SMC_NWAITM_NWAIT_DISABLE
+		| AT91C_SMC_DBW_WIDTH_BITS_16
+		| AT91_SMC_TDF_(3)),
+		AT91C_BASE_SMC + SMC_CTRL3);
+
+	/* Configure the PIO controller */
+	pio_setup(nand_pins);
 	writel((1 << AT91C_ID_PIOC), PMC_PCER + AT91C_BASE_PMC);
-	pio_setup(nand_pio);
 
 	nand_recovery();
 }
 
-/*------------------------------------------------------------------------------*/
-/* \fn    nandflash_cfg_16bits_dbw_init						*/
-/* \brief Configure SMC in 16 bits mode						*/
-/*------------------------------------------------------------------------------*/
-void nandflash_cfg_16bits_dbw_init(void)
+void nandflash_config_buswidth(unsigned char busw)
 {
-	writel(readl(AT91C_BASE_SMC + SMC_CTRL3) |
-	       AT91C_SMC_DBW_WIDTH_SIXTEEN_BITS, AT91C_BASE_SMC + SMC_CTRL3);
-}
+	unsigned long csa;
 
-/*------------------------------------------------------------------------------*/
-/* \fn    nandflash_cfg_8bits_dbw_init						*/
-/* \brief Configure SMC in 8 bits mode						*/
-/*------------------------------------------------------------------------------*/
-void nandflash_cfg_8bits_dbw_init(void)
-{
-	writel((readl(AT91C_BASE_SMC + SMC_CTRL3) & ~(AT91C_SMC_DBW)) |
-	       AT91C_SMC_DBW_WIDTH_EIGTH_BITS, AT91C_BASE_SMC + SMC_CTRL3);
+	csa = readl(AT91C_BASE_SMC + SMC_CTRL3);
+
+	if (busw == 0)
+		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
+	else
+		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
+
+	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
 }
 
 #endif /* #ifdef CONFIG_NANDFLASH */
