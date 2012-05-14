@@ -44,6 +44,8 @@
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
+static void sdramc_init(void);
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -128,29 +130,13 @@ void hw_init(void)
 #endif /* CONFIG_DEBUG */
 
 #ifdef CONFIG_SDRAM
-	/*
-	 * Initialize the matrix (memory voltage = 3.3) 
-	 */
-	writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA)) | AT91C_EBI_CS1A_SDRAMC |
-	       (1 << 16), AT91C_BASE_CCFG + CCFG_EBICSA);
-
-	/*
-	 * Configure SDRAM Controller 
-	 */
-	sdram_init(AT91C_SDRAMC_NC_9 | AT91C_SDRAMC_NR_13 | AT91C_SDRAMC_CAS_3 | AT91C_SDRAMC_NB_4_BANKS | AT91C_SDRAMC_DBW_32_BITS | AT91C_SDRAMC_TWR_3 | AT91C_SDRAMC_TRC_9 | AT91C_SDRAMC_TRP_3 | AT91C_SDRAMC_TRCD_3 | AT91C_SDRAMC_TRAS_6 | AT91C_SDRAMC_TXSR_10,	/* Control Register */
-		   (MASTER_CLOCK * 7) / 1000000,	/* Refresh Timer Register */
-		   AT91C_SDRAMC_MD_SDRAM);	/* SDRAM (no low power)   */
-
-#endif /* CONFIG_SDRAM */
+	sdramc_init();
+#endif
 }
 #endif /* CONFIG_HW_INIT */
 
 #ifdef CONFIG_SDRAM
-/*------------------------------------------------------------------------------*/
-/* \fn    sdramc_hw_init							*/
-/* \brief This function performs SDRAMC HW initialization			*/
-/*------------------------------------------------------------------------------*/
-void sdramc_hw_init(void)
+static void sdramc_hw_init(void)
 {
 	/*
 	 * Configure PIOs 
@@ -183,6 +169,29 @@ void sdramc_hw_init(void)
 	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_ASR(0));
 	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_PDR(0));
 
+}
+
+static void sdramc_init(void)
+{
+	sdramc_register sdramc_config;
+
+	sdramc_config.cr = AT91C_SDRAMC_NC_9 | AT91C_SDRAMC_NR_13 | AT91C_SDRAMC_CAS_3
+				| AT91C_SDRAMC_NB_4_BANKS | AT91C_SDRAMC_DBW_32_BITS
+				| AT91C_SDRAMC_TWR_3 | AT91C_SDRAMC_TRC_9
+				| AT91C_SDRAMC_TRP_3 | AT91C_SDRAMC_TRCD_3
+				| AT91C_SDRAMC_TRAS_6 | AT91C_SDRAMC_TXSR_10;
+
+	sdramc_config.tr = (MASTER_CLOCK * 7) / 1000000;
+	sdramc_config.mdr = AT91C_SDRAMC_MD_SDRAM;
+
+	sdramc_hw_init();
+
+	/* Initialize the matrix (memory voltage = 3.3) */
+	writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA))
+		| AT91C_EBI_CS1A_SDRAMC | AT91C_VDDIOM_SEL_3.3V,
+		AT91C_BASE_CCFG + CCFG_EBICSA);
+
+	sdramc_initialize(struct sdramc_register *sdramc_config)
 }
 #endif /* CONFIG_SDRAM */
 

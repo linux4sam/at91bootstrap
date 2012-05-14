@@ -37,7 +37,6 @@ struct sdramc_register {
 	unsigned int mdr;
 };
 
-
-static int sdramc_init(struct sdramc_register *sdramc_config);
+extern int sdramc_initialize(struct sdramc_register *sdramc_config);
 
 #endif		/* #ifndef __SDRAMC_H__ */

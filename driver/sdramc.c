@@ -41,7 +41,7 @@ static inline unsigned int sdramc_readl(unsigned int reg)
 	return readl(reg + AT91C_BASE_SDRAMC);
 }
 
-int sdramc_init(struct sdramc_register *sdramc_config)
+int sdramc_initialize(struct sdramc_register *sdramc_config)
 {
 	volatile unsigned int i;
 

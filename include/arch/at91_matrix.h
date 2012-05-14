@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_matrix.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef _AT91_MATRIX_H_
-#define _AT91_MATRIX_H_
+#ifndef __AT91_MATRIX_H__
+#define __AT91_MATRIX_H__
 
 #define CCFG_ROM		0x04	/* Slave 1 (ROM) Wait-State Configuration Register */
 #define CCFG_UDPHS		0x0C	/* USB Device HS configuration Register */
@@ -56,10 +51,13 @@
 #define 	AT91C_EBI_CS3A_SM		(0x1UL << 3)
 #define AT91C_EBI_DBPUC		(0x1UL << 8)
 #define AT91C_EBI_DBPDC		(0x1UL << 9)
+#define AT91C_VDDIOM_SEL	(0x1UL << 16)
+#define 	AT91C_VDDIOM_SEL_1.8V		(0x0UL << 16)
+#define 	AT91C_VDDIOM_SEL_3.3V		(0x1UL << 16)
 #define AT91C_EBI_DRV		(0x1UL << 17)
 #define 	AT91C_EBI_DRV_LD		(0x0UL << 17)
 #define 	AT91C_EBI_DRV_HD		(0x1UL << 17)
 #define AT91C_EBI_NFD0_ON_D16	(0x1UL << 24)
 #define AT91C_EBI_DDR_MP_EN	(0x1UL << 25)
 
-#endif /* #ifndef _AT91_MATRIX_H_ */
+#endif /* #ifndef __AT91_MATRIX_H__ */
