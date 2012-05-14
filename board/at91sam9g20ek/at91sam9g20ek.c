@@ -233,6 +233,28 @@ void spi_cs_deactivate(void)
 }
 #endif /* CONFIG_DATAFLASH */
 
+#ifdef CONFIG_SDCARD
+void at91_mci_hw_init(void)
+{
+	const struct pio_desc mci_pins[] = {
+		{"MCCK",	AT91C_PIN_PA(8), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCCDA",	AT91C_PIN_PA(7), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCDA0",	AT91C_PIN_PA(6), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCDA1",	AT91C_PIN_PA(9), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCDA2",	AT91C_PIN_PA(10), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCDA3",	AT91C_PIN_PA(11), 0, PIO_PULLUP, PIO_PERIPH_A},
+
+	};
+
+	/* Configure the PIO controller */
+	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
+	pio_configure(mci_pins);
+
+	/* Enable the clock */
+	writel((1 << CONFIG_SYS_ID_MCI), (PMC_PCER + AT91C_BASE_PMC));
+}
+#endif /* #ifdef CONFIG_SDCARD */
+
 #ifdef CONFIG_NANDFLASH
 void nandflash_hw_init(void)
 {
