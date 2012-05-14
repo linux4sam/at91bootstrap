@@ -24,19 +24,20 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : sdramc.h
- * Object              :
- * Creation            : NLe Jul 11th 2006
- *-----------------------------------------------------------------------------
  */
-#ifndef SDRAMC_H_
-#define SDRAMC_H_
+#ifndef __SDRAMC_H__
+#define __SDRAMC_H__
 
-#define AT91C_SDRAM 		((volatile unsigned int *)AT91C_EBI_SDRAM)
 
-extern int sdram_init(unsigned int sdramc_cr, unsigned int sdramc_tr,
-                      unsigned char low_power);
-extern void sdramc_hw_init(void);
+struct sdramc_register {
+	unsigned int mr;
+	unsigned int tr;
+	unsigned int cr;
+	unsigned int lpr;
+	unsigned int mdr;
+};
 
-#endif                          /*SDRAMC_H_ */
+
+static int sdramc_init(struct sdramc_register *sdramc_config);
+
+#endif		/* #ifndef __SDRAMC_H__ */
