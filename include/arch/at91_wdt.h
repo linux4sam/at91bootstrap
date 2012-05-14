@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_wdt.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef AT91_WDT_H
-#define AT91_WDT_H
+#ifndef __AT91_WDT_H__
+#define __AT91_WDT_H__
 
 /* *** Register offset in AT91S_WDTC structure ***/
 #define WDTC_CR		0x00	/* Watchdog Control Register */
@@ -56,4 +51,4 @@
 #define AT91C_WDTC_WDUNF	(0x1UL << 0)
 #define AT91C_WDTC_WDERR	(0x1UL << 1)
 
-#endif /* #ifndef AT91_WDT_H */
+#endif /* #ifndef __AT91_WDT_H__ */

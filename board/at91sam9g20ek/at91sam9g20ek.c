@@ -52,10 +52,8 @@ void hw_init(void)
 {
 	unsigned int cp15;
 
-	/*
-	 * Disable watchdog 
-	 */
-	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDTC + WDTC_WDMR);
+	/* Disable watchdog */
+	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDT + WDTC_MR);
 
 	/*
 	 * At this stage the main oscillator is supposed to be enabled
@@ -80,36 +78,22 @@ void hw_init(void)
 	/*
 	 * Configure PLLB 
 	 */
-	pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
+//	pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
 
-	/*
-	 * Enable External Reset 
-	 */
-	writel(AT91C_RSTC_KEY_UNLOCK
-	       || AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
+	/* Enable External Reset */
+	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
 
-	/*
-	 * Configure CP15 
-	 */
+	/* Configure CP15 */
 	cp15 = get_cp15();
 	//cp15 |= I_CACHE;
 	set_cp15(cp15);
 
-	/*
-	 * Enable External Reset 
-	 */
-	writel(AT91C_RSTC_KEY_UNLOCK
-	       || AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
-	/*
-	 * Configure the PIO controller 
-	 */
-	pio_setup(hw_pio);
+	/* Enable External Reset */
+//	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
 
-	/*
-	 * Configure the EBI Slave Slot Cycle to 64 
-	 */
+	/* Configure the EBI Slave Slot Cycle to 64 */
 	writel((readl((AT91C_BASE_MATRIX + MATRIX_SCFG3)) & ~0xFF) | 0x40,
-	       (AT91C_BASE_MATRIX + MATRIX_SCFG3));
+		(AT91C_BASE_MATRIX + MATRIX_SCFG3));
 
 #ifdef CONFIG_DEBUG
 	/* Initialize dbgu */
@@ -119,6 +103,10 @@ void hw_init(void)
 #ifdef CONFIG_SDRAM
 	/* Initlialize sdram controller */
 	sdramc_init();
+#endif
+
+#ifdef CONFIG_USER_HW_INIT
+	hw_init_hook();
 #endif
 }
 #endif /* CONFIG_HW_INIT */

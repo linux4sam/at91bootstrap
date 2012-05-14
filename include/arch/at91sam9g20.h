@@ -77,10 +77,10 @@
 #define AT91C_BASE_PIOC		0xfffff800
 #define AT91C_BASE_PMC		0xfffffc00
 #define AT91C_BASE_RSTC		0xfffffd00
-#define AT91C_BASE_SHDWC	0xfffffd10
-#define AT91C_BASE_RTTC		0xfffffd20
-#define AT91C_BASE_PITC		0xfffffd30
-#define AT91C_BASE_WDTC		0xfffffd40
+#define AT91C_BASE_SHDW		0xfffffd10
+#define AT91C_BASE_RTT		0xfffffd20
+#define AT91C_BASE_PIT		0xfffffd30
+#define AT91C_BASE_WDT		0xfffffd40
 #define AT91C_BASE_GPBR		0xfffffd50
 
 /*
