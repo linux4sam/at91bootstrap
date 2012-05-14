@@ -28,7 +28,7 @@
 #include "common.h"
 #include "hardware.h"
 #include "at91sam9n12ek.h"
-#include "arch/at91_matrix.h"
+#include "arch/at91_ccfg.h"
 #include "arch/at91_wdt.h"
 #include "arch/at91_rstc.h"
 #include "arch/at91_pmc.h"
@@ -195,11 +195,11 @@ void at91_spi0_hw_init(void)
 {
 	/* Configure PIN for SPI0 */
 	const struct pio_desc spi0_pins[] = {
-		{"MISO",  AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MOSI",  AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPCK",  AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"NPCS0", AT91C_PIN_PA(14), 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MISO",	AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MOSI",	AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPCK",	AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0,	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	/* Configure the PIO controller */
@@ -210,28 +210,14 @@ void at91_spi0_hw_init(void)
 	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
 }
 
-void spi_cs_activate(int cs)
+void spi_cs_activate(void)
 {
-	switch (cs) {
-	case 0:
-		pio_set_value(AT91C_PIN_PA(14), 0);
-		break;
-	case 1:
-		pio_set_value(AT91C_PIN_PA(7), 0);
-		break;
-	}
+	pio_set_value(CONFIG_SYS_SPI_PCS, 0);
 }
 
-void spi_cs_deactivate(int cs)
+void spi_cs_deactivate(void)
 {
-	switch (cs) {
-	case 0:
-		pio_set_value(AT91C_PIN_PA(14), 1);
-		break;
-	case 1:
-		pio_set_value(AT91C_PIN_PA(7), 1);
-		break;
-	}
+	pio_set_value(CONFIG_SYS_SPI_PCS, 1);
 }
 #endif /* CONFIG_DATAFLASH */
 
@@ -264,13 +250,13 @@ void nandflash_hw_init(void)
 
 	/* Configure nand pins */
 	const struct pio_desc nand_pins_lo[] = {
-		{"NANDOE", AT91C_PIN_PD(0), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDWE", AT91C_PIN_PD(1), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDALE", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCLE", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCS", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_OUTPUT},
-		{"RDY_BSY", AT91C_PIN_PD(5), 0, PIO_PULLUP, PIO_INPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"NANDOE",	AT91C_PIN_PD(0), 0,		PIO_PULLUP, PIO_PERIPH_A},
+		{"NANDWE",	AT91C_PIN_PD(1), 0,		PIO_PULLUP, PIO_PERIPH_A},
+		{"NANDALE",	AT91C_PIN_PD(2), 0,		PIO_PULLUP, PIO_PERIPH_A},
+		{"NANDCLE",	AT91C_PIN_PD(3), 0,		PIO_PULLUP, PIO_PERIPH_A},
+		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	0, PIO_PULLUP, PIO_OUTPUT},
+		{"RDY_BSY",	CONFIG_SYS_NAND_READY_PIN,	0, PIO_PULLUP, PIO_INPUT},
+		{(char *)0,	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	reg = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
