@@ -126,6 +126,7 @@ CRYSTAL:=$(strip $(subst ",,$(CONFIG_CRYSTAL)))
 
 # driver definitions
 SPI_CLK:=$(strip $(subst ",,$(CONFIG_SPI_CLK)))
+SPI_BOOT:=$(strip $(subst ",,$(CONFIG_SPI_BOOT)))
 
 ifeq ($(REVISION),)
 REV:=

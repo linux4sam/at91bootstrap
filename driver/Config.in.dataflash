@@ -30,5 +30,87 @@ config ALLOW_DATAFLASH_RECOVERY
 	bool
 	default	n
 
+# ------- SPI boot source -----------------------------------------------------
+choice
+	prompt "Chip Select"
+	depends on CONFIG_DATAFLASH
+	default CONFIG_SPI_CS0
+	help
+	  Determine which SPI chip select is to be used
+
+config	CONFIG_SPI_BOOT_CS0
+	bool	"Boot from chip select 0"
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_BOOT_FROM_DATAFLASH_CS0
+
+config	CONFIG_SPI_BOOT_CS1
+	bool	"Boot from chip select 1"
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_BOOT_FROM_DATAFLASH_CS1
+
+config	CONFIG_SPI_BOOT_CS2
+	bool	"Boot from chip select 2"
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_BOOT_FROM_DATAFLASH_CS2
+
+config	CONFIG_SPI_BOOT_CS3
+	bool	"Boot from chip select 3"
+	depends on CONFIG_DATAFLASH
+	depends on ALLOW_BOOT_FROM_DATAFLASH_CS3
+
+endchoice
+
+config	ALLOW_BOOT_FROM_DATAFLASH_CS0
+	bool
+	default n
+
+config	ALLOW_BOOT_FROM_DATAFLASH_CS1
+	bool
+	default n
+
+config	ALLOW_BOOT_FROM_DATAFLASH_CS2
+	bool
+	default n
+
+config	ALLOW_BOOT_FROM_DATAFLASH_CS3
+	bool
+	default n
+
+config DATAFLASHCARD_ON_CS0
+	bool
+	default n
+
+config DATAFLASHCARD_ON_CS1
+	bool
+	default n
+
+config DATAFLASHCARD_ON_CS2
+	bool
+	default n
+
+config DATAFLASHCARD_ON_CS3
+	bool
+	default n
+
+config CONFIG_DATAFLASHCARD
+	bool
+	default y if DATAFLASHCARD_ON_CS0 && CONFIG_SPI_BOOT_CS0
+	default y if DATAFLASHCARD_ON_CS1 && CONFIG_SPI_BOOT_CS1
+	default y if DATAFLASHCARD_ON_CS2 && CONFIG_SPI_BOOT_CS2
+	default y if DATAFLASHCARD_ON_CS3 && CONFIG_SPI_BOOT_CS3
+	default n
+
+config CONFIG_CARD_SUFFIX
+	string
+	default "card" if CONFIG_DATAFLASHCARD
+	default ""
+
+config CONFIG_SPI_BOOT
+	string
+	default "AT91C_SPI_PCS0_DATAFLASH"	if CONFIG_SPI_BOOT_CS0
+	default "AT91C_SPI_PCS1_DATAFLASH"	if CONFIG_SPI_BOOT_CS1
+	default "AT91C_SPI_PCS2_DATAFLASH"	if CONFIG_SPI_BOOT_CS2
+	default "AT91C_SPI_PCS3_DATAFLASH"	if CONFIG_SPI_BOOT_CS3
+
 endmenu
 

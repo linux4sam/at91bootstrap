@@ -95,7 +95,6 @@ int spi_xfer(unsigned int len, const void *dout,
 	unsigned char		*rxp = din;
 	unsigned int 	status;
 	unsigned char	value;
-	unsigned int	cs = at91_spi_get_cs();
 
 	if (len == 0)
 		goto out;
@@ -138,7 +137,7 @@ int spi_xfer(unsigned int len, const void *dout,
 		do {
 			status = spi_readl(SPI_SR);
 			if (status & AT91C_SPI_OVRES) {
-				spi_cs_deactivate(cs);
+				spi_cs_deactivate();
 				return -1;
 			}
 		} while ((status & AT91C_SPI_RDRF) == 0);
@@ -159,7 +158,7 @@ out:
 			status = spi_readl(SPI_SR);
 		} while (!(status & AT91C_SPI_TXEMPTY));
 
-		spi_cs_deactivate(cs);
+		spi_cs_deactivate();
 	}
 
 	return 0;

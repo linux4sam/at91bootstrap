@@ -26,7 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
-#include "at91_sdramc.h"
+#include "arch/at91_sdramc.h"
 #include "sdramc.h"
 
 /* Write SDRAMC register */

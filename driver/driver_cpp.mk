@@ -83,12 +83,13 @@ CPPFLAGS += -DCONFIG_SDCARD_HS
 endif
 
 # Dataflash support
-
 ifeq ($(MEMORY),dataflash)
 CPPFLAGS += -DAT91C_SPI_CLK=$(SPI_CLK)
+CPPFLAGS += -DAT91C_SPI_PCS_DATAFLASH=$(SPI_BOOT) 
 endif
 ifeq ($(MEMORY),dataflashcard)
 CPPFLAGS += -DAT91C_SPI_CLK=$(SPI_CLK)
+CPPFLAGS += -DAT91C_SPI_PCS_DATAFLASH=$(SPI_BOOT) 
 endif
 
 # NAND flash support

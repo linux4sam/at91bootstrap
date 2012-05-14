@@ -1,3 +1,4 @@
+
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
@@ -25,39 +26,75 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #ifndef __AT91_MATRIX_H__
 #define __AT91_MATRIX_H__
 
-#define CCFG_ROM		0x04	/* Slave 1 (ROM) Wait-State Configuration Register */
-#define CCFG_UDPHS		0x0C	/* USB Device HS configuration Register */
-#define CCFG_EBICSA		0x08	/* EBI Chip Select Assignement Register */
-#define CCFG_MATRIXVERSION	0xEC	/* Version Register */
+#define MATRIX_MCFG0	0x00	/*  Master Configuration Register 0 (ram96k) */
+#define MATRIX_MCFG1	0x04	/*  Master Configuration Register 1 (rom) */
+#define MATRIX_MCFG2	0x08	/*  Master Configuration Register 2 (hperiphs) */
+#define MATRIX_MCFG3	0x0c	/*  Master Configuration Register 3 (ebi) */
+#define MATRIX_MCFG4	0x10	/*  Master Configuration Register 4 (bridge) */
+#define MATRIX_MCFG5	0x14	/*  Master Configuration Register 5 (mailbox) */
+/* 0x18 ~ 0x3c reserved */
+#define MATRIX_SCFG0	0x40	/*  Slave Configuration Register 0 (ram96k) */
+#define MATRIX_SCFG1	0x44	/*  Slave Configuration Register 1 (rom) */
+#define MATRIX_SCFG2	0x48	/*  Slave Configuration Register 2 (hperiphs) */
+#define MATRIX_SCFG3	0x4c	/*  Slave Configuration Register 3 (ebi) */
+#define MATRIX_SCFG4	0x50	/*  Slave Configuration Register 4 (bridge) */
+/* 0x54 ~ 0x7c reserved */
+#define MATRIX_PRAS0	0x80	/*  PRAS0 (ram0) */
+/* 0x84 */
+#define MATRIX_PRAS1	0x88	/*  PRAS1 (ram1) */
+/* 0x8c */
+#define MATRIX_PRAS2	0x90	/*  PRAS2 (ram2) */
+/* 0x94 */
+#define MATRIX_PRAS3	0x98	/*  PRAS3 (ebi) */
+/* 0x9c */
+#define MATRIX_PRAS4	0xa0	/*  PRAS4 (periph) */
 
-/* -------- CCFG_ROM : (CCFG Offset: 0x4) AHB Slave 1 (ROM) Configuration --------*/ 
-#define AT91C_ROM_WS_CFG	(0x1UL << 0)
-#define 	AT91C_ROM_WS_CFG_NO_WAIT		(0x0UL)
-#define 	AT91C_ROM_WS_CFG_SINGLE_WAIT		(0x1UL)
+// -------- MATRIX_SCFG0 : (MATRIX Offset: 0x40) Slave Configuration Register 0 --------
+#define AT91C_MATRIX_SLOT_CYCLE   (0xFF << 0)  // (MATRIX) Maximum Number of Allowed Cycles for a Burst
+#define AT91C_MATRIX_DEFMSTR_TYPE (0x3 << 16)   // (MATRIX) Default Master Type
+#define 	AT91C_MATRIX_DEFMSTR_TYPE_NO_DEFMSTR           (0x0 << 16)
+#define 	AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR         (0x1 << 16)
+#define 	AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR        (0x2 << 16
+#define AT91C_MATRIX_FIXED_DEFMSTR0 (0x7 << 18) // (MATRIX) Fixed Index of Default Master
+#define 	AT91C_MATRIX_FIXED_DEFMSTR0_ARM926I              (0x0 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR0_ARM926D              (0x1 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR0_HPDC3                (0x2 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR0_LCDC                 (0x3 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR0_DMA                  (0x4 << 18)
 
-/* -------- CCFG_UDPHS : (CCFG Offset: 0xc) USB Device HS configuration --------*/ 
-#define AT91C_CCFG_DONT_USE_UTMI_LOCK	(0x1UL << 0)
-#define 	AT91C_CCFG_DONT_USE_UTMI_LOCK_DONT_USE_LOCK	(0x0UL)
+// -------- MATRIX_SCFG1 : (MATRIX Offset: 0x44) Slave Configuration Register 1 --------
+#define AT91C_MATRIX_FIXED_DEFMSTR1 (0x7 << 18) // (MATRIX) Fixed Index of Default Master
+#define 	AT91C_MATRIX_FIXED_DEFMSTR1_ARM926I              (0x0 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR1_ARM926D              (0x1 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR1_HPDC3                (0x2 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR1_LCDC                 (0x3 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR1_DMA                  (0x4 << 18)
 
-/* -------- CCFG_EBICSA : (CCFG Offset: 0x10) EBI Chip Select Assignement Register --------*/ 
-#define AT91C_EBI_CS1A		(0x1UL << 1)
-#define 	AT91C_EBI_CS1A_SMC		(0x0UL << 1)
-#define 	AT91C_EBI_CS1A_SDRAMC		(0x1UL << 1)
-#define AT91C_EBI_CS3A		(0x1UL << 3)
-#define 	AT91C_EBI_CS3A_SMC		(0x0UL << 3)
-#define 	AT91C_EBI_CS3A_SM		(0x1UL << 3)
-#define AT91C_EBI_DBPUC		(0x1UL << 8)
-#define AT91C_EBI_DBPDC		(0x1UL << 9)
-#define AT91C_VDDIOM_SEL	(0x1UL << 16)
-#define 	AT91C_VDDIOM_SEL_1.8V		(0x0UL << 16)
-#define 	AT91C_VDDIOM_SEL_3.3V		(0x1UL << 16)
-#define AT91C_EBI_DRV		(0x1UL << 17)
-#define 	AT91C_EBI_DRV_LD		(0x0UL << 17)
-#define 	AT91C_EBI_DRV_HD		(0x1UL << 17)
-#define AT91C_EBI_NFD0_ON_D16	(0x1UL << 24)
-#define AT91C_EBI_DDR_MP_EN	(0x1UL << 25)
+// -------- MATRIX_SCFG2 : (MATRIX Offset: 0x48) Slave Configuration Register 2 --------
+#define AT91C_MATRIX_FIXED_DEFMSTR2 (0x1 << 18) // (MATRIX) Fixed Index of Default Master
+#define 	AT91C_MATRIX_FIXED_DEFMSTR2_ARM926I              (0x0 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR2_ARM926D              (0x1 << 18)
 
-#endif /* #ifndef __AT91_MATRIX_H__ */
+// -------- MATRIX_SCFG3 : (MATRIX Offset: 0x4c) Slave Configuration Register 3 --------
+#define AT91C_MATRIX_FIXED_DEFMSTR3 (0x7 << 18) // (MATRIX) Fixed Index of Default Master
+#define 	AT91C_MATRIX_FIXED_DEFMSTR3_ARM926I              (0x0 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR3_ARM926D              (0x1 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR3_HPDC3                (0x2 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR3_LCDC                 (0x3 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR3_DMA                  (0x4 << 18)
+
+// -------- MATRIX_SCFG4 : (MATRIX Offset: 0x50) Slave Configuration Register 4 --------
+#define AT91C_MATRIX_FIXED_DEFMSTR4 (0x3 << 18) // (MATRIX) Fixed Index of Default Master
+#define 	AT91C_MATRIX_FIXED_DEFMSTR4_ARM926I              (0x0 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR4_ARM926D              (0x1 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR4_HPDC3                (0x2 << 18)
+
+// -------- MATRIX_MRCR : (MATRIX Offset: 0x100) MRCR Register --------
+#define AT91C_MATRIX_RCA926I      (0x1 <<  0)   // (MATRIX) Remap Command for ARM926EJ-S Instruction Master
+#define AT91C_MATRIX_RCA926D      (0x1 <<  1)   // (MATRIX) Remap Command for ARM926EJ-S Data Master
+
+#endif	/* #ifndef __AT91_MATRIX_H__ */

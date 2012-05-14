@@ -30,7 +30,7 @@
 #include "hardware.h"
 #include "arch/at91_pmc.h"
 #include "arch/at91_ddrsdrc.h"
-#include "arch/at91_matrix.h"
+#include "arch/at91_ccfg.h"
 #include "debug.h"
 #include "ddramc.h"
 

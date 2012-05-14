@@ -24,64 +24,59 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_pio.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
 
-#ifndef AT91_PIO_H
-#define AT91_PIO_H
+#ifndef __AT91_PIO_H__
+#define __AT91_PIO_H__
 
 /* Register offset in AT91S_PIO structure */
-#define PIO_PER(p)		( 0 + (p) * 0x200)	/* PIO Enable Register */
-#define PIO_PDR(p)		( 4 + (p) * 0x200)	/* PIO Disable Register */
-#define PIO_PSR(p)		( 8 + (p) * 0x200)	/* PIO Status Register */
-#define PIO_OER(p)		(16 + (p) * 0x200)	/* Output Enable Register */
-#define PIO_ODR(p)		(20 + (p) * 0x200)	/* Output Disable Registerr */
-#define PIO_OSR(p)		(24 + (p) * 0x200)	/* Output Status Register */
-#define PIO_IFER(p)		(32 + (p) * 0x200)	/* Input Filter Enable Register */
-#define PIO_IFDR(p)		(36 + (p) * 0x200)	/* Input Filter Disable Register */
-#define PIO_IFSR(p)		(40 + (p) * 0x200)	/* Input Filter Status Register */
-#define PIO_SODR(p)		(48 + (p) * 0x200)	/* Set Output Data Register */
-#define PIO_CODR(p)		(52 + (p) * 0x200)	/* Clear Output Data Register */
-#define PIO_ODSR(p)		(56 + (p) * 0x200)	/* Output Data Status Register */
-#define PIO_PDSR(p)		(60 + (p) * 0x200)	/* Pin Data Status Register */
-#define PIO_IER(p)		(64 + (p) * 0x200)	/* Interrupt Enable Register */
-#define PIO_IDR(p)		(68 + (p) * 0x200)	/* Interrupt Disable Register */
-#define PIO_IMR(p)		(72 + (p) * 0x200)	/* Interrupt Mask Register */
-#define PIO_ISR(p)		(76 + (p) * 0x200)	/* Interrupt Status Register */
-#define PIO_MDER(p)		(80 + (p) * 0x200)	/* Multi-driver Enable Register */
-#define PIO_MDDR(p)		(84 + (p) * 0x200)	/* Multi-driver Disable Register */
-#define PIO_MDSR(p)		(88 + (p) * 0x200)	/* Multi-driver Status Register */
-#define PIO_PPUDR(p)		(96 + (p) * 0x200)	/* Pull-up Disable Register */
-#define PIO_PPUER(p)		(100 + (p) * 0x200)	/* Pull-up Enable Register */
-#define PIO_PPUSR(p)		(104 + (p) * 0x200)	/* Pull-up Status Register */
-#define PIO_SP1(p)		(112 + (p) * 0x200)	/* Select Peripheral 1 Register */
-#define PIO_SP2(p)		(116 + (p) * 0x200)	/* Select Peripheral 2 Register */
-#define PIO_ABSR(p)		(120 + (p) * 0x200)	/* AB Select Status Register */
-#define PIO_PPDDR(p)		(144 + (p) * 0x200)	/* Pull-down Disable Register */
-#define PIO_PPDER(p)		(148 + (p) * 0x200)	/* Pull-down Enable Register */
-#define PIO_PPDSR(p)		(152 + (p) * 0x200)	/* Pull-down Status Register */
-#define PIO_OWER(p)		(160 + (p) * 0x200)	/* Output Write Enable Register */
-#define PIO_OWDR(p)		(164 + (p) * 0x200)	/* Output Write Disable Register */
-#define PIO_OWSR(p)		(168 + (p) * 0x200)	/* Output Write Status Register */
-#define PIO_ADDRSIZE(p)		(236 + (p) * 0x200)	/* PIO ADDRSIZE REGISTER */
-#define PIO_IPNAME1(p)		(240 + (p) * 0x200)	/* PIO IPNAME1  REGISTER */
-#define PIO_IPNAME2(p)		(244 + (p) * 0x200)	/* PIO IPNAME2  REGISTER */
-#define PIO_FEATURES(p)		(248 + (p) * 0x200)	/* PIO FEATURES REGISTER */
-#define PIO_VER(p)		(252 + (p) * 0x200)	/* PIO VERSION  REGISTER */
-#define PIO_SCHMITT(p)		(256 + (p) * 0x200)	/* PIO SCHMITT Register */
-#define PIO_DELAY1(p)		(272 + (p) * 0x200)	/* PIO DELAY1  Register */
-#define PIO_DRIVE1(p)		(276 + (p) * 0x200)	/* PIO DRIVE1  Register */
-#define PIO_DRIVE2(p)		(280 + (p) * 0x200)	/* PIO DRIVE2  Register */
-#define PIO_SENMR(p)		(336 + (p) * 0x200)	/* Sensor Mode Register */
-#define PIO_SENIER(p)		(340 + (p) * 0x200)	/* Sensor Interrupt Enable Register */
-#define PIO_SENIDR(p)		(344 + (p) * 0x200)	/* Sensor Interrupt Disable Register */
-#define PIO_SENIMR(p)		(348 + (p) * 0x200)	/* Sensor Interrupt Mask Register */
-#define PIO_SENISR(p)		(352 + (p) * 0x200)	/* Sensor Interrupt Status Register */
-#define PIO_SENDATA(p)		(356 + (p) * 0x200)	/* Sensor Data Register */
+#define PIO_PER(p)		(0x0000 + (p) * 0x200)	/* PIO Enable Register */
+#define PIO_PDR(p)		(0x0004 + (p) * 0x200)	/* PIO Disable Register */
+#define PIO_PSR(p)		(0x0008 + (p) * 0x200)	/* PIO Status Register */
+/* 0x000c */
+#define PIO_OER(p)		(0x0010 + (p) * 0x200)	/* Output Enable Register */
+#define PIO_ODR(p)		(0x0014 + (p) * 0x200)	/* Output Disable Registerr */
+#define PIO_OSR(p)		(0x0018 + (p) * 0x200)	/* Output Status Register */
+/* 0x001c */
+#define PIO_IFER(p)		(0x0020 + (p) * 0x200)	/* Input Filter Enable Register */
+#define PIO_IFDR(p)		(0x0024 + (p) * 0x200)	/* Input Filter Disable Register */
+#define PIO_IFSR(p)		(0x0028 + (p) * 0x200)	/* Input Filter Status Register */
+/* 0x002c */
+#define PIO_SODR(p)		(0x0030 + (p) * 0x200)	/* Set Output Data Register */
+#define PIO_CODR(p)		(0x0034 + (p) * 0x200)	/* Clear Output Data Register */
+#define PIO_ODSR(p)		(0x0038 + (p) * 0x200)	/* Output Data Status Register */
+#define PIO_PDSR(p)		(0x003c + (p) * 0x200)	/* Pin Data Status Register */
+#define PIO_IER(p)		(0x0040 + (p) * 0x200)	/* Interrupt Enable Register */
+#define PIO_IDR(p)		(0x0044 + (p) * 0x200)	/* Interrupt Disable Register */
+#define PIO_IMR(p)		(0x0048 + (p) * 0x200)	/* Interrupt Mask Register */
+#define PIO_ISR(p)		(0x004c + (p) * 0x200)	/* Interrupt Status Register */
+#define PIO_MDER(p)		(0x0050 + (p) * 0x200)	/* Multi-driver Enable Register */
+#define PIO_MDDR(p)		(0x0054 + (p) * 0x200)	/* Multi-driver Disable Register */
+#define PIO_MDSR(p)		(0x0058 + (p) * 0x200)	/* Multi-driver Status Register */
+/* 0x005c */
+#define PIO_PPUDR(p)		(0x0060 + (p) * 0x200)	/* Pull-up Disable Register */
+#define PIO_PPUER(p)		(0x0064 + (p) * 0x200)	/* Pull-up Enable Register */
+#define PIO_PPUSR(p)		(0x0068 + (p) * 0x200)	/* Pull-up Status Register */
+/* 0x006c */
+#ifdef CONFIG_HAS_PIO3
+#define PIO_SP1(p)		(0x0070 + (p) * 0x200)  // Select Peripheral 1 Register
+#define PIO_SP2(p)		(0x0074 + (p) * 0x200)  // Select Peripheral 2 Register
+#define PIO_ABSR(p)		(0x0078 + (p) * 0x200)  // AB Select Status Register
+/* 0x007c ~ 0x008c */
+#define PIO_PPDDR(p)		(0x0090 + (p) * 0x200)  // Pull-down Disable Register
+#define PIO_PPDER(p)		(0x0094 + (p) * 0x200)  // Pull-down Enable Register
+#define PIO_PPDSR(p)		(0x0098 + (p) * 0x200)  // Pull-down Status Register
+/* 0x009c */
+#else
+#define PIO_ASR(p)		(0x0070 + (p) * 0x200)  // Select A Register
+#define PIO_BSR(p)		(0x007c + (p) * 0x200)  // Select B Register
+#define PIO_ABSR(p)		(0x0078 + (p) * 0x200)  // AB Select Status Register
+/* 0x007c ~ 0x009c */
+#endif	/* #ifndef CONFIG_HAS_PIO3 */
+#define PIO_OWER(p)		(0x00a0 + (p) * 0x200)	/* Output Write Enable Register */
+#define PIO_OWDR(p)		(0x00a4 + (p) * 0x200)	/* Output Write Disable Register */
+#define PIO_OWSR(p)		(0x00a8 + (p) * 0x200)	/* Output Write Status Register */
+/* 0x00ac */
 
 #define AT91C_NUM_PIO		(32 * 4)
 

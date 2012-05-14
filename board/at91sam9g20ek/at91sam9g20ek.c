@@ -27,7 +27,8 @@
  */
 #include "common.h"
 #include "hardware.h"
-#include "at91sam9n12ek.h"
+#include "at91sam9g20ek.h"
+#include "arch/at91_ccfg.h"
 #include "arch/at91_matrix.h"
 #include "arch/at91_wdt.h"
 #include "arch/at91_rstc.h"
@@ -173,7 +174,7 @@ static void sdramc_hw_init(void)
 
 static void sdramc_init(void)
 {
-	sdramc_register sdramc_config;
+	struct sdramc_register sdramc_config;
 
 	sdramc_config.cr = AT91C_SDRAMC_NC_9 | AT91C_SDRAMC_NR_13 | AT91C_SDRAMC_CAS_3
 				| AT91C_SDRAMC_NB_4_BANKS | AT91C_SDRAMC_DBW_32_BITS
@@ -188,10 +189,10 @@ static void sdramc_init(void)
 
 	/* Initialize the matrix (memory voltage = 3.3) */
 	writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA))
-		| AT91C_EBI_CS1A_SDRAMC | AT91C_VDDIOM_SEL_3.3V,
+		| AT91C_EBI_CS1A_SDRAMC | AT91C_VDDIOM_SEL_33V,
 		AT91C_BASE_CCFG + CCFG_EBICSA);
 
-	sdramc_initialize(struct sdramc_register *sdramc_config)
+	sdramc_initialize(&sdramc_config);
 }
 #endif /* CONFIG_SDRAM */
 
@@ -300,8 +301,6 @@ void nandflash_hw_init(void)
 	/* Configure the PIO controller */
 	pio_configure(nand_pins);
 	writel((1 << AT91C_ID_PIOC), PMC_PCER + AT91C_BASE_PMC);
-
-	nand_recovery();
 }
 
 void nandflash_config_buswidth(unsigned char busw)
