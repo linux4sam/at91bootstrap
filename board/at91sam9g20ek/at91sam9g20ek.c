@@ -44,23 +44,13 @@
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
+static void initialize_dbgu(void);
 static void sdramc_init(void);
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
 	unsigned int cp15;
-
-	/*
-	 * Configure PIOs 
-	 */
-	const struct pio_desc hw_pio[] = {
-#ifdef CONFIG_DEBUG
-		{"RXD", AT91C_PIN_PB(14), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"TXD", AT91C_PIN_PB(15), 0, PIO_DEFAULT, PIO_PERIPH_A},
-#endif
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
 
 	/*
 	 * Disable watchdog 
@@ -122,18 +112,40 @@ void hw_init(void)
 	       (AT91C_BASE_MATRIX + MATRIX_SCFG3));
 
 #ifdef CONFIG_DEBUG
-	/*
-	 * Enable Debug messages on the DBGU 
-	 */
-	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
-//    dbgu_print("Start AT91Bootstrap...\n\r");
-#endif /* CONFIG_DEBUG */
+	/* Initialize dbgu */
+	initialize_dbgu();
+#endif
 
 #ifdef CONFIG_SDRAM
+	/* Initlialize sdram controller */
 	sdramc_init();
 #endif
 }
 #endif /* CONFIG_HW_INIT */
+
+#ifdef CONFIG_DEBUG
+static void at91_dbgu_hw_init(void)
+{
+	/* Configure DBGU pin */
+	const struct pio_desc dbgu_pins[] = {
+		{"RXD", AT91C_PIN_PB(14), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TXD", AT91C_PIN_PB(15), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(dbgu_pins);
+
+	/*  Configure the dbgu pins */
+	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+}
+
+static void initialize_dbgu(void)
+{
+	at91_dbgu_hw_init();
+
+	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
+}
+#endif /* #ifdef CONFIG_DEBUG */
 
 #ifdef CONFIG_SDRAM
 static void sdramc_hw_init(void)
