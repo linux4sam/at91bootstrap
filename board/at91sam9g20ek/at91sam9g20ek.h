@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : at91sam9g20ek.h
- * Object              :
- * Creation            : NFe Jan 2008
- *-----------------------------------------------------------------------------
  */
-#ifndef _AT91SAM9G20EK_H
-#define _AT91SAM9G20EK_H
+#ifndef __AT91SAM9G20EK_H__
+#define __AT91SAM9G20EK_H__
 
 /* ******************************************************************* */
 /* PMC Settings                                                        */
@@ -71,8 +66,8 @@
 /* ******************************************************************* */
 #define AT91C_SMARTMEDIA_BASE	0x40000000
 
-#define AT91_SMART_MEDIA_ALE    (1 << 21)       /* our ALE is AD21 */
-#define AT91_SMART_MEDIA_CLE    (1 << 22)       /* our CLE is AD22 */
+#define AT91_SMART_MEDIA_ALE    (1 << 21)	/* our ALE is AD21 */
+#define AT91_SMART_MEDIA_CLE    (1 << 22)	/* our CLE is AD22 */
 
 #define NAND_DISABLE_CE() do { *(volatile unsigned int *)AT91C_PIOC_SODR = AT91C_PIO_PC14;} while(0)
 #define NAND_ENABLE_CE() do { *(volatile unsigned int *)AT91C_PIOC_CODR = AT91C_PIO_PC14;} while(0)
@@ -113,4 +108,5 @@
     {1 << 8, AT91C_BASE_PIOA, AT91C_ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 
 #define at91sam9g20
-#endif                          /* _AT91SAM9G20EK_H */
+
+#endif	/* #ifndef __AT91SAM9G20EK_H__ */
