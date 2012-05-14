@@ -106,7 +106,7 @@ int spi_xfer(unsigned int len, const void *dout,
 	 * in the context of U-Boot.
 	 */
 	if (flags & SPI_XFER_BEGIN) {
-		spi_cs_activate(cs);
+		spi_cs_activate();
 		/*
 		 * sometimes the RDR is not empty when we get here,
 		 * in theory that should not happen, but it DOES happen.

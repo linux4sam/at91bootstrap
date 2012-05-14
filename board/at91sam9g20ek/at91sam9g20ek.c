@@ -44,8 +44,6 @@
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
-extern int nand_erase_block_0(void);
-
 static void initialize_dbgu(void);
 static void sdramc_init(void);
 
@@ -198,88 +196,44 @@ static void sdramc_init(void)
 #endif /* CONFIG_SDRAM */
 
 #ifdef CONFIG_DATAFLASH
-#if	defined(CONFIG_DATAFLASH_RECOVERY)
-/*------------------------------------------------------------------------------*/
-/* \fn    df_recovery								*/
-/* \brief This function erases DataFlash Page 0 if BP4 is pressed 		*/
-/*        during boot sequence							*/
-/*------------------------------------------------------------------------------*/
-void df_recovery(AT91PS_DF pDf)
+void at91_spi0_hw_init(void)
 {
-#if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
-	/*
-	 * Configure PIOs 
-	 */
-	const struct pio_desc bp4_pio[] = {
-		{"BP4", AT91C_PIN_PA(31), 0, PIO_PULLUP, PIO_INPUT},
+	/* Configure spi0 PINs */
+	const struct pio_desc spi0_pins[] = {
+		{"MISO",	AT91C_PIN_PA(0),	0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MOSI",	AT91C_PIN_PA(1),	0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPCK",	AT91C_PIN_PA(2),	0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"NPCS",	CONFIG_SYS_SPI_PCS,	0, PIO_DEFAULT, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	/*
-	 * Configure the PIO controller 
-	 */
-	writel((1 << AT91C_ID_PIOA), PMC_PCER + AT91C_BASE_PMC);
-	pio_setup(bp4_pio);
-
-	/*
-	 * If BP4 is pressed during Boot sequence 
-	 */
-	/*
-	 * Erase NandFlash block 0
-	 */
-	if (!pio_get_value(AT91C_PIN_PA(31)))
-		df_page_erase(pDf, 0);
-#endif
-}
-#endif
-
-/*------------------------------------------------------------------------------*/
-/* \fn    df_hw_init								*/
-/* \brief This function performs DataFlash HW initialization			*/
-/*------------------------------------------------------------------------------*/
-void df_hw_init(void)
-{
-	/*
-	 * Configure PIOs 
-	 */
-	const struct pio_desc df_pio[] = {
-		{"MISO", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MOSI", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPCK", AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+	/* Configure the spi0 pins */
+	pio_configure(spi0_pins);
 #if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS0_DATAFLASH)
-		{"NPCS0", AT91C_PIN_PA(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
+	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
 #endif
-#if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
-		{"NPCS1", AT91C_PIN_PC(11), 0, PIO_DEFAULT, PIO_PERIPH_B},
-#endif
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
 
-	/*
-	 * Configure the PIO controller 
-	 */
-	pio_setup(df_pio);
+#if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
+	writel(((1 << AT91C_ID_PIOA) | (1 << AT91C_ID_PIOC)), (PMC_PCER + AT91C_BASE_PMC));
+#endif
+
+	/* Enable the spi0 clock */
+	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
+
+}
+
+void spi_cs_activate(void)
+{
+	pio_set_value(CONFIG_SYS_SPI_PCS, 0);
+}
+
+void spi_cs_deactivate(void)
+{
+	pio_set_value(CONFIG_SYS_SPI_PCS, 1);
 }
 #endif /* CONFIG_DATAFLASH */
 
 #ifdef CONFIG_NANDFLASH
-static void nand_recovery(void)
-{
-	/* Configure PIOs */
-	const struct pio_desc bp4_pins[] = {
-		{"BP4",		AT91C_PIN_PA(31), 0, PIO_PULLUP, PIO_INPUT},
-		{(char *)0,	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOA), PMC_PCER + AT91C_BASE_PMC);
-	pio_setup(bp4_pins);
-
-	/* If BP4 is pressed during Boot sequence, Erase NandFlash block 0 */
-	if (!pio_get_value(AT91C_PIN_PA(31)))
-		nand_erase_block_0();
-}
-
 void nandflash_hw_init(void)
 {
 	unsigned int reg;
@@ -322,7 +276,7 @@ void nandflash_hw_init(void)
 		AT91C_BASE_SMC + SMC_CTRL3);
 
 	/* Configure the PIO controller */
-	pio_setup(nand_pins);
+	pio_configure(nand_pins);
 	writel((1 << AT91C_ID_PIOC), PMC_PCER + AT91C_BASE_PMC);
 
 	nand_recovery();

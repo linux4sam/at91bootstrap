@@ -46,19 +46,26 @@
 #define MCKR_SETTINGS		0x1300
 #define MCKR_CSS_SETTINGS	(AT91C_PMC_CSS_PLLA_CLK | MCKR_SETTINGS)
 
-/* ******************************************************************* */
-/* DataFlash Settings                                                  */
-/*                                                                     */
-/* ******************************************************************* */
-#define AT91C_BASE_SPI	AT91C_BASE_SPI0
-#define AT91C_ID_SPI	AT91C_ID_SPI0
+/*
+* DataFlash Settings
+*/
+#define CONFIG_SYS_SPI_CLOCK	AT91C_SPI_CLK
+#define CONFIG_SYS_SPI_BUS	0
+#define CONFIG_SYS_SPI_MODE	SPI_MODE3
 
-/* AC characteristics */
-/* DLYBS = tCSS= 250ns min and DLYBCT = tCSH = 250ns */
-#define DATAFLASH_TCSS		(0x22 << 16)
-#define DATAFLASH_TCHS		(0x1 << 24)
+#if CONFIG_SYS_SPI_BUS == 0
+#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI0
+#elif CONFIG_SYS_SPI_BUS == 1
+#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI1
+#endif
 
-#define DF_CS_SETTINGS 		(AT91C_SPI_NCPHA | (AT91C_SPI_DLYBS & DATAFLASH_TCSS) | (AT91C_SPI_DLYBCT & DATAFLASH_TCHS) | ((MASTER_CLOCK / AT91C_SPI_CLK) << 8))
+#if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS0_DATAFLASH)
+#define CONFIG_SYS_SPI_CS	0
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(3)
+#elif (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
+#define CONFIG_SYS_SPI_CS	1
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PC(11)
+#endif
 
 /*
  * NandFlash Settings
@@ -85,6 +92,17 @@
     {0xec0, AT91C_BASE_PIOA, AT91C_ID_PIOA, PIO_PERIPH_A, PIO_PULLUP}, \
     {1 << 8, AT91C_BASE_PIOA, AT91C_ID_PIOA, PIO_PERIPH_A, PIO_DEFAULT}
 
-#define at91sam9g20
+
+/* function */
+extern void hw_init(void);
+
+extern void nandflash_hw_init(void);
+extern void nandflash_config_buswidth(unsigned char busw);
+
+extern void at91_spi0_hw_init(void);
+extern void spi_cs_activate(void);
+extern void spi_cs_deactivate(void);
+
+extern void at91_mci_hw_init(void);
 
 #endif	/* #ifndef __AT91SAM9G20EK_H__ */
