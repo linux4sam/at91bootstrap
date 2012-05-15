@@ -180,11 +180,9 @@ static void setup_commandline_tag (char *commandline)
 #ifdef CONFIG_AT91SAM9X5EK
 static void setup_serial_tag (void)
 {
-	struct tag_serialnr serialnr;
-
 	params->hdr.tag = ATAG_SERIAL;
 	params->hdr.size = tag_size (tag_serialnr);
-	params->u.serialnr.low = get_sys_sn;
+	params->u.serialnr.low = get_sys_sn();
 	params->u.serialnr.high= 0;
 	params = tag_next (params);
 }
@@ -233,7 +231,7 @@ static void setup_boot_tags(void)
 int load_kernel(struct image_info *img_info)
 {
 	int ret;
-#if 0
+#if 1
 	unsigned long	load_addr, image_size;
 	image_header_t	*image_header;
 	unsigned long	magic_number;
@@ -256,7 +254,7 @@ int load_kernel(struct image_info *img_info)
 		return -1;
 
 	setup_boot_tags();
-#if 1
+#if 0
 	writel(0xffffffff, (PMC_PCER1 + AT91C_BASE_PMC));
 #endif
 ///* enable all clocks unmanaged by Linux */
@@ -274,7 +272,7 @@ reg &= 0xffffffcc;
 reg |= 0x00000344;
 (*(volatile unsigned int *)(0xF0038038)) = reg;
 #endif
-#if 0
+#if 1
 	/* Check the image header magic */
 	image_header = (image_header_t *)JUMP_ADDR;
 	magic_number = ntohl(image_header->ih_magic);
