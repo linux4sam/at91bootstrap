@@ -190,11 +190,12 @@ static void ddramc_init(void)
 
 	/* Chip select 1 is for DDR2/SDRAM */
 	csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
+	csa |= AT91C_EBI_CS1A_SDRAMC;
 	csa &= ~AT91C_VDDIOM_SEL_33V;
 	writel(csa, AT91C_BASE_CCFG + CCFG_EBICSA);
 
 	/* DDRAM2 Controller initialize */
-	ddram_initialize(AT91C_BASE_DDRSDRC, AT91C_BASE_CS1, &ddramc_reg);
+	ddram_initialize(AT91C_BASE_DDRSDRC, AT91C_DDRAM_BASE_ADDR, &ddramc_reg);
 }
 #endif /* CONFIG_DDR2 */
 
