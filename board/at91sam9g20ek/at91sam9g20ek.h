@@ -28,19 +28,18 @@
 #ifndef __AT91SAM9G20EK_H__
 #define __AT91SAM9G20EK_H__
 
-/* ******************************************************************* */
-/* PMC Settings                                                        */
-/*                                                                     */
-/* The main oscillator is enabled as soon as possible in the c_startup */
-/* and MCK is switched on the main oscillator.                         */
-/* PLL initialization is done later in the hw_init() function          */
-/* ******************************************************************* */
-#define MASTER_CLOCK		(132096000)
-#define	TOP_OF_MEMORY		0x304000
+/*
+ * PMC Setting
+ *
+ * The main oscillator is enabled as soon as possible in the c_startup
+ * and MCK is switched on the main oscillator.
+ * PLL initialization is done later in the hw_init() function
+ */
+#define MASTER_CLOCK		132096000
 #define PLL_LOCK_TIMEOUT	1000000
 
-#define PLLA_SETTINGS	0x202A3F01
-#define PLLB_SETTINGS	0x10193F05
+#define PLLA_SETTINGS		0x202A3F01
+#define PLLB_SETTINGS		0x10193F05
 
 /* Switch MCK on PLLA output PCK = PLLA/2 = 3 * MCK */
 #define MCKR_SETTINGS		0x1300

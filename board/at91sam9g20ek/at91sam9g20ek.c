@@ -52,7 +52,7 @@ static void sdramc_init(void);
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
-	unsigned int cp15;
+	//unsigned int cp15;
 
 	/* Disable watchdog */
 	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDT + WDTC_MR);
@@ -63,32 +63,25 @@ void hw_init(void)
 	 */
 	writel(0x00, AT91C_BASE_PMC + PMC_PLLICPR);
 
-	/*
-	 * Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA 
-	 */
+	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
 
-	/*
-	 * PCK = PLLA/2 = 3 * MCK 
-	 */
+	/* PCK = PLLA/2 = 3 * MCK */
 	pmc_cfg_mck(MCKR_SETTINGS, PLL_LOCK_TIMEOUT);
-	/*
-	 * Switch MCK on PLLA output 
-	 */
+
+	/* Switch MCK on PLLA output */
 	pmc_cfg_mck(MCKR_CSS_SETTINGS, PLL_LOCK_TIMEOUT);
 
-	/*
-	 * Configure PLLB 
-	 */
-//	pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
+	/* Configure PLLB  */
+	//pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
 
 	/* Enable External Reset */
 	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
 
 	/* Configure CP15 */
-	cp15 = get_cp15();
+	//cp15 = get_cp15();
 	//cp15 |= I_CACHE;
-	set_cp15(cp15);
+	//set_cp15(cp15);
 
 	/* Configure the EBI Slave Slot Cycle to 64 */
 	writel((readl((AT91C_BASE_MATRIX + MATRIX_SCFG3)) & ~0xFF) | 0x40,
