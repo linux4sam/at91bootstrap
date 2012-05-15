@@ -330,5 +330,12 @@ void nandflash_config_buswidth(unsigned char busw)
 	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
 }
 
+static unsigned int nand_ready_pin = CONFIG_SYS_NAND_READY_PIN;
+
+unsigned int nandflash_get_ready_pin(void)
+{
+	return nand_ready_pin;
+}
+
 #endif /* #ifdef CONFIG_NANDFLASH */
 

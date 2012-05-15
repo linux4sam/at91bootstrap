@@ -87,6 +87,7 @@ extern void hw_init(void);
 
 extern void nandflash_hw_init(void);
 extern void nandflash_config_buswidth(unsigned char busw);
+extern unsigned int nandflash_get_ready_pin(void);
 
 extern void at91_spi0_hw_init(void);
 extern void spi_cs_activate(void);
