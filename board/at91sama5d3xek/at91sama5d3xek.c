@@ -27,7 +27,6 @@
  */
 #include "common.h"
 #include "hardware.h"
-#include "at91sama5d3xek.h"
 #include "pmc.h"
 #include "dbgu.h"
 #include "debug.h"
@@ -42,6 +41,7 @@
 #include "arch/at91sama5_smc.h"
 #include "arch/at91_slowclk.h"
 #include "arch/at91_pio.h"
+#include "at91sama5d3xek.h"
 
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
@@ -164,10 +164,10 @@ void at91_spi0_hw_init(void)
 {
 	/* Configure PIN for SPI0 */
 	const struct pio_desc spi0_pins[] = {
-		{"MISO",  AT91C_PIN_PD(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MOSI",  AT91C_PIN_PD(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPCK",  AT91C_PIN_PD(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"NPCS0", AT91C_PIN_PD(13), 1, PIO_DEFAULT, PIO_OUTPUT},
+		{"MISO",	AT91C_PIN_PD(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MOSI",	AT91C_PIN_PD(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPCK",	AT91C_PIN_PD(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
@@ -179,28 +179,14 @@ void at91_spi0_hw_init(void)
 	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
 }
 
-void spi_cs_activate(int cs)
+void spi_cs_activate(void)
 {
-	switch (cs) {
-	case 0:
-		pio_set_value(AT91C_PIN_PD(13), 0);
-		break;
-	case 1:
-		pio_set_value(AT91C_PIN_PD(14), 0);
-		break;
-	}
+	pio_set_value(CONFIG_SYS_SPI_PCS, 0);
 }
 
-void spi_cs_deactivate(int cs)
+void spi_cs_deactivate(void)
 {
-	switch (cs) {
-	case 0:
-		pio_set_value(AT91C_PIN_PD(13), 1);
-		break;
-	case 1:
-		pio_set_value(AT91C_PIN_PD(14), 1);
-		break;
-	}
+	pio_set_value(CONFIG_SYS_SPI_PCS, 1);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
@@ -215,7 +201,7 @@ void at91_mci_hw_init(void)
 		{"MCDA1", AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"MCDA2", AT91C_PIN_PD(3), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"MCDA3", AT91C_PIN_PD(4), 0, PIO_PULLUP, PIO_PERIPH_A},
-
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	/* Configure the PIO controller */

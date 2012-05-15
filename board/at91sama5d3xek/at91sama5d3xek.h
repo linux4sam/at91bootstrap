@@ -67,7 +67,6 @@
 */
 #define CONFIG_SYS_SPI_CLOCK	AT91C_SPI_CLK
 #define CONFIG_SYS_SPI_BUS	0
-#define CONFIG_SYS_SPI_CS	0
 #define CONFIG_SYS_SPI_MODE	SPI_MODE3
 
 #if CONFIG_SYS_SPI_BUS == 0
@@ -75,6 +74,15 @@
 #elif CONFIG_SYS_SPI_BUS == 1
 #define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI1
 #endif
+
+#if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS0_DATAFLASH)
+#define CONFIG_SYS_SPI_CS	0
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PD(13)
+#elif (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
+#define CONFIG_SYS_SPI_CS	1
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PD(14)
+#endif
+
 /*
  * NandFlash Settings
  */
@@ -98,8 +106,8 @@ extern void nandflash_hw_init(void);
 extern void nandflash_config_buswidth(unsigned char busw);
 
 extern void at91_spi0_hw_init(void);
-extern void spi_cs_activate(int cs);
-extern void spi_cs_deactivate(int cs);
+extern void spi_cs_activate(void);
+extern void spi_cs_deactivate(void);
 
 extern void at91_mci_hw_init(void);
 
