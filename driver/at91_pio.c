@@ -24,11 +24,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : gpio.c
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
 #include "hardware.h"
 #include "arch/at91_pio.h"
@@ -36,25 +31,25 @@
 #include "debug.h"
 
 /* Write PIO register */
-static /*inline*/ void write_pio(unsigned int offset, const unsigned int value)
+static inline void write_pio(unsigned int offset, const unsigned int value)
 {
 	writel(value, offset + AT91C_BASE_PIOA);
 }
 
 /* Read PIO registers */
-static /*inline*/ unsigned int read_pio(volatile unsigned int offset)
+static inline unsigned int read_pio(volatile unsigned int offset)
 {
 	return readl(offset + AT91C_BASE_PIOA);
 }
 
 /* Convert Pin Number into PIO controller index */
-static /*inline*/ unsigned pin_to_controller(unsigned pin)
+static inline unsigned pin_to_controller(unsigned pin)
 {
 	return (pin) / PIO_NUM_IO;
 }
 
 /* Convert Pin Number into I/O line index */
-static /*inline*/ unsigned pin_to_mask(unsigned pin)
+static inline unsigned pin_to_mask(unsigned pin)
 {
 	return 1 << ((pin) % PIO_NUM_IO);
 }

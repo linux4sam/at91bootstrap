@@ -27,7 +27,6 @@
  */
 #include "common.h"
 #include "hardware.h"
-#include "at91sam9g20ek.h"
 #include "arch/at91_ccfg.h"
 #include "arch/at91_matrix.h"
 #include "arch/at91_wdt.h"
@@ -36,11 +35,13 @@
 #include "arch/at91_smc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_sdramc.h"
+#include "spi.h"
 #include "gpio.h"
 #include "pmc.h"
 #include "dbgu.h"
 #include "debug.h"
 #include "sdramc.h"
+#include "at91sam9g20ek.h"
 
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
@@ -204,7 +205,7 @@ void at91_spi0_hw_init(void)
 		{"MISO",	AT91C_PIN_PA(0),	0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"MOSI",	AT91C_PIN_PA(1),	0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SPCK",	AT91C_PIN_PA(2),	0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"NPCS",	CONFIG_SYS_SPI_PCS,	0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"NPCS",	CONFIG_SYS_SPI_PCS,	0, PIO_PULLUP, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 

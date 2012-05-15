@@ -58,7 +58,12 @@
 #define PIO_PPUER(p)		(0x0064 + (p) * 0x200)	/* Pull-up Enable Register */
 #define PIO_PPUSR(p)		(0x0068 + (p) * 0x200)	/* Pull-up Status Register */
 /* 0x006c */
-#ifdef CONFIG_HAS_PIO3
+#ifndef CONFIG_HAS_PIO3
+#define PIO_ASR(p)		(0x0070 + (p) * 0x200)  // Select A Register
+#define PIO_BSR(p)		(0x007c + (p) * 0x200)  // Select B Register
+#define PIO_ABSR(p)		(0x0078 + (p) * 0x200)  // AB Select Status Register
+/* 0x007c ~ 0x009c */
+#else
 #define PIO_SP1(p)		(0x0070 + (p) * 0x200)  // Select Peripheral 1 Register
 #define PIO_SP2(p)		(0x0074 + (p) * 0x200)  // Select Peripheral 2 Register
 #define PIO_ABSR(p)		(0x0078 + (p) * 0x200)  // AB Select Status Register
@@ -67,11 +72,6 @@
 #define PIO_PPDER(p)		(0x0094 + (p) * 0x200)  // Pull-down Enable Register
 #define PIO_PPDSR(p)		(0x0098 + (p) * 0x200)  // Pull-down Status Register
 /* 0x009c */
-#else
-#define PIO_ASR(p)		(0x0070 + (p) * 0x200)  // Select A Register
-#define PIO_BSR(p)		(0x007c + (p) * 0x200)  // Select B Register
-#define PIO_ABSR(p)		(0x0078 + (p) * 0x200)  // AB Select Status Register
-/* 0x007c ~ 0x009c */
 #endif	/* #ifndef CONFIG_HAS_PIO3 */
 #define PIO_OWER(p)		(0x00a0 + (p) * 0x200)	/* Output Write Enable Register */
 #define PIO_OWDR(p)		(0x00a4 + (p) * 0x200)	/* Output Write Disable Register */

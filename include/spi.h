@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _SPI_H_
-#define _SPI_H_
+#ifndef __SPI_H__
+#define __SPI_H__
 
 /* Controller-specific definitions: */
 
@@ -42,6 +42,15 @@
 #define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
 #define SPI_XFER_END	0x02			/* Deassert CS after transfer */
 
+/* Chip Select 0 : NPCS0 %1110 */
+#define AT91C_SPI_PCS0_DATAFLASH	0xE
+/* Chip Select 1 : NPCS1 %1101 */
+#define AT91C_SPI_PCS1_DATAFLASH	0xD
+/* Chip Select 2 : NPCS2 %1011 */
+#define AT91C_SPI_PCS2_DATAFLASH	0xB
+/* Chip Select 3 : NPCS3 %0111 */
+#define AT91C_SPI_PCS3_DATAFLASH	0x7
+
 /* function */
 
 extern int at91_spi_init(unsigned int clock, unsigned int mode);
@@ -53,4 +62,4 @@ extern void at91_spi_disable(void);
 extern int spi_xfer(unsigned int len, const void *dout,
 		void *din, unsigned long flags);
 
-#endif	/* #ifndef _SPI_H_ */
+#endif	/* #ifndef __SPI_H__ */
