@@ -37,10 +37,8 @@ struct ddramc_register {
 	unsigned int t2pr;
 };
 
-extern struct ddramc_register	ddramc_reg;
-
-extern void ddramc_reg_config(struct ddramc_register *ddramc_config);
-
-extern void ddramc_init(void);
+extern int ddram_initialize(unsigned int base_address,
+		unsigned int ram_address,
+		struct ddramc_register *ddramc_config);
 
 #endif /* #ifndef __DDRAMC_H__ */

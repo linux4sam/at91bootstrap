@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         ATMEL Microcontroller Software Support  -  ROUSSET  -
  * ----------------------------------------------------------------------------
- * Copyright (c) 2010, Atmel Corporation
+ * Copyright (c) 2008, Atmel Corporation
 
  * All rights reserved.
  *
@@ -25,76 +25,75 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __AT91SAM9N12EK_H__
-#define __AT91SAM9N12EK_H__
+#ifndef __AT91SAM9M10G45EK_H__
+#define __AT91SAM9M10G45EK_H__
 
-/* 
+/*
  * PMC Settings
  *
- * The main oscillator is enabled as soon as possible in the lowlevel_clock_init
- * and MCK is switched on the main oscillator.                                  
+ * The main oscillator is enabled as soon as possible in the c_startup
+ * and MCK is switched on the main oscillator.
  * PLL initialization is done later in the hw_init() function
  */
 #define MASTER_CLOCK		(132096000)
-#define PLL_LOCK_TIMEOUT	10000
+#define PLL_LOCK_TIMEOUT	1000000
 
-#define BOARD_MAINOSC		16000000
-#define BOARD_MCK		133000000
+#define BOARD_MAINOSC		12000000
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200))
 #define BOARD_OSCOUNT		(AT91C_CKGR_OSCOUNT & (64 << 8))
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
 #define BOARD_PLLACOUNT		(0x3F << 8)
-//#define BOARD_MULA		(AT91C_CKGR_MULA & (199 << 16))
-#define BOARD_MULA		(AT91C_CKGR_MULA & (149 << 16))
+#define BOARD_MULA		(AT91C_CKGR_MULA & (199 << 16))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 3)
+#define BOARD_PRESCALER		(0x00001301)
 
-#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
-					| AT91C_PMC_MDIV_3 \
-					| AT91C_PMC_CSS_MAIN_CLK)
+#define PLLA_SETTINGS		(BOARD_CKGR_PLLA \
+				| BOARD_PLLACOUNT \
+				| BOARD_MULA \
+				| BOARD_DIVA)
 
-#define BOARD_PRESCALER_PLLA		(AT91C_PMC_PLLADIV2_2 \
-					| AT91C_PMC_MDIV_3 \
-					| AT91C_PMC_CSS_PLLA_CLK)
+/* #define PLLA_SETTINGS 0x202A3F01 */
+#define PLLUTMI
+#define PLLUTMI_SETTINGS	0x10193F05
 
-#define PLLA_SETTINGS	(BOARD_CKGR_PLLA \
-			| BOARD_PLLACOUNT \
-			| BOARD_MULA \
-			| BOARD_DIVA)
+/* Switch MCK on PLLA output PCK = PLLA/2 = 3 * MCK */
+#define MCKR_CSS_SETTINGS	0x1302
+
+/* DDRAM Controller */
+#define AT91C_BASE_DDRSDRC	AT91C_BASE_DDRSDRC1
 /*
-* DataFlash Settings
-*/
-#define CONFIG_SYS_SPI_CLOCK	AT91C_SPI_CLK
-#define CONFIG_SYS_SPI_BUS	0
-#define CONFIG_SYS_SPI_MODE	SPI_MODE3
+ * DataFlash Settings
+ */
+#define CONFIG_SYS_SPI_CLOCK    AT91C_SPI_CLK
+#define CONFIG_SYS_SPI_BUS      0
+#define CONFIG_SYS_SPI_MODE     SPI_MODE3
 
 #if CONFIG_SYS_SPI_BUS == 0
-#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI0
+#define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI0
 #elif CONFIG_SYS_SPI_BUS == 1
-#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI1
+#define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI1
 #endif
 
 #if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS0_DATAFLASH)
 #define CONFIG_SYS_SPI_CS	0
-#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(14)
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PB(3)
 #elif (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
 #define CONFIG_SYS_SPI_CS	1
-#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(7)
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PB(18)
 #endif
 
-/*
- * NandFlash Settings
- */
 #define CONFIG_SYS_NAND_BASE		AT91C_BASE_CS3
 #define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 
-#define CONFIG_SYS_NAND_ENABLE_PIN	AT91C_PIN_PD(4)
-#define CONFIG_SYS_NAND_READY_PIN	AT91C_PIN_PD(5)
+#define CONFIG_SYS_NAND_ENABLE_PIN	AT91C_PIN_PC(14)
+#define CONFIG_SYS_NAND_READY_PIN	AT91C_PIN_PC(8)
 
 /*
  * MCI Settings
  */
-#define CONFIG_SYS_BASE_MCI	AT91C_BASE_MCI
-#define CONFIG_SYS_ID_MCI	AT91C_ID_MCI
+#define CONFIG_SYS_BASE_MCI     AT91C_BASE_MCI0
+#define CONFIG_SYS_ID_MCI       AT91C_ID_MCI0
 
 /* function */
 extern void hw_init(void);
@@ -108,4 +107,4 @@ extern void spi_cs_deactivate(void);
 
 extern void at91_mci_hw_init(void);
 
-#endif /* #ifndef __AT91SAM9N12EK_H__ */
+#endif /* __AT91SAM9M10G45EK_H__ */

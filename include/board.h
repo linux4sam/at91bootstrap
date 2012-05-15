@@ -52,7 +52,7 @@
 #endif
 
 #ifdef AT91SAM9M10
-#include "at91sam9m10ek.h"
+#include "at91sam9m10g45ek.h"
 #endif
 
 #ifdef AT91SAM9261

@@ -34,8 +34,6 @@
 #include "debug.h"
 #include "ddramc.h"
 
-struct ddramc_register	ddramc_reg;
-
 /* Write DDRC register */
 static void write_ddramc(unsigned int address, unsigned int offset,
 			 const unsigned int value)
@@ -58,7 +56,7 @@ static int ddram_decod_seq(unsigned int ddramc_cr)
 	return 1;
 }
 
-static int ddram_initialize(unsigned int base_address,
+int ddram_initialize(unsigned int base_address,
 			unsigned int ram_address,
 			struct ddramc_register *ddramc_config)
 {
@@ -225,26 +223,4 @@ static int ddram_initialize(unsigned int base_address,
 	delay(500);
 
 	return 0;
-}
-
-void ddramc_init(void)
-{
-	unsigned long csa;
-
-	ddramc_reg_config(&ddramc_reg);
-
-	/* ENABLE DDR2 clock */ 
-	writel(AT91C_PMC_DDR, AT91C_BASE_PMC + PMC_SCER);
-
-	/* Chip select 1 is for DDR2/SDRAM */
-	csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
-	csa |= AT91C_EBI_CS1A_SDRAMC;
-	csa &= ~AT91C_EBI_DBPUC;
-	csa |= AT91C_EBI_DBPDC;
-	csa |= AT91C_EBI_DRV_HD;
-
-	writel(csa, AT91C_BASE_CCFG + CCFG_EBICSA);
-
-	/* DDRAM2 Controller initialize */
-	ddram_initialize(AT91C_BASE_SDRAMC, AT91C_BASE_CS1, &ddramc_reg);
 }

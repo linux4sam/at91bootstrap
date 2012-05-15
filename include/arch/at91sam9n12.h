@@ -68,7 +68,7 @@
 #define AT91C_BASE_MATRIX	0xffffde00
 #define AT91C_BASE_PMECC	0xffffe000
 #define AT91C_BASE_PMERRLOC	0xffffe600
-#define AT91C_BASE_SDRAMC	0xffffe800
+#define AT91C_BASE_DDRSDRC	0xffffe800
 #define AT91C_BASE_SMC		0xffffea00
 #define AT91C_BASE_DMAC		0xffffec00
 #define AT91C_BASE_AIC		0xfffff000
@@ -88,10 +88,8 @@
 #define AT91C_BASE_RTC		0xfffffeb0
 
 /* (CCFG) Base Address */
-#define AT91C_BASE_CCFG		(0xFFFFDF10)
+#define AT91C_BASE_CCFG		(0xffffdf10)
 
-/* (SYS) Slow Clock Configuration Register */
-#define AT91C_SYS_SLCKSEL	(0xFFFFFE50)
 /*
  * Internal Memory common on all these SoCs
  */
