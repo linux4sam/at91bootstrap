@@ -218,7 +218,7 @@ static unsigned short read_word(void)
 static void nand_wait_ready(void)
 {
 #ifdef CONFIG_SYS_NAND_READY_PIN
-	while (pio_get_value(CONFIG_SYS_NAND_READY_PIN) != 1);
+	while (pio_get_value(nandflash_get_ready_pin()) != 1);
 #endif
 }
 

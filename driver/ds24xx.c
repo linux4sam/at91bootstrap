@@ -27,12 +27,12 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "part.h"
 #include "gpio.h"
 #include "pmc.h"
-#include "main.h"
 #include "debug.h"
+#include "hardware.h"
 #include "onewire_info.h"
+#include "string.h"
 
 #define ROM_COMMAND_READ		0x33
 #define ROM_COMMAND_MATCH		0x55
@@ -84,6 +84,12 @@
 #define CM_VENDOR_OFFSET		5
 #define CM_REV_MASK			0x1F
 #define CM_REV_OFFSET			0
+
+#define TRUE    1
+#define FALSE   0
+
+#define BOARD_MAINOSC   12000000
+#define BOARD_MCK       ((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200))
 
 size_t strlen(const char *str);
 extern char *strcpy(char *dst, const char *src);
@@ -594,8 +600,8 @@ void load_1wire_info()
 	dbg_log(1, "sn: %x;   rev: %x\n\r", sn, rev);
 
 	/* save to GPBR #2 and #3 */
-	writel(sn, AT91C_SYS_GPBR + 4 * 2);
-	writel(rev, AT91C_SYS_GPBR + 4 * 3);
+	writel(sn, AT91C_BASE_GPBR + 4 * 2);
+	writel(rev, AT91C_BASE_GPBR + 4 * 3);
 
 	return;
 err:
