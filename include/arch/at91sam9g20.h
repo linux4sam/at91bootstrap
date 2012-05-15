@@ -69,7 +69,7 @@
 #define AT91C_BASE_SDRAMC	0xffffea00
 #define AT91C_BASE_SMC		0xffffec00
 #define AT91C_BASE_MATRIX	0xffffee00
-#define AT91C_BASE_CCFG		0xffffef10
+#define AT91C_BASE_CCFG		0xffffef14
 #define AT91C_BASE_AIC		0xfffff000
 #define AT91C_BASE_DBGU		0xfffff200
 #define AT91C_BASE_PIOA		0xfffff400

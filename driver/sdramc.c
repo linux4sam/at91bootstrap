@@ -43,7 +43,7 @@ static inline unsigned int sdramc_readl(unsigned int reg)
 
 int sdramc_initialize(struct sdramc_register *sdramc_config)
 {
-	volatile unsigned int i;
+	unsigned int i;
 
 	/* Step#1 SDRAM feature must be in the configuration register */
 	sdramc_writel(SDRAMC_CR, sdramc_config->cr);
@@ -66,45 +66,17 @@ int sdramc_initialize(struct sdramc_register *sdramc_config)
 
 	for (i = 0; i < 10000; i++) ;
 
-#if	0
-	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);	// Set 1st CBR
-	writel(0x00000001, AT91C_SDRAM + 4);	// Perform CBR
-
-	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);	// Set 2 CBR
-	writel(0x00000002, AT91C_SDRAM + 8);	// Perform CBR
-
-	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);	// Set 3 CBR
-	writel(0x00000003, AT91C_SDRAM + 0xc);	// Perform CBR
-
-	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);	// Set 4 CBR
-	writel(0x00000004, AT91C_SDRAM + 0x10);	// Perform CBR
-
-	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);	// Set 5 CBR
-	writel(0x00000005, AT91C_SDRAM + 0x14);	// Perform CBR
-
-	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);	// Set 6 CBR
-	writel(0x00000006, AT91C_SDRAM + 0x18);	// Perform CBR
-
-	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);	// Set 7 CBR
-	writel(0x00000007, AT91C_SDRAM + 0x1C);	// Perform CBR
-
-	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);	// Set 8 CBR
-	writel(0x00000008, AT91C_SDRAM + 0x20);	// Perform CBR
-#else
 	/* Step#7 Eight auto-refresh cycles are provided */
 	for (i = 0; i < 8; i++) {
 		sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_AUTO_REFRESH);
 		writel(0x00000001 + i, 0x20000000 + 4 + 4 * i);
 	}
-#endif
+
 	/* Step#8 A Mode Register set (MRS) cyscle is issued to program the SDRAM parameters(TCSR, PASR, DS) */
 	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_LOAD_MODE);
 	writel(0xcafedede, 0x20000000 + 0x24);
 
 	/* Step#9 For mobile SDRAM initialization, an Extended Mode Register set cycle is issued to ... */
-
-	/* set SDRAMC_TR register */
-//	sdramc_writel(SDRAMC_TR, sdramc_config->tr);
 
 	/* Step#10 The application must go into Normal Mode, setting Mode to 0 in the Mode Register
 	   and perform a write access at any location in the SDRAM. */

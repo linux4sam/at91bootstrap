@@ -90,9 +90,6 @@ void hw_init(void)
 	//cp15 |= I_CACHE;
 	set_cp15(cp15);
 
-	/* Enable External Reset */
-//	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
-
 	/* Configure the EBI Slave Slot Cycle to 64 */
 	writel((readl((AT91C_BASE_MATRIX + MATRIX_SCFG3)) & ~0xFF) | 0x40,
 		(AT91C_BASE_MATRIX + MATRIX_SCFG3));
@@ -140,10 +137,8 @@ static void initialize_dbgu(void)
 #ifdef CONFIG_SDRAM
 static void sdramc_hw_init(void)
 {
-	/*
-	 * Configure PIOs 
-	 */
-/*	const struct pio_desc sdramc_pio[] = {
+	/* Configure sdramc pins */
+	const struct pio_desc sdramc_pins[] = {
 		{"D16", AT91C_PIN_PC(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"D17", AT91C_PIN_PC(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"D18", AT91C_PIN_PC(18), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -162,15 +157,10 @@ static void sdramc_hw_init(void)
 		{"D31", AT91C_PIN_PC(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{(char *) 0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
-*/
-	/*
-	 * Configure the SDRAMC PIO controller to output PCK0 
-	 */
-/*	pio_setup(sdramc_pio); */
 
-	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_ASR(0));
-	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_PDR(0));
-
+	/* Configure the SDRAMC PINs */
+	writel((1 << AT91C_ID_PIOC), (PMC_PCER + AT91C_BASE_PMC));
+	pio_configure(sdramc_pins);
 }
 
 static void sdramc_init(void)
