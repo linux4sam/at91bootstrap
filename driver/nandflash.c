@@ -553,8 +553,8 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 	pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;
 	pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;
 
-	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
 	pmecc_writel(AT91C_PMECC_DISABLE, PMECC_CTRL);
+	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
 
 	pmecc_writel(pmecc_params->errBitNbrCapability |
 		pmecc_params->sectorSize |
@@ -770,7 +770,7 @@ static int nand_read_sector(struct nand_info *nand,
 		udelay(1);
 
 	erris = pmecc_readl(PMECC_ISR);
-	if (erris) {
+	if ((erris) && (erris != 0xf)) {
 		dbg_log(1, "PMECC found the sector %d is corrupted, Now PMECC is correcting...\n\r", erris);
 		ret = (*pmecc_correction)((AT91C_BASE_PMECC + PMECC_CFG),
 					(AT91C_BASE_PMERRLOC + PMERRLOC_ELCFG),
