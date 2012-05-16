@@ -770,7 +770,7 @@ static int nand_read_sector(struct nand_info *nand,
 		udelay(1);
 
 	erris = pmecc_readl(PMECC_ISR);
-	if (erris) {
+	if ((erris) && (erris != 0xf)) {
 		dbg_log(1, "PMECC found the sector %d is corrupted, Now PMECC is correcting...\n\r", erris);
 		ret = (*pmecc_correction)((AT91C_BASE_PMECC + PMECC_CFG),
 					(AT91C_BASE_PMERRLOC + PMERRLOC_ELCFG),
