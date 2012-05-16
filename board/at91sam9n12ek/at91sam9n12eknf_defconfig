@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Tue May 15 16:41:27 2012
+# Wed May 16 08:42:00 2012
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9n12ek"
@@ -64,12 +64,11 @@ CONFIG_RAM_128MB=y
 # CONFIG_FLASH is not set
 CONFIG_NANDFLASH=y
 # CONFIG_SDCARD is not set
-CONFIG_ENABLE_SW_ECC=y
+# CONFIG_ENABLE_SW_ECC is not set
 CONFIG_MEMORY="nandflash"
 CONFIG_SDCARD_HS=y
 ALLOW_DATAFLASH_RECOVERY=y
 ALLOW_BOOT_FROM_DATAFLASH_CS0=y
-DATAFLASHCARD_ON_CS0=y
 
 #
 # NAND Flash configuration
