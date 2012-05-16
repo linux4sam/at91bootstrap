@@ -120,9 +120,6 @@
 /*
  * Other misc defines
  */
-#define AT91C_PIO_PORTS		5		/* AT91SAM9M10 has 5 PIO */
-#define AT91C_BASE_PIO		AT91C_BASE_PIOA
-
 #define AT91_BASE_SYS		AT91C_BASE_SYS
 #define AT91_SMC		(AT91C_BASE_SMC	- AT91_BASE_SYS)
 

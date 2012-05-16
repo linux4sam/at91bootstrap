@@ -113,6 +113,9 @@
 #define AT91C_BASE_CS4          0x50000000
 #define AT91C_BASE_CS5          0x60000000
 
+/*
+ * Other misc defines
+ */
 #define AT91_BASE_SYS           AT91C_BASE_SYS
 #define AT91_PMECC              (AT91C_BASE_PMECC       - AT91_BASE_SYS)
 #define AT91_PMERRLOC           (AT91C_BASE_PMERRLOC    - AT91_BASE_SYS)

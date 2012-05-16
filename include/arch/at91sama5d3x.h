@@ -52,9 +52,9 @@
 #define AT91C_ID_TWI0	18	/* Two-Wire Interface 0 */
 #define AT91C_ID_TWI1	19	/* Two-Wire Interface 1 */
 #define AT91C_ID_TWI2	20	/* Two-Wire Interface 2 */
-#define AT91C_ID_MSMCI0	21	/* High Speed Multimedia Card Interface 0 */
-#define AT91C_ID_MSMCI1	22	/* High Speed Multimedia Card Interface 1 */
-#define AT91C_ID_MSMCI2	23	/* High Speed Multimedia Card Interface 2 */
+#define AT91C_ID_HSMCI0	21	/* High Speed Multimedia Card Interface 0 */
+#define AT91C_ID_HSMCI1	22	/* High Speed Multimedia Card Interface 1 */
+#define AT91C_ID_HSMCI2	23	/* High Speed Multimedia Card Interface 2 */
 #define AT91C_ID_SPI0	24	/* Serial Peripheral Interface 0 */
 #define AT91C_ID_SPI1	25	/* Serial Peripheral Interface 1 */
 #define AT91C_ID_TC0	26	/* Timer Counter 0 (ch.0,1,3) */
@@ -177,10 +177,6 @@
 /*
  * Other misc defines
  */
-#define AT91C_CPU_HAS_PIO3			/* CPU has PIO v3 */
-#define AT91C_PIO_PORTS		5		/* AT91SAMA5 has 5 PIO */
-#define AT91C_BASE_PIO		AT91C_BASE_PIOA
-
 #define AT91C_BASE_PMECC	(AT91C_BASE_SMC + 0x70)
 #define AT91C_BASE_PMERRLOC	(AT91C_BASE_SMC + 0x500)
 
