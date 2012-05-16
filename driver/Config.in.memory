@@ -118,7 +118,6 @@ config CONFIG_SDCARD_HS
 	default y if CONFIG_AT91SAM9M10G45EK
 	default y if CONFIG_AT91SAM9X5EK
 	default y if CONFIG_AT91SAM9N12EK
-	default y if CONFIG_AT91SAMA5D3XEK
 	default n
 
 source "driver/Config.in.dataflash"
@@ -127,9 +126,6 @@ source "driver/Config.in.nandflash"
 
 config CONFIG_BOOTSTRAP_MAXSIZE
 	string
-	default "4096"  if CONFIG_AT91SAM9260EK
-	default "8192"  if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
-	default "12288"  if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
 	default "23000"
 
 endmenu
