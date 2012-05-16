@@ -29,42 +29,12 @@
 #ifndef __HARDWARE_H__
 #define __HARDWARE_H__
 
-#ifdef AT91SAM9260
-#include "AT91SAM9260_inc.h"
-#endif
-
-#ifdef AT91SAM9XE
-/* For all SAM9XE chips 128/256/512/.. we use the XE128 file */
-#include "AT91SAM9XE128_inc.h"
-#endif
-
-#ifdef AT91SAM9G10
-#include "AT91SAM9261_inc.h"
-#endif
-
 #ifdef AT91SAM9G20
 #include "arch/at91sam9g20.h"
 #endif
 
-#ifdef AT91SAM9G45
-#include "AT91SAM9G45_inc.h"
-#endif
-
 #ifdef AT91SAM9M10
 #include "arch/at91sam9m10.h"
-#endif
-
-#ifdef AT91SAM9261
-#include "AT91SAM9261_inc.h"
-#endif
-
-#ifdef AT91SAM9263
-#include "AT91SAM9263_inc.h"
-#endif
-
-
-#ifdef AT91SAM9RL
-#include "AT91SAM9RL_inc.h"
 #endif
 
 #ifdef AT91SAM9X5
@@ -73,10 +43,6 @@
 
 #ifdef AT91SAM9N12
 #include "arch/at91sam9n12.h"
-#endif
-
-#ifdef AT91SAMA5D3X
-#include "arch/at91sama5d3x.h"
 #endif
 
 /* I/O Function Macro */

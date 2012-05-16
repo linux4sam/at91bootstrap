@@ -29,20 +29,6 @@
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
-
-#ifdef AT91SAM9260
-#include "AT91SAM9260_inc.h"
-#endif
-
-#ifdef AT91SAM9XE
-/* For all SAM9XE chips 128/256/512/.. we use the XE128 file */
-#include "at91sam9xeek.h"
-#endif
-
-#ifdef AT91SAM9G10
-#include "at91sam9g10ek.h"
-#endif
-
 #ifdef AT91SAM9G20
 #include "at91sam9g20ek.h"
 #endif
@@ -55,28 +41,12 @@
 #include "at91sam9m10g45ek.h"
 #endif
 
-#ifdef AT91SAM9261
-#include "at91sam9261ek.h"
-#endif
-
-#ifdef AT91SAM9263
-#include "at91sam9263ek.h"
-#endif
-
-#ifdef AT91SAM9RL
-#include "at91sam9rlek.h"
-#endif
-
 #ifdef AT91SAM9X5
 #include "at91sam9x5ek.h"
 #endif
 
 #ifdef AT91SAM9N12
 #include "at91sam9n12ek.h"
-#endif
-
-#ifdef AT91SAMA5D3X
-#include "at91sama5d3xek.h"
 #endif
 
 #endif /* #ifndef __BOARD_H__ */
