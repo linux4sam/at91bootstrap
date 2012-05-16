@@ -14,12 +14,6 @@ ifeq ($(CONFIG_DDR2),y)
 CPPFLAGS += -DCONFIG_DDR2
 endif
 
-# Support for PSRAM on SAM9263EK EBI1
-
-ifeq ($(CONFIG_PSRAM),y)
-CPPFLAGS += -DCONFIG_PSRAM
-endif
-
 # 16 bit operation
 
 ifeq ($(CONFIG_SDRAM_16BIT),y)

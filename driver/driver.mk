@@ -17,11 +17,7 @@ COBJS-$(CONFIG_USER_HW_INIT)	+= $(DRIVERS_SRC)/hw_init_hook.o
 COBJS-$(CONFIG_SDRAM)		+= $(DRIVERS_SRC)/sdramc.o
 COBJS-$(CONFIG_SDDRC)		+= $(DRIVERS_SRC)/sddrc.o
 
-ifeq ($(CONFIG_BOARD), "at91sama5d3xek")
-COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/mpddrsdramc.o
-else
 COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/ddramc.o
-endif
 
 COBJS-$(CONFIG_NANDFLASH)	+= $(DRIVERS_SRC)/nandflash.o
 COBJS-$(CONFIG_ENABLE_SW_ECC) 	+= $(DRIVERS_SRC)/hamming.o
