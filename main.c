@@ -32,7 +32,6 @@
 #include "dataflash.h"
 #include "nandflash.h"
 #include "sdcard.h"
-#include "flash.h"
 
 extern int load_kernel(struct image_info *img_info);
 
