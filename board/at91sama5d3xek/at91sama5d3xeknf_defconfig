@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Tue May 15 17:22:33 2012
+# Wed May 16 09:04:00 2012
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sama5d3xek"
@@ -64,7 +64,7 @@ CONFIG_RAM_512MB=y
 # CONFIG_FLASH is not set
 CONFIG_NANDFLASH=y
 # CONFIG_SDCARD is not set
-CONFIG_ENABLE_SW_ECC=y
+# CONFIG_ENABLE_SW_ECC is not set
 CONFIG_MEMORY="nandflash"
 CONFIG_SDCARD_HS=y
 ALLOW_DATAFLASH_RECOVERY=y
