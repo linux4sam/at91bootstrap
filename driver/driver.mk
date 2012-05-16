@@ -25,8 +25,6 @@ COBJS-$(CONFIG_ENABLE_SW_ECC) 	+= $(DRIVERS_SRC)/hamming.o
 COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/at91_spi.o
 COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/serial_flash.o
 
-COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o
-
 COBJS-$(CONFIG_LOAD_LINUX)	+= $(DRIVERS_SRC)/load_kernel.o
 
 # Currently, 9x5 only
