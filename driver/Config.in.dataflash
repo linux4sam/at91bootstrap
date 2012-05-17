@@ -16,16 +16,6 @@ config CONFIG_SMALL_DATAFLASH
 	  Deselect this to save some bytes of memory
 	  at the expense of flexibility in selecting memory sizes.
 
-config CONFIG_DATAFLASH_RECOVERY
-	bool "Support Dataflash recovery by pressing a button"
-	default y
-	depends on CONFIG_DATAFLASH
-	depends on ALLOW_DATAFLASH_RECOVERY
-	help
-	  Let bootstrap disassemble the first 7 double words
-	  and check that all, except the reserved vector
-	  contains a jump/branch
-
 config ALLOW_DATAFLASH_RECOVERY
 	bool
 	default	n
