@@ -231,13 +231,11 @@ static void setup_boot_tags(void)
 int load_kernel(struct image_info *img_info)
 {
 	int ret;
-#if 1
 	unsigned long	load_addr, image_size;
 	image_header_t	*image_header;
 	unsigned long	magic_number;
 	
 	void (*kernel_entry)(int zero, int arch, unsigned int params);
-#endif
 
 #ifdef CONFIG_DATAFLASH
 	ret = load_dataflash(img_info);
@@ -254,25 +252,7 @@ int load_kernel(struct image_info *img_info)
 		return -1;
 
 	setup_boot_tags();
-#if 0
-	writel(0xffffffff, (PMC_PCER1 + AT91C_BASE_PMC));
-#endif
-///* enable all clocks unmanaged by Linux */
-//(*(volatile unsigned int *)(0xfffffd00)) = (0xffffffff);
-/* enable lcd clock */
-//(*(volatile unsigned int *)(0xfffffc00)) = (0x8);
-/* special configuration for usb certification */
-#if 0
-reg = (*(volatile unsigned int *)(0xF0038034));
-reg &= 0xfff999ff;
-reg |= 0x00011107;
-(*(volatile unsigned int *)(0xF0038034)) = reg;
-reg = (*(volatile unsigned int *)(0xF0038038));
-reg &= 0xffffffcc;
-reg |= 0x00000344;
-(*(volatile unsigned int *)(0xF0038038)) = reg;
-#endif
-#if 1
+
 	/* Check the image header magic */
 	image_header = (image_header_t *)JUMP_ADDR;
 	magic_number = ntohl(image_header->ih_magic);
@@ -312,7 +292,7 @@ reg |= 0x00000344;
 		MACH_TYPE, (OS_MEM_BANK + 0x100));
 
 	kernel_entry(0, MACH_TYPE, (unsigned int)(OS_MEM_BANK + 0x100));
-#endif
+
 	return 0;
 }
 
