@@ -104,7 +104,7 @@ endchoice
 
 config	CONFIG_ENABLE_SW_ECC
 	bool
-	default y if !CPU_HAS_PMECC
+	default y if CONFIG_NANDFLASH && !CPU_HAS_PMECC
 
 config	CONFIG_ENABLE_SW_ECC
 	bool "Support NAND flash software ECC"
