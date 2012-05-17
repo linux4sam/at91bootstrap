@@ -8,14 +8,6 @@ config	CONFIG_SPI_CLK
 	help
 	  Which speed (in Hz) should the SPI run at.
 
-config CONFIG_SMALL_DATAFLASH
-	bool "Support < 32 Mbit dataflashes"
-	default	y
-	depends on CONFIG_DATAFLASH
-	help
-	  Deselect this to save some bytes of memory
-	  at the expense of flexibility in selecting memory sizes.
-
 # ------- SPI boot source -----------------------------------------------------
 choice
 	prompt "Chip Select"
