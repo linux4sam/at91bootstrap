@@ -16,10 +16,6 @@ config CONFIG_SMALL_DATAFLASH
 	  Deselect this to save some bytes of memory
 	  at the expense of flexibility in selecting memory sizes.
 
-config ALLOW_DATAFLASH_RECOVERY
-	bool
-	default	n
-
 # ------- SPI boot source -----------------------------------------------------
 choice
 	prompt "Chip Select"
