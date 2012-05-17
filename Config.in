@@ -21,18 +21,14 @@ choice
 	prompt "Image Loading Strategy"
 	default CONFIG_LOAD_UBOOT
 
-#
 # Load U-Boot
-#
 config CONFIG_LOAD_UBOOT
 	bool "Load U-Boot into last MBYTE of SDRAM"
 	help
 	  Use this mode to load an second level boot monitor
 	  like U-boot into the last MB of SDRAM.
 
-#
 # Load Linux
-#
 config CONFIG_LOAD_LINUX
 	bool "Support loading Linux directly"
 	---help---
@@ -91,14 +87,6 @@ config CONFIG_OS_IMAGE_NAME
 	string "Binary Name on SD Card"
 	default "image.bin"
 
-config CONFIG_OS_IMG_SIZE
-	string "OS Image Size"
-	default "0x280000"
-
-config CONFIG_LINUX_IMG_NAND_OFFSET
-	depends on CONFIG_NANDFLASH
-	string "NandFlash offset for Linux kernel"
-	default "0x200000"
 endmenu
 
 config CONFIG_OS_IMAGE_NAME
@@ -117,28 +105,13 @@ config CONFIG_IMG_ADDRESS
 	default	"0x00000000" if CONFIG_SDCARD
 	help
 
-#
-# For Demo App
-#
+# Load Demo App
 config CONFIG_IMG_ADDRESS
 	string
 	depends on !CONFIG_LOAD_UBOOT && !CONFIG_LOAD_LINUX 
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00020000" if CONFIG_NANDFLASH && !CONFIG_AT91SAM9X5EK
 	default "0x00040000" if CONFIG_NANDFLASH && CONFIG_AT91SAM9X5EK
-
-config CONFIG_SETTING_ADDRESS
-	string
-	default "0x00008000" if CONFIG_FLASH
-	default "0x00408400" if CONFIG_DATAFLASH
-	default "0x01FE0000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
-	help
-
-config CONFIG_SETTING_SIZE
-	string
-	default "0x00001000" 
-	help	
 	
 config CONFIG_IMG_SIZE
 	string
@@ -179,20 +152,6 @@ config CONFIG_JUMP_ADDR
 	help
 	  The entry point to which the bootstrap will pass control.
 
-config CONFIG_GLBDRV_ADDR
-	string
-	default "0x7006b000" if CONFIG_AT91SAM9M10G45EK
-	default "0x20058000" if CONFIG_AT91SAM9G20EK
-	default "0x20068000" if CONFIG_AT91SAM9X5EK
-	default "0x20068000" if CONFIG_AT91SAM9N12EK
-	default "0x23F00000"
-	help
-	
-config CONFIG_LONG_TEST
-	bool "Perform a memory test at startup"
-	default n
-	help
-	  
 config CONFIG_DEBUG
 	bool "Debug Support"
 	default n

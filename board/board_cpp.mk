@@ -23,12 +23,7 @@ ifeq ($(CONFIG_SCLK),y)
 CPPFLAGS += -DCONFIG_SCLK
 endif
 
-ifeq ($(CONFIG_LOAD_NK),y)
-CPPFLAGS += -DCONFIG_LOAD_NK
-endif
-
 # Crystal frequency
-
 ifeq ($(CONFIG_CRYSTAL_12_000MHZ),y)
 CPPFLAGS += -DCONFIG_CRYSTAL_12_000MHZ
 endif
@@ -46,7 +41,6 @@ CPPFLAGS += -DCONFIG_CRYSTAL_18_432MHZ
 endif
 
 # CPU clock
-
 ifeq ($(CONFIG_CPU_CLK_180MHZ),y)
 CPPFLAGS += -DCONFIG_CPU_CLK_180MHZ
 endif
@@ -72,7 +66,6 @@ CPPFLAGS += -DCONFIG_CPU_CLK_400MHZ
 endif
 
 # Bus speed
-
 ifeq ($(CONFIG_BUS_SPEED_83MHZ),y)
 CPPFLAGS += -DCONFIG_BUS_SPEED_83MHZ
 endif
