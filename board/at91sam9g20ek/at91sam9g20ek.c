@@ -46,8 +46,13 @@
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
+#ifdef CONFIG_DEBUG
 static void initialize_dbgu(void);
+#endif
+
+#ifdef CONFIG_SDRAM
 static void sdramc_init(void);
+#endif
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)

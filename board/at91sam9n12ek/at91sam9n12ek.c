@@ -50,9 +50,13 @@ extern void set_cp15(unsigned int value);
 extern void hw_init_hook(void);
 #endif
 
+#ifdef CONFIG_DEBUG
 static void initialize_dbgu(void);
+#endif
 
+#ifdef CONFIG_DDR2
 static void ddramc_init(void);
+#endif
 
 #ifdef CONFIG_SCLK
 static void slow_clk_enable(void)
