@@ -89,17 +89,16 @@ struct _PMECC_paramDesc_struct {
 	/* polynom order */
 	short lmu[TT_MAX + 1];
 
-} PMECC_paramDesc_struct;
+} PMECC_paramDesc;
 
 /* ECC detection/coreection */
 typedef int (*PMECC_CorrectionAlgo_Rom_Func) (unsigned long pPMECC,
-				unsigned long pPMERRLOC,
-				struct _PMECC_paramDesc_struct *
-				PMECC_desc,
-				unsigned int PMECC_status,
-				void *pageBuffer);
+			unsigned long pPMERRLOC,
+			struct _PMECC_paramDesc_struct *PMECC_desc,
+			unsigned int PMECC_status,
+			void *pageBuffer);
 
-PMECC_CorrectionAlgo_Rom_Func pmecc_correction;
+PMECC_CorrectionAlgo_Rom_Func pmecc_correction_algo;
 
 static int pmecc_readl(unsigned int reg)
 {
@@ -444,7 +443,7 @@ static void nandflash_reset(void)
 
 	nand_cs_enable();
 	nand_command(CMD_RESET);
-	//nand_wait_ready();
+
 	nand_wait_ready();
 	
 	nand_command(CMD_STATUS);
@@ -501,11 +500,11 @@ int nand_erase_block_0(void)
 	nand_command(CMD_ERASE_2);
 
 	/* Wait for nand to be ready */
-	//nand_wait_ready();
 	nand_wait_ready();
 
 	/* Check status bit for error notification */
 	nand_command(CMD_STATUS);
+
 	nand_wait_ready();
 	if (read_byte() & STATUS_ERROR)
 		return -1;
@@ -520,15 +519,18 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, u
 {
 	switch (pagesize) {
 	case 2048:
-		pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_4SEC;
-		pmecc_params->sectorSize = AT91C_PMECC_SECTORSZ_512;
-		pmecc_params->spareSize = 64;
-		pmecc_params->errBitNbrCapability = 0;	/* 2bits correction */
+		pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR2; /* Error Correct Capability */
+		pmecc_params->sectorSize = AT91C_PMECC_SECTORSZ_512; /* Sector Size */
+		pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_4SEC; /* Number of Sectors in the Page */
+		pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;	/* NAND read access */
+		pmecc_params->spareEna = AT91C_PMECC_SPAREENA_DIS; /* for NAND read access,the spare area is skipped  */
+		pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;	/* the spare area is not protected */
+
+		pmecc_params->spareSize = 64;	/* Spare Area Size */
+		pmecc_params->eccStartAddress = ECC_START_ADDR;	/* ECC Area Start Address */
+		pmecc_params->eccEndAddress = ECC_END_ADDR;	/* ECC Area End Address */
 		pmecc_params->eccSizeByte = 16;
-		pmecc_params->eccStartAddress = ECC_START_ADDR;
-		pmecc_params->eccEndAddress = ECC_END_ADDR;
-		pmecc_params->spareEna = 0;
-		pmecc_params->clkCtrl = 2;	/* stated in datasheet */
+		pmecc_params->clkCtrl = 2;	/* At 133Mhz, this field must be programmed with 2 */
 		pmecc_params->interrupt = 0;
 		pmecc_params->tt = 2;
 		pmecc_params->mm = 13;
@@ -550,9 +552,6 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, u
 
 static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 {
-	pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;
-	pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;
-
 	pmecc_writel(AT91C_PMECC_DISABLE, PMECC_CTRL);
 	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
 
@@ -576,13 +575,13 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 
 static int init_pmecc(unsigned int pagesize)
 {
-	pmecc_correction = (PMECC_CorrectionAlgo_Rom_Func)
+	pmecc_correction_algo = (PMECC_CorrectionAlgo_Rom_Func)
 			(*(unsigned int *)PMECC_ALGO_FCT_ADDR);
 
-	if (init_pmecc_descripter(&PMECC_paramDesc_struct, pagesize) != 0)
+	if (init_pmecc_descripter(&PMECC_paramDesc, pagesize) != 0)
 		return -1;
 
-	init_pmecc_core(&PMECC_paramDesc_struct);
+	init_pmecc_core(&PMECC_paramDesc);
 
 	return 0;
 }
@@ -642,7 +641,6 @@ static int nand_read_sector(struct nand_info *nand,
 	}
 
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
-	//nand_wait_ready();
 	nand_wait_ready();
 
 	/* Read loop */
@@ -671,7 +669,6 @@ static int nand_read_sector(struct nand_info *nand,
 			nand_address((sectoraddr >> 16) & 0xFF);
 
 			/* Need to be done twice, READY detected too early the first time? */
-			//nand_wait_ready();
 			nand_wait_ready();
 
 			for (i = 0; i < (readbytes / 2); i++) {
@@ -694,33 +691,25 @@ static int nand_read_sector(struct nand_info *nand,
 {
 	unsigned int readbytes, i;
 	unsigned int address;
+	int ret = 0;
 
 #ifdef CONFIG_USE_PMECC
-	int ret = 0; 
+	int result;
 	unsigned int erris;
 	unsigned char *pbuf = buffer;
-	unsigned int val;
+	unsigned int usepmecc = 0;
 
 	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
 	pmecc_writel(AT91C_PMECC_DISABLE, PMECC_CTRL);
 
-	val = pmecc_readl(PMECC_CFG);
-	val &= ~AT91C_PMECC_NANDWR_1;
-	val |= AT91C_PMECC_AUTO_ENA;
-	pmecc_writel(val, PMECC_CFG);
+	if (zone_flag == ZONE_DATA) {
+		usepmecc = 1;
+		zone_flag = ZONE_DATA | ZONE_INFO;
 
-	pmecc_writel(AT91C_PMECC_ENABLE, PMECC_CTRL);
-	pmecc_writel(AT91C_PMECC_DATA, PMECC_CTRL);
-
-	zone_flag = ZONE_DATA | ZONE_INFO;
-#endif
-	/*
-	 * WARNING : During a read procedure you can't call the ReadStatus flash cmd
-	 * * The ReadStatus fill the read register with 0xC0 and then corrupt the read
-	 */
-	nand_cs_enable();
-
-	nand_command(CMD_READ_1);
+		pmecc_writel(AT91C_PMECC_ENABLE, PMECC_CTRL);
+		pmecc_writel(AT91C_PMECC_DATA, PMECC_CTRL);
+	}
+#endif	/* #ifdef CONFIG_USE_PMECC */
 
 	address = 0x00;
 	switch (zone_flag) {
@@ -743,16 +732,21 @@ static int nand_read_sector(struct nand_info *nand,
 	default:
 		return -1;
 	}
+	/*
+	 * WARNING : During a read procedure you can't call the ReadStatus flash cmd
+	 * * The ReadStatus fill the read register with 0xC0 and then corrupt the read
+	 */
+	nand_cs_enable();
+
+	nand_command(CMD_READ_1);
 
 	send_large_block_address(address);
-
 	sectoraddr >>= nand->page_shift;
 	send_sector_address(sectoraddr);
 
 	nand_command(CMD_READ_2);
 
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
-	//nand_wait_ready();
 	nand_wait_ready();
 
 	/* Read loop */
@@ -766,27 +760,30 @@ static int nand_read_sector(struct nand_info *nand,
 			*buffer++ = read_byte();
 
 #ifdef CONFIG_USE_PMECC
-	while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY)
-		udelay(1);
+	if (usepmecc == 1) {
+		while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY)
+			udelay(1);
 
-	erris = pmecc_readl(PMECC_ISR);
-	if ((erris) && (erris != 0xf)) {
-		dbg_log(1, "PMECC found the sector %d is corrupted, Now PMECC is correcting...\n\r", erris);
-		ret = (*pmecc_correction)((AT91C_BASE_PMECC + PMECC_CFG),
-					(AT91C_BASE_PMERRLOC + PMERRLOC_ELCFG),
-					&PMECC_paramDesc_struct,
+		erris = pmecc_readl(PMECC_ISR);
+		if (erris) {
+			dbg_log(1, "PMECC found the sector bits %d corrupted, Now PMECC is correcting...\n\r", erris);
+			result = (*pmecc_correction_algo)(AT91C_BASE_PMECC,
+					AT91C_BASE_PMERRLOC,
+					&PMECC_paramDesc,
 					erris,
 					pbuf);
-		if (ret != 0) {
-			dbg_log(1, "PMECC failed to correct!\n\r");
-			return ECC_CORRECT_ERROR;
+
+			if (result != 0) {
+				dbg_log(1, "PMECC failed to correct!\n\r");
+				ret =  ECC_CORRECT_ERROR;
+			}
 		}
 	}
-#endif
+#endif /* #ifdef CONFIG_USE_PMECC */
 
 	nand_cs_disable();
 
-	return 0;
+	return ret;
 }
 #endif /* #ifdef NANDFLASH_SMALL_BLOCKS */
 
@@ -800,7 +797,6 @@ static int nand_check_badblock(struct nand_info *nand,
 	/* Read the first page and second page oob zone to detect if block is bad */
 	for (i = 0; i < 2; i++) {
 		nand_read_sector(nand, sectoraddr + i * nand->pagesize, buffer, ZONE_INFO);
-		
 		if (*(buffer + nand->pagesize + nand->badblockpos) != 0xFF)
 			return -1;
 	}
@@ -914,4 +910,3 @@ int load_nandflash(struct image_info *img_info)
 
 	return 0;
 }
-
