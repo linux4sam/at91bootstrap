@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Thu May 17 17:02:45 2012
+# Thu May 17 17:21:21 2012
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9g20ek"
@@ -63,7 +63,6 @@ CONFIG_MEMORY="dataflash"
 # SPI configuration
 #
 CONFIG_SPI_CLK=33000000
-CONFIG_SMALL_DATAFLASH=y
 # CONFIG_SPI_BOOT_CS0 is not set
 CONFIG_SPI_BOOT_CS1=y
 # CONFIG_SPI_BOOT_CS2 is not set
