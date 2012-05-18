@@ -48,13 +48,98 @@
 extern int get_cp15(void);
 extern void set_cp15(unsigned int value);
 
-static void initialize_dbgu(void);
-
-static void ddramc_init(void);
-
 #ifdef CONFIG_USER_HW_INIT
 extern void hw_init_hook(void);
 #endif
+
+#ifdef CONFIG_DEBUG
+static void at91_dbgu_hw_init(void)
+{
+	/* Configure DBGU pins */
+	const struct pio_desc dbgu_pins[] = {
+		{"RXD", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TXD", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(dbgu_pins);
+	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+}
+
+static void initialize_dbgu(void)
+{
+	at91_dbgu_hw_init();
+	dbgu_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
+}
+#endif /* #ifdef CONFIG_DEBUG */
+
+#ifdef CONFIG_DDR2
+/* Using the Micron MT47H64M16HR-3 */
+static void ddramc_reg_config(struct ddramc_register *ddramc_config)
+{
+	ddramc_config->mdr = (AT91C_DDRC2_DBW_16_BITS
+			| AT91C_DDRC2_MD_DDR2_SDRAM);
+
+	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9 /* 10 column bits(1K) */
+			| AT91C_DDRC2_NR_13              /* 13 row bits (8K) */
+			| AT91C_DDRC2_CAS_3              /* CAS Latency 3 */
+			| AT91C_DDRC2_NB_BANKS_8         /* 8 banks */
+			| AT91C_DDRC2_DLL_RESET_DISABLED /* DLL not reset */
+			| AT91C_DDRC2_DECOD_INTERLEAVED);/*Interleaved decode*/
+
+	/*
+	 * The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
+	 * With a 133 MHz frequency, the refresh timer count register must to be
+	 * set with (15.625 x 133 MHz) ~ 2084 i.e. 0x824
+	 * or (7.81 x 133 MHz) ~ 1040 i.e. 0x410.
+	 */
+	ddramc_config->rtr = 0x411;     /* Refresh timer: 7.8125us */
+
+	/* One clock cycle @ 133 MHz = 7.5 ns */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6       /* 6 * 7.5 = 45 ns */
+			| AT91C_DDRC2_TRCD_2            /* 2 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TWR_2             /* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRC_8             /* 8 * 7.5 = 75   ns */
+			| AT91C_DDRC2_TRP_2             /* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRRD_2            /* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TWTR_2            /* 2 clock cycles min */
+			| AT91C_DDRC2_TMRD_2);          /* 2 clock cycles */
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2        /*  2 clock cycles */
+			| 200 << 16                     /* 200 clock cycles */
+			| 19 << 8                       /* 19 * 7.5 = 142.5 ns*/
+			| AT91C_DDRC2_TRFC_18);         /* 18 * 7.5 = 135 ns */
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_7       /* 7 * 7.5 = 52.5 ns */
+			| AT91C_DDRC2_TRTP_2            /* 2 clock cycles min */
+			| AT91C_DDRC2_TRPA_3            /* 3 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TXARDS_7          /* 7 clock cycles */
+			| AT91C_DDRC2_TXARD_2);         /* 2 clock cycles */
+}
+
+static void ddramc_init(void)
+{
+	unsigned long csa;
+	struct ddramc_register ddramc_reg;
+
+	ddramc_reg_config(&ddramc_reg);
+
+	/* ENABLE DDR2 clock */
+	writel(AT91C_PMC_DDR, AT91C_BASE_PMC + PMC_SCER);
+
+	/* Chip select 1 is for DDR2/SDRAM */
+	csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
+	csa |= AT91C_EBI_CS1A_SDRAMC;
+	csa &= ~AT91C_EBI_DBPUC;
+	csa |= AT91C_EBI_DBPDC;
+	csa |= AT91C_EBI_DRV_HD;
+
+	writel(csa, AT91C_BASE_CCFG + CCFG_EBICSA);
+
+	/* DDRAM2 Controller initialize */
+	ddram_initialize(AT91C_BASE_DDRSDRC, AT91C_BASE_CS1, &ddramc_reg);
+}
+#endif	/* #ifdef CONFIG_DDR2 */
 
 #ifdef CONFIG_SCLK
 static void slow_clk_enable(void)
@@ -126,96 +211,6 @@ void hw_init(void)
 #endif
 }
 #endif /* CONFIG_HW_INIT */
-
-#ifdef CONFIG_DEBUG
-static void at91_dbgu_hw_init(void)
-{
-	/* Configure DBGU pins */
-	const struct pio_desc dbgu_pins[] = {
-		{"RXD", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"TXD", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pio_configure(dbgu_pins);
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
-}
-
-static void initialize_dbgu(void)
-{
-	at91_dbgu_hw_init();
-	dbgu_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
-}
-#endif /* #ifdef CONFIG_DEBUG */
-
-
-#ifdef CONFIG_DDR2
-/* Using the Micron MT47H64M16HR-3 */
-static void ddramc_reg_config(struct ddramc_register *ddramc_config)
-{
-	ddramc_config->mdr = (AT91C_DDRC2_DBW_16_BITS
-			| AT91C_DDRC2_MD_DDR2_SDRAM);
-
-	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9 /* 10 column bits(1K) */
-			| AT91C_DDRC2_NR_13              /* 13 row bits (8K) */
-			| AT91C_DDRC2_CAS_3              /* CAS Latency 3 */
-			| AT91C_DDRC2_NB_BANKS_8         /* 8 banks */
-			| AT91C_DDRC2_DLL_RESET_DISABLED /* DLL not reset */
-			| AT91C_DDRC2_DECOD_INTERLEAVED);/*Interleaved decode*/
-
-	/*
-	 * The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
-	 * With a 133 MHz frequency, the refresh timer count register must to be
-	 * set with (15.625 x 133 MHz) ~ 2084 i.e. 0x824
-	 * or (7.81 x 133 MHz) ~ 1040 i.e. 0x410.
-	 */
-	ddramc_config->rtr = 0x411;     /* Refresh timer: 7.8125us */
-
-	/* One clock cycle @ 133 MHz = 7.5 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6       /* 6 * 7.5 = 45 ns */
-			| AT91C_DDRC2_TRCD_2            /* 2 * 7.5 = 22.5 ns */
-			| AT91C_DDRC2_TWR_2             /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TRC_8             /* 8 * 7.5 = 75   ns */
-			| AT91C_DDRC2_TRP_2             /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TRRD_2            /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TWTR_2            /* 2 clock cycles min */
-			| AT91C_DDRC2_TMRD_2);          /* 2 clock cycles */
-
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2        /*  2 clock cycles */
-			| 200 << 16                     /* 200 clock cycles */
-			| 19 << 8                       /* 19 * 7.5 = 142.5 ns*/
-			| AT91C_DDRC2_TRFC_18);         /* 18 * 7.5 = 135 ns */
-
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_7       /* 7 * 7.5 = 52.5 ns */
-			| AT91C_DDRC2_TRTP_2            /* 2 clock cycles min */
-			| AT91C_DDRC2_TRPA_3            /* 3 * 7.5 = 22.5 ns */
-			| AT91C_DDRC2_TXARDS_7          /* 7 clock cycles */
-			| AT91C_DDRC2_TXARD_2);         /* 2 clock cycles */
-}
-
-static void ddramc_init(void)
-{
-	unsigned long csa;
-	struct ddramc_register ddramc_reg;
-
-	ddramc_reg_config(&ddramc_reg);
-
-	/* ENABLE DDR2 clock */
-	writel(AT91C_PMC_DDR, AT91C_BASE_PMC + PMC_SCER);
-
-	/* Chip select 1 is for DDR2/SDRAM */
-	csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
-	csa |= AT91C_EBI_CS1A_SDRAMC;
-	csa &= ~AT91C_EBI_DBPUC;
-	csa |= AT91C_EBI_DBPDC;
-	csa |= AT91C_EBI_DRV_HD;
-
-	writel(csa, AT91C_BASE_CCFG + CCFG_EBICSA);
-
-	/* DDRAM2 Controller initialize */
-	ddram_initialize(AT91C_BASE_DDRSDRC, AT91C_BASE_CS1, &ddramc_reg);
-}
-#endif /* CONFIG_DDR2 */
 
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)

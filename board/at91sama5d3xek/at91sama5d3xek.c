@@ -51,10 +51,41 @@ extern void hw_init_hook(void);
 #endif
 
 #ifdef CONFIG_DEBUG
-static void initialize_dbgu(void);
-#endif
+static void at91_dbgu_hw_init(void)
+{
+	/* Configure DBGU pin */
+	const struct pio_desc dbgu_pins[] = {
+		{"RXD", AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TXD", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 
-static void initialize_ddr2(void);
+	pio_configure(dbgu_pins);
+
+	/*  Configure the dbgu pins */
+	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+
+	/* Enable clock */
+	writel(1 << AT91C_ID_DBGU, (PMC_PCER + AT91C_BASE_PMC));
+}
+
+static void initialize_dbgu(void)
+{
+	at91_dbgu_hw_init();
+	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
+}
+#endif /* #ifdef CONFIG_DEBUG */
+
+#ifdef CONFIG_DDR2
+static void initialize_ddr2(void)
+{
+	writel(1 << (AT91C_ID_MPDDRC - 32),  (PMC_PCER1 + AT91C_BASE_PMC));
+	writel(AT91C_PMC_DDR, (PMC_SCER + AT91C_BASE_PMC));
+
+	init_mpddr_sdramc();
+
+}
+#endif /* #ifdef CONFIG_DDR2 */
 
 #ifdef CONFIG_SCLK
 static void slow_clk_enable(void)
@@ -121,43 +152,6 @@ void hw_init(void)
 #endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
-
-#ifdef CONFIG_DEBUG
-static void at91_dbgu_hw_init(void)
-{
-	/* Configure DBGU pin */
-	const struct pio_desc dbgu_pins[] = {
-		{"RXD", AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"TXD", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pio_configure(dbgu_pins);
-
-	/*  Configure the dbgu pins */
-	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
-
-	/* Enable clock */
-	writel(1 << AT91C_ID_DBGU, (PMC_PCER + AT91C_BASE_PMC));
-}
-
-static void initialize_dbgu(void)
-{
-	at91_dbgu_hw_init();
-	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
-}
-#endif /* #ifdef CONFIG_DEBUG */
-
-#ifdef CONFIG_DDR2
-static void initialize_ddr2(void)
-{
-	writel(1 << (AT91C_ID_MPDDRC - 32),  (PMC_PCER1 + AT91C_BASE_PMC));
-	writel(AT91C_PMC_DDR, (PMC_SCER + AT91C_BASE_PMC));
-
-	init_mpddr_sdramc();
-
-}
-#endif /* #ifdef CONFIG_DDR2 */
 
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)

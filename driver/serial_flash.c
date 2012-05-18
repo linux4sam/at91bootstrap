@@ -232,20 +232,21 @@ static int dataflash_read_fast_at45(unsigned int offset,
 static int sf_cmd_read_id(unsigned char *idcode, unsigned int idcode_len)
 {
 	int ret;
-	unsigned int i;
 
 	/* Read the ID codes */
 	ret = sf_cmd(CMD_READ_ID, idcode, idcode_len);
 	if (ret)
 		return -1;
-	
+
+#ifdef CONFIG_DEBUG
+	unsigned int i;
 	unsigned char *p = idcode;
 
 	dbg_log(1, "SF: Got idcodes:");
 	for (i = 0; i < idcode_len; i++)
 		dbg_log(1, "%d ", *p++);
 	dbg_log(1, "\n\r");
-
+#endif
 	return 0;
 }
 

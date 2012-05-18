@@ -50,76 +50,6 @@ extern void set_cp15(unsigned int value);
 extern void hw_init_hook(void);
 #endif
 
-static void initialize_dbgu(void);
-
-static void ddramc_init(void);
-
-#ifdef CONFIG_SCLK
-static void slow_clk_enable(void)
-{
-	writel(readl(AT91C_BASE_SCKCR) | AT91C_SLCKSEL_OSC32EN, AT91C_BASE_SCKCR);
-	/* must wait for slow clock startup time ~ 1000ms
-	 * (~6 core cycles per iteration, core is at 400MHz: 66666000 min loops) */
-	delay(66700000);
-
-	writel(readl(AT91C_BASE_SCKCR) | AT91C_SLCKSEL_OSCSEL, AT91C_BASE_SCKCR);
-	/* must wait 5 slow clock cycles = ~153 us
-	 * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops) */
-	delay(10200);
-
-	/* now disable the internal RC oscillator */
-	writel(readl(AT91C_BASE_SCKCR) & ~AT91C_SLCKSEL_RCEN, AT91C_BASE_SCKCR);
-}
-#endif /* CONFIG_SCLK */
-
-#ifdef CONFIG_HW_INIT
-void hw_init(void)
-{
-	unsigned int cp15;
-
-	/* Disable watchdog */
-	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDT + WDTC_MR);
-
-	/* At this stage the main oscillator is supposed to be enabled PCK = MCK = MOSC */
-	writel(0x00, AT91C_BASE_PMC + PMC_PLLICPR);
-
-	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
-	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
-
-	/* PCK = PLLA/2 = 3 * MCK */
-	pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK, PLL_LOCK_TIMEOUT);
-
-	/* Switch MCK on PLLA output */
-	pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
-
-	/* Enable External Reset */
-	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
-
-	/* Configure CP15 */
-	cp15 = get_cp15();
-	cp15 |= I_CACHE;
-	set_cp15(cp15);
-
-#ifdef CONFIG_SCLK
-	slow_clk_enable();
-#endif
-
-#ifdef CONFIG_DEBUG
-	/* Initialize dbgu */
-	initialize_dbgu();
-#endif
-
-#ifdef CONFIG_DDR2
-	/* Initialize DDRAM Controller */
-	ddramc_init();
-#endif
-
-#ifdef CONFIG_USER_HW_INIT
-	hw_init_hook();
-#endif
-}
-#endif /* CONFIG_HW_INIT */
-
 #ifdef CONFIG_DEBUG
 static void at91_dbgu_hw_init(void)
 {
@@ -209,6 +139,72 @@ static void ddramc_init(void)
 	ddram_initialize(AT91C_BASE_DDRSDRC, AT91C_BASE_CS1, &ddramc_reg);
 }
 #endif /* #ifdef CONFIG_DDR2 */
+
+#ifdef CONFIG_SCLK
+static void slow_clk_enable(void)
+{
+	writel(readl(AT91C_BASE_SCKCR) | AT91C_SLCKSEL_OSC32EN, AT91C_BASE_SCKCR);
+	/* must wait for slow clock startup time ~ 1000ms
+	 * (~6 core cycles per iteration, core is at 400MHz: 66666000 min loops) */
+	delay(66700000);
+
+	writel(readl(AT91C_BASE_SCKCR) | AT91C_SLCKSEL_OSCSEL, AT91C_BASE_SCKCR);
+	/* must wait 5 slow clock cycles = ~153 us
+	 * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops) */
+	delay(10200);
+
+	/* now disable the internal RC oscillator */
+	writel(readl(AT91C_BASE_SCKCR) & ~AT91C_SLCKSEL_RCEN, AT91C_BASE_SCKCR);
+}
+#endif /* CONFIG_SCLK */
+
+#ifdef CONFIG_HW_INIT
+void hw_init(void)
+{
+	unsigned int cp15;
+
+	/* Disable watchdog */
+	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDT + WDTC_MR);
+
+	/* At this stage the main oscillator is supposed to be enabled PCK = MCK = MOSC */
+	writel(0x00, AT91C_BASE_PMC + PMC_PLLICPR);
+
+	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
+	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
+
+	/* PCK = PLLA/2 = 3 * MCK */
+	pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK, PLL_LOCK_TIMEOUT);
+
+	/* Switch MCK on PLLA output */
+	pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
+
+	/* Enable External Reset */
+	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
+
+	/* Configure CP15 */
+	cp15 = get_cp15();
+	cp15 |= I_CACHE;
+	set_cp15(cp15);
+
+#ifdef CONFIG_SCLK
+	slow_clk_enable();
+#endif
+
+#ifdef CONFIG_DEBUG
+	/* Initialize dbgu */
+	initialize_dbgu();
+#endif
+
+#ifdef CONFIG_DDR2
+	/* Initialize DDRAM Controller */
+	ddramc_init();
+#endif
+
+#ifdef CONFIG_USER_HW_INIT
+	hw_init_hook();
+#endif
+}
+#endif /* CONFIG_HW_INIT */
 
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)
