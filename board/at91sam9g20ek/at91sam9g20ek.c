@@ -209,7 +209,7 @@ void at91_spi0_hw_init(void)
 #endif /* CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
-void at91_mci_hw_init(void)
+void at91_mci0_hw_init(void)
 {
 	const struct pio_desc mci_pins[] = {
 		{"MCCK",	AT91C_PIN_PA(8), 0, PIO_PULLUP, PIO_PERIPH_A},
@@ -227,7 +227,7 @@ void at91_mci_hw_init(void)
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
-	writel((1 << CONFIG_SYS_ID_MCI), (PMC_PCER + AT91C_BASE_PMC));
+	writel((1 << AT91C_ID_MCI), (PMC_PCER + AT91C_BASE_PMC));
 }
 #endif /* #ifdef CONFIG_SDCARD */
 

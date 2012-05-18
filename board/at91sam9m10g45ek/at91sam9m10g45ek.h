@@ -94,7 +94,6 @@
  * MCI Settings
  */
 #define CONFIG_SYS_BASE_MCI     AT91C_BASE_MCI0
-#define CONFIG_SYS_ID_MCI       AT91C_ID_MCI0
 
 /* function */
 extern void hw_init(void);
@@ -105,6 +104,6 @@ extern unsigned int nandflash_get_ready_pin(void);
 
 extern void at91_spi0_hw_init(void);
 
-extern void at91_mci_hw_init(void);
+extern void at91_mci0_hw_init(void);
 
 #endif /* __AT91SAM9M10G45EK_H__ */

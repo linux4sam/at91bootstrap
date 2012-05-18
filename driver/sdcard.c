@@ -46,7 +46,7 @@ int load_sdcard(struct image_info *img_info)
 	UINT byte_read;
 	char *filename = img_info->filename;
 
-	at91_mci_hw_init();
+	at91_mci0_hw_init();
 
 	dbg_log(1, "Reading file %s from SD Card to %d\n\r", filename, pdata);
 	
