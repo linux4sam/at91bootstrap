@@ -30,6 +30,8 @@
 #include "board.h"
 #include "spi.h"
 #include "arch/at91_spi.h"
+#include "arch/at91_pio.h"
+#include "gpio.h"
 #include "debug.h"
 
 /* Register access macros */
@@ -45,6 +47,16 @@ static unsigned int at91_spi_get_cs(void)
 
 	cs = CONFIG_SYS_SPI_CS;
 	return cs;
+}
+
+static void spi_cs_activate(void)
+{
+	pio_set_value(CONFIG_SYS_SPI_PCS, 0);
+}
+
+static void spi_cs_deactivate(void)
+{
+	pio_set_value(CONFIG_SYS_SPI_PCS, 1);
 }
 
 int at91_spi_init(unsigned int clock, unsigned int mode)

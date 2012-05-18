@@ -106,8 +106,6 @@ extern void nandflash_hw_init(void);
 extern void nandflash_config_buswidth(unsigned char busw);
 
 extern void at91_spi0_hw_init(void);
-extern void spi_cs_activate(void);
-extern void spi_cs_deactivate(void);
 
 extern void at91_mci_hw_init(void);
 

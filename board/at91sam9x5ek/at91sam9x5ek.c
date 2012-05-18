@@ -229,16 +229,6 @@ void at91_spi0_hw_init(void)
 
 	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
 }
-
-void spi_cs_activate(void)
-{
-	pio_set_value(CONFIG_SYS_SPI_PCS, 0);
-}
-
-void spi_cs_deactivate(void)
-{
-	pio_set_value(CONFIG_SYS_SPI_PCS, 1);
-}
 #endif	/* CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
