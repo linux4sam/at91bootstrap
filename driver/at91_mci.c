@@ -123,7 +123,7 @@ static int mci_set_bus_width(unsigned int buswidth)
 {
 	unsigned int reg;
 
-	reg = AT91C_MCI_SCDSEL_SLOTA;
+	reg = mci_readl(MCI_SDCR);
 	
 	if (buswidth == 8)
 		reg |=  AT91C_MCI_SCDBUS_8BIT;
@@ -141,15 +141,15 @@ static void mci_init(void)
 {
 	/* software reset */
 	mci_writel(MCI_CR, AT91C_MCI_SWRST);
-	/* disable power save */
-	mci_writel(MCI_CR, AT91C_MCI_PWSDIS);
-	/* enable mci */
-	mci_writel(MCI_CR, AT91C_MCI_MCIEN);
-	/* select port */
+
+	/* disable mci and disable power save mode */
+	mci_writel(MCI_CR, AT91C_MCI_PWSDIS | AT91C_MCI_MCIDIS);
+
+	/* SDCard/SDUI Slot */
 	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA);
 
 	/* initialize timeout register */
-	mci_writel(MCI_DTOR, 0x5f);
+	mci_writel(MCI_DTOR, 0x7f);
 
 	/* disable Interrupt */
 	mci_writel(MCI_IDR, ~0L);
@@ -159,6 +159,9 @@ static void mci_init(void)
 
 	/* set default clocks and blocklen */
 	mci_set_mode(CONFIG_SYS_MMC_DEFAULT_CLK, CONFIG_SYS_MMC_DEFAULT_BLKLEN);
+
+	/* enable mci */
+	mci_writel(MCI_CR, AT91C_MCI_MCIEN);
 }
 
 /* response type definition */
@@ -206,7 +209,7 @@ static int mmc_cmd(unsigned short cmd,
 		flags |= AT91C_MCI_RSPTYP_R1B; 
 	else if (resp_type & MMC_RSP_PRESENT)
 		flags |= AT91C_MCI_RSPTYP_48;
-	
+
 	cmdr = cmd | flags;
 
 	/* Send the command */
