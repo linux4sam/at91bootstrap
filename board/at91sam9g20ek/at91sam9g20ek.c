@@ -43,9 +43,6 @@
 #include "sdramc.h"
 #include "at91sam9g20ek.h"
 
-extern int get_cp15(void);
-extern void set_cp15(unsigned int value);
-
 #ifdef CONFIG_DEBUG
 static void initialize_dbgu(void);
 #endif
@@ -82,11 +79,6 @@ void hw_init(void)
 
 	/* Enable External Reset */
 	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
-
-	/* Configure CP15 */
-	//cp15 = get_cp15();
-	//cp15 |= I_CACHE;
-	//set_cp15(cp15);
 
 	/* Configure the EBI Slave Slot Cycle to 64 */
 	writel((readl((AT91C_BASE_MATRIX + MATRIX_SCFG3)) & ~0xFF) | 0x40,

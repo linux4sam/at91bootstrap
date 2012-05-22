@@ -43,9 +43,6 @@
 #include "spi.h"
 #include "at91sam9n12ek.h"
 
-extern int get_cp15(void);
-extern void set_cp15(unsigned int value);
-
 #ifdef CONFIG_USER_HW_INIT
 extern void hw_init_hook(void);
 #endif
@@ -98,11 +95,6 @@ void hw_init(void)
 
 	/* Enable External Reset */
 	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
-
-	/* Configure CP15 */
-	cp15 = get_cp15();
-	cp15 |= I_CACHE;
-	set_cp15(cp15);
 
 #ifdef CONFIG_SCLK
 	slow_clk_enable();
