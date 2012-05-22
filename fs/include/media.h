@@ -31,4 +31,4 @@
 extern int mmc_initialize(void);
 extern unsigned int mmc_bread(unsigned int start, unsigned int blkcnt, void *dest);
 
-#endif	/* #ifndef __MEDIA_H__ */
+#endif
