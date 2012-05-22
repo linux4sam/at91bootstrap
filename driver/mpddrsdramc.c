@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (C) 2012 Atmel Corporation*
  *
@@ -31,6 +31,7 @@ static inline unsigned int mpddrc_readl(unsigned int reg)
 {
 	return readl((void *)AT91C_BASE_MPDDRC + reg);
 }
+
 static inline void mpddrc_writel(unsigned int reg, unsigned int value)
 {
 	writel((value), ((void *)AT91C_BASE_MPDDRC + reg));
@@ -248,4 +249,3 @@ void init_mpddr_sdramc(void)
 	 */
 	mpddrc_writel(MPDDRC_RTR, 0x00300208);		/* Refresh Timer register : 520 for 133 MHz */
 }
-

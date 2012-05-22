@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_spi.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef _AT91_SPI_H_
-#define _AT91_SPI_H_
+#ifndef __AT91_SPI_H__
+#define __AT91_SPI_H__
 
 /* *** Register offset in AT91S_SPI structure ***/
 #define SPI_CR		0x00	/* Control Register */
@@ -106,4 +101,4 @@
 #define AT91C_SPI_DLYBS(x)	(x << 16)
 #define AT91C_SPI_DLYBCT(x)	(x << 24)
 
-#endif /* #ifndef AT91_SPI_H */
+#endif /* #ifndef __AT91_SPI_H__ */

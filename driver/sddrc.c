@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2007, Stelian Pop <stelian.pop@leadtechdesign.com>
  * Copyright (c) 2007 Lead Tech Design <www.leadtechdesign.com>
@@ -25,34 +25,21 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : sdramc.c
- * Object              :
- * Creation            :
- *-----------------------------------------------------------------------------
  */
 #include "../include/sddrc.h"
 #include "../include/part.h"
 #include "../include/main.h"
 
-#ifdef CONFIG_SDDRC
-
-/* Write SDDRC register */
 static inline void write_sddrc(unsigned int offset, const unsigned int value)
 {
     writel(value, offset + AT91C_BASE_SDDRC);
 }
 
-/* Read SDDRC registers */
 static inline unsigned int read_sddrc(unsigned int offset)
 {
     return readl(offset + AT91C_BASE_SDDRC);
 }
 
-//*----------------------------------------------------------------------------
-//* \fn    sdram_init
-//* \brief Initialize the SDDRC Controller
-//*----------------------------------------------------------------------------
 int sddrc_init(unsigned int sdramc_cr, unsigned int sdramc_tr)
 {
     volatile unsigned int i;
@@ -162,5 +149,3 @@ int sddrc_init(unsigned int sdramc_cr, unsigned int sdramc_tr)
 
     return 0;
 }
-
-#endif                          /* CFG_SDDRC */

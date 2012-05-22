@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _STRING_H_
-#define _STRING_H_ 
+#ifndef __STRING_H__
+#define __STRING_H__
 
 typedef unsigned int size_t;
 
@@ -35,11 +35,7 @@ extern void *memset(void *dst, int val, int cnt);
 extern int memcmp(const void *dst, const void *src, size_t cnt);
 extern size_t strlen(const char *str);
 extern char *strcpy(char *dst, const char *src);
-//extern char * strncpy(char * dest,const char *src,size_t count);
-//extern char * strncat(char *dest, const char *src, size_t count);
 extern int strcmp(const char *p1, const char *p2);
 extern int strncmp(const char *p1, const char *p2, size_t cnt);
-//extern size_t strnlen(const char * s, size_t count);
 
-#endif /* #ifndef _STRING_H_ */
-
+#endif /* #ifndef __STRING_H__ */

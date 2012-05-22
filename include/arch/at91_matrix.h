@@ -26,7 +26,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #ifndef __AT91_MATRIX_H__
 #define __AT91_MATRIX_H__
 
@@ -53,48 +52,48 @@
 /* 0x9c */
 #define MATRIX_PRAS4	0xa0	/*  PRAS4 (periph) */
 
-// -------- MATRIX_SCFG0 : (MATRIX Offset: 0x40) Slave Configuration Register 0 --------
-#define AT91C_MATRIX_SLOT_CYCLE   (0xFF << 0)  // (MATRIX) Maximum Number of Allowed Cycles for a Burst
-#define AT91C_MATRIX_DEFMSTR_TYPE (0x3 << 16)   // (MATRIX) Default Master Type
+/*-------- MATRIX_SCFG0 : (MATRIX Offset: 0x40) Slave Configuration Register 0 ----*/
+#define AT91C_MATRIX_SLOT_CYCLE   (0xFF << 0)	/* Maximum Number of Allowed Cycles for a Burst */
+#define AT91C_MATRIX_DEFMSTR_TYPE (0x3 << 16)	/* Default Master Type */
 #define 	AT91C_MATRIX_DEFMSTR_TYPE_NO_DEFMSTR           (0x0 << 16)
 #define 	AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR         (0x1 << 16)
 #define 	AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR        (0x2 << 16
-#define AT91C_MATRIX_FIXED_DEFMSTR0 (0x7 << 18) // (MATRIX) Fixed Index of Default Master
+#define AT91C_MATRIX_FIXED_DEFMSTR0 (0x7 << 18)	/* Fixed Index of Default Master */
 #define 	AT91C_MATRIX_FIXED_DEFMSTR0_ARM926I              (0x0 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR0_ARM926D              (0x1 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR0_HPDC3                (0x2 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR0_LCDC                 (0x3 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR0_DMA                  (0x4 << 18)
 
-// -------- MATRIX_SCFG1 : (MATRIX Offset: 0x44) Slave Configuration Register 1 --------
-#define AT91C_MATRIX_FIXED_DEFMSTR1 (0x7 << 18) // (MATRIX) Fixed Index of Default Master
+/*-------- MATRIX_SCFG1 : (MATRIX Offset: 0x44) Slave Configuration Register 1 ------*/
+#define AT91C_MATRIX_FIXED_DEFMSTR1 (0x7 << 18)		/* Fixed Index of Default Master */
 #define 	AT91C_MATRIX_FIXED_DEFMSTR1_ARM926I              (0x0 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR1_ARM926D              (0x1 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR1_HPDC3                (0x2 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR1_LCDC                 (0x3 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR1_DMA                  (0x4 << 18)
 
-// -------- MATRIX_SCFG2 : (MATRIX Offset: 0x48) Slave Configuration Register 2 --------
-#define AT91C_MATRIX_FIXED_DEFMSTR2 (0x1 << 18) // (MATRIX) Fixed Index of Default Master
+/*-------- MATRIX_SCFG2 : (MATRIX Offset: 0x48) Slave Configuration Register 2 ------*/
+#define AT91C_MATRIX_FIXED_DEFMSTR2 (0x1 << 18)		/* Fixed Index of Default Master */
 #define 	AT91C_MATRIX_FIXED_DEFMSTR2_ARM926I              (0x0 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR2_ARM926D              (0x1 << 18)
 
-// -------- MATRIX_SCFG3 : (MATRIX Offset: 0x4c) Slave Configuration Register 3 --------
-#define AT91C_MATRIX_FIXED_DEFMSTR3 (0x7 << 18) // (MATRIX) Fixed Index of Default Master
+/*-------- MATRIX_SCFG3 : (MATRIX Offset: 0x4c) Slave Configuration Register 3 ------*/
+#define AT91C_MATRIX_FIXED_DEFMSTR3 (0x7 << 18)		/* Fixed Index of Default Master */
 #define 	AT91C_MATRIX_FIXED_DEFMSTR3_ARM926I              (0x0 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR3_ARM926D              (0x1 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR3_HPDC3                (0x2 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR3_LCDC                 (0x3 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR3_DMA                  (0x4 << 18)
 
-// -------- MATRIX_SCFG4 : (MATRIX Offset: 0x50) Slave Configuration Register 4 --------
-#define AT91C_MATRIX_FIXED_DEFMSTR4 (0x3 << 18) // (MATRIX) Fixed Index of Default Master
+/*-------- MATRIX_SCFG4 : (MATRIX Offset: 0x50) Slave Configuration Register 4 ------*/
+#define AT91C_MATRIX_FIXED_DEFMSTR4 (0x3 << 18)		/* Fixed Index of Default Master */
 #define 	AT91C_MATRIX_FIXED_DEFMSTR4_ARM926I              (0x0 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR4_ARM926D              (0x1 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR4_HPDC3                (0x2 << 18)
 
-// -------- MATRIX_MRCR : (MATRIX Offset: 0x100) MRCR Register --------
-#define AT91C_MATRIX_RCA926I      (0x1 <<  0)   // (MATRIX) Remap Command for ARM926EJ-S Instruction Master
-#define AT91C_MATRIX_RCA926D      (0x1 <<  1)   // (MATRIX) Remap Command for ARM926EJ-S Data Master
+/*-------- MATRIX_MRCR : (MATRIX Offset: 0x100) MRCR Register --------*/
+#define AT91C_MATRIX_RCA926I      (0x1 <<  0)		/* Remap Command for ARM926EJ-S Instruction Master */
+#define AT91C_MATRIX_RCA926D      (0x1 <<  1)		/* Remap Command for ARM926EJ-S Data Master */
 
 #endif	/* #ifndef __AT91_MATRIX_H__ */

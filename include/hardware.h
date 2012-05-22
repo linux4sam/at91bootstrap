@@ -6,8 +6,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * m#define	SUCCESS	1
-#define	FAILURE	0odification, are permitted provided that the following conditions are met:
+ * modification, are permitted provided that the following conditions are met:
  *
  * - Redistributions of source code must retain the above copyright notice,
  * this list of conditions and the disclaimer below.

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -29,7 +29,6 @@
 #define __MEDIA_H__
 
 extern int mmc_initialize(void);
-
 extern unsigned int mmc_bread(unsigned int start, unsigned int blkcnt, void *dest);
 
 #endif

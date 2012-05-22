@@ -120,5 +120,4 @@
 #define 	AT91C_SMC_PS_SIZE_SIXTEEN_BYTES		(0x2UL << 28)
 #define 	AT91C_SMC_PS_SIZE_THIRTY_TWO_BYTES	(0x3UL << 28)
 
-#endif /* #ifndef _AT91_SMC_H_ */
-
+#endif /* #ifndef __AT91_SMC_H__ */

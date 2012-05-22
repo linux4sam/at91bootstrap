@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_ddrsdrc.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef AT91_DDRSDRC_H
-#define AT91_DDRSDRC_H
+#ifndef __AT91_DDRSDRC_H__
+#define __AT91_DDRSDRC_H__
 
 /* *** Register offset in AT91S_HDDRSDRC2 structure ***/
 #define HDDRSDRC2_MR		0x00	/* Mode Register */
@@ -447,4 +442,4 @@
 #define AT91C_DDRC2_WPVS	(0x1UL << 0)
 #define AT91C_DDRC2_WPSRC	(0xFFFFUL << 8)
 
-#endif /* #ifndef AT91_DDRSDRC_H */
+#endif	/* #ifndef __AT91_DDRSDRC_H__ */

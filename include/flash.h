@@ -1,9 +1,6 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2007, Stelian Pop <stelian.pop@leadtechdesign.com>
- * Copyright (c) 2007 Lead Tech Design <www.leadtechdesign.com>
- *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,14 +22,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : norflash.h
- * Object              : ATMEL Norflash Header File
- * Creation            :
- *---------------------------------------------------------------------------
 */
-#ifndef _NORFLASH_H
-#define _NORFLASH_H
+#ifndef __NORFLASH_H__
+#define __NORFLASH_H__
 
 #define AT91_NORFLASH_BASE	AT91C_EBI_CS0
 
@@ -55,4 +47,4 @@ void norflash_hw_init(void);
 int load_norflash(unsigned int img_addr, unsigned int img_size,
                   unsigned int img_dest);
 
-#endif
+#endif	/* #ifndef __NORFLASH_H__ */

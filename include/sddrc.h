@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2007, Stelian Pop <stelian.pop@leadtechdesign.com>
  * Copyright (c) 2007 Lead Tech Design <www.leadtechdesign.com>
@@ -25,19 +25,13 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : sddrc.h
- * Object              :
- * Creation            :
- *-----------------------------------------------------------------------------
  */
-#ifndef SDDRC_H_
-#define SDDDRC_H_
+#ifndef __SDDRC_H__
+#define __SDDRC_H__
 
 #define AT91C_SDRAM 		((volatile unsigned int *)AT91C_EBI_SDRAM)
 
 extern int sddrc_init(unsigned int sdramc_cr, unsigned int sdramc_tr);
-
 extern void sddrc_hw_init(void);
 
-#endif                          /*SDDRC_H_ */
+#endif	/* #ifndef __SDDRC_H__ */

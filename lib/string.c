@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -25,61 +25,56 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "string.h"
 
-/* Copy memory to memory */
 void *memcpy(void *dst, const void *src, int cnt)
 {
-    char *d = (char *)dst;
+	char *d = (char *)dst;
+	const char *s = (const char *)src;
 
-    const char *s = (const char *)src;
+	while (cnt--)
+		*d++ = *s++;
 
-    while (cnt--)
-        *d++ = *s++;
-
-    return d;
+	return d;
 }
 
-/* Fill memory */
 void *memset(void *dst, int val, int cnt)
 {
-    char *d = (char *)dst;
+	char *d = (char *)dst;
 
-    while (cnt--)
-        *d++ = (char)val;
+	while (cnt--)
+		*d++ = (char)val;
 
-    return d;
+	return d;
 }
 
-/* Compare memory to memory */
 int memcmp(const void *dst, const void *src, size_t cnt)
 {
-    const char *d = (const char *)dst, *s = (const char *)src;
+	const char *d = (const char *)dst;
+	const char *s = (const char *)src;
+	int r = 0;
 
-    int r = 0;
+	while (cnt-- && (r = *d++ - *s++) == 0) ;
 
-    while (cnt-- && (r = *d++ - *s++) == 0) ;
-    return r;
+	return r;
 }
 
 size_t strlen(const char *str)
 {
-    int i = 0;
+	int i = 0;
 
-    while (str[i++] != '\0') ;
+	while (str[i++] != '\0') ;
 
-    return i - 1;
+	return i - 1;
 }
 
 char *strcpy(char *dst, const char *src)
 {
-    char *bak = dst;
+	char *bak = dst;
 
-    // In the simple implimentation, bypass ptr check for dst and src
-    while ((*dst++ = *src++) != '\0') ;
+	while ((*dst++ = *src++) != '\0') ;
 
-    return bak;
+	return bak;
 }
 
 int strcmp(const char *p1, const char *p2)
@@ -105,8 +100,10 @@ int strncmp(const char *p1, const char *p2, size_t cnt)
 	while (cnt--) {
 		c1 = *p1++;
 		c2 = *p2++;
+
 		if (c1 != c2)
 			return c1 << c2 ? -1 : 1;
+
 		if (!c1)
 			break;
 	}

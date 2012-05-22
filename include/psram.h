@@ -1,8 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2009, Atmel Corporation
- * Courtesy of Epsilon Group
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,14 +23,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : sdramc.h
- * Object              :
- * Creation            : US Feb 9th 2009
- *-----------------------------------------------------------------------------
  */
-#ifndef PSRAM_H_
-#define PSRAM_H_
+#ifndef __PSRAM_H__
+#define __PSRAM_H__
 
 /* PSRAM Timings */
 #define AT91C_PSRAM_NWE_SETUP    (0 << 0)
@@ -52,7 +46,6 @@
 #define MICRON_PAGE_MODE_ENABLE  0x0090
 #define MICRON_8MB_ADDRESS_MAX   0x707FFFFF
 
-#if	defined(CONFIG_PSRAM)
 extern void psram_hw_init(void);
-#endif
-#endif                          /* PSRAM_H_ */
+
+#endif	/* #ifndef __PSRAM_H__ */

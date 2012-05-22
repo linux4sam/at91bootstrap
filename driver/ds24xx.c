@@ -24,9 +24,7 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
  */
-
 #include "gpio.h"
 #include "pmc.h"
 #include "debug.h"
@@ -168,7 +166,6 @@ static inline int read_wire_bit()
 	return pio_get_value(AT91C_PIN_PB(18));
 }
 
-/* MAXIM App Note 27 */
 static unsigned char dscrc_table[] = {
 	  0, 94,188,226, 97, 63,221,131,194,156,126, 32,163,253, 31, 65,
 	157,195, 33,127,252,162, 64, 30, 95,  1,227,189, 62, 96,130,220,
@@ -195,13 +192,12 @@ static unsigned char docrc8(unsigned char value)
 	return crc8;
 }
 
-/* Delay num microseconds */
 static inline void delay(unsigned int num)
 {
 	volatile unsigned int us;
 
-	for(; num>0; num--)
-		for(us=(BOARD_MCK / 17000000); us>0; us--)
+	for(; num > 0; num--)
+		for(us = (BOARD_MCK / 17000000); us > 0; us--)
 			;
 }
 

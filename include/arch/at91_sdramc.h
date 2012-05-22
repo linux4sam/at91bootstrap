@@ -202,4 +202,3 @@
 #define 	AT91C_SDRAMC_MD_LOW_POWER_SDRAM		0x1
 
 #endif /* #ifndef __AT91_SDRAMC_H__ */
-

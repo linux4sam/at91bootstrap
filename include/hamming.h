@@ -25,43 +25,34 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __HAMMING_H__
+#define __HAMMING_H__
 
-#ifndef _HAMMING_H_
-#define _HAMMING_H_
+/*
+ *------------------------------------------------------------------------------
+ *         Macro Defines
+ *------------------------------------------------------------------------------
+ */
+/* A single bit was incorrect but has been recovered */
+#define Hamming_ERROR_SINGLEBIT		1
 
-//------------------------------------------------------------------------------
-//         Defines
-//------------------------------------------------------------------------------
+/*  The original code has been corrupted */
+#define Hamming_ERROR_ECC		2
 
-//------------------------------------------------------------------------------
-/// \page "Hamming Code Errors"
-/// These are the possible errors when trying to verify a block of data encoded
-/// using a Hamming code:
-/// 
-/// !Errors:
-///  - Hamming_ERROR_SINGLEBIT
-///  - Hamming_ERROR_ECC
-///  - Hamming_ERROR_MULTIPLEBITS
+/*  Multiple bits are incorrect in the data and they cannot be corrected */
+#define Hamming_ERROR_MULTIPLEBITS	3
 
-/// A single bit was incorrect but has been recovered.
-#define Hamming_ERROR_SINGLEBIT         1
-
-/// The original code has been corrupted.
-#define Hamming_ERROR_ECC               2
-
-/// Multiple bits are incorrect in the data and they cannot be corrected.
-#define Hamming_ERROR_MULTIPLEBITS      3
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-//         Exported functions
-//------------------------------------------------------------------------------
-
+/*
+ *------------------------------------------------------------------------------
+ *         Exported functions
+ *------------------------------------------------------------------------------
+ */
 extern void Hamming_Compute256x(const unsigned char *data,
-				unsigned int size, unsigned char *code);
+				unsigned int size,
+				unsigned char *code);
 
 extern unsigned char Hamming_Verify256x(unsigned char *data,
 					unsigned int size,
 					const unsigned char *code);
 
-#endif /* #ifndef _HAMMING_H_ */
+#endif /* #ifndef __HAMMING_H__ */

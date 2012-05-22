@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,24 +24,16 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : debug.h
- * Object              :
- * Creation            : ODi Apr 24th 2006
- * ODi Nov 9th         : dstp #3499 "BAUDRATE macro buggy in include/uart.h"
- *-----------------------------------------------------------------------------
  */
-#ifndef _DBGU_H_
-#define _DBGU_H_
+#ifndef __DBGU_H__
+#define __DBGU_H__
 
 #define BAUDRATE(mck, baud) \
 	(((((mck) * 10) / ((baud) * 16)) % 10) >= 5) ? \
 	(mck / (baud * 16) + 1) : ((mck) / (baud * 16))
 
 extern void dbgu_init(unsigned int);
-
 extern void dbgu_print(const char *ptr);
-
 extern char dbgu_getc(void);
 
-#endif /*_DEBUG_H_*/
+#endif /* #ifndef __DBGU_H__ */

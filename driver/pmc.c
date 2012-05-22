@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,22 +24,15 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : pmc.c
- * Object              :
- * Creation            : ODi Apr 24th 2006
- *-----------------------------------------------------------------------------
  */
 #include "hardware.h"
 #include "arch/at91_pmc.h"
 
-/* Write PMC register */
 static inline void write_pmc(unsigned int offset, const unsigned int value)
 {
 	writel(value, offset + AT91C_BASE_PMC);
 }
 
-/* Read PMC registers */
 static inline unsigned int read_pmc(unsigned int offset)
 {
 	return readl(offset + AT91C_BASE_PMC);

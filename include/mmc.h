@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _MMC_H_
-#define _MMC_H_
+#ifndef __MMC_H__
+#define __MMC_H__
 
 /* SCR definitions in different words */
 #define SD_HIGHSPEED_BUSY	0x00020000
@@ -142,5 +142,4 @@ struct mmc {
 	unsigned int read_bl_len;
 };
 
-#endif /* #ifndef _MMC_H_ */
-
+#endif /* #ifndef __MMC_H__ */

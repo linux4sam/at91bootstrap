@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -28,7 +28,6 @@
 #ifndef __SDRAMC_H__
 #define __SDRAMC_H__
 
-
 struct sdramc_register {
 	unsigned int mr;
 	unsigned int tr;
@@ -39,4 +38,4 @@ struct sdramc_register {
 
 extern int sdramc_initialize(struct sdramc_register *sdramc_config);
 
-#endif		/* #ifndef __SDRAMC_H__ */
+#endif	/* #ifndef __SDRAMC_H__ */

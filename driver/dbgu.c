@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  SHANGHAI  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2010, Atmel Corporation
 
@@ -24,23 +24,16 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : dbgu.c
- * Object              : 
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
 #include "hardware.h"
 #include "arch/at91_dbgu.h"
 
-/* Write DBGU register */
-static /*inline*/ void write_dbgu(unsigned int offset, const unsigned int value)
+static inline void write_dbgu(unsigned int offset, const unsigned int value)
 {
 	writel(value, offset + AT91C_BASE_DBGU);
 }
 
-/* Read DBGU registers */
-static /*inline*/ unsigned int read_dbgu(unsigned int offset)
+static inline unsigned int read_dbgu(unsigned int offset)
 {
 	return readl(offset + AT91C_BASE_DBGU);
 }

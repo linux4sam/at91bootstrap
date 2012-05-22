@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -29,13 +29,11 @@
 #include "arch/at91_sdramc.h"
 #include "sdramc.h"
 
-/* Write SDRAMC register */
 static inline void sdramc_writel(unsigned int reg, const unsigned int value)
 {
 	writel(value, reg + AT91C_BASE_SDRAMC);
 }
 
-/* Read SDRAMC registers */
 static inline unsigned int sdramc_readl(unsigned int reg)
 {
 	return readl(reg + AT91C_BASE_SDRAMC);

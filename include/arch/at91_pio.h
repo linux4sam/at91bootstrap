@@ -25,7 +25,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #ifndef __AT91_PIO_H__
 #define __AT91_PIO_H__
 
@@ -89,4 +88,4 @@
 #define	AT91C_PIN_PD(io)	(3 * PIO_NUM_IO + io)
 #define	AT91C_PIN_PE(io)	(4 * PIO_NUM_IO + io)
 
-#endif /* #ifndef AT91_PIO_H */
+#endif /* #ifndef __AT91_PIO_H__ */

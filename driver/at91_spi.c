@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -34,7 +34,6 @@
 #include "gpio.h"
 #include "debug.h"
 
-/* Register access macros */
 #define spi_readl(reg)			\
 	readl(CONFIG_SYS_BASE_SPI + reg)
 

@@ -30,25 +30,21 @@
 #include "gpio.h"
 #include "debug.h"
 
-/* Write PIO register */
 static inline void write_pio(unsigned int offset, const unsigned int value)
 {
 	writel(value, offset + AT91C_BASE_PIOA);
 }
 
-/* Read PIO registers */
 static inline unsigned int read_pio(volatile unsigned int offset)
 {
 	return readl(offset + AT91C_BASE_PIOA);
 }
 
-/* Convert Pin Number into PIO controller index */
 static inline unsigned pin_to_controller(unsigned pin)
 {
 	return (pin) / PIO_NUM_IO;
 }
 
-/* Convert Pin Number into I/O line index */
 static inline unsigned pin_to_mask(unsigned pin)
 {
 	return 1 << ((pin) % PIO_NUM_IO);
@@ -93,46 +89,6 @@ static int pio_set_b_periph(unsigned pin, int use_pullup)
 	write_pio(PIO_PDR(pio), mask);
 	return 0;
 }
-
-#if 0
-#ifdef CONFIG_HAS_PIO3
-static int pio_set_c_periph(unsigned pin, int use_pullup)
-{
-	unsigned pio = pin_to_controller(pin);
-	unsigned mask = pin_to_mask(pin);
-
-	if (pio >= AT91C_NUM_PIO)
-		return -1;
-
-	write_pio(PIO_IDR(pio), mask);
-	write_pio((use_pullup ? PIO_PPUER(pio) : PIO_PPUDR(pio)), mask);
-
-	write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) & ~mask);
-	write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) | mask);
-
-	write_pio(PIO_PDR(pio), mask);
-	return 0;
-}
-
-static int pio_set_d_periph(unsigned pin, int use_pullup)
-{
-	unsigned pio = pin_to_controller(pin);
-	unsigned mask = pin_to_mask(pin);
-
-	if (pio >= AT91C_NUM_PIO)
-		return -1;
-
-	write_pio(PIO_IDR(pio), mask);
-	write_pio((use_pullup ? PIO_PPUER(pio) : PIO_PPUDR(pio)), mask);
-
-	write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) | mask);
-	write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) | mask);
-
-	write_pio(PIO_PDR(pio), mask);
-	return 0;
-}
-#endif /* CONFIG_HAS_PIO3 */
-#endif /* #if 0 */
 
 int pio_set_gpio_input(unsigned pin, int use_pullup)
 {

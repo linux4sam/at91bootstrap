@@ -25,12 +25,11 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _NAND_H_
-#define _NAND_H_
+#ifndef __NAND_H__
+#define __NAND_H__
 
 #define MAX_ECC_BYTES		48 /* maximum bytes of ecc */
 #define MAX_OOB_AVAIL_BYTES	78 /* maximum bytes of oob available  */
-
 
 struct nand_ooblayout {
 	unsigned char	badblockpos;
@@ -129,7 +128,7 @@ struct nand_onfi_params {
 	unsigned short crc;
 } __attribute__((packed));
 
-/**
+/*
  * struct nandflash_dev - NAND Flash Device ID Structure
  * @name:	Identify the device type
  * @id:		device ID code
@@ -187,4 +186,4 @@ struct nandflash_dev {
 
 #define NAND_BUSWIDTH_16		0x00000002
 
-#endif /* #ifndef _NAND_H_ */
+#endif /* #ifndef __NAND_H__ */
