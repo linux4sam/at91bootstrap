@@ -951,7 +951,7 @@ FRESULT remove_chain (
 #if _USE_ERASE
 			if (ecl + 1 == nxt) {	/* Next cluster is contiguous */
 				ecl = nxt;
-			} else {				/* End of contiguous clusters */ 
+			} else {				/* End of contiguous clusters */
 				resion[0] = clust2sect(fs, scl);					/* Start sector */
 				resion[1] = clust2sect(fs, ecl) + fs->csize - 1;	/* End sector */
 				disk_ioctl(fs->drv, CTRL_ERASE_SECTOR, resion);		/* Erase the block */
@@ -2135,7 +2135,7 @@ FRESULT chk_mounted (	/* FR_OK(0): successful, !=0: any error occurred */
 
 	/* Get fsinfo if available */
 	if (fmt == FS_FAT32) {
-	 	fs->fsi_flag = 0;
+		fs->fsi_flag = 0;
 		fs->fsi_sector = bsect + LD_WORD(fs->win+BPB_FSInfo);
 		if (disk_read(fs->drv, fs->win, fs->fsi_sector, 1) == RES_OK &&
 			LD_WORD(fs->win+BS_55AA) == 0xAA55 &&
@@ -2654,7 +2654,7 @@ FRESULT f_close (
 #if _FS_REENTRANT
 		res = validate(fp->fs, fp->id);
 		if (res == FR_OK) {
-			res = dec_lock(fp->lockid);	
+			res = dec_lock(fp->lockid);
 			unlock_fs(fp->fs, FR_OK);
 		}
 #else
@@ -2753,7 +2753,7 @@ FRESULT f_getcwd (
 				res = dir_read(&dj);
 				if (res != FR_OK) break;
 				if (ccl == LD_CLUST(dj.dir)) break;	/* Found the entry */
-				res = dir_next(&dj, 0);	
+				res = dir_next(&dj, 0);
 			} while (res == FR_OK);
 			if (res == FR_NO_FILE) res = FR_INT_ERR;/* It cannot be 'not found'. */
 			if (res != FR_OK) break;
