@@ -76,8 +76,6 @@ static void slow_clk_enable(void)
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
-	unsigned int cp15;
-
 	/* Disable watchdog */
 	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDT + WDTC_MR);
 

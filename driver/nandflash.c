@@ -353,6 +353,8 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	extid    = read_byte();
 	nand_cs_disable();
 
+	cellinfo = cellinfo;
+
 	type = (struct nandflash_dev *)&nandflash_ids[0];
 	
 	for (; type->name != NULL; type++)
