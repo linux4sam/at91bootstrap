@@ -539,26 +539,18 @@ static int mmc_send_csd(struct mmc *mmc)
 	if (mmc->version == MMC_VERSION_UNKNOWN) {
 		int version = (mmc->csd[0] >> 26) & 0xf;
 
-		switch (version) {
-			case 0:
-				mmc->version = MMC_VERSION_1_2;
-				break;
-			case 1:
-				mmc->version = MMC_VERSION_1_4;
-				break;
-			case 2:
-				mmc->version = MMC_VERSION_2_2;
-				break;
-			case 3:
-				mmc->version = MMC_VERSION_3;
-				break;
-			case 4:
-				mmc->version = MMC_VERSION_4;
-				break;
-			default:
-				mmc->version = MMC_VERSION_1_2;
-				break;
-		}
+		if (version == 0)
+			mmc->version = MMC_VERSION_1_2;
+		else if (version == 1)
+			mmc->version = MMC_VERSION_1_4;
+		else if (version == 2)
+			mmc->version = MMC_VERSION_2_2;
+		else if (version == 3)
+			mmc->version = MMC_VERSION_3;
+		else if (version == 4)
+			mmc->version = MMC_VERSION_4;
+		else
+			mmc->version = MMC_VERSION_1_2;
 	}
 
 	mmc->read_bl_len = 1 << ((mmc->csd[1] >> 16) & 0xf);
@@ -866,20 +858,16 @@ retry_scr:
 	mmc->scr[0] = be32_to_cpu(scr[0]);
 	mmc->scr[1] = be32_to_cpu(scr[1]);
 
-	switch ((mmc->scr[0] >> 24) & 0xf) {
-		case 0:
-			mmc->version = SD_VERSION_1_0;
-			break;
-		case 1:
-			mmc->version = SD_VERSION_1_10;
-			break;
-		case 2:
-			mmc->version = SD_VERSION_2;
-			break;
-		default:
-			mmc->version = SD_VERSION_1_0;
-			break;
-	}
+	int version = (mmc->scr[0] >> 24) & 0xf;
+
+	if (version ==  0)
+		mmc->version = SD_VERSION_1_0;
+	else if (version == 1)
+		mmc->version = SD_VERSION_1_10;
+	else if (version == 2)
+		mmc->version = SD_VERSION_2;
+	else
+		mmc->version = SD_VERSION_1_0;
 
 	if (mmc->scr[0] & SD_DATA_4BIT)
 		mmc->card_caps |= MMC_MODE_4BIT;
