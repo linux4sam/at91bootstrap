@@ -51,15 +51,15 @@
 /* Chip Select 3 : NPCS3 %0111 */
 #define AT91C_SPI_PCS3_DATAFLASH	0x7
 
-/* function */
-
+/*
+ * export functions
+ */
 extern int at91_spi_init(unsigned int clock, unsigned int mode);
-
 extern int at91_spi_enable(void);
-
 extern void at91_spi_disable(void);
-
-extern int spi_xfer(unsigned int len, const void *dout,
-		void *din, unsigned long flags);
+extern int spi_xfer(unsigned int len,
+			const void *dout,
+			void *din,
+			unsigned long flags);
 
 #endif	/* #ifndef __SPI_H__ */

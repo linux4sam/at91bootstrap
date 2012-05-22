@@ -24,13 +24,12 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
  */
 
+#include "hardware.h"
 #include "gpio.h"
 #include "pmc.h"
 #include "debug.h"
-#include "hardware.h"
 #include "onewire_info.h"
 #include "string.h"
 

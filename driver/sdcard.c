@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -28,9 +28,7 @@
 #include "common.h"
 #include "hardware.h"
 #include "board.h"
-
 #include "ff.h"
-
 #include "debug.h"
 
 #define CHUNK_SIZE	0x40000

@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _AT91_MCI_H_
-#define _AT91_MCI_H_
+#ifndef __AT91_MCI_H__
+#define __AT91_MCI_H__
 
 #define MCI_CR		0x00	/* MCI Control Register */
 #define MCI_MR		0x04	/* MCI Mode Register */
@@ -226,4 +226,4 @@
 #define 	AT91C_MCI_LSYNC_CURRENT		(0x0UL << 12)
 #define 	AT91C_MCI_LSYNC_INFINITE	(0x1UL << 12)
 
-#endif /* #ifndef _AT91_MCI_H_ */
+#endif	/* #ifndef __AT91_MCI_H__ */

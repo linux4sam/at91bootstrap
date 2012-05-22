@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -25,7 +25,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "string.h"
 
 /* Copy memory to memory */
@@ -76,7 +75,6 @@ char *strcpy(char *dst, const char *src)
 {
     char *bak = dst;
 
-    // In the simple implimentation, bypass ptr check for dst and src
     while ((*dst++ = *src++) != '\0') ;
 
     return bak;

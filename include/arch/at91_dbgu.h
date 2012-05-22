@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_dbgu.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef AT91_DBGU_H
-#define AT91_DBGU_H
+#ifndef __AT91_DBGU_H__
+#define __AT91_DBGU_H__
 
 /* *** Register offset in AT91S_DBGU structure ***/
 #define DBGU_CR		0x00	/* Control Register */
@@ -94,4 +89,4 @@
 /* -------- DBGU_FNTR : (DBGU Offset: 0x48) Debug Unit FORCE_NTRST Register --------*/ 
 #define AT91C_DBGU_FORCE_NTRST	(0x1UL << 0)
 
-#endif /* #ifndef AT91_DBGU_H */
+#endif	/* #ifndef __AT91_DBGU_H__ */

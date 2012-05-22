@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -25,17 +25,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 /*
-*	Chip ID list
-*
-*	Name. ID code, pagesize, chipsize in MegaByte, eraseblock size,
-*	options
-*
-*	Pagesize; 0, 256, 512
-*	0	get this information from the extended chip ID
-+	256	256 Byte page size
-*	512	512 Byte page size
-*/
+ *	Chip ID list
+ *
+ *	Name. ID code, pagesize, chipsize in MegaByte, eraseblock size,
+ *	options
+ *
+ *	Pagesize; 0, 256, 512
+ *	0	get this information from the extended chip ID
+ *	256	256 Byte page size
+ *	512	512 Byte page size
+ */
 const struct nandflash_dev nandflash_ids[] = {
 	{"NAND 16MiB 1,8V 8-bit",	0x33, 512, 16, 0x4000, 0},
 	{"NAND 16MiB 3,3V 8-bit",	0x73, 512, 16, 0x4000, 0},
@@ -113,10 +114,6 @@ const struct nandflash_dev nandflash_ids[] = {
 	 * erased in one go There are more speed improvements for reads and
 	 * writes possible, but not implemented now
 	 */
-/*	{"AND 128MiB 3,3V 8-bit",	0x01, 2048, 128, 0x4000,
-	 NAND_IS_AND | NAND_NO_AUTOINCR |NAND_NO_READRDY | NAND_4PAGE_ARRAY |
-	 BBT_AUTO_REFRESH
-	},*/
 	{NULL,}
 };
 

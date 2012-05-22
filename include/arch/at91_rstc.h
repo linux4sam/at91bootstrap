@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           :at91_rstc.h
- * Object              :
- * Creation            : 
- *-----------------------------------------------------------------------------
  */
-#ifndef AT91_RSTC_H
-#define AT91_RSTC_H
+#ifndef __AT91_RSTC_H__
+#define __AT91_RSTC_H__
 
 /* *** Register offset in AT91S_RSTC structure ****/
 #define RSTC_RCR	0x00	/* Reset Control Register */
@@ -63,4 +58,4 @@
 #define AT91C_RSTC_ERSTL	(0xFUL << 8)
 #define AT91C_RSTC_RMRKEY	(0xFFUL <<24)
 
-#endif /* #ifndef AT91_RSTC_H */
+#endif	/*  #ifndef __AT91_RSTC_H__ */

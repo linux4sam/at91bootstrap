@@ -24,14 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : gpio.h
- * Object              :
- * Creation            :
- *-----------------------------------------------------------------------------
  */
-#ifndef _GPIO_H_
-#define _GPIO_H_
+#ifndef __GPIO_H__
+#define __GPIO_H__
 
 /* I/O type */
 enum pio_type {
@@ -64,4 +59,4 @@ extern int pio_configure(const struct pio_desc *pio_desc);
 extern int pio_set_gpio_input(unsigned pin, int use_pullup);
 extern int pio_set_gpio_output(unsigned pin, int value);
 
-#endif /* #ifndef _GPIO_H_ */
+#endif /* #ifndef __GPIO_H__ */
