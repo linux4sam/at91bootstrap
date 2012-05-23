@@ -96,7 +96,7 @@ void hw_init(void)
 	hw_init_hook();
 #endif
 }
-#endif /* CONFIG_HW_INIT */
+#endif /* #ifdef CONFIG_HW_INIT */
 
 #ifdef CONFIG_DEBUG
 static void at91_dbgu_hw_init(void)
@@ -108,9 +108,8 @@ static void at91_dbgu_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
+	/* Configure the dbgu pins */
 	pio_configure(dbgu_pins);
-
-	/*  Configure the dbgu pins */
 	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
 }
 
@@ -173,7 +172,7 @@ static void sdramc_init(void)
 
 	sdramc_initialize(&sdramc_config);
 }
-#endif /* CONFIG_SDRAM */
+#endif /* #ifdef CONFIG_SDRAM */
 
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)
@@ -211,7 +210,7 @@ void spi_cs_deactivate(void)
 {
 	pio_set_value(CONFIG_SYS_SPI_PCS, 1);
 }
-#endif /* CONFIG_DATAFLASH */
+#endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
 void at91_mci_hw_init(void)

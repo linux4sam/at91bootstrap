@@ -58,23 +58,47 @@ extern void hw_init_hook(void);
 #endif
 
 #ifdef CONFIG_SCLK
-static void slow_clk_enable(void)
+static void slow_clock_switch(void)
 {
-	writel(readl(AT91C_BASE_SCKCR) | AT91C_SLCKSEL_OSC32EN, AT91C_BASE_SCKCR);
-	/* must wait for slow clock startup time ~ 1000ms
-	 * (~6 core cycles per iteration,
-	 * core is at 400MHz: 66666000 min loops) */
+	unsigned int reg;
+
+	/*
+	 * Enable the 32768 Hz oscillator by setting the bit OSC32EN to 1
+	 */
+	reg = readl(AT91C_BASE_SCKCR);
+	reg |= AT91C_SLCKSEL_OSC32EN;
+	writel(reg, AT91C_BASE_SCKCR);
+
+	/*
+	 * Waiting 32.768Hz Startup Time for clock stabilization.
+	 * must wait for slow clock startup time ~1000ms
+	 * (~6 core cycles per iteration, core is at 400MHz: 66666000 min loops)
+	 */
 	delay(66700000);
 
-	writel(readl(AT91C_BASE_SCKCR) | AT91C_SLCKSEL_OSCSEL, AT91C_BASE_SCKCR);
-	/* must wait 5 slow clock cycles = ~153 us
-	 * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops) */
+	/*
+	 * Switching from internal 32kHz RC oscillator to 32768 Hz oscillator
+	 * by setting the bit OSCSEL to 1
+	 */
+	reg = readl(AT91C_BASE_SCKCR);
+	reg |= AT91C_SLCKSEL_OSCSEL;
+	writel(reg, AT91C_BASE_SCKCR);
+
+	/*
+	 * Waiting 5 slow clock cycles for internal resynchronization
+	 * must wait 5 slow clock cycles = ~153 us
+	 * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops)
+	 */
 	delay(10200);
 
-	/* now disable the internal RC oscillator */
-	writel(readl(AT91C_BASE_SCKCR) & ~AT91C_SLCKSEL_RCEN, AT91C_BASE_SCKCR);
+	/*
+	 * Disable the 32kHz RC oscillator by setting the bit RCEN to 0
+	 */
+	reg = readl(AT91C_BASE_SCKCR);
+	reg &= ~AT91C_SLCKSEL_RCEN;
+	writel(reg, AT91C_BASE_SCKCR);
 }
-#endif /* CONFIG_SCLK */
+#endif /* #ifdef CONFIG_SCLK */
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
@@ -100,7 +124,7 @@ void hw_init(void)
 	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
 
 #ifdef CONFIG_SCLK
-	slow_clk_enable();
+	slow_clock_switch();
 #endif
 
 #ifdef CONFIG_DEBUG
@@ -119,7 +143,7 @@ void hw_init(void)
 	hw_init_hook();
 #endif
 }
-#endif /* CONFIG_HW_INIT */
+#endif /* #ifdef CONFIG_HW_INIT */
 
 #ifdef CONFIG_DEBUG
 static void at91_dbgu_hw_init(void)
@@ -141,7 +165,6 @@ static void initialize_dbgu(void)
 	dbgu_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
 }
 #endif /* #ifdef CONFIG_DEBUG */
-
 
 #ifdef CONFIG_DDR2
 /* Using the Micron MT47H64M16HR-3 */
@@ -209,7 +232,7 @@ static void ddramc_init(void)
 	/* DDRAM2 Controller initialize */
 	ddram_initialize(AT91C_BASE_DDRSDRC, AT91C_BASE_CS1, &ddramc_reg);
 }
-#endif /* CONFIG_DDR2 */
+#endif /* #ifdef CONFIG_DDR2 */
 
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)
@@ -238,7 +261,7 @@ void spi_cs_deactivate(void)
 {
 	pio_set_value(CONFIG_SYS_SPI_PCS, 1);
 }
-#endif	/* CONFIG_DATAFLASH */
+#endif	/* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
 void at91_mci_hw_init(void)
