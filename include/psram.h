@@ -27,25 +27,9 @@
 #ifndef __PSRAM_H__
 #define __PSRAM_H__
 
-/* PSRAM Timings */
-#define AT91C_PSRAM_NWE_SETUP    (0 << 0)
-#define AT91C_PSRAM_NCS_WR_SETUP (0 << 8)
-#define AT91C_PSRAM_NRD_SETUP    (0 << 16)
-#define AT91C_PSRAM_NCS_RD_SETUP (0 << 24)
-
-#define AT91C_PSRAM_NWE_PULSE    (4 << 0)
-#define AT91C_PSRAM_NCS_WR_PULSE (5 << 8)
-#define AT91C_PSRAM_NRD_PULSE    (2 << 16)
-#define AT91C_PSRAM_NCS_RD_PULSE (5 << 24)
-
-#define AT91C_PSRAM_NWE_CYCLE    (5 << 0)
-#define AT91C_PSRAM_NRD_CYCLE    (7 << 16)
-
 #define MICRON_RCR               0x0000
 #define MICRON_BCR               0x0001
 #define MICRON_PAGE_MODE_ENABLE  0x0090
 #define MICRON_8MB_ADDRESS_MAX   0x707FFFFF
-
-extern void psram_hw_init(void);
 
 #endif	/* #ifndef __PSRAM_H__ */

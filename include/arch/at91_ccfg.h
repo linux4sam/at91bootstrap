@@ -29,8 +29,10 @@
 #define __AT91_CCFG_H__
 
 #define CCFG_ROM		0x04	/* Slave 1 (ROM) Wait-State Configuration Register */
-#define CCFG_UDPHS		0x0C	/* USB Device HS configuration Register */
 #define CCFG_EBICSA		0x08	/* EBI Chip Select Assignement Register */
+#define CCFG_UDPHS		0x0C	/* USB Device HS configuration Register */
+#define CCFG_EBI0CSA		0x10	/* EBI0 Chip Select Assignement Register */
+#define CCFG_EBI1CSA		0x14	/* EBI1 Chip Select Assignement Register */
 #define CCFG_MATRIXVERSION	0xEC	/* Version Register */
 
 /* -------- CCFG_ROM : (CCFG Offset: 0x4) AHB Slave 1 (ROM) Configuration --------*/ 

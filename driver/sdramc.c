@@ -39,7 +39,8 @@ static inline unsigned int sdramc_readl(unsigned int reg)
 	return readl(reg + AT91C_BASE_SDRAMC);
 }
 
-int sdramc_initialize(struct sdramc_register *sdramc_config)
+int sdramc_initialize(struct sdramc_register *sdramc_config,
+			unsigned int sdram_address)
 {
 	unsigned int i;
 
@@ -56,30 +57,30 @@ int sdramc_initialize(struct sdramc_register *sdramc_config)
 
 	/* Step#5 A NOP command is issued to the SDRAM devices */
 	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_NOP);
-	writel(0x00000000, 0x20000000);
+	writel(0x00000000, sdram_address);
 
 	/* Step#6 An All Banks Precharge command is issued to the SDRAM devices  */
 	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_PRECHARGE);
-	writel(0x00000000, 0x20000000);
+	writel(0x00000000, sdram_address);
 
 	for (i = 0; i < 10000; i++) ;
 
 	/* Step#7 Eight auto-refresh cycles are provided */
 	for (i = 0; i < 8; i++) {
 		sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_AUTO_REFRESH);
-		writel(0x00000001 + i, 0x20000000 + 4 + 4 * i);
+		writel(0x00000001 + i, sdram_address + 4 + 4 * i);
 	}
 
 	/* Step#8 A Mode Register set (MRS) cyscle is issued to program the SDRAM parameters(TCSR, PASR, DS) */
 	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_LOAD_MODE);
-	writel(0xcafedede, 0x20000000 + 0x24);
+	writel(0xcafedede, sdram_address + 0x24);
 
 	/* Step#9 For mobile SDRAM initialization, an Extended Mode Register set cycle is issued to ... */
 
 	/* Step#10 The application must go into Normal Mode, setting Mode to 0 in the Mode Register
 	   and perform a write access at any location in the SDRAM. */
 	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_NORMAL);	// Set Normal mode
-	writel(0x00000000, 0x20000000);	// Perform Normal mode
+	writel(0x00000000, sdram_address);	// Perform Normal mode
 
 	/* Step#11 Write the refresh rate into the count field in the SDRAMC Refresh Timer Rgister. */
 	sdramc_writel(SDRAMC_TR, sdramc_config->tr);

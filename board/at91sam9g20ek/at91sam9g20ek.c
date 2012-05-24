@@ -120,9 +120,9 @@ static void sdramc_init(void)
 		| AT91C_EBI_CS1A_SDRAMC | AT91C_VDDIOM_SEL_33V,
 		AT91C_BASE_CCFG + CCFG_EBICSA);
 
-	sdramc_initialize(&sdramc_config);
+	sdramc_initialize(&sdramc_config, AT91C_BASE_CS1);
 }
-#endif /* CONFIG_SDRAM */
+#endif /* #ifdef CONFIG_SDRAM */
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)

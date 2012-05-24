@@ -58,7 +58,7 @@
 #endif
 
 #ifdef AT91SAM9263
-#include "AT91SAM9263_inc.h"
+#include "arch/at91sam9263.h"
 #endif
 
 
