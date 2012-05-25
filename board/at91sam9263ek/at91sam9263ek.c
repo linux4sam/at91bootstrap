@@ -40,8 +40,8 @@
 #include "dbgu.h"
 #include "debug.h"
 #include "sdramc.h"
+#include "psram.h"
 #include "at91sam9263ek.h"
-
 
 #ifdef CONFIG_USER_HW_INIT
 extern void hw_init_hook(void);
@@ -57,13 +57,8 @@ static inline unsigned int matrix_readl(unsigned int reg)
 	return readl(reg + AT91C_BASE_MATRIX);
 }
 
-static at91_matrix_hw_init(void)
+static void at91_matrix_hw_init(void)
 {
-	/*
-	 * Configure the EBI0 Slave Slot Cycle to 64
-	 */
-	// writel( (readl((AT91C_BASE_MATRIX + MATRIX_SCFG4)) & ~0xFF) | 0x40, (AT91C_BASE_MATRIX + MATRIX_SCFG4));
-
 	/* Bus Matrix Master Configuration Register */
 	matrix_writel(AT91C_MATRIX_ULBT_16_BEAT, MATRIX_MCFG0);		/* OHCI */
 	matrix_writel(AT91C_MATRIX_ULBT_8_BEAT, MATRIX_MCFG1);		/* ISI */
@@ -73,111 +68,163 @@ static at91_matrix_hw_init(void)
 	matrix_writel(AT91C_MATRIX_ULBT_16_BEAT, MATRIX_MCFG5);		/* LCDC */
 	matrix_writel(AT91C_MATRIX_ULBT_SINGLE_ACCESS, MATRIX_MCFG6);	/* PDC */
 	matrix_writel(AT91C_MATRIX_ULBT_8_BEAT, MATRIX_MCFG7);		/* DBUS */
-	matrix_writel(AT91C_MATRIX_ULBT_4_BEATi, MATRIX_MCFG8);		/* IBUS */
+	matrix_writel(AT91C_MATRIX_ULBT_4_BEAT, MATRIX_MCFG8);		/* IBUS */
 
 	/* Bus Matrix Slave Configuration Registers */
 	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
 			| AT91C_MATRIX_FIXED_DEFMSTR_ARM926I
 			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
 			| AT91C_MATRIX_SLOT_CYCLE_(32)),
-			MMATRIX_SCFG0);		/* ROM */
+			MATRIX_SCFG0);		/* ROM */
 
 	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
 			| AT91C_MATRIX_FIXED_DEFMSTR_EMAC
 			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
 			| AT91C_MATRIX_SLOT_CYCLE_(32)),
-			MMATRIX_SCFG1);		/* RAM80K */
+			MATRIX_SCFG1);		/* RAM80K */
 
 	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
 			| AT91C_MATRIX_FIXED_DEFMSTR_USB
 			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
 			| AT91C_MATRIX_SLOT_CYCLE_(16)),
-			MMATRIX_SCFG2);		/* RAM16K */
+			MATRIX_SCFG2);		/* RAM16K */
 
 	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
 			| AT91C_MATRIX_FIXED_DEFMSTR_PDC
 			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
 			| AT91C_MATRIX_SLOT_CYCLE_(4)),
-			MMATRIX_SCFG2);		/* PERIPHERALS */
+			MATRIX_SCFG2);		/* PERIPHERALS */
 
 	matrix_writel((AT91C_MATRIX_ARBT_ROUND_ROBIN
 			| AT91C_MATRIX_FIXED_DEFMSTR_ARM926I
 			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
 			| AT91C_MATRIX_SLOT_CYCLE_(32)),
-			MMATRIX_SCFG4);		/* EBI0 */
+			MATRIX_SCFG4);		/* EBI0 */
 
 	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
 			| AT91C_MATRIX_FIXED_DEFMSTR_LCDC
 			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
 			| AT91C_MATRIX_SLOT_CYCLE_(64)),
-			MMATRIX_SCFG5);		/* EBI1 */
+			MATRIX_SCFG5);		/* EBI1 */
 
 	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
 			| AT91C_MATRIX_FIXED_DEFMSTR_ARM926D
 			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
 			| AT91C_MATRIX_SLOT_CYCLE_(4)),
-			MMATRIX_SCFG6);		/* APB */
+			MATRIX_SCFG6);		/* APB */
 
+	/* ROM */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(0)
+			| AT91C_MATRIX_M2PR_(2)
+			| AT91C_MATRIX_M3PR_(1)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(3)
+			| AT91C_MATRIX_M6PR_(2)
+			| AT91C_MATRIX_M7PR_(3)),
+			MATRIX_PRAS0);
 
-	AHB_PRIORITY9(ABH_PRIORITY_ROM,
-			AHB_IBUS_ID,
-			AHB_DBUS_ID,
-		      // Rest should not access the ROM
-		      AHB_PDC_ID,
-		      AHB_DMAC_ID,
-		      AHB_OHCI_ID,
-		      AHB_ISI_ID,
-		      AHB_2D_ID,
-		      AHB_MACB_ID,
-		      AHB_LCDC_ID);
-	AHB_PRIORITY9(ABH_PRIORITY_RAM80K, AHB_PDC_ID, AHB_MACB_ID, AHB_DMAC_ID,
-		      AHB_OHCI_ID, AHB_IBUS_ID, AHB_DBUS_ID,
-		      // Rest should not access the large SRAM
-		      AHB_ISI_ID, AHB_2D_ID, AHB_LCDC_ID);
-	AHB_PRIORITY9(ABH_PRIORITY_RAM16K,
-		      AHB_OHCI_ID,
-		      AHB_PDC_ID, AHB_DMAC_ID, AHB_DBUS_ID, AHB_IBUS_ID,
-		      // Rest should not access the small SRAM
-		      AHB_ISI_ID, AHB_2D_ID, AHB_MACB_ID, AHB_LCDC_ID);
-	AHB_PRIORITY9(ABH_PRIORITY_PERIPHERALS, AHB_DBUS_ID,
-		      // Rest should not access & reconfigure peripherals
-		      AHB_PDC_ID,
-		      AHB_DMAC_ID,
-		      AHB_OHCI_ID,
-		      AHB_ISI_ID, AHB_2D_ID, AHB_MACB_ID, AHB_LCDC_ID,
-		      AHB_IBUS_ID);
+	matrix_writel(AT91C_MATRIX_M8PR_(0),
+			MATRIX_PRBS0);
 
-#if	defined(CONFIG_PSRAM)
-	// LCD on EBI1
-	AHB_PRIORITY9(ABH_PRIORITY_EBI0,
-		      AHB_PDC_ID,
-		      AHB_MACB_ID,
-		      AHB_OHCI_ID, AHB_DMAC_ID, AHB_IBUS_ID, AHB_DBUS_ID,
-		      // Rest should not access EBI0
-		      AHB_ISI_ID, AHB_LCDC_ID, AHB_2D_ID);
+	/* RAM80K */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(2)
+			| AT91C_MATRIX_M2PR_(1)
+			| AT91C_MATRIX_M3PR_(3)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(0)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(0)),
+			MATRIX_PRAS1);
+
+	matrix_writel(AT91C_MATRIX_M8PR_(2),
+			MATRIX_PRBS1);
+
+	/* RAM16K */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(0)
+			| AT91C_MATRIX_M2PR_(2)
+			| AT91C_MATRIX_M3PR_(1)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(3)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(2)),
+			MATRIX_PRAS2);
+
+	matrix_writel(AT91C_MATRIX_M8PR_(0),
+			MATRIX_PRBS2);
+
+	/* PERIPHERALS */
+	matrix_writel((AT91C_MATRIX_M0PR_(0)
+			| AT91C_MATRIX_M1PR_(1)
+			| AT91C_MATRIX_M2PR_(0)
+			| AT91C_MATRIX_M3PR_(2)
+			| AT91C_MATRIX_M4PR_(1)
+			| AT91C_MATRIX_M5PR_(0)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(2)),
+			MATRIX_PRAS3);
+
+	matrix_writel(AT91C_MATRIX_M8PR_(3),
+			MATRIX_PRBS3);
+
+#if defined(CONFIG_PSRAM)
+	/* EBI0 */
+	matrix_writel((AT91C_MATRIX_M0PR_(2)
+			| AT91C_MATRIX_M1PR_(1)
+			| AT91C_MATRIX_M2PR_(1)
+			| AT91C_MATRIX_M3PR_(3)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(3)
+			| AT91C_MATRIX_M6PR_(0)
+			| AT91C_MATRIX_M7PR_(0)),
+			MATRIX_PRAS4);
+
+	matrix_writel(AT91C_MATRIX_M8PR_(2),
+			MATRIX_PRBS4);
 #else
-	// LCD on EBI0
-	AHB_PRIORITY9(ABH_PRIORITY_EBI0,
-		      AHB_PDC_ID,
-		      AHB_LCDC_ID,
-		      AHB_MACB_ID,
-		      AHB_OHCI_ID, AHB_DMAC_ID, AHB_2D_ID, AHB_IBUS_ID,
-		      AHB_DBUS_ID,
-		      // Rest should not access EBI0
-		      AHB_ISI_ID);
-#endif
+	/* EBI0 */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(3)
+			| AT91C_MATRIX_M2PR_(0)
+			| AT91C_MATRIX_M3PR_(2)
+			| AT91C_MATRIX_M4PR_(3)
+			| AT91C_MATRIX_M5PR_(0)
+			| AT91C_MATRIX_M6PR_(0)
+			| AT91C_MATRIX_M7PR_(1)),
+			MATRIX_PRAS4);
 
-	AHB_PRIORITY9(ABH_PRIORITY_EBI1,
-		      AHB_LCDC_ID, AHB_PDC_ID, AHB_DMAC_ID, AHB_2D_ID,
-		      AHB_DBUS_ID,
-		      // Rest should not access ABI1
-		      AHB_IBUS_ID, AHB_OHCI_ID, AHB_ISI_ID, AHB_MACB_ID);
+	matrix_writel(AT91C_MATRIX_M8PR_(2),
+			MATRIX_PRBS4);
+#endif /* #if defined(CONFIG_PSRAM) */
+	/* EBI1 */
+	matrix_writel((AT91C_MATRIX_M0PR_(0)
+			| AT91C_MATRIX_M1PR_(1)
+			| AT91C_MATRIX_M2PR_(0)
+			| AT91C_MATRIX_M3PR_(0)
+			| AT91C_MATRIX_M4PR_(3)
+			| AT91C_MATRIX_M5PR_(2)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(2)),
+			MATRIX_PRAS5);
 
-	AHB_PRIORITY9(ABH_PRIORITY_APB, AHB_PDC_ID, AHB_DMAC_ID, AHB_DBUS_ID,
-		      // Rest should not access APB
-		      AHB_IBUS_ID,
-		      AHB_OHCI_ID, AHB_ISI_ID, AHB_2D_ID, AHB_MACB_ID,
-		      AHB_LCDC_ID);
+	matrix_writel(AT91C_MATRIX_M8PR_(1),
+			MATRIX_PRBS5);
+
+	/* APB */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(0)
+			| AT91C_MATRIX_M2PR_(2)
+			| AT91C_MATRIX_M3PR_(1)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(0)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(3)),
+			MATRIX_PRAS4);
+
+	matrix_writel(AT91C_MATRIX_M8PR_(2),
+			MATRIX_PRBS4);
 
 }
 
@@ -343,10 +390,12 @@ void hw_init(void)
 	pmc_cfg_mck(MCKR_CSS_SETTINGS, PLL_LOCK_TIMEOUT);
 
 	/* Configure PLLB */
-	pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
+	//pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
 
 	/* Enable External Reset */
 	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
+
+	at91_matrix_hw_init();
 
 #ifdef CONFIG_DEBUG
 	/* Initialize dbgu */
@@ -425,7 +474,7 @@ void nandflash_hw_init(void)
 	};
 
 	/* Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface  */
-	reg = readl(AT91C_BASE_CCFG + CCFG_EBI0CSA)
+	reg = readl(AT91C_BASE_CCFG + CCFG_EBI0CSA);
 	reg |= AT91C_EBI_CS3A_SM;
 	writel(reg, AT91C_BASE_CCFG + CCFG_EBI0CSA);
 
@@ -462,14 +511,14 @@ void nandflash_config_buswidth(unsigned char busw)
 {
 	unsigned long csa;
 
-	csa = readl(AT91C_BASE_SMC + SMC_CTRL3);
+	csa = readl(AT91C_BASE_SMC0 + SMC_CTRL3);
 
 	if (busw == 0)
 		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
 	else
 		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
 
-	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
+	writel(csa, AT91C_BASE_SMC0 + SMC_CTRL3);
 }
 
 static unsigned int nand_ready_pin = CONFIG_SYS_NAND_READY_PIN;

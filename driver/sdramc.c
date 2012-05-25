@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
+#include "board.h"
 #include "arch/at91_sdramc.h"
 #include "sdramc.h"
 

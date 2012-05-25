@@ -82,7 +82,7 @@
 #define 	AT91C_MATRIX_FIXED_DEFMSTR_ARM926D	(0x1 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR_PDC		(0x2 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR_LCDC		(0x3 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_DMA		(0x4 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_2DGC		(0x4 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR_ISI		(0x5 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR_DMA		(0x6 << 18)
 #define 	AT91C_MATRIX_FIXED_DEFMSTR_EMAC		(0x7 << 18)
@@ -93,16 +93,25 @@
 
 /*-------- MATRIX_PRAS0 : (MATRIX Offset: 0x80) PRAS0 Register --------*/
 #define AT91C_MATRIX_M0PR	(0x3 << 0)	/* ARM926EJ-S Instruction priority */
+#define 	AT91C_MATRIX_M0PR_(x)		(x << 0)
 #define AT91C_MATRIX_M1PR	(0x3 << 4)	/* ARM926EJ-S Data priority */
+#define 	AT91C_MATRIX_M1PR_(x)		(x << 4)
 #define AT91C_MATRIX_M2PR	(0x3 << 8)	/* PDC priority */
+#define 	AT91C_MATRIX_M2PR_(x)		(x << 8)
 #define AT91C_MATRIX_M3PR	(0x3 << 12)	/* LCDC priority */
+#define 	AT91C_MATRIX_M3PR_(x)		(x << 12)
 #define AT91C_MATRIX_M4PR	(0x3 << 16)	/* 2DGC priority */
+#define 	AT91C_MATRIX_M4PR_(x)		(x << 16)
 #define AT91C_MATRIX_M5PR	(0x3 << 20)	/* ISI priority */
+#define 	AT91C_MATRIX_M5PR_(x)		(x << 20)
 #define AT91C_MATRIX_M6PR	(0x3 << 24)	/* DMA priority */
+#define 	AT91C_MATRIX_M6PR_(x)		(x << 24)
 #define AT91C_MATRIX_M7PR	(0x3 << 28)	/* EMAC priority */
+#define 	AT91C_MATRIX_M7PR_(x)		(x << 28)
 
 /*-------- MATRIX_PRBS0 : (MATRIX Offset: 0x84) PRBS0 Register --------*/
 #define AT91C_MATRIX_M8PR	(0x3 << 0)	/* (MATRIX) USB priority */
+#define 	AT91C_MATRIX_M8PR_(x)		(x << 0)
 
 /*-------- MATRIX_MRCR : (MATRIX Offset: 0x100) MRCR Register --------*/
 #define AT91C_MATRIX_RCA926I	(0x1 << 0)	/* Remap Command for ARM926EJ-S Instruction Master */
