@@ -63,7 +63,7 @@
 
 
 #ifdef AT91SAM9RL
-#include "AT91SAM9RL_inc.h"
+#include "arch/at91sam9rl.h"
 #endif
 
 #ifdef AT91SAM9X5
