@@ -163,7 +163,7 @@ OBJS:= $(SOBJS-y) $(COBJS-y)
 INCL=board/$(BOARD)
 GC_SECTIONS=--gc-sections
 
-CPPFLAGS=-ffunction-sections -g -O2 -Wall \
+CPPFLAGS=-ffunction-sections -g -O1 -Wall \
 	-fno-stack-protector \
 	-I$(INCL) -Iinclude -Ifs/include \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"  -DCOMPILE_TIME="\"$(DATE)\""
