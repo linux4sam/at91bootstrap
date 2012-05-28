@@ -33,8 +33,7 @@
 #endif
 
 #ifdef AT91SAM9XE
-/* For all SAM9XE chips 128/256/512/.. we use the XE128 file */
-#include "AT91SAM9XE128_inc.h"
+#include "arch/at91sam9xe.h"
 #endif
 
 #ifdef AT91SAM9G10
@@ -43,10 +42,6 @@
 
 #ifdef AT91SAM9G20
 #include "arch/at91sam9g20.h"
-#endif
-
-#ifdef AT91SAM9G45
-#include "AT91SAM9G45_inc.h"
 #endif
 
 #ifdef AT91SAM9M10
