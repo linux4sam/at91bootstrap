@@ -95,7 +95,8 @@ static void mci_set_mode(unsigned int clock, unsigned int blklen)
 	mci_writel(MCI_BLKR, reg);
 	
 	/* set Mode Register */
-	reg = AT91C_MCI_RDPROOF_ENABLE | AT91C_MCI_WRPROOF_ENABLE;
+	reg = AT91C_MCI_RDPROOF_ENABLE;
+	reg |= AT91C_MCI_WRPROOF_ENABLE;
 
 	clkdiv -= 2;
 	reg |= (clkdiv >> 1);
@@ -145,7 +146,7 @@ static void mci_init(void)
 	/* disable mci and disable power save mode */
 	mci_writel(MCI_CR, AT91C_MCI_PWSDIS | AT91C_MCI_MCIDIS);
 
-	/* SDCard/SDUI Slot */
+	/* SDCard/SDIO Slot */
 	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA);
 
 	/* initialize timeout register */
@@ -199,7 +200,8 @@ static int mmc_cmd(unsigned short cmd,
 	unsigned int error_flags = ERROR_FLAGS;
 
 	/* Default Flags for the Command */
-	flags |= AT91C_MCI_MAXLAT_64; 
+	flags |= AT91C_MCI_MAXLAT_64;
+	flags |= AT91C_MCI_OPDCMD_OPENDRAIN;
 
 	if (resp_type & MMC_RSP_CRC)
 		error_flags |= AT91C_MCI_RCRCE; 
@@ -1047,6 +1049,17 @@ int mmc_initialize(void)
 
 static int mci_set_blkr(unsigned int blkcnt, unsigned int blklen)
 {
+#if !(defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X))
+	unsigned int reg;
+
+	reg = mci_readl(MCI_MR);
+	reg &= ~(((0x1 << 16) -1) << 16);
+	reg |= (blklen << 16);
+#ifndef AT91SAM9M10
+	reg &= ~AT91C_MCI_PDCMODE_ENABLE;
+#endif
+	mci_writel(MCI_MR, reg);
+#endif
 	mci_writel(MCI_BLKR, (blklen << 16) | blkcnt);
 	return 0;
 }

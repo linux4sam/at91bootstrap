@@ -67,8 +67,8 @@
 #define AT91C_MCI_CLKDIV(x)	(x << 0)	/* Clock Divider */
 #define AT91C_MCI_PWSDIV(x)	(x <<  8)	/* Power Saving Divider */
 #define AT91C_MCI_RDPROOF	(0x1UL << 11)	/* Read Proof Enable */
-#define 	AT91C_MCI_RDPROOF_DISABLE              (0x0UL << 11)
-#define 	AT91C_MCI_RDPROOF_ENABLE               (0x1UL << 11)
+#define 	AT91C_MCI_RDPROOF_DISABLE	(0x0UL << 11)
+#define 	AT91C_MCI_RDPROOF_ENABLE	(0x1UL << 11)
 #define AT91C_MCI_WRPROOF	(0x1UL << 12)	/* Write Proof Enable */
 #define 	AT91C_MCI_WRPROOF_DISABLE	(0x0UL << 12)
 #define 	AT91C_MCI_WRPROOF_ENABLE 	(0x1UL << 12)
@@ -123,7 +123,7 @@
 #define 	AT91C_MCI_SPCMD_EBO		(0x7UL << 8)
 #define AT91C_MCI_OPDCMD	(0x1UL << 11)	/* Open Drain Command */
 #define 	AT91C_MCI_OPDCMD_PUSHPULL	(0x0UL << 11)
-#define 	AT91C_MCI_OPDCMD_OPENDRAIN	(0x1UL << 11
+#define 	AT91C_MCI_OPDCMD_OPENDRAIN	(0x1UL << 11)
 #define AT91C_MCI_MAXLAT	(0x1UL << 12)	/* Maximum Latency for Command to respond */
 #define 	AT91C_MCI_MAXLAT_5		(0x0UL << 12)
 #define 	AT91C_MCI_MAXLAT_64		(0x1UL << 12)
