@@ -37,7 +37,7 @@
 #endif
 
 #ifdef AT91SAM9G10
-#include "AT91SAM9261_inc.h"
+#include "arch/at91sam9g10.h"
 #endif
 
 #ifdef AT91SAM9G20

@@ -72,24 +72,24 @@
 
 /*-------- MATRIX_SCFG0 : (MATRIX Offset: 0x40) Slave Configuration Register 0 ----*/
 #define AT91C_MATRIX_SLOT_CYCLE   	(0xff << 0)	/* Maximum Number of Allowed Cycles for a Burst */
-#define 	AT91C_MATRIX_SLOT_CYCLE_(x)		(x << 0)
+#define 	AT91C_MATRIX_SLOT_CYCLE_(x)			(x << 0)
 #define AT91C_MATRIX_DEFMSTR_TYPE 	(0x3 << 16)	/* Default Master Type */
-#define 	AT91C_MATRIX_DEFMSTR_TYPE_NO_DEFMSTR           (0x0 << 16)
-#define 	AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR         (0x1 << 16)
-#define 	AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR        (0x2 << 16
+#define 	AT91C_MATRIX_DEFMSTR_TYPE_NO_DEFMSTR		(0x0 << 16)
+#define 	AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR		(0x1 << 16)
+#define 	AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR		(0x2 << 16)
 #define AT91C_MATRIX_FIXED_DEFMSTR 	(0xf << 18)	/* Fixed Default Master */
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_ARM926I	(0x0 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_ARM926D	(0x1 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_PDC		(0x2 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_LCDC		(0x3 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_2DGC		(0x4 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_ISI		(0x5 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_DMA		(0x6 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_EMAC		(0x7 << 18)
-#define 	AT91C_MATRIX_FIXED_DEFMSTR_USB		(0x8 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_ARM926I		(0x0 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_ARM926D		(0x1 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_PDC			(0x2 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_LCDC			(0x3 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_2DGC			(0x4 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_ISI			(0x5 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_DMA			(0x6 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_EMAC			(0x7 << 18)
+#define 	AT91C_MATRIX_FIXED_DEFMSTR_USB			(0x8 << 18)
 #define AT91C_MATRIX_ARBT 		(0x3 << 24)	/* Arbitration Type */
-#define 	AT91C_MATRIX_ARBT_ROUND_ROBIN 		(0x0 << 24)
-#define 	AT91C_MATRIX_ARBT_FIXED_PRIORITY	(0x1 << 24)
+#define 	AT91C_MATRIX_ARBT_ROUND_ROBIN	 		(0x0 << 24)
+#define 	AT91C_MATRIX_ARBT_FIXED_PRIORITY		(0x1 << 24)
 
 /*-------- MATRIX_PRAS0 : (MATRIX Offset: 0x80) PRAS0 Register --------*/
 #define AT91C_MATRIX_M0PR	(0x3 << 0)	/* ARM926EJ-S Instruction priority */

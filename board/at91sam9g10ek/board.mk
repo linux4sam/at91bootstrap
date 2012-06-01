@@ -1,5 +1,6 @@
 CPPFLAGS += \
 	-DCONFIG_AT91SAM9G10EK
-
+	-mcpu=arm926ej-s
 ASFLAGS += \
 	-DCONFIG_AT91SAM9G10EK
+	-mcpu=arm926ej-s

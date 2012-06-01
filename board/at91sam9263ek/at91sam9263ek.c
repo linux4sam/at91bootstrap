@@ -93,7 +93,7 @@ static void at91_matrix_hw_init(void)
 			| AT91C_MATRIX_FIXED_DEFMSTR_PDC
 			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
 			| AT91C_MATRIX_SLOT_CYCLE_(4)),
-			MATRIX_SCFG2);		/* PERIPHERALS */
+			MATRIX_SCFG3);		/* PERIPHERALS */
 
 	matrix_writel((AT91C_MATRIX_ARBT_ROUND_ROBIN
 			| AT91C_MATRIX_FIXED_DEFMSTR_ARM926I
@@ -225,7 +225,6 @@ static void at91_matrix_hw_init(void)
 
 	matrix_writel(AT91C_MATRIX_M8PR_(2),
 			MATRIX_PRBS4);
-
 }
 
 #ifdef CONFIG_DEBUG
