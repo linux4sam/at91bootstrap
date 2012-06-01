@@ -40,10 +40,10 @@
 #define COMM_ERR		-18 /* Communications Error */
 #define TIMEOUT			-19
 
-#define SD_VERSION_SD	0x20000
-#define SD_VERSION_2	(SD_VERSION_SD | 0x20)
-#define SD_VERSION_1_0	(SD_VERSION_SD | 0x10)
-#define SD_VERSION_1_10	(SD_VERSION_SD | 0x1a)
+#define SD_VERSION_SD		0x20000
+#define SD_VERSION_2		(SD_VERSION_SD | 0x20)
+#define SD_VERSION_1_0		(SD_VERSION_SD | 0x10)
+#define SD_VERSION_1_10		(SD_VERSION_SD | 0x1a)
 #define MMC_VERSION_MMC		0x10000
 #define MMC_VERSION_UNKNOWN	(MMC_VERSION_MMC)
 #define MMC_VERSION_1_2		(MMC_VERSION_MMC | 0x12)
@@ -58,7 +58,7 @@
 #define MMC_MODE_8BIT		0x200
 //#define MMC_MODE_SPI		0x400
 
-#define SD_DATA_4BIT	0x00040000
+#define SD_DATA_4BIT		0x00040000
 
 #define IS_SD(x) (x->version & SD_VERSION_SD)
 

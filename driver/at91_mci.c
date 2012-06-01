@@ -63,6 +63,7 @@
 #define SD_CMD_APP_SET_BUS_WIDTH	6
 #define SD_CMD_APP_SEND_OP_COND		41
 #define SD_CMD_APP_SEND_SCR		51
+#define SD_CMD_APP_SD_STATUS		13
 
 #define CONFIG_SYS_MMC_DEFAULT_CLK	1000000
 #define CONFIG_SYS_MMC_DEFAULT_BLKLEN	512
@@ -81,19 +82,19 @@ static void mci_set_mode(unsigned int clock, unsigned int blklen)
 	unsigned int main_clock = MASTER_CLOCK; 
 	unsigned int clkdiv = 255;
 	unsigned int reg;
-	
+
 	if (clock > 0)
 		clkdiv = (main_clock + clock) / clock;
 
 	blklen &= 0xfffc;
 
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
-	/* set blklen in Block Register */	
+	/* set blklen in Block Register */
 	reg = mci_readl(MCI_BLKR);
 	reg &= ~(((0x1 << 16) -1) << 16);
 	reg |= (blklen << 16);
 	mci_writel(MCI_BLKR, reg);
-	
+
 	/* set Mode Register */
 	reg = AT91C_MCI_RDPROOF_ENABLE;
 	reg |= AT91C_MCI_WRPROOF_ENABLE;
@@ -103,21 +104,32 @@ static void mci_set_mode(unsigned int clock, unsigned int blklen)
 	if (clkdiv & 1)
 		reg |=	AT91C_MCI_CLKODD;
 
-	//dbg_log(1, "mci_set_mode MCI_MR: %d\n\r",reg);
-
 	mci_writel(MCI_MR, reg);
 #else
 	clkdiv = clkdiv / 2 - 1;
 	if (clkdiv & ~255UL)
 		clkdiv = 255;
 
-	reg = AT91C_MCI_MRBLKLEN(blklen) 
-		| AT91C_MCI_RDPROOF_ENABLE 
-		| AT91C_MCI_WRPROOF_ENABLE 
+	reg = AT91C_MCI_MRBLKLEN(blklen)
+		| AT91C_MCI_RDPROOF_ENABLE
+		| AT91C_MCI_WRPROOF_ENABLE
 		| AT91C_MCI_CLKDIV(clkdiv);
 
-	mci_writel(MCI_MR, reg); 
+	mci_writel(MCI_MR, reg);
+#endif	/* #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X) */
+}
+
+#ifdef CONFIG_SDCARD_HS
+static void mci_set_clock(unsigned int clock)
+{
+	mci_set_mode(clock, CONFIG_SYS_MMC_DEFAULT_BLKLEN);
+}
 #endif
+
+static int mci_set_blkr(unsigned int blkcnt, unsigned int blklen)
+{
+	mci_writel(MCI_BLKR, (blklen << 16) | blkcnt);
+	return 0;
 }
 
 static int mci_set_bus_width(unsigned int buswidth)
@@ -125,7 +137,7 @@ static int mci_set_bus_width(unsigned int buswidth)
 	unsigned int reg;
 
 	reg = mci_readl(MCI_SDCR);
-	
+
 	if (buswidth == 8)
 		reg |=  AT91C_MCI_SCDBUS_8BIT;
 	else if (buswidth == 4)
@@ -134,7 +146,7 @@ static int mci_set_bus_width(unsigned int buswidth)
 		reg |= AT91C_MCI_SCDBUS_1BIT;
 
 	mci_writel(MCI_SDCR, reg);
-	
+
 	return 0;
 }
 
@@ -183,10 +195,15 @@ static void mci_init(void)
 #define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 #define MMC_RSP_R7	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 
-#define ERROR_FLAGS	(AT91C_MCI_DTOE		\
-			| AT91C_MCI_RDIRE 	\
-			| AT91C_MCI_RENDE	\
-			| AT91C_MCI_RINDE	\
+/* Data Time-out Error */
+/* Response Direction Error */
+/* Response End Bit Error */
+/* Response Index Error */
+/* Response Time-out Error */
+#define ERROR_FLAGS	(AT91C_MCI_DTOE	\
+			| AT91C_MCI_RDIRE \
+			| AT91C_MCI_RENDE \
+			| AT91C_MCI_RINDE \
 			| AT91C_MCI_RTOE)
 
 static int mmc_cmd(unsigned short cmd,
@@ -201,7 +218,6 @@ static int mmc_cmd(unsigned short cmd,
 
 	/* Default Flags for the Command */
 	flags |= AT91C_MCI_MAXLAT_64;
-	flags |= AT91C_MCI_OPDCMD_OPENDRAIN;
 
 	if (resp_type & MMC_RSP_CRC)
 		error_flags |= AT91C_MCI_RCRCE; 
@@ -222,7 +238,7 @@ static int mmc_cmd(unsigned short cmd,
 	while (!((status = mci_readl(MCI_SR)) & AT91C_MCI_CMDRDY));
 
 	if (status & error_flags) {
-		dbg_log(1, "Comm Error MCI_SR:%d\n\r", status);
+		dbg_log(1, "mmc_cmd, Error mci_status: %d\n\r", status);
 		return COMM_ERR;
 	}
 
@@ -273,7 +289,7 @@ static int mmc_send_if_cond(struct mmc *mmc)
 	int ret;
 
 	cmd = SD_CMD_SEND_IF_COND;
-	
+
 	/* We set the bit if the host supports voltages between 2.7 and 3.6 V */
 	cmdarg = ((mmc->voltages & 0xff8000) != 0) << 8 | 0xaa;
 	resp_type = MMC_RSP_R7;
@@ -326,7 +342,7 @@ static int sd_send_op_cond(struct mmc *mmc)
 
 		if (mmc->version == SD_VERSION_2)
 			cmdarg |= OCR_HCS;
-	
+
 		flags = 0;
 
 		ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
@@ -416,7 +432,6 @@ static int sd_init_card(struct mmc *mmc)
 	return ret;
 }
 
-
 static int mmc_init_card(struct mmc *mmc)
 {
 	int ret;
@@ -424,7 +439,7 @@ static int mmc_init_card(struct mmc *mmc)
 	ret = mmc_go_idle();
 	if (ret)
 		return ret;
-	
+
 	ret = mmc_send_op_cond(mmc);
 
 	return ret;
@@ -454,13 +469,13 @@ static int mmc_send_status(struct mmc *mmc, int timeout)
 		udelay(1000);
 
 		if (response[0] & MMC_STATUS_MASK) {
-			dbg_log(1, "Status Error: %d\n\r", response[0]);
+			dbg_log(1, "send_status, card status Error: %d\n\r", response[0]);
 			return COMM_ERR;
 		}
 	} while (timeout--);
 
 	if (!timeout) {
-		dbg_log(1, "Timeout waiting card ready\n\r");
+		dbg_log(1, "send_status, timeout waiting card ready\n\r");
 		return TIMEOUT;
 	}
 
@@ -485,7 +500,7 @@ static int mmc_send_all_cid(struct mmc *mmc)
 	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
 	if (ret)
 		return ret;
-	
+
 	memcpy(mmc->cid, response, 16);
 	return 0;
 }
@@ -573,15 +588,226 @@ static int mmc_send_select_card(struct mmc *mmc)
 	unsigned int  flags;
 	unsigned int  response[4];
 	int ret;
-	
+
 	cmd = MMC_CMD_SELECT_CARD;
 	resp_type = MMC_RSP_R1b;
 	cmdarg = mmc->rca << 16;
 	flags = 0;
-	
+
 	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
 	if (ret)
 		return ret;
+
+	return 0;
+}
+
+#if 0
+static int sd_sd_status(struct mmc *mmc)
+{
+	unsigned short cmd;
+	unsigned int  cmdarg;
+	unsigned int  resp_type;
+	unsigned int  flags;
+	unsigned int  response[4];
+	int ret;
+
+	unsigned char sd_status[64];
+	unsigned int *p = (unsigned int *)sd_status;
+	unsigned int blocksize;
+	unsigned int word_count;
+	unsigned int status;
+	unsigned int i;
+
+	/* Read the SCR to find out if this card supports higher speeds */
+	cmd = MMC_CMD_APP_CMD;
+	resp_type = MMC_RSP_R1;
+	cmdarg = mmc->rca << 16;
+	flags = 0;
+
+	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+	if (ret)
+		return ret;
+
+	cmd = SD_CMD_APP_SD_STATUS;
+	resp_type = MMC_RSP_R1;
+	cmdarg = 0;
+	flags = AT91C_MCI_TRCMD_START | AT91C_MCI_TRDIR_READ;
+
+	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+	if (ret)
+		return ret;
+
+	blocksize = 64;
+	word_count = 0;
+	do {
+		do {
+			status = mci_readl(MCI_SR);
+			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE)) {
+				dbg_log(1, "Comm/Overrun Error, MCI_SR:%d\n\r", status);
+				return status;
+			}
+		} while (!(status & AT91C_MCI_RXRDY));
+
+		if (status & AT91C_MCI_RXRDY) {
+			*p++ = mci_readl(MCI_RDR);
+			word_count++;
+		}
+	} while (word_count < (blocksize / 4));
+
+	i = 0;
+	do {
+		status = mci_readl(MCI_SR);
+		if (status & ERROR_FLAGS) {
+			dbg_log(1, "Comm Error MCI_SR:%d\n\r", status);
+			return COMM_ERR;
+		}
+		i++;
+	} while ((status & AT91C_MCI_DTIP) && (i < 5000));
+
+	if (status & AT91C_MCI_DTIP) {
+		dbg_log(1, "MCI_SR:%d\n\r", status);
+		//return COMM_ERR;
+	}
+
+	unsigned int j;
+	dbg_log(1, "sd_status:\n\r");
+	for (i = 0; i < 8; i++) {
+		for (j = 0; j < 8; j++)
+			dbg_log(1, "%d ", sd_status[i * 8 + j]);
+
+		dbg_log(1, "\n\r");
+	}
+}
+#endif
+
+static int sd_set_bus_width(struct mmc *mmc)
+{
+	unsigned short cmd;
+	unsigned int  cmdarg;
+	unsigned int  resp_type;
+	unsigned int  flags;
+	unsigned int  response[4];
+	int ret;
+
+	cmd = MMC_CMD_APP_CMD;
+	resp_type = MMC_RSP_R1;
+	cmdarg = mmc->rca << 16;
+	flags = 0;
+
+	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+	if (ret)
+		return ret;
+
+	cmd = SD_CMD_APP_SET_BUS_WIDTH;
+	resp_type = MMC_RSP_R1;
+	cmdarg = 2;	/* 4 bit width */
+	flags = 0;
+
+	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+	if (ret)
+		return ret;
+
+	mci_set_bus_width(4);
+
+	return 0;
+}
+
+#ifdef CONFIG_SDCARD_HS
+static int sd_send_scr(struct mmc *mmc)
+{
+	unsigned short cmd;
+	unsigned int  cmdarg;
+	unsigned int  resp_type;
+	unsigned int  flags;
+	unsigned int  response[4];
+	int ret;
+
+	unsigned int scr[2];
+	int timeout;
+
+	unsigned int *p;
+	unsigned int blocksize;
+	unsigned int word_count;
+	unsigned int status;
+	unsigned int i;
+
+	mmc->card_caps = 0;
+
+	/* Read the SCR to find out if this card supports higher speeds */
+	cmd = MMC_CMD_APP_CMD;
+	resp_type = MMC_RSP_R1;
+	cmdarg = mmc->rca << 16;
+	flags = 0;
+
+	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+	if (ret)
+		return ret;
+
+	cmd = SD_CMD_APP_SEND_SCR;
+	resp_type = MMC_RSP_R1;
+	cmdarg = 0;
+	flags = AT91C_MCI_TRCMD_START | AT91C_MCI_TRDIR_READ;
+
+	timeout = 3;
+	p = scr;
+
+retry_scr:
+	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+	if (ret) {
+		if (timeout--)
+			goto retry_scr;
+
+		return ret;
+	}
+
+	blocksize = 8;
+	word_count = 0;
+	do {
+		do {
+			status = mci_readl(MCI_SR);
+			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE)) {
+				dbg_log(1, "Comm/Overrun Error, MCI_SR:%d\n\r", status);
+				return status;
+			}
+		} while (!(status & AT91C_MCI_RXRDY));
+
+		if (status & AT91C_MCI_RXRDY) {
+			*p++ = mci_readl(MCI_RDR);
+			word_count++;
+		}
+	} while (word_count < (blocksize / 4));
+
+	i = 0;
+	do {
+		status = mci_readl(MCI_SR);
+		if (status & ERROR_FLAGS) {
+			dbg_log(1, "Comm Error MCI_SR:%d\n\r", status);
+			return COMM_ERR;
+		}
+		i++;
+	} while ((status & AT91C_MCI_DTIP) && (i < 5000));
+
+	if (status & AT91C_MCI_DTIP) {
+		dbg_log(1, "MCI_SR:%d\n\r", status);
+		//return COMM_ERR;
+	}
+
+	mmc->scr[0] = be32_to_cpu(scr[0]);
+	mmc->scr[1] = be32_to_cpu(scr[1]);
+
+	int version = (mmc->scr[0] >> 24) & 0xf;
+
+	if (version ==  0)
+		mmc->version = SD_VERSION_1_0;
+	else if (version == 1)
+		mmc->version = SD_VERSION_1_10;
+	else if (version == 2)
+		mmc->version = SD_VERSION_2;
+	else
+		mmc->version = SD_VERSION_1_0;
+
+	if (mmc->scr[0] & SD_DATA_4BIT)
+		mmc->card_caps |= MMC_MODE_4BIT;
 
 	return 0;
 }
@@ -597,7 +823,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
 	unsigned int *p = (unsigned int *)ext_csd;
 	unsigned int word_count = 0;
 	unsigned int blocksize = 512;
-	
+
 	unsigned int status;
 	unsigned int i;
 
@@ -644,8 +870,7 @@ static int mmc_send_ext_csd(struct mmc *mmc, char *ext_csd)
 	return 0;
 }
 
-
-int mmc_switch(struct mmc *mmc, unsigned char set, unsigned char index, unsigned char value)
+static int mmc_switch(struct mmc *mmc, unsigned char set, unsigned char index, unsigned char value)
 {
 	unsigned short cmd;
 	unsigned int  cmdarg;
@@ -672,52 +897,9 @@ int mmc_switch(struct mmc *mmc, unsigned char set, unsigned char index, unsigned
 
 }
 
-int mmc_change_freq(struct mmc *mmc)
-{
-	int ret;
-	char ext_csd[512];
-	char cardtype;
-
-	mmc->card_caps = 0;
-
-	/* Only version 4 supports high-speed */
-	if (mmc->version < MMC_VERSION_4)
-		return 0;
-
-	mmc->card_caps |= MMC_MODE_4BIT;
-
-	ret = mmc_send_ext_csd(mmc, ext_csd);
-	if (ret)
-		return ret;
-
-	cardtype = ext_csd[196] & 0xf;
-
-	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
-
-	if (ret)
-		return ret;
-
-	/* Now check to see that it worked */
-	ret = mmc_send_ext_csd(mmc, ext_csd);
-	if (ret)
-		return ret;
-
-	/* No high-speed support */
-	if (!ext_csd[185])
-		return 0;
-
-	/* High Speed is set, there are two types: 52MHz and 26MHz */
-	if (cardtype & MMC_HS_52MHZ)
-		mmc->card_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
-	else
-		mmc->card_caps |= MMC_MODE_HS;
-
-	return 0;
-}
-
-static int sd_switch(struct mmc *mmc, 
-			int mode, 
-			int group, 
+static int sd_switch(struct mmc *mmc,
+			int mode,
+			int group,
 			unsigned char value,
 			unsigned char *resp)
 {
@@ -779,103 +961,57 @@ static int sd_switch(struct mmc *mmc,
 	return 0;
 }
 
-
-int sd_change_freq(struct mmc *mmc)
+static int mmc_change_freq(struct mmc *mmc)
 {
-	unsigned short cmd;
-	unsigned int  cmdarg;
-	unsigned int  resp_type;
-	unsigned int  flags;
-	unsigned int  response[4];
 	int ret;
-
-	unsigned int scr[2];
-	unsigned int switch_status[16];
-	int timeout;
-
-	unsigned int *p;
-	unsigned int blocksize;
-	unsigned int word_count;
-	unsigned int status;
-	unsigned int i;
+	char ext_csd[512];
+	char cardtype;
 
 	mmc->card_caps = 0;
 
-	/* Read the SCR to find out if this card supports higher speeds */
-	cmd = MMC_CMD_APP_CMD;
-	resp_type = MMC_RSP_R1;
-	cmdarg = mmc->rca << 16;
-	flags = 0;
+	/* Only version 4 supports high-speed */
+	if (mmc->version < MMC_VERSION_4)
+		return 0;
 
-	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+	mmc->card_caps |= MMC_MODE_4BIT;
+
+	ret = mmc_send_ext_csd(mmc, ext_csd);
 	if (ret)
 		return ret;
 
-	cmd = SD_CMD_APP_SEND_SCR;
-	resp_type = MMC_RSP_R1;
-	cmdarg = 0;
-	flags = AT91C_MCI_TRCMD_START | AT91C_MCI_TRDIR_READ;
+	cardtype = ext_csd[196] & 0xf;
 
-	timeout = 3;
-	p = scr;
+	ret = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
 
-retry_scr:
-	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
-	if (ret) {
-		if (timeout--)
-			goto retry_scr;
-
+	if (ret)
 		return ret;
-	}
-	
-	blocksize = 8;
-	word_count = 0;
-	do {
-		do {
-			status = mci_readl(MCI_SR);
-			if (status & (ERROR_FLAGS | AT91C_MCI_OVRE)) {
-				dbg_log(1, "Comm/Overrun Error, MCI_SR:%d\n\r", status);
-				return status;
-			}
-		} while (!(status & AT91C_MCI_RXRDY));
 
-		if (status & AT91C_MCI_RXRDY) {
-			*p++ = mci_readl(MCI_RDR);
-			word_count++;
-		}
-	} while (word_count < (blocksize / 4));
+	/* Now check to see that it worked */
+	ret = mmc_send_ext_csd(mmc, ext_csd);
+	if (ret)
+		return ret;
 
-	i = 0;
-	do {
-		status = mci_readl(MCI_SR);
-		if (status & ERROR_FLAGS) {
-			dbg_log(1, "Comm Error MCI_SR:%d\n\r", status);
-			return COMM_ERR;
-		}
-		i++;
-	} while ((status & AT91C_MCI_DTIP) && (i < 10000));
+	/* No high-speed support */
+	if (!ext_csd[185])
+		return 0;
 
-	if (status & AT91C_MCI_DTIP) {
-//`		dbg_log(1, "MCI_SR:%d\n\r", status);
-		//return COMM_ERR;
-	}
-
-	mmc->scr[0] = be32_to_cpu(scr[0]);
-	mmc->scr[1] = be32_to_cpu(scr[1]);
-
-	int version = (mmc->scr[0] >> 24) & 0xf;
-
-	if (version ==  0)
-		mmc->version = SD_VERSION_1_0;
-	else if (version == 1)
-		mmc->version = SD_VERSION_1_10;
-	else if (version == 2)
-		mmc->version = SD_VERSION_2;
+	/* High Speed is set, there are two types: 52MHz and 26MHz */
+	if (cardtype & MMC_HS_52MHZ)
+		mmc->card_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 	else
-		mmc->version = SD_VERSION_1_0;
+		mmc->card_caps |= MMC_MODE_HS;
 
-	if (mmc->scr[0] & SD_DATA_4BIT)
-		mmc->card_caps |= MMC_MODE_4BIT;
+	return 0;
+}
+
+static int sd_change_freq(struct mmc *mmc)
+{
+	unsigned int switch_status[16];
+	int timeout;
+	int ret;
+
+	/* Read the SD Configuration Register(SCR) */
+	sd_send_scr(mmc);
 
 	/* Version 1.0 doesn't support switching */
 	if (mmc->version == SD_VERSION_1_0)
@@ -899,7 +1035,7 @@ retry_scr:
 
 	ret = sd_switch(mmc, SD_SWITCH_SWITCH, 0, 1, (unsigned char *)&switch_status);
 	udelay(10000);
-//	dbg_log(1, "sd_change_freq, 03 ret: %d\n\r", ret);
+
 	if (ret)
 		return ret;
 
@@ -909,23 +1045,13 @@ retry_scr:
 	return 0;
 }
 
-static void mmc_set_clock(unsigned int clock)
+static int mmc_set_buswidth_clock(struct mmc *mmc)
 {
-	mci_set_mode(clock, CONFIG_SYS_MMC_DEFAULT_BLKLEN);
-}
-
-static int mmc_set_busw_clock(struct mmc *mmc)
-{
-	unsigned short cmd;
-	unsigned int  cmdarg;
-	unsigned int  resp_type;
-	unsigned int  flags;
-	unsigned int  response[4];
 	int ret;
 
-	if (IS_SD(mmc)){
+	if (IS_SD(mmc))
 		ret = sd_change_freq(mmc);
-	} else
+	else
 		ret = mmc_change_freq(mmc);
 
 	if (ret)
@@ -935,32 +1061,15 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 	mmc->card_caps &= mmc->host_caps;
 
 	if (IS_SD(mmc)) {
-		if (mmc->card_caps & MMC_MODE_4BIT) {
-			cmd = MMC_CMD_APP_CMD;
-			resp_type = MMC_RSP_R1;
-			cmdarg = mmc->rca << 16;
-			flags = 0;
-
-			ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
+		if (mmc->card_caps & MMC_MODE_4BIT)
+			ret = sd_set_bus_width(mmc);
 			if (ret)
 				return ret;
 
-			cmd = SD_CMD_APP_SET_BUS_WIDTH;
-			resp_type = MMC_RSP_R1;
-			cmdarg = 2;
-			flags = 0;
-
-			ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
-			if (ret)
-				return ret; 
-
-			mci_set_bus_width(4);
-		}
-
 		if (mmc->card_caps & MMC_MODE_HS)
-			mmc_set_clock(30000000); /* NEED to try to */
+			mci_set_clock(30000000); /* NEED to try to */
 		else
-			mmc_set_clock(4000000); /* The value got from Trying */
+			mci_set_clock(4000000); /* The value got from Trying */
 	} else {
 		if (mmc->card_caps & MMC_MODE_4BIT) {
 			/* Set the card to use 4 bit*/
@@ -986,15 +1095,16 @@ static int mmc_set_busw_clock(struct mmc *mmc)
 
 		if (mmc->card_caps & MMC_MODE_HS) {
 			if (mmc->card_caps & MMC_MODE_HS_52MHz)
-				mmc_set_clock(52000000);
+				mci_set_clock(52000000);
 			else
-				mmc_set_clock(26000000);
+				mci_set_clock(26000000);
 		} else
-			mmc_set_clock(20000000);
+			mci_set_clock(20000000);
 	}
 
 	return 0;
 }
+#endif /* #ifdef CONFIG_SDCARD_HS */
 
 static struct mmc atmel_mmc;
 
@@ -1002,12 +1112,18 @@ int mmc_initialize(void)
 {
 	struct mmc *mmc = &atmel_mmc;
 	int ret;
-	
-	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
-	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS;
 
+	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
+#ifdef CONFIG_SDCARD_HS
+	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_HS;
+#else
+	mmc->host_caps = MMC_MODE_4BIT;
+#endif
+
+	/* Initialize mci interface */
 	mci_init();
 
+	/* Card Indentification mode */
 	ret = sd_init_card(mmc);
 	if (ret == TIMEOUT) {
 		ret = mmc_init_card(mmc);
@@ -1039,28 +1155,16 @@ int mmc_initialize(void)
 	if (ret)
 		return ret;
 
-	/* store the partition info of emmc */
-	ret = mmc_set_busw_clock(mmc);
+#ifdef CONFIG_SDCARD_HS
+	ret = mmc_set_buswidth_clock(mmc);
 	if (ret)
 		return ret;
-
-	return 0;
-}
-
-static int mci_set_blkr(unsigned int blkcnt, unsigned int blklen)
-{
-#if !(defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X))
-	unsigned int reg;
-
-	reg = mci_readl(MCI_MR);
-	reg &= ~(((0x1 << 16) -1) << 16);
-	reg |= (blklen << 16);
-#ifndef AT91SAM9M10
-	reg &= ~AT91C_MCI_PDCMODE_ENABLE;
+#else
+	ret = sd_set_bus_width(mmc);
+	if (ret)
+		return ret;
 #endif
-	mci_writel(MCI_MR, reg);
-#endif
-	mci_writel(MCI_BLKR, (blklen << 16) | blkcnt);
+
 	return 0;
 }
 
@@ -1077,7 +1181,7 @@ static int mmc_set_blocklen(int blocklen)
 	resp_type = MMC_RSP_R1;
 	cmdarg = blocklen;
 	flags = 0;
-	
+
 	ret = mmc_cmd(cmd, resp_type, cmdarg, flags, response);
 	if (ret)
 		return ret;
@@ -1109,8 +1213,10 @@ static int mmc_stop_transmission(struct mmc *mmc)
 	return 0;
 }
 
-
-static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsigned int blkcnt)
+static int mmc_read_blocks(struct mmc *mmc,
+				void *dest,
+				unsigned int start,
+				unsigned int blkcnt)
 {
 	unsigned short cmd;
 	unsigned int  cmdarg;
@@ -1118,13 +1224,13 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 	unsigned int  flags;
 	unsigned int  response[4];
 	int ret;
-	
+
 	unsigned int block_count;
 	unsigned int blocklen = mmc->read_bl_len;
 	unsigned int word_count;
 	unsigned int status;
 	unsigned int *p = (unsigned int *)dest;
-	
+
 	unsigned int i;
 
 	mci_set_blkr(blkcnt, blocklen);
@@ -1161,7 +1267,7 @@ static int mmc_read_blocks(struct mmc *mmc, void *dest, unsigned int start, unsi
 					break;
 				}
 			} while (!(status & AT91C_MCI_RXRDY));
-			
+
 			if (status & AT91C_MCI_RXRDY) {
 				*p++ = mci_readl(MCI_RDR);
 				word_count++;
@@ -1214,4 +1320,3 @@ unsigned int mmc_bread(unsigned int start, unsigned int blkcnt, void *dest)
 
 	return blkcnt;
 }
-
