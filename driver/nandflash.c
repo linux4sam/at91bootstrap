@@ -865,7 +865,7 @@ static int nandflash_recovery(void)
 
 		nand_erase_block0();
 
-		dbg_log(1, "Nand: The erasing is done\n\r")
+		dbg_log(1, "Nand: The erasing is done\n\r");
 		return 0;
 	}
 	return 1;

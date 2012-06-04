@@ -184,7 +184,7 @@ void hw_init(void)
 	/* Init the recovery buttons pins */
 	recovery_buttons_hw_init();
 }
-#endif /* CONFIG_HW_INIT */
+#endif /* #ifdef CONFIG_HW_INIT */
 
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)
@@ -211,7 +211,7 @@ void at91_spi0_hw_init(void)
 	/* Enable the spi0 clock */
 	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
 }
-#endif /* CONFIG_DATAFLASH */
+#endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
 void at91_mci0_hw_init(void)
