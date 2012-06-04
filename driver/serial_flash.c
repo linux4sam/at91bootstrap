@@ -31,6 +31,7 @@
 #include "spi.h"
 #include "arch/at91_pio.h"
 #include "gpio.h"
+#include "string.h"
 
 #include "debug.h"
 
@@ -185,11 +186,11 @@ static int sf_read_write(const unsigned char *cmd,
 	/* command */
 	ret = spi_xfer(cmd_len, cmd, NULL, flags);
 	if (ret) 
-		dbg_log(1, "SF: Failed to send command (%zu bytes): %d\n\r", cmd_len, ret);
+		dbg_log(1, "SF: Failed to send command (%d bytes): %d\n\r", cmd_len, ret);
 	else if (data_len != 0) { /* data */
 		ret = spi_xfer(data_len, data_out, data_in, SPI_XFER_END);
 		if (ret)
-			dbg_log(1, "SF: Failed to transfer %zu bytes of data: %d\n\r", data_len, ret);
+			dbg_log(1, "SF: Failed to transfer %d bytes of data: %d\n\r", data_len, ret);
 	}
 
 	return ret;
@@ -217,7 +218,13 @@ static int sf_cmd_write(const unsigned char *cmd,
 		const void *data,
 		unsigned int data_len)
 {
-	return sf_read_write(cmd, cmd_len, data, NULL, data_len);
+	int ret;
+
+	at91_spi_enable();
+	ret = sf_read_write(cmd, cmd_len, data, NULL, data_len);
+	at91_spi_disable();
+
+	return ret;
 }
 
 static int sf_cmd_read_fast(unsigned int offset, unsigned int len, void *buf)
@@ -318,12 +325,14 @@ static int at45_wait_ready(unsigned long timeout)
 	unsigned char cmd = CMD_AT45_READ_STATUS;
 	unsigned char status;
 
-	ret = spi_xfer(8, &cmd, NULL, SPI_XFER_BEGIN);
+	at91_spi_enable();
+
+	ret = spi_xfer(1, &cmd, NULL, SPI_XFER_BEGIN);
 	if (ret)
 		return -1;
 
 	do {
-		ret = spi_xfer(8, NULL, &status, 0);
+		ret = spi_xfer(1, NULL, &status, 0);
 		if (ret)
 			return -1;
 
@@ -333,6 +342,8 @@ static int at45_wait_ready(unsigned long timeout)
 
 	/* Deactivate CS */
 	spi_xfer(0, NULL, NULL, SPI_XFER_END);
+
+	at91_spi_disable();
 
 	if (status & AT45_STATUS_READY)
 		return 0;
@@ -496,13 +507,19 @@ static int at25_write_enable(int is_enable)
 	else
 		cmd = CMD_AT25_WRITE_DISABLE;
 
-	ret = spi_xfer(8, &cmd, NULL, SPI_XFER_BEGIN);
-	if (ret)
-		return -1;
+	at91_spi_enable();
+
+	ret = spi_xfer(1, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret) {
+		ret = -1;
+		goto out;
+	}
 
 	/* Deactivate CS */
 	spi_xfer(0, NULL, NULL, SPI_XFER_END);
 
+out:
+	at91_spi_disable();
 	return 0;
 }
 
@@ -610,7 +627,6 @@ static int dataflash_erase_at25(unsigned int offset, unsigned int len)
 			return ret;
 	}
 
-	dbg_log(1, "SF: AT25: Successfully erased %zu bytes @ 0x%x\n\r", len, offset);
 	return 0;
 }
 
@@ -658,7 +674,8 @@ static int atmel_sf_probe(unsigned int clock, unsigned int spi_mode)
 			goto err;
 		}
 
-		sf_params = (struct serial_flash_params *)params;
+		memcpy((unsigned char *)sf_params, (unsigned char *)params,
+					sizeof (struct serial_flash_params));
 
 		family = idcode[1] >> 5;	/* Family Code */
 
@@ -716,21 +733,31 @@ static int dataflash_page_erase(void)
 	unsigned int len = BLOCK_SIZE_4K;
 	int ret;
 
-	ret = sf_erase(offset, len);
+	ret = (*sf_erase)(offset, len);
 	return ret;
 }
 
-static void dataflash_recovery(void)
+static int dataflash_recovery(void)
 {
 	/*
 	 * If Recovery Button is pressed during boot sequence,
 	 * erase dataflash page0
 	*/
 	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
-		dbg_log(1, "SF: The recovery button (%s) has been press, the dataflash page 0 erasing...\n\r",
-			RECOVERY_BUTTON_NAME);
-		dataflash_page_erase();
+		dbg_log(1, "SF: The recovery button (%s) has been pressed,\n\r", RECOVERY_BUTTON_NAME);
+		dbg_log(1, "SF: The page 0 is erasing...\n\r");
+
+		if (dataflash_page_erase() == 0) {
+			dbg_log(1, "SF: The erasing is done\n\r");
+			return 0;
+		} else {
+			dbg_log(1, "SF: The erasing failed\n\r");
+			return -1;
+		}
+
 	}
+
+	return 1;
 }
 #endif /* #ifdef CONFIG_DATAFLASH_RECOVERY */
 
@@ -750,7 +777,8 @@ int load_dataflash(struct image_info *img_info)
 	}
 
 #ifdef CONFIG_DATAFLASH_RECOVERY
-	dataflash_recovery();
+	if (dataflash_recovery() == 0)
+		return -2;
 #endif
 
 	dbg_log(1, "SF: Copy %d bytes from %d to %d\n\r", size, offset, dest);
