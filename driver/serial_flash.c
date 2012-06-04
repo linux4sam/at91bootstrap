@@ -29,10 +29,14 @@
 #include "hardware.h"
 #include "board.h"
 #include "spi.h"
+#include "arch/at91_pio.h"
+#include "gpio.h"
 
 #include "debug.h"
 
 /* Common commands */
+#define CMD_AT45_READ_STATUS		0xd7
+#define CMD_AT45_ERASE_PAGE		0x81
 #define CMD_READ_ID			0x9f
 
 #define CMD_READ_ARRAY_SLOW		0x03
@@ -45,6 +49,35 @@
 /* AT45 status register bits */
 #define AT45_STATUS_P2_PAGE_SIZE	(1 << 0)
 #define AT45_STATUS_READY		(1 << 7)
+
+/* AT25-specific commands */
+#define CMD_AT25_READ_STATUS		0x05
+#define CMD_AT25_WRITE_STATUS		0x01
+
+#define CMD_AT25_BYTE_PAGE_PROGRAM	0x02
+#define CMD_AT25_ERASE_BLOCK_4K		0x20
+#define CMD_AT25_ERASE_BLOCK_32K	0x52
+#define CMD_AT25_ERASE_BLOCK_64K	0xD8
+
+#define CMD_AT25_WRITE_ENABLE	0x06
+#define CMD_AT25_WRITE_DISABLE	0x04
+
+/* AT25 status register bits */
+#define AT25_STATUS_READYBUSY		(1 << 0)
+#define AT25_STATUS_READYBUSY_READY	(0 << 0)
+#define AT25_STATUS_READYBUSY_BUSY	(1 << 0)
+#define AT25_ERASE_PROGRAM_ERROR	(1 << 5)
+#define AT25_STATUS_SWP			(3 << 2)
+#define AT25_STATUS_SWP_PROTECTALL	(3 << 2)
+#define AT25_STATUS_SWP_PROTECTSOME	(1 << 2)
+#define AT25_STATUS_SWP_PROTECTNONE	(0 << 2)
+#define AT25_STATUS_SPRL		(1 << 7)
+#define AT25_STATUS_SPRL_UNLOCKED	(0 << 7)
+#define AT25_STATUS_SPRL_LOCKED		(1 << 7)
+
+#define BLOCK_SIZE_4K		(4 * 1024)
+
+#define SPI_FLASH_PAGE_ERASE_TIMEOUT	5000
 
 /* DataFlash family IDs, as obtained from the second idcode byte */
 #define DF_FAMILY_AT26F			0x00
@@ -63,8 +96,10 @@ struct serial_flash_params {
 };
 
 typedef int (*serial_flash_read)(unsigned int offset, unsigned int len, void *buf);
+typedef int (*serial_flash_erase)(unsigned int offset, unsigned int len);
 
-static serial_flash_read	sf_read;
+static serial_flash_read  sf_read;
+static serial_flash_erase sf_erase;
 
 static struct serial_flash_params 	atmel_sf_params;
 
@@ -177,6 +212,14 @@ static int sf_cmd_read(const unsigned char *cmd, unsigned int cmd_len,
 	return ret;
 }
 
+static int sf_cmd_write(const unsigned char *cmd,
+		unsigned int cmd_len,
+		const void *data,
+		unsigned int data_len)
+{
+	return sf_read_write(cmd, cmd_len, data, NULL, data_len);
+}
+
 static int sf_cmd_read_fast(unsigned int offset, unsigned int len, void *buf)
 {
 	unsigned char cmd[5];
@@ -269,6 +312,308 @@ static int sf_cmd_read_status_at45(unsigned char *page_256)
 	return 0;
 }
 
+static int at45_wait_ready(unsigned long timeout)
+{
+	int ret;
+	unsigned char cmd = CMD_AT45_READ_STATUS;
+	unsigned char status;
+
+	ret = spi_xfer(8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret)
+		return -1;
+
+	do {
+		ret = spi_xfer(8, NULL, &status, 0);
+		if (ret)
+			return -1;
+
+		if (status & AT45_STATUS_READY)
+			break;
+	} while (--timeout);
+
+	/* Deactivate CS */
+	spi_xfer(0, NULL, NULL, SPI_XFER_END);
+
+	if (status & AT45_STATUS_READY)
+		return 0;
+
+	/* Timed out */
+	return -1;
+}
+
+static int dataflash_erase_p2(unsigned int offset, unsigned int len)
+{
+	const struct serial_flash_params *sf_params = &atmel_sf_params;
+	unsigned long page_size;
+
+	unsigned int actual;
+	int ret;
+	unsigned char cmd[4];
+
+	/*
+	 * TODO: This function currently uses page erase only. We can
+	 * probably speed things up by using block and/or sector erase
+	 * when possible.
+	 */
+	page_size = (1 << sf_params->l2_page_size);
+
+	if (offset % page_size || len % page_size) {
+		dbg_log(1, "SF: Erase offset/length not multiple of page size\n\r");
+		return -1;
+	}
+
+	cmd[0] = CMD_AT45_ERASE_PAGE;
+	cmd[3] = 0x00;
+
+	for (actual = 0; actual < len; actual += page_size) {
+		cmd[1] = offset >> 16;
+		cmd[2] = offset >> 8;
+
+		ret = sf_cmd_write(cmd, 4, NULL, 0);
+		if (ret < 0) {
+			dbg_log(1, "SF: AT45 page erase failed\n\r");
+			return ret;
+		}
+
+		ret = at45_wait_ready(SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		if (ret < 0) {
+			dbg_log(1, "SF: AT45 page erase timed out\n\r");
+			return ret;
+		}
+
+		offset += page_size;
+	}
+
+	dbg_log(1, "SF: AT45: Successfully erased %zu bytes @ 0x%x\n\r", len, offset);
+
+	return 0;
+}
+
+static int dataflash_erase_at45(unsigned int offset, unsigned int len)
+{
+	const struct serial_flash_params *sf_params = &atmel_sf_params;
+	unsigned long page_addr;
+	unsigned long page_size;
+	unsigned int page_shift;
+	unsigned int actual;
+	int ret;
+	unsigned char cmd[4];
+
+	/*
+	 * TODO: This function currently uses page erase only. We can
+	 * probably speed things up by using block and/or sector erase
+	 * when possible.
+	 */
+	page_shift = sf_params->l2_page_size;
+	page_size = (1 << page_shift) + (1 << (page_shift - 5));
+	page_shift++;
+	page_addr = offset / page_size;
+
+	if (offset % page_size || len % page_size) {
+		dbg_log(1, "SF: Erase offset/length not multiple of page size\n\r");
+		return -1;
+	}
+
+	cmd[0] = CMD_AT45_ERASE_PAGE;
+	cmd[3] = 0x00;
+
+	for (actual = 0; actual < len; actual += page_size) {
+		cmd[1] = page_addr >> (16 - page_shift);
+		cmd[2] = page_addr << (page_shift - 8);
+
+		ret = sf_cmd_write(cmd, 4, NULL, 0);
+		if (ret < 0) {
+			dbg_log(1, "SF: AT45 page erase failed\n\r");
+			return ret;
+		}
+
+		ret = at45_wait_ready(SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		if (ret < 0) {
+			dbg_log(1, "SF: AT45 page erase timed out\n\r");
+			return ret;
+		}
+
+		page_addr++;
+	}
+
+	dbg_log(1, "SF: AT45: Successfully erased %zu bytes @ 0x%x\n\r", len, offset);
+
+	return 0;
+}
+
+static int at25_read_status(void)
+{
+	int ret;
+	unsigned char cmd = CMD_AT25_READ_STATUS;
+	unsigned char status;
+
+	ret = sf_cmd_read(&cmd, 1, &status, 1);
+
+	if (ret < 0) {
+		dbg_log(1, "SF: Error occured when read AT25 status\n");
+		return ret;
+	} else
+		return status;
+}
+
+static int at25_wait_ready(unsigned long timeout)
+{
+	int ret;
+	unsigned char status;
+
+	do {
+		ret = at25_read_status();
+		if (ret < 0)
+			return -1;
+		else
+			status = ret;
+
+		if ((status & AT25_STATUS_READYBUSY)
+				== AT25_STATUS_READYBUSY_READY)
+			break;
+	} while (--timeout);
+
+	if ((status & AT25_STATUS_READYBUSY) == AT25_STATUS_READYBUSY_READY)
+		return 0;
+
+	/* Timed out */
+	return -1;
+}
+static int at25_write_status(unsigned char data)
+{
+	unsigned char cmd = CMD_AT25_WRITE_STATUS;
+
+	return sf_cmd_write(&cmd, 1, &data, 1);
+}
+
+static int at25_write_enable(int is_enable)
+{
+	int ret;
+	unsigned char cmd;
+
+	if (is_enable)
+		cmd = CMD_AT25_WRITE_ENABLE;
+	else
+		cmd = CMD_AT25_WRITE_DISABLE;
+
+	ret = spi_xfer(8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret)
+		return -1;
+
+	/* Deactivate CS */
+	spi_xfer(0, NULL, NULL, SPI_XFER_END);
+
+	return 0;
+}
+
+static int at25_unprotect(void)
+{
+	int ret;
+	unsigned char status;
+
+	ret = at25_read_status();
+	if (ret < 0)
+		dbg_log(1, "SF: Read AT25 status failed\n\r");
+	else
+		status = ret;
+
+	if ((status & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTECTNONE) {
+		/* Protection already disabled */
+		return 0;
+	}
+
+	/* Check if sector protection registers are locked */
+	if ((status & AT25_STATUS_SPRL) == AT25_STATUS_SPRL_LOCKED) {
+		/* Unprotect sector protection registers. */
+		at25_write_enable(1);
+		at25_write_status(0);
+	}
+
+	/* Perform a global unprotect command */
+	at25_write_enable(1);
+	at25_write_status(0);
+
+	/* Check the new status */
+	status = at25_read_status();
+	if (ret < 0)
+		return -1;
+
+	if ((status & (AT25_STATUS_SPRL | AT25_STATUS_SWP)) != 0) {
+		dbg_log(1, "SF: Unprotect AT25 failed\n\r");
+		return -1;
+	} else
+		return 0;
+}
+
+static int dataflash_erase_block_at25(unsigned int offset)
+{
+	/* Using 4k block erase. */
+	unsigned int addr = offset;
+	int ret;
+	unsigned char cmd[4];
+
+	if (offset % BLOCK_SIZE_4K != 0)
+		return -1;
+
+	ret = at25_write_enable(1);
+	if (ret < 0) {
+		dbg_log(1, "SF: Enable write AT25 failed\n\r");
+		return ret;
+	}
+
+	cmd[0] = CMD_AT25_ERASE_BLOCK_4K;
+	cmd[1] = addr >> 16;
+	cmd[2] = addr >> 8;
+	cmd[3] = addr;
+	ret = sf_cmd_write(cmd, 4, NULL, 0);
+	if (ret < 0) {
+		dbg_log(1, "SF: AT25 4k block erase failed\n\r");
+		return ret;
+	}
+
+	ret = at25_wait_ready(SPI_FLASH_PAGE_ERASE_TIMEOUT);
+	if (ret < 0) {
+		dbg_log(1,"SF: AT25 4k block erase timed out\n\r");
+		return ret;
+	}
+
+	return 0;
+}
+
+static int dataflash_erase_at25(unsigned int offset, unsigned int len)
+{
+	int ret;
+	unsigned int addr;
+
+	/*
+	 * TODO: This function currently uses 4k block erase only. We can
+	 * probably speed things up by using 32k/64k block erase or chip
+	 * erase when possible.
+	 */
+
+	if (offset % BLOCK_SIZE_4K || len % BLOCK_SIZE_4K) {
+		dbg_log(1, "SF: Erase offset/length not multiple of block size\n\r");
+		return -1;
+	}
+
+	ret = at25_unprotect();
+	if (ret < 0)
+		return ret;
+
+	/* Use 4k block erase. */
+	for (addr = offset; addr < offset + len; addr += BLOCK_SIZE_4K) {
+		if (offset % BLOCK_SIZE_4K != 0)
+			addr = (addr >> 12) << 12;	/* 4k size align. */
+
+		ret = dataflash_erase_block_at25(addr);
+		if (ret < 0)
+			return ret;
+	}
+
+	dbg_log(1, "SF: AT25: Successfully erased %zu bytes @ 0x%x\n\r", len, offset);
+	return 0;
+}
+
 #define IDCODE_LEN	5
 #define MANU_ID_ATMEL	0x1F
 
@@ -327,15 +672,19 @@ static int atmel_sf_probe(unsigned int clock, unsigned int spi_mode)
 			if (ret)
 				goto err;
 
-			if (page_256 == 0)
+			if (page_256 == 0) {
 				sf_read = dataflash_read_fast_at45;
-			else
+				sf_erase = dataflash_erase_at45;
+			} else {
 				sf_read = sf_cmd_read_fast;
+				sf_erase = dataflash_erase_p2;
+			}
 			break;
 
 		case DF_FAMILY_AT26F:
 		case DF_FAMILY_AT26DF:
 			sf_read = sf_cmd_read_fast;
+			sf_erase = dataflash_erase_at25;
 			break;
 
 		default:
@@ -360,6 +709,31 @@ err:
 	return -1;
 }
 
+#ifdef CONFIG_DATAFLASH_RECOVERY
+static int dataflash_page_erase(void)
+{
+	unsigned int offset = 0;
+	unsigned int len = BLOCK_SIZE_4K;
+	int ret;
+
+	ret = sf_erase(offset, len);
+	return ret;
+}
+
+static void dataflash_recovery(void)
+{
+	/*
+	 * If Recovery Button is pressed during boot sequence,
+	 * erase dataflash page0
+	*/
+	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
+		dbg_log(1, "SF: The recovery button (%s) has been press, the dataflash page 0 erasing...\n\r",
+			RECOVERY_BUTTON_NAME);
+		dataflash_page_erase();
+	}
+}
+#endif /* #ifdef CONFIG_DATAFLASH_RECOVERY */
+
 int load_dataflash(struct image_info *img_info)
 {
 	unsigned int offset = img_info->offset;
@@ -374,6 +748,10 @@ int load_dataflash(struct image_info *img_info)
 		dbg_log(1, "SF: Fail to probe atmel serial flash\n\r");
 		return -1;
 	}
+
+#ifdef CONFIG_DATAFLASH_RECOVERY
+	dataflash_recovery();
+#endif
 
 	dbg_log(1, "SF: Copy %d bytes from %d to %d\n\r", size, offset, dest);
 

@@ -30,5 +30,7 @@
 
 extern int load_dataflash(struct image_info *img_info);
 
+extern int dataflash_page0_erase(void);
+
 #endif
 
