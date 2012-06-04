@@ -489,33 +489,6 @@ static void send_sector_address(unsigned int addr)
 	nand_address((addr >> 16) & 0xFF);
 }
 
-int nand_erase_block_0(void)
-{
-	unsigned int block = 0;
-
-	nand_cs_enable();
-
-	nand_command(CMD_ERASE_1);
-
-	send_sector_address(block);
-
-	nand_command(CMD_ERASE_2);
-
-	/* Wait for nand to be ready */
-	nand_wait_ready();
-
-	/* Check status bit for error notification */
-	nand_command(CMD_STATUS);
-
-	nand_wait_ready();
-	if (read_byte() & STATUS_ERROR)
-		return -1;
-
-	nand_cs_disable();
-
-	return 0;
-}
-
 #ifdef CONFIG_USE_PMECC
 static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, unsigned int pagesize)
 {
@@ -855,6 +828,49 @@ static int nand_read_page(struct nand_info *nand,
 #endif /* #ifndef CONFIG_ENABLE_SW_ECC */
 }
 
+static int nand_erase_block0(void)
+{
+	unsigned int block = 0;
+
+	nand_cs_enable();
+
+	nand_command(CMD_ERASE_1);
+	send_sector_address(block);
+	nand_command(CMD_ERASE_2);
+
+	/* Wait for nand to be ready */
+	nand_wait_ready();
+
+	/* Check status bit for error notification */
+	nand_command(CMD_STATUS);
+
+	nand_wait_ready();
+	if (read_byte() & STATUS_ERROR)
+		return -1;
+
+	nand_cs_disable();
+
+	return 0;
+}
+
+static int nandflash_recovery(void)
+{
+	/*
+	 * If Recovery Button is pressed during boot sequence,
+	 * erase nandflash block0
+	*/
+	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
+		dbg_log(1, "Nand: The recovery button (%s) has been pressed\n\r", RECOVERY_BUTTON_NAME);
+		dbg_log(1, "Nand: The block 0 is erasing ...\n\r");
+
+		nand_erase_block0();
+
+		dbg_log(1, "Nand: The erasing is done\n\r")
+		return 0;
+	}
+	return 1;
+}
+
 int load_nandflash(struct image_info *img_info)
 {
 	struct nand_info nand;
@@ -869,6 +885,9 @@ int load_nandflash(struct image_info *img_info)
 	
 	if (nandflash_get_type(&nand)) 
 		return -1;
+
+	if (nandflash_recovery() == 0)
+		return -2;
 
 #ifdef CONFIG_USE_PMECC
 	if (init_pmecc(nand.pagesize))
