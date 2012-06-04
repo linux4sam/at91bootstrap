@@ -1156,9 +1156,16 @@ int mmc_initialize(void)
 		return ret;
 
 #ifdef CONFIG_SDCARD_HS
-	ret = mmc_set_buswidth_clock(mmc);
-	if (ret)
-		return ret;
+	if (mmc->version != SD_VERSION_1_0) {
+		ret = mmc_set_buswidth_clock(mmc);
+		if (ret)
+			return ret;
+	} else {
+		ret = sd_set_bus_width(mmc);
+		if (ret)
+			return ret;
+
+	}
 #else
 	ret = sd_set_bus_width(mmc);
 	if (ret)
