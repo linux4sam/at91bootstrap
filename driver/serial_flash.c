@@ -322,34 +322,33 @@ static int sf_cmd_read_status_at45(unsigned char *page_256)
 static int at45_wait_ready(unsigned long timeout)
 {
 	int ret;
-	unsigned char cmd = CMD_AT45_READ_STATUS;
 	unsigned char status;
 
 	at91_spi_enable();
 
-	ret = spi_xfer(1, &cmd, NULL, SPI_XFER_BEGIN);
-	if (ret)
-		return -1;
-
 	do {
-		ret = spi_xfer(1, NULL, &status, 0);
+		ret = sf_cmd(CMD_AT45_READ_STATUS, &status, 1);
 		if (ret)
-			return -1;
+			goto err;
 
 		if (status & AT45_STATUS_READY)
 			break;
+
 	} while (--timeout);
 
-	/* Deactivate CS */
-	spi_xfer(0, NULL, NULL, SPI_XFER_END);
+	if (!(status & AT45_STATUS_READY)) {
+		ret = -1;
+		goto err;
+	}
 
 	at91_spi_disable();
 
-	if (status & AT45_STATUS_READY)
-		return 0;
+	return 0;
 
-	/* Timed out */
-	return -1;
+err:
+	at91_spi_disable();
+
+	return ret;
 }
 
 static int dataflash_erase_p2(unsigned int offset, unsigned int len)
@@ -407,8 +406,11 @@ static int dataflash_erase_at45(unsigned int offset, unsigned int len)
 	unsigned long page_size;
 	unsigned int page_shift;
 	unsigned int actual;
+	unsigned int length;
 	int ret;
 	unsigned char cmd[4];
+
+	len = len;
 
 	/*
 	 * TODO: This function currently uses page erase only. We can
@@ -420,8 +422,8 @@ static int dataflash_erase_at45(unsigned int offset, unsigned int len)
 	page_shift++;
 	page_addr = offset / page_size;
 
-	dbg_log(1, "page_size: %d, page_shift: %d\n\r", page_size, page_shift);
-	if (offset % page_size || len % page_size) {
+	length = page_size;
+	if (offset % page_size || length % page_size) {
 		dbg_log(1, "SF: Erase offset/length not multiple of page size\n\r");
 		return -1;
 	}
@@ -429,7 +431,7 @@ static int dataflash_erase_at45(unsigned int offset, unsigned int len)
 	cmd[0] = CMD_AT45_ERASE_PAGE;
 	cmd[3] = 0x00;
 
-	for (actual = 0; actual < len; actual += page_size) {
+	for (actual = 0; actual < length; actual += page_size) {
 		cmd[1] = page_addr >> (16 - page_shift);
 		cmd[2] = page_addr << (page_shift - 8);
 
@@ -448,7 +450,7 @@ static int dataflash_erase_at45(unsigned int offset, unsigned int len)
 		page_addr++;
 	}
 
-	dbg_log(1, "SF: AT45: Successfully erased %d bytes @ %d\n\r", len, offset);
+	dbg_log(1, "SF: AT45: Successfully erased %d bytes @ %d\n\r", length, offset);
 
 	return 0;
 }

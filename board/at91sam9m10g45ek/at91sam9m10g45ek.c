@@ -166,6 +166,18 @@ static void slow_clock_switch(void)
 }
 #endif /* #ifdef CONFIG_SCLK */
 
+static void recovery_buttons_hw_init(void)
+{
+	/* Configure recovery button PINs */
+	const struct pio_desc recovery_button_pins[] = {
+		{"RECOVERY_BUTTON", CONFIG_SYS_RECOVERY_BUTTON_PIN, 0, PIO_PULLUP, PIO_INPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	writel((1 << AT91C_ID_PIOB), PMC_PCER + AT91C_BASE_PMC);
+	pio_configure(recovery_button_pins);
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -205,6 +217,9 @@ void hw_init(void)
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();
 #endif
+
+	/* Init the recovery buttons pins */
+	recovery_buttons_hw_init();
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
