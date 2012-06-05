@@ -393,4 +393,3 @@ config CONFIG_BUS_SPEED_133MHZ
 	depends on ALLOW_CPU_CLK_400MHZ || ALLOW_CPU_CLK_266MHZ
 
 endchoice
-

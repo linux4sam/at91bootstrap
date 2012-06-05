@@ -129,4 +129,3 @@ config CONFIG_BOOTSTRAP_MAXSIZE
 	default "23000"
 
 endmenu
-
