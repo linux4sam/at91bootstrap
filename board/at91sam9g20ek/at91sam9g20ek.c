@@ -124,6 +124,7 @@ static void sdramc_init(void)
 }
 #endif /* #ifdef CONFIG_SDRAM */
 
+#if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 static void recovery_buttons_hw_init(void)
 {
 	/* Configure recovery button PINs */
@@ -135,6 +136,7 @@ static void recovery_buttons_hw_init(void)
 	writel((1 << AT91C_ID_PIOA), PMC_PCER + AT91C_BASE_PMC);
 	pio_configure(recovery_button_pins);
 }
+#endif
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
@@ -181,8 +183,10 @@ void hw_init(void)
 	hw_init_hook();
 #endif
 
+#if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 	/* Init the recovery buttons pins */
 	recovery_buttons_hw_init();
+#endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
