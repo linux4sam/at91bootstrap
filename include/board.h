@@ -28,53 +28,47 @@
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
-
-#ifdef AT91SAM9260
-#include "AT91SAM9260_inc.h"
+#ifdef CONFIG_AT91SAM9260EK
+#include "at91sam9260ek.h"
 #endif
 
-#ifdef AT91SAM9XE
-/* For all SAM9XE chips 128/256/512/.. we use the XE128 file */
+#ifdef CONFIG_AT91SAM9XEEK
 #include "at91sam9xeek.h"
 #endif
 
-#ifdef AT91SAM9G10
+#ifdef DCONFIG_AT91SAM9G10EK
 #include "at91sam9g10ek.h"
 #endif
 
-#ifdef AT91SAM9G20
+#ifdef CONFIG_AT91SAM9G20EK
 #include "at91sam9g20ek.h"
 #endif
 
-#ifdef AT91SAM9G45
-#include "at91sam9g45ek.h"
-#endif
-
-#ifdef AT91SAM9M10
+#ifdef CONFIG_AT91SAM9M10G45EK
 #include "at91sam9m10g45ek.h"
 #endif
 
-#ifdef AT91SAM9261
+#ifdef CONFIG_AT91SAM9261EK
 #include "at91sam9261ek.h"
 #endif
 
-#ifdef AT91SAM9263
+#ifdef CONFIG_AT91SAM9263EK
 #include "at91sam9263ek.h"
 #endif
 
-#ifdef AT91SAM9RL
+#ifdef CONFIG_AT91SAM9RLEK
 #include "at91sam9rlek.h"
 #endif
 
-#ifdef AT91SAM9X5
+#ifdef CONFIG_AT91SAM9X5EK
 #include "at91sam9x5ek.h"
 #endif
 
-#ifdef AT91SAM9N12
+#ifdef CONFIG_AT91SAM9N12EK
 #include "at91sam9n12ek.h"
 #endif
 
-#ifdef AT91SAMA5D3X
+#ifdef CONFIG_AT91SAMA5D3XEK
 #include "at91sama5d3xek.h"
 #endif
 

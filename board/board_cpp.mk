@@ -23,10 +23,6 @@ ifeq ($(CONFIG_SCLK),y)
 CPPFLAGS += -DCONFIG_SCLK
 endif
 
-ifeq ($(CONFIG_LOAD_NK),y)
-CPPFLAGS += -DCONFIG_LOAD_NK
-endif
-
 # Crystal frequency
 
 ifeq ($(CONFIG_CRYSTAL_12_000MHZ),y)

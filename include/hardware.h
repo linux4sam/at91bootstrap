@@ -89,6 +89,4 @@
 #define readb(addr) \
 	(*(volatile unsigned char *)(addr))
 
-#define I_CACHE		(1<<12)
-
 #endif /* #ifndef __HARDWARE_H__ */
