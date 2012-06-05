@@ -309,7 +309,7 @@ static int sf_cmd_read_status_at45(unsigned char *page_256)
 	if (ret)
 		return -1;
 
-	dbg_log(1, "SF: AT45 status register: %02x\n", status);
+	dbg_log(1, "SF: AT45 status register: %d\n\r", status);
 
 	if ((status & AT45_STATUS_P2_PAGE_SIZE))
 		*page_256 = 1;
@@ -395,7 +395,7 @@ static int dataflash_erase_p2(unsigned int offset, unsigned int len)
 		offset += page_size;
 	}
 
-	dbg_log(1, "SF: AT45: Successfully erased %zu bytes @ 0x%x\n\r", len, offset);
+	dbg_log(1, "SF: AT45: Successfully erased %d bytes @ %d\n\r", len, offset);
 
 	return 0;
 }
@@ -420,6 +420,7 @@ static int dataflash_erase_at45(unsigned int offset, unsigned int len)
 	page_shift++;
 	page_addr = offset / page_size;
 
+	dbg_log(1, "page_size: %d, page_shift: %d\n\r", page_size, page_shift);
 	if (offset % page_size || len % page_size) {
 		dbg_log(1, "SF: Erase offset/length not multiple of page size\n\r");
 		return -1;
@@ -447,7 +448,7 @@ static int dataflash_erase_at45(unsigned int offset, unsigned int len)
 		page_addr++;
 	}
 
-	dbg_log(1, "SF: AT45: Successfully erased %zu bytes @ 0x%x\n\r", len, offset);
+	dbg_log(1, "SF: AT45: Successfully erased %d bytes @ %d\n\r", len, offset);
 
 	return 0;
 }
