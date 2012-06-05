@@ -828,6 +828,7 @@ static int nand_read_page(struct nand_info *nand,
 #endif /* #ifndef CONFIG_ENABLE_SW_ECC */
 }
 
+#ifdef CONFIG_NANDFLASH_RECOVERY
 static int nand_erase_block0(void)
 {
 	unsigned int block = 0;
@@ -870,6 +871,7 @@ static int nandflash_recovery(void)
 	}
 	return 1;
 }
+#endif /* #ifdef CONFIG_NANDFLASH_RECOVERY */
 
 int load_nandflash(struct image_info *img_info)
 {
@@ -886,8 +888,10 @@ int load_nandflash(struct image_info *img_info)
 	if (nandflash_get_type(&nand)) 
 		return -1;
 
+#ifdef CONFIG_NANDFLASH_RECOVERY
 	if (nandflash_recovery() == 0)
 		return -2;
+#endif
 
 #ifdef CONFIG_USE_PMECC
 	if (init_pmecc(nand.pagesize))

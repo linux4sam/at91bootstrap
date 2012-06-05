@@ -102,10 +102,6 @@ config	CONFIG_SDCARD
 
 endchoice
 
-config	CONFIG_ENABLE_SW_ECC
-	bool "Support NAND flash software ECC"
-	depends on CONFIG_NANDFLASH
-
 config CONFIG_MEMORY
 	string
 	default "dataflash"	if CONFIG_DATAFLASH
