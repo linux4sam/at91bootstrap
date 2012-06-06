@@ -107,7 +107,7 @@
 /*
  * MCI Settings
  */
-#define CONFIG_SYS_BASE_MCI		AT91C_BASE_MCI0
+#define CONFIG_SYS_BASE_MCI		AT91C_BASE_MCI1
 
 /*
  * Recovery Button

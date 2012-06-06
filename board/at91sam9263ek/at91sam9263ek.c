@@ -459,23 +459,24 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_SDCARD
 void at91_mci0_hw_init(void)
 {
+	/* Note: For at91sam9263ek, using MCI1 instead of MCI0 as SD Card booting */
+	/* Configure the MCI1 pins */
 	const struct pio_desc mci_pins[] = {
-		{"MCI0_CK",	AT91C_PIN_PA(12), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCI0_CDA",	AT91C_PIN_PA(1), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCI0_DA0",	AT91C_PIN_PA(0), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCI0_DA1",	AT91C_PIN_PA(3), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCI0_DA2",	AT91C_PIN_PA(4), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"MCI0_DA3",	AT91C_PIN_PA(5), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_CK",	AT91C_PIN_PA(6), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_CDA",	AT91C_PIN_PA(7), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_DA0",	AT91C_PIN_PA(8), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_DA1",	AT91C_PIN_PA(9), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_DA2",	AT91C_PIN_PA(10), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_DA3",	AT91C_PIN_PA(11), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 
 	};
 
-	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
 	pio_configure(mci_pins);
+	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable the clock */
-	writel((1 << AT91C_ID_MCI0), (PMC_PCER + AT91C_BASE_PMC));
+	writel((1 << AT91C_ID_MCI1), (PMC_PCER + AT91C_BASE_PMC));
 }
 #endif /* #ifdef CONFIG_SDCARD */
 
