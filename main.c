@@ -70,9 +70,13 @@ int main(void)
 	int ret;
 
 	image_info.dest = (unsigned char *)JUMP_ADDR;
+#if defined (CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH)
 	image_info.offset = IMG_ADDRESS;
 	image_info.length = IMG_SIZE;
+#endif
+#if defined(CONFIG_SDCARD)
 	image_info.filename = OS_IMAGE_NAME;
+#endif
 
 #ifdef CONFIG_HW_INIT
 	hw_init();

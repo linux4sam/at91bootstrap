@@ -36,7 +36,7 @@
 #include "at91sam9xeek.h"
 #endif
 
-#ifdef DCONFIG_AT91SAM9G10EK
+#ifdef CONFIG_AT91SAM9G10EK
 #include "at91sam9g10ek.h"
 #endif
 
