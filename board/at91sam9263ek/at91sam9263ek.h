@@ -109,6 +109,12 @@
  */
 #define CONFIG_SYS_BASE_MCI		AT91C_BASE_MCI0
 
+/*
+ * Recovery Button
+ */
+#define CONFIG_SYS_RECOVERY_BUTTON_PIN	AT91C_PIN_PC(4)
+#define RECOVERY_BUTTON_NAME	"BP2"
+
 /* export function */
 extern void hw_init(void);
 

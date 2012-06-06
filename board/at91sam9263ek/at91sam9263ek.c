@@ -369,6 +369,20 @@ static void psram_hw_init(void)
 }
 #endif /* #ifdef CONFIG_PSRAM */
 
+#if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
+static void recovery_buttons_hw_init(void)
+{
+	/* Configure recovery button PINs */
+	const struct pio_desc recovery_button_pins[] = {
+		{"RECOVERY_BUTTON", CONFIG_SYS_RECOVERY_BUTTON_PIN, 0, PIO_PULLUP, PIO_INPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	writel((1 << AT91C_ID_PIOCDE), PMC_PCER + AT91C_BASE_PMC);
+	pio_configure(recovery_button_pins);
+}
+#endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -412,6 +426,11 @@ void hw_init(void)
 
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();
+#endif
+
+#if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
+	/* Init the recovery buttons pins */
+	recovery_buttons_hw_init();
 #endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
