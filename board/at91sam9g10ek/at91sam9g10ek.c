@@ -247,9 +247,8 @@ void at91_mci0_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
 	};
 
-	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
 	pio_configure(mci_pins);
+	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable the clock */
 	writel((1 << AT91C_ID_MCI), (PMC_PCER + AT91C_BASE_PMC));
@@ -263,8 +262,8 @@ void nandflash_hw_init(void)
 
 	/* Configure NAND pins */
 	const struct pio_desc nand_pins[] = {
-		{"SMOE",	AT91C_PIN_PC(0),		0, PIO_PULLUP, PIO_PERIPH_A},
-		{"SMWE",	AT91C_PIN_PC(1),		0, PIO_PULLUP, PIO_PERIPH_A},
+		{"NANDOE",	AT91C_PIN_PC(0),		0, PIO_PULLUP, PIO_PERIPH_A},
+		{"NANDWE",	AT91C_PIN_PC(1),		0, PIO_PULLUP, PIO_PERIPH_A},
 		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	0, PIO_PULLUP, PIO_OUTPUT},
 		{"RDY_BSY",	CONFIG_SYS_NAND_READY_PIN,	0, PIO_PULLUP, PIO_INPUT},
 		{(char *)0, 	0, 0, PIO_DEFAULT, PIO_PERIPH_A},

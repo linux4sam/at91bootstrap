@@ -102,7 +102,10 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91C_PIN_PC(14)
 #define CONFIG_SYS_NAND_READY_PIN	AT91C_PIN_PC(15)
 
-#define CONFIG_SYS_BASE_MCI    AT91C_BASE_MCI
+/*
+ * MCI Settings
+ */
+#define CONFIG_SYS_BASE_MCI	AT91C_BASE_MCI
 
 /* function */
 extern void hw_init(void);
