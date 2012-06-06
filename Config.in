@@ -78,36 +78,40 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9G20EK && !CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9X5EK && !CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9N12EK && !CONFIG_SDCARD
-	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAMA5D3XEK && !CONFIG_SDCARD
+	default "mem=512M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAMA5D3XEK && !CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:4M(bootstrap),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9M10G45EK && !CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9RLEK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
+	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9261EK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9G20EK && CONFIG_SDCARD
+	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9263EK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9XEEK && CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9X5EK && CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9N12EK && CONFIG_SDCARD
-	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAMA5D3XEK && CONFIG_SDCARD
+	default "mem=512M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAMA5D3XEK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9M10G45EK && CONFIG_SDCARD
 
 config CONFIG_OS_IMAGE_NAME
-	depends on CONFIG_SDCARD
 	string "Binary Name on SD Card"
+	depends on CONFIG_SDCARD
 	default "image.bin"
 
-config CONFIG_IMG_SIZE
-	string "Linuex Kernel Image Size"
-	default "0x280000"
-
 config CONFIG_IMG_ADDRESS
-	string "Flash Offset for Linux Kernel"
+	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	string "Flash Offset for Linux Kernel Image"
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00042000" if CONFIG_DATAFLASH
 	default "0x00200000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
 	help
 
+config CONFIG_IMG_SIZE
+	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	string "Linux Kernel Image Size"
+	default "0x280000"
+
 config CONFIG_JUMP_ADDR
-	string "Load Linux Kernel Image to Extern Ram Address"
+	string "The External Ram Address to Load Kernel Image"
 	default "0x72000000" if CONFIG_AT91SAM9M10G45EK
 	default "0x22000000"
 	help
@@ -118,16 +122,17 @@ endmenu
 #
 # U-Boot Image Storage Setup
 #
-menu "U-BOOT Image Storage Setup"
+menu "U-Boot Image Storage Setup"
 	depends on CONFIG_LOAD_UBOOT
 
 config CONFIG_OS_IMAGE_NAME
-	depends on CONFIG_SDCARD
 	string "Binary Name on SD Card"
+	depends on CONFIG_SDCARD
 	default "u-boot.bin"
 
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for U-Boot"
+	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH && CONFIG_AT91SAM9X5EK
@@ -137,12 +142,13 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_IMG_SIZE
 	string "U-Boot Image Size"
+	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
 	default	"0x00050000"
 	help
 	  at91bootstrap will copy this size of U-Boot image
 
 config CONFIG_JUMP_ADDR
-	string "Load U-Boot Image to Extern Ram Address"
+	string "The External Ram Address to Load U-Boot Image"
 	default "0x73F00000" if CONFIG_AT91SAM9M10G45EK
 	default "0x26F00000" if CONFIG_AT91SAM9X5EK
 	default "0x26F00000" if CONFIG_AT91SAM9N12EK
@@ -160,12 +166,13 @@ menu "Demo Application Image Storage Setup"
 	depends on CONFIG_LOAD_64KB || CONFIG_LOAD_1MB || CONFIG_LOAD_4MB
 
 config CONFIG_OS_IMAGE_NAME
-	depends on CONFIG_SDCARD
 	string "Binary Name on SD Card"
+	depends on CONFIG_SDCARD
 	default "demo-app.bin"
 
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for Demo-App"
+	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH && CONFIG_AT91SAM9X5EK
 	default "0x00020000" if CONFIG_NANDFLASH && !CONFIG_AT91SAM9X5EK
@@ -173,6 +180,7 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_IMG_SIZE
 	string "Demo-App Image Size"
+	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
 	default	"0x00010000"	if CONFIG_LOAD_64KB
 	default	"0x00100000"	if CONFIG_LOAD_1MB
 	default	"0x00400000"	if CONFIG_LOAD_4MB
@@ -180,7 +188,7 @@ config CONFIG_IMG_SIZE
 	  at91bootstrap will copy this size of Demo-App image
 
 config CONFIG_JUMP_ADDR
-	string "Load Demo-App Image to Extern Ram Address"
+	string "The External Ram Address to Load Demo-App Image"
 	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
 	default "0x20000000"
 	help

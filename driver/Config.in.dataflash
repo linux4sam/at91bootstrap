@@ -113,4 +113,3 @@ config CONFIG_SPI_BOOT
 	default "AT91C_SPI_PCS3_DATAFLASH"	if CONFIG_SPI_BOOT_CS3
 
 endmenu
-

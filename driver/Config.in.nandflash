@@ -2,8 +2,13 @@ menu  "NAND Flash configuration"
 	depends on CONFIG_NANDFLASH
 
 config	CONFIG_ENABLE_SW_ECC
+	bool
+	default y
+	depends on CONFIG_NANDFLASH && !CPU_HAS_PMECC
+
+config	CONFIG_ENABLE_SW_ECC
 	bool "Support NAND flash software ECC"
-	depends on CONFIG_NANDFLASH
+	depends on CONFIG_NANDFLASH && CPU_HAS_PMECC
 
 config CONFIG_NANDFLASH_SMALL_BLOCKS
 	bool "Use NAND flash with small blocks"
@@ -24,5 +29,5 @@ config CONFIG_NANDFLASH_RECOVERY
 config ALLOW_NANDFLASH_RECOVERY
 	bool
 	default	n
-endmenu
 
+endmenu
