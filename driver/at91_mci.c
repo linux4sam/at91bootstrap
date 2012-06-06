@@ -215,6 +215,7 @@ static int mmc_cmd(unsigned short cmd,
 	unsigned int cmdr;
 	unsigned int status;
 	unsigned int error_flags = ERROR_FLAGS;
+	volatile int i;
 
 	/* Default Flags for the Command */
 	flags |= AT91C_MCI_MAXLAT_64;
@@ -233,6 +234,8 @@ static int mmc_cmd(unsigned short cmd,
 	/* Send the command */
 	mci_writel(MCI_ARGR, cmdarg);
 	mci_writel(MCI_CMDR, cmdr);
+
+	for (i = 0; i < 5000; i++);
 
 	/* Wait for the command to complete */
 	while (!((status = mci_readl(MCI_SR)) & AT91C_MCI_CMDRDY));
@@ -1009,6 +1012,7 @@ static int sd_change_freq(struct mmc *mmc)
 	unsigned int switch_status[16];
 	int timeout;
 	int ret;
+	volatile int i;
 
 	/* Read the SD Configuration Register(SCR) */
 	sd_send_scr(mmc);
@@ -1019,7 +1023,8 @@ static int sd_change_freq(struct mmc *mmc)
 
 	timeout = 6;
 	while (timeout--) {
-		udelay(10000);
+		for (i = 0; i < 10000; i++);
+
 		ret = sd_switch(mmc, SD_SWITCH_CHECK, 0, 1, (unsigned char *)&switch_status);
 		if (ret)
 			return ret;
@@ -1034,10 +1039,10 @@ static int sd_change_freq(struct mmc *mmc)
 		return 0;
 
 	ret = sd_switch(mmc, SD_SWITCH_SWITCH, 0, 1, (unsigned char *)&switch_status);
-	udelay(10000);
-
 	if (ret)
 		return ret;
+
+	for (i = 0; i < 10000; i++);
 
 	if ((be32_to_cpu(switch_status[4]) & 0x0f000000) == 0x01000000)
 		mmc->card_caps |= MMC_MODE_HS;
