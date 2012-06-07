@@ -95,6 +95,9 @@ SIZE=$(CROSS_COMPILE)size
 OBJCOPY=$(CROSS_COMPILE)objcopy
 OBJDUMP=$(CROSS_COMPILE)objdump
 
+CCVERSION := $(strip $(subst .,, $(shell expr `$(CC) -dumpversion`)))
+CCVERSIONGE441 := $(shell test $(CCVERSION) -ge 441 && echo 1 || echo 0)
+
 PROJECT := $(strip $(subst ",,$(CONFIG_PROJECT)))
 IMG_ADDRESS := $(strip $(subst ",,$(CONFIG_IMG_ADDRESS)))
 IMG_SIZE := $(strip $(subst ",,$(CONFIG_IMG_SIZE)))

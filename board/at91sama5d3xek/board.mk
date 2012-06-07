@@ -1,8 +1,18 @@
+
+ifeq "$(CCVERSIONGE441)" "1"
 CPPFLAGS += \
 	-DCONFIG_AT91SAMA5D3XEK \
 	-mcpu=cortex-a5
+else
+CPPFLAGS += \
+	-DCONFIG_AT91SAMA5D3XEK
+endif
 
+ifeq "$(CCVERSIONGE441)" "1"
 ASFLAGS += \
 	-DCONFIG_AT91SAMA5D3XEK \
 	-mcpu=cortex-a5
-
+else
+ASFLAGS += \
+	-DCONFIG_AT91SAMA5D3XEK
+endif
