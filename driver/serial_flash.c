@@ -532,9 +532,10 @@ static int at25_unprotect(void)
 	unsigned char status;
 
 	ret = at25_read_status();
-	if (ret < 0)
+	if (ret < 0) {
 		dbg_log(1, "SF: Read AT25 status failed\n\r");
-	else
+		return ret;
+	} else
 		status = ret;
 
 	if ((status & AT25_STATUS_SWP) == AT25_STATUS_SWP_PROTECTNONE) {
