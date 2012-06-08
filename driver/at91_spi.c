@@ -27,12 +27,12 @@
  */
 #include "common.h"
 #include "hardware.h"
-#include "board.h"
 #include "spi.h"
 #include "arch/at91_spi.h"
 #include "arch/at91_pio.h"
 #include "gpio.h"
 #include "debug.h"
+#include "board.h"
 
 #define spi_readl(reg)			\
 	readl(CONFIG_SYS_BASE_SPI + reg)
