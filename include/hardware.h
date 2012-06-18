@@ -29,7 +29,7 @@
 #define __HARDWARE_H__
 
 #ifdef AT91SAM9260
-#include "AT91SAM9260_inc.h"
+#include "arch/at91sam9260.h"
 #endif
 
 #ifdef AT91SAM9XE

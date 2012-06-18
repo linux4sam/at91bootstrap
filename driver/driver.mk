@@ -23,7 +23,12 @@ else
 COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/ddramc.o
 endif
 
+ifeq ($(CONFIG_BOARD), "at91sam9260ek")
+COBJS-$(CONFIG_NANDFLASH)	+= $(DRIVERS_SRC)/nandflash_9260.o
+else
 COBJS-$(CONFIG_NANDFLASH)	+= $(DRIVERS_SRC)/nandflash.o
+endif
+
 COBJS-$(CONFIG_ENABLE_SW_ECC) 	+= $(DRIVERS_SRC)/hamming.o
 
 COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/at91_spi.o
