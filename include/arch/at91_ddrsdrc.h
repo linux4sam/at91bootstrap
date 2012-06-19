@@ -28,7 +28,7 @@
 #ifndef __AT91_DDRSDRC_H__
 #define __AT91_DDRSDRC_H__
 
-/* *** Register offset in AT91S_HDDRSDRC2 structure ***/
+/**** Register offset in AT91S_HDDRSDRC2 structure ***/
 #define HDDRSDRC2_MR		0x00	/* Mode Register */
 #define HDDRSDRC2_RTR		0x04	/* Refresh Timer Register */
 #define HDDRSDRC2_CR		0x08	/* Configuration Register */
@@ -40,6 +40,23 @@
 #define HDDRSDRC2_MDR		0x20	/* Memory Device Register */
 #define HDDRSDRC2_DLL		0x24	/* DLL Information Register */
 #define HDDRSDRC2_HS		0x2C	/* High Speed Register */
+
+/* below items defined for sama5d3x */
+#define	MPDDRC_LPDDR2_LPR	0x28	/* MPDDRC LPDDR2 Low-power Register */
+#define	MPDDRC_LPDDR2_CAL_MR4	0x2C	/* MPDDRC LPDDR2 Calibration and MR4 Register */
+#define	MPDDRC_LPDDR2_TIM_CAL	0x30	/* MPDDRC LPDDR2 Timing Calibration Register */
+#define	MPDDRC_IO_CALIBR	0x34	/* MPDDRC IO Calibration */
+#define	MPDDRC_OCMS		0x38	/* MPDDRC OCMS Register */
+#define	MPDDRC_OCMS_KEY1	0x3C	/* MPDDRC OCMS KEY1 Register */
+#define	MPDDRC_OCMS_KEY2	0x40	/* MPDDRC OCMS KEY2 Register */
+/* 0x54 ~ 0x70 Reserved */
+#define	MPDDRC_DLL_MOR		0x74	/* MPDDRC DLL Master Offset Register */
+#define	MPDDRC_DLL_SOR		0x78	/* MPDDRC DLL Slave Offset Register */
+#define	MPDDRC_DLL_MSR		0x7C	/* MPDDRC DLL Master Status Register */
+#define	MPDDRC_DLL_S0SR		0x80	/* MPDDRC DLL Slave 0 Status Register */
+#define	MPDDRC_DLL_S1SR		0x84	/* MPDDRC DLL Slave 1 Status Register */
+
+/* 0x94 ~ 0xE0 Reserved */
 #define HDDRSDRC2_WPCR		0xE4	/* Write Protect Mode Register */
 #define HDDRSDRC2_WPSR		0xE8	/* Write Protect Status Register */
 
@@ -86,9 +103,15 @@
 #define AT91C_DDRC2_NB_BANKS	(0x1UL << 20)
 #define 	AT91C_DDRC2_NB_BANKS_4		(0x0UL << 20)
 #define 	AT91C_DDRC2_NB_BANKS_8		(0x1UL << 20)
+#define AT91C_DDRC2_NDQS	(0x1UL << 21)	/* Not DQS(sama5d3x only) */
+#define 	AT91C_DDRC2_NDQS_ENABLED	(0x0UL << 21)
+#define 	AT91C_DDRC2_NDQS_DISABLED	(0x1UL << 21)
 #define AT91C_DDRC2_DECOD	(0x1UL << 22)
 #define 	AT91C_DDRC2_DECOD_SEQUENTIAL	(0x0UL << 22)
 #define 	AT91C_DDRC2_DECOD_INTERLEAVED	(0x1UL << 22)
+#define AT91C_DDRC2_UNAL	(0x1UL << 23)	/* Support Unaligned Access(sama5d3x only) */
+#define 	AT91C_DDRC2_UNSUPPORTED		(0x0UL << 23)
+#define 	AT91C_DDRC2_SUPPORTED		(0x1UL << 23)
 
 /* -------- HDDRSDRC2_T0PR : (HDDRSDRC2 Offset: 0xc) Timing0 Register --------*/ 
 #define AT91C_DDRC2_TRAS	(0xFUL <<  0)

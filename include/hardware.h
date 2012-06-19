@@ -56,7 +56,6 @@
 #include "arch/at91sam9263.h"
 #endif
 
-
 #ifdef AT91SAM9RL
 #include "arch/at91sam9rl.h"
 #endif

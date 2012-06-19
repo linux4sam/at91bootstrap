@@ -31,7 +31,6 @@
 #include "dbgu.h"
 #include "debug.h"
 #include "ddramc.h"
-#include "mpddrsdramc.h"
 #include "spi.h"
 #include "gpio.h"
 
@@ -41,6 +40,7 @@
 #include "arch/at91sama5_smc.h"
 #include "arch/at91_slowclk.h"
 #include "arch/at91_pio.h"
+#include "arch/at91_ddrsdrc.h"
 #include "at91sama5d3xek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -73,13 +73,59 @@ static void initialize_dbgu(void)
 #endif /* #ifdef CONFIG_DEBUG */
 
 #ifdef CONFIG_DDR2
-static void initialize_ddr2(void)
+static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 {
+	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
+				| AT91C_DDRC2_MD_DDR2_SDRAM);
+
+	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
+				| AT91C_DDRC2_NR_13
+				| AT91C_DDRC2_CAS_3
+				| AT91C_DDRC2_NB_BANKS_8
+				| AT91C_DDRC2_NDQS_DISABLED
+				| AT91C_DDRC2_SUPPORTED);
+
+	ddramc_config->rtr = 0x00300208;	/* Refresh Timer register : 520 for 133 MHz */
+
+	/* One clock cycle @ 133 MHz = 7.5 ns */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6
+				| AT91C_DDRC2_TRCD_2
+				| AT91C_DDRC2_TWR_2
+				| AT91C_DDRC2_TRC_8
+				| AT91C_DDRC2_TRP_2
+				| AT91C_DDRC2_TRRD_2
+				| AT91C_DDRC2_TWTR_2
+				| AT91C_DDRC2_TMRD_2);
+
+	ddramc_config->t1pr = 0x02C81311;
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_2
+				| AT91C_DDRC2_TXARDS_7
+				| AT91C_DDRC2_TRPA_3
+				| AT91C_DDRC2_TRTP_2
+				| AT91C_DDRC2_TFAW_7);
+}
+
+static void ddramc_init(void)
+{
+	struct ddramc_register ddramc_reg;
+
+	ddramc_reg_config(&ddramc_reg);
+
+	/* enable ddr2 clock */
 	writel(1 << (AT91C_ID_MPDDRC - 32),  (PMC_PCER1 + AT91C_BASE_PMC));
 	writel(AT91C_PMC_DDR, (PMC_SCER + AT91C_BASE_PMC));
 
-	init_mpddr_sdramc();
+	/* Init the special register for sama5d3x */
+	/* MPDDRC DLL Slave Offset Register */
+	writel((0x01 | (0x01 << 16) | (0x01 << 24)), (AT91C_BASE_MPDDRC + MPDDRC_DLL_SOR));
+	/* MPDDRC DLL Master Offset Register */
+	writel(0xC5011f07, (AT91C_BASE_MPDDRC + MPDDRC_DLL_MOR));
+	/* MPDDRC I/O Calibration Register */
+	writel(0x00850404, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
 
+	/* DDRAM2 Controller initialize */
+	ddram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
 }
 #endif /* #ifdef CONFIG_DDR2 */
 
@@ -172,7 +218,7 @@ void hw_init(void)
 
 #ifdef CONFIG_DDR2
 	/* Initialize MPDDR Controller */
-	initialize_ddr2();
+	ddramc_init();
 #endif
 
 #ifdef CONFIG_USER_HW_INIT
@@ -296,4 +342,3 @@ void nandflash_config_buswidth(unsigned char buswidth)
 	writel(mode, (ATMEL_BASE_SMC + SMC_MODE3));
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
-
