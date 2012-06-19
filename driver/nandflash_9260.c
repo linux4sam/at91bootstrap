@@ -37,7 +37,7 @@
 #define ECC_CORRECT_ERROR  0xfe
 
 /* ooblayout for 2048 byte pages */
-struct nand_ooblayout ooblayout_2048 = {
+static struct nand_ooblayout ooblayout_2048 = {
 	/* Bad block marker is at position */
 	0,
 	/* 24 ecc bytes */
@@ -202,11 +202,15 @@ static struct nand_chip *nand_find_type(void)
 
 static int nandflash_get_type(struct nand_info *nand)
 {
-	struct nand_chip *chip = 0;
+	struct nand_chip *chip;
 
 	nandflash_reset();
 
 	chip = nand_find_type();
+	if (chip == NULL) {
+		dbg_log(1, "Not Found the NANDFlash!\n\r");
+		return -1;
+	}
 
 	nand_info_init(nand, chip);
 
