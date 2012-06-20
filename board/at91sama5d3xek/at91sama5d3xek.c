@@ -33,12 +33,12 @@
 #include "ddramc.h"
 #include "spi.h"
 #include "gpio.h"
+#include "slowclk.h"
 
 #include "arch/at91_pmc.h"
 #include "arch/at91_wdt.h"
 #include "arch/at91_rstc.h"
 #include "arch/at91sama5_smc.h"
-#include "arch/at91_slowclk.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
 #include "at91sama5d3xek.h"
@@ -129,49 +129,6 @@ static void ddramc_init(void)
 }
 #endif /* #ifdef CONFIG_DDR2 */
 
-#ifdef CONFIG_SCLK
-static void slow_clock_switch(void)
-{
-	unsigned int reg;
-
-	/*
-	 * Enable the 32768 Hz oscillator by setting the bit OSC32EN to 1
-	 */
-	reg = readl(AT91C_BASE_SCKCR);
-	reg |= AT91C_SLCKSEL_OSC32EN;
-	writel(reg, AT91C_BASE_SCKCR);
-
-	/*
-	 * Waiting 32.768Hz Startup Time for clock stabilization.
-	 * must wait for slow clock startup time ~1000ms
-	 * (~6 core cycles per iteration, core is at 400MHz: 66666000 min loops)
-	 */
-	delay(66700000);
-
-	/*
-	 * Switching from internal 32kHz RC oscillator to 32768 Hz oscillator
-	 * by setting the bit OSCSEL to 1
-	 */
-	reg = readl(AT91C_BASE_SCKCR);
-	reg |= AT91C_SLCKSEL_OSCSEL;
-	writel(reg, AT91C_BASE_SCKCR);
-
-	/*
-	 * Waiting 5 slow clock cycles for internal resynchronization
-	 * must wait 5 slow clock cycles = ~153 us
-	 * (~6 core cycles per iteration, core is at 400MHz: min 10200 loops)
-	 */
-	delay(10200);
-
-	/*
-	 * Disable the 32kHz RC oscillator by setting the bit RCEN to 0
-	 */
-	reg = readl(AT91C_BASE_SCKCR);
-	reg &= ~AT91C_SLCKSEL_RCEN;
-	writel(reg, AT91C_BASE_SCKCR);
-}
-#endif /* #ifdef CONFIG_SCLK */
-
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 static void recovery_buttons_hw_init(void)
 {
@@ -208,7 +165,7 @@ void hw_init(void)
 	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
 
 #ifdef CONFIG_SCLK
-	slow_clock_switch();
+	slowclk_enable_osc32();
 #endif
 
 #ifdef CONFIG_DEBUG

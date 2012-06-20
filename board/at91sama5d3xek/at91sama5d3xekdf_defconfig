@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Thu Jun  7 14:40:49 2012
+# Wed Jun 20 15:57:32 2012
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sama5d3xek"
@@ -112,4 +112,4 @@ CONFIG_DEBUG_INFO=y
 CONFIG_HW_INIT=y
 # CONFIG_USER_HW_INIT is not set
 CONFIG_THUMB=y
-# CONFIG_SCLK is not set
+CONFIG_SCLK=y

@@ -29,6 +29,7 @@
 #include "hardware.h"
 #include "arch/at91_pmc.h"
 #include "string.h"
+#include "slowclk.h"
 #include "dataflash.h"
 #include "nandflash.h"
 #include "sdcard.h"
@@ -249,6 +250,10 @@ int load_kernel(struct image_info *img_info)
 #endif
 	if (ret != 0)
 		return -1;
+
+#ifdef CONFIG_SCLK
+	slowclk_switch_osc32();
+#endif
 
 	setup_boot_tags();
 

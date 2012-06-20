@@ -29,6 +29,7 @@
 #include "hardware.h"
 #include "board.h"
 #include "debug.h"
+#include "slowclk.h"
 #include "dataflash.h"
 #include "nandflash.h"
 #include "sdcard.h"
@@ -91,12 +92,19 @@ int main(void)
 	ret = (*load_image)(&image_info);
 	if (ret == 0){
 		dbg_log(1, "Done!\n\r");
-		return JUMP_ADDR;
 	}
 	if (ret == -1) {
 		dbg_log(1, "Failed to load image\n\r");
 		while(1);
 	}
+	if (ret == -2) {
+		dbg_log(1, "Success to recovery\n\r");
+		while (1);
+	}
+
+#ifdef CONFIG_SCLK
+	slowclk_switch_osc32();
+#endif
 
 	return JUMP_ADDR;
 }

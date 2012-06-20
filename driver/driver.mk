@@ -4,11 +4,11 @@
 DRIVERS:=
 DRIVERS_SRC:=$(TOPDIR)/driver
 
-COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/at91_mci.o
-COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/sdcard.o
-
 COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/dbgu.o
 COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/debug.o
+
+COBJS-$(CONFIG_SCLK)		+= $(DRIVERS_SRC)/at91_slowclk.o
+COBJS-$(CONFIG_SCLK)		+= $(DRIVERS_SRC)/at91_pit.o
 
 COBJS-y				+= $(DRIVERS_SRC)/at91_pio.o
 COBJS-y				+= $(DRIVERS_SRC)/pmc.o
@@ -18,6 +18,9 @@ COBJS-$(CONFIG_USER_HW_INIT)	+= $(DRIVERS_SRC)/hw_init_hook.o
 COBJS-$(CONFIG_SDRAM)		+= $(DRIVERS_SRC)/sdramc.o
 COBJS-$(CONFIG_SDDRC)		+= $(DRIVERS_SRC)/sddrc.o
 COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/ddramc.o
+
+COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/at91_mci.o
+COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/sdcard.o
 
 ifeq ($(CONFIG_BOARD), "at91sam9260ek")
 COBJS-$(CONFIG_NANDFLASH)	+= $(DRIVERS_SRC)/nandflash_9260.o

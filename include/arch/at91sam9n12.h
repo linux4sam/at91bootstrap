@@ -107,7 +107,7 @@
 #define AT91C_BASE_PMC		0xfffffc00
 #define AT91C_BASE_RSTC		0xfffffe00
 #define AT91C_BASE_SHDC		0xfffffe10
-#define AT91C_BASE_PIT		0xfffffe30
+#define AT91C_BASE_PITC		0xfffffe30
 #define AT91C_BASE_WDT		0xfffffe40
 #define AT91C_BASE_SCKCR	0xfffffe50
 #define AT91C_BASE_BSCR		0xfffffe54
