@@ -255,6 +255,10 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	nand_cs_enable();
 	nand_command(CMD_READID);
 	nand_address(0x20);
+
+#ifdef CONFIG_SYS_NAND_READY_PIN
+	nand_wait_ready();
+#endif
 	onfi_ind[0] = read_byte();
 	onfi_ind[1] = read_byte();
 	onfi_ind[2] = read_byte();
@@ -278,7 +282,6 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	nand_address(0x00);
 	
 	nand_wait_ready();
-
 	nand_command(CMD_READ_1);
 	
 	for (i = 0; i < 3; i++) {
@@ -471,7 +474,7 @@ static void nandflash_reset(void)
 	nand_address(-1);
 
 	nand_wait_ready();
-	
+
 	nand_cs_disable();
 }
 
@@ -643,7 +646,6 @@ static int nand_read_sector(struct nand_info *nand,
 
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
 	nand_wait_ready();
-
 	nand_command(CMD_READ_C);
 
 	/* Read loop */
@@ -673,8 +675,8 @@ static int nand_read_sector(struct nand_info *nand,
 
 			/* Need to be done twice, READY detected too early the first time? */
 			nand_wait_ready();
-
 			nand_command(CMD_READ_C);
+
 			for (i = 0; i < (readbytes / 2); i++) {
 				*buffer = read_byte();
 				buffer++;
@@ -752,8 +754,8 @@ static int nand_read_sector(struct nand_info *nand,
 
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
 	nand_wait_ready();
-
 	nand_command(CMD_READ_1);
+
 	/* Read loop */
 	if (nand->buswidth)
 		for (i = 0; i < readbytes / 2; i++) { /* Div2 because of 16bits  */
