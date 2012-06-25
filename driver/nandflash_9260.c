@@ -105,12 +105,7 @@ static unsigned short read_word(void)
 
 static void nand_wait_ready(void)
 {
-	/*while (pio_get_value(nandflash_get_ready_pin()) != 1);*/
-	while (1) {
-		if (pio_get_value(nandflash_get_ready_pin()) == 1)
-			break;
-
-	}
+	while (pio_get_value(nandflash_get_ready_pin()) != 1);
 }
 
 static void nand_cs_enable(void)
@@ -155,20 +150,12 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 
 static void nandflash_reset(void)
 {
-	unsigned int timeout = 200000;
-
 	nand_cs_enable();
-	nand_command(CMD_RESET);
 
+	nand_command(CMD_RESET);
+	nand_address(-1);
 	nand_wait_ready();
 
-	nand_command(CMD_STATUS);
-	nand_command(-1);
-	/*while( (!(read_byte() & STATUS_READY)) && timeout--);*/
-	while (1) {
-		if ((read_byte() & STATUS_READY) || (!timeout--))
-			break;
-	}
 	nand_cs_disable();
 }
 
@@ -473,8 +460,6 @@ static int nand_erase_block0(void)
 
 	/* Check status bit for error notification */
 	nand_command(CMD_STATUS);
-
-	nand_wait_ready();
 	if (read_byte() & STATUS_ERROR)
 		return -1;
 
@@ -523,8 +508,7 @@ int load_nandflash(struct image_info *img_info)
 		return -2;
 #endif
 
-	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n",
-		size, offset, buffer);
+	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, buffer);
 
 	block = offset / nand.blocksize;
 	length = size;
