@@ -500,13 +500,13 @@ int load_nandflash(struct image_info *img_info)
 
 	nandflash_hw_init();
 
-	if (nandflash_get_type(&nand))
-		return -1;
-
 #ifdef CONFIG_NANDFLASH_RECOVERY
 	if (nandflash_recovery() == 0)
 		return -2;
 #endif
+
+	if (nandflash_get_type(&nand))
+		return -1;
 
 	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, buffer);
 
