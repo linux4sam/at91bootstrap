@@ -960,9 +960,9 @@ static int mmc_set_buswidth_clock(struct mmc *mmc)
 				return ret;
 
 		if (mmc->card_caps & MMC_MODE_HS)
-			mci_set_clock(50000000);
+			mci_set_clock(40000000);
 		else
-			mci_set_clock(25000000);
+			mci_set_clock(20000000);
 	} else {
 		if (mmc->card_caps & MMC_MODE_4BIT) {
 			/* Set the card to use 4 bit*/
