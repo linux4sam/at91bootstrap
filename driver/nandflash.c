@@ -158,15 +158,7 @@ struct nand_ooblayout ooblayout_2048 = {
 	 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39}
 };
 
-static struct nand_chip nand_chip_default = {
-	.chip_id	= 0x0,		/* Set ONFI parameter here */
-	.numblocks	= 0x0,
-	.blocksize	= 0x0,
-	.pagesize	= 0x0,
-	.oobsize	= 0x0,
-	.buswidth	= 0x0,
-	.ecclayout	= 0,
-};
+static struct nand_chip nand_chip_default;
 
 static struct nand_onfi_params onfi_params;
 
@@ -182,13 +174,11 @@ static unsigned char *IO_ADDR_W =
 static void nand_command(unsigned char cmd)
 {
 	writeb(cmd, ((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE));
-	udelay(100);
 }
 
 static void nand_address(unsigned char addr)
 {
 	writeb(addr, ((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE));
-	udelay(100);
 }
 
 static unsigned char read_byte(void)
@@ -218,6 +208,11 @@ static void nand_wait_ready(void)
 {
 #ifdef CONFIG_SYS_NAND_READY_PIN
 	while (pio_get_value(nandflash_get_ready_pin()) != 1);
+#else
+	unsigned timeout = 10000;
+
+	nand_command(CMD_STATUS);
+	while( (!(read_byte() & STATUS_READY)) && timeout--);
 #endif
 }
 
@@ -256,25 +251,24 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	int i, j;
 	unsigned int onfi_version;
 	unsigned char *param;
-	
-	nand_cs_enable();
 
+	nand_cs_enable();
 	nand_command(CMD_READID);
 	nand_address(0x20);
-
 	onfi_ind[0] = read_byte();
 	onfi_ind[1] = read_byte();
 	onfi_ind[2] = read_byte();
 	onfi_ind[3] = read_byte();
-
 	nand_cs_disable();
 
 	if ((onfi_ind[0] != 'O')
 		|| (onfi_ind[1] != 'N')
 		|| (onfi_ind[2] != 'F')
-		|| (onfi_ind[3] != 'I')) 
+		|| (onfi_ind[3] != 'I')) {
+		dbg_log(1, "Nand: ONFI not supported\n\r");
 		return -1;
-	
+	}
+
 	dbg_log(1, "ONFI flash detected\n\r");
 
 	nand_cs_enable();
@@ -284,6 +278,8 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	nand_address(0x00);
 	
 	nand_wait_ready();
+
+	nand_command(CMD_READ_1);
 	
 	for (i = 0; i < 3; i++) {
 		param = (unsigned char *)p;
@@ -299,8 +295,10 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 
 	nand_cs_disable();
 
-	if (i == 3)
-		return -1;
+	if (i == 3) {
+		dbg_log(1, "ONFI para CRC error!\n\r");
+		return -2;
+	}
 
 	/* check version */
 	if (p->revision & (1 << 5))
@@ -341,17 +339,43 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 
 static int nandflash_detect_non_onfi(struct nand_chip *chip)
 {
-	int manf_id, dev_id, cellinfo, extid;
+	int manf_id, dev_id, cellinfo, extid, tmp_manf, tmp_dev;
 	struct nandflash_dev *type;
 
 	nand_cs_enable();
+
+	/* Send the command for reading device ID */
 	nand_command(CMD_READID);
 	nand_address(0x00);
+
+	/* Read manufacturer and device IDs */
 	manf_id  = read_byte();
 	dev_id   = read_byte();
 	cellinfo = read_byte();
 	extid    = read_byte();
+
+	/*
+	 * Try again to make sure, as some systems the bus-hold or other
+	 * interface concerns can cause random data which looks like a
+	 * possibly credible NAND flash to appear. If the two results do
+	 * not match, ignore the device completely.
+	 */
+
+	nand_command(CMD_READID);
+	nand_address(0x00);
+
+	/* Read manufacturer and device IDs */
+	tmp_manf = read_byte();
+	tmp_dev  = read_byte();
+
 	nand_cs_disable();
+
+	if (tmp_manf != manf_id || tmp_dev != dev_id) {
+		dbg_log(1, "%s: second ID read did not match "
+		       "%d, %d against %d, %d\n\r", __func__,
+		       manf_id, dev_id, tmp_manf, tmp_dev);
+		return -1;
+	}
 
 	cellinfo = cellinfo;
 
@@ -441,31 +465,33 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 
 static void nandflash_reset(void)
 {
-	unsigned int timeout = 200000;
-
 	nand_cs_enable();
+
 	nand_command(CMD_RESET);
+	nand_address(-1);
 
 	nand_wait_ready();
 	
-	nand_command(CMD_STATUS);
-	nand_command(-1);
-	while( (!(read_byte() & STATUS_READY)) && timeout--);
 	nand_cs_disable();
 }
 
 static int nandflash_get_type(struct nand_info *nand)
 {
 	struct nand_chip *chip = &nand_chip_default;
+	int ret;
 
 	nandflash_reset();
 
 	/* Check if the Nandflash is ONFI compliant */
-	if (nandflash_detect_onfi(chip))
+	ret = nandflash_detect_onfi(chip);
+	if (ret == -2)
+		return -1;
+	if (ret == -1) {
 		if (nandflash_detect_non_onfi(chip)) {
 			dbg_log(1, "Not Find Support NAND Device!\n\r");
 			return -1;
 		}
+	}
 
 	nand_info_init(nand, chip);
 	
@@ -618,6 +644,8 @@ static int nand_read_sector(struct nand_info *nand,
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
 	nand_wait_ready();
 
+	nand_command(CMD_READ_C);
+
 	/* Read loop */
 	if (nand->buswidth) /* 16bits */
 		for (i = 0; i < readbytes / 2; i++) {	// Div2 because of 16bits
@@ -646,6 +674,7 @@ static int nand_read_sector(struct nand_info *nand,
 			/* Need to be done twice, READY detected too early the first time? */
 			nand_wait_ready();
 
+			nand_command(CMD_READ_C);
 			for (i = 0; i < (readbytes / 2); i++) {
 				*buffer = read_byte();
 				buffer++;
@@ -724,6 +753,7 @@ static int nand_read_sector(struct nand_info *nand,
 	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
 	nand_wait_ready();
 
+	nand_command(CMD_READ_1);
 	/* Read loop */
 	if (nand->buswidth)
 		for (i = 0; i < readbytes / 2; i++) { /* Div2 because of 16bits  */
@@ -841,13 +871,6 @@ static int nand_erase_block0(void)
 
 	/* Wait for nand to be ready */
 	nand_wait_ready();
-
-	/* Check status bit for error notification */
-	nand_command(CMD_STATUS);
-
-	nand_wait_ready();
-	if (read_byte() & STATUS_ERROR)
-		return -1;
 
 	nand_cs_disable();
 
