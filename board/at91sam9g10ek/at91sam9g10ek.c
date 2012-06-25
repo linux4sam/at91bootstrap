@@ -78,58 +78,25 @@ static void at91_matrix_hw_init(void)
 }
 
 #ifdef CONFIG_DEBUG
-static void at91_dbgu_hw_init(void)
-{
-	/* Configure DBGU pin */
-	const struct pio_desc dbgu_pins[] = {
-		{"RXD", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"TXD", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	/* Configure the dbgu pins */
-	pio_configure(dbgu_pins);
-
-	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
-}
 
 static void initialize_dbgu(void)
 {
-	at91_dbgu_hw_init();
+	/* const struct pio_desc dbgu_pins[] = {
+		{"RXD", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TXD", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	}; */
+	/* Configure the dbgu pins */
+	writel(((0x01 << 9) | (0x01 << 10)), AT91C_BASE_PIOA + PIO_ASR(0));
+	writel(((0x01 << 9) | (0x01 << 10)), AT91C_BASE_PIOA + PIO_PDR(0));
+
+	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
+
 	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
 #endif /* #ifdef CONFIG_DEBUG */
 
 #ifdef CONFIG_SDRAM
-void sdramc_hw_init(void)
-{
-	/* Configure sdramc pins */
-	const struct pio_desc sdramc_pins[] = {
-		{"D16", AT91C_PIN_PC(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D17", AT91C_PIN_PC(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D18", AT91C_PIN_PC(18), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D19", AT91C_PIN_PC(19), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D20", AT91C_PIN_PC(20), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D21", AT91C_PIN_PC(21), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D22", AT91C_PIN_PC(22), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D23", AT91C_PIN_PC(23), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D24", AT91C_PIN_PC(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D25", AT91C_PIN_PC(25), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D26", AT91C_PIN_PC(26), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D27", AT91C_PIN_PC(27), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D28", AT91C_PIN_PC(28), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D29", AT91C_PIN_PC(29), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D30", AT91C_PIN_PC(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"D31", AT91C_PIN_PC(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *) 0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	/* Configure the SDRAMC PINs */
-	pio_configure(sdramc_pins);
-
-	writel((1 << AT91C_ID_PIOC), (PMC_PCER + AT91C_BASE_PMC));
-}
-
 static void sdramc_init(void)
 {
 	struct sdramc_register sdramc_config;
@@ -157,7 +124,11 @@ static void sdramc_init(void)
 	sdramc_config.tr = (MASTER_CLOCK * 7) / 1000000;
 	sdramc_config.mdr = AT91C_SDRAMC_MD_SDRAM;
 
-	sdramc_hw_init();
+	/* configure sdramc pins */
+	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_ASR(0));
+	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_PDR(0));
+
+	writel((1 << AT91C_ID_PIOC), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Initialize the matrix (memory voltage = 3.3) */
 	reg = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
@@ -255,6 +226,7 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_SDCARD
 void at91_mci0_hw_init(void)
 {
+	/*
 	const struct pio_desc mci_pins[] = {
 		{"MCCK", AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_B},
 		{"MCCDA", AT91C_PIN_PA(1), 0, PIO_PULLUP, PIO_PERIPH_B},
@@ -264,8 +236,14 @@ void at91_mci0_hw_init(void)
 		{"MCDA3", AT91C_PIN_PA(6), 0, PIO_PULLUP, PIO_PERIPH_B},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
 	};
+	*/
 
-	pio_configure(mci_pins);
+	/* configure mci0 pins */
+	writel(((0x01 < 0) | (0x01 << 1) | (0x01 << 2) | (0x01 < 4)
+			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_BSR(0));
+	writel(((0x01 < 0) | (0x01 << 1) | (0x01 << 2) | (0x01 < 4)
+			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_PDR(0));
+
 	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable the clock */
