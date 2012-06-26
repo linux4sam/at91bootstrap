@@ -267,7 +267,7 @@ void nandflash_hw_init(void)
 	/* Configure SMC CS3 */
 	writel((AT91C_SMC_NWESETUP_(1)
 		| AT91C_SMC_NCS_WRSETUP_(0)
-		| AT91C_SMC_NRDSETUP_(2) 
+		| AT91C_SMC_NRDSETUP_(3)
 		| AT91C_SMC_NCS_RDSETUP_(0)), 
 		AT91C_BASE_SMC + SMC_SETUP3);
 
@@ -278,7 +278,7 @@ void nandflash_hw_init(void)
 		AT91C_BASE_SMC + SMC_PULSE3);
 
 	writel((AT91C_SMC_NWECYCLE_(5)
-		|  AT91C_SMC_NRDCYCLE_(7)),
+		| AT91C_SMC_NRDCYCLE_(8)),
 		AT91C_BASE_SMC + SMC_CYCLE3);
 
 	writel((AT91C_SMC_READMODE 

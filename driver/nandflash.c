@@ -256,9 +256,6 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	nand_command(CMD_READID);
 	nand_address(0x20);
 
-#ifdef CONFIG_SYS_NAND_READY_PIN
-	nand_wait_ready();
-#endif
 	onfi_ind[0] = read_byte();
 	onfi_ind[1] = read_byte();
 	onfi_ind[2] = read_byte();
