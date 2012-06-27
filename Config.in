@@ -108,7 +108,7 @@ config CONFIG_IMG_ADDRESS
 config CONFIG_IMG_SIZE
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
 	string "Linux Kernel Image Size"
-	default "0x280000"
+	default "0x300000"
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
