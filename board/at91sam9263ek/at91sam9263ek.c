@@ -327,7 +327,7 @@ static void psram_hw_init(void)
 	unsigned short *addressMax = (unsigned short *)MICRON_8MB_ADDRESS_MAX;
 
 	const struct pio_desc psram_pins[] = {
-		{"CRE", CONFIG_SYS_PSRAM_DATA_ACCESS_PIN, 0, PIO_DEFAULT, PIO_OUTPUT},
+		{"CRE", CONFIG_SYS_PSRAM_DATA_ACCESS_PIN, 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
@@ -443,7 +443,7 @@ void at91_spi0_hw_init(void)
 		{"MISO",	AT91C_PIN_PA(0),	0, PIO_DEFAULT, PIO_PERIPH_B},
 		{"MOSI",	AT91C_PIN_PA(1),	0, PIO_DEFAULT, PIO_PERIPH_B},
 		{"SPCK",	AT91C_PIN_PA(2),	0, PIO_DEFAULT, PIO_PERIPH_B},
-		{"NPCS",	CONFIG_SYS_SPI_PCS,	0, PIO_PULLUP, PIO_OUTPUT},
+		{"NPCS",	CONFIG_SYS_SPI_PCS,	1, PIO_PULLUP, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
@@ -487,7 +487,7 @@ void nandflash_hw_init(void)
 
 	/* Configure NANDFlash pins*/
 	const struct pio_desc nand_pins[] = {
-		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	0, PIO_PULLUP, PIO_OUTPUT},
+		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	1, PIO_PULLUP, PIO_OUTPUT},
 		{(char *)0, 	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 

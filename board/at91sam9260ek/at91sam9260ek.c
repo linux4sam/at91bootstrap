@@ -168,10 +168,10 @@ void at91_spi0_hw_init(void)
 	writel(((0x01 << 0) | (0x01 << 1) | (0x01 << 2)), AT91C_BASE_PIOA + PIO_PDR(0));
 
 #if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS0_DATAFLASH)
-	/* {"NPCS",        AT91C_PIN_PA(3),     0, PIO_PULLUP, PIO_OUTPUT}, */
+	/* {"NPCS",        AT91C_PIN_PA(3),     1, PIO_PULLUP, PIO_OUTPUT}, */
 	writel((0x01 << 3), AT91C_BASE_PIOA + PIO_IDR(0));
 	writel((0x01 << 3), AT91C_BASE_PIOA + PIO_PPUDR(0));
-	writel((0x01 << 3), AT91C_BASE_PIOA + PIO_CODR(0));
+	writel((0x01 << 3), AT91C_BASE_PIOA + PIO_SODR(0));
 	writel((0x01 << 3), AT91C_BASE_PIOA + PIO_OER(0));
 	writel((0x01 << 3), AT91C_BASE_PIOA + PIO_PER(0));
 
@@ -179,10 +179,10 @@ void at91_spi0_hw_init(void)
 #endif
 
 #if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
-	/* {"NPCS",        AT91C_PIN_PC(11),     0, PIO_PULLUP, PIO_OUTPUT}, */
+	/* {"NPCS",        AT91C_PIN_PC(11),     1, PIO_PULLUP, PIO_OUTPUT}, */
 	writel((0x01 << 11), AT91C_BASE_PIOC + PIO_IDR(0));
 	writel((0x01 << 11), AT91C_BASE_PIOC + PIO_PPUDR(0));
-	writel((0x01 << 11), AT91C_BASE_PIOC + PIO_CODR(0));
+	writel((0x01 << 11), AT91C_BASE_PIOC + PIO_SODR(0));
 	writel((0x01 << 11), AT91C_BASE_PIOC + PIO_OER(0));
 	writel((0x01 << 11), AT91C_BASE_PIOC + PIO_PER(0));
 
@@ -232,10 +232,10 @@ void nandflash_hw_init(void)
 
 	/* configure NAND pins */
 
-	/* {"NANDCS", AT91C_PIN_PC(14), 0, PIO_PULLUP, PIO_OUTPUT} */
+	/* {"NANDCS", AT91C_PIN_PC(14), 1, PIO_PULLUP, PIO_OUTPUT} */
 	writel((0x01 << 14), AT91C_BASE_PIOC + PIO_IDR(0));
 	writel((0x01 << 14), AT91C_BASE_PIOC + PIO_PPUDR(0));
-	writel((0x01 << 14), AT91C_BASE_PIOC + PIO_CODR(0));
+	writel((0x01 << 14), AT91C_BASE_PIOC + PIO_SODR(0));
 	writel((0x01 << 14), AT91C_BASE_PIOC + PIO_OER(0));
 	writel((0x01 << 14), AT91C_BASE_PIOC + PIO_PER(0));
 

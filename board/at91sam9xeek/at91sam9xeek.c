@@ -183,7 +183,7 @@ void at91_spi0_hw_init(void)
 		{"MISO",	AT91C_PIN_PA(0),	0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"MOSI",	AT91C_PIN_PA(1),	0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SPCK",	AT91C_PIN_PA(2),	0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"NPCS",	CONFIG_SYS_SPI_PCS,	0, PIO_PULLUP, PIO_OUTPUT},
+		{"NPCS",	CONFIG_SYS_SPI_PCS,	1, PIO_PULLUP, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
@@ -204,8 +204,8 @@ void nandflash_hw_init(void)
 
 	/* Configure NANDFlash pins*/
 	const struct pio_desc nand_pins[] = {
-		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	0, PIO_PULLUP, PIO_OUTPUT},
-		{(char *)0, 	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"NANDCS", CONFIG_SYS_NAND_ENABLE_PIN, 1, PIO_PULLUP, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	/* Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface  */
