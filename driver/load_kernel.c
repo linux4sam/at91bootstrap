@@ -255,8 +255,6 @@ int load_kernel(struct image_info *img_info)
 	slowclk_switch_osc32();
 #endif
 
-	setup_boot_tags();
-
 	/* Check the image header magic */
 	image_header = (image_header_t *)JUMP_ADDR;
 	magic_number = ntohl(image_header->ih_magic);
