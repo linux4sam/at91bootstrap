@@ -104,6 +104,7 @@ IMG_SIZE := $(strip $(subst ",,$(CONFIG_IMG_SIZE)))
 JUMP_ADDR := $(strip $(subst ",,$(CONFIG_JUMP_ADDR)))
 BOOTSTRAP_MAXSIZE := $(strip $(subst ",,$(CONFIG_BOOTSTRAP_MAXSIZE)))
 MEMORY := $(strip $(subst ",,$(CONFIG_MEMORY)))
+IMAGE_NAME:= $(strip $(subst ",,$(CONFIG_IMAGE_NAME)))
 CARD_SUFFIX := $(strip $(subst ",,$(CONFIG_CARD_SUFFIX)))
 OS_MEM_BANK := $(strip $(subst ",,$(CONFIG_OS_MEM_BANK)))
 OS_MEM_SIZE := $(strip $(subst ",,$(CONFIG_OS_MEM_SIZE)))
@@ -136,7 +137,7 @@ endif
 
 obj=build/$(BOARDNAME)/
 
-BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(VERSION)$(REV)
+BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(IMAGE_NAME)-$(VERSION)$(REV)
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
 ifeq ($(DESTDIR),)
