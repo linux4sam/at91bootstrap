@@ -206,14 +206,10 @@ static unsigned short read_word(void)
 
 static void nand_wait_ready(void)
 {
-#ifdef CONFIG_SYS_NAND_READY_PIN
-	while (pio_get_value(nandflash_get_ready_pin()) != 1);
-#else
-	unsigned timeout = 10000;
+	unsigned int timeout = 10000;
 
 	nand_command(CMD_STATUS);
-	while( (!(read_byte() & STATUS_READY)) && timeout--);
-#endif
+	while((!(read_byte() & STATUS_READY)) && timeout--);
 }
 
 static void nand_cs_enable(void)
@@ -468,7 +464,6 @@ static void nandflash_reset(void)
 	nand_cs_enable();
 
 	nand_command(CMD_RESET);
-	nand_address(-1);
 
 	nand_wait_ready();
 
@@ -590,31 +585,30 @@ static int init_pmecc(unsigned int pagesize)
 
 #ifdef NANDFLASH_SMALL_BLOCKS
 static int nand_read_sector(struct nand_info *nand, 
-				unsigned int sectoraddr,
-				unsigned char *buffer,
-				unsigned int zone_flag)
+			unsigned int sectoraddr,
+			unsigned char *buffer,
+			unsigned int zone_flag)
 {
 	unsigned int readbytes, i;
 	unsigned char command;
 
-	/*
-	 * WARNING : During a read procedure you can't call the ReadStatus flash cmd
-	 * * The ReadStatus fill the read register with 0xC0 and then corrupt the read
-	 */
 	switch (zone_flag) {
 	case ZONE_DATA:
 		readbytes = nand->pagesize;
 		command = CMD_READ_A0;
 		break;
+
 	case ZONE_INFO:
 		readbytes = nand->oobsize;
 		buffer += nand->pagesize;
 		command = CMD_READ_C;
 		break;
+
 	case ZONE_DATA | ZONE_INFO:
 		readbytes = nand->sectorsize;
 		command = CMD_READ_A0;
 		break;
+
 	default:
 		return -1;
 	}
@@ -629,7 +623,7 @@ static int nand_read_sector(struct nand_info *nand,
 
 	sectoraddr >>= nand->page_shift;
 
-	if (nand->buswidth) { /* 16 bits */
+	if (nand->buswidth) {
 		nand_address16(0x00);
 		nand_address16((sectoraddr >> 0) & 0xFF);
 		nand_address16((sectoraddr >> 8) & 0xFF);
@@ -641,17 +635,16 @@ static int nand_read_sector(struct nand_info *nand,
 		nand_address((sectoraddr >> 16) & 0xFF);
 	}
 
-	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
 	nand_wait_ready();
 	nand_command(CMD_READ_C);
 
 	/* Read loop */
-	if (nand->buswidth) /* 16bits */
-		for (i = 0; i < readbytes / 2; i++) {	// Div2 because of 16bits
+	if (nand->buswidth) {
+		for (i = 0; i < readbytes / 2; i++) {
 			*((short *)buffer) = read_word();
 			buffer += 2;
 		}
-	else /* 8 bits */
+	} else {
 		if (command == CMD_READ_C)
 			for (i = 0; i < readbytes; i++) {
 				*buffer = read_byte();
@@ -670,7 +663,6 @@ static int nand_read_sector(struct nand_info *nand,
 			nand_address((sectoraddr >> 8) & 0xFF);
 			nand_address((sectoraddr >> 16) & 0xFF);
 
-			/* Need to be done twice, READY detected too early the first time? */
 			nand_wait_ready();
 			nand_command(CMD_READ_C);
 
@@ -686,7 +678,7 @@ static int nand_read_sector(struct nand_info *nand,
 	return 0;
 }
 
-#else /* For large blocks */
+#else /* large blocks */
 static int nand_read_sector(struct nand_info *nand,
 				unsigned int sectoraddr,
 				unsigned char *buffer, 
@@ -724,7 +716,7 @@ static int nand_read_sector(struct nand_info *nand,
 		readbytes = nand->oobsize;
 		buffer += nand->pagesize;
 		address = nand->pagesize;
-		if (nand->buswidth)		/* 16 bits */
+		if (nand->buswidth)
 			address = address / 2;	/* Div 2 is because we address in word and not in byte */
 		break;
 
@@ -735,10 +727,7 @@ static int nand_read_sector(struct nand_info *nand,
 	default:
 		return -1;
 	}
-	/*
-	 * WARNING : During a read procedure you can't call the ReadStatus flash cmd
-	 * * The ReadStatus fill the read register with 0xC0 and then corrupt the read
-	 */
+
 	nand_cs_enable();
 
 	nand_command(CMD_READ_1);
@@ -749,41 +738,41 @@ static int nand_read_sector(struct nand_info *nand,
 
 	nand_command(CMD_READ_2);
 
-	/* Wait for flash to be ready (can't pool on status, read upper WARNING) */
 	nand_wait_ready();
 	nand_command(CMD_READ_1);
 
 	/* Read loop */
-	if (nand->buswidth)
-		for (i = 0; i < readbytes / 2; i++) { /* Div2 because of 16bits  */
+	if (nand->buswidth) {
+		for (i = 0; i < readbytes / 2; i++) {
 			*((short *)buffer) = read_word();
 			buffer += 2;
 		}
-	else
+	} else {
 		for (i = 0; i < readbytes; i++)
 			*buffer++ = read_byte();
 
 #ifdef CONFIG_USE_PMECC
-	if (usepmecc == 1) {
-		while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY)
-			udelay(1);
+		if (usepmecc == 1) {
+			while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY)
+				udelay(1);
 
-		erris = pmecc_readl(PMECC_ISR);
-		if (erris) {
-			dbg_log(1, "PMECC found the sector bits %d corrupted, Now PMECC is correcting...\n\r", erris);
-			result = (*pmecc_correction_algo)(AT91C_BASE_PMECC,
-					AT91C_BASE_PMERRLOC,
-					&PMECC_paramDesc,
-					erris,
-					pbuf);
+			erris = pmecc_readl(PMECC_ISR);
+			if (erris) {
+				dbg_log(1, "PMECC: sector bits %d corrupted, Now correcting...\n\r", erris);
+				result = (*pmecc_correction_algo)(AT91C_BASE_PMECC,
+							AT91C_BASE_PMERRLOC,
+							&PMECC_paramDesc,
+							erris,
+							pbuf);
 
-			if (result != 0) {
-				dbg_log(1, "PMECC failed to correct!\n\r");
-				ret =  ECC_CORRECT_ERROR;
+				if (result != 0) {
+					dbg_log(1, "PMECC failed to correct!\n\r");
+					ret =  ECC_CORRECT_ERROR;
+				}
 			}
 		}
-	}
 #endif /* #ifdef CONFIG_USE_PMECC */
+	}
 
 	nand_cs_disable();
 
@@ -861,6 +850,9 @@ static int nand_read_page(struct nand_info *nand,
 static int nand_erase_block0(void)
 {
 	unsigned int block = 0;
+	unsigned int timeout = 10000;
+	unsigned int status;
+	int ret;
 
 	nand_cs_enable();
 
@@ -868,12 +860,28 @@ static int nand_erase_block0(void)
 	send_sector_address(block);
 	nand_command(CMD_ERASE_2);
 
-	/* Wait for nand to be ready */
-	nand_wait_ready();
+	nand_command(CMD_STATUS);
+	do {
+		status = read_byte();
+		if (status & STATUS_ERROR){
+			ret = -1;
+			goto err;
+		}
+		if (status & STATUS_READY) {
+			ret = 0;
+			break;
+		}
+	} while (timeout--);
+
+	if (timeout == 0)
+		ret = -2;
 
 	nand_cs_disable();
+	return ret;
 
-	return 0;
+err:
+	nand_cs_disable();
+	return ret;
 }
 
 static int nandflash_recovery(void)

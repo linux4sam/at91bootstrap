@@ -231,11 +231,6 @@ void nandflash_hw_init(void)
 		AT91C_BASE_SMC + SMC_CTRL3);
 
 	/* configure NAND pins */
-	/* {"RDY_BSY", AT91C_PIN_PC(13), 0, PIO_PULLUP, PIO_INPUT} */
-	writel((0x01 << 13), AT91C_BASE_PIOC + PIO_IDR(0));
-	writel((0x01 << 13), AT91C_BASE_PIOC + PIO_PPUER(0));
-	writel((0x01 << 13), AT91C_BASE_PIOC + PIO_ODR(0));
-	writel((0x01 << 13), AT91C_BASE_PIOC + PIO_PER(0));
 
 	/* {"NANDCS", AT91C_PIN_PC(14), 0, PIO_PULLUP, PIO_OUTPUT} */
 	writel((0x01 << 14), AT91C_BASE_PIOC + PIO_IDR(0));
@@ -260,12 +255,5 @@ void nandflash_config_buswidth(unsigned char busw)
 		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
 
 	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
-}
-
-static unsigned int nand_ready_pin = CONFIG_SYS_NAND_READY_PIN;
-
-unsigned int nandflash_get_ready_pin(void)
-{
-	return nand_ready_pin;
 }
 #endif /* #ifdef CONFIG_NANDFLASH */

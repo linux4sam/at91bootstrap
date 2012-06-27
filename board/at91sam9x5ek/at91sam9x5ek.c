@@ -224,9 +224,6 @@ void at91_mci0_hw_init(void)
 #endif /* #ifdef CONFIG_SDCARD */
 
 #ifdef CONFIG_NANDFLASH
-
-static unsigned int nand_ready_pin;
-
 void nandflash_hw_init(void)
 {
 	unsigned int reg;
@@ -238,7 +235,6 @@ void nandflash_hw_init(void)
 		{"NANDALE",	CONFIG_SYS_NAND_ALE_PIN,	0, PIO_PULLUP, PIO_PERIPH_A},
 		{"NANDCLE",	CONFIG_SYS_NAND_CLE_PIN,	0, PIO_PULLUP, PIO_PERIPH_A},
 		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	0, PIO_PULLUP, PIO_OUTPUT},
-		{"RDY_BSY",	AT91C_PIN_PD(5),		0, PIO_PULLUP, PIO_INPUT},
 		{"D0",	AT91C_PIN_PD(6), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"D1",	AT91C_PIN_PD(7), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"D2",	AT91C_PIN_PD(8), 0, PIO_PULLUP, PIO_PERIPH_A},
@@ -256,7 +252,6 @@ void nandflash_hw_init(void)
 		{"NANDALE",	CONFIG_SYS_NAND_ALE_PIN,	0, PIO_PULLUP, PIO_PERIPH_A},
 		{"NANDCLE",	CONFIG_SYS_NAND_CLE_PIN,	0, PIO_PULLUP, PIO_PERIPH_A},
 		{"NANDCS", 	CONFIG_SYS_NAND_ENABLE_PIN,	0, PIO_PULLUP, PIO_OUTPUT},
-		{"RDY_BSY", 	AT91C_PIN_PD(6),		0, PIO_PULLUP, PIO_INPUT},
 		{(char *)0,	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
@@ -295,13 +290,10 @@ void nandflash_hw_init(void)
 		AT91C_BASE_SMC + SMC_CTRL3);
 
 	/* Configure the PIO controller */
-	if ((get_cm_rev() == 'A') && (get_cm_vendor() == VENDOR_EMBEST)) {
+	if ((get_cm_rev() == 'A') && (get_cm_vendor() == VENDOR_EMBEST))
 		pio_configure(nand_pins_lo);
-		nand_ready_pin = AT91C_PIN_PD(6);
-	} else {
+	else
 		pio_configure(nand_pins_hi);
-		nand_ready_pin = AT91C_PIN_PD(5);
-	}
 
 	writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
 }
@@ -318,11 +310,6 @@ void nandflash_config_buswidth(unsigned char busw)
 		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
 
 	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
-}
-
-unsigned int nandflash_get_ready_pin(void)
-{
-	return nand_ready_pin;
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
 

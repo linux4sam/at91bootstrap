@@ -89,7 +89,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 21)
 
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91C_PIN_PC(14)
-#define CONFIG_SYS_NAND_READY_PIN	AT91C_PIN_PC(15)
 
 /*
  * MCI Settings
@@ -107,7 +106,6 @@ extern void hw_init(void);
 
 extern void nandflash_hw_init(void);
 extern void nandflash_config_buswidth(unsigned char busw);
-extern unsigned int nandflash_get_ready_pin(void);
 
 extern void at91_spi0_hw_init(void);
 

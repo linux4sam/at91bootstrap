@@ -91,7 +91,6 @@
 #define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 
 #undef CONFIG_SYS_NAND_ENABLE_PIN
-#undef CONFIG_SYS_NAND_READY_PIN
 
 /*
  * MCI Settings

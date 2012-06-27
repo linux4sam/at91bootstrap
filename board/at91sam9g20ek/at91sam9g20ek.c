@@ -248,7 +248,6 @@ void nandflash_hw_init(void)
 	/* Configure PIOs */
 	const struct pio_desc nand_pins[] = {
 		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	0, PIO_PULLUP, PIO_OUTPUT},
-		{"RDY_BSY",	CONFIG_SYS_NAND_READY_PIN,	0, PIO_PULLUP, PIO_INPUT},
 		{(char *)0, 	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
@@ -299,13 +298,6 @@ void nandflash_config_buswidth(unsigned char busw)
 		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
 
 	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
-}
-
-static unsigned int nand_ready_pin = CONFIG_SYS_NAND_READY_PIN;
-
-unsigned int nandflash_get_ready_pin(void)
-{
-	return nand_ready_pin;
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
 

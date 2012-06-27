@@ -105,7 +105,10 @@ static unsigned short read_word(void)
 
 static void nand_wait_ready(void)
 {
-	while (pio_get_value(nandflash_get_ready_pin()) != 1);
+	unsigned int timeout = 10000;
+
+	nand_command(CMD_STATUS);
+	while((!(read_byte() & STATUS_READY)) && timeout--);
 }
 
 static void nand_cs_enable(void)
@@ -153,7 +156,7 @@ static void nandflash_reset(void)
 	nand_cs_enable();
 
 	nand_command(CMD_RESET);
-	nand_address(-1);
+
 	nand_wait_ready();
 
 	nand_cs_disable();
@@ -223,32 +226,30 @@ static void send_sector_address(unsigned int addr)
 
 #ifdef NANDFLASH_SMALL_BLOCKS
 static int nand_read_sector(struct nand_info *nand,
-				unsigned int sectoraddr,
-				unsigned char *buffer,
-				unsigned int zone_flag)
+			unsigned int sectoraddr,
+			unsigned char *buffer,
+			unsigned int zone_flag)
 {
 	unsigned int readbytes, i;
 	unsigned char command;
 
-	/*
-	 * WARNING : During a read procedure you can't call
-	 * the ReadStatus flash cmd. The ReadStatus fill the read register
-	 *  with 0xC0 and then corrupt the read
-	 */
 	switch (zone_flag) {
 	case ZONE_DATA:
 		readbytes = nand->pagesize;
 		command = CMD_READ_A0;
 		break;
+
 	case ZONE_INFO:
 		readbytes = nand->oobsize;
 		buffer += nand->pagesize;
 		command = CMD_READ_C;
 		break;
+
 	case ZONE_DATA | ZONE_INFO:
 		readbytes = nand->sectorsize;
 		command = CMD_READ_A0;
 		break;
+
 	default:
 		return -1;
 	}
@@ -256,14 +257,14 @@ static int nand_read_sector(struct nand_info *nand,
 	nand_cs_enable();
 
 	/* Write specific command, Read from start */
-	if (nand->buswidth) /* 16 bits */
+	if (nand->buswidth)
 		nand_command16(command);
 	else
 		nand_command(command);
 
 	sectoraddr >>= nand->page_shift;
 
-	if (nand->buswidth) { /* 16 bits */
+	if (nand->buswidth) {
 		nand_address16(0x00);
 		nand_address16((sectoraddr >> 0) & 0xFF);
 		nand_address16((sectoraddr >> 8) & 0xFF);
@@ -275,36 +276,34 @@ static int nand_read_sector(struct nand_info *nand,
 		nand_address((sectoraddr >> 16) & 0xFF);
 	}
 
-	/* Wait for flash to be ready */
 	nand_wait_ready();
+	nand_command(CMD_READ_C);
 
-	/* Read loop */
-	if (nand->buswidth) /* 16bits */
+	if (nand->buswidth) {
 		for (i = 0; i < readbytes / 2; i++) {
 			*((short *)buffer) = read_word();
 			buffer += 2;
 		}
-	else /* 8 bits */
-		if (command == CMD_READ_C)
+	} else {
+		if (command == CMD_READ_C) {
 			for (i = 0; i < readbytes; i++) {
 				*buffer = read_byte();
 				buffer++;
 			}
-		else {
+		} else {
 			for (i = 0; i < readbytes / 2; i++) {
 				*buffer = read_byte();
 				buffer++;
 			}
 
-			command = CMD_READ_A1;
-			nand_command(command);
+			nand_command(CMD_READ_A1);
 			nand_address(0x00);
 			nand_address((sectoraddr >> 0) & 0xFF);
 			nand_address((sectoraddr >> 8) & 0xFF);
 			nand_address((sectoraddr >> 16) & 0xFF);
 
-			/* Need to be done twice, READY detected too early the first time? */
 			nand_wait_ready();
+			nand_command(CMD_READ_C);
 
 			for (i = 0; i < (readbytes / 2); i++) {
 				*buffer = read_byte();
@@ -318,11 +317,11 @@ static int nand_read_sector(struct nand_info *nand,
 	return 0;
 }
 
-#else /* For large blocks */
+#else /* large blocks */
 static int nand_read_sector(struct nand_info *nand,
-				unsigned int sectoraddr,
-				unsigned char *buffer,
-				unsigned int zone_flag)
+			unsigned int sectoraddr,
+			unsigned char *buffer,
+			unsigned int zone_flag)
 {
 	unsigned int readbytes, i;
 	unsigned int address;
@@ -338,7 +337,7 @@ static int nand_read_sector(struct nand_info *nand,
 		readbytes = nand->oobsize;
 		buffer += nand->pagesize;
 		address = nand->pagesize;
-		if (nand->buswidth)		/* 16 bits */
+		if (nand->buswidth)
 			address = address / 2;
 		break;
 
@@ -349,11 +348,7 @@ static int nand_read_sector(struct nand_info *nand,
 	default:
 		return -1;
 	}
-	/*
-	 * WARNING : During a read procedure you can't call
-	 * the ReadStatus flash cmd. The ReadStatus fill the read register
-	 * with 0xC0 and then corrupt the read
-	 */
+
 	nand_cs_enable();
 
 	nand_command(CMD_READ_1);
@@ -364,8 +359,8 @@ static int nand_read_sector(struct nand_info *nand,
 
 	nand_command(CMD_READ_2);
 
-	/* Wait for flash to be ready */
 	nand_wait_ready();
+	nand_command(CMD_READ_1);
 
 	/* Read loop */
 	if (nand->buswidth)
@@ -412,10 +407,10 @@ static void nand_read_ecc(struct nand_ooblayout *ooblayout,
 }
 
 static int nand_read_page(struct nand_info *nand,
-				unsigned int block,
-				unsigned int page,
-				unsigned int zone_flag,
-				unsigned char *buffer)
+			unsigned int block,
+			unsigned int page,
+			unsigned int zone_flag,
+			unsigned char *buffer)
 {
 	int retval;
 	unsigned char hamming[48];
@@ -427,8 +422,7 @@ static int nand_read_page(struct nand_info *nand,
 		return -1;
 	}
 
-	retval = nand_read_sector(nand, sectoraddr, buffer,
-			ZONE_DATA | ZONE_INFO);
+	retval = nand_read_sector(nand, sectoraddr, buffer, ZONE_DATA | ZONE_INFO);
 
 	if (retval)
 		return -1;
@@ -455,10 +449,8 @@ static int nand_erase_block0(void)
 	send_sector_address(block);
 	nand_command(CMD_ERASE_2);
 
-	/* Wait for nand to be ready */
 	nand_wait_ready();
 
-	/* Check status bit for error notification */
 	nand_command(CMD_STATUS);
 	if (read_byte() & STATUS_ERROR)
 		return -1;
