@@ -36,13 +36,10 @@
  */ 
 #define PLL_LOCK_TIMEOUT	10000
 
+#if defined(CONFIG_CPU_CLK_400MHZ)
 #define BOARD_MAINOSC		12000000
 #define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 66 ) / 2 ))		/* 396M */ 
 #define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 66 ) / 2 / 3))	/* 132M */ 
-
-#define MASTER_CLOCK		132000000
-
-#define BOARD_OSCOUNT		(AT91C_CKGR_MOSCXTST & (64 << 8)) /* Main Crystal Oscillator Start-up Time */
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0) 
 #define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT && (0x3F << 8))
@@ -58,10 +55,35 @@
 					AT91C_PMC_MDIV_3 | \
 					AT91C_PMC_CSS_PLLA_CLK )
 
-#define PLLA_SETTINGS			(BOARD_CKGR_PLLA | \
-					BOARD_PLLACOUNT | \
-					BOARD_MULA | \
-					BOARD_DIVA)
+#endif /* #if defined(CONFIG_CPU_CLK_400MHZ) */
+
+#if defined(CONFIG_CPU_CLK_533MHZ)
+#define BOARD_MAINOSC		12000000
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 88 ) / 2 ))	/* 533M */
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 88 ) / 2 / 4))/* 132M */
+
+#define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
+#define BOARD_PLLACOUNT		(0x3F << 8)
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (87 << 18))
+#define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
+
+#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_4 \
+					| AT91C_PMC_CSS_MAIN_CLK)
+
+#define BOARD_PRESCALER_PLLA		(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_4 \
+					| AT91C_PMC_CSS_PLLA_CLK)
+
+#endif /* #if defined(CONFIG_CPU_CLK_533MHZ) */
+
+#define PLLA_SETTINGS		(BOARD_CKGR_PLLA | \
+				BOARD_PLLACOUNT | \
+				BOARD_MULA | \
+				BOARD_DIVA)
+
+#define MASTER_CLOCK		132000000
+
 /*
 * DataFlash Settings
 */
