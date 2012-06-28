@@ -230,11 +230,14 @@ static void setup_boot_tags(void)
 
 int load_kernel(struct image_info *img_info)
 {
-	int ret;
-	unsigned long	load_addr, image_size;
 	image_header_t	*image_header;
-	unsigned long	magic_number;
-	
+	unsigned int load_addr, image_size;
+	unsigned int magic_number;
+	unsigned int jump_addr = (unsigned int)img_info->dest;
+	unsigned int tags_addr = (unsigned int)(OS_MEM_BANK + 0x100);
+	int mach_type = MACH_TYPE;
+	int ret;
+
 	void (*kernel_entry)(int zero, int arch, unsigned int params);
 
 #ifdef CONFIG_DATAFLASH
@@ -256,44 +259,41 @@ int load_kernel(struct image_info *img_info)
 #endif
 
 	/* Check the image header magic */
-	image_header = (image_header_t *)JUMP_ADDR;
+	image_header = (image_header_t *)jump_addr;
 	magic_number = ntohl(image_header->ih_magic);
-	dbg_log(1, "image magic number found: %d\n\r", magic_number);
+	dbg_log(1, "\n\rImage magic: %d is found.\n\r", magic_number);
 #if 0
 	if (magic_number != IH_MAGIC) {
 		dbg_log(1, "** Bad image magic number found: %d\n\r", magic_number);
-		return;
+		return -1;
 	}
 #endif
 	image_size = ntohl(image_header->ih_size);
 	load_addr = ntohl(image_header->ih_load);
     
-	dbg_log(1, "Image size: %d, load_addr: %x\n\r",	image_size, load_addr);
+	dbg_log(1, "Image size: %d, load address: %d\n\r", image_size, load_addr);
 
 #if 0
-	if (hdr->ih_comp != 0) {
+	if (image_header->ih_comp != 0) {
 		dbg_log(1, "The compression type has not been supported yet\n\r");
-		return;
+		return -1;
 	}
 #endif
 	kernel_entry = (void (*)(int, int, unsigned int))ntohl(image_header->ih_ep);
 
-	dbg_log(1, "Load_kernel: relocating kernel image, dest: %x, src: %x, image_size: %d, machid: %d\n\r",  
-			load_addr, (unsigned long)JUMP_ADDR + sizeof (image_header_t), 
-			image_size, MACH_TYPE);
+	dbg_log(1, "Relocating kernel image, dest: %d, src: %d\n\r",
+		load_addr, jump_addr + sizeof(image_header_t));
 
-	memcpy((void *)load_addr, 
-		(void *)((unsigned long)JUMP_ADDR + sizeof (image_header_t)),
-		image_size);
+	memcpy((void *)load_addr, (void *)(jump_addr + sizeof(image_header_t)), image_size);
 
 	dbg_log(1, "... %d bytes data transferred\n\r", image_size);
 
 	setup_boot_tags();
 
-	dbg_log(1, "\n\rStarting linux kernel ..., machid: %d, tags: %x\n\r\n\r", 
-		MACH_TYPE, (OS_MEM_BANK + 0x100));
+	dbg_log(1, "\n\rStarting linux kernel ..., machid: %d, tags: %d\n\r\n\r",
+		mach_type, tags_addr);
 
-	kernel_entry(0, MACH_TYPE, (unsigned int)(OS_MEM_BANK + 0x100));
+	kernel_entry(0, mach_type, tags_addr);
 
 	return 0;
 }
