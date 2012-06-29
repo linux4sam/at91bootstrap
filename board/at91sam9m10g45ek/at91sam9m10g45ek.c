@@ -137,6 +137,34 @@ static void recovery_buttons_hw_init(void)
 }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
 
+static int ek_special_hw_init(void)
+{
+	/*
+	 * For on the sam9m10g45ek board, the chip wm9711 stay in the test mode,
+	 * so it need do some action to exit mode.
+	 */
+	const struct pio_desc wm9711_pins[] = {
+		{"AC97TX", AT91C_PIN_PD(7), 0, PIO_PULLUP, PIO_OUTPUT},
+		{"AC97FS", AT91C_PIN_PD(8), 0, PIO_PULLUP, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(wm9711_pins);
+	writel((1 << AT91C_ID_PIOD_E), PMC_PCER + AT91C_BASE_PMC);
+
+	/*
+	 * Disable pull-up on:
+	 * RXDV(PA15) => PHY normal mode (not Test mode)
+	 * ERX0(PA12) => PHY ADDR0
+	 * ERX1(PA13) => PHY ADDR1 => PHYADDR = 0x0
+	 *
+	 * PHY has internal pull-down
+	 */
+	 writel((0x01 << 12) | (0x01 << 13) | (0x01 << 15),  AT91C_BASE_PIOA + PIO_PPUDR(0));
+
+	 return 0;
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -181,6 +209,8 @@ void hw_init(void)
 	/* Init the recovery buttons pins */
 	recovery_buttons_hw_init();
 #endif
+	/* do some special init */
+	ek_special_hw_init();
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
