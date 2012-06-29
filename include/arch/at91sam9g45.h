@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __AT91SAM9M10_H__
-#define __AT91SAM9M10_H__
+#ifndef __AT91SAM9G45_H__
+#define __AT91SAM9G45_H__
 
 /*
  * Peripheral identifiers/interrupts.
@@ -153,6 +153,6 @@
 /*
  * SoC specific defines
  */
-#define AT91C_CPU_NAME		"AT91SAM9M10"
+#define AT91C_CPU_NAME		"AT91SAM9G45"
 
-#endif	/* #ifndef __AT91SAM9M10_H__ */
+#endif	/* #ifndef __AT91SAM9G45_H__ */

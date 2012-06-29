@@ -44,8 +44,8 @@
 #include "arch/at91sam9g20.h"
 #endif
 
-#ifdef AT91SAM9M10
-#include "arch/at91sam9m10.h"
+#ifdef AT91SAM9G45
+#include "arch/at91sam9g45.h"
 #endif
 
 #ifdef AT91SAM9261
