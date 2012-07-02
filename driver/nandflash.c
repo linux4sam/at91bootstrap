@@ -239,7 +239,7 @@ static unsigned short onfi_crc16(unsigned short crc, unsigned char const *p, uns
 	return crc;
 }
 
-/* Check if the NAND chip is ONFI compliant, returns 0 if it is, 1 otherwise */
+/* Check if the NAND chip is ONFI compliant, returns 0 if it is, -1 otherwise */
 static int nandflash_detect_onfi(struct nand_chip *chip)
 {
 	struct nand_onfi_params *p = &onfi_params;
@@ -293,7 +293,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 
 	if (i == 3) {
 		dbg_log(1, "ONFI para CRC error!\n\r");
-		return -2;
+		return -1;
 	}
 
 	/* check version */
@@ -479,8 +479,6 @@ static int nandflash_get_type(struct nand_info *nand)
 
 	/* Check if the Nandflash is ONFI compliant */
 	ret = nandflash_detect_onfi(chip);
-	if (ret == -2)
-		return -1;
 	if (ret == -1) {
 		if (nandflash_detect_non_onfi(chip)) {
 			dbg_log(1, "Not Find Support NAND Device!\n\r");
