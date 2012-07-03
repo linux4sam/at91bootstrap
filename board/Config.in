@@ -243,8 +243,6 @@ config CONFIG_MACH_TYPE
 
 config CONFIG_LINK_ADDR
 	string
-	default "0x300000" if CONFIG_AT91SAM9N12EK
-	default "0x300000" if CONFIG_AT91SAMA5D3XEK
 	default "0x000000"
 	help
 

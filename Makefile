@@ -140,10 +140,6 @@ obj=build/$(BOARDNAME)/
 BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(IMAGE_NAME)-$(VERSION)$(REV)
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
-ifeq ($(DESTDIR),)
-DESTDIR=install
-endif
-
 ifeq ($(IMAGE),)
 IMAGE=$(BOOT_NAME).bin
 endif
@@ -234,22 +230,8 @@ $(AT91BOOTSTRAP): $(OBJS)
 	@echo "  AS        "$<
 	@$(AS) $(ASFLAGS)  -c -o $@  $<
 
-$(AT91BOOTSTRAP).fixboot:	$(AT91BOOTSTRAP)
-	./scripts/fixboot.py $(AT91BOOTSTRAP)
 
-boot:	$(AT91BOOTSTRAP).fixboot
-
-install:	bootstrap
-
-bootstrap:	$(AT91BOOTSTRAP).fixboot
-	-install -d $(DESTDIR)
-	install $(AT91BOOTSTRAP).fixboot $(DESTDIR)/$(IMAGE)
-	-rm -f $(DESTDIR)/$(SYMLINK)
-	(cd ${DESTDIR} ; \
-	 ln -sf ${IMAGE} ${SYMLINK} \
-	)
-
-PHONY+= boot install bootstrap
+PHONY+= boot bootstrap
 
 rebuild: clean all
 
@@ -264,7 +246,7 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	  fi )
 endif  # HAVE_DOT_CONFIG
 
-PHONY+= rebuild chkFilesize
+PHONY+= rebuild
 
 %_defconfig:
 	echo $(shell find ./board/ -name $@)
@@ -350,7 +332,7 @@ tarball: distrib
 	bzip2  ../source/at91bootstrap-$(VERSION).tar
 	cp ../source/at91bootstrap-$(VERSION).tar.bz2 /usr/local/install/downloads
 
-tarballx:	clean
+tarballx: clean
 	F=`basename $(CURDIR)` ; cd .. ; \
 	T=`basename $(CURDIR)`-$(VERSION).tar ;  \
 	tar --force-local -cvf $$T $$F; \

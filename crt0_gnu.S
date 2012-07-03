@@ -49,7 +49,7 @@ _exception_vectors:
 	b 	swi_vector   	/* Software Interrupt */
 	b 	pabt_vector  	/* Prefetch Abort */
 	b 	dabt_vector  	/* Data Abort */
-.word		_edata		/* Size of the image for SAM-BA */
+.word		_edata		/* Size of the binary for ROMCode loading */
 	b 	irq_vector	/* IRQ : read the AIC */
 	b 	fiq_vector      /* FIQ */
 
