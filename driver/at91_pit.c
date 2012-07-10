@@ -40,7 +40,7 @@ static inline void pit_writel(unsigned int value, unsigned reg)
 }
 
 /* time unit: ms */
-int start_intervl_timer(unsigned int time)
+int start_interval_timer(unsigned int time)
 {
 	unsigned int interval_val;
 	unsigned int reg;

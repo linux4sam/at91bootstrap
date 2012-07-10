@@ -41,7 +41,7 @@ int slowclk_enable_osc32(void)
 	writel(reg, AT91C_BASE_SCKCR);
 
 	/* start a 100ms internal timer */
-	if (start_intervl_timer(100) != 0)
+	if (start_interval_timer(100) != 0)
 		return -1;
 
 	return 0;

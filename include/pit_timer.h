@@ -28,7 +28,7 @@
 #ifndef __PIT_TIMER_H__
 #define __PIT_TIMER_H__
 
-extern int start_intervl_timer(unsigned int time);
+extern int start_interval_timer(unsigned int time);
 
 extern unsigned int wait_interval_timer(unsigned int time, unsigned int timer);
 
