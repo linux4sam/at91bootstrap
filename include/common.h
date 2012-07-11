@@ -81,8 +81,4 @@ struct image_info
 	unsigned char *dest;
 };
 
-/* common function */
-extern void delay(unsigned int count);
-extern void udelay(unsigned long usec);
-
 #endif /* #ifdef __COMMON_H__ */

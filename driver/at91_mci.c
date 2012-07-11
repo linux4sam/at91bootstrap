@@ -31,6 +31,7 @@
 #include "board.h"
 #include "arch/at91_mci.h"
 #include "mmc.h"
+#include "pit_timer.h"
 
 #include "debug.h"
 

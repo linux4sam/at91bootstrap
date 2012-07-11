@@ -26,8 +26,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
-#include "arch/at91_pit.h"
 #include "board.h"
+
+#include "arch/at91_pit.h"
+#include "arch/at91_pmc.h"
+
+#define TIMER_LOAD_VAL  0xfffff
 
 static inline int pit_readl(unsigned int reg)
 {
@@ -39,61 +43,72 @@ static inline void pit_writel(unsigned int value, unsigned reg)
 	writel(value, (AT91C_BASE_PITC + reg));
 }
 
-/* time unit: ms */
-int start_interval_timer(unsigned int time)
+/*
+ * Use the PITC in full 32 bit incrementing mode
+ * If MASTER_CLOCK = 132M, the maximum delay is about 520.6 second(8.6767 min).
+ * it is long enough for our use.
+ */
+int timer_init(void)
 {
-	unsigned int interval_val;
-	unsigned int reg;
+	pit_writel((TIMER_LOAD_VAL | AT91C_PIT_PITEN), PIT_MR);
 
-	interval_val = (MASTER_CLOCK / 16 / 1000) * time;
-	if (interval_val > 0xFFFFF)
-		return -1;
+	/* Enable PITC Clock */
+#ifdef AT91C_ID_PIT
+	writel((1 << AT91C_ID_PIT), (PMC_PCER + AT91C_BASE_PMC));
+#else
+	writel((1 << AT91C_ID_SYS), (PMC_PCER + AT91C_BASE_PMC));
+#endif
+	return 0;
+}
 
-	reg = interval_val | AT91C_PIT_PITEN;
-	pit_writel(reg, PIT_MR);
+/* If MASTER_CLOCK = 132M, usec <= 21537 us (0xffffffff / 132000) */
+static unsigned int usec_to_tick(unsigned int usec)
+{
+	unsigned int tick;
+
+	tick = ((MASTER_CLOCK / 1000) * usec) / (16 * 1000);
+
+	return tick;
+}
+
+static unsigned int msec_to_tick(unsigned int msec)
+{
+	unsigned int tick;
+
+	tick = ((MASTER_CLOCK / 1000) * msec) / 16;
+
+	return tick;
+}
+
+static unsigned int get_ticks(void)
+{
+	return(pit_readl(PIT_PIIR));
+}
+
+
+void udelay(unsigned int usec)
+{
+	unsigned int start = get_ticks();
+	unsigned int tmo = usec_to_tick(usec);
+
+	while ((get_ticks() - start) < tmo);
+}
+
+/* Init a special timer for slow clock switch function */
+static int timer1_base;
+
+int start_interval_timer(void)
+{
+	timer1_base = get_ticks();
 
 	return 0;
 }
 
-/* wait_timer unit: ms */
-/* timer unit: ms */
-unsigned int wait_interval_timer(unsigned int wait_time, unsigned int timer)
+int wait_interval_timer(unsigned int msec)
 {
-	unsigned int check_counter = wait_time / timer;
-	unsigned int counter;
+	unsigned int tmo = msec_to_tick(msec);
 
-	if (check_counter > 0xFFF)
-		return -1;
-
-	do {
-		counter = pit_readl(PIT_PIIR) >> 20;
-	} while (counter < check_counter);
-
-	pit_writel(0x00, PIT_MR);
-
-	return 0;
-}
-
-/* time unit: us */
-int wait_timer(unsigned int time)
-{
-	unsigned int reg;
-	unsigned int interval_val;
-
-	interval_val = ((MASTER_CLOCK / 1000) * time) / 16 / 1000;
-	if (interval_val > 0xFFFFF)
-		return -1;
-
-	/* enable PIT */
-	reg = interval_val | AT91C_PIT_PITEN;
-	pit_writel(reg, PIT_MR);
-
-	/* clear bit PITS in PIT_SR */
-	pit_readl(PIT_PIVR);
-
-	while((pit_readl(PIT_SR) & AT91C_PIT_PITS) == 0);
-
-	pit_writel(0x00, PIT_MR);
+	while ((get_ticks() - timer1_base) < tmo);
 
 	return 0;
 }

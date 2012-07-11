@@ -33,6 +33,7 @@
 #include "arch/at91_ccfg.h"
 #include "debug.h"
 #include "ddramc.h"
+#include "pit_timer.h"
 
 /* write DDRC register */
 static void write_ddramc(unsigned int address,
@@ -97,7 +98,7 @@ int ddram_initialize(unsigned int base_address,
 
 	/* A minimum pause wait 200 us is provided to precede any signal toggle.
 	(6 core cycles per iteration, core is at 396MHz: min 13340 loops) */
-	delay(13340);
+	udelay(200);
 
 	/*
 	 * Step 4:  An NOP command is issued to the DDR2-SDRAM
@@ -106,7 +107,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned volatile int *)ram_address) = 0;
 	/* Now, CKE is driven high */
 	/* wait 400 ns min */
-	delay(27);
+	udelay(1);
 
 	/*
 	 * Step 5: An all banks precharge command is issued to the DDR2-SDRAM.
@@ -115,7 +116,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 6: An Extended Mode Register set(EMRS2) cycle is issued to chose between commercial or high
@@ -127,7 +128,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned int *)(ram_address + (0x2 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 7: An Extended Mode Register set(EMRS3) cycle is issued
@@ -139,7 +140,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned int *)(ram_address + (0x3 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 8: An Extened Mode Register set(EMRS1) cycle is issued to enable DLL,
@@ -151,7 +152,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
 
 	/* An additional 200 cycles of clock are required for locking DLL */
-	delay(100);
+	udelay(1);
 
 	/*
 	 * Step 9: Program DLL field into the Configuration Register to high(Enable DLL reset)
@@ -168,7 +169,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned int *)(ram_address + (0x0 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 11: An all banks precharge command is issued to the DDR2-SDRAM.
@@ -177,7 +178,7 @@ int ddram_initialize(unsigned int base_address,
 	*(((unsigned volatile int *)ram_address)) = 0;
 
 	/* wait 400 ns min (not needed on certain DDR2 devices) */
-	delay(27);
+	udelay(1);
 
 	/*
 	 * Step 12: Two auto-refresh (CBR) cycles are provided.
@@ -187,14 +188,14 @@ int ddram_initialize(unsigned int base_address,
 	*(((unsigned volatile int *)ram_address)) = 0;
 
 	/* wait TRFC cycles min (135 ns min) extended to 400 ns */
-	delay(27);
+	udelay(1);
 
 	/* Set 2nd CBR */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_RFSH_CMD);
 	*(((unsigned volatile int *)ram_address)) = 0;
 
 	/* wait TRFC cycles min (135 ns min) extended to 400 ns */
-	delay(27);
+	udelay(1);
 
 	/*
 	 * Step 13: Program DLL field into the Configuration Register to low(Disable DLL reset).
@@ -213,7 +214,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned int *)(ram_address + (0x0 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 15: Program OCD field into the Configuration Register
@@ -223,7 +224,7 @@ int ddram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_OCD_DEFAULT);
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 16: An Extended Mode Register set (EMRS1) cycle is issued to OCD default value.
@@ -234,7 +235,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 17: Program OCD field into the Configuration Register
@@ -244,7 +245,7 @@ int ddram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_CR, cr & (~AT91C_DDRC2_OCD_DEFAULT));
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 18: An Extended Mode Register set (EMRS1) cycle is issued to enable OCD exit.
@@ -255,7 +256,7 @@ int ddram_initialize(unsigned int base_address,
 	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
-	delay(2);
+	udelay(1);
 
 	/*
 	 * Step 19: A Nornal mode command is provided.
@@ -277,7 +278,7 @@ int ddram_initialize(unsigned int base_address,
 	 * Now we are ready to work on the DDRSDR
 	 *  wait for end of calibration
 	 */
-	delay(500);
+	udelay(10);
 
 	return 0;
 }

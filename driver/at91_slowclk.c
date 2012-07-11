@@ -40,9 +40,8 @@ int slowclk_enable_osc32(void)
 	reg |= AT91C_SLCKSEL_OSC32EN;
 	writel(reg, AT91C_BASE_SCKCR);
 
-	/* start a 100ms internal timer */
-	if (start_interval_timer(100) != 0)
-		return -1;
+	/* start a internal timer */
+	start_interval_timer();
 
 	return 0;
 }
@@ -55,7 +54,7 @@ int slowclk_switch_osc32(void)
 	 * Wait 32768 Hz Startup Time for clock stabilization (software loop)
 	 * wait about 1s (1000ms)
 	 */
-	wait_interval_timer(1000, 100);
+	wait_interval_timer(1000);
 
 	/*
 	 * Switching from internal 32kHz RC oscillator to 32768 Hz oscillator
@@ -69,7 +68,8 @@ int slowclk_switch_osc32(void)
 	 * Waiting 5 slow clock cycles for internal resynchronization
 	 * 5 slow clock cycles = ~153 us (5 / 32768)
 	 */
-	wait_timer(153);
+	udelay(153);
+
 	/*
 	 * Disable the 32kHz RC oscillator by setting the bit RCEN to 0
 	 */

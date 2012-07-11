@@ -8,10 +8,10 @@ COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/dbgu.o
 COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/debug.o
 
 COBJS-$(CONFIG_SCLK)		+= $(DRIVERS_SRC)/at91_slowclk.o
-COBJS-$(CONFIG_SCLK)		+= $(DRIVERS_SRC)/at91_pit.o
 
 COBJS-y				+= $(DRIVERS_SRC)/at91_pio.o
 COBJS-y				+= $(DRIVERS_SRC)/pmc.o
+COBJS-y				+= $(DRIVERS_SRC)/at91_pit.o
 
 COBJS-$(CONFIG_USER_HW_INIT)	+= $(DRIVERS_SRC)/hw_init_hook.o
 

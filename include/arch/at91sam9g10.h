@@ -32,7 +32,7 @@
  * Peripheral identifiers/interrupts.
  */
 #define AT91C_ID_AIC		0	/* Advanced Interrupt Controller (FIQ) */
-#define AT91C_ID_SYSC		1	/* System Controller Interrupt */
+#define AT91C_ID_SYS		1	/* System Controller Interrupt */
 #define AT91C_ID_PIOA		2	/* Parallel I/O Controller A */
 #define AT91C_ID_PIOB		3	/* Parallel I/O Controller B */
 #define AT91C_ID_PIOC		4	/* Parallel I/O Controller C */
@@ -91,7 +91,7 @@
 #define AT91C_BASE_RSTC		0xfffffd00
 #define AT91C_BASE_SHDW		0xfffffd10
 #define AT91C_BASE_RTT		0xfffffd20
-#define AT91C_BASE_PIT		0xfffffd30
+#define AT91C_BASE_PITC		0xfffffd30
 #define AT91C_BASE_WDT		0xfffffd40
 #define AT91C_BASE_GPBR		0xfffffd50
 

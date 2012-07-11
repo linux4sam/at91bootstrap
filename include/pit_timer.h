@@ -28,10 +28,11 @@
 #ifndef __PIT_TIMER_H__
 #define __PIT_TIMER_H__
 
-extern int start_interval_timer(unsigned int time);
+extern int timer_init(void);
 
-extern unsigned int wait_interval_timer(unsigned int time, unsigned int timer);
+extern void udelay(unsigned int usec);
 
-extern int wait_timer(unsigned int time);
+extern int start_interval_timer(void);
+extern int wait_interval_timer(unsigned int usec);
 
 #endif /* #ifndef __PIT_TIMER_H__ */

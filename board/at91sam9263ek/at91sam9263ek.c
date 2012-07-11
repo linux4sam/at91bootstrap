@@ -41,6 +41,7 @@
 #include "debug.h"
 #include "sdramc.h"
 #include "psram.h"
+#include "pit_timer.h"
 #include "at91sam9263ek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -409,6 +410,9 @@ void hw_init(void)
 	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
 
 	at91_matrix_hw_init();
+
+	/* Init timer */
+	timer_init();
 
 #ifdef CONFIG_DEBUG
 	/* Initialize dbgu */

@@ -41,6 +41,7 @@
 #include "ddramc.h"
 #include "spi.h"
 #include "slowclk.h"
+#include "pit_timer.h"
 #include "at91sam9n12ek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -171,6 +172,9 @@ void hw_init(void)
 
 	/* Enable External Reset */
 	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
+
+	/* Init timer */
+	timer_init();
 
 #ifdef CONFIG_SCLK
 	slowclk_enable_osc32();

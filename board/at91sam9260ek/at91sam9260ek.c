@@ -42,6 +42,7 @@
 #include "dbgu.h"
 #include "debug.h"
 #include "sdramc.h"
+#include "pit_timer.h"
 #include "at91sam9260ek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -135,6 +136,9 @@ void hw_init(void)
 	writel((readl(AT91C_BASE_MATRIX + MATRIX_SCFG3) & (~AT91C_MATRIX_SLOT_CYCLE))
 			| AT91C_MATRIX_SLOT_CYCLE_(0x40),
 			AT91C_BASE_MATRIX + MATRIX_SCFG3);
+
+	/* Init timer */
+	timer_init();
 
 #ifdef CONFIG_DEBUG
 	/* Initialize dbgu */

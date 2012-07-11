@@ -41,6 +41,7 @@
 #include "dbgu.h"
 #include "debug.h"
 #include "sdramc.h"
+#include "pit_timer.h"
 #include "at91sam9g10ek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -181,6 +182,9 @@ void hw_init(void)
 
 	/* Initialize matrix */
 	at91_matrix_hw_init();
+
+	/* Init timer */
+	timer_init();
 
 #ifdef CONFIG_DEBUG
 	/* Initialize dbgu */

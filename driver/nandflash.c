@@ -31,6 +31,7 @@
 #include "arch/at91_pio.h"
 #include "arch/at91_nand_ecc.h"
 #include "gpio.h"
+#include "pit_timer.h"
 
 #include "debug.h"
 
