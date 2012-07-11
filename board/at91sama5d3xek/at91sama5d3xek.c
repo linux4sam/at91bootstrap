@@ -79,31 +79,44 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_MD_DDR2_SDRAM);
 
 	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
-				| AT91C_DDRC2_NR_13
+				| AT91C_DDRC2_NR_14
 				| AT91C_DDRC2_CAS_3
+				| AT91C_DDRC2_DLL_RESET_DISABLED /* DLL not reset */
+				| AT91C_DDRC2_DIS_DLL_DISABLED   /* DLL not disabled */
+				| AT91C_DDRC2_ENRDM_ENABLE       /* Phase error correction is enabled */
 				| AT91C_DDRC2_NB_BANKS_8
-				| AT91C_DDRC2_NDQS_DISABLED
-				| AT91C_DDRC2_SUPPORTED);
+				| AT91C_DDRC2_NDQS_DISABLED      /* NDQS disabled (check on schematics) */
+				| AT91C_DDRC2_DECOD_INTERLEAVED  /* Interleaved decoding */
+				| AT91C_DDRC2_UNAL_SUPPORTED);   /* Unaligned access is supported */
 
-	ddramc_config->rtr = 0x00300208;	/* Refresh Timer register : 520 for 133 MHz */
+	/*
+	 * The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
+	 * With a 133 MHz frequency, the refresh timer count register must to be
+	 * set with (15.625 x 133 MHz) ~ 2084 i.e. 0x824
+	 * or (7.81 x 133 MHz) ~ 1040 i.e. 0x410.
+	 */
+	ddramc_config->rtr = 0x411;     /* Refresh timer: 7.8125us */
 
 	/* One clock cycle @ 133 MHz = 7.5 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6
-				| AT91C_DDRC2_TRCD_2
-				| AT91C_DDRC2_TWR_2
-				| AT91C_DDRC2_TRC_8
-				| AT91C_DDRC2_TRP_2
-				| AT91C_DDRC2_TRRD_2
-				| AT91C_DDRC2_TWTR_2
-				| AT91C_DDRC2_TMRD_2);
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6       /* 6 * 7.5 = 45 ns */
+			| AT91C_DDRC2_TRCD_2            /* 2 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TWR_2             /* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRC_8             /* 8 * 7.5 = 75   ns */
+			| AT91C_DDRC2_TRP_2             /* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRRD_2            /* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TWTR_2            /* 2 clock cycles min */
+			| AT91C_DDRC2_TMRD_2);          /* 2 clock cycles */
 
-	ddramc_config->t1pr = 0x02C81311;
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2        /*  2 clock cycles */
+			| AT91C_DDRC2_TXSRD_200         /* 200 clock cycles */
+			| AT91C_DDRC2_TXSNR_28          /* 195 + 10 = 205ns ==> 28 * 7.5 = 210 ns*/
+			| AT91C_DDRC2_TRFC_26);         /* 26 * 7.5 = 195 ns */
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_2
-				| AT91C_DDRC2_TXARDS_7
-				| AT91C_DDRC2_TRPA_3
-				| AT91C_DDRC2_TRTP_2
-				| AT91C_DDRC2_TFAW_7);
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_7       /* 7 * 7.5 = 52.5 ns */
+			| AT91C_DDRC2_TRTP_2            /* 2 clock cycles min */
+			| AT91C_DDRC2_TRPA_2            /* 2 * 7.5 = 15 ns */
+			| AT91C_DDRC2_TXARDS_7          /* 7 clock cycles */
+			| AT91C_DDRC2_TXARD_8);         /* MR12 = 1 : slow exit power down */
 }
 
 static void ddramc_init(void)
