@@ -122,6 +122,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 static void ddramc_init(void)
 {
 	struct ddramc_register ddramc_reg;
+	unsigned int reg;
 
 	ddramc_reg_config(&ddramc_reg);
 
@@ -130,12 +131,25 @@ static void ddramc_init(void)
 	writel(AT91C_PMC_DDR, (PMC_SCER + AT91C_BASE_PMC));
 
 	/* Init the special register for sama5d3x */
-	/* MPDDRC DLL Slave Offset Register */
-	writel((0x01 | (0x01 << 16) | (0x01 << 24)), (AT91C_BASE_MPDDRC + MPDDRC_DLL_SOR));
+	/* MPDDRC DLL Slave Offset Register: DDR2 configuration */
+	reg = AT91C_MPDDRC_S0OFF_1
+		| AT91C_MPDDRC_S2OFF_1
+		| AT91C_MPDDRC_S3OFF_1;
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_SOR));
+
 	/* MPDDRC DLL Master Offset Register */
-	writel(0xC5011f07, (AT91C_BASE_MPDDRC + MPDDRC_DLL_MOR));
+	/* write master + clk90 offset */
+	reg = AT91C_MPDDRC_MOFF_7
+		| AT91C_MPDDRC_CLK90OFF_31
+		| AT91C_MPDDRC_SELOFF_ENABLED | AT91C_MPDDRC_KEY;
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_MOR));
+
 	/* MPDDRC I/O Calibration Register */
-	writel(0x00850404, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
+	/* DDR2 RZQ = 50 Ohm */
+	/* TZQIO = 4 */
+	reg = AT91C_MPDDRC_RDIV_DDR2_RZQ_50
+		| AT91C_MPDDRC_TZQIO_4;
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
 
 	/* DDRAM2 Controller initialize */
 	ddram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
