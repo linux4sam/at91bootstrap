@@ -49,18 +49,17 @@ struct nand_chip {
 };
 
 struct nand_info {
+	unsigned int	blocksize;	/* size of a block */
 	unsigned int	pagesize;	/* size of a page */
 	unsigned int	oobsize;	/* size of a oob */
 	unsigned int	sectorsize;	/* size of a sector */
 
 	unsigned int	numblocks;	/* number of blocks in device */
-	unsigned int	blocksize;	/* size of a block */
-
-	unsigned int	page_shift;
+	unsigned int	pages_device;	/* number of pages in device */
+	unsigned int	pages_block;	/* number of pages in block */
 
 	unsigned int	buswidth;	/* data bus width (8/16 bits) */
 
-	unsigned int	badblockpos;	/* bad block markber offset in oob (in bytes) */
 	struct nand_ooblayout	*ecclayout;
 };
 

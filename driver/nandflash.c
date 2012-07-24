@@ -143,7 +143,6 @@ static unsigned char read_byte(void)
 	return(readb((unsigned long)IO_ADDR_R));
 }
 
-#if 0
 /* 16 bits devices */
 static void nand_command16(unsigned short cmd)
 {
@@ -154,7 +153,6 @@ static void nand_address16(unsigned short addr)
 {
 	writew(addr, (unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE);
 }
-#endif
 
 static unsigned short read_word(void)
 {
@@ -412,6 +410,8 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 						== NAND_BUSWIDTH_16) ? 1: 0); 
 	}
 
+	chip->numblocks = type->chipsize * 1024 * 1024 / chip->blocksize;
+
 	config_nand_ooblayout(&nand_oob_layout, chip);
 	chip->ecclayout = &nand_oob_layout;
 
@@ -420,32 +420,26 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 
 static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 {
-	unsigned int pagesize, i = 0;
-
 	/* number of blocks in device */
 	nand->numblocks = chip->numblocks;
 	/* number of data bytes in a block */
 	nand->blocksize = chip->blocksize;
 	/* number of bytes in page area */
 	nand->pagesize = chip->pagesize;
+	/* number of pages in block */
+	nand->pages_block = nand->blocksize / nand->pagesize;
+	/* number of pages in device */
+	nand->pages_device = nand->numblocks * nand->pages_block;
 	/* number of bytes in oob area */
 	nand->oobsize = chip->oobsize;
 	/* Total number of bytes in a sector */
 	nand->sectorsize = nand->pagesize + nand->oobsize;
+	/* the layout of the spare area */
 	nand->ecclayout = chip->ecclayout;
-	nand->buswidth = chip->buswidth;	/* Data Bus Width (8/16 bits) */
-
-	pagesize = nand->pagesize - 1;
-	nand->page_shift = 0;
-	while (pagesize >> i) {
-		nand->page_shift++;
-		i++;
-	}
-  
+	/* data bus width (8/16 bits) */
+	nand->buswidth = chip->buswidth;
 	if (nand->buswidth)
-		nand->badblockpos = 2 * nand->ecclayout->badblockpos;
-	else
-		nand->badblockpos = nand->ecclayout->badblockpos;
+		nand->ecclayout->badblockpos *= 2;
 }
 
 static void nandflash_reset(void)
@@ -483,18 +477,6 @@ static int nandflash_get_type(struct nand_info *nand)
 		nandflash_config_buswidth(1);
 
 	return 0;
-}
-
-static void send_large_block_address(unsigned int addr)
-{
-	nand_address((addr >> 0) & 0xFF);
-	nand_address((addr >> 8) & 0xFF);
-}
-
-static void send_sector_address(unsigned int addr)
-{
-	send_large_block_address(addr);
-	nand_address((addr >> 16) & 0xFF);
 }
 
 #ifdef CONFIG_USE_PMECC
@@ -570,9 +552,42 @@ static int init_pmecc(unsigned int pagesize)
 }
 #endif /* #ifdef CONFIG_USE_PMECC */
 
+static void write_column_address(struct nand_info *nand, unsigned int column_address)
+{
+	unsigned int page_size = nand->pagesize;
+
+	if (nand->buswidth)
+		column_address >>= 1;
+
+	while (page_size > 2) {
+		if (nand->buswidth)
+			nand_address16(column_address & 0xff);
+		else
+			nand_address(column_address & 0xff);
+
+		page_size >>= 8;
+		column_address >>= 8;
+	}
+}
+
+static void write_row_address(struct nand_info *nand, unsigned int row_address)
+{
+	unsigned int num_pages = nand->pages_device;
+
+	while(num_pages) {
+		if (nand->buswidth)
+			nand_address16(row_address & 0xff);
+		else
+			nand_address(row_address & 0xff);
+
+		num_pages >>= 8;
+		row_address >>= 8;
+	}
+}
+
 #ifdef NANDFLASH_SMALL_BLOCKS
 static int nand_read_sector(struct nand_info *nand, 
-			unsigned int sectoraddr,
+			unsigned int row_address,
 			unsigned char *buffer,
 			unsigned int zone_flag)
 {
@@ -603,27 +618,30 @@ static int nand_read_sector(struct nand_info *nand,
 	nand_cs_enable();
 
 	/* Write specific command, Read from start */
-	if (nand->buswidth) /* 16 bits */
+	if (nand->buswidth)
 		nand_command16(command);
 	else
 		nand_command(command);
 
-	sectoraddr >>= nand->page_shift;
+	row_address >>= nand->page_shift;
 
 	if (nand->buswidth) {
 		nand_address16(0x00);
-		nand_address16((sectoraddr >> 0) & 0xFF);
-		nand_address16((sectoraddr >> 8) & 0xFF);
-		nand_address16((sectoraddr >> 16) & 0xFF);
+		nand_address16((row_address >> 0) & 0xff);
+		nand_address16((row_address >> 8) & 0xff);
+		nand_address16((row_address >> 16) & 0xff);
 	} else {
 		nand_address(0x00);
-		nand_address((sectoraddr >> 0) & 0xFF);
-		nand_address((sectoraddr >> 8) & 0xFF);
-		nand_address((sectoraddr >> 16) & 0xFF);
+		nand_address((row_address >> 0) & 0xff);
+		nand_address((row_address >> 8) & 0xff);
+		nand_address((row_address >> 16) & 0xff);
 	}
 
 	nand_wait_ready();
-	nand_command(CMD_READ_C);
+	if (nand->buswidth)
+		nand_command16(CMD_READ_A0);
+	else
+		nand_command(CMD_READ_A0);
 
 	/* Read loop */
 	if (nand->buswidth) {
@@ -643,15 +661,14 @@ static int nand_read_sector(struct nand_info *nand,
 				buffer++;
 			}
 
-			command = CMD_READ_A1;
-			nand_command(command);
+			nand_command(CMD_READ_A1);
 			nand_address(0x00);
-			nand_address((sectoraddr >> 0) & 0xFF);
-			nand_address((sectoraddr >> 8) & 0xFF);
-			nand_address((sectoraddr >> 16) & 0xFF);
+			nand_address((row_address >> 0) & 0xff);
+			nand_address((row_address >> 8) & 0xff);
+			nand_address((row_address >> 16) & 0xff);
 
 			nand_wait_ready();
-			nand_command(CMD_READ_C);
+			nand_command(CMD_READ_A0);
 
 			for (i = 0; i < (readbytes / 2); i++) {
 				*buffer = read_byte();
@@ -667,12 +684,12 @@ static int nand_read_sector(struct nand_info *nand,
 
 #else /* large blocks */
 static int nand_read_sector(struct nand_info *nand,
-				unsigned int sectoraddr,
+				unsigned int row_address,
 				unsigned char *buffer, 
 				unsigned int zone_flag)
 {
 	unsigned int readbytes, i;
-	unsigned int address;
+	unsigned int column_address;
 	int ret = 0;
 
 #ifdef CONFIG_USE_PMECC
@@ -693,22 +710,21 @@ static int nand_read_sector(struct nand_info *nand,
 	}
 #endif	/* #ifdef CONFIG_USE_PMECC */
 
-	address = 0x00;
 	switch (zone_flag) {
 	case ZONE_DATA:
 		readbytes = nand->pagesize;
+		column_address = 0x00;
 		break;
 
 	case ZONE_INFO:
 		readbytes = nand->oobsize;
 		buffer += nand->pagesize;
-		address = nand->pagesize;
-		if (nand->buswidth)
-			address = address / 2;	/* Div 2 is because we address in word and not in byte */
+		column_address = nand->pagesize;
 		break;
 
 	case ZONE_DATA | ZONE_INFO:
 		readbytes = nand->sectorsize;
+		column_address = 0x00;
 		break;
 
 	default:
@@ -717,16 +733,24 @@ static int nand_read_sector(struct nand_info *nand,
 
 	nand_cs_enable();
 
-	nand_command(CMD_READ_1);
+	if (nand->buswidth)
+		nand_command16(CMD_READ_1);
+	else
+		nand_command(CMD_READ_1);
 
-	send_large_block_address(address);
-	sectoraddr >>= nand->page_shift;
-	send_sector_address(sectoraddr);
+	write_column_address(nand, column_address);
+	write_row_address(nand, row_address);
 
-	nand_command(CMD_READ_2);
+	if (nand->buswidth)
+		nand_command16(CMD_READ_2);
+	else
+		nand_command(CMD_READ_2);
 
 	nand_wait_ready();
-	nand_command(CMD_READ_1);
+	if (nand->buswidth)
+		nand_command16(CMD_READ_1);
+	else
+		nand_command(CMD_READ_1);
 
 	/* Read loop */
 	if (nand->buswidth) {
@@ -771,13 +795,13 @@ static int nand_check_badblock(struct nand_info *nand,
 				unsigned int block,
 				unsigned char *buffer)
 {
-	unsigned int i = 0;
-	unsigned int sectoraddr = block * nand->blocksize;
+	unsigned int page;
+	unsigned int row_address = block * nand->pages_block;
 
 	/* Read the first page and second page oob zone to detect if block is bad */
-	for (i = 0; i < 2; i++) {
-		nand_read_sector(nand, sectoraddr + i * nand->pagesize, buffer, ZONE_INFO);
-		if (*(buffer + nand->pagesize + nand->badblockpos) != 0xFF)
+	for (page = 0; page < 2; page++) {
+		nand_read_sector(nand, row_address + page, buffer, ZONE_INFO);
+		if (*(buffer + nand->pagesize + nand->ecclayout->badblockpos) != 0xff)
 			return -1;
 	}
 
@@ -802,7 +826,7 @@ static int nand_read_page(struct nand_info *nand,
 				unsigned int zone_flag,
 				unsigned char *buffer)
 {
-	unsigned int sectoraddr = block * nand->blocksize + page * nand->pagesize;
+	unsigned int row_address = block * nand->pages_block + page;
 
 	if (nand_check_badblock(nand, block, buffer)) {
 		dbg_log(1, "Bad block: #%d\n\r", block);
@@ -810,13 +834,13 @@ static int nand_read_page(struct nand_info *nand,
 	}
 
 #ifndef CONFIG_ENABLE_SW_ECC
-	return nand_read_sector(nand, sectoraddr, buffer, ZONE_DATA);
+	return nand_read_sector(nand, row_address, buffer, ZONE_DATA);
 #else
 
 	int retval;
 	unsigned char hamming[48], error;
 
-	retval = nand_read_sector(nand, sectoraddr, buffer,ZONE_DATA | ZONE_INFO);
+	retval = nand_read_sector(nand, row_address, buffer,ZONE_DATA | ZONE_INFO);
 
 	if (retval)
 		return -1;
@@ -834,9 +858,9 @@ static int nand_read_page(struct nand_info *nand,
 }
 
 #ifdef CONFIG_NANDFLASH_RECOVERY
-static int nand_erase_block0(void)
+static int nand_erase_block0(struct nand_info *nand)
 {
-	unsigned int block = 0;
+	unsigned int row_address = 0;
 	unsigned int timeout = 10000;
 	unsigned int status;
 	int ret;
@@ -844,7 +868,7 @@ static int nand_erase_block0(void)
 	nand_cs_enable();
 
 	nand_command(CMD_ERASE_1);
-	send_sector_address(block);
+	write_row_address(nand, row_address);
 	nand_command(CMD_ERASE_2);
 
 	nand_command(CMD_STATUS);
@@ -871,7 +895,7 @@ err:
 	return ret;
 }
 
-static int nandflash_recovery(void)
+static int nandflash_recovery(struct nand_info *nand)
 {
 	/*
 	 * If Recovery Button is pressed during boot sequence,
@@ -881,7 +905,7 @@ static int nandflash_recovery(void)
 		dbg_log(1, "Nand: The recovery button (%s) has been pressed\n\r", RECOVERY_BUTTON_NAME);
 		dbg_log(1, "Nand: The block 0 is erasing ...\n\r");
 
-		nand_erase_block0();
+		nand_erase_block0(nand);
 
 		dbg_log(1, "Nand: The erasing is done\n\r");
 		return 0;
@@ -903,7 +927,7 @@ int load_nandflash(struct image_info *img_info)
 	nandflash_hw_init();
 
 #ifdef CONFIG_NANDFLASH_RECOVERY
-	if (nandflash_recovery() == 0)
+	if (nandflash_recovery(&nand) == 0)
 		return -2;
 #endif
 
