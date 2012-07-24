@@ -31,7 +31,6 @@
 #include "arch/at91_pio.h"
 #include "arch/at91_nand_ecc.h"
 #include "gpio.h"
-#include "pit_timer.h"
 
 #include "debug.h"
 
@@ -623,8 +622,6 @@ static int nand_read_sector(struct nand_info *nand,
 	else
 		nand_command(command);
 
-	row_address >>= nand->page_shift;
-
 	if (nand->buswidth) {
 		nand_address16(0x00);
 		nand_address16((row_address >> 0) & 0xff);
@@ -698,15 +695,13 @@ static int nand_read_sector(struct nand_info *nand,
 	unsigned char *pbuf = buffer;
 	unsigned int usepmecc = 0;
 
-	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
-	pmecc_writel(AT91C_PMECC_DISABLE, PMECC_CTRL);
-
-	if (zone_flag == ZONE_DATA) {
+	if ((zone_flag & ZONE_DATA) == ZONE_DATA) {
 		usepmecc = 1;
 		zone_flag = ZONE_DATA | ZONE_INFO;
 
+		pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
+		pmecc_writel((pmecc_readl(PMECC_CFG) | AT91C_PMECC_AUTO_ENA), PMECC_CFG);
 		pmecc_writel(AT91C_PMECC_ENABLE, PMECC_CTRL);
-		pmecc_writel(AT91C_PMECC_DATA, PMECC_CTRL);
 	}
 #endif	/* #ifdef CONFIG_USE_PMECC */
 
@@ -752,6 +747,12 @@ static int nand_read_sector(struct nand_info *nand,
 	else
 		nand_command(CMD_READ_1);
 
+#ifdef CONFIG_USE_PMECC
+	if (usepmecc == 1) {
+		pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
+		pmecc_writel(AT91C_PMECC_ENABLE | AT91C_PMECC_DATA , PMECC_CTRL);
+	}
+#endif
 	/* Read loop */
 	if (nand->buswidth) {
 		for (i = 0; i < readbytes / 2; i++) {
@@ -764,8 +765,7 @@ static int nand_read_sector(struct nand_info *nand,
 
 #ifdef CONFIG_USE_PMECC
 		if (usepmecc == 1) {
-			while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY)
-				udelay(1);
+			while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY);
 
 			erris = pmecc_readl(PMECC_ISR);
 			if (erris) {
