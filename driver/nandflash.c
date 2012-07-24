@@ -828,11 +828,6 @@ static int nand_read_page(struct nand_info *nand,
 {
 	unsigned int row_address = block * nand->pages_block + page;
 
-	if (nand_check_badblock(nand, block, buffer)) {
-		dbg_log(1, "Bad block: #%d\n\r", block);
-		return -1;
-	}
-
 #ifndef CONFIG_ENABLE_SW_ECC
 	return nand_read_sector(nand, row_address, buffer, ZONE_DATA);
 #else
@@ -921,7 +916,9 @@ int load_nandflash(struct image_info *img_info)
 	unsigned int size = img_info->length;
 	unsigned char *buffer = img_info->dest;
 
-	unsigned int block, length, readsize, numpage, page;
+	unsigned int length, readsize;
+	unsigned int block;
+	unsigned int page, start_page, end_page, numpages;
 	int ret;
 	
 	nandflash_hw_init();
@@ -942,36 +939,44 @@ int load_nandflash(struct image_info *img_info)
 	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, buffer);
 
 	block = offset / nand.blocksize;
+	start_page = (offset % nand.blocksize) / nand.pagesize;
+
 	length = size;
 	while (length > 0) {
-		/* read a buffer corresponding to a block in the origin file */
+		/* read a buffer corresponding to a block */
 		if (length < nand.blocksize) 
 			readsize = length;
 		else
 			readsize = nand.blocksize;
 
-		/* Adjust the number of sectors to read */
-		numpage = readsize / nand.pagesize;
+		/* adjust the number of pages to read */
+		numpages = readsize / nand.pagesize;
 		if (readsize % nand.pagesize)
-			numpage++;
+			numpages++;
 
-		/* Loop until a valid block has been read */
+		end_page = start_page + numpages;
+
+		/* check the bad block */
 		while (1) {
-			for (page = 0; page < numpage; page++) {
-				ret = nand_read_page(&nand, block, page, ZONE_DATA, buffer);
-				if (ret == ECC_CORRECT_ERROR)
-					return -1;
-				else if (ret == -1) /* skip this block */
-					break;
-				else
-					buffer += nand.pagesize;
-			}
-			block++;
-
-			if (page >= numpage)
+			if (nand_check_badblock(&nand, block, buffer) != 0) {
+				block++; /* skip this block */
+				dbg_log(1, "Bad block: #%d\n\r", block);
+			} else
 				break;
 		}
+
+		/* read pages of a block */
+		for (page = start_page; page < end_page; page++) {
+			ret = nand_read_page(&nand, block, page, ZONE_DATA, buffer);
+			if (ret == ECC_CORRECT_ERROR)
+				return -1;
+			else
+				buffer += nand.pagesize;
+		}
 		length -= readsize;
+
+		block++;
+		start_page = 0;
 	}
 
 	return 0;
