@@ -29,14 +29,13 @@
 #define __NAND_H__
 
 #define MAX_ECC_BYTES		48 /* maximum bytes of ecc */
-#define MAX_OOB_AVAIL_BYTES	78 /* maximum bytes of oob available  */
 
 struct nand_ooblayout {
 	unsigned char	badblockpos;
 	unsigned char	eccbytes;
 	unsigned char	eccpos[MAX_ECC_BYTES];
 	unsigned char	oobavailbytes;
-	unsigned char	oobavailpos[MAX_OOB_AVAIL_BYTES];
+	unsigned char	oobavail_offset;
 };
 
 struct nand_chip {

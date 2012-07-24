@@ -112,52 +112,8 @@ static void pmecc_writel(unsigned int value, unsigned reg)
 }
 #endif /* #ifdef CONFIG_USE_PMECC */
 
-/*
-* ooblayout 
-*/
-/* ooblayout for 256 byte pages. */
-struct nand_ooblayout ooblayout_256 = {
-	/* bad block marker is at position */
-	5,
-	/* 3 ecc bytes */
-	3,
-	/* ecc byte positions */
-	{0, 1, 2},
-	/* 4 extra bytes */
-	4,
-	/* extra byte positions */
-	{3, 4, 6, 7}
-};
-
-/* ooblayout for 512 byte pages */
-struct nand_ooblayout ooblayout_512 = {
-	/* bad block marker is at position */
-	5,
-	/* 6 ecc bytes */
-	6,
-	/* ecc byte positions */
-	{0, 1, 2, 3, 6, 7},
-	/* 8 extra bytes */
-	8,
-	/* extra bytes positions */
-	{8, 9, 10, 11, 12, 13, 14, 15}
-};
-
-/* ooblayout for 2048 byte pages */
-struct nand_ooblayout ooblayout_2048 = {
-	/* Bad block marker is at position */
-	0,
-	/* 24 ecc bytes */
-	24,
-	/* ecc byte positions */
-	{40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
-	 58, 59, 60, 61, 62, 63},
-	/* 38 extra bytes */
-	38,
-	/* extra byte positions */
-	{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-	 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39}
-};
+/* ooblayout */
+static struct nand_ooblayout nand_oob_layout;
 
 static struct nand_chip nand_chip_default;
 
@@ -225,6 +181,53 @@ static void nand_cs_disable(void)
 #ifdef CONFIG_SYS_NAND_ENABLE_PIN
 	pio_set_value(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 #endif
+}
+
+static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chip *chip)
+{
+	unsigned int i;
+
+	switch (chip->pagesize) {
+	case 256:
+		layout->badblockpos = 5;
+		layout->eccbytes = 3;
+		layout->oobavail_offset = 6;
+		break;
+
+	case 512:
+		layout->badblockpos = 5;
+		layout->eccbytes = 6;
+		layout->oobavail_offset = 6;
+		break;
+
+	case 2048:
+		layout->badblockpos = 0;
+#ifdef CONFIG_USE_PMECC
+		layout->eccbytes = 16;
+#else
+		layout->eccbytes = 24;
+#endif
+		layout->oobavail_offset = 1;
+		break;
+
+	case 4096:
+		layout->badblockpos = 0;
+#ifdef CONFIG_USE_PMECC
+		layout->eccbytes = 32;
+#else
+		layout->eccbytes = 48;
+#endif
+		layout->oobavail_offset = 1;
+		break;
+
+	default:
+		break;
+	}
+
+	for (i = 0; i < layout->eccbytes; i++)
+		layout->eccpos[i] = chip->oobsize - layout->eccbytes + i;
+
+	layout->oobavailbytes = chip->oobsize - layout->eccbytes - layout->oobavail_offset;
 }
 
 static unsigned short onfi_crc16(unsigned short crc, unsigned char const *p, unsigned int len)
@@ -322,15 +325,9 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	chip->oobsize 	= p->spare_bytes_per_page;
 	chip->buswidth	= p->features & 0x01;
 
-	switch (chip->pagesize) {
-	case 256: chip->ecclayout = &ooblayout_256; break;
-	case 512: chip->ecclayout = &ooblayout_512; break;
-	case 2048: chip->ecclayout = &ooblayout_2048; break;
-	case 4096: break;
-	default:
-		dbg_log(1, "Not supported page size: %d\n\r", chip->pagesize);
-		return -1;
-	}
+	config_nand_ooblayout(&nand_oob_layout, chip);
+	chip->ecclayout = &nand_oob_layout;
+
 	return 0;
 }
 
@@ -415,19 +412,10 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 						== NAND_BUSWIDTH_16) ? 1: 0); 
 	}
 
-	switch (chip->pagesize) {
-	case 256: chip->ecclayout = &ooblayout_256; break;
-	case 512: chip->ecclayout = &ooblayout_512; break;
-	case 2048:chip->ecclayout = &ooblayout_2048; break;
-	case 4096: break;
-	default:
-		dbg_log(1, "Not supported page size: %d\n\r", chip->pagesize);
-		return -1;
-	}
+	config_nand_ooblayout(&nand_oob_layout, chip);
+	chip->ecclayout = &nand_oob_layout;
 
 	return 0;
-
-	
 }
 
 static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
