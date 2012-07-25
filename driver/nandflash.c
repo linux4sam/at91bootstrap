@@ -606,7 +606,7 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 	erris = pmecc_readl(PMECC_ISR);
 	if (erris) {
 		if (check_pmecc_ecc_data(nand, buffer) == -1){
-			dbg_log(1, "PMECC: reading All-0xFF page\n\r");
+			//dbg_log(1, "PMECC: reading All-0xFF page\n\r");
 			return 0;
 		}
 
@@ -852,8 +852,6 @@ static int nand_read_page(struct nand_info *nand,
 				unsigned char *buffer)
 {
 	unsigned int row_address = block * nand->pages_block + page;
-
-	dbg_log(1, "block: %d, page: %d\n\r", block, page);
 
 #ifndef CONFIG_ENABLE_SW_ECC
 	return nand_read_sector(nand, row_address, buffer, ZONE_DATA);
