@@ -582,6 +582,56 @@ static void write_row_address(struct nand_info *nand, unsigned int row_address)
 	}
 }
 
+#ifdef CONFIG_USE_PMECC
+static int check_pmecc_ecc_data(struct nand_info *nand, unsigned char *buffer)
+{
+	unsigned int i;
+	unsigned char *ecc_data = buffer + nand->pagesize + nand->ecclayout->eccpos[0];
+
+	for (i = 0; i < nand->ecclayout->eccbytes; i++)
+		if (*ecc_data++ != 0xff)
+			break;
+
+	if (i >= nand->ecclayout->eccbytes)
+		return -1;
+	else
+		return 0;
+}
+
+static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
+{
+	int ret = 0;
+	int result;
+	unsigned int erris;
+
+	/* waiting for PMECC ready */
+	while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY);
+
+	/* read corrupted bit status */
+	erris = pmecc_readl(PMECC_ISR);
+	if (erris) {
+		if (check_pmecc_ecc_data(nand, buffer) == -1){
+			dbg_log(1, "PMECC: reading All-0xFF page\n\r");
+			return 0;
+		}
+
+		dbg_log(1, "PMECC: sector bits %d corrupted, Now correcting...\n\r", erris);
+		result = (*pmecc_correction_algo)(AT91C_BASE_PMECC,
+			AT91C_BASE_PMERRLOC,
+			&PMECC_paramDesc,
+			erris,
+			buffer);
+
+		if (result != 0) {
+			dbg_log(1, "PMECC: failed to correct corrupted bits!\n\r");
+			ret =  ECC_CORRECT_ERROR;
+		}
+	}
+
+	return ret;
+}
+#endif /* #ifdef CONFIG_USE_PMECC */
+
 #ifdef NANDFLASH_SMALL_BLOCKS
 static int nand_read_sector(struct nand_info *nand, 
 			unsigned int row_address,
@@ -686,11 +736,9 @@ static int nand_read_sector(struct nand_info *nand,
 	unsigned int readbytes, i;
 	unsigned int column_address;
 	int ret = 0;
+	unsigned char *pbuf = buffer;
 
 #ifdef CONFIG_USE_PMECC
-	int result;
-	unsigned int erris;
-	unsigned char *pbuf = buffer;
 	unsigned int usepmecc = 0;
 
 	if ((zone_flag & ZONE_DATA) == ZONE_DATA) {
@@ -711,7 +759,7 @@ static int nand_read_sector(struct nand_info *nand,
 
 	case ZONE_INFO:
 		readbytes = nand->oobsize;
-		buffer += nand->pagesize;
+		pbuf += nand->pagesize;
 		column_address = nand->pagesize;
 		break;
 
@@ -754,33 +802,17 @@ static int nand_read_sector(struct nand_info *nand,
 	/* Read loop */
 	if (nand->buswidth) {
 		for (i = 0; i < readbytes / 2; i++) {
-			*((short *)buffer) = read_word();
-			buffer += 2;
+			*((short *)pbuf) = read_word();
+			pbuf += 2;
 		}
 	} else {
 		for (i = 0; i < readbytes; i++)
-			*buffer++ = read_byte();
+			*pbuf++ = read_byte();
 
 #ifdef CONFIG_USE_PMECC
-		if (usepmecc == 1) {
-			while (pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY);
-
-			erris = pmecc_readl(PMECC_ISR);
-			if (erris) {
-				dbg_log(1, "PMECC: sector bits %d corrupted, Now correcting...\n\r", erris);
-				result = (*pmecc_correction_algo)(AT91C_BASE_PMECC,
-							AT91C_BASE_PMERRLOC,
-							&PMECC_paramDesc,
-							erris,
-							pbuf);
-
-				if (result != 0) {
-					dbg_log(1, "PMECC failed to correct!\n\r");
-					ret =  ECC_CORRECT_ERROR;
-				}
-			}
-		}
-#endif /* #ifdef CONFIG_USE_PMECC */
+		if (usepmecc == 1)
+			ret = pmecc_process(nand, buffer);
+#endif
 	}
 
 	nand_cs_disable();
