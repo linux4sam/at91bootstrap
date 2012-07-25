@@ -319,9 +319,6 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	chip->oobsize 	= p->spare_bytes_per_page;
 	chip->buswidth	= p->features & 0x01;
 
-	config_nand_ooblayout(&nand_oob_layout, chip);
-	chip->ecclayout = &nand_oob_layout;
-
 	return 0;
 }
 
@@ -408,9 +405,6 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 
 	chip->numblocks = type->chipsize * 1024 * 1024 / chip->blocksize;
 
-	config_nand_ooblayout(&nand_oob_layout, chip);
-	chip->ecclayout = &nand_oob_layout;
-
 	return 0;
 }
 
@@ -431,7 +425,8 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	/* Total number of bytes in a sector */
 	nand->sectorsize = nand->pagesize + nand->oobsize;
 	/* the layout of the spare area */
-	nand->ecclayout = chip->ecclayout;
+	config_nand_ooblayout(&nand_oob_layout, chip);
+	nand->ecclayout = &nand_oob_layout;
 	/* data bus width (8/16 bits) */
 	nand->buswidth = chip->buswidth;
 	if (nand->buswidth)
