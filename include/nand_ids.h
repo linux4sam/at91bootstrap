@@ -95,6 +95,7 @@ const struct nandflash_dev nandflash_ids[] = {
 	/* 8 Gigabit */
 	{"NAND 1GiB 1,8V 8-bit",	0xA3, 0, 1024, 0, 0},
 	{"NAND 1GiB 3,3V 8-bit",	0xD3, 0, 1024, 0, 0},
+	{"NAND 1GiB 1,8V 8-bit",	0x38, 0, 1024, 0, 0},
 	{"NAND 1GiB 1,8V 16-bit",	0xB3, 0, 1024, 0, NAND_BUSWIDTH_16},
 	{"NAND 1GiB 3,3V 16-bit",	0xC3, 0, 1024, 0, NAND_BUSWIDTH_16},
 

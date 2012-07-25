@@ -48,9 +48,6 @@
 #ifdef CONFIG_USE_PMECC
 
 #define TT_MAX			25
-/* ECC offset in spare area */
-#define ECC_START_ADDR		48
-#define ECC_END_ADDR		63
 
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined (AT91SAMA5D3X)
 #define PMECC_ALGO_FCT_ADDR		0x00100008
@@ -379,8 +376,8 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	if (type->name == NULL){
 		if (manf_id != 0x00 && manf_id != 0xff 
 			&& dev_id != 0x00 && dev_id != 0xff)
-			dbg_log(1, "unknown NAND device: Manufacturer ID: %d", 
-				"Chip ID: 0x%d\n\r", manf_id, dev_id);
+			dbg_log(1, "unknown NAND device: Manufacturer ID: %d, Chip ID: 0x%d\n\r",
+						manf_id, dev_id);
 		return -1;
 	}
 	
@@ -479,39 +476,40 @@ static int nandflash_get_type(struct nand_info *nand)
 }
 
 #ifdef CONFIG_USE_PMECC
-static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, unsigned int pagesize)
+static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, struct nand_info *nand)
 {
-	switch (pagesize) {
-	case 2048:
-		pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR2; /* Error Correct Capability */
-		pmecc_params->sectorSize = AT91C_PMECC_SECTORSZ_512; /* Sector Size */
-		pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_4SEC; /* Number of Sectors in the Page */
-		pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;	/* NAND read access */
-		pmecc_params->spareEna = AT91C_PMECC_SPAREENA_DIS; /* for NAND read access,the spare area is skipped  */
-		pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;	/* the spare area is not protected */
+	if ((nand->pagesize == 2048) || (nand->pagesize == 4096)) {
+		pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR2; 	/* Error Correct Capability */
+		pmecc_params->sectorSize = AT91C_PMECC_SECTORSZ_512;		/* Sector Size */
+		pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;			/* NAND read access */
+		pmecc_params->spareEna = AT91C_PMECC_SPAREENA_DIS;		/* for NAND read access,the spare area is skipped  */
+		pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;			/* the spare area is not protected */
 
-		pmecc_params->spareSize = 64;	/* Spare Area Size */
-		pmecc_params->eccStartAddress = ECC_START_ADDR;	/* ECC Area Start Address */
-		pmecc_params->eccEndAddress = ECC_END_ADDR;	/* ECC Area End Address */
-		pmecc_params->eccSizeByte = 16;
+		pmecc_params->spareSize = nand->oobsize;			/* Spare Area Size */
+		pmecc_params->eccSizeByte = nand->ecclayout->eccbytes;		/* ECC size */
+		pmecc_params->eccStartAddress = nand->ecclayout->eccpos[0];	/* ECC Area Start Address */
+		pmecc_params->eccEndAddress = nand->ecclayout->eccpos[nand->ecclayout->eccbytes - 1];	/* ECC Area End Address */
+
 		pmecc_params->clkCtrl = 2;	/* At 133Mhz, this field must be programmed with 2 */
+
 		pmecc_params->interrupt = 0;
 		pmecc_params->tt = 2;
 		pmecc_params->mm = 13;
 		pmecc_params->nn = (1 << pmecc_params->mm) - 1;
 		pmecc_params->alpha_to = (short *)LOOKUP_TABLE_ALPHA_TO;
 		pmecc_params->index_of = (short *)LOOKUP_TABLE_INDEX_OF;
-		break;
 
-	case 512:
-	case 1024:
-	case 4096:
-		/* TODO */
-	default:
-		dbg_log(1, "Not supported page size: %d\n\r", pagesize);
+		/* Number of Sectors in the Page */
+		if (nand->pagesize == 2048)
+			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_4SEC;
+		else
+			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_8SEC;
+
+		return 0;
+	} else {
+		dbg_log(1, "PMECC: Not supported page size: %d\n\r", nand->pagesize);
 		return -1;
 	}
-	return 0;
 } 
 
 static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
@@ -537,12 +535,12 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 	return 0;
 }
 
-static int init_pmecc(unsigned int pagesize)
+static int init_pmecc(struct nand_info *nand)
 {
 	pmecc_correction_algo = (PMECC_CorrectionAlgo_Rom_Func)
 			(*(unsigned int *)PMECC_ALGO_FCT_ADDR);
 
-	if (init_pmecc_descripter(&PMECC_paramDesc, pagesize) != 0)
+	if (init_pmecc_descripter(&PMECC_paramDesc, nand) != 0)
 		return -1;
 
 	init_pmecc_core(&PMECC_paramDesc);
@@ -828,6 +826,8 @@ static int nand_read_page(struct nand_info *nand,
 {
 	unsigned int row_address = block * nand->pages_block + page;
 
+	dbg_log(1, "block: %d, page: %d\n\r", block, page);
+
 #ifndef CONFIG_ENABLE_SW_ECC
 	return nand_read_sector(nand, row_address, buffer, ZONE_DATA);
 #else
@@ -836,7 +836,6 @@ static int nand_read_page(struct nand_info *nand,
 	unsigned char hamming[48], error;
 
 	retval = nand_read_sector(nand, row_address, buffer,ZONE_DATA | ZONE_INFO);
-
 	if (retval)
 		return -1;
 
@@ -932,7 +931,7 @@ int load_nandflash(struct image_info *img_info)
 		return -1;
 
 #ifdef CONFIG_USE_PMECC
-	if (init_pmecc(nand.pagesize))
+	if (init_pmecc(&nand))
 		return -1;
 #endif
 
