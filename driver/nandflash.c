@@ -403,7 +403,7 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 						== NAND_BUSWIDTH_16) ? 1: 0); 
 	}
 
-	chip->numblocks = type->chipsize * 1024 * 1024 / chip->blocksize;
+	chip->numblocks = (type->chipsize << 20) / chip->blocksize;
 
 	return 0;
 }
