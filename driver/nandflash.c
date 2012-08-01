@@ -180,6 +180,7 @@ static void nand_cs_disable(void)
 static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chip *chip)
 {
 	unsigned int i;
+	unsigned int oobsize;
 
 	switch (chip->pagesize) {
 	case 256:
@@ -196,6 +197,7 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 
 	case 2048:
 		layout->badblockpos = 0;
+		oobsize = chip->oobsize;
 #ifdef CONFIG_USE_PMECC
 		layout->eccbytes = 16;
 #else
@@ -208,8 +210,10 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 		layout->badblockpos = 0;
 #ifdef CONFIG_USE_PMECC
 		layout->eccbytes = 32;
+		oobsize = chip->oobsize;
 #else
 		layout->eccbytes = 48;
+		oobsize = 128;
 #endif
 		layout->oobavail_offset = 1;
 		break;
@@ -219,9 +223,9 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 	}
 
 	for (i = 0; i < layout->eccbytes; i++)
-		layout->eccpos[i] = chip->oobsize - layout->eccbytes + i;
+		layout->eccpos[i] = oobsize - layout->eccbytes + i;
 
-	layout->oobavailbytes = chip->oobsize - layout->eccbytes - layout->oobavail_offset;
+	layout->oobavailbytes = oobsize - layout->eccbytes - layout->oobavail_offset;
 }
 
 static unsigned short onfi_crc16(unsigned short crc, unsigned char const *p, unsigned int len)
