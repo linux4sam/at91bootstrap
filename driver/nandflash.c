@@ -49,12 +49,6 @@
 
 #define TT_MAX			25
 
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined (AT91SAMA5D3X)
-#define PMECC_ALGO_FCT_ADDR		0x00100008
-#define LOOKUP_TABLE_ALPHA_TO		0x10C000;
-#define LOOKUP_TABLE_INDEX_OF		0x108000;
-#endif
-
 /* The PMECC descripter structure */
 struct _PMECC_paramDesc_struct {
 	unsigned int pageSize;
@@ -180,19 +174,21 @@ static void nand_cs_disable(void)
 static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chip *chip)
 {
 	unsigned int i;
-	unsigned int oobsize;
+	unsigned int oobsize = 0;
 
 	switch (chip->pagesize) {
 	case 256:
 		layout->badblockpos = 5;
 		layout->eccbytes = 3;
 		layout->oobavail_offset = 6;
+		oobsize = chip->oobsize;
 		break;
 
 	case 512:
 		layout->badblockpos = 5;
 		layout->eccbytes = 6;
 		layout->oobavail_offset = 6;
+		oobsize = chip->oobsize;
 		break;
 
 	case 2048:
@@ -495,8 +491,8 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, s
 		pmecc_params->tt = 2;
 		pmecc_params->mm = 13;
 		pmecc_params->nn = (1 << pmecc_params->mm) - 1;
-		pmecc_params->alpha_to = (short *)LOOKUP_TABLE_ALPHA_TO;
-		pmecc_params->index_of = (short *)LOOKUP_TABLE_INDEX_OF;
+		pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM + CONFIG_LOOKUP_TABLE_ALPHA_OFFSET);
+		pmecc_params->index_of = (short *)(AT91C_BASE_ROM + CONFIG_LOOKUP_TABLE_INDEX_OFFSET);
 
 		/* Number of Sectors in the Page */
 		if (nand->pagesize == 2048)
@@ -537,7 +533,7 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 static int init_pmecc(struct nand_info *nand)
 {
 	pmecc_correction_algo = (PMECC_CorrectionAlgo_Rom_Func)
-			(*(unsigned int *)PMECC_ALGO_FCT_ADDR);
+			(*(unsigned int *)(AT91C_BASE_ROM + CONFIG_PMECC_ALGO_FUNC_OFFSET));
 
 	if (init_pmecc_descripter(&PMECC_paramDesc, nand) != 0)
 		return -1;
