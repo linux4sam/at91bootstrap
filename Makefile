@@ -19,6 +19,7 @@ BINDIR:=$(TOPDIR)/binaries
 
 DATE := $(shell date)
 VERSION := 3.4
+REVISION := 3
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
@@ -132,7 +133,7 @@ SPI_BOOT:=$(strip $(subst ",,$(CONFIG_SPI_BOOT)))
 ifeq ($(REVISION),)
 REV:=
 else
-REV:=-$(strip $(subst ",,$(REVISION)))
+REV:=.$(strip $(subst ",,$(REVISION)))
 endif
 
 obj=build/$(BOARDNAME)/
@@ -166,7 +167,7 @@ GC_SECTIONS=--gc-sections
 CPPFLAGS=-ffunction-sections -g -O2 -Wall \
 	-fno-stack-protector \
 	-I$(INCL) -Iinclude -Ifs/include \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"  -DCOMPILE_TIME="\"$(DATE)\""
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\"  -DCOMPILE_TIME="\"$(DATE)\""
 
 ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
 
