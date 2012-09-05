@@ -118,7 +118,8 @@ static void sdramc_init(void)
 
 	/* Initialize the matrix (memory voltage = 3.3) */
 	writel((readl(AT91C_BASE_CCFG + CCFG_EBICSA))
-		| AT91C_EBI_CS1A_SDRAMC | AT91C_VDDIOM_SEL_33V,
+		| AT91C_EBI_CS1A_SDRAMC | AT91C_VDDIOM_SEL_33V
+		| (0x01 << 17), /*  set I/O slew selection */
 		AT91C_BASE_CCFG + CCFG_EBICSA);
 
 	sdramc_initialize(&sdramc_config, AT91C_BASE_CS1);
