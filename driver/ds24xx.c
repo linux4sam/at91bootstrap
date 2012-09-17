@@ -137,6 +137,7 @@ struct board_info {
 	{"SAM9G35-CM",		BOARD_TYPE_CPU,		4},
 	{"SAM9X25-CM",		BOARD_TYPE_CPU,		5},
 	{"SAM9X35-CM",		BOARD_TYPE_CPU,		6},
+	{"PDA-DM",		BOARD_TYPE_DM,		7},
 	{0,			0,			0},
 };
 
@@ -148,6 +149,7 @@ struct vendor_info {
 	{"FLEX",		VENDOR_FLEX},
 	{"RONETIX",		VENDOR_RONETIX},
 	{"COGENT",		VENDOR_COGENT},
+	{"PDA",			VENDOR_PDA},
 	{0,			0},
 };
 

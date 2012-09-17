@@ -34,6 +34,7 @@
 #define VENDOR_FLEX		2
 #define VENDOR_RONETIX		3
 #define VENDOR_COGENT		4
+#define VENDOR_PDA		5
 
 extern void one_wire_hw_init(void);
 
