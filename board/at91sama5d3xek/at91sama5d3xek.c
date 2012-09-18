@@ -171,6 +171,19 @@ static void recovery_buttons_hw_init(void)
 }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
 
+static void HDMI_Qt1070_workaround(void)
+{
+	/* For the HDMI and QT1070 shar the irq line
+	 * if the HDMI does not initialize, the irq line is pulled down by HDMI,
+	 * so, the irq line can not used by QT1070
+	 */
+	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
+	udelay(500000);
+	pio_set_gpio_output(AT91C_PIN_PC(31), 0);
+	udelay(500000);
+	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -212,6 +225,7 @@ void hw_init(void)
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();
 #endif
+	HDMI_Qt1070_workaround();
 
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 	/* Init the recovery buttons pins */
