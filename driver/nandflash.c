@@ -133,6 +133,11 @@ static unsigned char read_byte(void)
 	return(readb((unsigned long)IO_ADDR_R));
 }
 
+static void write_byte(unsigned char data)
+{
+	writeb(data, (unsigned long)IO_ADDR_W);
+}
+
 /* 16 bits devices */
 static void nand_command16(unsigned short cmd)
 {
@@ -222,6 +227,30 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 		layout->eccpos[i] = oobsize - layout->eccbytes + i;
 
 	layout->oobavailbytes = oobsize - layout->eccbytes - layout->oobavail_offset;
+}
+
+static int nand_disable_internal_ecc(unsigned char manfid,
+				unsigned char devicemodel,
+				unsigned char ecc_bits)
+{
+	if (((manfid & 0x2c) == 0x2c)	/* Micron */
+		&& (ecc_bits == 0x04)
+		&& ((devicemodel == '1') 	/* 1G */
+		|| (devicemodel == '2')		/* 2G*/
+		|| (devicemodel == '4'))) {	/* 4G */
+
+		nand_cs_enable();
+		nand_command(CMD_SET_FEATURE);
+		nand_address(0x90);
+
+		write_byte(0x00);
+		write_byte(0x00);
+		write_byte(0x00);
+		write_byte(0x00);
+		nand_cs_disable();
+	}
+	return 0;
+
 }
 
 static unsigned short onfi_crc16(unsigned short crc, unsigned char const *p, unsigned int len)
@@ -319,6 +348,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	chip->oobsize 	= p->spare_bytes_per_page;
 	chip->buswidth	= p->features & 0x01;
 
+	nand_disable_internal_ecc(p->jedec_id, p->model[5], p->ecc_bits);
 	return 0;
 }
 

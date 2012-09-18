@@ -179,6 +179,10 @@ struct nandflash_dev {
 /* NandFlash ONFI */
 #define CMD_READ_ONFI			0xEC
 
+/* Feature Operations */
+#define CMD_SET_FEATURE			0xEF
+#define CMD_GET_FEATURE			0xEE
+
 #define ONFI_CRC_BASE			0x4F4E
 
 #define NAND_BUSWIDTH_16		0x00000002
