@@ -237,6 +237,10 @@ static int mmc_cmd(unsigned short cmd,
 	/* Wait for the command to complete */
 	while (!((status = mci_readl(MCI_SR)) & AT91C_MCI_CMDRDY));
 
+	if (status & AT91C_MCI_RTOE) {
+		dbg_log(1, "Cmd Response Time-out Error\n\r");
+		return TIMEOUT;
+	}
 	if (status & error_flags) {
 		dbg_log(1, "Error status,cmd: %d, status: %d\n\r", cmd, status);
 		return COMM_ERR;
