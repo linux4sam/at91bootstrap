@@ -324,7 +324,6 @@ static void data_access_enable(void)
 
 static void psram_hw_init(void)
 {
-	volatile unsigned short tmp;
 	unsigned short *addressMax = (unsigned short *)MICRON_8MB_ADDRESS_MAX;
 
 	const struct pio_desc psram_pins[] = {
@@ -363,8 +362,8 @@ static void psram_hw_init(void)
 	data_access_enable();
 
 	/* Enable page mode */
-	tmp = readl(addressMax);
-	tmp = readl(addressMax);
+	readl(addressMax);
+	readl(addressMax);
 	writel(MICRON_RCR, addressMax);
 	writel(MICRON_PAGE_MODE_ENABLE, addressMax);
 }
