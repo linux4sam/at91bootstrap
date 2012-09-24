@@ -1,0 +1,82 @@
+AT91Bootstrap change log 
+	
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	* Align to the U-Boot latest version, change the default 
+	  jump address for U-Boot in the external memory(its size 64M), 
+	  the changed  boards include: at91sam9260ek,
+	  at91sam9261ek, at91sam9263ek, at91sam9g10ek, 
+	  at91sam9g20ek, and at91sam9rlek.
+
+	* workaround for HDMI and QT1070 share irq line.
+
+	* Disable the nandflash chip internal ecc function 
+	  for some Micron chip.
+
+	* Fix the bug that EMMC does not work
+
+	* Add one wire information for PDA DM module for 
+	  at91sam9x5ek board.
+
+	* Enable the SLOW slew rate for SDRAM clock for 
+	  at91sam9g20ek board.
+
+2012-09-24 version 3.4.4
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	* Add the revision
+
+	* Change the default CONFIG_IMG_SIZE for U-Boot
+	  from 0x50000 to 0x80000
+
+	* workaround for pmecc to deal with All-0xFF page.
+
+	* Add support to 4K page nandflash
+
+	* Check the bad block only at starting to read a new block,
+	  instead of at reading every page.
+	
+	* Fix the bug that PMECC module does not work.
+
+	* Add the code to automatically generate the ecc layout 
+	  according to the nandflash information.
+
+2012-08-22 version 3.4.3
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	* Remove the sddrc driver code as it is not 
+	  needed anymore.
+
+	* Change the implement of udelay() function 
+	  with the PIT timer
+
+	* Improve the sama5 DDR initialization implement
+	
+	* Remove the sw recovery feature from configuration of
+	  at91sama5d3xek board
+
+	* Remove pull-ups in MCI pin configuration on at91sama5d3xek.
+
+2012-07-11 version 3.4.2
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+	* change the default nand offset to load U-Boot image 
+	  from 0x20000 to 0x40000.
+
+	* change CONFIG_LINK_ADDR from  0x300000 to 0 to fix 
+	  the embedded length in the binary error bug.
+
+2012-07-05 version 3.4.1
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	* Add the default config file for loading linux kernel image.
+
+	* Add support the new boards at91sama5d3xek. 
+	  Now the supported boards include: at91sam9260ek,
+	  at91sam9261ek, at91sam9g10ek, at91sam9g20ek, at91sam9263ek,
+	  at91sam9rlek, at91sam9m10g45ek, at91sam9x5ek, at91samgn12ek.
+
+	* update the FatFs to the lastest version R0.09 
+
+	* Rewrite the drive code (Nandflash, spiflash and mci, etc.) 
+	 to align the U-Boot.
+
+2012-07-02  version 3.4
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
