@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Thu Jun 28 15:17:19 2012
+# Mon Sep 24 10:49:43 2012
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9g20ek"
@@ -78,7 +78,7 @@ CONFIG_LOAD_UBOOT=y
 # CONFIG_LOAD_4MB is not set
 # CONFIG_LOAD_64KB is not set
 CONFIG_OS_IMAGE_NAME="u-boot.bin"
-CONFIG_JUMP_ADDR="0x23F00000"
+CONFIG_JUMP_ADDR="0x21F00000"
 
 #
 # U-Boot Image Storage Setup
