@@ -1,0 +1,146 @@
+AT91Bootstrap ChangeLog 
+	
+Version 3.4.4
+
+	2012-09-24  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Align to the U-Boot latest version, change the default 
+	  jump address from 0x23f00000 to 0x21f00000 
+	  for U-Boot in the external memory to the boards whose 
+	  memory size is 64M. These boards include:at91sam9260ek,
+	  at91sam9261ek, at91sam9263ek, at91sam9g10ek, 
+	  at91sam9g20ek, and at91sam9rlek.
+
+	2012-09-18  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Workaround for HDMI and QT1070 share irq line.
+
+	* Disable the nandflash chip internal ecc function 
+	  for some Micron chip.
+
+	* Fix the bug that EMMC does not work
+
+	2012-09-17  Bo Shen  <voice.shen@atmel.com>
+
+	* Add one wire information for PDA DM module for 
+	  at91sam9x5ek board.
+
+	2012-09-05  Wenyou Yang  <wenyou.yang@atmel.com>
+	
+	* Enable the SLOW slew rate for SDRAM clock for 
+	  at91sam9g20ek board.
+
+
+Version 3.4.3
+	
+	2012-08-22  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Add the revision
+
+	2012-08-13  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Change the default CONFIG_IMG_SIZE for U-Boot
+	  from 0x50000 to 0x80000
+	 
+	* Update the default config file for at91sam9x5ek 
+	  and at91sama5d3xek boards
+
+	* Update the PMECC lookup table offset information
+	  in the ROM.
+
+	2012-08-01  Wenyou Yang  <wenyou.yang@atmel.com>
+	
+	* Add support to automatically generation of ecc layout 
+	  for software ecc
+
+	2012-07-25  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Update the sam9260 dedicated nandflash driver code
+
+	* Workaround for pmecc to deal with All-0xFF page.
+
+	* Add support to 4K page nandflash
+
+	2012-07-24  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Only do checking the bad block at starting to read a new block,
+	  instead of at reading every page.
+	
+	* Fix the bug that PMECC module does not work while reading 
+	  data from nandflash.
+
+	* Change the mode of sending address for nandflash command
+	  to get more flexible.
+
+	* Add the code to automatically generate the ecc layout 
+	  according to the nandflash information, instead of 
+	  the static definiton for ooblayout for ecc data
+
+
+Version 3.4.2
+
+	2012-07-11  Nicolas Ferre  <nicolas.ferre@atmel.com>
+
+	* Remove the sddrc driver code as it is not 
+	  needed anymore.
+
+	2012-07-11  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Change the implement of udelay() function 
+	  with the PIT timer to get more accurate time delay, 
+	  independent on CPU frequency.
+
+	* Remove the delay() function which implement depend on 
+	  CPU frequency.
+
+	2012-07-11  Nicolas Ferre  <nicolas.ferre@atmel.com>
+
+	* Modify timings for 512MB DDR2 on at91sama5d3xek board
+
+	* Better presentation of value for io calibration and 
+	  DDR DLL Master/Slave offsets
+	 
+	* Modify t1pr to ease understanding
+	
+	2012-07-10  Nicolas Ferre  <nicolas.ferre@atmel.com>
+
+	* Remove the sw recovery feature from configuration of
+	  at91sama5d3xek board
+
+	* Remove pull-ups in MCI pin configuration on at91sama5d3xek
+	  board.
+
+
+Version 3.4.1
+
+	2012-07-05  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Change the default nand offset to load U-Boot image 
+	  from 0x20000 to 0x40000.
+	
+	* Update the default config file for U-Boot to load image 
+	  from nandflash
+
+	2012-07-03  Wenyou Yang  <wenyou.yang@atmel.com>
+
+	* Change CONFIG_LINK_ADDR from  0x300000 to 0 to fix 
+	  the embedded length in the binary error bug.
+
+	* Remove the scripts/fixboot.py that is not needed anymore
+
+	* Update the default config file for sama5d3xek and sam9n12ek
+
+
+Version 3.4
+
+	* Add the default config file for loading linux kernel image.
+
+	* Add support the new boards at91sama5d3xek. 
+	  Now the supported boards include: at91sam9260ek,
+	  at91sam9261ek, at91sam9g10ek, at91sam9g20ek, at91sam9263ek,
+	  at91sam9rlek, at91sam9m10g45ek, at91sam9x5ek, at91samgn12ek.
+
+	* update the FatFs to the lastest version R0.09 
+
+	* Rewrite the drive code (Nandflash, spiflash and mci, etc.) 
+	 to align the U-Boot.
