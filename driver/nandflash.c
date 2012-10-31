@@ -946,20 +946,24 @@ err:
 
 static int nandflash_recovery(struct nand_info *nand)
 {
+	int ret = -1;
+
 	/*
 	 * If Recovery Button is pressed during boot sequence,
 	 * erase nandflash block0
 	*/
 	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
-		dbg_log(1, "Nand: The recovery button (%s) has been pressed\n\r", RECOVERY_BUTTON_NAME);
+		dbg_log(1, "Nand: The recovery button (%s) has been "\
+				"pressed\n\r", RECOVERY_BUTTON_NAME);
 		dbg_log(1, "Nand: The block 0 is erasing ...\n\r");
 
-		nand_erase_block0(nand);
-
-		dbg_log(1, "Nand: The erasing is done\n\r");
-		return 0;
+		ret = nand_erase_block0(nand);
+		if (ret)
+			dbg_log(1, "Nand: The erasing failed\n\r");
+		else
+			dbg_log(1, "Nand: The erasing is done\n\r");
 	}
-	return 1;
+	return ret;
 }
 #endif /* #ifdef CONFIG_NANDFLASH_RECOVERY */
 
@@ -977,13 +981,13 @@ int load_nandflash(struct image_info *img_info)
 	
 	nandflash_hw_init();
 
+	if (nandflash_get_type(&nand))
+		return -1;
+
 #ifdef CONFIG_NANDFLASH_RECOVERY
 	if (nandflash_recovery(&nand) == 0)
 		return -2;
 #endif
-
-	if (nandflash_get_type(&nand))
-		return -1;
 
 #ifdef CONFIG_USE_PMECC
 	if (init_pmecc(&nand))
