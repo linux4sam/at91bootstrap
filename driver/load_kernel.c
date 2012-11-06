@@ -33,12 +33,95 @@
 #include "dataflash.h"
 #include "nandflash.h"
 #include "sdcard.h"
+#include "fdt.h"
 
 #include "debug.h"
 
 #ifdef CONFIG_AT91SAM9X5EK
 #include "onewire_info.h"
 #endif
+
+#ifdef CONFIG_OF_LIBFDT
+
+static int fixup_chosen_node(void *blob, char *bootargs)
+{
+	char *p;
+	int  ret;
+
+	if (!bootargs)
+		return -1;
+
+	/* eat leading white space */
+	for (p = bootargs; *p == ' '; p++)
+		;
+
+	/* skip non-existent command lines so the kernel will still
+	 * use its default command line.
+	 */
+	if (*p == '\0')
+		return -1;
+
+	ret = of_fixup_chosen_node(blob, p);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+#define CONFIG_NR_DRAM_BANKS	1
+static int fixup_memory_node(void *blob)
+{
+	int bank;
+	unsigned int start[CONFIG_NR_DRAM_BANKS];
+	unsigned int size[CONFIG_NR_DRAM_BANKS];
+	int ret;
+
+	for (bank = 0; bank < CONFIG_NR_DRAM_BANKS; bank++) {
+		start[bank] = OS_MEM_BANK;
+		size[bank] = OS_MEM_SIZE;
+	}
+
+	ret = of_fixup_memory_node(blob, start, size, CONFIG_NR_DRAM_BANKS);
+
+	return ret;
+}
+
+static int setup_dt_blob(void *blob)
+{
+	unsigned int of_size;
+	char *bootargs = LINUX_KERNEL_ARG_STRING;
+	int ret;
+
+	if (of_check_dt_header(blob)) {
+		dbg_log(1, "DT: the blob is not a valid fdt\n\r");
+		return -1;
+	}
+
+	ret = of_expand_blob(blob, &of_size);
+	if (ret)
+		return ret;
+
+	dbg_log(1, "\n\rDT: Using Device Tree in place at %d, end %d\n\r",
+			(unsigned int)blob, (unsigned int)blob + of_size - 1);
+
+	ret = fixup_chosen_node(blob, bootargs);
+	if (ret)
+		return ret;
+
+	ret = fixup_memory_node(blob);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static void setup_boot_params(void) {}
+
+#else
+static int setup_dt_blob(void *blob)
+{
+	return 0;
+}
 
 #define TAG_FLAG_NONE		0x00000000
 #define TAG_FLAG_CORE		0x54410001
@@ -161,6 +244,7 @@ static void setup_boot_params(void)
 	noneparam->header.tag = TAG_FLAG_NONE;
 	noneparam->header.size = 0;
 }
+#endif /* #ifdef CONFIG_OF_LIBFDT */
 
 /* Kernel Image Header */
 #define KERNEL_IMAGE_MAGIC	0x27051956
@@ -240,8 +324,15 @@ int load_kernel(struct image_info *image)
 
 	dbg_log(1, "... %d bytes data transferred\n\r", image_size);
 
-	r2 = (unsigned int)(OS_MEM_BANK + 0x100);
-	setup_boot_params();
+	if (image->of) {
+		ret = setup_dt_blob((char *)image->of_dest);
+		if (ret)
+			return ret;
+		r2 = (unsigned int)image->of_dest;
+	} else {
+		r2 = (unsigned int)(OS_MEM_BANK + 0x100);
+		setup_boot_params();
+	}
 
 	dbg_log(1, "\n\rStarting linux kernel ..., machid: %d\n\r\n\r",
 							mach_type);

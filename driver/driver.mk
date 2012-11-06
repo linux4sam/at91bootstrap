@@ -41,6 +41,7 @@ COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/dataflash.o
 
 COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o
 
+COBJS-$(CONFIG_OF_LIBFDT)	+= $(DRIVERS_SRC)/fdt.o
 COBJS-$(CONFIG_LOAD_LINUX)	+= $(DRIVERS_SRC)/load_kernel.o
 
 # Currently, 9x5 only

@@ -140,9 +140,15 @@ else
 REV:=.$(strip $(subst ",,$(REVISION)))
 endif
 
+ifeq ($(CONFIG_OF_LIBFDT), y)
+BLOB:=dt
+else
+BLOB:=
+endif
+
 obj=build/$(BOARDNAME)/
 
-BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(IMAGE_NAME)-$(VERSION)$(REV)
+BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(IMAGE_NAME)-$(BLOB)-$(VERSION)$(REV)
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
 ifeq ($(IMAGE),)
