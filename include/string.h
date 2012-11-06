@@ -37,5 +37,8 @@ extern size_t strlen(const char *str);
 extern char *strcpy(char *dst, const char *src);
 extern int strcmp(const char *p1, const char *p2);
 extern int strncmp(const char *p1, const char *p2, size_t cnt);
+extern char *strchr(const char * s, int c);
+extern void *memchr(void *ptr, int value, size_t num);
+extern void *memmove(void * dest, const void *src, size_t count);
 
 #endif /* #ifndef __STRING_H__ */

@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "string.h"
+#include "common.h"
 
 void *memcpy(void *dst, const void *src, int cnt)
 {
@@ -109,4 +110,50 @@ int strncmp(const char *p1, const char *p2, size_t cnt)
 	}
 
 	return 0;
+}
+
+char *strchr(const char * s, int c)
+{
+	for (; *s != (char) c; ++s)
+		if (*s == '\0')
+			return NULL;
+
+	return (char *)s;
+}
+
+void *memchr(void *ptr, int value, size_t num)
+{
+	char *pret = NULL;
+	char *ptmp = (char *)ptr;
+
+	while (num) {
+		if (*ptmp == value) {
+			pret = ptmp;
+			break;
+		}
+		ptmp++;
+		num--;
+	}
+
+	return pret;
+}
+
+void *memmove(void * dest, const void *src, size_t count)
+{
+	char *tmp, *s;
+
+	if (dest <= src) {
+		tmp = (char *) dest;
+		s = (char *) src;
+		while (count--)
+			*tmp++ = *s++;
+		}
+	else {
+		tmp = (char *) dest + count;
+		s = (char *) src + count;
+		while (count--)
+			*--tmp = *--s;
+		}
+
+	return dest;
 }
