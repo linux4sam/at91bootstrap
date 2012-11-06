@@ -28,6 +28,6 @@
 #ifndef __SDCARD_H__
 #define __SDCARD_H__
 
-extern int load_sdcard(struct image_info *img_info);
+extern int load_sdcard(struct image_info *image);
 
 #endif /* #ifndef __SDCARD_H__ */

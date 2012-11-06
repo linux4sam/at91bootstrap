@@ -35,45 +35,62 @@
 
 #define CHUNK_SIZE	0x40000
 
-int load_sdcard(struct image_info *img_info)
+static int sdcard_loadimage(char *filename, BYTE *dest)
+{
+	FIL 	file;
+	UINT	byte_to_read = CHUNK_SIZE;
+	UINT	byte_read;
+	FRESULT	fret;
+	int	ret;
+
+	fret = f_open(&file, filename, FA_OPEN_EXISTING | FA_READ);
+	if (fret != FR_OK) {
+		dbg_log(1, "*** FATFS: f_open, filename: [%s]: error\n\r", filename);
+		ret = -1;
+		goto open_fail;
+	}
+
+	do {
+		byte_read = 0;
+		fret = f_read(&file, (void *)(dest), byte_to_read, &byte_read);
+		dest += byte_to_read;
+	} while (byte_read >= byte_to_read);
+
+	if (fret != FR_OK) {
+		dbg_log(1, "*** FATFS: f_read: error\n\r");
+		 ret = -1;
+		goto read_fail;
+	}
+	ret = 0;
+
+read_fail:
+	fret = f_close(&file);
+
+open_fail:
+	return ret;
+
+}
+
+int load_sdcard(struct image_info *image)
 {
 	FATFS	fs;
-	FIL 	file;
 	FRESULT	fret;
-	
-	BYTE *pdata = img_info->dest;
-	UINT byte_to_read = CHUNK_SIZE;
-	UINT byte_read;
-	char *filename = img_info->filename;
+	int	ret;
 
 	at91_mci0_hw_init();
 
-	dbg_log(1, "Reading file %s from SD Card to %d\n\r", filename, pdata);
-	
 	fret = f_mount(0, &fs);
 	if (fret != FR_OK) {
 		dbg_log(1, "*** FATFS: f_mount error **\n\r");
 		return -1;
 	}
 
-	fret = f_open(&file, filename, FA_OPEN_EXISTING | FA_READ);
-	if (fret != FR_OK) {
-		dbg_log(1, "*** FATFS: f_open, filename: [%s]: error\n\r", filename);
-		return -1 ;
-	}
+	dbg_log(1, "SD Card: Image: Read file %s to %d\n\r",
+					image->filename, image->dest);
 
-	do {
-		byte_read = 0;
-		fret = f_read(&file, (void *)(pdata), byte_to_read, &byte_read);
-		pdata += byte_to_read;
-	} while (byte_read >= byte_to_read);
-
-	if (fret != FR_OK) {
-		dbg_log(1, "*** FATFS: f_read: error\n\r");
-		 return -1;
-	}
-
-	fret = f_close(&file);
+	ret = sdcard_loadimage(image->filename, image->dest);
+	if (ret)
+		return ret;
 
 	return 0;
 }
