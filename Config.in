@@ -117,6 +117,34 @@ config CONFIG_JUMP_ADDR
 	help
 	  The entry point to which the bootstrap will pass control.
 
+config CONFIG_OF_LIBFDT
+	bool "Flattened Device Tree Support"
+	default y
+
+config CONFIG_OF_OFFSET
+	string "The Offset of Flash Device Tree Blob "
+	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
+	default "0x00008400" if CONFIG_DATAFLASH
+	default "0x00180000" if CONFIG_NANDFLASH
+	default	"0x00000000" if CONFIG_SDCARD
+
+config CONFIG_OF_LENGTH
+	string "The Length of Flash Device Tree Blob"
+	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
+	default "0x2FFFF"
+
+config CONFIG_OF_FILENAME
+	string "Device Tree Filename on SD Card"
+	depends on CONFIG_OF_LIBFDT && CONFIG_SDCARD
+	default "ek.dtb"
+
+config CONFIG_OF_ADDRESS
+	string "The External Ram Address to Load Device Tree Blob"
+	depends on CONFIG_OF_LIBFDT
+	default "0x71000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x21000000"
+	help
+
 endmenu
 
 #
