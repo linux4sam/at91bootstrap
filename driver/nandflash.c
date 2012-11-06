@@ -1547,12 +1547,22 @@ int load_nandflash(struct image_info *image)
 		return -1;
 #endif
 
-	dbg_log(1, "Nand: Image: Copy %d bytes from %d to %d\r\n",
+	dbg_log(1, "NAND: Image: Copy %d bytes from %d to %d\r\n",
 			image->length, image->offset, image->dest);
 
 	ret = nand_loadimage(&nand, image->offset, image->length, image->dest);
 	if (ret)
 		return ret;
+
+	if (image->of) {
+		dbg_log(1, "NAND: dt blob: Copy %d bytes from %d to %d\r\n",
+			image->of_length, image->of_offset, image->of_dest);
+
+		ret = nand_loadimage(&nand, image->of_offset,
+					image->of_length, image->of_dest);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
  }

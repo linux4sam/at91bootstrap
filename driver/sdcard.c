@@ -92,5 +92,14 @@ int load_sdcard(struct image_info *image)
 	if (ret)
 		return ret;
 
+	if (image->of) {
+		dbg_log(1, "SD Card: dt blob: Read file %s to %d\n\r",
+				image->of_filename, image->of_dest);
+
+		ret = sdcard_loadimage(image->of_filename, image->of_dest);
+		if (ret)
+			return ret;
+	}
+
 	return 0;
 }

@@ -79,6 +79,12 @@ struct image_info
 	unsigned int length;
 	char *filename;
 	unsigned char *dest;
+
+	unsigned char of;
+	unsigned int of_offset;
+	unsigned int of_length;
+	char *of_filename;
+	unsigned char *of_dest;
 };
 
 #endif /* #ifdef __COMMON_H__ */

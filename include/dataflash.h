@@ -28,7 +28,7 @@
 #ifndef __DATAFLASH_H__
 #define __DATAFLASH_H__
 
-extern int load_dataflash(struct image_info *img_info);
+extern int load_dataflash(struct image_info *image);
 
 extern int dataflash_page0_erase(void);
 

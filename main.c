@@ -34,6 +34,7 @@
 #include "nandflash.h"
 #include "sdcard.h"
 #include "flash.h"
+#include "string.h"
 
 extern int load_kernel(struct image_info *img_info);
 
@@ -67,16 +68,29 @@ static void display_banner (void)
 
 int main(void)
 {
-	struct image_info image_info;
+	struct image_info image;
 	int ret;
 
-	image_info.dest = (unsigned char *)JUMP_ADDR;
-#if defined (CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH)
-	image_info.offset = IMG_ADDRESS;
-	image_info.length = IMG_SIZE;
+	memset(&image, 0, sizeof(image));
+
+	image.dest = (unsigned char *)JUMP_ADDR;
+#ifdef CONFIG_OF_LIBFDT
+	image.of = 1;
+	image.of_dest = (unsigned char *)OF_ADDRESS;
 #endif
-#if defined(CONFIG_SDCARD)
-	image_info.filename = OS_IMAGE_NAME;
+#if defined CONFIG_DATAFLASH || defined CONFIG_NANDFLASH
+	image.offset = IMG_ADDRESS;
+	image.length = IMG_SIZE;
+#ifdef CONFIG_OF_LIBFDT
+	image.of_offset = OF_OFFSET;
+	image.of_length = OF_LENGTH;
+#endif
+#endif
+#ifdef CONFIG_SDCARD
+	image.filename = OS_IMAGE_NAME;
+#ifdef CONFIG_OF_LIBFDT
+	image.of_filename = OF_FILENAME;
+#endif
 #endif
 
 #ifdef CONFIG_HW_INIT
@@ -89,7 +103,7 @@ int main(void)
 
 	dbg_log(1, "Downloading image...\n\r");
 
-	ret = (*load_image)(&image_info);
+	ret = (*load_image)(&image);
 	if (ret == 0){
 		dbg_log(1, "Done!\n\r");
 	}

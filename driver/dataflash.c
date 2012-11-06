@@ -500,7 +500,7 @@ int load_dataflash(struct image_info *image)
 {
 	struct dataflash_descriptor	df_descriptor;
 	struct dataflash_descriptor	*df_desc = &df_descriptor;
-	int ret;
+	int ret = 0;
 
 	at91_spi0_hw_init();
 
@@ -536,6 +536,19 @@ int load_dataflash(struct image_info *image)
 		dbg_log(1, "** SF: Serial flash read error**\n\r");
 		ret = -1;
 		goto err_exit;
+	}
+
+	if (image->of) {
+		dbg_log(1, "SF: dt blob: Copy %d bytes from %d to %d\n\r",
+			image->of_length, image->of_offset, image->of_dest);
+
+		ret = dataflash_read_array(df_desc,
+			image->of_offset, image->of_length, image->of_dest);
+		if (ret) {
+			dbg_log(1, "** SF: DT: Serial flash read error**\n\r");
+			ret = -1;
+			goto err_exit;
+		}
 	}
 
 err_exit:
