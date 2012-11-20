@@ -28,36 +28,29 @@
 #ifndef __SPI_H__
 #define __SPI_H__
 
-/* Controller-specific definitions: */
-
 /* SPI mode flags */
-#define	SPI_CPHA	0x01			/* clock phase */
-#define	SPI_CPOL	0x02			/* clock polarity */
-#define	SPI_MODE0	(0|0)			/* (original MicroWire) */
-#define	SPI_MODE1	(0|SPI_CPHA)
-#define	SPI_MODE2	(SPI_CPOL|0)
-#define	SPI_MODE3	(SPI_CPOL|SPI_CPHA)
+#define	SPI_MODE0	0
+#define	SPI_MODE1	1
+#define	SPI_MODE2	2	
+#define	SPI_MODE3	3
 
-/* SPI transfer flags */
-#define SPI_XFER_BEGIN	0x01			/* Assert CS before transfer */
-#define SPI_XFER_END	0x02			/* Deassert CS after transfer */
+/* Controller-specific definitions: */
+#define AT91C_SPI_PCS0_DATAFLASH	0
+#define AT91C_SPI_PCS1_DATAFLASH	1
+#define AT91C_SPI_PCS2_DATAFLASH	2
+#define AT91C_SPI_PCS3_DATAFLASH	3
 
-/* Chip Select 0 : NPCS0 %1110 */
-#define AT91C_SPI_PCS0_DATAFLASH	0xE
-/* Chip Select 1 : NPCS1 %1101 */
-#define AT91C_SPI_PCS1_DATAFLASH	0xD
-/* Chip Select 2 : NPCS2 %1011 */
-#define AT91C_SPI_PCS2_DATAFLASH	0xB
-/* Chip Select 3 : NPCS3 %0111 */
-#define AT91C_SPI_PCS3_DATAFLASH	0x7
+/* functions */
+extern void at91_spi_cs_activate(void);
+extern void at91_spi_cs_deactivate(void);
 
-/* export functions */
-extern int at91_spi_init(unsigned int clock, unsigned int mode);
-extern int at91_spi_enable(void);
+extern void at91_spi_enable(void);
 extern void at91_spi_disable(void);
-extern int spi_xfer(unsigned int len,
-			const void *dout,
-			void *din,
-			unsigned long flags);
+extern int at91_spi_init(unsigned int pcs,
+			unsigned int clock,
+			unsigned int mode);
+extern void at91_spi_write_data(unsigned short data);
+extern unsigned int at91_spi_read_spi(void);
+extern unsigned int at91_spi_read_sr(void);
 
 #endif	/* #ifndef __SPI_H__ */
