@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2006, Atmel Corporation
+ * Copyright (c) 2012, Atmel Corporation
 
  * All rights reserved.
  *
@@ -25,12 +25,18 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __MEDIA_H__
-#define __MEDIA_H__
+#ifndef __MCI_H__
+#define __MCI_H__
 
-extern int sdcard_initialize(void);
-extern unsigned int sdcard_block_read(unsigned int start,
-					unsigned int blkcnt,
-					void *dest);
+extern inline unsigned int mci_readl(unsigned int reg);
+extern inline void mci_writel(unsigned int reg, unsigned int value);
 
-#endif
+extern int at91_mci_init(unsigned int clock, unsigned int blklen);
+extern int at91_mci_set_clock(unsigned int clock);
+extern void at91_mci_set_blkr(unsigned int blkcnt, unsigned int blklen);
+extern int at91_mci_set_bus_width(unsigned int buswidth);
+extern int at91_mci_read_block_data(unsigned int *data,
+				unsigned int bytes_to_read,
+				unsigned int block_len);
+
+#endif /* #ifndef __MCI_H__ */

@@ -21,6 +21,7 @@ COBJS-$(CONFIG_SDDRC)		+= $(DRIVERS_SRC)/sddrc.o
 COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/ddramc.o
 
 COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/at91_mci.o
+COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/mci_media.o
 COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/sdcard.o
 
 ifeq ($(CONFIG_BOARD), "at91sam9260ek")

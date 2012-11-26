@@ -23,7 +23,7 @@ DSTATUS disk_initialize(BYTE drv        /* Physical drive number (0..) */
 {
 	if (drv) return STA_NOINIT;	
 	
-	if (mmc_initialize() == 0)
+	if (sdcard_initialize() == 0)
 		Stat &= ~STA_NOINIT;
 
 	return Stat;
@@ -54,7 +54,9 @@ DRESULT disk_read(BYTE drv,     /* Physical drive number (0..) */
 	if (drv || !count) return RES_PARERR;
 	if (Stat & STA_NOINIT) return RES_NOTRDY;
 
-	if (mmc_bread((unsigned int)sector, (unsigned int)count, (void *)buff) == count)
+	if (sdcard_block_read((unsigned int)sector,
+				(unsigned int)count,
+				(void *)buff) == count)
 		return RES_OK;
 	else
 		return RES_ERROR;
