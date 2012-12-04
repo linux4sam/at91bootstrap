@@ -113,7 +113,12 @@
 #define PMERRLOC_ELIER		0x014	/* Error Location Interrupt Enable Register */
 #define PMERRLOC_ELIDR		0x018	/* Error Location Interrupt Disable Register */
 #define PMERRLOC_ELIMR		0x01C	/* Error Location Interrupt Mask Register */
+
 #define PMERRLOC_ELISR		0x020	/* Error Location Interrupt Status Register */
+/* -------- PMERRLOC_ELISR: (Offset: 0x20) Error Location Interrupt Status Register --------*/
+#define PMERRLOC_ELISR_DONE		(0x1)
+#define PMERRLOC_ELISR_ERR_CNT		(0x1f << 8)
+
 /* 0x24 reserved */
 #define PMERRLOC_SIGMA0		0x028	/* PMECC Error Location SIGMA0 Register */
 

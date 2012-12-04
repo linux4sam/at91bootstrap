@@ -100,6 +100,17 @@ static void pmecc_writel(unsigned int value, unsigned reg)
 {
 	writel(value, (AT91C_BASE_PMECC + reg));
 }
+
+static int pmecclor_readl(unsigned int reg)
+{
+	return readl(AT91C_BASE_PMERRLOC + reg);
+}
+
+static void pmecclor_writel(unsigned int value, unsigned reg)
+{
+	writel(value, (AT91C_BASE_PMERRLOC + reg));
+}
+
 #endif /* #ifdef CONFIG_USE_PMECC */
 
 /* ooblayout */
@@ -623,6 +634,410 @@ static int check_pmecc_ecc_data(struct nand_info *nand, unsigned char *buffer)
 		return 0;
 }
 
+ /**
+ * \brief Build the pseudo syndromes table
+ * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
+ * \param sector Targetted sector.
+ */
+
+static void GenSyn(unsigned long pPMECC, struct _PMECC_paramDesc_struct *pPmeccDescriptor, unsigned int sector)
+{
+	short *pRemainer;
+	unsigned int index;
+
+	pRemainer = (short *) (pPMECC + PMECC_REM + (sector * 0x40));
+
+	for (index = 0; index < pPmeccDescriptor->tt; index++)
+		/* Fill odd syndromes */
+		pPmeccDescriptor->partialSyn[1 +  (2 * index)] = pRemainer[index];
+}
+
+/**
+ * \brief The substitute function evaluates the polynomial remainder,
+ * with different values of the field primitive elements.
+ * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
+ */
+static int substitute(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
+{
+	int i, j;
+	short *si;
+	short *pPartialSyn = pPmeccDescriptor->partialSyn;
+	short *alpha_to = pPmeccDescriptor->alpha_to;
+	short *index_of = pPmeccDescriptor->index_of;
+
+	/* si[] is a table that holds the current syndrome value, an element of that table belongs to the field.*/
+	si = pPmeccDescriptor->si;
+
+	for (i = 1; i < 2 * TT_MAX; i++)
+		si[i] = 0;
+
+	/* Computation 2t syndromes based on S(x) */
+	/* Odd syndromes */
+	for (i = 1; i <= 2 * pPmeccDescriptor->tt - 1; i = i + 2) {
+		si[i] = 0;
+		for (j = 0; j < pPmeccDescriptor->mm; j++) {
+			if (pPartialSyn[i] & ((unsigned short)0x1 << j))
+				si[i] = alpha_to[(i * j)] ^ si[i];
+		}
+	}
+	/* Even syndrome = (Odd syndrome) ** 2 */
+	for (i = 2; i <= 2 * pPmeccDescriptor->tt; i = i + 2) {
+		j = i / 2;
+		if (si[j] == 0)
+			si[i] = 0;
+		else
+			si[i] = alpha_to[(2 * index_of[si[j]]) % (unsigned int)pPmeccDescriptor->nn];
+	}
+	return 0;
+}
+
+/**
+ * \brief The substitute function finding the value of the error
+ * location polynomial.
+ * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
+ */
+static unsigned int get_sigma(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
+{
+	unsigned int dmu_0_count;
+	int i, j, k;
+	short *lmu = pPmeccDescriptor->lmu;
+	short *si = pPmeccDescriptor->si;
+	short tt = pPmeccDescriptor->tt;
+
+	/* mu  */
+	int mu[TT_MAX+1];
+
+	/* discrepancy */
+	int dmu[TT_MAX+1];
+
+	/* delta order   */
+	int delta[TT_MAX+1];
+
+	/* index of largest delta */
+	int ro;
+	int largest;
+	int diff;
+
+	dmu_0_count = 0;
+
+	/* First Row  */
+
+	/* Mu */
+	mu[0]  = -1;
+	/* Actually -1/2 */
+	/* Sigma(x) set to 1 */
+
+	for (i = 0; i < (2 * TT_MAX + 1); i++)
+		pPmeccDescriptor->smu[0][i] = 0;
+
+	pPmeccDescriptor->smu[0][0] = 1;
+
+	/* discrepancy set to 1 */
+	dmu[0] = 1;
+
+	/* polynom order set to 0 */
+	lmu[0] = 0;
+
+	/* delta set to -1 */
+	delta[0]  = (mu[0] * 2 - lmu[0]) >> 1;
+
+	/*                     */
+	/*     Second Row      */
+	/*                     */
+
+	/* Mu */
+	mu[1]  = 0;
+
+	/* Sigma(x) set to 1 */
+	for (i = 0; i < (2 * TT_MAX + 1); i++)
+		pPmeccDescriptor->smu[1][i] = 0;
+
+	pPmeccDescriptor->smu[1][0] = 1;
+
+	/* discrepancy set to S1 */
+	dmu[1] = si[1];
+
+	/* polynom order set to 0 */
+	lmu[1] = 0;
+
+	/* delta set to 0 */
+	delta[1]  = (mu[1] * 2 - lmu[1]) >> 1;
+
+	/* Init the Sigma(x) last row */
+	for (i = 0; i < (2 * TT_MAX + 1); i++)
+		pPmeccDescriptor->smu[tt + 1][i] = 0;
+
+	for (i = 1; i <= tt; i++) {
+		mu[i+1] = i << 1;
+		/* Compute Sigma (Mu+1)             */
+		/* And L(mu)                        */
+		/* check if discrepancy is set to 0 */
+		if (dmu[i] == 0) {
+			dmu_0_count++;
+			if ((tt - (lmu[i] >> 1) - 1) & 0x1) {
+				if (dmu_0_count == ((tt - (lmu[i] >> 1) - 1) / 2) + 2) {
+					for (j = 0; j <= (lmu[i] >> 1) + 1; j++)
+						pPmeccDescriptor->smu[tt+1][j] = pPmeccDescriptor->smu[i][j];
+
+					lmu[tt + 1] = lmu[i];
+					return 0;
+				}
+			} else {
+				if (dmu_0_count == ((tt - (lmu[i] >> 1) - 1) / 2) + 1) {
+					for (j = 0; j <= (lmu[i] >> 1) + 1; j++)
+						pPmeccDescriptor->smu[tt + 1][j] = pPmeccDescriptor->smu[i][j];
+
+					lmu[tt + 1] = lmu[i];
+					return 0;
+				}
+			}
+
+			/* copy polynom */
+			for (j = 0; j <= lmu[i] >> 1; j++)
+				pPmeccDescriptor->smu[i + 1][j] = pPmeccDescriptor->smu[i][j];
+
+			/* copy previous polynom order to the next */
+			lmu[i + 1] = lmu[i];
+		} else {
+			ro = 0;
+			largest = -1;
+			/* find largest delta with dmu != 0 */
+			for (j = 0; j < i; j++) {
+				if (dmu[j]) {
+					if (delta[j] > largest) {
+						largest = delta[j];
+						ro = j;
+					}
+				}
+			}
+
+			/* compute difference */
+			diff = (mu[i] - mu[ro]);
+
+			/* Compute degree of the new smu polynomial */
+			if ((lmu[i]>>1) > ((lmu[ro]>>1) + diff))
+				lmu[i + 1] = lmu[i];
+			else
+				lmu[i + 1] = ((lmu[ro]>>1) + diff) * 2;
+
+			/* Init smu[i+1] with 0 */
+			for (k = 0; k < (2 * TT_MAX+1); k++)
+				pPmeccDescriptor->smu[i+1][k] = 0;
+
+			/* Compute smu[i+1] */
+			for (k = 0; k <= lmu[ro]>>1; k++)
+				if (pPmeccDescriptor->smu[ro][k] && dmu[i])
+					 pPmeccDescriptor->smu[i + 1][k + diff] = pPmeccDescriptor->alpha_to[(pPmeccDescriptor->index_of[dmu[i]]
+									+ (pPmeccDescriptor->nn - pPmeccDescriptor->index_of[dmu[ro]])
+									+ pPmeccDescriptor->index_of[pPmeccDescriptor->smu[ro][k]]) % (unsigned int)pPmeccDescriptor->nn];
+
+			for (k = 0; k <= lmu[i]>>1; k++)
+				pPmeccDescriptor->smu[i+1][k] ^= pPmeccDescriptor->smu[i][k];
+		}
+
+		/*************************************************/
+		/*                                               */
+		/*      End Compute Sigma (Mu+1)                 */
+		/*      And L(mu)                                */
+		/*************************************************/
+		/* In either case compute delta */
+		delta[i + 1]  = (mu[i + 1] * 2 - lmu[i + 1]) >> 1;
+
+		/* Do not compute discrepancy for the last iteration */
+		if (i < tt) {
+			for (k = 0 ; k <= (lmu[i + 1] >> 1); k++) {
+				if (k == 0)
+					dmu[i + 1] = si[2 * (i - 1) + 3];
+				/* check if one operand of the multiplier is null, its index is -1 */
+				else if (pPmeccDescriptor->smu[i+1][k] && si[2 * (i - 1) + 3 - k])
+					dmu[i + 1] = pPmeccDescriptor->alpha_to[(pPmeccDescriptor->index_of[pPmeccDescriptor->smu[i + 1][k]]
+							+ pPmeccDescriptor->index_of[si[2 * (i - 1) + 3 - k]]) % (unsigned int)pPmeccDescriptor->nn] ^ dmu[i + 1];
+			}
+		}
+	}
+	return 0;
+}
+
+/**
+ * \brief Init the PMECC Error Location peripheral and start the error
+ *        location processing
+ * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
+ * \param SectorSizeInBits Size of the sector in bits.
+ * \return Number of errors
+ */
+static int ErrorLocation(unsigned long pPMERRLOC, struct _PMECC_paramDesc_struct *pPmeccDescriptor, unsigned int SectorSizeInBits)
+{
+	unsigned int alphax;
+	unsigned int *pSigma;
+	unsigned int errorNumber;
+	unsigned int NbrOfRoots;
+
+	/* Disable PMECC Error Location IP */
+	pmecclor_writel(0xFFFFFFFF, PMERRLOC_ELDIS);
+
+	errorNumber = 0;
+	alphax = 0;
+
+	pSigma = (unsigned int *) (pPMERRLOC + PMERRLOC_SIGMA0);
+
+	for (alphax = 0; alphax <= pPmeccDescriptor->lmu[pPmeccDescriptor->tt + 1] >> 1; alphax++) {
+		*pSigma++ = pPmeccDescriptor->smu[pPmeccDescriptor->tt + 1][alphax];
+		errorNumber++;
+	}
+
+	pmecclor_writel(((errorNumber - 1) << 16) | pmecclor_readl(PMERRLOC_ELCFG), PMERRLOC_ELCFG);
+	/* Enable error location process */
+	pmecclor_writel(SectorSizeInBits, PMERRLOC_ELEN);
+
+	while ((pmecclor_readl(PMERRLOC_ELISR) & PMERRLOC_ELISR_DONE) == 0);
+
+	NbrOfRoots = (pmecclor_readl(PMERRLOC_ELISR) & PMERRLOC_ELISR_ERR_CNT) >> 8;
+	/* Number of roots == degree of smu hence <= tt */
+	if (NbrOfRoots == pPmeccDescriptor->lmu[pPmeccDescriptor->tt + 1] >> 1)
+		return errorNumber - 1;
+
+	/* Number of roots not match the degree of smu ==> unable to correct error */
+	return -1;
+}
+
+/**
+ * \brief Correct errors indicated in the PMECCEL error location registers.
+ * \param sectorBaseAddress Base address of the sector.
+ * \param ExtraBytes Number of extra bytes of the sector.(encoded Spare Area, only for the last sector)
+ * \param ErrorNbr Number of error to correct
+ * \return Number of errors
+ */
+static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
+			struct _PMECC_paramDesc_struct *pPmeccDescriptor,
+			unsigned int sectorBaseAddress,
+			unsigned int ExtraBytes,
+			unsigned int ErrorNbr)
+{
+	unsigned int *pErrPos;
+	unsigned int bytePos;
+	unsigned int bitPos;
+	unsigned int sectorSize;
+	unsigned int eccSize;
+	unsigned int eccEndAddr;
+
+	pErrPos = (unsigned int *)(pPMERRLOC + PMERRLOC_EL0);
+
+	sectorSize = ((pPmeccDescriptor->sectorSize >> 4) + 1) * 512;
+	/* Get number of ECC bytes */
+	eccEndAddr = pmecc_readl(PMECC_EADDR);
+	eccSize = (eccEndAddr - pmecc_readl(PMECC_SADDR)) + 1;
+
+	while (ErrorNbr) {
+		bytePos = (*pErrPos - 1) / 8;
+		bitPos = (*pErrPos - 1) % 8;
+
+		if (bytePos < (sectorSize + ExtraBytes)) {
+			/* If error is located in the data area(not in ECC) */
+			if (bytePos < sectorSize + pmecc_readl(PMECC_SADDR)) {
+				/* If the error position is before ECC area */
+				dbg_log(1, "Correct error bit @[#Byte %u,Bit# %u]\n\r", (unsigned int)bytePos, (unsigned int)bitPos);
+				if (*(unsigned char *)(sectorBaseAddress + bytePos) & (1 << bitPos)) 
+					*(unsigned char *)(sectorBaseAddress + bytePos) &= (0xFF ^ (1 << bitPos));
+				else
+					*(unsigned char *)(sectorBaseAddress + bytePos) |= (1 << bitPos);
+			} else {
+				if (*(unsigned char *)(sectorBaseAddress + bytePos + eccSize)& (1 << bitPos)) 
+					*(unsigned char *)(sectorBaseAddress + bytePos + eccSize) &= (0xFF ^ (1 << bitPos));
+				else
+					*(unsigned char *)(sectorBaseAddress + bytePos + eccSize) |= (1 << bitPos);
+			}
+		}
+		pErrPos++;
+		ErrorNbr--;
+	}
+	return 0;
+}
+
+static int get_page_size(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
+{
+	int sector_size, page_size;
+	if (pPmeccDescriptor->sectorSize == AT91C_PMECC_SECTORSZ_512)
+		sector_size = 512;
+	else
+		sector_size = 1024;
+
+	switch (pPmeccDescriptor->pageSize) {
+	case AT91C_PMECC_PAGESIZE_1SEC:
+		page_size = sector_size * 1;
+		break;
+	case AT91C_PMECC_PAGESIZE_2SEC:
+		page_size = sector_size * 2;
+		break;
+	case AT91C_PMECC_PAGESIZE_4SEC:
+		page_size = sector_size * 4;
+		break;
+	case AT91C_PMECC_PAGESIZE_8SEC:
+		page_size = sector_size * 8;
+		break;
+	default:
+		dbg_log(1, "unsupport page size.\r\n");
+		return 0;
+	}
+
+	return page_size;
+}
+
+/**
+ * \brief Launch error detection functions and correct corrupted bits.
+ * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
+ * \param pmeccStatus Value of the PMECC status register.
+ * \param pageBuffer Base address of the buffer containing the page to be corrected.
+ * \param ErrorNbr Number of error to correct
+ * \return 0 if all errors have been corrected, 1 if too many errors detected
+ */
+unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
+		unsigned long pPMERRLOC,
+		struct _PMECC_paramDesc_struct *pPmeccDescriptor,
+		unsigned int pmeccStatus,
+		void *pageBuffer)
+{
+	unsigned int sectorNumber = 0;
+	unsigned int sectorBaseAddress;
+	volatile int errorNbr;
+	unsigned int sector_num_per_page, sector_size_byte, page_size_byte;
+
+	/* Set the sector size (512 or 1024 bytes) */
+	pmecclor_writel((pPmeccDescriptor->sectorSize >> 4), PMERRLOC_ELCFG);
+
+	sector_size_byte = ((pPmeccDescriptor->sectorSize >> 4) + 1) * 512;
+	page_size_byte = get_page_size(pPmeccDescriptor);
+	sector_num_per_page = page_size_byte / sector_size_byte;
+
+	while (sectorNumber < sector_num_per_page) {
+
+		errorNbr = 0;
+		if (pmeccStatus & 0x1) {
+
+			sectorBaseAddress = (unsigned int)pageBuffer + (sectorNumber * sector_size_byte);
+
+			GenSyn(pPMECC, pPmeccDescriptor, sectorNumber);
+
+			substitute(pPmeccDescriptor);
+
+			get_sigma(pPmeccDescriptor);
+			errorNbr = ErrorLocation(pPMERRLOC,
+						pPmeccDescriptor,
+						(((pPmeccDescriptor->sectorSize >> 4) + 1) * 512 * 8)
+						+ (pPmeccDescriptor->tt * (13 + (pPmeccDescriptor->sectorSize >> 4))));  /* number of bits of the sector + ecc */
+
+			if (errorNbr == -1)
+				return 1;	/* uncorrectable errors */
+			else
+				ErrorCorrection(pPMERRLOC, pPmeccDescriptor, sectorBaseAddress, 0, errorNbr); /* Extra byte is 0 */
+		}
+		sectorNumber++;
+		pmeccStatus = pmeccStatus >> 1;
+	}
+
+	return 0;
+}
+
+
 static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 {
 	int ret = 0;
@@ -641,7 +1056,7 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 		}
 
 		dbg_log(1, "PMECC: sector bits %d corrupted, Now correcting...\n\r", erris);
-		result = (*pmecc_correction_algo)(AT91C_BASE_PMECC,
+		result = PMECC_CorrectionAlgo(AT91C_BASE_PMECC,
 			AT91C_BASE_PMERRLOC,
 			&PMECC_paramDesc,
 			erris,
