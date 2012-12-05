@@ -29,8 +29,7 @@
 /*
  *	Chip ID list
  *
- *	Name. ID code, pagesize, chipsize in MegaByte, eraseblock size,
- *	options
+ *	Name. ID code, pagesize, chipsize in MegaByte, eraseblock size, options
  *
  *	Pagesize; 0, 256, 512
  *	0	get this information from the extended chip ID
@@ -63,10 +62,6 @@ const struct nandflash_dev nandflash_ids[] = {
 
 	{"NAND 256MiB 3,3V 8-bit",	0x71, 512, 256, 0x4000, 0},
 
-	/*
-	 * These are the new chips with large page size. The pagesize and the
-	 * erasesize is determined from the extended id bytes
-	 */
 	/*512 Megabit */
 	{"NAND 64MiB 1,8V 8-bit",	0xA2, 0,  64, 0, 0},
 	{"NAND 64MiB 3,3V 8-bit",	0xF2, 0,  64, 0, 0},
@@ -105,16 +100,6 @@ const struct nandflash_dev nandflash_ids[] = {
 	{"NAND 2GiB 1,8V 16-bit",	0xB5, 0, 2048, 0, NAND_BUSWIDTH_16},
 	{"NAND 2GiB 3,3V 16-bit",	0xC5, 0, 2048, 0, NAND_BUSWIDTH_16},
 
-	/*
-	 * Renesas AND 1 Gigabit. Those chips do not support extended id and
-	 * have a strange page/block layout !  The chosen minimum erasesize is
-	 * 4 * 2 * 2048 = 16384 Byte, as those chips have an array of 4 page
-	 * planes 1 block = 2 pages, but due to plane arrangement the blocks
-	 * 0-3 consists of page 0 + 4,1 + 5, 2 + 6, 3 + 7 Anyway JFFS2 would
-	 * increase the eraseblock size so we chose a combined one which can be
-	 * erased in one go There are more speed improvements for reads and
-	 * writes possible, but not implemented now
-	 */
 	{NULL,}
 };
 

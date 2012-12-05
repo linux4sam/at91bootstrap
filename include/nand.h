@@ -125,18 +125,6 @@ struct nand_onfi_params {
 	unsigned short crc;
 } __attribute__((packed));
 
-/*
- * struct nandflash_dev - NAND Flash Device ID Structure
- * @name:	Identify the device type
- * @id:		device ID code
- * @pagesize:	Pagesize in bytes. Either 256 or 512 or 0
- *		If the pagesize is 0, then the real pagesize
- *		and the eraseize are determined from the
- *		extended id bytes in the chip
- * @erasesize:	Size of an erase block in the flash device.
- * @chipsize:	Total chipsize in Mega Bytes
- * @options:	Bitfield to store chip relevant options
- */
 struct nandflash_dev {
 	char *name;
 	int id;

@@ -332,7 +332,6 @@ static unsigned short onfi_crc16(unsigned short crc, unsigned char const *p, uns
 	return crc;
 }
 
-/* Check if the NAND chip is ONFI compliant, returns 0 if it is, -1 otherwise */
 static int nandflash_detect_onfi(struct nand_chip *chip)
 {
 	struct nand_onfi_params *p = &onfi_params;
@@ -355,15 +354,14 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 		|| (onfi_ind[1] != 'N')
 		|| (onfi_ind[2] != 'F')
 		|| (onfi_ind[3] != 'I')) {
-		dbg_log(1, "Nand: ONFI not supported\n\r");
+		dbg_log(1, "NAND: ONFI not supported\n\r");
 		return -1;
 	}
 
-	dbg_log(1, "ONFI flash detected\n\r");
+	dbg_log(1, "NAND: ONFI flash detected\n\r");
 
 	nand_cs_enable();
 
-	/* read the nand ONFI parameter */
 	nand_command(CMD_READ_ONFI);
 	nand_address(0x00);
 	
@@ -372,20 +370,19 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	
 	for (i = 0; i < 3; i++) {
 		param = (unsigned char *)p;
-		/* Read the parameter table */
+		/* Read the onfi parameter table */
 		for (j = 0; j < sizeof(onfi_params); j++)
 			*param++ = read_byte();
 
-		if (onfi_crc16(ONFI_CRC_BASE, (unsigned char *)p, 254) == p->crc) {
-			dbg_log(1, "ONFI param page %d valid\n\r", i);
+		if (onfi_crc16(ONFI_CRC_BASE, (unsigned char *)p, 254)
+						== p->crc)
 			break;
-		}
 	}
 
 	nand_cs_disable();
 
 	if (i == 3) {
-		dbg_log(1, "ONFI para CRC error!\n\r");
+		dbg_log(1, "NAND: ONFI para CRC error!\n\r");
 		return -1;
 	}
 
@@ -404,7 +401,8 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 		onfi_version = 0;
 
 	if (!onfi_version) {
-		dbg_log(1, "%s: unsupported ONFI version: %d\n\r", __func__, p->revision);
+		dbg_log(1, "NAND: unsupported ONFI version: %d\n\r",
+						p->revision);
 		return -1;
 	}
 
@@ -425,23 +423,16 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 
 	nand_cs_enable();
 
-	/* Send the command for reading device ID */
+	/* Reading device ID */
 	nand_command(CMD_READID);
 	nand_address(0x00);
 
-	/* Read manufacturer and device IDs */
 	manf_id  = read_byte();
 	dev_id   = read_byte();
 	cellinfo = read_byte();
 	extid    = read_byte();
 
-	/*
-	 * Try again to make sure, as some systems the bus-hold or other
-	 * interface concerns can cause random data which looks like a
-	 * possibly credible NAND flash to appear. If the two results do
-	 * not match, ignore the device completely.
-	 */
-
+	/* Read twice */
 	nand_command(CMD_READID);
 	nand_address(0x00);
 
@@ -452,9 +443,7 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	nand_cs_disable();
 
 	if (tmp_manf != manf_id || tmp_dev != dev_id) {
-		dbg_log(1, "%s: second ID read did not match "
-		       "%d, %d against %d, %d\n\r", __func__,
-		       manf_id, dev_id, tmp_manf, tmp_dev);
+		dbg_log(1, "NAND: Twice reading device ID did not match\n\r");
 		return -1;
 	}
 
@@ -469,29 +458,27 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	if (type->name == NULL){
 		if (manf_id != 0x00 && manf_id != 0xff 
 			&& dev_id != 0x00 && dev_id != 0xff)
-			dbg_log(1, "unknown NAND device: Manufacturer ID: %d, Chip ID: 0x%d\n\r",
-						manf_id, dev_id);
+			dbg_log(1, "NAND: Not found Manufacturer ID: %d," \
+				"Chip ID: 0x%d\n\r", manf_id, dev_id);
 		return -1;
 	}
 	
-	dbg_log(1, "NAND device: %s, Manufacturer ID: %d Chip ID: %d\n\r",
-			type->name, manf_id, dev_id);
+	dbg_log(1, "NAND: %s Manufacturer ID: %d Chip ID: %d\n\r",
+				type->name, manf_id, dev_id);
 
-	/* Newer devices have all the information in additional id bytes */
 	if (type->pagesize == 0){
-		/* Calc pagesize */
+		/* pagesize */
 		chip->pagesize = 1024 << (extid & 0x3);
 		extid >>= 2;
-		/* Calc oobsize */
+		/* oobsize */
 		chip->oobsize = (8 << (extid & 0x01)) * (chip->pagesize >> 9);
 		extid >>= 2;
-		/* Calc blocksize. Blocksize is multiples of 64KiB */
+		/* Blocksize is multiples of 64KiB */
 		chip->blocksize = (64 * 1024) << (extid & 0x03);
 		extid >>= 2;
 		/* Get buswidth information */
 		chip->buswidth = (extid & 0x01) ? 1 : 0;
 	} else {
-		/* Old devices have chip data hardcoded in the device id table */
 		chip->pagesize 	= type->pagesize;
 		chip->blocksize = type->erasesize;
 		chip->oobsize 	= chip->pagesize / 32;
@@ -551,7 +538,7 @@ static int nandflash_get_type(struct nand_info *nand)
 	ret = nandflash_detect_onfi(chip);
 	if (ret == -1) {
 		if (nandflash_detect_non_onfi(chip)) {
-			dbg_log(1, "Not Find Support NAND Device!\n\r");
+			dbg_log(1, "NAND: Not find support device!\n\r");
 			return -1;
 		}
 	}
@@ -1140,7 +1127,6 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 	erris = pmecc_readl(PMECC_ISR);
 	if (erris) {
 		if (check_pmecc_ecc_data(nand, buffer) == -1){
-			//dbg_log(1, "PMECC: reading All-0xFF page\n\r");
 			return 0;
 		}
 
@@ -1151,7 +1137,8 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 		 * If we have 4 sectors, then that means the first
 		 * and last sector has errors.
 		 */
-		dbg_log(1, "PMECC: sector bits = %d, bit 1 means corrupted sector, Now correcting...\n\r", erris);
+		dbg_log(1, "PMECC: sector bits = %d, bit 1 means " \
+			"corrupted sector, Now correcting...\n\r", erris);
 		result = PMECC_CorrectionAlgo(AT91C_BASE_PMECC,
 			AT91C_BASE_PMERRLOC,
 			&PMECC_paramDesc,
@@ -1159,7 +1146,8 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 			buffer);
 
 		if (result != 0) {
-			dbg_log(1, "PMECC: failed to correct corrupted bits!\n\r");
+			dbg_log(1, "PMECC: failed to" \
+					"correct corrupted bits!\n\r");
 			ret =  ECC_CORRECT_ERROR;
 
 			/* dump the whole page for test */
@@ -1412,7 +1400,7 @@ static int nand_read_page(struct nand_info *nand,
 
 	error = Hamming_Verify256x(buffer, nand->pagesize, hamming);
 	if (error && (error != Hamming_ERROR_SINGLEBIT)) {
-		dbg_log(1, "Hamming ECC error!\n\r");
+		dbg_log(1, "NAND: Hamming ECC error!\n\r");
 		return ECC_CORRECT_ERROR;
 	}
 
@@ -1477,6 +1465,7 @@ static int nandflash_recovery(struct nand_info *nand)
 		else
 			dbg_log(1, "Nand: The erasing is done\n\r");
 	}
+
 	return ret;
 }
 #endif /* #ifdef CONFIG_NANDFLASH_RECOVERY */
@@ -1508,7 +1497,8 @@ int load_nandflash(struct image_info *img_info)
 		return -1;
 #endif
 
-	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, buffer);
+	dbg_log(1, "NAND: Copy %d bytes from %d to %d\r\n",
+					size, offset, buffer);
 
 	block = offset / nand.blocksize;
 	start_page = (offset % nand.blocksize) / nand.pagesize;
@@ -1530,16 +1520,19 @@ int load_nandflash(struct image_info *img_info)
 
 		/* check the bad block */
 		while (1) {
-			if (nand_check_badblock(&nand, block, buffer) != 0) {
+			if (nand_check_badblock(&nand,
+					block, buffer) != 0) {
 				block++; /* skip this block */
-				dbg_log(1, "Bad block: #%d\n\r", block);
+				dbg_log(1, "NAND: Bad block:" \
+					" #%d\n\r", block);
 			} else
 				break;
 		}
 
 		/* read pages of a block */
 		for (page = start_page; page < end_page; page++) {
-			ret = nand_read_page(&nand, block, page, ZONE_DATA, buffer);
+			ret = nand_read_page(&nand, block,
+					page, ZONE_DATA, buffer);
 			if (ret == ECC_CORRECT_ERROR)
 				return -1;
 			else
