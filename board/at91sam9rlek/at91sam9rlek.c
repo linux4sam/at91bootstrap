@@ -29,7 +29,6 @@
 #include "hardware.h"
 #include "arch/at91_ccfg.h"
 #include "arch/at91_matrix.h"
-#include "arch/at91_wdt.h"
 #include "arch/at91_rstc.h"
 #include "arch/at91_pmc.h"
 #include "arch/at91_smc.h"
@@ -43,6 +42,7 @@
 #include "sdramc.h"
 #include "slowclk.h"
 #include "pit_timer.h"
+#include "watchdog.h"
 #include "at91sam9rlek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -194,7 +194,7 @@ static void recovery_buttons_hw_init(void)
 void hw_init(void)
 {
 	/* Disable watchdog */
-	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDT + WDTC_MR);
+	at91_disable_wdt();
 
 	/*
 	 * At this stage the main oscillator is supposed to be enabled

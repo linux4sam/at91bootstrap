@@ -245,3 +245,9 @@ config CONFIG_SCLK
 	bool "Use external 32KHZ oscillator as source of slow clock"
 	help
 	  Use external 32KHZ oscillator as source of slow clock
+
+config CONFIG_DISABLE_WATCHDOG
+	bool "Disable Watchdog"
+	default y
+	help
+	  Disable the watchdog in the boostrap

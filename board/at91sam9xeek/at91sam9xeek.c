@@ -29,7 +29,6 @@
 #include "hardware.h"
 #include "arch/at91_ccfg.h"
 #include "arch/at91_matrix.h"
-#include "arch/at91_wdt.h"
 #include "arch/at91_rstc.h"
 #include "arch/at91_pmc.h"
 #include "arch/at91_smc.h"
@@ -42,6 +41,7 @@
 #include "dbgu.h"
 #include "debug.h"
 #include "sdramc.h"
+#include "watchdog.h"
 #include "at91sam9xeek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -135,7 +135,7 @@ static void sdramc_init(void)
 void hw_init(void)
 {
 	/* Disable watchdog */
-	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDT + WDTC_MR);
+	at91_disable_wdt();
 
 	/* Adjust waitstates to access internal flash */
 	writel(AT91C_EEFC_FWS_6WS, AT91C_BASE_EEFC + EEFC_FMR);

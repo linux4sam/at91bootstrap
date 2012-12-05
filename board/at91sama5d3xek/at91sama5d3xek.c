@@ -35,9 +35,9 @@
 #include "gpio.h"
 #include "slowclk.h"
 #include "pit_timer.h"
+#include "watchdog.h"
 
 #include "arch/at91_pmc.h"
-#include "arch/at91_wdt.h"
 #include "arch/at91_rstc.h"
 #include "arch/at91sama5_smc.h"
 #include "arch/at91_pio.h"
@@ -188,7 +188,7 @@ static void HDMI_Qt1070_workaround(void)
 void hw_init(void)
 {
 	/* Disable watchdog */
-	writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDT + WDTC_MR);
+	at91_disable_wdt();
 
 	/* At this stage the main oscillator is supposed to be enabled PCK = MCK = MOSC */
 	writel(0x00, AT91C_BASE_PMC + PMC_PLLICPR);
