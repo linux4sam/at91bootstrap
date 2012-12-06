@@ -82,15 +82,6 @@ struct _PMECC_paramDesc_struct {
 
 } PMECC_paramDesc;
 
-/* ECC detection/coreection */
-typedef int (*PMECC_CorrectionAlgo_Rom_Func) (unsigned long pPMECC,
-			unsigned long pPMERRLOC,
-			struct _PMECC_paramDesc_struct *PMECC_desc,
-			unsigned int PMECC_status,
-			void *pageBuffer);
-
-PMECC_CorrectionAlgo_Rom_Func pmecc_correction_algo;
-
 static int pmecc_readl(unsigned int reg)
 {
 	return(readl(AT91C_BASE_PMECC + reg));
@@ -573,9 +564,6 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 
 static int init_pmecc(struct nand_info *nand)
 {
-	pmecc_correction_algo = (PMECC_CorrectionAlgo_Rom_Func)
-			(*(unsigned int *)(AT91C_BASE_ROM + CONFIG_PMECC_ALGO_FUNC_OFFSET));
-
 	if (init_pmecc_descripter(&PMECC_paramDesc, nand) != 0)
 		return -1;
 
