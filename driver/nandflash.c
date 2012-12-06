@@ -532,6 +532,10 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, s
 		else
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_8SEC;
 
+		dbg_log(DEBUG_LOUD, "PMECC: page_size: %u, oob_size: %u, pmecc_cap: %u, sector_size: %u\r\n",
+			nand->pagesize, nand->oobsize, pmecc_params->tt,
+			pmecc_params->sectorSize == AT91C_PMECC_SECTORSZ_512 ? 512 : 1024);
+
 		return 0;
 	} else {
 		dbg_log(1, "PMECC: Not supported page size: %d\n\r", nand->pagesize);
@@ -1033,6 +1037,24 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 	return 0;
 }
 
+void buf_dump(unsigned char *buf, int offset, int len)
+{
+	int i = 0;
+	for (i = 0; i < len; i++) {
+		if (i % 16 == 0)
+			dbg_log(DEBUG_LOUD, "\r\n");
+		dbg_log(DEBUG_LOUD, "%u ", buf[offset + i]);
+	}
+}
+
+void page_dump(unsigned char *buf, int page_size, int oob_size)
+{
+	dbg_log(DEBUG_LOUD, "Dump Error Page: Data:\r\n");
+	buf_dump(buf, 0, page_size);
+	dbg_log(DEBUG_LOUD, "\r\nOOB:\r\n");
+	buf_dump(buf, page_size, oob_size);
+	dbg_log(DEBUG_LOUD, "\r\n");
+}
 
 static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 {
@@ -1051,7 +1073,14 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 			return 0;
 		}
 
-		dbg_log(1, "PMECC: sector bits %d corrupted, Now correcting...\n\r", erris);
+		/* erris means which sector has errors. for example:
+		 * if erris is 0x9 (0b1001)
+		 *                    ^  ^
+		 * the bit 1 indicate the position of error sectors.
+		 * If we have 4 sectors, then that means the first
+		 * and last sector has errors.
+		 */
+		dbg_log(1, "PMECC: sector bits = %d, bit 1 means corrupted sector, Now correcting...\n\r", erris);
 		result = PMECC_CorrectionAlgo(AT91C_BASE_PMECC,
 			AT91C_BASE_PMERRLOC,
 			&PMECC_paramDesc,
@@ -1061,6 +1090,9 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 		if (result != 0) {
 			dbg_log(1, "PMECC: failed to correct corrupted bits!\n\r");
 			ret =  ECC_CORRECT_ERROR;
+
+			/* dump the whole page for test */
+			page_dump(buffer, nand->pagesize, nand->oobsize);
 		}
 	}
 
@@ -1447,6 +1479,9 @@ int load_nandflash(struct image_info *img_info)
 		block++;
 		start_page = 0;
 	}
+
+	/* Only for test */
+	//buf_dump(img_info->dest, 0x10000, 0x100);
 
 	return 0;
 }
