@@ -49,6 +49,42 @@
 
 #define TT_MAX			25
 
+#define	PMECC_ERROR_CORR_BITS	2
+#define	PMECC_SECTOR_SIZE	512
+
+/*
+ * Return number of ecc bytes per sector according to sector size and
+ * correction capability
+ *
+ * Following table shows what at91 PMECC supported:
+ * Correction Capability	Sector_512_bytes	Sector_1024_bytes
+ * =====================	================	=================
+ *                2-bits                 4-bytes                  4-bytes
+ *                4-bits                 7-bytes                  7-bytes
+ *                8-bits                13-bytes                 14-bytes
+ *               12-bits                20-bytes                 21-bytes
+ *               24-bits                39-bytes                 42-bytes
+ */
+static int get_pmecc_bytes()
+{
+	int i;
+	int error_corr_bits[] =		{2, 4, 8,  12, 24};
+	int ecc_bytes_sec_512[] =	{4, 7, 13, 20, 39};
+	int ecc_bytes_sec_1024[] =	{4, 7, 14, 21, 42};
+
+	int ecc_bytes = 0;
+	for (i = 0; i < 5; i++) {
+		if (error_corr_bits[i] == PMECC_ERROR_CORR_BITS) {
+			/* find out the index */
+			ecc_bytes = (PMECC_SECTOR_SIZE == 512) ?
+				ecc_bytes_sec_512[i] : ecc_bytes_sec_1024[i];
+			break;
+		}
+	}
+
+	return ecc_bytes;	/* 0 indicate not found */
+}
+
 /* The PMECC descripter structure */
 struct _PMECC_paramDesc_struct {
 	unsigned int pageSize;
@@ -202,7 +238,8 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 		layout->badblockpos = 0;
 		oobsize = chip->oobsize;
 #ifdef CONFIG_USE_PMECC
-		layout->eccbytes = 16;
+		layout->eccbytes = chip->pagesize / PMECC_SECTOR_SIZE
+			* get_pmecc_bytes();
 #else
 		layout->eccbytes = 24;
 #endif
@@ -212,7 +249,8 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 	case 4096:
 		layout->badblockpos = 0;
 #ifdef CONFIG_USE_PMECC
-		layout->eccbytes = 32;
+		layout->eccbytes = chip->pagesize / PMECC_SECTOR_SIZE
+			* get_pmecc_bytes();
 		oobsize = chip->oobsize;
 #else
 		layout->eccbytes = 48;
@@ -503,11 +541,19 @@ static int nandflash_get_type(struct nand_info *nand)
 }
 
 #ifdef CONFIG_USE_PMECC
+
 static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, struct nand_info *nand)
 {
 	if ((nand->pagesize == 2048) || (nand->pagesize == 4096)) {
-		pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR2; 	/* Error Correct Capability */
-		pmecc_params->sectorSize = AT91C_PMECC_SECTORSZ_512;		/* Sector Size */
+		if (PMECC_SECTOR_SIZE != 512 && PMECC_SECTOR_SIZE != 1024) {
+			dbg_log(1, "PMECC: Invalid sector size: %d\n\r",
+				PMECC_SECTOR_SIZE);
+			return -1;
+		}
+		/* Sector Size */
+		pmecc_params->sectorSize = (PMECC_SECTOR_SIZE == 512) ?
+			AT91C_PMECC_SECTORSZ_512 : AT91C_PMECC_SECTORSZ_1024;
+
 		pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;			/* NAND read access */
 		pmecc_params->spareEna = AT91C_PMECC_SPAREENA_DIS;		/* for NAND read access,the spare area is skipped  */
 		pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;			/* the spare area is not protected */
@@ -520,17 +566,54 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, s
 		pmecc_params->clkCtrl = 2;	/* At 133Mhz, this field must be programmed with 2 */
 
 		pmecc_params->interrupt = 0;
-		pmecc_params->tt = 2;
+		pmecc_params->tt = PMECC_ERROR_CORR_BITS;
 		pmecc_params->mm = 13;
 		pmecc_params->nn = (1 << pmecc_params->mm) - 1;
 		pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM + CONFIG_LOOKUP_TABLE_ALPHA_OFFSET);
 		pmecc_params->index_of = (short *)(AT91C_BASE_ROM + CONFIG_LOOKUP_TABLE_INDEX_OFFSET);
 
+		/* Error Correct Capability */
+		switch (PMECC_ERROR_CORR_BITS) {
+		case 2:
+			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR2;
+			break;
+		case 4:
+			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR4;
+			break;
+		case 8:
+			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR8;
+			break;
+		case 12:
+			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR12;
+			break;
+		case 24:
+			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR24;
+			break;
+		default:
+			dbg_log(1, "PMECC: Invalid error correctable bits: %d\n\r",
+				PMECC_ERROR_CORR_BITS);
+			return -1;
+		}
+
 		/* Number of Sectors in the Page */
-		if (nand->pagesize == 2048)
+		switch (nand->pagesize / PMECC_SECTOR_SIZE) {
+		case 1:
+			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_1SEC;
+			break;
+		case 2:
+			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_2SEC;
+			break;
+		case 4:
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_4SEC;
-		else
+			break;
+		case 8:
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_8SEC;
+			break;
+		default:
+			dbg_log(1, "PMECC: Not supported sector size: %d\n\r",
+				nand->pagesize / PMECC_SECTOR_SIZE);
+			return -1;
+		}
 
 		dbg_log(DEBUG_LOUD, "PMECC: page_size: %u, oob_size: %u, pmecc_cap: %u, sector_size: %u\r\n",
 			nand->pagesize, nand->oobsize, pmecc_params->tt,
