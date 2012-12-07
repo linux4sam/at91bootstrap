@@ -910,6 +910,7 @@ static int ErrorLocation(unsigned long pPMERRLOC, struct _PMECC_paramDesc_struct
 static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 			struct _PMECC_paramDesc_struct *pPmeccDescriptor,
 			unsigned int sectorBaseAddress,
+			unsigned int eccBaseAddress,
 			unsigned int ExtraBytes,
 			unsigned int ErrorNbr)
 {
@@ -930,23 +931,22 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 	while (ErrorNbr) {
 		bytePos = (*pErrPos - 1) / 8;
 		bitPos = (*pErrPos - 1) % 8;
+		unsigned char *errByte;
 
-		if (bytePos < (sectorSize + ExtraBytes)) {
+		if (bytePos < sectorSize) {
 			/* If error is located in the data area(not in ECC) */
-			if (bytePos < sectorSize + pmecc_readl(PMECC_SADDR)) {
-				/* If the error position is before ECC area */
-				dbg_log(1, "Correct error bit @[#Byte %u,Bit# %u]\n\r", (unsigned int)bytePos, (unsigned int)bitPos);
-				if (*(unsigned char *)(sectorBaseAddress + bytePos) & (1 << bitPos)) 
-					*(unsigned char *)(sectorBaseAddress + bytePos) &= (0xFF ^ (1 << bitPos));
-				else
-					*(unsigned char *)(sectorBaseAddress + bytePos) |= (1 << bitPos);
-			} else {
-				if (*(unsigned char *)(sectorBaseAddress + bytePos + eccSize)& (1 << bitPos)) 
-					*(unsigned char *)(sectorBaseAddress + bytePos + eccSize) &= (0xFF ^ (1 << bitPos));
-				else
-					*(unsigned char *)(sectorBaseAddress + bytePos + eccSize) |= (1 << bitPos);
-			}
+			errByte = (unsigned char *)(sectorBaseAddress + bytePos);
+			dbg_log(1, "Correct error bit @[#Byte %u,Bit# %u] %u -> %u\n\r", (unsigned int)bytePos, (unsigned int)bitPos,
+				*errByte, *errByte ^ (1 << bitPos));
+			*errByte ^= (1 << bitPos);
+		} else {
+			/* error is located in oob area */
+			errByte = (unsigned char *)(eccBaseAddress + (bytePos - sectorSize));
+			dbg_log(1, "Correct error bit in OOB @[#Byte %u,Bit# %u] %u -> %u\n\r", (unsigned int)bytePos - sectorSize, (unsigned int)bitPos,
+				(*errByte), *errByte ^ (1 << bitPos));
+			*errByte ^= (1 << bitPos);
 		}
+
 		pErrPos++;
 		ErrorNbr--;
 	}
@@ -997,9 +997,9 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 		void *pageBuffer)
 {
 	unsigned int sectorNumber = 0;
-	unsigned int sectorBaseAddress;
+	unsigned int sectorBaseAddress, eccBaseAddr;
 	volatile int errorNbr;
-	unsigned int sector_num_per_page, sector_size_byte, page_size_byte;
+	unsigned int sector_num_per_page, sector_size_byte, page_size_byte, ecc_byte_per_sector;
 
 	/* Set the sector size (512 or 1024 bytes) */
 	pmecclor_writel((pPmeccDescriptor->sectorSize >> 4), PMERRLOC_ELCFG);
@@ -1007,6 +1007,7 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 	sector_size_byte = ((pPmeccDescriptor->sectorSize >> 4) + 1) * 512;
 	page_size_byte = get_page_size(pPmeccDescriptor);
 	sector_num_per_page = page_size_byte / sector_size_byte;
+	ecc_byte_per_sector = pPmeccDescriptor->eccSizeByte / sector_num_per_page;
 
 	while (sectorNumber < sector_num_per_page) {
 
@@ -1014,6 +1015,8 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 		if (pmeccStatus & 0x1) {
 
 			sectorBaseAddress = (unsigned int)pageBuffer + (sectorNumber * sector_size_byte);
+			eccBaseAddr = (unsigned int)pageBuffer + page_size_byte + pmecc_readl(PMECC_SADDR) +
+					(sectorNumber * ecc_byte_per_sector);
 
 			GenSyn(pPMECC, pPmeccDescriptor, sectorNumber);
 
@@ -1028,7 +1031,12 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 			if (errorNbr == -1)
 				return 1;	/* uncorrectable errors */
 			else
-				ErrorCorrection(pPMERRLOC, pPmeccDescriptor, sectorBaseAddress, 0, errorNbr); /* Extra byte is 0 */
+				ErrorCorrection(pPMERRLOC,
+						pPmeccDescriptor,
+						sectorBaseAddress,
+						eccBaseAddr,
+						ecc_byte_per_sector,
+						errorNbr);
 		}
 		sectorNumber++;
 		pmeccStatus = pmeccStatus >> 1;
