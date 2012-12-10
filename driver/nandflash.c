@@ -53,6 +53,32 @@
 #define	PMECC_SECTOR_SIZE	512
 
 /*
+ * Return 1 means valid pmecc error bits & sector size. otherwise return 0;
+ */
+static int is_valid_pmecc_params()
+{
+	int ret = 1;
+	switch (PMECC_ERROR_CORR_BITS) {
+	case 2:
+	case 4:
+	case 8:
+	case 12:
+	case 24:
+		break;
+	default:
+		dbg_log(DEBUG_INFO, "Invalid Pmecc error bits: %d. Should be 2, 4, 8, 12 or 24.\r\n", PMECC_ERROR_CORR_BITS);
+		ret = 0;
+	}
+
+	if (PMECC_SECTOR_SIZE != 512 && PMECC_SECTOR_SIZE != 1024) {
+		dbg_log(DEBUG_INFO, "Invalid Pmecc sector size: %d. Should be 512 or 1024.\r\n", PMECC_SECTOR_SIZE);
+		ret = 0;
+	}
+
+	return ret;
+}
+
+/*
  * Return number of ecc bytes per sector according to sector size and
  * correction capability
  *
@@ -545,11 +571,6 @@ static int nandflash_get_type(struct nand_info *nand)
 static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, struct nand_info *nand)
 {
 	if ((nand->pagesize == 2048) || (nand->pagesize == 4096)) {
-		if (PMECC_SECTOR_SIZE != 512 && PMECC_SECTOR_SIZE != 1024) {
-			dbg_log(1, "PMECC: Invalid sector size: %d\n\r",
-				PMECC_SECTOR_SIZE);
-			return -1;
-		}
 		/* Sector Size */
 		pmecc_params->sectorSize = (PMECC_SECTOR_SIZE == 512) ?
 			AT91C_PMECC_SECTORSZ_512 : AT91C_PMECC_SECTORSZ_1024;
@@ -651,6 +672,10 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 
 static int init_pmecc(struct nand_info *nand)
 {
+	/* sanity check for the pmecc sector size and error bits */
+	if (!is_valid_pmecc_params())
+		return -1;
+
 	if (init_pmecc_descripter(&PMECC_paramDesc, nand) != 0)
 		return -1;
 
