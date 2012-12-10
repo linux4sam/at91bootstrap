@@ -992,16 +992,9 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 	unsigned int *pErrPos;
 	unsigned int bytePos;
 	unsigned int bitPos;
-	unsigned int sectorSize;
-	unsigned int eccSize;
-	unsigned int eccEndAddr;
+	unsigned int sectorSize = PMECC_SECTOR_SIZE;
 
 	pErrPos = (unsigned int *)(pPMERRLOC + PMERRLOC_EL0);
-
-	sectorSize = ((pPmeccDescriptor->sectorSize >> 4) + 1) * 512;
-	/* Get number of ECC bytes */
-	eccEndAddr = pmecc_readl(PMECC_EADDR);
-	eccSize = (eccEndAddr - pmecc_readl(PMECC_SADDR)) + 1;
 
 	while (ErrorNbr) {
 		bytePos = (*pErrPos - 1) / 8;
@@ -1028,35 +1021,6 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 	return 0;
 }
 
-static int get_page_size(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
-{
-	int sector_size, page_size;
-	if (pPmeccDescriptor->sectorSize == AT91C_PMECC_SECTORSZ_512)
-		sector_size = 512;
-	else
-		sector_size = 1024;
-
-	switch (pPmeccDescriptor->pageSize) {
-	case AT91C_PMECC_PAGESIZE_1SEC:
-		page_size = sector_size * 1;
-		break;
-	case AT91C_PMECC_PAGESIZE_2SEC:
-		page_size = sector_size * 2;
-		break;
-	case AT91C_PMECC_PAGESIZE_4SEC:
-		page_size = sector_size * 4;
-		break;
-	case AT91C_PMECC_PAGESIZE_8SEC:
-		page_size = sector_size * 8;
-		break;
-	default:
-		dbg_log(1, "unsupport page size.\r\n");
-		return 0;
-	}
-
-	return page_size;
-}
-
 /**
  * \brief Launch error detection functions and correct corrupted bits.
  * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
@@ -1074,22 +1038,21 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 	unsigned int sectorNumber = 0;
 	unsigned int sectorBaseAddress, eccBaseAddr;
 	volatile int errorNbr;
-	unsigned int sector_num_per_page, sector_size_byte, page_size_byte, ecc_byte_per_sector;
+	unsigned int sector_num_per_page, page_size_byte, ecc_byte_per_sector;
 
 	/* Set the sector size (512 or 1024 bytes) */
 	pmecclor_writel((pPmeccDescriptor->sectorSize >> 4), PMERRLOC_ELCFG);
 
-	sector_size_byte = ((pPmeccDescriptor->sectorSize >> 4) + 1) * 512;
-	page_size_byte = get_page_size(pPmeccDescriptor);
-	sector_num_per_page = page_size_byte / sector_size_byte;
-	ecc_byte_per_sector = pPmeccDescriptor->eccSizeByte / sector_num_per_page;
+	sector_num_per_page = pPmeccDescriptor->eccSizeByte / get_pmecc_bytes();
+	page_size_byte = sector_num_per_page * PMECC_SECTOR_SIZE;
+	ecc_byte_per_sector = get_pmecc_bytes();
 
 	while (sectorNumber < sector_num_per_page) {
 
 		errorNbr = 0;
 		if (pmeccStatus & 0x1) {
 
-			sectorBaseAddress = (unsigned int)pageBuffer + (sectorNumber * sector_size_byte);
+			sectorBaseAddress = (unsigned int)pageBuffer + (sectorNumber * PMECC_SECTOR_SIZE);
 			eccBaseAddr = (unsigned int)pageBuffer + page_size_byte + pmecc_readl(PMECC_SADDR) +
 					(sectorNumber * ecc_byte_per_sector);
 
