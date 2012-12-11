@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Fri Jun 29 11:16:39 2012
+# Thu Dec 20 16:16:58 2012
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9m10g45ek"
@@ -41,6 +41,7 @@ ALLOW_CPU_CLK_400MHZ=y
 CONFIG_BUS_SPEED_133MHZ=y
 # ALLOW_PIO3 is not set
 # CPU_HAS_PMECC is not set
+# CONFIG_LOAD_ONE_WIRE is not set
 
 #
 # Memory selection
@@ -56,8 +57,8 @@ ALLOW_HSMCI=y
 # ALLOW_PSRAM is not set
 # ALLOW_SDRAM_16BIT is not set
 # CONFIG_RAM_32MB is not set
-# CONFIG_RAM_64MB is not set
-CONFIG_RAM_128MB=y
+CONFIG_RAM_64MB=y
+# CONFIG_RAM_128MB is not set
 # CONFIG_RAM_256MB is not set
 # CONFIG_RAM_512MB is not set
 CONFIG_DATAFLASH=y
@@ -114,3 +115,4 @@ CONFIG_HW_INIT=y
 # CONFIG_USER_HW_INIT is not set
 CONFIG_THUMB=y
 CONFIG_SCLK=y
+CONFIG_DISABLE_WATCHDOG=y

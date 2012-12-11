@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Mon Sep 24 10:22:15 2012
+# Thu Dec 20 16:31:40 2012
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9g20ek"
@@ -41,6 +41,7 @@ ALLOW_CPU_CLK_400MHZ=y
 CONFIG_BUS_SPEED_133MHZ=y
 # ALLOW_PIO3 is not set
 # CPU_HAS_PMECC is not set
+# CONFIG_LOAD_ONE_WIRE is not set
 
 #
 # Memory selection
@@ -100,3 +101,4 @@ CONFIG_DEBUG_INFO=y
 CONFIG_HW_INIT=y
 # CONFIG_USER_HW_INIT is not set
 CONFIG_THUMB=y
+CONFIG_DISABLE_WATCHDOG=y
