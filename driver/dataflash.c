@@ -528,7 +528,7 @@ int load_dataflash(struct image_info *image)
 #endif
 
 	dbg_log(1, "SF: Copy %d bytes from %d to %d\n\r",
-			image->offset, image->length, image->dest);
+			image->length, image->offset, image->dest);
 
 	ret = dataflash_read_array(df_desc,
 			image->offset, image->length, image->dest);
