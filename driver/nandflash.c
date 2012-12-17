@@ -1470,18 +1470,68 @@ static int nandflash_recovery(struct nand_info *nand)
 }
 #endif /* #ifdef CONFIG_NANDFLASH_RECOVERY */
 
-int load_nandflash(struct image_info *img_info)
+static int nand_loadimage(struct nand_info *nand,
+				unsigned int offset,
+				unsigned int length,
+				unsigned char *dest)
+{
+	unsigned char *buffer = dest;
+	unsigned int readsize;
+	unsigned int block;
+	unsigned int page, start_page, end_page;
+	unsigned int numpages;
+	int ret;
+
+	block = offset / nand->blocksize;
+	start_page = (offset % nand->blocksize) / nand->pagesize;
+	while (length > 0) {
+		/* read a buffer corresponding to a block */
+		if (length < nand->blocksize)
+			readsize = length;
+		else
+			readsize = nand->blocksize;
+
+		/* adjust the number of pages to read */
+		numpages = readsize / nand->pagesize;
+		if (readsize % nand->pagesize)
+			numpages++;
+
+		end_page = start_page + numpages;
+
+		/* check the bad block */
+		while (1) {
+			if (nand_check_badblock(nand,
+					block, buffer) != 0) {
+				block++; /* skip this block */
+				dbg_log(1, "NAND: Bad block:" \
+					" #%d\n\r", block);
+			} else
+				break;
+		}
+
+		/* read pages of a block */
+		for (page = start_page; page < end_page; page++) {
+			ret = nand_read_page(nand, block, page,
+						ZONE_DATA, buffer);
+			if (ret == ECC_CORRECT_ERROR)
+				return -1;
+			else
+				buffer += nand->pagesize;
+		}
+		length -= readsize;
+
+		block++;
+		start_page = 0;
+	}
+
+	return 0;
+}
+
+int load_nandflash(struct image_info *image)
 {
 	struct nand_info nand;
-	unsigned int offset = img_info->offset;
-	unsigned int size = img_info->length;
-	unsigned char *buffer = img_info->dest;
-
-	unsigned int length, readsize;
-	unsigned int block;
-	unsigned int page, start_page, end_page, numpages;
 	int ret;
-	
+
 	nandflash_hw_init();
 
 	if (nandflash_get_type(&nand))
@@ -1497,55 +1547,12 @@ int load_nandflash(struct image_info *img_info)
 		return -1;
 #endif
 
-	dbg_log(1, "NAND: Copy %d bytes from %d to %d\r\n",
-					size, offset, buffer);
+	dbg_log(1, "Nand: Image: Copy %d bytes from %d to %d\r\n",
+			image->length, image->offset, image->dest);
 
-	block = offset / nand.blocksize;
-	start_page = (offset % nand.blocksize) / nand.pagesize;
-
-	length = size;
-	while (length > 0) {
-		/* read a buffer corresponding to a block */
-		if (length < nand.blocksize) 
-			readsize = length;
-		else
-			readsize = nand.blocksize;
-
-		/* adjust the number of pages to read */
-		numpages = readsize / nand.pagesize;
-		if (readsize % nand.pagesize)
-			numpages++;
-
-		end_page = start_page + numpages;
-
-		/* check the bad block */
-		while (1) {
-			if (nand_check_badblock(&nand,
-					block, buffer) != 0) {
-				block++; /* skip this block */
-				dbg_log(1, "NAND: Bad block:" \
-					" #%d\n\r", block);
-			} else
-				break;
-		}
-
-		/* read pages of a block */
-		for (page = start_page; page < end_page; page++) {
-			ret = nand_read_page(&nand, block,
-					page, ZONE_DATA, buffer);
-			if (ret == ECC_CORRECT_ERROR)
-				return -1;
-			else
-				buffer += nand.pagesize;
-		}
-		length -= readsize;
-
-		block++;
-		start_page = 0;
-	}
-
-	/* Only for test */
-	//buf_dump(img_info->dest, 0x10000, 0x100);
+	ret = nand_loadimage(&nand, image->offset, image->length, image->dest);
+	if (ret)
+		return ret;
 
 	return 0;
-}
+ }

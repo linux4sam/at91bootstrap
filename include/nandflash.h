@@ -28,6 +28,6 @@
 #ifndef __NANDFLASH_H__
 #define __NANDFLASH_H__
 
-extern int load_nandflash(struct image_info *img_info);
+extern int load_nandflash(struct image_info *image);
 
 #endif /* #ifndef __NANDFLASH_H__ */
