@@ -11,4 +11,8 @@ config CPU_HAS_PMECC
 	bool
 	default n
 
+config CONFIG_LOAD_ONE_WIRE
+	bool
+	default n
+
 source "driver/Config.in.memory"

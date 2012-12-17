@@ -152,6 +152,7 @@ config	CONFIG_AT91SAM9X5EK
 	select ALLOW_NANDFLASH_RECOVERY
 	select ALLOW_PIO3
 	select CPU_HAS_PMECC
+	select CONFIG_LOAD_ONE_WIRE
 	help
 	  Use the AT91SAM9X5EK Development board
 
@@ -185,6 +186,7 @@ config CONFIG_AT91SAMA5D3XEK
 	select ALLOW_BOOT_FROM_DATAFLASH_CS0
 	select ALLOW_PIO3
 	select CPU_HAS_PMECC
+	select CONFIG_LOAD_ONE_WIRE
 	help
 	  Use the AT91SAM9N12EK Development board
 

@@ -157,6 +157,17 @@ static void ddramc_init(void)
 }
 #endif /* #ifdef CONFIG_DDR2 */
 
+static void one_wire_hw_init(void)
+{
+	const struct pio_desc one_wire_pio[] = {
+		{"1-Wire", AT91C_PIN_PE(25), 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	writel((1 << AT91C_ID_PIOE), (PMC_PCER + AT91C_BASE_PMC));
+	pio_configure(one_wire_pio);
+}
+
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 static void recovery_buttons_hw_init(void)
 {
@@ -221,6 +232,8 @@ void hw_init(void)
 	/* Initialize MPDDR Controller */
 	ddramc_init();
 #endif
+	/* load one wire information */
+	one_wire_hw_init();
 
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();

@@ -28,15 +28,11 @@
 #ifndef __DS24XX_H__
 #define __DS24XX_H__
 
-#include "arch/at91_pio.h"
-
 #define VENDOR_EMBEST		1
 #define VENDOR_FLEX		2
 #define VENDOR_RONETIX		3
 #define VENDOR_COGENT		4
 #define VENDOR_PDA		5
-
-extern void one_wire_hw_init(void);
 
 extern unsigned int get_cm_sn();
 extern char get_cm_rev();

@@ -138,6 +138,17 @@ static void ddramc_init(void)
 }
 #endif	/* #ifdef CONFIG_DDR2 */
 
+static void one_wire_hw_init(void)
+{
+	const struct pio_desc wire_pio[] = {
+		{"1-Wire", AT91C_PIN_PB(18), 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pio_configure(wire_pio);
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -177,8 +188,8 @@ void hw_init(void)
 	/* Initialize DDRAM Controller */
 	ddramc_init();
 #endif
-	/* load one wire information */
-	load_1wire_info();
+	/* one wire pin init */
+	one_wire_hw_init();
 
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();
@@ -316,14 +327,3 @@ void nandflash_config_buswidth(unsigned char busw)
 	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
-
-void one_wire_hw_init(void)
-{
-	const struct pio_desc wire_pio[] = {
-		{"1-Wire", AT91C_PIN_PB(18), 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
-	pio_configure(wire_pio);
-}

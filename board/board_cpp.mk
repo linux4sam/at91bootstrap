@@ -98,3 +98,7 @@ endif
 ifeq ($(CPU_HAS_PMECC),y)
 CPPFLAGS += -DCPU_HAS_PMECC
 endif
+
+ifeq ($(CONFIG_LOAD_ONE_WIRE), y)
+CPPFLAGS += -DCONFIG_LOAD_ONE_WIRE
+endif

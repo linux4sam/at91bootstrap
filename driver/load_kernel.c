@@ -34,12 +34,9 @@
 #include "nandflash.h"
 #include "sdcard.h"
 #include "fdt.h"
+#include "onewire_info.h"
 
 #include "debug.h"
-
-#ifdef CONFIG_AT91SAM9X5EK
-#include "onewire_info.h"
-#endif
 
 #ifdef CONFIG_OF_LIBFDT
 
@@ -222,7 +219,7 @@ static void setup_boot_params(void)
 
 	params = (unsigned int *)params + cmdparam->header.size;
 
-#ifdef CONFIG_AT91SAM9X5EK
+#ifdef CONFIG_LOAD_ONE_WIRE
 	struct tag_revision *revparam = (struct tag_revision *)params;
 	revparam->header.tag = TAG_FLAG_REVISION;
 	revparam->header.size = TAG_SIZE_REVISION;
@@ -328,6 +325,7 @@ int load_kernel(struct image_info *image)
 		ret = setup_dt_blob((char *)image->of_dest);
 		if (ret)
 			return ret;
+
 		r2 = (unsigned int)image->of_dest;
 	} else {
 		r2 = (unsigned int)(OS_MEM_BANK + 0x100);

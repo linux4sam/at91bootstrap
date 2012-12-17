@@ -103,6 +103,11 @@
  */
 #define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0
 
+/*
+ * One wire pin
+ */
+#define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PB(18)
+
 /* function */
 extern void hw_init(void);
 
