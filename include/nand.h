@@ -173,6 +173,6 @@ struct nandflash_dev {
 
 #define ONFI_CRC_BASE			0x4F4E
 
-#define NAND_BUSWIDTH_16		0x00000002
+#define NAND_BUSWIDTH_16		0x02
 
 #endif /* #ifndef __NAND_H__ */

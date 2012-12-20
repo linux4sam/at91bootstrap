@@ -52,65 +52,6 @@
 #define	PMECC_ERROR_CORR_BITS	2
 #define	PMECC_SECTOR_SIZE	512
 
-/*
- * Return 1 means valid pmecc error bits & sector size. otherwise return 0;
- */
-static int is_valid_pmecc_params()
-{
-	int ret = 1;
-	switch (PMECC_ERROR_CORR_BITS) {
-	case 2:
-	case 4:
-	case 8:
-	case 12:
-	case 24:
-		break;
-	default:
-		dbg_log(DEBUG_INFO, "Invalid Pmecc error bits: %d. Should be 2, 4, 8, 12 or 24.\r\n", PMECC_ERROR_CORR_BITS);
-		ret = 0;
-	}
-
-	if (PMECC_SECTOR_SIZE != 512 && PMECC_SECTOR_SIZE != 1024) {
-		dbg_log(DEBUG_INFO, "Invalid Pmecc sector size: %d. Should be 512 or 1024.\r\n", PMECC_SECTOR_SIZE);
-		ret = 0;
-	}
-
-	return ret;
-}
-
-/*
- * Return number of ecc bytes per sector according to sector size and
- * correction capability
- *
- * Following table shows what at91 PMECC supported:
- * Correction Capability	Sector_512_bytes	Sector_1024_bytes
- * =====================	================	=================
- *                2-bits                 4-bytes                  4-bytes
- *                4-bits                 7-bytes                  7-bytes
- *                8-bits                13-bytes                 14-bytes
- *               12-bits                20-bytes                 21-bytes
- *               24-bits                39-bytes                 42-bytes
- */
-static int get_pmecc_bytes()
-{
-	int i;
-	int error_corr_bits[] =		{2, 4, 8,  12, 24};
-	int ecc_bytes_sec_512[] =	{4, 7, 13, 20, 39};
-	int ecc_bytes_sec_1024[] =	{4, 7, 14, 21, 42};
-
-	int ecc_bytes = 0;
-	for (i = 0; i < 5; i++) {
-		if (error_corr_bits[i] == PMECC_ERROR_CORR_BITS) {
-			/* find out the index */
-			ecc_bytes = (PMECC_SECTOR_SIZE == 512) ?
-				ecc_bytes_sec_512[i] : ecc_bytes_sec_1024[i];
-			break;
-		}
-	}
-
-	return ecc_bytes;	/* 0 indicate not found */
-}
-
 /* The PMECC descripter structure */
 struct _PMECC_paramDesc_struct {
 	unsigned int pageSize;
@@ -162,6 +103,67 @@ static int pmecclor_readl(unsigned int reg)
 static void pmecclor_writel(unsigned int value, unsigned reg)
 {
 	writel(value, (AT91C_BASE_PMERRLOC + reg));
+}
+
+/*
+ * Return 1 means valid pmecc error bits & sector size. otherwise return 0;
+ */
+static int is_valid_pmecc_params()
+{
+	int ret = 1;
+	switch (PMECC_ERROR_CORR_BITS) {
+	case 2:
+	case 4:
+	case 8:
+	case 12:
+	case 24:
+		break;
+	default:
+		dbg_log(DEBUG_INFO, "Invalid Pmecc error bits: %d. Should " \
+			"be 2, 4, 8, 12 or 24.\r\n", PMECC_ERROR_CORR_BITS);
+		ret = 0;
+	}
+
+	if (PMECC_SECTOR_SIZE != 512 && PMECC_SECTOR_SIZE != 1024) {
+		dbg_log(DEBUG_INFO, "Invalid Pmecc sector size: %d. Should " \
+				"be 512 or 1024.\r\n", PMECC_SECTOR_SIZE);
+		ret = 0;
+	}
+
+	return ret;
+}
+
+/*
+ * Return number of ecc bytes per sector according to sector size and
+ * correction capability
+ *
+ * Following table shows what at91 PMECC supported:
+ * Correction Capability	Sector_512_bytes	Sector_1024_bytes
+ * =====================	================	=================
+ *                2-bits                 4-bytes                  4-bytes
+ *                4-bits                 7-bytes                  7-bytes
+ *                8-bits                13-bytes                 14-bytes
+ *               12-bits                20-bytes                 21-bytes
+ *               24-bits                39-bytes                 42-bytes
+ */
+static int get_pmecc_bytes()
+{
+	int i;
+	int error_corr_bits[] =		{2, 4, 8,  12, 24};
+	int ecc_bytes_sec_512[] =	{4, 7, 13, 20, 39};
+	int ecc_bytes_sec_1024[] =	{4, 7, 14, 21, 42};
+
+	int ecc_bytes = 0;
+	for (i = 0; i < 5; i++) {
+		if (error_corr_bits[i] == PMECC_ERROR_CORR_BITS) {
+			/* find out the index */
+			ecc_bytes = (PMECC_SECTOR_SIZE == 512) ?
+				ecc_bytes_sec_512[i] : ecc_bytes_sec_1024[i];
+			break;
+		}
+	}
+
+	return ecc_bytes;	/* 0 indicate not found */
 }
 
 #endif /* #ifdef CONFIG_USE_PMECC */
@@ -292,7 +294,8 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 	for (i = 0; i < layout->eccbytes; i++)
 		layout->eccpos[i] = oobsize - layout->eccbytes + i;
 
-	layout->oobavailbytes = oobsize - layout->eccbytes - layout->oobavail_offset;
+	layout->oobavailbytes = oobsize - layout->eccbytes
+					- layout->oobavail_offset;
 }
 
 static int nand_disable_internal_ecc(unsigned char manfid,
@@ -319,7 +322,9 @@ static int nand_disable_internal_ecc(unsigned char manfid,
 
 }
 
-static unsigned short onfi_crc16(unsigned short crc, unsigned char const *p, unsigned int len)
+static unsigned short onfi_crc16(unsigned short crc,
+				unsigned char const *p,
+				unsigned int len)
 {
 	int i;
 
@@ -555,51 +560,61 @@ static int nandflash_get_type(struct nand_info *nand)
 
 #ifdef CONFIG_USE_PMECC
 
-static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, struct nand_info *nand)
+static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
+				struct nand_info *nand)
 {
 	if ((nand->pagesize == 2048) || (nand->pagesize == 4096)) {
 		/* Sector Size */
 		pmecc_params->sectorSize = (PMECC_SECTOR_SIZE == 512) ?
 			AT91C_PMECC_SECTORSZ_512 : AT91C_PMECC_SECTORSZ_1024;
 
-		pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;			/* NAND read access */
-		pmecc_params->spareEna = AT91C_PMECC_SPAREENA_DIS;		/* for NAND read access,the spare area is skipped  */
-		pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;			/* the spare area is not protected */
+		pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;
+		pmecc_params->spareEna = AT91C_PMECC_SPAREENA_DIS;
+		pmecc_params->modeAuto = AT91C_PMECC_AUTO_DIS;
 
-		pmecc_params->spareSize = nand->oobsize;			/* Spare Area Size */
-		pmecc_params->eccSizeByte = nand->ecclayout->eccbytes;		/* ECC size */
-		pmecc_params->eccStartAddress = nand->ecclayout->eccpos[0];	/* ECC Area Start Address */
-		pmecc_params->eccEndAddress = nand->ecclayout->eccpos[nand->ecclayout->eccbytes - 1];	/* ECC Area End Address */
+		pmecc_params->spareSize = nand->oobsize;
+		pmecc_params->eccSizeByte = nand->ecclayout->eccbytes;
+		pmecc_params->eccStartAddress = nand->ecclayout->eccpos[0];
+		pmecc_params->eccEndAddress
+		= nand->ecclayout->eccpos[nand->ecclayout->eccbytes - 1];
 
-		pmecc_params->clkCtrl = 2;	/* At 133Mhz, this field must be programmed with 2 */
+		/* At 133Mhz, this field must be programmed with 2 */
+		pmecc_params->clkCtrl = 2;
 
 		pmecc_params->interrupt = 0;
 		pmecc_params->tt = PMECC_ERROR_CORR_BITS;
 		pmecc_params->mm = 13;
 		pmecc_params->nn = (1 << pmecc_params->mm) - 1;
-		pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM + CONFIG_LOOKUP_TABLE_ALPHA_OFFSET);
-		pmecc_params->index_of = (short *)(AT91C_BASE_ROM + CONFIG_LOOKUP_TABLE_INDEX_OFFSET);
+		pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM
+					+ CONFIG_LOOKUP_TABLE_ALPHA_OFFSET);
+		pmecc_params->index_of = (short *)(AT91C_BASE_ROM
+					+ CONFIG_LOOKUP_TABLE_INDEX_OFFSET);
 
 		/* Error Correct Capability */
 		switch (PMECC_ERROR_CORR_BITS) {
 		case 2:
-			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR2;
+			pmecc_params->errBitNbrCapability
+						= AT91C_PMECC_BCH_ERR2;
 			break;
 		case 4:
-			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR4;
+			pmecc_params->errBitNbrCapability
+						= AT91C_PMECC_BCH_ERR4;
 			break;
 		case 8:
-			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR8;
+			pmecc_params->errBitNbrCapability
+						= AT91C_PMECC_BCH_ERR8;
 			break;
 		case 12:
-			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR12;
+			pmecc_params->errBitNbrCapability
+						= AT91C_PMECC_BCH_ERR12;
 			break;
 		case 24:
-			pmecc_params->errBitNbrCapability = AT91C_PMECC_BCH_ERR24;
+			pmecc_params->errBitNbrCapability
+						= AT91C_PMECC_BCH_ERR24;
 			break;
 		default:
-			dbg_log(1, "PMECC: Invalid error correctable bits: %d\n\r",
-				PMECC_ERROR_CORR_BITS);
+			dbg_log(1, "PMECC: Invalid error correctable " \
+				"bits: %d\n\r",	PMECC_ERROR_CORR_BITS);
 			return -1;
 		}
 
@@ -623,13 +638,16 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params, s
 			return -1;
 		}
 
-		dbg_log(DEBUG_LOUD, "PMECC: page_size: %u, oob_size: %u, pmecc_cap: %u, sector_size: %u\r\n",
+		dbg_log(DEBUG_LOUD, "PMECC: page_size: %u, oob_size: %u, " \
+					"pmecc_cap: %u, sector_size: %u\r\n",
 			nand->pagesize, nand->oobsize, pmecc_params->tt,
-			pmecc_params->sectorSize == AT91C_PMECC_SECTORSZ_512 ? 512 : 1024);
+			pmecc_params->sectorSize
+				== AT91C_PMECC_SECTORSZ_512 ? 512 : 1024);
 
 		return 0;
 	} else {
-		dbg_log(1, "PMECC: Not supported page size: %d\n\r", nand->pagesize);
+		dbg_log(1, "PMECC: Not supported page size: %d\n\r",
+							nand->pagesize);
 		return -1;
 	}
 } 
@@ -672,7 +690,8 @@ static int init_pmecc(struct nand_info *nand)
 }
 #endif /* #ifdef CONFIG_USE_PMECC */
 
-static void write_column_address(struct nand_info *nand, unsigned int column_address)
+static void write_column_address(struct nand_info *nand,
+				unsigned int column_address)
 {
 	unsigned int page_size = nand->pagesize;
 
@@ -690,7 +709,8 @@ static void write_column_address(struct nand_info *nand, unsigned int column_add
 	}
 }
 
-static void write_row_address(struct nand_info *nand, unsigned int row_address)
+static void write_row_address(struct nand_info *nand,
+				unsigned int row_address)
 {
 	unsigned int num_pages = nand->pages_device;
 
@@ -706,10 +726,12 @@ static void write_row_address(struct nand_info *nand, unsigned int row_address)
 }
 
 #ifdef CONFIG_USE_PMECC
-static int check_pmecc_ecc_data(struct nand_info *nand, unsigned char *buffer)
+static int check_pmecc_ecc_data(struct nand_info *nand,
+				unsigned char *buffer)
 {
 	unsigned int i;
-	unsigned char *ecc_data = buffer + nand->pagesize + nand->ecclayout->eccpos[0];
+	unsigned char *ecc_data = buffer + nand->pagesize
+				+ nand->ecclayout->eccpos[0];
 
 	for (i = 0; i < nand->ecclayout->eccbytes; i++)
 		if (*ecc_data++ != 0xff)
@@ -721,13 +743,15 @@ static int check_pmecc_ecc_data(struct nand_info *nand, unsigned char *buffer)
 		return 0;
 }
 
- /**
+/*
  * \brief Build the pseudo syndromes table
  * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
  * \param sector Targetted sector.
  */
 
-static void GenSyn(unsigned long pPMECC, struct _PMECC_paramDesc_struct *pPmeccDescriptor, unsigned int sector)
+static void GenSyn(unsigned long pPMECC,
+		struct _PMECC_paramDesc_struct *pPmeccDescriptor,
+		unsigned int sector)
 {
 	short *pRemainer;
 	unsigned int index;
@@ -736,7 +760,8 @@ static void GenSyn(unsigned long pPMECC, struct _PMECC_paramDesc_struct *pPmeccD
 
 	for (index = 0; index < pPmeccDescriptor->tt; index++)
 		/* Fill odd syndromes */
-		pPmeccDescriptor->partialSyn[1 +  (2 * index)] = pRemainer[index];
+		pPmeccDescriptor->partialSyn[1 +  (2 * index)]
+						= pRemainer[index];
 }
 
 /**
@@ -752,7 +777,10 @@ static int substitute(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 	short *alpha_to = pPmeccDescriptor->alpha_to;
 	short *index_of = pPmeccDescriptor->index_of;
 
-	/* si[] is a table that holds the current syndrome value, an element of that table belongs to the field.*/
+	/*
+	 * si[] is a table that holds the current syndrome value,
+	 * an element of that table belongs to the field.
+	 */
 	si = pPmeccDescriptor->si;
 
 	for (i = 1; i < 2 * TT_MAX; i++)
@@ -773,12 +801,14 @@ static int substitute(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 		if (si[j] == 0)
 			si[i] = 0;
 		else
-			si[i] = alpha_to[(2 * index_of[si[j]]) % (unsigned int)pPmeccDescriptor->nn];
+			si[i] = alpha_to[(2 * index_of[si[j]])
+				% (unsigned int)pPmeccDescriptor->nn];
 	}
+
 	return 0;
 }
 
-/**
+/*
  * \brief The substitute function finding the value of the error
  * location polynomial.
  * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
@@ -862,17 +892,21 @@ static unsigned int get_sigma(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 		if (dmu[i] == 0) {
 			dmu_0_count++;
 			if ((tt - (lmu[i] >> 1) - 1) & 0x1) {
-				if (dmu_0_count == ((tt - (lmu[i] >> 1) - 1) / 2) + 2) {
+				if (dmu_0_count
+					== ((tt - (lmu[i] >> 1) - 1) / 2) + 2) {
 					for (j = 0; j <= (lmu[i] >> 1) + 1; j++)
-						pPmeccDescriptor->smu[tt+1][j] = pPmeccDescriptor->smu[i][j];
+						pPmeccDescriptor->smu[tt+1][j]
+						= pPmeccDescriptor->smu[i][j];
 
 					lmu[tt + 1] = lmu[i];
 					return 0;
 				}
 			} else {
-				if (dmu_0_count == ((tt - (lmu[i] >> 1) - 1) / 2) + 1) {
+				if (dmu_0_count
+					== ((tt - (lmu[i] >> 1) - 1) / 2) + 1) {
 					for (j = 0; j <= (lmu[i] >> 1) + 1; j++)
-						pPmeccDescriptor->smu[tt + 1][j] = pPmeccDescriptor->smu[i][j];
+						pPmeccDescriptor->smu[tt + 1][j]
+						= pPmeccDescriptor->smu[i][j];
 
 					lmu[tt + 1] = lmu[i];
 					return 0;
@@ -881,7 +915,8 @@ static unsigned int get_sigma(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 
 			/* copy polynom */
 			for (j = 0; j <= lmu[i] >> 1; j++)
-				pPmeccDescriptor->smu[i + 1][j] = pPmeccDescriptor->smu[i][j];
+				pPmeccDescriptor->smu[i + 1][j]
+						= pPmeccDescriptor->smu[i][j];
 
 			/* copy previous polynom order to the next */
 			lmu[i + 1] = lmu[i];
@@ -915,7 +950,7 @@ static unsigned int get_sigma(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 			for (k = 0; k <= lmu[ro]>>1; k++)
 				if (pPmeccDescriptor->smu[ro][k] && dmu[i])
 					 pPmeccDescriptor->smu[i + 1][k + diff] = pPmeccDescriptor->alpha_to[(pPmeccDescriptor->index_of[dmu[i]]
-									+ (pPmeccDescriptor->nn - pPmeccDescriptor->index_of[dmu[ro]])
+									+ (pPmeccDescriptor->nn	- pPmeccDescriptor->index_of[dmu[ro]])
 									+ pPmeccDescriptor->index_of[pPmeccDescriptor->smu[ro][k]]) % (unsigned int)pPmeccDescriptor->nn];
 
 			for (k = 0; k <= lmu[i]>>1; k++)
@@ -935,7 +970,10 @@ static unsigned int get_sigma(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 			for (k = 0 ; k <= (lmu[i + 1] >> 1); k++) {
 				if (k == 0)
 					dmu[i + 1] = si[2 * (i - 1) + 3];
-				/* check if one operand of the multiplier is null, its index is -1 */
+				/*
+				 * check if one operand of the multiplier
+				 * is null, its index is -1
+				 */
 				else if (pPmeccDescriptor->smu[i+1][k] && si[2 * (i - 1) + 3 - k])
 					dmu[i + 1] = pPmeccDescriptor->alpha_to[(pPmeccDescriptor->index_of[pPmeccDescriptor->smu[i + 1][k]]
 							+ pPmeccDescriptor->index_of[si[2 * (i - 1) + 3 - k]]) % (unsigned int)pPmeccDescriptor->nn] ^ dmu[i + 1];
@@ -945,14 +983,16 @@ static unsigned int get_sigma(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 	return 0;
 }
 
-/**
+/*
  * \brief Init the PMECC Error Location peripheral and start the error
  *        location processing
  * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
  * \param SectorSizeInBits Size of the sector in bits.
  * \return Number of errors
  */
-static int ErrorLocation(unsigned long pPMERRLOC, struct _PMECC_paramDesc_struct *pPmeccDescriptor, unsigned int SectorSizeInBits)
+static int ErrorLocation(unsigned long pPMERRLOC,
+		struct _PMECC_paramDesc_struct *pPmeccDescriptor,
+		unsigned int SectorSizeInBits)
 {
 	unsigned int alphax;
 	unsigned int *pSigma;
@@ -967,18 +1007,22 @@ static int ErrorLocation(unsigned long pPMERRLOC, struct _PMECC_paramDesc_struct
 
 	pSigma = (unsigned int *) (pPMERRLOC + PMERRLOC_SIGMA0);
 
-	for (alphax = 0; alphax <= pPmeccDescriptor->lmu[pPmeccDescriptor->tt + 1] >> 1; alphax++) {
+	for (alphax = 0;
+		alphax <= pPmeccDescriptor->lmu[pPmeccDescriptor->tt + 1] >> 1;
+		alphax++) {
 		*pSigma++ = pPmeccDescriptor->smu[pPmeccDescriptor->tt + 1][alphax];
 		errorNumber++;
 	}
 
-	pmecclor_writel(((errorNumber - 1) << 16) | pmecclor_readl(PMERRLOC_ELCFG), PMERRLOC_ELCFG);
+	pmecclor_writel(((errorNumber - 1) << 16)
+			| pmecclor_readl(PMERRLOC_ELCFG), PMERRLOC_ELCFG);
 	/* Enable error location process */
 	pmecclor_writel(SectorSizeInBits, PMERRLOC_ELEN);
 
 	while ((pmecclor_readl(PMERRLOC_ELISR) & PMERRLOC_ELISR_DONE) == 0);
 
-	NbrOfRoots = (pmecclor_readl(PMERRLOC_ELISR) & PMERRLOC_ELISR_ERR_CNT) >> 8;
+	NbrOfRoots = (pmecclor_readl(PMERRLOC_ELISR)
+				& PMERRLOC_ELISR_ERR_CNT) >> 8;
 	/* Number of roots == degree of smu hence <= tt */
 	if (NbrOfRoots == pPmeccDescriptor->lmu[pPmeccDescriptor->tt + 1] >> 1)
 		return errorNumber - 1;
@@ -987,10 +1031,11 @@ static int ErrorLocation(unsigned long pPMERRLOC, struct _PMECC_paramDesc_struct
 	return -1;
 }
 
-/**
+/*
  * \brief Correct errors indicated in the PMECCEL error location registers.
  * \param sectorBaseAddress Base address of the sector.
- * \param ExtraBytes Number of extra bytes of the sector.(encoded Spare Area, only for the last sector)
+ * \param ExtraBytes Number of extra bytes of the sector.
+ * (encoded Spare Area, only for the last sector)
  * \param ErrorNbr Number of error to correct
  * \return Number of errors
  */
@@ -1016,14 +1061,23 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 		if (bytePos < sectorSize) {
 			/* If error is located in the data area(not in ECC) */
 			errByte = (unsigned char *)(sectorBaseAddress + bytePos);
-			dbg_log(1, "Correct error bit @[#Byte %u,Bit# %u] %u -> %u\n\r", (unsigned int)bytePos, (unsigned int)bitPos,
-				*errByte, *errByte ^ (1 << bitPos));
+			dbg_log(1, "Correct error bit @[#Byte %u,Bit# %u] " \
+				"%u -> %u\n\r",
+				(unsigned int)bytePos,
+				(unsigned int)bitPos,
+				*errByte,
+				*errByte ^ (1 << bitPos));
 			*errByte ^= (1 << bitPos);
 		} else {
 			/* error is located in oob area */
-			errByte = (unsigned char *)(eccBaseAddress + (bytePos - sectorSize));
-			dbg_log(1, "Correct error bit in OOB @[#Byte %u,Bit# %u] %u -> %u\n\r", (unsigned int)bytePos - sectorSize, (unsigned int)bitPos,
-				(*errByte), *errByte ^ (1 << bitPos));
+			errByte = (unsigned char *)(eccBaseAddress
+					+ (bytePos - sectorSize));
+			dbg_log(1, "Correct error bit in OOB @[#Byte %u,Bit# %u]" \
+				" %u -> %u\n\r",
+				(unsigned int)bytePos - sectorSize,
+				(unsigned int)bitPos,
+				(*errByte),
+				*errByte ^ (1 << bitPos));
 			*errByte ^= (1 << bitPos);
 		}
 
@@ -1037,7 +1091,8 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
  * \brief Launch error detection functions and correct corrupted bits.
  * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
  * \param pmeccStatus Value of the PMECC status register.
- * \param pageBuffer Base address of the buffer containing the page to be corrected.
+ * \param pageBuffer Base address of the buffer
+ * 	containing the page to be corrected.
  * \param ErrorNbr Number of error to correct
  * \return 0 if all errors have been corrected, 1 if too many errors detected
  */
@@ -1064,9 +1119,12 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 		errorNbr = 0;
 		if (pmeccStatus & 0x1) {
 
-			sectorBaseAddress = (unsigned int)pageBuffer + (sectorNumber * PMECC_SECTOR_SIZE);
-			eccBaseAddr = (unsigned int)pageBuffer + page_size_byte + pmecc_readl(PMECC_SADDR) +
-					(sectorNumber * ecc_byte_per_sector);
+			sectorBaseAddress = (unsigned int)pageBuffer
+					+ (sectorNumber * PMECC_SECTOR_SIZE);
+			eccBaseAddr = (unsigned int)pageBuffer
+					+ page_size_byte
+					+ pmecc_readl(PMECC_SADDR)
+					+ (sectorNumber * ecc_byte_per_sector);
 
 			GenSyn(pPMECC, pPmeccDescriptor, sectorNumber);
 
@@ -1074,9 +1132,10 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 
 			get_sigma(pPmeccDescriptor);
 			errorNbr = ErrorLocation(pPMERRLOC,
-						pPmeccDescriptor,
-						(((pPmeccDescriptor->sectorSize >> 4) + 1) * 512 * 8)
-						+ (pPmeccDescriptor->tt * (13 + (pPmeccDescriptor->sectorSize >> 4))));  /* number of bits of the sector + ecc */
+					pPmeccDescriptor,
+					(((pPmeccDescriptor->sectorSize >> 4) + 1) * 512 * 8)
+					+ (pPmeccDescriptor->tt
+						* (13 + (pPmeccDescriptor->sectorSize >> 4))));
 
 			if (errorNbr == -1)
 				return 1;	/* uncorrectable errors */
@@ -1140,10 +1199,10 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 		dbg_log(1, "PMECC: sector bits = %d, bit 1 means " \
 			"corrupted sector, Now correcting...\n\r", erris);
 		result = PMECC_CorrectionAlgo(AT91C_BASE_PMECC,
-			AT91C_BASE_PMERRLOC,
-			&PMECC_paramDesc,
-			erris,
-			buffer);
+					AT91C_BASE_PMERRLOC,
+					&PMECC_paramDesc,
+					erris,
+					buffer);
 
 		if (result != 0) {
 			dbg_log(1, "PMECC: failed to" \
@@ -1273,7 +1332,8 @@ static int nand_read_sector(struct nand_info *nand,
 		zone_flag = ZONE_DATA | ZONE_INFO;
 
 		pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
-		pmecc_writel((pmecc_readl(PMECC_CFG) | AT91C_PMECC_AUTO_ENA), PMECC_CFG);
+		pmecc_writel((pmecc_readl(PMECC_CFG) | AT91C_PMECC_AUTO_ENA),
+				PMECC_CFG);
 		pmecc_writel(AT91C_PMECC_ENABLE, PMECC_CTRL);
 	}
 #endif	/* #ifdef CONFIG_USE_PMECC */
@@ -1323,7 +1383,7 @@ static int nand_read_sector(struct nand_info *nand,
 #ifdef CONFIG_USE_PMECC
 	if (usepmecc == 1) {
 		pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
-		pmecc_writel(AT91C_PMECC_ENABLE | AT91C_PMECC_DATA , PMECC_CTRL);
+		pmecc_writel(AT91C_PMECC_ENABLE | AT91C_PMECC_DATA, PMECC_CTRL);
 	}
 #endif
 	/* Read loop */
@@ -1355,10 +1415,14 @@ static int nand_check_badblock(struct nand_info *nand,
 	unsigned int page;
 	unsigned int row_address = block * nand->pages_block;
 
-	/* Read the first page and second page oob zone to detect if block is bad */
+	/*
+	 * Read the first page and second page oob zone
+	 * to detect if block is bad
+	 */
 	for (page = 0; page < 2; page++) {
 		nand_read_sector(nand, row_address + page, buffer, ZONE_INFO);
-		if (*(buffer + nand->pagesize + nand->ecclayout->badblockpos) != 0xff)
+		if (*(buffer + nand->pagesize + nand->ecclayout->badblockpos)
+			!= 0xff)
 			return -1;
 	}
 
@@ -1392,7 +1456,8 @@ static int nand_read_page(struct nand_info *nand,
 	int retval;
 	unsigned char hamming[48], error;
 
-	retval = nand_read_sector(nand, row_address, buffer,ZONE_DATA | ZONE_INFO);
+	retval = nand_read_sector(nand, row_address, buffer,
+				ZONE_DATA | ZONE_INFO);
 	if (retval)
 		return -1;
 
