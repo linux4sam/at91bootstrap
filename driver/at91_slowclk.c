@@ -27,7 +27,7 @@
  */
 #include "hardware.h"
 #include "arch/at91_slowclk.h"
-#include "pit_timer.h"
+#include "timer.h"
 
 int slowclk_enable_osc32(void)
 {

@@ -32,7 +32,7 @@
 #include "arch/at91_mci.h"
 #include "mci.h"
 #include "mci_media.h"
-#include "pit_timer.h"
+#include "timer.h"
 
 #include "debug.h"
 

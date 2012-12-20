@@ -31,7 +31,7 @@
 #include "arch/at91_pio.h"
 #include "gpio.h"
 #include "debug.h"
-#include "pit_timer.h"
+#include "timer.h"
 #include "string.h"
 #include "onewire_info.h"
 

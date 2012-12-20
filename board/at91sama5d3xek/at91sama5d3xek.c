@@ -34,7 +34,7 @@
 #include "spi.h"
 #include "gpio.h"
 #include "slowclk.h"
-#include "pit_timer.h"
+#include "timer.h"
 #include "watchdog.h"
 
 #include "arch/at91_pmc.h"

@@ -33,7 +33,7 @@
 #include "arch/at91_ccfg.h"
 #include "debug.h"
 #include "ddramc.h"
-#include "pit_timer.h"
+#include "timer.h"
 
 /* write DDRC register */
 static void write_ddramc(unsigned int address,

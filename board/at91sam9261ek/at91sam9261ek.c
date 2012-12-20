@@ -40,7 +40,7 @@
 #include "debug.h"
 #include "dbgu.h"
 #include "sdramc.h"
-#include "pit_timer.h"
+#include "timer.h"
 #include "watchdog.h"
 #include "at91sam9261ek.h"
 

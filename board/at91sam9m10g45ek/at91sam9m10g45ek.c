@@ -39,7 +39,7 @@
 #include "debug.h"
 #include "ddramc.h"
 #include "slowclk.h"
-#include "pit_timer.h"
+#include "timer.h"
 #include "watchdog.h"
 #include "at91sam9m10g45ek.h"
 
