@@ -1,5 +1,47 @@
 AT91Bootstrap ChangeLog 
 	
+Version 3.4.5
+
+	Dec 17 16:25:40 2012 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Add the 1-Wire support for sama5d3xek
+
+	Nov 6 14:50:14 2012 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Add DT support for loading kernel image.
+
+	Nov 26 13:05:41 2012 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Since the GPL violation, rewrite the mci & sd driver code
+	  without GPL code.
+
+	Nov 20 11:15:27 2012 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Since the GPL violation, rewrite the spi & spi_flash driver
+	  code without GPL code.
+
+	Nov 26 15:04:36 2012 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Rewrite the kernel image loading code,
+	  Since the GPL violation, rewrite the kernel image loading code
+
+	Dec 5 16:58:18 2012 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Add support to config disable the watchdog
+
+	Dec 4 17:36:58 2012 Josh Wu <josh.wu@atmel.com>
+
+	* Port the PMECC correct data function from SAM-BA code
+	  Before, using this function exported from the ROMCode.
+	  Since the new revision of SAMA5, this function cannot
+	  be accessed from the ROMCode. So porting the PMECC
+	  correct data function from SAM-BA.
+
+	Oct 31 10:45:39 2012 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Fix [BUG] Nand recovery function not erase the block0
+
+
 Version 3.4.4
 
 	2012-09-24  Wenyou Yang  <wenyou.yang@atmel.com>
