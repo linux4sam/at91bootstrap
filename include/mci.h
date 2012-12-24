@@ -38,5 +38,8 @@ extern int at91_mci_set_bus_width(unsigned int buswidth);
 extern int at91_mci_read_block_data(unsigned int *data,
 				unsigned int bytes_to_read,
 				unsigned int block_len);
+extern int at91_mci_write_block_data(unsigned int *data,
+				unsigned int bytes_to_write,
+				unsigned int block_len);
 
 #endif /* #ifndef __MCI_H__ */

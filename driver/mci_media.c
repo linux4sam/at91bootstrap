@@ -291,6 +291,34 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_RTOE),
 		.resp		= response,
 	},
+	/* MMC CMD14 */
+	{
+		.cmd		= MMC_CMD_BUSTEST_R,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64
+					| AT91C_MCI_TRCMD_START
+					| AT91C_MCI_TRDIR_READ),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* MMC CMD19 */
+	{
+		.cmd		= MMC_CMD_BUSTEST_W,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64
+					| AT91C_MCI_TRCMD_START
+					| AT91C_MCI_TRDIR_WRITE),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
 };
 
 static int init_sd_command(struct sd_command *command)
@@ -935,20 +963,147 @@ static int mmc_switch_high_speed(struct sd_card *sdcard)
 	return 0;
 }
 
-static int mmc_set_bus_width_4bit(struct sd_card *sdcard)
+static int mmc_send_bus_test_r(struct sd_card *sdcard,
+				unsigned int buswidth,
+				unsigned char *data)
 {
+	struct sd_command *command = sdcard->command;
+	unsigned int bytes_to_read;
+	unsigned int block_len = 512;
 	int ret;
+
+	if (buswidth == 8)
+		bytes_to_read = 8;
+	else
+		bytes_to_read = 4;
+
+	command->cmd = MMC_CMD_BUSTEST_R;
+	command->argu = 0;
+
+	ret = sd_send_command(command);
+	if (ret)
+		return ret;
+
+	ret = at91_mci_read_block_data((unsigned int *)data,
+						bytes_to_read,
+						block_len);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int mmc_send_bus_test_w(struct sd_card *sdcard,
+				unsigned int buswidth,
+				unsigned char *data)
+{
+	struct sd_command *command = sdcard->command;
+	unsigned int bytes_to_write;
+	unsigned int block_len = 512;
+	int ret;
+
+	if (buswidth == 8)
+		bytes_to_write = 8;
+	else
+		bytes_to_write = 4;
+
+	command->cmd = MMC_CMD_BUSTEST_W;
+	command->argu = 0;
+
+	ret = sd_send_command(command);
+	if (ret)
+		return ret;
+
+	ret = at91_mci_write_block_data((unsigned int *)data,
+						bytes_to_write,
+						block_len);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+#define MMC_BUS_WIDTH_8		2
+#define MMC_BUS_WIDTH_4		1
+#define MMC_BUS_WIDTH_1		0
+
+static int mmc_bus_width_select(struct sd_card *sdcard, unsigned int buswidth)
+{
+	unsigned char busw;
+	int ret;
+
+	if (buswidth == 8)
+		busw = MMC_BUS_WIDTH_8;
+	else if (buswidth == 4)
+		busw = MMC_BUS_WIDTH_4;
+	else
+		busw = MMC_BUS_WIDTH_1;
 
 	ret = mmc_switch(sdcard,
 			MMC_EXT_CSD_ACCESS_WRITE_BYTE,
 			EXT_CSD_BYTE_BUS_WIDTH,
-			1);
+			busw);
 	if (ret)
 		return ret;
 
-	at91_mci_set_bus_width(4);
+	at91_mci_set_bus_width(buswidth);
 
 	return 0;
+}
+
+static int mmc_detect_buswidth(struct sd_card *sdcard)
+{
+	unsigned char testdata_8bit[8] = { 0x55, 0xaa, 0, 0, 0, 0, 0, 0 };
+	unsigned char testdata_4bit[4] = { 0x5a, 0, 0, 0 };
+	unsigned char data_r[8];
+	unsigned char *pdata_w;
+
+	unsigned char buswidths[] = {8, 4};
+	unsigned int busw;
+	unsigned int len;
+	unsigned int i, j;
+	int result;
+	int ret;
+
+	for (i = 0; i < ARRAY_SIZE(buswidths); i++) {
+		result = 0;
+
+		busw = buswidths[i];
+		if (busw == 8) {
+			pdata_w = testdata_8bit;
+			len = 2;
+		} else {
+			pdata_w = testdata_4bit;
+			len = 1;
+		}
+
+		ret = mmc_bus_width_select(sdcard, busw);
+		if (ret)
+			return ret;
+
+		ret = mmc_send_bus_test_w(sdcard, busw, pdata_w);
+		if (ret)
+			return ret;
+
+		ret = mmc_send_bus_test_r(sdcard, busw, data_r);
+		if (ret)
+			return ret;
+
+		for (j = 0; j < len; j++) {
+			if ((pdata_w[j] ^ data_r[j]) != 0xff) {
+				result = 1;
+				break;
+			}
+		}
+
+		if (!result) {
+			dbg_log(1, "MMC: %d-bit bus width detected\n\r", busw);
+			break;
+		}
+	}
+
+	return 0;
+
 }
 
 /*-----------------------------------------------------------------*/
@@ -1183,6 +1338,12 @@ static int mmc_initialization(struct sd_card *sdcard)
 
 	sdcard->state = SD_STATE_TRANSFER;
 
+	if (sdcard->sd_spec_version >= MMC_VERSION_4) {
+		ret = mmc_detect_buswidth(sdcard);
+		if (ret)
+			return ret;
+	}
+
 	/*
 	 * After the host verifies that the card complies with
 	 * version 4.0, or higher, of this standard, it has to
@@ -1201,12 +1362,6 @@ static int mmc_initialization(struct sd_card *sdcard)
 		at91_mci_set_clock(52000000);
 	else
 		at91_mci_set_clock(26000000);
-
-	if (sdcard->sd_spec_version >= MMC_VERSION_4) {
-		ret = mmc_set_bus_width_4bit(sdcard);
-		if (ret)
-			return ret;
-	}
 
 	return 0;
 }

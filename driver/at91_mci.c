@@ -236,3 +236,59 @@ int at91_mci_read_block_data(unsigned int *data,
 
 	return 0;
 }
+
+static int at91_mci_write_data(unsigned int *data)
+{
+	unsigned int status;
+
+	if (!data)
+		return -1;
+
+	/*
+	 * Read status register MCI_SR
+	 * Wait for TXRDY or error bits
+	 */
+	do {
+		status = mci_readl(MCI_SR);
+	} while (!(status & AT91C_MCI_TXRDY));
+
+	mci_writel(MCI_TDR, *data);
+
+	return 0;
+}
+
+int at91_mci_write_block_data(unsigned int *data,
+			unsigned int bytes_to_write,
+			unsigned int block_len)
+{
+	unsigned int count;
+	unsigned int words_to_write = bytes_to_write / 4;
+	unsigned int words_of_block = block_len / 4;
+	unsigned int tmp = 0;
+	int timeout = 10000;
+	int ret;
+
+	/* write the valid data of the block */
+	for (count = 0; count < words_to_write; count++, data++) {
+		ret = at91_mci_write_data(data);
+		if (ret)
+			return ret;
+	}
+
+	/* write the no useful data the block */
+	for (; count < words_of_block; count++) {
+		ret = at91_mci_write_data(&tmp);
+		if (ret)
+			return ret;
+	}
+
+	while ((mci_readl(MCI_SR) & AT91C_MCI_DTIP) && (timeout--))
+		;
+
+	if (!timeout) {
+		dbg_log(1, "Data Transfer in Progress.\n\r");
+		return -1;
+	}
+
+	return 0;
+}

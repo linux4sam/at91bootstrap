@@ -25,9 +25,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __LIBSD_H__
-#define __LIBSD_H__
+#ifndef __MCI_MEDIA_H__
+#define __MCI_MEDIA_H__
 
+/* Command Flag */
 #define SD_APP_CMD	0x100
 #define MMC_CMD		0x200
 
@@ -48,15 +49,18 @@
 #define SD_CMD_SET_BLOCK_COUNT		23
 #define SD_CMD_APP_CMD			55
 
-#define SD_CMD_APP_SET_BUS_WIDTH	(6 | SD_APP_CMD)	/* 6 */
-#define SD_CMD_APP_SD_STATUS		(13 | SD_APP_CMD)	/* 13 */
-#define SD_CMD_APP_SD_SEND_OP_COND	(41 | SD_APP_CMD)	/* 41 */
-#define SD_CMD_APP_SEND_SCR		(51 | SD_APP_CMD)	/* 51 */
+/* SD App Command */
+#define SD_CMD_APP_SET_BUS_WIDTH	(6 | SD_APP_CMD)
+#define SD_CMD_APP_SD_STATUS		(13 | SD_APP_CMD)
+#define SD_CMD_APP_SD_SEND_OP_COND	(41 | SD_APP_CMD)
+#define SD_CMD_APP_SEND_SCR		(51 | SD_APP_CMD)
 
 /* MMC specifial Command */
-#define MMC_CMD_SEND_OP_COND		(1 | MMC_CMD)	/* 1 */
-#define MMC_CMD_SWITCH_FUN		(6 | MMC_CMD)	/* 6 */
-#define MMC_CMD_SEND_EXT_CSD		(8 | MMC_CMD)	/* 8 */
+#define MMC_CMD_SEND_OP_COND		(1 | MMC_CMD)
+#define MMC_CMD_SWITCH_FUN		(6 | MMC_CMD)
+#define MMC_CMD_SEND_EXT_CSD		(8 | MMC_CMD)
+#define MMC_CMD_BUSTEST_R		(14 | MMC_CMD)
+#define MMC_CMD_BUSTEST_W		(19 | MMC_CMD)
 
 /* Card State */
 #define SD_STATE_INACTIVE		0
@@ -161,4 +165,4 @@ struct sd_card {
 	struct sd_command	*command;
 };
 
-#endif /* #ifndef __LIBSD_H__ */
+#endif /* #ifndef __MCI_MEDIA_H__ */
