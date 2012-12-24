@@ -18,8 +18,8 @@ endif
 BINDIR:=$(TOPDIR)/binaries
 
 DATE := $(shell date)
-VERSION := 3.4
-REVISION := 5
+VERSION := 3.5
+REVISION := 0
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
@@ -141,14 +141,14 @@ REV:=.$(strip $(subst ",,$(REVISION)))
 endif
 
 ifeq ($(CONFIG_OF_LIBFDT), y)
-BLOB:=dt
+BLOB:=-dt
 else
 BLOB:=
 endif
 
 obj=build/$(BOARDNAME)/
 
-BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(IMAGE_NAME)-$(BLOB)-$(VERSION)$(REV)
+BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(IMAGE_NAME)$(BLOB)-$(VERSION)$(REV)
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
 ifeq ($(IMAGE),)
