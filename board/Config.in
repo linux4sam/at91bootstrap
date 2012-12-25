@@ -187,6 +187,7 @@ config CONFIG_AT91SAMA5D3XEK
 	select ALLOW_PIO3
 	select CPU_HAS_PMECC
 	select CONFIG_LOAD_ONE_WIRE
+	select CONFIG_MMC_SUPPORT
 	help
 	  Use the AT91SAM9N12EK Development board
 

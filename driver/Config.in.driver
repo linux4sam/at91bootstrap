@@ -15,4 +15,8 @@ config CONFIG_LOAD_ONE_WIRE
 	bool
 	default n
 
+config CONFIG_MMC_SUPPORT
+	bool
+	default n
+
 source "driver/Config.in.memory"

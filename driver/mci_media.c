@@ -253,6 +253,7 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_RTOE),
 		.resp		= response,
 	},
+#ifdef CONFIG_MMC_SUPPORT
 	/* MMC CMD1 */
 	{
 		.cmd		= MMC_CMD_SEND_OP_COND,
@@ -318,6 +319,7 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_RTOE),
 		.resp		= response,
 	},
+#endif /* #ifdef CONFIG_MMC_SUPPORT */
 };
 
 static int init_sd_command(struct sd_command *command)
@@ -647,6 +649,8 @@ static int sd_set_card_bus_width(struct sd_card *sdcard,
 	return 0;
 }
 
+#ifdef CONFIG_SDCARD_HS
+
 /* SD SWITCH */
 #define SD_SWITCH_MODE_CHECK	0
 #define SD_SWITCH_MODE_SET	1
@@ -773,6 +777,7 @@ static int sd_switch_func_high_speed(struct sd_card *sdcard)
 	} else
 		return -1;
 }
+#endif	/* #ifdef CONFIG_SDCARD_HS */
 
 static int sd_card_set_bus_width(struct sd_card *sdcard)
 {
@@ -802,6 +807,8 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 }
 
 /*-----------------------------------------------------------------*/
+#ifdef CONFIG_MMC_SUPPORT
+
 static int mmc_cmd_send_op_cond(struct sd_card *sdcard,
 				unsigned int ocr)
 {
@@ -1108,6 +1115,7 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 	return 0;
 
 }
+#endif /* #ifdef CONFIG_MMC_SUPPORT */
 
 /*-----------------------------------------------------------------*/
 
@@ -1131,11 +1139,13 @@ static int sdcard_identification(struct sd_card *sdcard)
 
 	udelay(2000);
 
+#ifdef CONFIG_MMC_SUPPORT
 	ret = mmc_verify_operating_condition(sdcard);
 	if (ret == 0) {
 		sdcard->card_type = CARD_TYPE_MMC;
 
 	} else if (ret == ERROR_TIMEOUT) {
+#endif
 		/*
 		 * SEND_IF_COND (CMD8) is used to verify SD Memory Card
 		 * interface operating condition.
@@ -1175,6 +1185,7 @@ static int sdcard_identification(struct sd_card *sdcard)
 
 		sdcard->card_type = CARD_TYPE_SD;
 
+#ifdef CONFIG_MMC_SUPPORT
 	} else if (ret == ERROR_UNUSABLE_CARD) {
 		/*
 		 * Non-compatible voltage range
@@ -1184,6 +1195,7 @@ static int sdcard_identification(struct sd_card *sdcard)
 		return -1;
 	} else
 		return ret;
+#endif
 
 	if (sdcard->reg->ocr & OCR_HCR_CCS) {
 		sdcard->highcapacity_card = 1;
@@ -1234,7 +1246,6 @@ static int sdcard_identification(struct sd_card *sdcard)
 
 static int sd_initialization(struct sd_card *sdcard)
 {
-	unsigned int version;
 	int ret;
 
 	/*
@@ -1257,6 +1268,8 @@ static int sd_initialization(struct sd_card *sdcard)
 
 	sdcard->bus_width_support = (sdcard->reg->scr[0] >> 16) & 0x0f;
 
+#ifdef CONFIG_SDCARD_HS
+	unsigned int version;
 	version = (sdcard->reg->scr[0] >> 24) & 0x0f;
 	if (version == 0) {
 		sdcard->sd_spec_version = SD_VERSION_1_0;
@@ -1291,10 +1304,11 @@ static int sd_initialization(struct sd_card *sdcard)
 		if (ret)
 			return ret;
 	}
-
 	if (sdcard->highspeed_card)
 		at91_mci_set_clock(50000000);
 	else
+#endif /* #ifdef CONFIG_SDCARD_HS */
+
 		at91_mci_set_clock(25000000);
 
 	/* Change the bus mode */
@@ -1305,6 +1319,7 @@ static int sd_initialization(struct sd_card *sdcard)
 	return 0;
 }
 
+#ifdef CONFIG_MMC_SUPPORT
 static int mmc_initialization(struct sd_card *sdcard)
 {
 	unsigned int version;
@@ -1368,6 +1383,7 @@ static int mmc_initialization(struct sd_card *sdcard)
 
 	return 0;
 }
+#endif /* #ifdef CONFIG_MMC_SUPPORT */
 
 static void init_sdcard_struct(struct sd_card *sdcard)
 {
@@ -1407,9 +1423,10 @@ int sdcard_initialize(void)
 
 	if (sdcard->card_type == CARD_TYPE_SD)
 		ret = sd_initialization(sdcard);
+#ifdef CONFIG_MMC_SUPPORT
 	else
 		ret = mmc_initialization(sdcard);
-
+#endif
 	if (ret)
 		return ret;
 

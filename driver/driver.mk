@@ -22,11 +22,7 @@ COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/ddramc.o
 
 COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/at91_mci.o
 
-ifeq ($(CONFIG_BOARD), "at91sam9g10ek")
-COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/mci_media_9g10.o
-else
 COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/mci_media.o
-endif
 COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/sdcard.o
 
 ifeq ($(CONFIG_BOARD), "at91sam9260ek")
