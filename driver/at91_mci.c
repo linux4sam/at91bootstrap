@@ -65,6 +65,8 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
 	reg = mci_readl(MCI_MR);
+	reg &= ~((0x01 << 8) - 1);
+
 	clkdiv -= 2;
 	reg |= (clkdiv >> 1);
 	if (clkdiv & 1)
@@ -72,12 +74,15 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 
 	mci_writel(MCI_MR, reg);
 #else
-	reg = mci_readl(MCI_MR);
 	clkdiv = clkdiv / 2 - 1;
-	if (clkdiv & ~255UL)
-		clkdiv = 255;
+	if (clkdiv > 0xff)
+		clkdiv = 0xff;
 
-	reg |= (blklen << 16 | clkdiv);
+	reg = mci_readl(MCI_MR);
+	reg &= ~((0x01 << 8) - 1);
+	reg &= ~(((0x1 << 16) - 1) << 16);
+	reg |= AT91C_MCI_MRBLKLEN(blklen);
+	reg |= AT91C_MCI_CLKDIV(clkdiv);
 
 	mci_writel(MCI_MR, reg);
 #endif
@@ -224,6 +229,35 @@ int at91_mci_read_block_data(unsigned int *data,
 		ret = at91_mci_read_data(&tmp);
 		if (ret)
 			return ret;
+	}
+
+	while ((mci_readl(MCI_SR) & AT91C_MCI_DTIP) && (timeout--))
+		;
+
+	if (!timeout) {
+		dbg_log(1, "Data Transfer in Progress.\n\r");
+		return -1;
+	}
+
+	return 0;
+}
+
+int at91_mci_read_blocks(unsigned int *data,
+			unsigned int blocks,
+			unsigned int block_len)
+{
+	unsigned int block;
+	unsigned int count;
+	unsigned int words_of_block = block_len / 4;
+	int timeout = 10000;
+	int ret;
+
+	for (block = 0; block < blocks; block++) {
+		for (count = 0; count < words_of_block; count++, data++) {
+			ret = at91_mci_read_data(data);
+			if (ret)
+				return ret;
+		}
 	}
 
 	while ((mci_readl(MCI_SR) & AT91C_MCI_DTIP) && (timeout--))

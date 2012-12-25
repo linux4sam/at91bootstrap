@@ -165,4 +165,21 @@ struct sd_card {
 	struct sd_command	*command;
 };
 
+extern inline unsigned int mci_readl(unsigned int reg);
+extern inline void mci_writel(unsigned int reg, unsigned int value);
+
+extern int at91_mci_init(unsigned int clock, unsigned int blklen);
+extern int at91_mci_set_clock(unsigned int clock);
+extern void at91_mci_set_blkr(unsigned int blkcnt, unsigned int blklen);
+extern int at91_mci_set_bus_width(unsigned int buswidth);
+extern int at91_mci_read_block_data(unsigned int *data,
+				unsigned int bytes_to_read,
+				unsigned int block_len);
+extern int at91_mci_write_block_data(unsigned int *data,
+				unsigned int bytes_to_write,
+				unsigned int block_len);
+extern int at91_mci_read_blocks(unsigned int *data,
+				unsigned int blocks,
+				unsigned int block_len);
+
 #endif /* #ifndef __MCI_MEDIA_H__ */

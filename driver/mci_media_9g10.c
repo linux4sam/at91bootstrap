@@ -30,7 +30,6 @@
 #include "hardware.h"
 #include "board.h"
 #include "arch/at91_mci.h"
-#include "mci.h"
 #include "mci_media.h"
 #include "timer.h"
 
@@ -46,6 +45,96 @@ static struct sd_card		atmel_sdcard;
 static unsigned int	response[4];
 
 static const struct sd_command	sd_command_table[] =  {
+	/* CMD17 */
+	{
+		.cmd		= SD_CMD_READ_SINGLE_BLOCK,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64
+					| AT91C_MCI_TRCMD_START
+					| AT91C_MCI_TRDIR_READ
+					| AT91C_MCI_TRTYP_SINGLE),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* CMD18 */
+	{
+		.cmd		= SD_CMD_READ_MULTIPLE_BLOCK,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64
+					| AT91C_MCI_TRCMD_START
+					| AT91C_MCI_TRDIR_READ
+					| AT91C_MCI_TRTYP_MULTIPLE),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* CMD55 */
+	{
+		.cmd		= SD_CMD_APP_CMD,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* ACMD6 */
+	{
+		.cmd		= SD_CMD_APP_SET_BUS_WIDTH,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* CMD16 */
+	{
+		.cmd		= SD_CMD_SET_BLOCKLEN,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* CMD12 */
+	{
+		.cmd		= SD_CMD_STOP_TRANSMISSION,
+		.flag		= (AT91C_MCI_RSPTYP_R1B
+					| AT91C_MCI_MAXLAT_64),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* CMD13 */
+	{
+		.cmd		= SD_CMD_SEND_STATUS,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
 	/* CMD0 */
 	{
 		.cmd		= SD_CMD_GO_IDLE_STATE,
@@ -139,96 +228,6 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_RTOE),
 		.resp		= response,
 	},
-	/* CMD12 */
-	{
-		.cmd		= SD_CMD_STOP_TRANSMISSION,
-		.flag		= (AT91C_MCI_RSPTYP_R1B
-					| AT91C_MCI_MAXLAT_64),
-		.error_check	= (AT91C_MCI_RINDE
-					| AT91C_MCI_RDIRE
-					| AT91C_MCI_RCRCE
-					| AT91C_MCI_RENDE
-					| AT91C_MCI_RTOE),
-		.resp		= response,
-	},
-	/* CMD13 */
-	{
-		.cmd		= SD_CMD_SEND_STATUS,
-		.flag		= (AT91C_MCI_RSPTYP_48
-					| AT91C_MCI_MAXLAT_64),
-		.error_check	= (AT91C_MCI_RINDE
-					| AT91C_MCI_RDIRE
-					| AT91C_MCI_RCRCE
-					| AT91C_MCI_RENDE
-					| AT91C_MCI_RTOE),
-		.resp		= response,
-	},
-	/* CMD16 */
-	{
-		.cmd		= SD_CMD_SET_BLOCKLEN,
-		.flag		= (AT91C_MCI_RSPTYP_48
-					| AT91C_MCI_MAXLAT_64),
-		.error_check	= (AT91C_MCI_RINDE
-					| AT91C_MCI_RDIRE
-					| AT91C_MCI_RCRCE
-					| AT91C_MCI_RENDE
-					| AT91C_MCI_RTOE),
-		.resp		= response,
-	},
-	/* CMD17 */
-	{
-		.cmd		= SD_CMD_READ_SINGLE_BLOCK,
-		.flag		= (AT91C_MCI_RSPTYP_48
-					| AT91C_MCI_MAXLAT_64
-					| AT91C_MCI_TRCMD_START
-					| AT91C_MCI_TRDIR_READ
-					| AT91C_MCI_TRTYP_SINGLE),
-		.error_check	= (AT91C_MCI_RINDE
-					| AT91C_MCI_RDIRE
-					| AT91C_MCI_RCRCE
-					| AT91C_MCI_RENDE
-					| AT91C_MCI_RTOE),
-		.resp		= response,
-	},
-	/* CMD18 */
-	{
-		.cmd		= SD_CMD_READ_MULTIPLE_BLOCK,
-		.flag		= (AT91C_MCI_RSPTYP_48
-					| AT91C_MCI_MAXLAT_64
-					| AT91C_MCI_TRCMD_START
-					| AT91C_MCI_TRDIR_READ
-					| AT91C_MCI_TRTYP_MULTIPLE),
-		.error_check	= (AT91C_MCI_RINDE
-					| AT91C_MCI_RDIRE
-					| AT91C_MCI_RCRCE
-					| AT91C_MCI_RENDE
-					| AT91C_MCI_RTOE),
-		.resp		= response,
-	},
-	/* CMD55 */
-	{
-		.cmd		= SD_CMD_APP_CMD,
-		.flag		= (AT91C_MCI_RSPTYP_48
-					| AT91C_MCI_MAXLAT_64),
-		.error_check	= (AT91C_MCI_RINDE
-					| AT91C_MCI_RDIRE
-					| AT91C_MCI_RCRCE
-					| AT91C_MCI_RENDE
-					| AT91C_MCI_RTOE),
-		.resp		= response,
-	},
-	/* ACMD6 */
-	{
-		.cmd		= SD_CMD_APP_SET_BUS_WIDTH,
-		.flag		= (AT91C_MCI_RSPTYP_48
-					| AT91C_MCI_MAXLAT_64),
-		.error_check	= (AT91C_MCI_RINDE
-					| AT91C_MCI_RDIRE
-					| AT91C_MCI_RCRCE
-					| AT91C_MCI_RENDE
-					| AT91C_MCI_RTOE),
-		.resp		= response,
-	},
 	/* ACMD41 */
 	{
 		.cmd		= SD_CMD_APP_SD_SEND_OP_COND,
@@ -254,7 +253,7 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_RTOE),
 		.resp		= response,
 	},
-#if 0	
+#if 0
 	/* MMC CMD1 */
 	{
 		.cmd		= MMC_CMD_SEND_OP_COND,
@@ -266,6 +265,18 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_RTOE),
 		.resp		= response,
 	},
+	/* MMC CMD6 */
+	{
+		.cmd		= MMC_CMD_SWITCH_FUN,
+		.flag		= (AT91C_MCI_RSPTYP_R1B
+					| AT91C_MCI_MAXLAT_64),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
 	/* MMC CMD8 */
 	{
 		.cmd		= MMC_CMD_SEND_EXT_CSD,
@@ -273,6 +284,34 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_MAXLAT_64
 					| AT91C_MCI_TRCMD_START
 					| AT91C_MCI_TRDIR_READ),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* MMC CMD14 */
+	{
+		.cmd		= MMC_CMD_BUSTEST_R,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64
+					| AT91C_MCI_TRCMD_START
+					| AT91C_MCI_TRDIR_READ),
+		.error_check	= (AT91C_MCI_RINDE
+					| AT91C_MCI_RDIRE
+					| AT91C_MCI_RCRCE
+					| AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE),
+		.resp		= response,
+	},
+	/* MMC CMD19 */
+	{
+		.cmd		= MMC_CMD_BUSTEST_W,
+		.flag		= (AT91C_MCI_RSPTYP_48
+					| AT91C_MCI_MAXLAT_64
+					| AT91C_MCI_TRCMD_START
+					| AT91C_MCI_TRDIR_WRITE),
 		.error_check	= (AT91C_MCI_RINDE
 					| AT91C_MCI_RDIRE
 					| AT91C_MCI_RCRCE
@@ -765,7 +804,9 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	at91_mci_set_bus_width(bus_width);
+	ret = at91_mci_set_bus_width(bus_width);
+	if (ret)
+		return ret;
 
 	return 0;
 }
@@ -1309,7 +1350,6 @@ static int sdcard_read_multi_blocks(struct sd_card *sdcard,
 				unsigned int start,
 				unsigned int block_count)
 {
-	unsigned int block;
 	unsigned int block_len = sdcard->read_bl_len;
 	struct sd_command *command = sdcard->command;
 	int ret;
@@ -1319,19 +1359,16 @@ static int sdcard_read_multi_blocks(struct sd_card *sdcard,
 	if (sdcard->highcapacity_card)
 		command->argu = start;
 	else
-		command->argu = start * sdcard->read_bl_len;
+		command->argu = start * block_len;
 
 	ret = sd_send_command(command);
 	if (ret)
 		return 0;
 
-	for (block = 0; block < block_count; block++) {
-		ret = at91_mci_read_block_data(buf, block_len, block_len);
-		if (ret)
-			return 0;
+	ret = at91_mci_read_blocks(buf, block_count, block_len);
+	if (ret)
+		return 0;
 
-		buf += block_len;
-	}
 
 	return block_count;
 }
@@ -1349,7 +1386,7 @@ static int sdcard_read_single_block(struct sd_card *sdcard,
 	if (sdcard->highcapacity_card)
 		command->argu = start;
 	else
-		command->argu = start * sdcard->read_bl_len;
+		command->argu = start * block_len;
 
 	ret = sd_send_command(command);
 	if (ret)
@@ -1386,21 +1423,21 @@ unsigned int sdcard_block_read(unsigned int start,
 	if (sdcard->state != SD_STATE_RECEIVE_DATA)
 		return 0;
 
+	/*
+	 * Refer to the at91sam9g20 datasheet:
+	 * Figure 35-10. Read Function Flow Diagram
+	*/
+
+	/* Send SET_BLOCKLEN command */
+	ret = sdcard_set_block_len(sdcard, block_len);
+	if (ret)
+		return 0;
+
 	for (blocks_todo = block_count; blocks_todo > 0; ) {
 		if (blocks_todo > SUPPORT_MAX_BLOCKS)
 			blocks = SUPPORT_MAX_BLOCKS;
 		else
 			blocks = blocks_todo;
-
-		/*
-		 * Refer to the at91sam9g20 datasheet:
-		 * Figure 35-10. Read Function Flow Diagram
-		 */
-
-		/* Send SET_BLOCKLEN command */
-		ret = sdcard_set_block_len(sdcard, block_len);
-		if (ret)
-			return 0;
 
 		/*
 		 * Set the block length (in bytes)
@@ -1441,7 +1478,7 @@ unsigned int sdcard_block_read(unsigned int start,
 
 		blocks_todo -= blocks;
 		start += blocks;
-		buf += blocks * sdcard->read_bl_len;
+		buf += blocks * block_len;
 	}
 
 	return block_count;
