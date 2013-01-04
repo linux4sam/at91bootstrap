@@ -33,6 +33,7 @@
 #include "debug.h"
 #include "nand.h"
 #include "hamming.h"
+#include "timer.h"
 
 #define ECC_CORRECT_ERROR  0xfe
 
@@ -486,11 +487,9 @@ static int nand_erase_block0(struct nand_info *nand)
 	write_row_address(nand, row_address);
 	nand_command(CMD_ERASE_2);
 
-	nand_wait_ready();
+	udelay(2000);
 
-	nand_command(CMD_STATUS);
-	if (read_byte() & STATUS_ERROR)
-		return -1;
+	nand_wait_ready();
 
 	nand_cs_disable();
 
@@ -511,11 +510,8 @@ static int nandflash_recovery(struct nand_info *nand)
 		dbg_log(1, "Nand: The block 0 is erasing ...\n\r");
 
 		ret = nand_erase_block0(nand);
-		if (ret)
-			dbg_log(1, "Nand: The erasing failed\n\r");
-		else
-			dbg_log(1, "Nand: The erasing is done\n\r");
 	}
+
 	return ret;
 }
 #endif /* #ifdef CONFIG_NANDFLASH_RECOVERY */
