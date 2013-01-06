@@ -268,7 +268,7 @@ int load_kernel(struct image_info *image)
 	unsigned int magic_number;
 	unsigned int jump_addr = (unsigned int)image->dest;
 	unsigned int r2;
-	int mach_type = MACH_TYPE;
+	unsigned int mach_type;
 	int ret;
 
 	void (*kernel_entry)(int zero, int arch, unsigned int params);
@@ -326,10 +326,13 @@ int load_kernel(struct image_info *image)
 		if (ret)
 			return ret;
 
+		mach_type = 0xffffffff;
 		r2 = (unsigned int)image->of_dest;
 	} else {
-		r2 = (unsigned int)(OS_MEM_BANK + 0x100);
 		setup_boot_params();
+
+		mach_type = MACH_TYPE;
+		r2 = (unsigned int)(OS_MEM_BANK + 0x100);
 	}
 
 	dbg_log(1, "\n\rStarting linux kernel ..., machid: %d\n\r\n\r",
