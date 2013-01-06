@@ -450,7 +450,7 @@ static int sd_check_operational_condition(struct sd_card *sdcard,
 			unsigned int host_capacity_support)
 {
 	struct sd_command *command = sdcard->command;
-	int timeout = 1000;
+	unsigned int timeout = 1000;
 	int ret;
 
 	/*
@@ -476,9 +476,9 @@ static int sd_check_operational_condition(struct sd_card *sdcard,
 			return ret;
 
 		udelay(1000);
-	} while ((!(command->resp[0] & OCR_BUSY_STATUS)) && timeout--);
+	} while ((!(command->resp[0] & OCR_BUSY_STATUS)) && --timeout);
 
-	if (timeout <= 0)
+	if (!timeout)
 		return ERROR_UNUSABLE_CARD;
 
 	sdcard->reg->ocr = command->resp[0];
@@ -526,7 +526,7 @@ static int sd_relative_card_address(struct sd_card *sdcard)
 	return 0;
 }
 
-static int sd_send_status(struct sd_card *sdcard, int timeout)
+static int sd_send_status(struct sd_card *sdcard, unsigned int timeout)
 {
 	struct sd_command *command = sdcard->command;
 	int ret;
@@ -546,7 +546,7 @@ static int sd_send_status(struct sd_card *sdcard, int timeout)
 			return -1;
 
 		udelay(1000);
-	} while (timeout--);
+	} while (--timeout);
 
 	if (!timeout) {
 		dbg_log(1, "Timeout, wait for card ready\n\r");
@@ -704,7 +704,7 @@ static int switch_check_hs_busy_status_supported(struct sd_card *sdcard,
 	unsigned int switch_func_status[16];
 	unsigned int status;
 	unsigned int version;
-	int timeout = 6;
+	unsigned int timeout = 6;
 	int ret;
 
 	do {
@@ -729,7 +729,7 @@ static int switch_check_hs_busy_status_supported(struct sd_card *sdcard,
 		status = be32_to_cpu(switch_func_status[7]);
 		if (!((status >> 17) & 0x01))
 			break;
-	} while (timeout--);
+	} while (--timeout);
 
 	if (!timeout)
 		return -1;
@@ -831,7 +831,7 @@ static int mmc_verify_operating_condition(struct sd_card *sdcard)
 {
 	struct sd_command *command = sdcard->command;
 	unsigned int ocr;
-	int timeout = 2000;
+	unsigned int timeout = 2000;
 	int ret;
 
 	/* Query the card and determine the voltage type of the card */
@@ -862,7 +862,7 @@ static int mmc_verify_operating_condition(struct sd_card *sdcard)
 			break;
 
 		udelay(1000);
-	} while (timeout--);
+	} while (--timeout);
 
 	if (!timeout)
 		return ERROR_UNUSABLE_CARD;
@@ -878,9 +878,8 @@ static int mmc_switch(struct sd_card *sdcard,
 				unsigned char value)
 {
 	struct sd_command *command = sdcard->command;
+	unsigned int timeout = 1000;
 	int ret;
-
-	int timeout = 1000;
 
 	command->cmd = MMC_CMD_SWITCH_FUN;
 	command->argu = (access_mode << 24)
@@ -1457,8 +1456,8 @@ static int sdcard_set_block_len(struct sd_card *sdcard,
 static int sdcard_stop_transmission(struct sd_card *sdcard)
 {
 	struct sd_command *command = sdcard->command;
+	unsigned int timeout = 1000;
 	int ret;
-	int timeout = 1000;
 
 	command->cmd = SD_CMD_STOP_TRANSMISSION;
 	command->argu = 0;
