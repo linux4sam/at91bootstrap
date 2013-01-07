@@ -49,7 +49,6 @@
 extern void hw_init_hook(void);
 #endif
 
-#ifdef CONFIG_DEBUG
 static void at91_dbgu_hw_init(void)
 {
 	/* Configure DBGU pins */
@@ -68,7 +67,6 @@ static void initialize_dbgu(void)
 	at91_dbgu_hw_init();
 	dbgu_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
 }
-#endif /* #ifdef CONFIG_DEBUG */
 
 #ifdef CONFIG_DDR2
 /* Using the Micron MT47H64M16HR-3 */
@@ -179,10 +177,8 @@ void hw_init(void)
 	slowclk_enable_osc32();
 #endif
 
-#ifdef CONFIG_DEBUG
 	/* Initialize dbgu */
 	initialize_dbgu();
-#endif
 
 #ifdef CONFIG_DDR2
 	/* Initialize DDRAM Controller */

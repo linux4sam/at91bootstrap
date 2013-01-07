@@ -78,8 +78,6 @@ static void at91_matrix_hw_init(void)
 	matrix_writel(reg, MATRIX_SCFG3);
 }
 
-#ifdef CONFIG_DEBUG
-
 static void initialize_dbgu(void)
 {
 	/* const struct pio_desc dbgu_pins[] = {
@@ -95,7 +93,6 @@ static void initialize_dbgu(void)
 
 	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
-#endif /* #ifdef CONFIG_DEBUG */
 
 #ifdef CONFIG_SDRAM
 static void sdramc_init(void)
@@ -186,10 +183,8 @@ void hw_init(void)
 	/* Init timer */
 	timer_init();
 
-#ifdef CONFIG_DEBUG
 	/* Initialize dbgu */
 	initialize_dbgu();
-#endif
 
 #ifdef CONFIG_SDRAM
 	/* Initlialize sdram controller */

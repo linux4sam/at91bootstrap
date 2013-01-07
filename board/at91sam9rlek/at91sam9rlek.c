@@ -49,7 +49,6 @@
 extern void hw_init_hook(void);
 #endif
 
-#ifdef CONFIG_DEBUG
 static void at91_dbgu_hw_init(void)
 {
 	/* Configure DBGU pin */
@@ -71,7 +70,6 @@ static void initialize_dbgu(void)
 
 	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
-#endif /* #ifdef CONFIG_DEBUG */
 
 #ifdef CONFIG_SDRAM
 static void sdramc_hw_init(void)
@@ -219,10 +217,9 @@ void hw_init(void)
 	slowclk_enable_osc32();
 #endif
 
-#ifdef CONFIG_DEBUG
 	/* Initialize dbgu */
 	initialize_dbgu();
-#endif
+
 	/* Initialize matrix configuration */
 	at91_matrix_hw_init();
 
