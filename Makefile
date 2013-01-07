@@ -250,7 +250,8 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	@( fsize=`stat -c%s $(BINDIR)/$(BOOT_NAME).bin`; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
-		echo "[Failed***] It's too big to fit into SRAM area."; \
+		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
+		rm -rf $(BINDIR); \
 		exit 2;\
 	  else \
 	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
