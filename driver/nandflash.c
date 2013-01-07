@@ -187,12 +187,18 @@ static unsigned char *IO_ADDR_W =
 /* 8 bits devices */
 static void nand_command(unsigned char cmd)
 {
-	writeb(cmd, ((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE));
+	volatile unsigned long ioaddr = (unsigned long)IO_ADDR_W
+						| CONFIG_SYS_NAND_MASK_CLE;
+
+	writeb(cmd, ioaddr);
 }
 
 static void nand_address(unsigned char addr)
 {
-	writeb(addr, ((unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE));
+	volatile unsigned long ioaddr = (unsigned long)IO_ADDR_W
+						| CONFIG_SYS_NAND_MASK_ALE;
+
+	writeb(addr, ioaddr);
 }
 
 static unsigned char read_byte(void)
@@ -208,12 +214,18 @@ static void write_byte(unsigned char data)
 /* 16 bits devices */
 static void nand_command16(unsigned short cmd)
 {
-	writew(cmd, (unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_CLE);
+	volatile unsigned long ioaddr = (unsigned long)IO_ADDR_W
+						| CONFIG_SYS_NAND_MASK_CLE;
+
+	writew(cmd, ioaddr);
 }
 
 static void nand_address16(unsigned short addr)
 {
-	writew(addr, (unsigned long)IO_ADDR_W | CONFIG_SYS_NAND_MASK_ALE);
+	volatile unsigned long ioaddr = (unsigned long)IO_ADDR_W
+						| CONFIG_SYS_NAND_MASK_ALE;
+
+	writew(addr, ioaddr);
 }
 
 static unsigned short read_word(void)
@@ -695,7 +707,7 @@ static int init_pmecc(struct nand_info *nand)
 static void write_column_address(struct nand_info *nand,
 				unsigned int column_address)
 {
-	unsigned int page_size = nand->pagesize;
+	volatile unsigned int page_size = nand->pagesize;
 
 	if (nand->buswidth)
 		column_address >>= 1;
@@ -714,7 +726,7 @@ static void write_column_address(struct nand_info *nand,
 static void write_row_address(struct nand_info *nand,
 				unsigned int row_address)
 {
-	unsigned int num_pages = nand->pages_device;
+	volatile unsigned int num_pages = nand->pages_device;
 
 	while(num_pages) {
 		if (nand->buswidth)
