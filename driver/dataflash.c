@@ -32,6 +32,7 @@
 #include "arch/at91_pio.h"
 #include "gpio.h"
 #include "string.h"
+#include "timer.h"
 
 #include "debug.h"
 
@@ -206,10 +207,37 @@ static unsigned char df_read_status_at25(unsigned char *status)
 	return 0;
 }
 
-static int dataflash_page0_erase_at25(void)
+static int at25_cmd_write_enbale(void)
+{
+	unsigned char cmd;
+	int ret;
+
+	cmd = CMD_WRITE_ENABLE_AT25;
+	ret = df_send_command(&cmd, 1, NULL, 0);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int at25_cmd_write_status_register(unsigned char status)
+{
+	unsigned char cmd[2];
+	int ret;
+
+	cmd[0] = CMD_WRITE_STATUS_AT25;
+	cmd[1] = status;
+
+	ret = df_send_command(cmd, 2, NULL, 0);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int at25_unprotect(void)
 {
 	unsigned char status;
-	unsigned char cmd[5];
 	int ret;
 
 	/* read status register */
@@ -217,25 +245,34 @@ static int dataflash_page0_erase_at25(void)
 	if (ret)
 		return ret;
 
-	/* check Write Enable Latch Status */
-	if (!(status & STATUS_WEL_AT25)) {
-		cmd[0] = CMD_WRITE_ENABLE_AT25;
-		ret = df_send_command(cmd, 1, NULL, 0);
-		if (ret)
-			return ret;
-	}
+	/* check if All sectors are software unprotected
+	 * (all Sector Protection Register are 0)
+	 */
+	if (!(status & STATUS_SWP_AT25))
+		return 0;
 
-	/* check Sector Protection Register Locked  */
+	/* check if Sector Protection Registers are locked */
 	if (status & STATUS_SPRL_AT25) {
-		cmd[0] = CMD_WRITE_STATUS_AT25;
-		cmd[1] = 0;
+		/* Unprotect Sector Potection Registers. */
+		ret = at25_cmd_write_enbale();
+		if (ret)
+			return ret;
 
-		ret = df_send_command(cmd, 2, NULL, 0);
+		ret = at25_cmd_write_status_register(0);
 		if (ret)
 			return ret;
 	}
 
-	/* read status register */
+	/* a global unprotect command */
+	ret = at25_cmd_write_enbale();
+	if (ret)
+		return ret;
+
+	ret = at25_cmd_write_status_register(0);
+	if (ret)
+		return ret;
+
+	/* check Status Register SPRL & SWP bits */
 	ret = df_read_status_at25(&status);
 	if (ret)
 		return ret;
@@ -245,7 +282,21 @@ static int dataflash_page0_erase_at25(void)
 		return -1;
 	}
 
-	ret = df_read_status_at25(&status);
+	return 0;
+}
+
+static int dataflash_page0_erase_at25(void)
+{
+	unsigned char status;
+	unsigned char cmd[5];
+	unsigned int timeout = 100;
+	int ret;
+
+	ret = at25_unprotect();
+	if (ret)
+		return ret;
+
+	ret = at25_cmd_write_enbale();
 	if (ret)
 		return ret;
 
@@ -254,14 +305,15 @@ static int dataflash_page0_erase_at25(void)
 	cmd[1] = 0;
 	cmd[2] = 0;
 	cmd[3] = 0;
+
 	ret = df_send_command(cmd, 4, NULL, 0);
 	if (ret) {
 		dbg_log(1, "SF: AT25 page 0 erase failed\n\r");
 		return ret;
 	}
 
-	/* Waiting for erasing complete */
-	unsigned int timeout = 50000;
+	udelay(1000000); /* 1000 ms */
+
 	do {
 		ret = df_read_status_at25(&status);
 		if (ret)
@@ -271,7 +323,7 @@ static int dataflash_page0_erase_at25(void)
 			break;
 	} while (--timeout);
 
-	if ((status & STATUS_READY_AT25)) {
+	if (!timeout) {
 		dbg_log(1, "SF: AT25 page0 erase timed out\n\r");
 		return -1;
 	}
@@ -283,6 +335,7 @@ static int dataflash_page0_erase_at45(void)
 {
 	unsigned char status;
 	unsigned char cmd[4];
+	unsigned int timeout = 100;
 	int ret;
 
 	cmd[0] = CMD_ERASE_PAGE_AT45;
@@ -296,7 +349,8 @@ static int dataflash_page0_erase_at45(void)
 		return ret;
 	}
 
-	unsigned int timeout = 5000;
+	udelay(500000); /* 500 ms */
+
 	do {
 		ret = df_read_status_at45(&status);
 		if (ret)
@@ -338,6 +392,7 @@ static int dataflash_recovery(struct dataflash_descriptor *df_desc)
 			return ret;
 		}
 		dbg_log(1, "SF: The erasing is done\n\r");
+
 		return 0;
 	}
 

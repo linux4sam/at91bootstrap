@@ -285,7 +285,7 @@ int load_kernel(struct image_info *image)
 	ret = load_sdcard(image);
 #endif
 	if (ret != 0)
-		return -1;
+		return ret;
 
 #ifdef CONFIG_SCLK
 	slowclk_switch_osc32();
