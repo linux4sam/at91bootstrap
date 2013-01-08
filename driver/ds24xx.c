@@ -413,31 +413,26 @@ static int ds24xx_find_next()
 	return ds24xx_search_rom();
 }
 
-static int enumerate_all_rom(void)
+static unsigned int enumerate_all_rom(void)
 {
 	int i;
-	int result, cnt;
+	int result;
+	unsigned int cnt = 0;
 
-	dbg_log(1, "1-Wire: Enumerate all roms:\n\r");
-	cnt = 0;
+	dbg_log(1, "1-Wire: ROM Searching ... ");
 
 	result = ds24xx_find_first();
 	while (result) {
-		dbg_log(1, "        Rom#%d: ", cnt);
-		for (i = 7; i >= 0; i--)
-			dbg_log(1, "%x ", buf[i]);
-		dbg_log(1, "\n\r");
 
 		/* save device info */
 		for (i = 7; i >= 0; i--)
-			device_id_array[cnt][i]=buf[i];
+			device_id_array[cnt][i] = buf[i];
 		cnt++;
 
 		result = ds24xx_find_next();
 	}
 
-	dbg_log(1, "        ROM Search done," \
-		"%d 1-Wire chips found!\n\r\n\r", cnt);
+	dbg_log(1, "Done, %d 1-Wire chips found\n\r\n\r", cnt);
 
 	return cnt;
 }
@@ -454,7 +449,7 @@ static int ds24xx_read_memory(int chip_index, unsigned char addrh,
 	case FAMILY_CODE_DS28EC:
 		break;
 	default:
-		dbg_log(1, "1-Wire:  family %d is not supported\n\r",
+		dbg_log(1, "1-Wire: family %d is not supported\n\r",
 					device_id_array[chip_index][0]);
 		return -1;
 	}
@@ -532,6 +527,11 @@ static int get_board_info(unsigned char *buffer,
 	struct one_wire_info *p = &one_wire;
 	unsigned char *pbuf = buffer;
 
+	char *boardname;
+	char *vendorname;
+	unsigned revcode;
+	unsigned revid;
+
 	*boardtype = 0xff;
 	*boardid = 0xff;
 	*revisioncode = 0xff;
@@ -558,9 +558,11 @@ static int get_board_info(unsigned char *buffer,
 	p->revision_id = *pbuf++;
 
 	memset(tmp, 0, sizeof(tmp));
+
 	for (i = 0; i < BOARD_NAME_LEN; i++) {
 		if (p->board_name[i] == 0x20)
 			break;
+
 		tmp[i] = p->board_name[i];
 	}
 
@@ -575,13 +577,13 @@ static int get_board_info(unsigned char *buffer,
 		}
 	}
 
+	boardname = board_list[i].board_name;
+	revcode = *revisioncode;
+	revid = *revisionid;
+
 	if (i == ARRAY_SIZE(board_list)) {
-		dbg_log(1, "1-Wire: No board [%s] found!\n\r", tmp);
 		return -1;
 	}
-
-	dbg_log(1, "1-Wire: Board: %s [%c%c]; ",
-		board_list[i].board_name, *revisioncode, *revisionid);
 
 	memset(tmp, 0, sizeof(tmp));
 	for (i = 0; i < VENDOR_NAME_LEN; i++) {
@@ -599,18 +601,21 @@ static int get_board_info(unsigned char *buffer,
 	}
 
 	if (i == ARRAY_SIZE(vendor_list)) {
-		dbg_log(1, "1-Wire: No vendor [%s] found!\n\r", tmp);
 		return -1;
 	}
 
-	dbg_log(1, "and Vendor: %s\n\r", vendor_list[i].vendor_name);
+	vendorname = vendor_list[i].vendor_name;
+
+	dbg_log(1, "  %s [%c%c]      %s\n\r",
+			boardname, revcode, revid, vendorname);
 
 	return 0;
 }
 
 void load_1wire_info()
 {
-	int i, cnt;
+	int i;
+	unsigned int cnt;
 	unsigned char board_type;
 	unsigned char board_id;
 	unsigned char vendor_id;
@@ -624,17 +629,25 @@ void load_1wire_info()
 	sn = rev = 0;
 
 	cnt = enumerate_all_rom();
+	if (!cnt) {
+		dbg_log(1, "WARNING: 1-Wire: No 1-Wire chip found\n\r ");
+		goto err;
+	}
 
+	dbg_log(1, "1-Wire: BoardName | [Revid] | VendorName\n\r");
 	for (i = 0; i < cnt; i++) {
 		if (ds24xx_read_memory(i, 0, 0, size, buf) < 0) {
-			dbg_log(1, "1-Wire: Failed to " \
+			dbg_log(1, "WARNING: 1-Wire: Failed to " \
 				"read from 1-Wire chip!\n\r");
 			goto err;
 		}
 
+		dbg_log(1, "  #%d", i);
+
 		if (get_board_info(buf,	&board_type, &board_id,
 				&revision_code, &revision_id, &vendor_id)) {
-			dbg_log(1, "1-Wire: Failed to get board information");
+			dbg_log(1, "WARNING: 1-Wire: Failed to " \
+						"get board information\n\r");
 			goto err;
 		}
 
@@ -658,21 +671,19 @@ void load_1wire_info()
 			rev |= (((revision_id - '0') & 0x3) << 21);
 			break;
 		default:
-			dbg_log(1, "1-Wire: Unknown board type!\n\r");
+			dbg_log(1, "WARNING: 1-Wire: Unknown board type\n\r");
 			goto err;
 		}
 	}
-
-	dbg_log(1, "1-Wire: sn: %x; rev: %x\n\r\n\r", sn, rev);
 
 	/* save to GPBR #2 and #3 */
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);
 
-	return;
 err:
-	/* Hang: we can not continue */
-        while (1);
+	dbg_log(1, "\n\r");
+
+	return;
 }
 
 unsigned int get_sys_sn()
