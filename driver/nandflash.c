@@ -1521,6 +1521,9 @@ static int nandflash_recovery(struct nand_info *nand)
 	 * If Recovery Button is pressed during boot sequence,
 	 * erase nandflash block0
 	*/
+	dbg_log(1, "NAND: Press the recovery button (%s) to recovery\n\r",
+			RECOVERY_BUTTON_NAME);
+
 	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
 		dbg_log(1, "NAND: The recovery button (%s) has been "\
 				"pressed\n\r", RECOVERY_BUTTON_NAME);

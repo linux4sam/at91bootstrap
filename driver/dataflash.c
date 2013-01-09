@@ -376,6 +376,9 @@ static int dataflash_recovery(struct dataflash_descriptor *df_desc)
 	 * If Recovery Button is pressed during boot sequence,
 	 * erase dataflash page0
 	*/
+	dbg_log(1, "SF: Press the recovery button (%s) to recovery\n\r",
+			RECOVERY_BUTTON_NAME);
+
 	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
 		dbg_log(1, "SF: The recovery button (%s) has been pressed,\n\r",
 				RECOVERY_BUTTON_NAME);
