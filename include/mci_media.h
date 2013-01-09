@@ -122,9 +122,6 @@
 #define CARD_STATUS_READY_FOR_DATA	(0x01 << 8)
 #define CARD_STATUS_MASK		(~0x0206BF7F)
 
-#define SCR_SD_BUS_WIDTH_1		(0x01 << 0)
-#define SCR_SD_BUS_WIDTH_4		(0x01 << 2)
-
 #define	ERROR_TIMEOUT		-10
 #define ERROR_COMM		-11
 #define ERROR_UNUSABLE_CARD	-12
@@ -150,7 +147,6 @@ struct sdcard_register {
 
 struct sd_card {
 	unsigned int	card_type;
-	unsigned int	state;
 
 	unsigned int	votage_host_support;
 	unsigned int	highspeed_host;

@@ -166,6 +166,7 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_RTOE),
 		.resp		= response,
 	},
+#ifdef CONFIG_SDCARD_HS
 	/* CMD6 */
 	{
 		.cmd		= SD_CMD_SWITCH_FUN,
@@ -180,6 +181,7 @@ static const struct sd_command	sd_command_table[] =  {
 					| AT91C_MCI_RTOE),
 		.resp		= response,
 	},
+#endif
 	/* CMD7 */
 	{
 		.cmd		= SD_CMD_SELECT_CARD,
@@ -426,10 +428,9 @@ static int sd_verify_operating_condition(struct sd_card *sdcard)
 	int ret;
 
 	command->cmd = SD_CMD_SEND_IF_COND;
-	if (sdcard->votage_host_support && OCR_VOLTAGE_27_36_MASK)
-		command->argu = (0x01 << 8) | CHECK_PATTERN;
-	else
-		command->argu = CHECK_PATTERN;
+	command->argu = CHECK_PATTERN;
+	command->argu |= (sdcard->votage_host_support
+				&& OCR_VOLTAGE_27_36_MASK) ? (0x01 << 8) : 0;
 
 	ret = sd_send_command(command);
 	if (ret)
@@ -518,10 +519,8 @@ static int sd_relative_card_address(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	if (sdcard->card_type == CARD_TYPE_SD)
-		sdcard->reg->rca = (command->resp[0] >> 16) & 0xffff;
-	else
-		sdcard->reg->rca = 0;
+	sdcard->reg->rca = (sdcard->card_type == CARD_TYPE_SD) ?
+					(command->resp[0] >> 16) & 0xffff : 0;
 
 	return 0;
 }
@@ -637,10 +636,7 @@ static int sd_set_card_bus_width(struct sd_card *sdcard,
 		return ret;
 
 	command->cmd = SD_CMD_APP_SET_BUS_WIDTH;
-	if (bus_width == 4)
-		command->argu = 0x02;
-	else
-		command->argu = 0;
+	command->argu = (bus_width == 4) ? 0x02 : 0;
 
 	ret = sd_send_command(command);
 	if (ret)
@@ -736,10 +732,7 @@ static int switch_check_hs_busy_status_supported(struct sd_card *sdcard,
 
 	/* Check function supported */
 	status = be32_to_cpu(switch_func_status[3]);
-	if ((status >> 17) & 0x01)
-		*support = 1;
-	else
-		*support = 0;
+	*support = ((status >> 17) & 0x01) ? 1 : 0;
 
 	return 0;
 }
@@ -784,16 +777,7 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 	unsigned int bus_width;
 	int ret;
 
-	if ((sdcard->bus_width_support & SCR_SD_BUS_WIDTH_4)
-					== SCR_SD_BUS_WIDTH_4)
-		bus_width = 4;
-	else if ((sdcard->bus_width_support & SCR_SD_BUS_WIDTH_1)
-					== SCR_SD_BUS_WIDTH_1)
-		bus_width = 1;
-	else {
-		dbg_log(1, "Not support card bus width");
-		return -1;
-	}
+	bus_width = (sdcard->bus_width_support & 0x04) ? 4 : 1;
 
 	ret = sd_set_card_bus_width(sdcard, bus_width);
 	if (ret)
@@ -964,9 +948,7 @@ static int mmc_switch_high_speed(struct sd_card *sdcard)
 	if (!ext_csd[EXT_CSD_BYTE_HS_TIMING])
 		return -1;
 
-	if (cardtype & 0x02)
-		sdcard->highspeed_card = 1;
-
+	sdcard->highspeed_card = (cardtype & 0x02) ? 1 : 0;
 	return 0;
 }
 
@@ -979,10 +961,7 @@ static int mmc_send_bus_test_r(struct sd_card *sdcard,
 	unsigned int block_len = 512;
 	int ret;
 
-	if (buswidth == 8)
-		bytes_to_read = 8;
-	else
-		bytes_to_read = 4;
+	bytes_to_read = (buswidth == 8) ? 8 : 4;
 
 	command->cmd = MMC_CMD_BUSTEST_R;
 	command->argu = 0;
@@ -1009,10 +988,7 @@ static int mmc_send_bus_test_w(struct sd_card *sdcard,
 	unsigned int block_len = 512;
 	int ret;
 
-	if (buswidth == 8)
-		bytes_to_write = 8;
-	else
-		bytes_to_write = 4;
+	bytes_to_write = (buswidth == 8) ? 8 : 4;
 
 	command->cmd = MMC_CMD_BUSTEST_W;
 	command->argu = 0;
@@ -1134,8 +1110,6 @@ static int sdcard_identification(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	sdcard->state = SD_STATE_IDLE;
-
 	udelay(2000);
 
 #ifdef CONFIG_MMC_SUPPORT
@@ -1196,19 +1170,17 @@ static int sdcard_identification(struct sd_card *sdcard)
 		return ret;
 #endif
 
-	if (sdcard->reg->ocr & OCR_HCR_CCS) {
-		sdcard->highcapacity_card = 1;
+	sdcard->highcapacity_card = (sdcard->reg->ocr & OCR_HCR_CCS) ? 1 : 0;
+
+	if (sdcard->highcapacity_card) {
 		if (sdcard->card_type == CARD_TYPE_SD)
 			dbg_log(1, "SD: High or Extended " \
 					"Capacity SD Card\n\r");
 	} else {
-		sdcard->highcapacity_card = 0;
 		if (sdcard->card_type == CARD_TYPE_SD)
 			dbg_log(1, "SD: Standard Capacity "
 					"SD Card\n\r");
 	}
-
-	sdcard->state = SD_STATE_READY;
 
 	/*
 	 * Card that is unidentified (which is in Ready State)
@@ -1218,14 +1190,11 @@ static int sdcard_identification(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	sdcard->state = SD_STATE_IDENTIFICATION;
-
 	/* Asks the card to pubish a new relative card address (RCA) */
 	ret = sd_relative_card_address(sdcard);
 	if (ret)
 		return ret;
 
-	sdcard->state = SD_STATE_STAND_BY;
 	/*
 	 * The host issues SEND_CSD(CMD9) to obtain
 	 * the Card Specific Data (CSD Register),
@@ -1254,8 +1223,6 @@ static int sd_initialization(struct sd_card *sdcard)
 	ret = sd_enter_transfer_state(sdcard);
 	if (ret)
 		return ret;
-
-	sdcard->state = SD_STATE_TRANSFER;
 
 	/*
 	 * In Transfer State, send SEND_SCR(ACMD51)
@@ -1297,11 +1264,12 @@ static int sd_initialization(struct sd_card *sdcard)
 	 * It is mandatory for an SD memory card of Version 1.10 and higher
 	 * to support Switch Function
 	 */
-	if (sdcard->highspeed_host
-		&& (sdcard->sd_spec_version != SD_VERSION_1_0)) {
-		ret = sd_switch_func_high_speed(sdcard);
-		if (ret)
-			return ret;
+	if (sdcard->highspeed_host) {
+		if (sdcard->sd_spec_version != SD_VERSION_1_0) {
+			ret = sd_switch_func_high_speed(sdcard);
+			if (ret)
+				return ret;
+		}
 	}
 	if (sdcard->highspeed_card)
 		at91_mci_set_clock(50000000);
@@ -1353,8 +1321,6 @@ static int mmc_initialization(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	sdcard->state = SD_STATE_TRANSFER;
-
 	if (sdcard->sd_spec_version >= MMC_VERSION_4) {
 		ret = mmc_detect_buswidth(sdcard);
 		if (ret)
@@ -1368,11 +1334,12 @@ static int mmc_initialization(struct sd_card *sdcard)
 	 * before changing the clock frequency to a frequency
 	 * higher than 20MHz
 	 */
-	if ((sdcard->highspeed_host)
-		&& (sdcard->sd_spec_version >= MMC_VERSION_4)) {
-		ret = mmc_switch_high_speed(sdcard);
-		if (ret)
-			return ret;
+	if (sdcard->highspeed_host) {
+		if (sdcard->sd_spec_version >= MMC_VERSION_4) {
+			ret = mmc_switch_high_speed(sdcard);
+			if (ret)
+				return ret;
+		}
 	}
 
 	if (sdcard->highspeed_card == 1)
@@ -1398,8 +1365,6 @@ static void init_sdcard_struct(struct sd_card *sdcard)
 #ifdef CONFIG_SDCARD_HS
 	sdcard->highspeed_host = 1;
 #endif
-
-	sdcard->state = SD_STATE_INACTIVE;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1440,9 +1405,6 @@ static int sdcard_set_block_len(struct sd_card *sdcard,
 	struct sd_command *command = sdcard->command;
 	int ret;
 
-	if (block_len > DEFAULT_SD_BLOCK_LEN)
-		return -1;
-
 	command->cmd = SD_CMD_SET_BLOCKLEN;
 	command->argu = block_len;
 
@@ -1481,11 +1443,7 @@ static int sdcard_read_multi_blocks(struct sd_card *sdcard,
 	int ret;
 
 	command->cmd = SD_CMD_READ_MULTIPLE_BLOCK;
-
-	if (sdcard->highcapacity_card)
-		command->argu = start;
-	else
-		command->argu = start * block_len;
+	command->argu = (sdcard->highcapacity_card) ? start : start * block_len;
 
 	ret = sd_send_command(command);
 	if (ret)
@@ -1507,11 +1465,7 @@ static int sdcard_read_single_block(struct sd_card *sdcard,
 	int ret;
 
 	command->cmd = SD_CMD_READ_SINGLE_BLOCK;
-
-	if (sdcard->highcapacity_card)
-		command->argu = start;
-	else
-		command->argu = start * block_len;
+	command->argu = (sdcard->highcapacity_card) ? start : start * block_len;
 
 	ret = sd_send_command(command);
 	if (ret)
@@ -1536,18 +1490,6 @@ unsigned int sdcard_block_read(unsigned int start,
 	unsigned int blocks_read;
 	int ret;
 
-	if (!block_count)
-		return 0;
-
-	if (!buf)
-		return 0;
-
-	if (sdcard->state == SD_STATE_TRANSFER)
-		sdcard->state = SD_STATE_RECEIVE_DATA;
-
-	if (sdcard->state != SD_STATE_RECEIVE_DATA)
-		return 0;
-
 	/*
 	 * Refer to the at91sam9g20 datasheet:
 	 * Figure 35-10. Read Function Flow Diagram
@@ -1559,10 +1501,8 @@ unsigned int sdcard_block_read(unsigned int start,
 		return 0;
 
 	for (blocks_todo = block_count; blocks_todo > 0; ) {
-		if (blocks_todo > SUPPORT_MAX_BLOCKS)
-			blocks = SUPPORT_MAX_BLOCKS;
-		else
-			blocks = blocks_todo;
+		blocks = (blocks_todo > SUPPORT_MAX_BLOCKS) ?
+					SUPPORT_MAX_BLOCKS : blocks_todo;
 
 		/*
 		 * Set the block length (in bytes)
@@ -1585,8 +1525,6 @@ unsigned int sdcard_block_read(unsigned int start,
 			ret = sdcard_stop_transmission(sdcard);
 			if (ret)
 				return ret;
-
-			sdcard->state = SD_STATE_TRANSFER;
 		} else {
 			/*
 			 * CMD17 (READ_SINGLE_BLOCK) initiates a block read
@@ -1595,7 +1533,6 @@ unsigned int sdcard_block_read(unsigned int start,
 			 */
 			blocks_read = sdcard_read_single_block(sdcard,
 							buf, start);
-			sdcard->state = SD_STATE_TRANSFER;
 		}
 
 		if (blocks_read != blocks)

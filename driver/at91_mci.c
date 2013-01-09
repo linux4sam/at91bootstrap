@@ -48,12 +48,6 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 	unsigned int clkdiv;
 	unsigned int reg;
 
-	if (!clock)
-		return -1;
-
-	if (!blklen)
-		return -1;
-
 	clkdiv = (MASTER_CLOCK + clock) / clock;
 
 	blklen &= 0xfffc;
@@ -64,13 +58,11 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 	mci_writel(MCI_BLKR, reg);
 
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
+	clkdiv -= 2;
 	reg = mci_readl(MCI_MR);
 	reg &= ~((0x01 << 8) - 1);
-
-	clkdiv -= 2;
 	reg |= (clkdiv >> 1);
-	if (clkdiv & 1)
-		reg |= AT91C_MCI_CLKODD;
+	reg |= (clkdiv & 1) ? AT91C_MCI_CLKODD : 0;
 
 	mci_writel(MCI_MR, reg);
 #else
@@ -182,10 +174,6 @@ static int at91_mci_read_data(unsigned int *data)
 	unsigned int error_check = (AT91C_MCI_DCRCE
 					| AT91C_MCI_DTOE
 					| AT91C_MCI_OVRE);
-
-	if (!data)
-		return -1;
-
 	/*
 	 * Read status register MCI_SR
 	 * Wait for RXRDY or error bits
@@ -248,7 +236,7 @@ int at91_mci_read_blocks(unsigned int *data,
 {
 	unsigned int block;
 	unsigned int count;
-	unsigned int words_of_block = block_len / 4;
+	unsigned int words_of_block = block_len >> 2;
 	int timeout = 10000;
 	int ret;
 
@@ -275,9 +263,6 @@ static int at91_mci_write_data(unsigned int *data)
 {
 	unsigned int status;
 
-	if (!data)
-		return -1;
-
 	/*
 	 * Read status register MCI_SR
 	 * Wait for TXRDY or error bits
@@ -296,8 +281,8 @@ int at91_mci_write_block_data(unsigned int *data,
 			unsigned int block_len)
 {
 	unsigned int count;
-	unsigned int words_to_write = bytes_to_write / 4;
-	unsigned int words_of_block = block_len / 4;
+	unsigned int words_to_write = bytes_to_write >> 2;
+	unsigned int words_of_block = block_len >> 2;
 	unsigned int tmp = 0;
 	int timeout = 10000;
 	int ret;
