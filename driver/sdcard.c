@@ -85,7 +85,7 @@ int load_sdcard(struct image_info *image)
 		return -1;
 	}
 
-	dbg_log(1, "SD Card: Image: Read file %s to %d\n\r",
+	dbg_log(1, "SD/MMC: Image: Read file %s to %d\n\r",
 					image->filename, image->dest);
 
 	ret = sdcard_loadimage(image->filename, image->dest);
@@ -93,7 +93,7 @@ int load_sdcard(struct image_info *image)
 		return ret;
 
 	if (image->of) {
-		dbg_log(1, "SD Card: dt blob: Read file %s to %d\n\r",
+		dbg_log(1, "SD/MMC: dt blob: Read file %s to %d\n\r",
 				image->of_filename, image->of_dest);
 
 		ret = sdcard_loadimage(image->of_filename, image->of_dest);
