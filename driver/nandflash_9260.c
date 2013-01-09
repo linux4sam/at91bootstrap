@@ -52,15 +52,11 @@ static struct nand_ooblayout nand_oob_layout;
 /*
  * NAND Commands
  */
-static unsigned char *IO_ADDR_R =
-			(unsigned char *)(unsigned long)CONFIG_SYS_NAND_BASE;
-static unsigned char *IO_ADDR_W =
-			(unsigned char *)(unsigned long)CONFIG_SYS_NAND_BASE;
 
 /* 8 bits devices */
 static void nand_command(unsigned char cmd)
 {
-	volatile unsigned long ioaddr = (unsigned long)IO_ADDR_W
+	volatile unsigned long ioaddr = (unsigned long)CONFIG_SYS_NAND_BASE
 						| CONFIG_SYS_NAND_MASK_CLE;
 
 	writeb(cmd, ioaddr);
@@ -68,7 +64,7 @@ static void nand_command(unsigned char cmd)
 
 static void nand_address(unsigned char addr)
 {
-	volatile unsigned long ioaddr = (unsigned long)IO_ADDR_W
+	volatile unsigned long ioaddr = (unsigned long)CONFIG_SYS_NAND_BASE
 						| CONFIG_SYS_NAND_MASK_ALE;
 
 	writeb(addr, ioaddr);
@@ -76,7 +72,7 @@ static void nand_address(unsigned char addr)
 
 static unsigned char read_byte(void)
 {
-	return readb((unsigned long)IO_ADDR_R);
+	return readb((unsigned long)CONFIG_SYS_NAND_BASE);
 }
 
 static void nand_wait_ready(void)
