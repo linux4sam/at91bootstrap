@@ -28,6 +28,7 @@
 #include "common.h"
 #include "hardware.h"
 #include "board.h"
+#include "dbgu.h"
 #include "debug.h"
 #include "slowclk.h"
 #include "dataflash.h"
@@ -55,7 +56,7 @@ static int init_loadfunction(void)
 #elif defined(CONFIG_SDCARD)
 	load_image = &load_sdcard;
 #else
-#error "No booting media specified!"
+#error "No booting media_str specified!"
 #endif
 #endif
 	return 0;
@@ -63,13 +64,21 @@ static int init_loadfunction(void)
 
 static void display_banner (void)
 {
-	dbg_log(1, "\n\nAT91Bootstrap %s\n\n\r",
-			AT91BOOTSTRAP_VERSION" ( "COMPILE_TIME" )");
+	char *version = "AT91Bootstrap";
+	char *ver_num = AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
+
+	dbgu_print("\n\r");
+	dbgu_print("\n\r");
+	dbgu_print(version);
+	dbgu_print(ver_num);
+	dbgu_print("\n\r");
+	dbgu_print("\n\r");
 }
 
 int main(void)
 {
 	struct image_info image;
+	char *media_str = NULL;
 	int ret;
 
 	memset(&image, 0, sizeof(image));
@@ -79,7 +88,9 @@ int main(void)
 	image.of = 1;
 	image.of_dest = (unsigned char *)OF_ADDRESS;
 #endif
-#if defined CONFIG_DATAFLASH || defined CONFIG_NANDFLASH
+
+#ifdef CONFIG_NANDFLASH
+	media_str = "NAND: ";
 	image.offset = IMG_ADDRESS;
 	image.length = IMG_SIZE;
 #ifdef CONFIG_OF_LIBFDT
@@ -87,7 +98,19 @@ int main(void)
 	image.of_length = OF_LENGTH;
 #endif
 #endif
+
+#ifdef CONFIG_DATAFLASH
+	media_str = "SF: ";
+	image.offset = IMG_ADDRESS;
+	image.length = IMG_SIZE;
+#ifdef CONFIG_OF_LIBFDT
+	image.of_offset = OF_OFFSET;
+	image.of_length = OF_LENGTH;
+#endif
+#endif
+
 #ifdef CONFIG_SDCARD
+	media_str = "SD/MMC: ";
 	image.filename = OS_IMAGE_NAME;
 #ifdef CONFIG_OF_LIBFDT
 	image.of_filename = OF_FILENAME;
@@ -104,21 +127,22 @@ int main(void)
 	/* Load one wire informaion */
 	load_1wire_info();
 #endif
-
 	init_loadfunction();
 
-	dbg_log(1, "Downloading image...\n\r");
-
 	ret = (*load_image)(&image);
+
+	if (media_str)
+		dbgu_print(media_str);
+
 	if (ret == 0){
-		dbg_log(1, "Done!\n\r");
+		dbgu_print("Done to load image\n\r");
 	}
 	if (ret == -1) {
-		dbg_log(1, "Failed to load image\n\r");
+		dbgu_print("Failed to load image\n\r");
 		while(1);
 	}
 	if (ret == -2) {
-		dbg_log(1, "Success to recovery\n\r");
+		dbgu_print("Success to recovery\n\r");
 		while (1);
 	}
 
