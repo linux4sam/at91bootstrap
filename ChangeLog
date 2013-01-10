@@ -2,6 +2,58 @@ AT91Bootstrap ChangeLog
 	
 Version 3.4.5
 
+
+	Jan 11 09:43:39 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Only for at91sam9260ek nand booting, using "-Os" instead of using "-O2"
+	  as CPPFLAGS option. Since using 2010q1 toolchain, the binary size built
+	  with "at91sam9260eknf_uboot_defconfig" is greater the maxium size (4096).
+
+	Jan 8 10:45:56 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* When failed to load the 1-Wire information, print WARNING message,
+	  then continue to go instead of hang.
+
+	Jan 7 16:56:06 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* When loading uboot, the "CONFIG_JUMP_ADDR" 0x23F00000 ==> 0x21F00000,
+	  and the offset of nandflash, "CONFIG_IMG_ADDRESS" 0x20000 ==>0x40000.
+
+	Jan 9 14:46:09 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* When diabling ""CONFIG_DEBUG", i.e. "dbg_log" doesn't work,
+	  using "dbgu_print" print some simple promt string message.
+
+	Jan 7 16:25:49 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* at91sam9260ek, remove the code to support nandflash 16-bit bus-width.
+
+	Jan 7 14:51:59 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* It always configis dbgu pins during board initialization
+	  despite of "CONFIG_DEBUG".
+
+	Jan 7 13:12:20 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* [BUG] Using 2009q3, 2010q1 and buildroot toolchain
+	  to build at91sam9g10ek with "at91sam9g10eknf_uboot_defconfig".
+	  It print out "Bad Block#xxx" for all nand blocks.
+
+	Jan 7 10:38:03 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* When ChkFileSize greater than BOOTSTRAP_MAXSIZE,
+	  it will not produce the binary.
+
+	Jan 6 16:01:23 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* Set the machine type number to 0xffffffff
+	  when loading the kernel image and dt.
+
+	Jan 4 11:40:13 2013 Wenyou Yang <wenyou.yang@atmel.com>
+
+	* [BUG] Fix after erasing block0 the status register
+	  reports erasing failure, even if the erasing is done.
+
 	Dec 17 16:25:40 2012 Wenyou Yang <wenyou.yang@atmel.com>
 
 	* Add the 1-Wire support for sama5d3xek
@@ -49,7 +101,7 @@ Version 3.4.4
 	* Align to the U-Boot latest version, change the default 
 	  jump address from 0x23f00000 to 0x21f00000 
 	  for U-Boot in the external memory to the boards whose 
-	  memory size is 64M. These boards include:at91sam9260ek,
+	  memory size is 64M. These boards include, at91sam9260ek,
 	  at91sam9261ek, at91sam9263ek, at91sam9g10ek, 
 	  at91sam9g20ek, and at91sam9rlek.
 
