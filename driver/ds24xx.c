@@ -98,13 +98,13 @@ struct one_wire_info {
 	unsigned char reserved;
 };
 
-struct board_info {
+struct ek_boards {
 	char *board_name;
 	unsigned char board_type;
 	unsigned char board_id;
 };
 
-struct vendor_info {
+struct ek_vendors {
 	char *vendor_name;
 	char vendor_id;
 };
@@ -120,7 +120,7 @@ static unsigned char LastDeviceFlag;
 static unsigned char buf[MAX_BUF_LEN];
 static unsigned char cmp[MAX_BUF_LEN];
 
-static struct board_info	board_list[] = {
+static struct ek_boards	board_list[] = {
 	{"SAM9x5-EK",		BOARD_TYPE_EK,		0},
 	{"SAM9x5-DM",		BOARD_TYPE_DM,		1},
 	{"SAM9G15-CM",		BOARD_TYPE_CPU,		2},
@@ -138,7 +138,7 @@ static struct board_info	board_list[] = {
 	{0,			0,			0},
 };
 
-static struct vendor_info	vendor_list[] = {
+static struct ek_vendors	vendor_list[] = {
 	{"EMBEST",		VENDOR_EMBEST},
 	{"FLEX",		VENDOR_FLEX},
 	{"RONETIX",		VENDOR_RONETIX},
@@ -514,12 +514,17 @@ static unsigned char normalize_rev_id(const unsigned char c)
 	return '0';
 }
 
+struct board_info {
+	unsigned char board_type;
+	unsigned char board_id;
+	unsigned char revision_code;
+	unsigned char revision_id;
+	unsigned char vendor_id;
+};
+
 static int get_board_info(unsigned char *buffer,
-			unsigned char *boardtype,
-			unsigned char *boardid,
-			unsigned char *revisioncode,
-			unsigned char *revisionid,
-			unsigned char *vendorid)
+				unsigned char bd_sn,
+				struct board_info *bd_info)
 {
 	int i;
 	char tmp[20];
@@ -531,12 +536,6 @@ static int get_board_info(unsigned char *buffer,
 	char *vendorname;
 	unsigned revcode;
 	unsigned revid;
-
-	*boardtype = 0xff;
-	*boardid = 0xff;
-	*revisioncode = 0xff;
-	*revisionid = 0xff;
-	*vendorid = 0xff;
 
 	p->total_bytes = (unsigned char)*pbuf;
 
@@ -569,17 +568,18 @@ static int get_board_info(unsigned char *buffer,
 	for (i = 0; i < ARRAY_SIZE(board_list); i++) {
 		if (strncmp(board_list[i].board_name, tmp,
 			strlen(board_list[i].board_name)) == 0) {
-			*boardtype = board_list[i].board_type;
-			*boardid = board_list[i].board_id;
-			*revisioncode = normalize_rev_code(p->revision_code);
-			*revisionid = normalize_rev_id(p->revision_id);
+			bd_info->board_type = board_list[i].board_type;
+			bd_info->board_id = board_list[i].board_id;
+			bd_info->revision_code
+				= normalize_rev_code(p->revision_code);
+			bd_info->revision_id = normalize_rev_id(p->revision_id);
 			break;
 		}
 	}
 
 	boardname = board_list[i].board_name;
-	revcode = *revisioncode;
-	revid = *revisionid;
+	revcode = bd_info->revision_code;
+	revid = bd_info->revision_id;
 
 	if (i == ARRAY_SIZE(board_list)) {
 		return -1;
@@ -595,7 +595,7 @@ static int get_board_info(unsigned char *buffer,
 	for (i = 0; i < ARRAY_SIZE(vendor_list); i++) {
 		if (strncmp(vendor_list[i].vendor_name, tmp,
 			    strlen(vendor_list[i].vendor_name)) == 0) {
-			*vendorid = vendor_list[i].vendor_id;
+			bd_info->vendor_id = vendor_list[i].vendor_id;
 			break;
 		}
 	}
@@ -606,6 +606,7 @@ static int get_board_info(unsigned char *buffer,
 
 	vendorname = vendor_list[i].vendor_name;
 
+	dbg_log(1, "  #%d", bd_sn);
 	dbg_log(1, "  %s [%c%c]      %s\n\r",
 			boardname, revcode, revid, vendorname);
 
@@ -615,14 +616,10 @@ static int get_board_info(unsigned char *buffer,
 void load_1wire_info()
 {
 	int i;
-	unsigned int cnt;
-	unsigned char board_type;
-	unsigned char board_id;
-	unsigned char vendor_id;
-	unsigned char revision_code;
-	unsigned char revision_id;
-
-	int size = LEN_ONE_WIRE_INFO;
+	unsigned int	cnt;
+	unsigned int	size = LEN_ONE_WIRE_INFO;
+	struct board_info	board_info;
+	struct board_info	*bd_info = &board_info;
 
 	dbg_log(1, "1-Wire: Loading 1-Wire information ...\n\r");
 
@@ -635,6 +632,7 @@ void load_1wire_info()
 	}
 
 	dbg_log(1, "1-Wire: BoardName | [Revid] | VendorName\n\r");
+
 	for (i = 0; i < cnt; i++) {
 		if (ds24xx_read_memory(i, 0, 0, size, buf) < 0) {
 			dbg_log(1, "WARNING: 1-Wire: Failed to " \
@@ -642,34 +640,34 @@ void load_1wire_info()
 			goto err;
 		}
 
-		dbg_log(1, "  #%d", i);
-
-		if (get_board_info(buf,	&board_type, &board_id,
-				&revision_code, &revision_id, &vendor_id)) {
+		if (get_board_info(buf,	i, bd_info)) {
 			dbg_log(1, "WARNING: 1-Wire: Failed to " \
 						"get board information\n\r");
 			goto err;
 		}
 
-		switch (board_type) {
+		switch (bd_info->board_type) {
 		case BOARD_TYPE_CPU:
-			sn  |= (board_id & 0x1F);
-			sn  |= ((vendor_id & 0x1F) << 5);
-			rev |= (revision_code - 'A');
-			rev |= (((revision_id - '0') & 0x3) << 15);
+			sn  |= (bd_info->board_id & 0x1F);
+			sn  |= ((bd_info->vendor_id & 0x1F) << 5);
+			rev |= (bd_info->revision_code - 'A');
+			rev |= (((bd_info->revision_id - '0') & 0x3) << 15);
 			break;
+
 		case BOARD_TYPE_DM:
-			sn  |= ((board_id & 0x1F) << 10);
-			sn  |= ((vendor_id & 0x1F) << 15);
-			rev |= ((revision_code - 'A') << 5);
-			rev |= (((revision_id - '0') & 0x3) << 18);
+			sn  |= ((bd_info->board_id & 0x1F) << 10);
+			sn  |= ((bd_info->vendor_id & 0x1F) << 15);
+			rev |= ((bd_info->revision_code - 'A') << 5);
+			rev |= (((bd_info->revision_id - '0') & 0x3) << 18);
 			break;
+
 		case BOARD_TYPE_EK:
-			sn  |= ((board_id & 0x1F) << 20);
-			sn  |= ((vendor_id & 0x1F) << 25);
-			rev |= ((revision_code - 'A') << 10);
-			rev |= (((revision_id - '0') & 0x3) << 21);
+			sn  |= ((bd_info->board_id & 0x1F) << 20);
+			sn  |= ((bd_info->vendor_id & 0x1F) << 25);
+			rev |= ((bd_info->revision_code - 'A') << 10);
+			rev |= (((bd_info->revision_id - '0') & 0x3) << 21);
 			break;
+
 		default:
 			dbg_log(1, "WARNING: 1-Wire: Unknown board type\n\r");
 			goto err;
@@ -692,6 +690,7 @@ unsigned int get_sys_sn()
 		dbg_log(1, "Error: no system_sn defined, using 0!\n\r");
 		return 0;
 	}
+
 	return sn;
 }
 
@@ -701,6 +700,7 @@ unsigned int get_sys_rev()
 		dbg_log(1, "Error: no system_rev defined, using 0!\n\r");
 		return 0;
 	}
+
 	return rev;
 }
 
