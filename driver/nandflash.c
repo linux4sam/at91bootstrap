@@ -1202,7 +1202,7 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 					buffer);
 
 		if (result != 0) {
-			dbg_log(1, "PMECC: failed to" \
+			dbg_log(1, "PMECC: failed to " \
 					"correct corrupted bits!\n\r");
 			ret =  ECC_CORRECT_ERROR;
 
