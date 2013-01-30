@@ -65,7 +65,7 @@ static int init_loadfunction(void)
 static void display_banner (void)
 {
 	char *version = "AT91Bootstrap";
-	char *ver_num = AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
+	char *ver_num = " "AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
 
 	dbgu_print("\n\r");
 	dbgu_print("\n\r");
