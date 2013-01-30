@@ -1,6 +1,5 @@
 menu "Memory selection"
 
-
 config CONFIG_SDRAM
 	bool
 	default n
@@ -64,6 +63,9 @@ config	CONFIG_RAM_128MB
 config	CONFIG_RAM_256MB
 	bool "256 MB"
 
+config	CONFIG_RAM_512MB
+	bool "512 MB"
+
 endchoice
 
 config	CONFIG_SDRAM_16BIT
@@ -71,15 +73,13 @@ config	CONFIG_SDRAM_16BIT
 	depends on ALLOW_SDRAM_16BIT
 	help
 	  
-
 config	CONFIG_PSRAM
 	bool "Enable PSRAM on EBI1"
 	depends on ALLOW_PSRAM
 	help
 	  
-
 choice
-	prompt "Flash memory technology"
+	prompt "Flash Memory Technology"
 	default CONFIG_DATAFLASH
 	help
 	  Select memory for at91bootstrap
@@ -96,16 +96,11 @@ config	CONFIG_NANDFLASH
 	bool "NAND flash"
 	depends on ALLOW_NANDFLASH
 
-
 config	CONFIG_SDCARD
 	bool "SD card"
 	depends on ALLOW_SDCARD
 
 endchoice
-
-config	CONFIG_ENABLE_SW_ECC
-	bool "Support NAND flash software ECC"
-	depends on CONFIG_NANDFLASH
 
 config CONFIG_MEMORY
 	string
@@ -116,11 +111,10 @@ config CONFIG_MEMORY
 
 config CONFIG_SDCARD_HS
 	bool
-	default y if CONFIG_AT91SAM9G45EK
-	default y if CONFIG_AT91SAM9G45EKES
-	default y if CONFIG_AT91SAM9M10EK
-	default y if CONFIG_AT91SAM9M10EKES
+	default y if CONFIG_AT91SAM9M10G45EK
 	default y if CONFIG_AT91SAM9X5EK
+	default y if CONFIG_AT91SAM9N12EK
+	default y if CONFIG_AT91SAMA5D3XEK
 	default n
 
 source "driver/Config.in.dataflash"
@@ -129,11 +123,10 @@ source "driver/Config.in.nandflash"
 
 config CONFIG_BOOTSTRAP_MAXSIZE
 	string
-	default "4096"  if CONFIG_AT91SAM9260EK
-	default "8192"  if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
-	default "12288"  if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
-	default "4096"  if CONFIG_AFEB9260
+	default "4096" if CONFIG_AT91SAM9260EK
+	default "8192" if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
+	default "12288" if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
+	default "65536"	if CONFIG_AT91SAMA5D3XEK
 	default "23000"
 
 endmenu
-

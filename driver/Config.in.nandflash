@@ -1,11 +1,33 @@
 menu  "NAND Flash configuration"
 	depends on CONFIG_NANDFLASH
 
+config	CONFIG_ENABLE_SW_ECC
+	bool
+	default y
+	depends on CONFIG_NANDFLASH && !CPU_HAS_PMECC
+
+config	CONFIG_ENABLE_SW_ECC
+	bool "Support NAND flash software ECC"
+	depends on CONFIG_NANDFLASH && CPU_HAS_PMECC
+
 config CONFIG_NANDFLASH_SMALL_BLOCKS
 	bool "Use NAND flash with small blocks"
 	default n
 	help
 	  Use NAND Flash with small blocks
 
-endmenu
+config CONFIG_NANDFLASH_RECOVERY
+	bool "Support Nandflash recovery by pressing a button"
+	default y
+	depends on CONFIG_NANDFLASH
+	depends on ALLOW_NANDFLASH_RECOVERY
+	help
+	  Let bootstrap disassemble the first 7 double words
+	  and check that all, except the reserved vector
+	  contains a jump/branch
 
+config ALLOW_NANDFLASH_RECOVERY
+	bool
+	default	n
+
+endmenu

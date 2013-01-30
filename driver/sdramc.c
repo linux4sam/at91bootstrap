@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,104 +24,67 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : sdramc.c
- * Object              :
- * Creation            : NLe Jul 11th 2006
- *-----------------------------------------------------------------------------
  */
+#include "hardware.h"
+#include "board.h"
+#include "arch/at91_sdramc.h"
 #include "sdramc.h"
-#include "part.h"
-#include "main.h"
 
-#ifdef CONFIG_SDRAM
-
-/* Write SDRAMC register */
-static inline void write_sdramc(unsigned int offset, const unsigned int value)
+static inline void sdramc_writel(unsigned int reg, const unsigned int value)
 {
-    writel(value, offset + AT91C_BASE_SDRAMC);
+	writel(value, reg + AT91C_BASE_SDRAMC);
 }
 
-/* Read SDRAMC registers */
-static inline unsigned int read_sdramc(unsigned int offset)
+static inline unsigned int sdramc_readl(unsigned int reg)
 {
-    return readl(offset + AT91C_BASE_SDRAMC);
+	return readl(reg + AT91C_BASE_SDRAMC);
 }
 
-//*----------------------------------------------------------------------------
-//* \fn    sdram_init
-//* \brief Initialize the SDRAM Controller
-//*----------------------------------------------------------------------------
-int sdram_init(unsigned int sdramc_cr, unsigned int sdramc_tr,
-               unsigned char low_power)
+int sdramc_initialize(struct sdramc_register *sdramc_config,
+			unsigned int sdram_address)
 {
-    volatile unsigned int i;
+	unsigned int i;
 
-    /*
-     * Performs the hardware initialization 
-     */
-    sdramc_hw_init();
+	/* Step#1 SDRAM feature must be in the configuration register */
+	sdramc_writel(SDRAMC_CR, sdramc_config->cr);
 
-    /*
-     * CFG Control Register 
-     */
-    write_sdramc(SDRAMC_CR, sdramc_cr);
+	/* Step#2 For mobile SDRAM, temperature-compensated self refresh(TCSR),... */
 
-    /*
-     * Set MDR Register 
-     */
-    write_sdramc(SDRAMC_MDR, (low_power & 0x01));
+	/* Step#3 The SDRAM memory type must be set in the Memory Device Register */
+	sdramc_writel(SDRAMC_MDR, sdramc_config->mdr);
 
-    for (i = 0; i < 1000; i++) ;
+	/* Step#4 The minimum pause of 200 us is provided to precede any single toggle */
+	for (i = 0; i < 1000; i++) ;
 
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_NOP_CMD); // Set NOP 
-    writel(0x00000000, AT91C_SDRAM);    // Perform NOP
+	/* Step#5 A NOP command is issued to the SDRAM devices */
+	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_NOP);
+	writel(0x00000000, sdram_address);
 
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_PRCGALL_CMD);     // Set PRCHG AL
-    writel(0x00000000, AT91C_SDRAM);    // Perform PRCHG
+	/* Step#6 An All Banks Precharge command is issued to the SDRAM devices  */
+	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_PRECHARGE);
+	writel(0x00000000, sdram_address);
 
-    for (i = 0; i < 10000; i++) ;
+	for (i = 0; i < 10000; i++) ;
 
-#if	0
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);        // Set 1st CBR
-    writel(0x00000001, AT91C_SDRAM + 4);        // Perform CBR
+	/* Step#7 Eight auto-refresh cycles are provided */
+	for (i = 0; i < 8; i++) {
+		sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_AUTO_REFRESH);
+		writel(0x00000001 + i, sdram_address + 4 + 4 * i);
+	}
 
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);        // Set 2 CBR
-    writel(0x00000002, AT91C_SDRAM + 8);        // Perform CBR
+	/* Step#8 A Mode Register set (MRS) cyscle is issued to program the SDRAM parameters(TCSR, PASR, DS) */
+	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_LOAD_MODE);
+	writel(0xcafedede, sdram_address + 0x24);
 
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);        // Set 3 CBR
-    writel(0x00000003, AT91C_SDRAM + 0xc);      // Perform CBR
+	/* Step#9 For mobile SDRAM initialization, an Extended Mode Register set cycle is issued to ... */
 
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);        // Set 4 CBR
-    writel(0x00000004, AT91C_SDRAM + 0x10);     // Perform CBR
+	/* Step#10 The application must go into Normal Mode, setting Mode to 0 in the Mode Register
+	   and perform a write access at any location in the SDRAM. */
+	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_NORMAL);	// Set Normal mode
+	writel(0x00000000, sdram_address);	// Perform Normal mode
 
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);        // Set 5 CBR
-    writel(0x00000005, AT91C_SDRAM + 0x14);     // Perform CBR
+	/* Step#11 Write the refresh rate into the count field in the SDRAMC Refresh Timer Rgister. */
+	sdramc_writel(SDRAMC_TR, sdramc_config->tr);
 
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);        // Set 6 CBR
-    writel(0x00000006, AT91C_SDRAM + 0x18);     // Perform CBR
-
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);        // Set 7 CBR
-    writel(0x00000007, AT91C_SDRAM + 0x1C);     // Perform CBR
-
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);        // Set 8 CBR
-    writel(0x00000008, AT91C_SDRAM + 0x20);     // Perform CBR
-#else
-    for (i = 0; i < 8; i++) {
-        write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_RFSH_CMD);    // 8 x CBR
-        writel(0x00000001 + i, AT91C_SDRAM + 4 + 4 * i);        // Perform CBR
-    }
-#endif
-
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_LMR_CMD); // Set LMR operation
-    writel(0xcafedede, AT91C_SDRAM + 0x24);     // Perform LMR burst=1, lat=2
-
-    write_sdramc(SDRAMC_TR, sdramc_tr); // Set Refresh Timer
-
-    write_sdramc(SDRAMC_MR, AT91C_SDRAMC_MODE_NORMAL_CMD);      // Set Normal mode
-    writel(0x00000000, AT91C_SDRAM);    // Perform Normal mode
-
-    return 0;
+	return 0;
 }
-
-#endif                          /* CONFIG_SDRAM */

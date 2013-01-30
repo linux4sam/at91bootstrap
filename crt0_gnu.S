@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,17 +24,10 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : crt0_gnu.S
- * Object              : 
- * Creation            : ODi Apr 19th 2006
- *-----------------------------------------------------------------------------
  */
 
 .section start
 	.text
-
- 	#include "include/part.h"
 
 /*----------------------------------------------------------------------------
  Area Definition
@@ -56,7 +49,7 @@ _exception_vectors:
 	b 	swi_vector   	/* Software Interrupt */
 	b 	pabt_vector  	/* Prefetch Abort */
 	b 	dabt_vector  	/* Data Abort */
-.word		_edata		/* Size of the image for SAM-BA */
+.word		_edata		/* Size of the binary for ROMCode loading */
 	b 	irq_vector	/* IRQ : read the AIC */
 	b 	fiq_vector      /* FIQ */
 

@@ -24,14 +24,15 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
  */
-
-#include "part.h"
+#include "common.h"
+#include "hardware.h"
+#include "board.h"
+#include "arch/at91_pio.h"
 #include "gpio.h"
-#include "pmc.h"
-#include "main.h"
 #include "debug.h"
+#include "timer.h"
+#include "string.h"
 #include "onewire_info.h"
 
 #define ROM_COMMAND_READ		0x33
@@ -59,10 +60,7 @@
 
 #define FAMILY_CODE_DS2431		0x2D
 #define FAMILY_CODE_DS2433		0x23
-#define DS2431_SIZE_BYTES		0x88
-#define DS2433_SIZE_BYTES		0x200
-#define DS2431_SCRATCHPAD_SIZE		0x8
-#define DS2433_SCRATCHPAD_SIZE		0x20
+#define FAMILY_CODE_DS28EC		0x43
 
 #define MAX_RETRY			10
 #define MAX_BUF_LEN			256
@@ -85,47 +83,44 @@
 #define CM_REV_MASK			0x1F
 #define CM_REV_OFFSET			0
 
-size_t strlen(const char *str);
-extern char *strcpy(char *dst, const char *src);
-extern int strcmp(const char *p1, const char *p2);
-extern int strncmp(const char *p1, const char *p2, size_t cnt);
-extern void *memset(void *dst, int val, int cnt);
-extern void *memcpy(void *dst, const void *src, int cnt);
+#define LEN_ONE_WIRE_INFO		0x20
 
-static unsigned int sn = 0xffffffff;
-static unsigned int rev = 0xffffffff;
-
-/* global search state */
-static unsigned char device_id_array[MAX_ITEMS][CHIP_ADDR_LEN];
-static unsigned char LastDiscrepancy;
-static unsigned char LastFamilyDiscrepancy;
-static unsigned char LastDeviceFlag;
-static unsigned char crc8;
-
-static unsigned char buf[MAX_BUF_LEN];
-static unsigned char cmp[MAX_BUF_LEN];
-
-static unsigned char board_type, board_id, vendor_id, revision_code, revision_id;
-
+/*  */
 struct one_wire_info {
 	unsigned char total_bytes;
 	char vendor_name[VENDOR_NAME_LEN];
 	char vendor_country[VENDOR_COUNTRY_LEN];
-	char board_name[BOARD_NAME_LEN];
+	unsigned char board_name[BOARD_NAME_LEN];
 	unsigned char year;
 	unsigned char week;
 	unsigned char revision_code;
 	unsigned char revision_id;
 	unsigned char reserved;
-	unsigned char checksum_l;
-	unsigned char checksum_h;
-}__attribute__ ((packed));
+};
 
-struct board_info {
+struct ek_boards {
 	char *board_name;
 	unsigned char board_type;
 	unsigned char board_id;
-}__attribute__ ((packed)) board_list[] = {
+};
+
+struct ek_vendors {
+	char *vendor_name;
+	char vendor_id;
+};
+
+static unsigned int sn = 0xffffffff;
+static unsigned int rev = 0xffffffff;
+
+static unsigned char device_id_array[MAX_ITEMS][CHIP_ADDR_LEN];
+static unsigned char LastDiscrepancy;
+static unsigned char LastFamilyDiscrepancy;
+static unsigned char LastDeviceFlag;
+
+static unsigned char buf[MAX_BUF_LEN];
+static unsigned char cmp[MAX_BUF_LEN];
+
+static struct ek_boards	board_list[] = {
 	{"SAM9x5-EK",		BOARD_TYPE_EK,		0},
 	{"SAM9x5-DM",		BOARD_TYPE_DM,		1},
 	{"SAM9G15-CM",		BOARD_TYPE_CPU,		2},
@@ -133,36 +128,41 @@ struct board_info {
 	{"SAM9G35-CM",		BOARD_TYPE_CPU,		4},
 	{"SAM9X25-CM",		BOARD_TYPE_CPU,		5},
 	{"SAM9X35-CM",		BOARD_TYPE_CPU,		6},
+	{"PDA-DM",		BOARD_TYPE_DM,		7},
+	{"SAMA5D3x-MB",		BOARD_TYPE_EK,		8},
+	{"SAMA5D3x-DM",		BOARD_TYPE_DM,		9},
+	{"SAMA5D31-CM",		BOARD_TYPE_CPU,		10},
+	{"SAMA5D33-CM",		BOARD_TYPE_CPU,		11},
+	{"SAMA5D34-CM",		BOARD_TYPE_CPU,		12},
+	{"SAMA5D35-CM",		BOARD_TYPE_CPU,		13},
 	{0,			0,			0},
 };
 
-struct vendor_info {
-	char *vendor_name;
-	char vendor_id;
-}__attribute__ ((packed)) vendor_list[] = {
+static struct ek_vendors	vendor_list[] = {
 	{"EMBEST",		VENDOR_EMBEST},
 	{"FLEX",		VENDOR_FLEX},
 	{"RONETIX",		VENDOR_RONETIX},
 	{"COGENT",		VENDOR_COGENT},
+	{"PDA",			VENDOR_PDA},
 	{0,			0},
 };
 
+/*------------------------------------------------*/
 static inline void set_wire_low()
 {
-	pio_set_gpio_output(AT91C_PIN_PB(18), 0);
+	pio_set_gpio_output(CONFIG_SYS_ONE_WIRE_PIN, 0);
 }
 
 static inline void set_wire_input()
 {
-	pio_set_gpio_input(AT91C_PIN_PB(18), 0);
+	pio_set_gpio_input(CONFIG_SYS_ONE_WIRE_PIN, 0);
 }
 
 static inline int read_wire_bit()
 {
-	return pio_get_value(AT91C_PIN_PB(18));
+	return pio_get_value(CONFIG_SYS_ONE_WIRE_PIN);
 }
 
-/* MAXIM App Note 27 */
 static unsigned char dscrc_table[] = {
 	  0, 94,188,226, 97, 63,221,131,194,156,126, 32,163,253, 31, 65,
 	157,195, 33,127,252,162, 64, 30, 95,  1,227,189, 62, 96,130,220,
@@ -182,21 +182,9 @@ static unsigned char dscrc_table[] = {
 	116, 42,200,150, 21, 75,169,247,182,232, 10, 84,215,137,107, 53
 };
 
-static unsigned char docrc8(unsigned char value)
+static unsigned char docrc8(unsigned char crc8, unsigned char value)
 {
-	crc8 = dscrc_table[crc8 ^ value];
-
-	return crc8;
-}
-
-/* Delay num microseconds */
-static inline void delay(unsigned int num)
-{
-	volatile unsigned int us;
-
-	for(; num>0; num--)
-		for(us=(BOARD_MCK / 17000000); us>0; us--)
-			;
+	return dscrc_table[crc8 ^ value];
 }
 
 static int ds24xx_reset(void)
@@ -204,15 +192,14 @@ static int ds24xx_reset(void)
 	int i;
 
 	set_wire_low();
-	delay(tRSTL);
+	udelay(tRSTL);
 
 	set_wire_input();
-	delay(tPDH);
+	udelay(tPDH);
 
 	i = read_wire_bit();
-	delay(tPDL);
+	udelay(tPDL);
 
-	/* i == 0 means chip presence */
 	return i ^ 1;
 }
 
@@ -220,14 +207,14 @@ static void ds24xx_write_bit(int bit)
 {
 	if (bit == 1) {
 		set_wire_low();
-		delay(tW1L);
+		udelay(tW1L);
 		set_wire_input();
-		delay(tSLOT-tW1L);
+		udelay(tSLOT-tW1L);
 	} else {
 		set_wire_low();
-		delay(tWOL);
+		udelay(tWOL);
 		set_wire_input();
-		delay(tSLOT-tWOL);
+		udelay(tSLOT-tWOL);
 	}
 }
 
@@ -236,13 +223,13 @@ static int ds24xx_read_bit()
 	int status;
 
 	set_wire_low();
-	delay(tRL);
+	udelay(tRL);
 
 	set_wire_input();
-	delay(tMSR / 2);
+	udelay(tMSR / 2);
 
 	status = read_wire_bit();
-	delay(tSLOT-tRL-tMSR);
+	udelay(tSLOT-tRL-tMSR);
 
 	return status;
 }
@@ -278,6 +265,7 @@ static int ds24xx_search_rom()
 	int last_zero, rom_byte_number, search_result;
 	int id_bit, cmp_id_bit;
 	unsigned char rom_byte_mask, search_direction;
+	unsigned char crc8 = 0;
 
 	/* initialize for search */
 	id_bit_number = 1;
@@ -285,17 +273,17 @@ static int ds24xx_search_rom()
 	rom_byte_number = 0;
 	rom_byte_mask = 1;
 	search_result = 0;
-	crc8 = 0;
 
 	/* if the last call was not the last one */
 	if (!LastDeviceFlag) {
 		/* 1-Wire reset */
 		if (!ds24xx_reset()) {
 			 /* reset the search*/
+			 dbg_log(1, "1-Wire: reset fail\n\r");
 			 LastDiscrepancy = 0;
-			 LastDeviceFlag = FALSE;
+			 LastDeviceFlag = 0;
 			 LastFamilyDiscrepancy = 0;
-			 return FALSE;
+			 return 0;
 		}
 
 		/* issue the search command */
@@ -308,37 +296,52 @@ static int ds24xx_search_rom()
 			id_bit = ds24xx_read_bit();
 			cmp_id_bit = ds24xx_read_bit();
 
-			/* check for no devices on 1-wire */
+			/* check for no devices on 1-Wire */
 			if ((id_bit == 1) && (cmp_id_bit == 1))
 				break;
 			else {
 				/* all devices coupled have 0 or 1 */
 				if (id_bit != cmp_id_bit)
-					search_direction = id_bit;  /* bit write value for search */
+					search_direction = id_bit;
 				else {
 					/*
-					 if this discrepancy if before the Last Discrepancy
-					 on a previous next then pick the same as last time
+					 * if this discrepancy if before
+					 * the Last Discrepancy on a previous
+					 * next then pick the same as last time
 					 */
 					if (id_bit_number < LastDiscrepancy)
-						search_direction = ((buf[rom_byte_number] & rom_byte_mask) > 0);
+						search_direction =
+							((buf[rom_byte_number]
+							& rom_byte_mask) > 0);
 					else
-						/* if equal to last pick 1, if not then pick 0 */
-						search_direction = (id_bit_number == LastDiscrepancy);
+						/*
+						 * if equal to last pick 1,
+						 * if not then pick 0
+						 */
+						search_direction
+						= (id_bit_number
+							== LastDiscrepancy);
 
-					/* if 0 was picked then record its position in LastZero */
+					/*
+					 * if 0 was picked then record its
+					 * position in LastZero
+					 */
 					if (search_direction == 0) {
 						last_zero = id_bit_number;
-						/* check for Last discrepancy in family */
+						/*
+						 * check for Last discrepancy
+						 * in family
+						 */
 						if (last_zero < 9)
-							LastFamilyDiscrepancy = last_zero;
+							LastFamilyDiscrepancy
+								= last_zero;
 					}
 				}
 
 				/*
-				 set or clear the bit in the ROM byte rom_byte_number
-				 with mask rom_byte_mask
-				*/
+				 * set or clear the bit in the ROM byte
+				 * rom_byte_number with mask rom_byte_mask
+				 */
 				if (search_direction == 1)
 					buf[rom_byte_number] |= rom_byte_mask;
 				else
@@ -351,15 +354,19 @@ static int ds24xx_search_rom()
 					ds24xx_write_bit(0);
 
 				/*
-				 increment the byte counter id_bit_number
-				 and shift the mask rom_byte_mask
-				*/
+				 * increment the byte counter id_bit_number
+				 * and shift the mask rom_byte_mask
+				 */
 				id_bit_number++;
 				rom_byte_mask <<= 1;
 
-				/* if the mask is 0 then go to new SerialNum byte rom_byte_number and reset mask */
+				/*
+				 * if the mask is 0 then go to new SerialNum
+				 * byte rom_byte_number and reset mask
+				 */
 				if (rom_byte_mask == 0) {
-					docrc8(buf[rom_byte_number]);  /* accumulate the CRC */
+					crc8 = docrc8(crc8,
+						buf[rom_byte_number]);
 					rom_byte_number++;
 					rom_byte_mask = 1;
 				}
@@ -373,18 +380,18 @@ static int ds24xx_search_rom()
 
 			/* check for last device */
 			if (LastDiscrepancy == 0)
-				LastDeviceFlag = TRUE;
+				LastDeviceFlag = 1;
 
-			search_result = TRUE;
+			search_result = 1;
 		}
 	}
 
 	/* if no device found then reset counters so next 'search' will be like a first */
 	if (!search_result || !buf[0]) {
 		LastDiscrepancy = 0;
-		LastDeviceFlag = FALSE;
+		LastDeviceFlag = 0;
 		LastFamilyDiscrepancy = 0;
-		search_result = FALSE;
+		search_result = 0;
 	}
 
 	return search_result;
@@ -394,7 +401,7 @@ static int ds24xx_find_first()
 {
 	/* reset the search state */
 	LastDiscrepancy = 0;
-	LastDeviceFlag = FALSE;
+	LastDeviceFlag = 0;
 	LastFamilyDiscrepancy = 0;
 
 	return ds24xx_search_rom();
@@ -406,30 +413,27 @@ static int ds24xx_find_next()
 	return ds24xx_search_rom();
 }
 
-static int enumerate_all_rom(void)
+static unsigned int enumerate_all_rom(void)
 {
 	int i;
-	int result, cnt;
+	int result;
+	unsigned int cnt = 0;
 
-	dbg_log(1, "Enumerate all roms:\n\r");
-	cnt = 0;
+	dbg_log(1, "1-Wire: ROM Searching ... ");
 
 	result = ds24xx_find_first();
 	while (result) {
-		dbg_log(1, "Rom#%d: ", cnt);
-		for (i = 7; i >= 0; i--)
-			dbg_log(1, "%x ", buf[i]);
-		dbg_log(1, "\n\r");
 
 		/* save device info */
 		for (i = 7; i >= 0; i--)
-			device_id_array[cnt][i]=buf[i];
+			device_id_array[cnt][i] = buf[i];
 		cnt++;
 
 		result = ds24xx_find_next();
 	}
 
-	dbg_log(1, "Done, %d 1-wire chips found!\n\r\n\r", cnt);
+	dbg_log(1, "Done, %d 1-Wire chips found\n\r\n\r", cnt);
+
 	return cnt;
 }
 
@@ -442,15 +446,19 @@ static int ds24xx_read_memory(int chip_index, unsigned char addrh,
 	switch(device_id_array[chip_index][0]){
 	case FAMILY_CODE_DS2431:
 	case FAMILY_CODE_DS2433:
+	case FAMILY_CODE_DS28EC:
 		break;
 	default:
-		dbg_log(1, "Device_%d is not supported\n\r", device_id_array[chip_index][0]);
+		dbg_log(1, "1-Wire: family %d is not supported\n\r",
+					device_id_array[chip_index][0]);
 		return -1;
 	}
 
 retry:
 	for (round = 0; round < 2; round++) {
-		ds24xx_reset();
+		if (!ds24xx_reset())
+			dbg_log(1, "1-Wire: reset failed\n\r");
+
 		ds24xx_write_byte(ROM_COMMAND_MATCH);
 		for(i = 0; i < 8; i++)
 			ds24xx_write_byte(device_id_array[chip_index][i]);
@@ -463,10 +471,13 @@ retry:
 			pbuf[round][i] = ds24xx_read_byte();
 	}
 
+
 	/* Compare the buffer, if all the same, return 0 */
-	for (i = 0; i < len; i++)
+	for (i = 0; i < len; i++) {
 		if (p[i] != cmp[i])
 			break;
+	}
+
 	if (i == len)
 		return 0;
 
@@ -478,9 +489,10 @@ retry:
 
 static unsigned char normalize_rev_code(const unsigned char c)
 {
-	if (c >= 'A' && c <= 'Z')
+	if ((c >= 'A') && (c <= 'Z'))
 		return c;
-	if (c >= 'a' && c <= 'z')
+
+	if ((c >= 'a') && (c <= 'z'))
 		return c - 0x20;
 
 	/* by default, return revision 'A' */
@@ -489,118 +501,190 @@ static unsigned char normalize_rev_code(const unsigned char c)
 
 static unsigned char normalize_rev_id(const unsigned char c)
 {
-	if (c >= '0' && c <= '9')
+	if ((c >= '0') && (c <= '9'))
 		return c;
 
-	if (c > '9')
-		if((c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))
-			return '9'; /* not an hexadecimal number: normalize to '9' */
+	if (c > '9') {
+		if (((c >= 'A') && (c <= 'F'))
+			|| ((c >= 'a') && (c <= 'f')))
+			return '9';
+	}
 
 	/* by default, return revision '0' */
 	return '0';
 }
 
-static int get_board_info(struct one_wire_info *p)
+struct board_info {
+	unsigned char board_type;
+	unsigned char board_id;
+	unsigned char revision_code;
+	unsigned char revision_id;
+	unsigned char vendor_id;
+};
+
+static int get_board_info(unsigned char *buffer,
+				unsigned char bd_sn,
+				struct board_info *bd_info)
 {
 	int i;
 	char tmp[20];
+	struct one_wire_info one_wire;
+	struct one_wire_info *p = &one_wire;
+	unsigned char *pbuf = buffer;
+
+	char *boardname;
+	char *vendorname;
+	unsigned revcode;
+	unsigned revid;
+
+	p->total_bytes = (unsigned char)*pbuf;
+
+	pbuf = buffer + 1;
+	for (i = 0; i < VENDOR_NAME_LEN; i++)
+		p->vendor_name[i] = *pbuf++;
+
+	pbuf = buffer + 11;
+	for (i = 0; i < VENDOR_COUNTRY_LEN; i++)
+		p->vendor_country[i] = *pbuf++;
+
+	pbuf = buffer + 13;
+	for (i = 0; i < BOARD_NAME_LEN; i++)
+		p->board_name[i] = *pbuf++;
+
+	p->year = *pbuf++;
+	p->week = *pbuf++;
+	p->revision_code = *pbuf++;
+	p->revision_id = *pbuf++;
 
 	memset(tmp, 0, sizeof(tmp));
-	memcpy(tmp, p->board_name, BOARD_NAME_LEN);
-	tmp[BOARD_NAME_LEN - 1] = '\0';
-	for (i = 0; ; i++) {
-		if (board_list[i].board_name == 0) {
-			dbg_log(1, "No board name [%s] found!\n\r", tmp);
-			return -1;
-		}
+
+	for (i = 0; i < BOARD_NAME_LEN; i++) {
+		if (p->board_name[i] == 0x20)
+			break;
+
+		tmp[i] = p->board_name[i];
+	}
+
+	for (i = 0; i < ARRAY_SIZE(board_list); i++) {
 		if (strncmp(board_list[i].board_name, tmp,
-			    strlen(board_list[i].board_name)) == 0) {
-			board_type = board_list[i].board_type;
-			board_id = board_list[i].board_id;
-			revision_code = normalize_rev_code(p->revision_code);
-			revision_id = normalize_rev_id(p->revision_id);
+			strlen(board_list[i].board_name)) == 0) {
+			bd_info->board_type = board_list[i].board_type;
+			bd_info->board_id = board_list[i].board_id;
+			bd_info->revision_code
+				= normalize_rev_code(p->revision_code);
+			bd_info->revision_id = normalize_rev_id(p->revision_id);
 			break;
 		}
 	}
-	dbg_log(1, "Board name: %s [%c%c]; ",
-			board_list[i].board_name, revision_code, revision_id);
+
+	boardname = board_list[i].board_name;
+	revcode = bd_info->revision_code;
+	revid = bd_info->revision_id;
+
+	if (i == ARRAY_SIZE(board_list)) {
+		return -1;
+	}
 
 	memset(tmp, 0, sizeof(tmp));
-	memcpy(tmp, p->vendor_name, VENDOR_NAME_LEN);
-	tmp[VENDOR_NAME_LEN - 1] = '\0';
-	for (i = 0; ; i++) {
-		if (vendor_list[i].vendor_name == 0) {
-			dbg_log(1, "No vendor name [%s] found!\n\r", tmp);
-			return -1;
-		}
+	for (i = 0; i < VENDOR_NAME_LEN; i++) {
+		if (p->vendor_name[i] == 0x20)
+			break;
+		tmp[i] = p->vendor_name[i];
+	}
+
+	for (i = 0; i < ARRAY_SIZE(vendor_list); i++) {
 		if (strncmp(vendor_list[i].vendor_name, tmp,
 			    strlen(vendor_list[i].vendor_name)) == 0) {
-			vendor_id = vendor_list[i].vendor_id;
+			bd_info->vendor_id = vendor_list[i].vendor_id;
 			break;
 		}
 	}
-	dbg_log(1, "Vendor name: %s\n\r", vendor_list[i].vendor_name);
+
+	if (i == ARRAY_SIZE(vendor_list)) {
+		return -1;
+	}
+
+	vendorname = vendor_list[i].vendor_name;
+
+	dbg_log(1, "  #%d", bd_sn);
+	dbg_log(1, "  %s [%c%c]      %s\n\r",
+			boardname, revcode, revid, vendorname);
 
 	return 0;
 }
 
 void load_1wire_info()
 {
-	int i, cnt;
-	int size = sizeof(struct one_wire_info);
+	int i;
+	unsigned int	cnt;
+	unsigned int	size = LEN_ONE_WIRE_INFO;
+	struct board_info	board_info;
+	struct board_info	*bd_info;
 
-	dbg_log(1, "Loading 1-Wire info...\n\r");
+	memset(&board_info, 0, sizeof(board_info));
+	bd_info= &board_info;
+
+	dbg_log(1, "1-Wire: Loading 1-Wire information ...\n\r");
 
 	sn = rev = 0;
 
-	one_wire_hw_init();
 	cnt = enumerate_all_rom();
+	if (!cnt) {
+		dbg_log(1, "WARNING: 1-Wire: No 1-Wire chip found\n\r ");
+		goto err;
+	}
+
+	dbg_log(1, "1-Wire: BoardName | [Revid] | VendorName\n\r");
 
 	for (i = 0; i < cnt; i++) {
 		if (ds24xx_read_memory(i, 0, 0, size, buf) < 0) {
-			dbg_log(1, "Failed to read from 1-Wire chip!\n\r");
+			dbg_log(1, "WARNING: 1-Wire: Failed to " \
+				"read from 1-Wire chip!\n\r");
 			goto err;
 		}
 
-		board_type = board_id = vendor_id = revision_code = revision_id = 0xff;
-		if (get_board_info((struct one_wire_info *)buf) < 0)
+		if (get_board_info(buf,	i, bd_info)) {
+			dbg_log(1, "WARNING: 1-Wire: Failed to " \
+						"get board information\n\r");
 			goto err;
+		}
 
-		switch (board_type) {
+		switch (bd_info->board_type) {
 		case BOARD_TYPE_CPU:
-			sn  |= (board_id & 0x1F);
-			sn  |= ((vendor_id & 0x1F) << 5);
-			rev |= (revision_code - 'A');
-			rev |= (((revision_id - '0') & 0x3) << 15);
+			sn  |= (bd_info->board_id & 0x1F);
+			sn  |= ((bd_info->vendor_id & 0x1F) << 5);
+			rev |= (bd_info->revision_code - 'A');
+			rev |= (((bd_info->revision_id - '0') & 0x3) << 15);
 			break;
+
 		case BOARD_TYPE_DM:
-			sn  |= ((board_id & 0x1F) << 10);
-			sn  |= ((vendor_id & 0x1F) << 15);
-			rev |= ((revision_code - 'A') << 5);
-			rev |= (((revision_id - '0') & 0x3) << 18);
+			sn  |= ((bd_info->board_id & 0x1F) << 10);
+			sn  |= ((bd_info->vendor_id & 0x1F) << 15);
+			rev |= ((bd_info->revision_code - 'A') << 5);
+			rev |= (((bd_info->revision_id - '0') & 0x3) << 18);
 			break;
+
 		case BOARD_TYPE_EK:
-			sn  |= ((board_id & 0x1F) << 20);
-			sn  |= ((vendor_id & 0x1F) << 25);
-			rev |= ((revision_code - 'A') << 10);
-			rev |= (((revision_id - '0') & 0x3) << 21);
+			sn  |= ((bd_info->board_id & 0x1F) << 20);
+			sn  |= ((bd_info->vendor_id & 0x1F) << 25);
+			rev |= ((bd_info->revision_code - 'A') << 10);
+			rev |= (((bd_info->revision_id - '0') & 0x3) << 21);
 			break;
+
 		default:
-			dbg_log(1, "Unknown board type!\n\r");
+			dbg_log(1, "WARNING: 1-Wire: Unknown board type\n\r");
 			goto err;
 		}
 	}
 
-	dbg_log(1, "sn: %x;   rev: %x\n\r", sn, rev);
-
 	/* save to GPBR #2 and #3 */
-	writel(sn, AT91C_SYS_GPBR + 4 * 2);
-	writel(rev, AT91C_SYS_GPBR + 4 * 3);
+	writel(sn, AT91C_BASE_GPBR + 4 * 2);
+	writel(rev, AT91C_BASE_GPBR + 4 * 3);
+
+err:
+	dbg_log(1, "\n\r");
 
 	return;
-err:
-	/* Hang: we can not continue */
-        while (1);
 }
 
 unsigned int get_sys_sn()
@@ -609,6 +693,7 @@ unsigned int get_sys_sn()
 		dbg_log(1, "Error: no system_sn defined, using 0!\n\r");
 		return 0;
 	}
+
 	return sn;
 }
 
@@ -618,6 +703,7 @@ unsigned int get_sys_rev()
 		dbg_log(1, "Error: no system_rev defined, using 0!\n\r");
 		return 0;
 	}
+
 	return rev;
 }
 

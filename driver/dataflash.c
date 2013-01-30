@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2008, Atmel Corporation
 
@@ -24,669 +24,595 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : dataflash.c
- * Object              : ATMEL DataFlash High level functions
- * Creation            : NLe Jul 12th 2006
- *---------------------------------------------------------------------------
 */
+#include "common.h"
+#include "hardware.h"
+#include "board.h"
+#include "spi.h"
+#include "arch/at91_pio.h"
+#include "gpio.h"
+#include "string.h"
+#include "timer.h"
 
-#include "part.h"
-//#include "spi.h"
-#include "main.h"
-#include "dataflash.h"
 #include "debug.h"
-#include <stdlib.h>
 
-#if defined(CONFIG_DATAFLASH) || defined(CONFIG_DATAFLASHCARD)
+/* Manufacturer Device ID Read */
+#define CMD_READ_DEV_ID			0x9f
+/* Continuous Array Read */
+#define CMD_READ_ARRAY_FAST		0x0b
 
-extern div_t udiv(unsigned int dividend, unsigned int divisor);
-extern void df_cs_active(int cs);
-extern void df_cs_deactive(int cs);
+/* JEDEC Code */
+#define MANUFACTURER_ID_ATMEL		0x1f
 
-/* Write SPI register */
-static inline void write_spi(unsigned int offset, const unsigned int value)
+/* Family Code */
+#define DF_FAMILY_AT26F			0x00
+#define DF_FAMILY_AT45			0x20
+#define DF_FAMILY_AT26DF		0x40	/* AT25DF and AT26DF */
+
+/* AT45 Density Code */
+#define DENSITY_AT45DB011D		0x0C
+#define DENSITY_AT45DB021D		0x14
+#define DENSITY_AT45DB041D		0x1C
+#define DENSITY_AT45DB081D		0x24
+#define DENSITY_AT45DB161D		0x2C
+#define DENSITY_AT45DB321D		0x34
+#define DENSITY_AT45DB642D		0x3C
+#define DENSITY_AT45DB1282D		0x10
+#define DENSITY_AT45DB2562D		0x18
+#define DENSITY_AT45DB5122D		0x20
+
+/* AT45 Status Register Read */
+#define CMD_READ_STATUS_AT45		0xd7
+
+/* AT45 status register bits */
+#define STATUS_PAGE_SIZE_AT45		(1 << 0)
+#define STATUS_READY_AT45		(1 << 7)
+
+struct dataflash_descriptor;
+
+struct dataflash_descriptor {
+	unsigned char	family;
+
+	unsigned int	pages;		/* page number */
+	unsigned int	page_size;	/* page size */
+	unsigned int	page_offset;	/* page offset in command */
+	unsigned char	is_power_2;	/* = 1: power of 2, = 0: not*/
+};
+
+static int df_send_command(unsigned char *cmd,
+				unsigned char cmd_len,
+				unsigned char *data,
+				unsigned int data_len)
 {
-    writel(value, offset + AT91C_BASE_SPI);
-}
+	int i;
 
-/* Read SPI registers */
-static inline unsigned int read_spi(unsigned int offset)
-{
-    return readl(offset + AT91C_BASE_SPI);
-}
+	if (!cmd)
+		return -1;
 
-/*------------------------------------------------------------------------------*/
-/* \fn    df_spi_init								*/
-/* \brief Configure SPI								*/
-/*------------------------------------------------------------------------------*/
-static int df_spi_init(unsigned int pcs, unsigned int spi_csr)
-{
-    unsigned int ncs = 0;
+	if (!cmd_len)
+		return -1;
 
-    /*
-     * Open PIO for SPI0 
-     */
-    df_hw_init();
+	if (data_len)
+		if (!data)
+			return -1;
 
-    /*
-     * Enables the SPI0 Clock 
-     */
-    writel((1 << AT91C_ID_SPI), PMC_PCER + AT91C_BASE_PMC);
+	at91_spi_cs_activate();
 
-    /*
-     * Reset SPI0 
-     */
-    write_spi(SPI_CR, AT91C_SPI_SWRST);
-    /*
-     * SPI may need two software reset 
-     */
-    write_spi(SPI_CR, AT91C_SPI_SWRST);
+	/* read spi status to clear events */
+	at91_spi_read_sr();
 
-    /*
-     * Configure SPI0 in Master Mode with No CS selected 
-     */
-    write_spi(SPI_MR, AT91C_SPI_MSTR | AT91C_SPI_MODFDIS | AT91C_SPI_PCS);
-
-    switch (pcs) {
-    case AT91C_SPI_PCS0_DATAFLASH:
-        ncs = 0;
-        break;
-    case AT91C_SPI_PCS1_DATAFLASH:
-        ncs = 1;
-        break;
-    case AT91C_SPI_PCS2_DATAFLASH:
-        ncs = 2;
-        break;
-    case AT91C_SPI_PCS3_DATAFLASH:
-        ncs = 3;
-        break;
-    }
-    /*
-     * Configure CSx 
-     */
-    write_spi(SPI_CSR + 4 * ncs, spi_csr);
-
-    /*
-     * Choose CSx 
-     */
-    write_spi(SPI_MR, read_spi(SPI_MR) & 0xFFF0FFFF);
-    write_spi(SPI_MR, read_spi(SPI_MR) | ((pcs << 16) & AT91C_SPI_PCS));
-
-    /*
-     * SPI_Enable 
-     */
-    write_spi(SPI_CR, AT91C_SPI_SPIEN);
-
-    return SUCCESS;
-}
-
-#ifdef CONFIG_AT91SAM9X5EK
-void df_write_spi(unsigned short data)
-{
-    while ((read_spi(SPI_SR) & AT91C_SPI_TXEMPTY) == 0)
-	; /* Loop wait */
-    write_spi(SPI_TDR, data);
-    while ((read_spi(SPI_SR) & AT91C_SPI_TDRE) == 0)
-	; /* Loop wait */
-}
-
-unsigned int df_read_spi()
-{
-    while ((read_spi(SPI_SR) & AT91C_SPI_RDRF) == 0)
-	; /* Loop wait */
-    return read_spi(SPI_RDR) & 0xffff;
-}
-
-/*---------------------------------------------------------------------------*/
-/* \fn    df_send_command                                                    */
-/* \brief send a command to the dataflash without using PDC. 9x5 has no PDC. */
-/*---------------------------------------------------------------------------*/
-char df_send_command(AT91PS_DF pDataFlash,
-			unsigned char bCmd,	/* Command value */
-			unsigned char bCmdSize,	/* Command Size */
-			char *pData,		/* Data to be sent */
-			unsigned int dDataSize,	/* Data Size */
-			unsigned int dAddress)
-{
-    int i;
-    /* command array contains 8 bytes */
-    unsigned char *pcmd = (unsigned char *)pDataFlash->command;
-    pcmd[0] = bCmd;
-
-    if (bCmdSize > 1) {
-	pcmd[1] = dAddress >> 16;
-	pcmd[2] = dAddress >> 8;
-	pcmd[3] = dAddress;
-	pcmd[4] = 0;
-    }
-
-    if ((pDataFlash->bSemaphore) != UNLOCKED)
-	return (char)FAILURE;
-    pDataFlash->bSemaphore = LOCKED;
-    df_cs_active(0);
-
-    for (i = 0; i < bCmdSize; i++) {
-	df_write_spi(pcmd[i]);
-	df_read_spi();
-    }
-
-    for (i = 0; i < dDataSize; i++) {
-	df_write_spi(0);
-	pData[i] = df_read_spi();
-    }
-
-    write_spi(SPI_CR, AT91C_SPI_LASTXFER);
-
-    df_cs_deactive(0);
-
-    pDataFlash->bSemaphore = UNLOCKED;
-
-    return SUCCESS;
-}
-
-#else
-/*------------------------------------------------------------------------------*/
-/* \fn    df_is_busy								*/
-/* \brief Test if SPI has received a buffer or not				*/
-/*------------------------------------------------------------------------------*/
-static AT91S_DF_SEM df_is_busy(AT91PS_DF pDataFlash)
-{
-    unsigned int dStatus = read_spi(SPI_SR);
-
-    /*
-     * If End of Receive Transfer interrupt occurred 
-     */
-    if ((dStatus & AT91C_SPI_RXBUFF)) {
-        write_spi(SPI_PTCR, AT91C_PDC_TXTDIS);  /* PDC Disable Tx */
-        write_spi(SPI_PTCR, AT91C_PDC_RXTDIS);  /* PDC Disable Rx */
-
-        /*
-         * Release the semaphore 
-         */
-        pDataFlash->bSemaphore = UNLOCKED;
-        return UNLOCKED;
-    }
-    return pDataFlash->bSemaphore;
-}
-
-/*------------------------------------------------------------------------------*/
-/* \fn    df_send_command							*/
-/* \brief Generic function to send a command to the dataflash using PDC.     */
-/*------------------------------------------------------------------------------*/
-char df_send_command(AT91PS_DF pDataFlash, unsigned char bCmd,  /* Command value */
-                     unsigned char bCmdSize,    /* Command Size */
-                     char *pData,       /* Data to be sent */
-                     unsigned int dDataSize,    /* Data Size */
-                     unsigned int dAddress)
-{                               /* Dataflash Address */
-    unsigned int dInternalAdr;
-
-    div_t result = udiv(dAddress, AT91C_PAGE_SIZE(pDataFlash));
-
-    /*
-     * Try to get the dataflash semaphore 
-     */
-    if ((pDataFlash->bSemaphore) != UNLOCKED)
-        return (char)FAILURE;
-    pDataFlash->bSemaphore = LOCKED;
-
-    /*
-     * Compute command pattern 
-     */
-    if (pDataFlash->dfDescription.binaryPageMode == 0) {
-        dInternalAdr =
-            (result.quot << AT91C_PAGE_OFFSET(pDataFlash)) + result.rem;
-    } else {
-        dInternalAdr = dAddress;
-    }
-
-    if (AT91C_DF_NB_PAGE(pDataFlash) >= 16384) {
-        pDataFlash->command[0] = (bCmd & 0x000000FF) |
-            ((dInternalAdr & 0x0F000000) >> 16) |
-            ((dInternalAdr & 0x00FF0000) >> 0) |
-            ((dInternalAdr & 0x0000FF00) << 16);
-        pDataFlash->command[1] = (dInternalAdr & 0x000000FF);
-
-        if ((bCmd != DB_CONTINUOUS_ARRAY_READ) && (bCmd != DB_PAGE_READ))
-            bCmdSize++;
-    } else {
-        pDataFlash->command[0] = (bCmd & 0x000000FF) |
-            ((dInternalAdr & 0x00FF0000) >> 8) |
-            ((dInternalAdr & 0x0000FF00) << 8) |
-            ((dInternalAdr & 0x000000FF) << 24);
-        pDataFlash->command[1] = 0;
-    }
-
-    /*
-     * Send Command and data through the SPI 
-     */
-    write_spi(SPI_PTCR, AT91C_PDC_RXTDIS);      /* PDC Disable Rx */
-    write_spi(SPI_RPR, (unsigned int)&(pDataFlash->command));   /* PDC Set Rx */
-    write_spi(SPI_RCR, bCmdSize);
-    write_spi(SPI_RNPR, (unsigned int)pData);   /* PDC Set Next Rx */
-    write_spi(SPI_RNCR, dDataSize);
-
-    write_spi(SPI_PTCR, AT91C_PDC_TXTDIS);      /* PDC Disable Tx */
-    write_spi(SPI_TPR, (unsigned int)&(pDataFlash->command));   /* PDC Set Tx */
-    write_spi(SPI_TCR, bCmdSize);
-    write_spi(SPI_TNPR, (unsigned int)pData);   /* PDC Set Next Tx */
-    write_spi(SPI_TNCR, dDataSize);
-
-    write_spi(SPI_PTCR, AT91C_PDC_RXTEN);       /* PDC Enable Rx */
-    write_spi(SPI_PTCR, AT91C_PDC_TXTEN);       /* PDC Enable Tx */
-
-    while (df_is_busy(pDataFlash) == LOCKED) ;
-
-    return SUCCESS;
-}
-
-static void at45_msg_df_detect(int i)
-{
-#if	defined(CONFIG_VERBOSE)
-	char *pn;
-
-#ifdef	CONFIG_DEBUG
-#if 0
-	msg_print(MSG_PROMPT);
-	msg_print(MSG_DATAFLASH);
-	msg_print(MSG_SPACE);
-	msg_print(MSG_CODE);
-	msg_print(MSG_SPACE);
-	dbg_print_hex(i);
-	msg_print(MSG_NEWLINE);
-#endif
-#endif
-#if 0
-	msg_print(MSG_PROMPT);
-	msg_print(MSG_AT45);
-	msg_print(MSG_DB);
-#endif
-	switch (i) {
-	case AT45DB011D:
-		pn = "011D";
-		break;
-	case AT45DB021D:
-		pn = "021D";
-		break;
-	case AT45DB041D:
-		pn = "041D";
-		break;
-	case AT45DB081D:
-		pn = "081D";
-		break;
-	case AT45DB161D:
-		pn = "161D";
-		break;
-	case AT45DB321D:
-		pn = "321D";
-		break;
-	case AT45DB642D:
-		pn = "642D";
-		break;
-#if	0
-	case AT45DB1282D:
-		pn = "1282";
-		break;
-	case AT45DB2562D:
-		pn = "2562";
-		break;
-	case AT45DB5122D:
-		pn = "5122";
-		break;
-#endif
-	default:
-		pn = "????";
-		break;
+	for (i = 0; i < cmd_len; i++) {
+		at91_spi_write_data(*cmd++);
+		at91_spi_read_spi();
 	}
-#if 0
-	dbg_print(pn);
-	msg_print_ws(MSG_DETECTED);
-	msg_print(MSG_NEWLINE);
-#endif
-#endif
-}
 
-/*----------------------------------------------------------------------*/
-/* \fn    at45_df_probe							*/
-/* \brief Returns DataFlash ID						*/
-/*----------------------------------------------------------------------*/
-static int at45_df_probe(AT91PS_DF pDf)
-{
-    char *pResult = (char *)(pDf->command);
-
-    df_get_status(pDf);
-
-    /* Check if DataFlash has been configured in binary page mode */
-    if ((pResult[1] & 0x1) == 0x1) {
-	pDf->dfDescription.binaryPageMode = 1;
-#ifdef CONFIG_VERBOSE
-	/* dbg_print("> DataFlash in binary mode\n\r"); */
-#endif                          /* CONFIG_DEBUG */
-    } else {
-	pDf->dfDescription.binaryPageMode = 0;
-    }
-
-    return (pResult[1] & 0x3C);
-}
-#endif
-
-/*------------------------------------------------------------------------------*/
-/* \fn    df_wait_ready								*/
-/* \brief wait for DataFlash to be ready					*/
-/*------------------------------------------------------------------------------*/
-static char df_wait_ready(AT91PS_DF pDataFlash)
-{
-    unsigned int timeout = 0;
-
-    while (timeout++ < AT91C_DF_TIMEOUT) {
-        if (df_get_status(pDataFlash)) {
-            if (df_is_ready(pDataFlash))
-                return SUCCESS;
-        }
-    }
-
-    return FAILURE;
-}
-
-void df_write(AT91PS_DF pDf, unsigned int addr, int size, unsigned long offset)
-{
-    char rxBuffer[268];
-
-    int i, j;
-
-    i = offset;
-    if (offset == 0)
-        *((unsigned long *)(addr + 0x14)) = size;
-    while (size > 0) {
-        for (j = 0; j < ((size > 268) ? 268 : size); j++)
-            rxBuffer[j] = *((unsigned char *)(addr + i + j));
-        df_page_write(pDf, rxBuffer,
-                      ((size <=
-                        AT91C_PAGE_SIZE(pDf)) ? size : AT91C_PAGE_SIZE(pDf)),
-                      i);
-        df_wait_ready(pDf);
-        i += AT91C_PAGE_SIZE(pDf);
-        size -= AT91C_PAGE_SIZE(pDf);
-    }
-
-#define LONG_VAL(addr) *((unsigned long *)(addr))
-
-    for (j = 0; j < 0x1000; j += 32) {
-        df_continuous_read(pDf, (char *)rxBuffer, 32, j);
-        for (i = 0; i < 32; i += 4) {
-#if 0
-            if (!(i & 4))
-                dbg_print_hex(i + j);
-#endif
-#if 0
-            if (LONG_VAL(0x200000 + i + j) == LONG_VAL(&rxBuffer[i]))
-                msg_print(MSG_SPACE);
-            else
-                msg_print(MSG_EXCLAMATION);
-            dbg_print_hex(LONG_VAL(&rxBuffer[i]));
-            if (i & 4)
-                msg_print(MSG_NEWLINE);
-#endif
-        }
-    }
-}
-
-/*---------------------------------------------------------------------------*/
-/* \fn    at45_df_read                                                       */
-/* \brief Read a block in dataflash                                          */
-/*---------------------------------------------------------------------------*/
-static int at45_df_read(AT91PS_DF pDf,
-                   unsigned int addr, unsigned char *buffer, unsigned int size)
-{
-    unsigned int SizeToRead;
-
-    int page_counter;
-
-    page_counter = 32;
-    while (size) {
-        dbg_log(1, "+");
-/*		SizeToRead = (size < AT91C_MAX_PDC_SIZE)? size : AT91C_MAX_PDC_SIZE; */
-        SizeToRead = (size < 0x8400) ? size : 0x8400;
-        /*
-         * wait the dataflash ready status 
-         */
-        if (df_wait_ready(pDf) != 0) {
-
-            df_continuous_read(pDf, (char *)buffer, SizeToRead, addr);
-            if (--page_counter <= 0) {
-                page_counter = 32;
-            }
-            size -= SizeToRead;
-            addr += SizeToRead;
-            buffer += SizeToRead;
-        } else {
-            /*
-             * We got a timeout 
-             */
-#if 0
-#if	defined(CONFIG_VERBOSE)
-            msg_print(MSG_DATAFLASH);
-            msg_print(MSG_SPACE);
-#endif
-            msg_print(MSG_TIMEOUT);
-            msg_print(MSG_NEWLINE);
-#endif
-            return FAILURE;
-        }
-    }
-
-    dbg_log(1, "\r\n");
-    return SUCCESS;
-}
-
-/*---------------------------------------------------------------------------*/
-/* \fn    at25_df_read                                                       */
-/* \brief Read a at25 dataflash                                              */
-/*---------------------------------------------------------------------------*/
-static int at25_df_read(AT91PS_DF pDf,
-		unsigned int addr, char *buffer, unsigned int size)
-{
-    int status = SUCCESS;
-
-    status = df_read_bytes_at25(pDf, buffer, size, addr);
-
-    return status;
-}
-
-/*----------------------------------------------------------------------*/
-/* \fn    df_download							*/
-/* \brief load the content of the dataflash				*/
-/*----------------------------------------------------------------------*/
-static int df_download(AT91PS_DF pDf, unsigned int img_addr,
-                       unsigned int img_size, unsigned int img_dest)
-{
-    int status = SUCCESS;
-    /* TODO: the family should be from reading flash id */
-    int data_flash_family;
-#ifdef CONFIG_AT91SAM9X5EK
-	data_flash_family = DF_FAMILY_AT26DF;
-#else
-	data_flash_family = DF_FAMILY_AT45;
-#endif
-    /*
-     * read bytes in the dataflash
-     */
-    if (data_flash_family == DF_FAMILY_AT26DF) {
-	/* 9x5 using at25 dataflash */
-	if (at25_df_read(pDf, img_addr, (char *)img_dest, img_size)
-				== FAILURE) {
-		dbg_log(1, "at25_df_read, failed!\r\n");
-		status = FAILURE;
-	    }
-    } else if (data_flash_family == DF_FAMILY_AT45) {
-	if (at45_df_read(pDf, img_addr, (unsigned char *)img_dest, img_size)
-				== FAILURE) {
-		dbg_log(1, "at45_df_read, failed!\r\n");
-		status = FAILURE;
+	for (i = 0; i < data_len; i++) {
+		at91_spi_write_data(0);
+		*data++ = at91_spi_read_spi();
 	}
+
+	at91_spi_cs_deactivate();
+
+	return 0;
+}
+
+static int dataflash_read_array(struct dataflash_descriptor *df_desc,
+				unsigned int offset,
+				unsigned int len,
+				void *buf)
+{
+	unsigned char cmd[5];
+	unsigned char cmd_len;
+	unsigned int address;
+	unsigned int page_addr;
+	unsigned int byte_addr;
+	unsigned int page_shift;
+	unsigned int page_size;
+	int ret;
+
+	if (!df_desc->is_power_2) {
+		page_shift = df_desc->page_offset;
+		page_size = df_desc->page_size;
+
+		page_addr = offset / page_size;
+		byte_addr = offset % page_size;
+
+		address = (page_addr << page_shift) + byte_addr;
+	} else
+		address = offset;
+
+	cmd[0] = CMD_READ_ARRAY_FAST;
+	if (df_desc->pages > 16384) {
+		cmd[1] = (unsigned char)(address >> 24);
+		cmd[2] = (unsigned char)(address >> 16);
+		cmd[3] = (unsigned char)(address >> 8);
+		cmd[4] = (unsigned char)address;
+
+	} else {
+		cmd[1] = (unsigned char)(address >> 16);
+		cmd[2] = (unsigned char)(address >> 8);
+		cmd[3] = (unsigned char)address;
+		cmd[4] = 0x00;
+	}
+
+	cmd_len = 5;
+
+	ret = df_send_command(cmd, cmd_len, buf, len);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+static unsigned char df_read_status_at45(unsigned char *status)
+{
+	unsigned char cmd = CMD_READ_STATUS_AT45;
+	int ret;
+
+	ret = df_send_command(&cmd, 1, status, 1);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+#ifdef CONFIG_DATAFLASH_RECOVERY
+
+/* AT25 Block Erase(4-KBytes) Command*/
+#define CMD_ERASE_BLOCK4K_AT25		0x20
+/* Write Enable Command */
+#define CMD_WRITE_ENABLE_AT25		0x06
+/* Status Register Commands */
+#define CMD_READ_STATUS_AT25		0x05
+#define CMD_WRITE_STATUS_AT25           0x01
+/* Page Erase AT45 */
+#define CMD_ERASE_PAGE_AT45		0x81
+
+/* AT25 status register bits */
+#define STATUS_READY_AT25		(1 << 0)
+#define STATUS_WEL_AT25			(1 << 1)
+#define STATUS_SWP_AT25			(3 << 2)
+#define STATUS_EPE_AT25			(1 << 5)
+#define STATUS_SPRL_AT25		(1 << 7)
+
+static unsigned char df_read_status_at25(unsigned char *status)
+{
+	unsigned char cmd = CMD_READ_STATUS_AT25;
+	int ret;
+
+	ret = df_send_command(&cmd, 1, status, 1);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int at25_cmd_write_enbale(void)
+{
+	unsigned char cmd;
+	int ret;
+
+	cmd = CMD_WRITE_ENABLE_AT25;
+	ret = df_send_command(&cmd, 1, NULL, 0);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int at25_cmd_write_status_register(unsigned char status)
+{
+	unsigned char cmd[2];
+	int ret;
+
+	cmd[0] = CMD_WRITE_STATUS_AT25;
+	cmd[1] = status;
+
+	ret = df_send_command(cmd, 2, NULL, 0);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
+static int at25_unprotect(void)
+{
+	unsigned char status;
+	int ret;
+
+	/* read status register */
+	ret = df_read_status_at25(&status);
+	if (ret)
+		return ret;
+
+	/* check if All sectors are software unprotected
+	 * (all Sector Protection Register are 0)
+	 */
+	if (!(status & STATUS_SWP_AT25))
+		return 0;
+
+	/* check if Sector Protection Registers are locked */
+	if (status & STATUS_SPRL_AT25) {
+		/* Unprotect Sector Potection Registers. */
+		ret = at25_cmd_write_enbale();
+		if (ret)
+			return ret;
+
+		ret = at25_cmd_write_status_register(0);
+		if (ret)
+			return ret;
+	}
+
+	/* a global unprotect command */
+	ret = at25_cmd_write_enbale();
+	if (ret)
+		return ret;
+
+	ret = at25_cmd_write_status_register(0);
+	if (ret)
+		return ret;
+
+	/* check Status Register SPRL & SWP bits */
+	ret = df_read_status_at25(&status);
+	if (ret)
+		return ret;
+
+	if (status & (STATUS_SPRL_AT25 | STATUS_SWP_AT25)) {
+		dbg_log(1, "SF: Unprotect AT25 failed\n\r");
+		return -1;
+	}
+
+	return 0;
+}
+
+static int dataflash_page0_erase_at25(void)
+{
+	unsigned char status;
+	unsigned char cmd[5];
+	unsigned int timeout = 100;
+	int ret;
+
+	ret = at25_unprotect();
+	if (ret)
+		return ret;
+
+	ret = at25_cmd_write_enbale();
+	if (ret)
+		return ret;
+
+	/* Erase page0 */
+	cmd[0] = CMD_ERASE_BLOCK4K_AT25;
+	cmd[1] = 0;
+	cmd[2] = 0;
+	cmd[3] = 0;
+
+	ret = df_send_command(cmd, 4, NULL, 0);
+	if (ret) {
+		dbg_log(1, "SF: AT25 page 0 erase failed\n\r");
+		return ret;
+	}
+
+	udelay(1000000); /* 1000 ms */
+
+	do {
+		ret = df_read_status_at25(&status);
+		if (ret)
+			return ret;
+
+		if (!(status & STATUS_READY_AT25))
+			break;
+	} while (--timeout);
+
+	if (!timeout) {
+		dbg_log(1, "SF: AT25 page0 erase timed out\n\r");
+		return -1;
+	}
+
+	return 0;
+}
+
+static int dataflash_page0_erase_at45(void)
+{
+	unsigned char status;
+	unsigned char cmd[4];
+	unsigned int timeout = 100;
+	int ret;
+
+	cmd[0] = CMD_ERASE_PAGE_AT45;
+	cmd[1] = 0;
+	cmd[2] = 0;
+	cmd[3] = 0;
+
+	ret = df_send_command(cmd, 4, NULL, 0);
+	if (ret) {
+		dbg_log(1, "SF: AT45 page 0 erase failed\n\r");
+		return ret;
+	}
+
+	udelay(500000); /* 500 ms */
+
+	do {
+		ret = df_read_status_at45(&status);
+		if (ret)
+			return ret;
+
+		if (status & STATUS_READY_AT45)
+			break;
+	} while (--timeout);
+
+	if (!(status & STATUS_READY_AT45)) {
+		dbg_log(1,	"SF: AT45 page0 erase timed out\n\r");
+		return -1;
+	}
+
+	return 0;
+}
+
+static int dataflash_recovery(struct dataflash_descriptor *df_desc)
+{
+	int ret;
 
 	/*
-	 * wait the dataflash ready status
-	 */
-	status = df_wait_ready(pDf);
-    }
-    return status;
+	 * If Recovery Button is pressed during boot sequence,
+	 * erase dataflash page0
+	*/
+	dbg_log(1, "SF: Press the recovery button (%s) to recovery\n\r",
+			RECOVERY_BUTTON_NAME);
+
+	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
+		dbg_log(1, "SF: The recovery button (%s) has been pressed,\n\r",
+				RECOVERY_BUTTON_NAME);
+		dbg_log(1, "SF: The page 0 is erasing...\n\r");
+
+		if ((df_desc->family == DF_FAMILY_AT26F)
+			|| (df_desc->family == DF_FAMILY_AT26DF))
+			ret = dataflash_page0_erase_at25();
+		 else
+			ret = dataflash_page0_erase_at45();
+
+		if (ret) {
+			dbg_log(1, "SF: The erasing failed\n\r");
+			return ret;
+		}
+		dbg_log(1, "SF: The erasing is done\n\r");
+
+		return 0;
+	}
+
+	return -1;
 }
+#endif /* #ifdef CONFIG_DATAFLASH_RECOVERY */
 
-/*----------------------------------------------------------------------*/
-/* \fn    df_init							*/
-/* \brief This function tries to identify the DataFlash connected	*/
-/*----------------------------------------------------------------------*/
-static int df_init(AT91PS_DF pDf)
+static int df_at45_desc_init(struct dataflash_descriptor *df_desc)
 {
-    int status = SUCCESS;
+	unsigned char status;
+	unsigned char density;
+	int ret;
 
-#ifdef CONFIG_AT91SAM9X5EK
-    static char id[5];
-    df_get_flashid(pDf, id);
-    dbg_log(DEBUG_INFO, "detected dataflash id = %x %x %x %x %x.\r\n",
-			id[0], id[1], id[2], id[3], id[4]);
+	ret = df_read_status_at45(&status);
+	if (ret)
+		return ret;
 
-    /*
-     * Default: AT25DF321
-     */
-    pDf->dfDescription.pages_number = 16 * 16 * 64;
-    pDf->dfDescription.pages_size = 256;
-    pDf->dfDescription.page_offset = 0;
-#else
-    int dfcode = 0;
-    /*
-     * Default: AT45DB321B 
-     */
-    pDf->dfDescription.pages_number = 8192;
-    pDf->dfDescription.pages_size = 528;
-    pDf->dfDescription.page_offset = 10;
+	if (status & STATUS_PAGE_SIZE_AT45)
+		df_desc->is_power_2 = 1;
+	else
+		df_desc->is_power_2 = 0;
 
-    dfcode = at45_df_probe(pDf);
+	density = status & 0x3c;
+	switch (density) {
+	case DENSITY_AT45DB011D:
+		df_desc->pages = 512;
+		df_desc->page_size = 264;
+		df_desc->page_offset = 9;
+	break;
 
-    at45_msg_df_detect(dfcode);
+	case DENSITY_AT45DB021D:
+		df_desc->pages = 1024;
+		df_desc->page_size = 264;
+		df_desc->page_offset = 9;
+		break;
 
-    switch (dfcode) {
-#if	defined(CONFIG_SMALL_DATAFLASH)
-    case AT45DB011D:
-        pDf->dfDescription.pages_number = 512;
-        pDf->dfDescription.pages_size = 264;
-        pDf->dfDescription.page_offset = 9;
-        break;
+	case DENSITY_AT45DB041D:
+		df_desc->pages = 2048;
+		df_desc->page_size = 264;
+		df_desc->page_offset = 9;
+		break;
 
-    case AT45DB021D:
-        pDf->dfDescription.pages_number = 1024;
-        pDf->dfDescription.pages_size = 264;
-        pDf->dfDescription.page_offset = 9;
-        break;
+	case DENSITY_AT45DB081D:
+		df_desc->pages = 4096;
+		df_desc->page_size = 264;
+		df_desc->page_offset = 9;
+		break;
 
-    case AT45DB041D:
-        pDf->dfDescription.pages_number = 2048;
-        pDf->dfDescription.pages_size = 264;
-        pDf->dfDescription.page_offset = 9;
-        break;
+	case DENSITY_AT45DB161D:
+		df_desc->pages = 4096;
+		df_desc->page_size = 528;
+		df_desc->page_offset = 10;
+		break;
 
-    case AT45DB081D:
-        pDf->dfDescription.pages_number = 4096;
-        pDf->dfDescription.pages_size = 264;
-        pDf->dfDescription.page_offset = 9;
-        break;
-    case AT45DB161D:
-        pDf->dfDescription.pages_number = 4096;
-        pDf->dfDescription.pages_size = 528;
-        pDf->dfDescription.page_offset = 10;
-        break;
-#endif
-    case AT45DB321D:
-        pDf->dfDescription.pages_number = 8192;
-        pDf->dfDescription.pages_size = 528;
-        pDf->dfDescription.page_offset = 10;
-        break;
+	case DENSITY_AT45DB321D:
+		df_desc->pages = 8192;
+		df_desc->page_size = 528;
+		df_desc->page_offset = 10;
+		break;
 
-    case AT45DB642D:
-        pDf->dfDescription.pages_number = 8192;
-        pDf->dfDescription.pages_size = 1056;
-        pDf->dfDescription.page_offset = 11;
-        break;
+	case DENSITY_AT45DB642D:
+		df_desc->pages = 8192;
+		df_desc->page_size = 1056;
+		df_desc->page_offset = 11;
+		break;
 /*
-		case AT45DB1282D:
-			pDf->dfDescription.pages_number = 16384;
-			pDf->dfDescription.pages_size = 1056;
-			pDf->dfDescription.page_offset = 11;
-			break;
+	case DENSITY_AT45DB1282D:
+		df_desc->pages = 16384;
+		df_desc->pages_size = 1056;
+		df_desc->page_offset = 11;
+		break;
 
-		case AT45DB2562D:
-			pDf->dfDescription.pages_number = 16384;
-			pDf->dfDescription.pages_size = 2112;
-			pDf->dfDescription.page_offset = 12;
-			break;
+	case DENSITY_AT45DB2562D:
+		df_desc->pages = 16384;
+		df_desc->page_size = 2112;
+		df_desc->page_offset = 12;
+		break;
 
-		case AT45DB5122D:
-			pDf->dfDescription.pages_number = 32768;
-			pDf->dfDescription.pages_size = 2112;
-			pDf->dfDescription.page_offset = 12;
-			break;
+	case DENSITY_AT45DB5122D:
+		df_desc->pages = 32768;
+		df_desc->page_size = 2112;
+		df_desc->page_offset = 12;
+		break;
 */
-    default:
-        status = FAILURE;
-        break;
-    }
+	default:
+		return -1;
+	}
 
-#endif
-    return status;
+	return 0;
 }
 
-int burn_df(unsigned int pcs, unsigned int addr, unsigned int size,
-            unsigned int offset)
+static int df_at25_desc_init(struct dataflash_descriptor *df_desc)
 {
-    AT91S_DF sDF;
+	/* AT25DF321 */
+	df_desc->is_power_2 = 1;
 
-    AT91PS_DF pDf = (AT91PS_DF) & sDF;
+	df_desc->pages = 16384;
+	df_desc->page_size = 256;
+	df_desc->page_offset = 0;
 
-    pDf->bSemaphore = UNLOCKED;
-
-    df_spi_init(pcs, DF_CS_SETTINGS);
-
-    if (df_init(pDf) == FAILURE)
-        return FAILURE;
-    df_write(pDf, addr, size, offset);
-
-    return SUCCESS;
+	return 0;
 }
 
-/*------------------------------------------------------------------------------*/
-/* \fn    load_df								*/
-/* \brief This function loads dataflash content to specified address		*/
-/*------------------------------------------------------------------------------*/
-int load_df(unsigned int pcs, unsigned int img_addr, unsigned int img_size,
-            unsigned int img_dest)
+static int df_desc_init(struct dataflash_descriptor *df_desc,
+			unsigned char family)
 {
-    AT91S_DF sDF;
+	int ret;
 
-    AT91PS_DF pDf = (AT91PS_DF) & sDF;
+	df_desc->family = family;
 
-    unsigned int status;
+	if ((df_desc->family == DF_FAMILY_AT26F)
+		|| (df_desc->family == DF_FAMILY_AT26DF)) {
+		ret = df_at25_desc_init(df_desc);
+		if (ret)
+			return ret;
+	} else if (df_desc->family == DF_FAMILY_AT45) {
+		ret = df_at45_desc_init(df_desc);
+		if (ret)
+			return ret;
+	} else {
+		dbg_log(1, "SF: Unsupported SerialFlash family %d\n\r", family);
+		return -1;
+	}
 
-    pDf->bSemaphore = UNLOCKED;
+	return 0;
+}
 
-    df_spi_init(pcs, DF_CS_SETTINGS);
+static int dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
+{
+	unsigned char dev_id[5];
+	unsigned char cmd = CMD_READ_DEV_ID;
+	int ret;
 
-    if (df_init(pDf) == FAILURE)
-        return FAILURE;
+	/* Read device ID */
+	ret = df_send_command(&cmd, 1, dev_id, 5);
+	if (ret)
+		return ret;
 
-#if defined(CONFIG_DATAFLASH_RECOVERY)
-    /*
-     * Test if a button has been pressed or not 
-     */
-    /*
-     * Erase Page 0 to avoid infinite loop 
-     */
-    df_recovery(pDf);
+#ifdef CONFIG_DEBUG
+	unsigned int i;
+	unsigned char *p = dev_id;
+
+	dbg_log(1, "SF: Got Manufacturer and Device ID:");
+	for (i = 0; i < 5; i++)
+		dbg_log(1, "%d ", *p++);
+	dbg_log(1, "\n\r");
 #endif
 
-    status = df_download(pDf, img_addr, img_size, img_dest);
-    return status;
+	if (dev_id[0] != MANUFACTURER_ID_ATMEL) {
+		dbg_log(1, "Not supported spi flash Manufactorer ID: %d\n\r",
+				dev_id[0]);
+		return -1;
+	}
+
+	ret = df_desc_init(df_desc, (dev_id[1] & 0xe0));
+	if (ret)
+		return ret;
+
+	return 0;
 }
 
-#endif                          /* CONFIG_DATAFLASH */
+int load_dataflash(struct image_info *image)
+{
+	struct dataflash_descriptor	df_descriptor;
+	struct dataflash_descriptor	*df_desc = &df_descriptor;
+	int ret = 0;
+
+	at91_spi0_hw_init();
+
+	ret = at91_spi_init(AT91C_SPI_PCS_DATAFLASH,
+				CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
+	if (ret) {
+		dbg_log(1, "SF: Fail to initialize spi\n\r");
+		return -1;
+	}
+
+	at91_spi_enable();
+
+	ret = dataflash_probe_atmel(df_desc);
+	if (ret) {
+		dbg_log(1, "SF: Fail to probe atmel spi flash\n\r");
+		ret = -1;
+		goto err_exit;
+	}
+
+#ifdef CONFIG_DATAFLASH_RECOVERY
+	if (!dataflash_recovery(df_desc)) {
+		ret = -2;
+		goto err_exit;
+	}
+#endif
+
+	dbg_log(1, "SF: Copy %d bytes from %d to %d\n\r",
+			image->length, image->offset, image->dest);
+
+	ret = dataflash_read_array(df_desc,
+			image->offset, image->length, image->dest);
+	if (ret) {
+		dbg_log(1, "** SF: Serial flash read error**\n\r");
+		ret = -1;
+		goto err_exit;
+	}
+
+	if (image->of) {
+		dbg_log(1, "SF: dt blob: Copy %d bytes from %d to %d\n\r",
+			image->of_length, image->of_offset, image->of_dest);
+
+		ret = dataflash_read_array(df_desc,
+			image->of_offset, image->of_length, image->of_dest);
+		if (ret) {
+			dbg_log(1, "** SF: DT: Serial flash read error**\n\r");
+			ret = -1;
+			goto err_exit;
+		}
+	}
+
+err_exit:
+	at91_spi_disable();
+	return ret;
+}

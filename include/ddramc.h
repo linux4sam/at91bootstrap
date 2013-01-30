@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,27 +24,21 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : sdramc.h
- * Object              :
- * Creation            : NLe Jul 11th 2006
- *-----------------------------------------------------------------------------
  */
-#ifndef DDRAMC_H_
-#define DDRAMC_H_
+#ifndef __DDRAMC_H__
+#define __DDRAMC_H__
 
-typedef struct SDdramConfig {
-    unsigned int ddramc_mdr;
-    unsigned int ddramc_cr;
-    unsigned int ddramc_rtr;
-    unsigned int ddramc_t0pr;
-    unsigned int ddramc_t1pr;
-    unsigned int ddramc_t2pr;
-} SDdramConfig, *PSDdramConfig;
+struct ddramc_register {
+	unsigned int mdr;
+	unsigned int cr;
+	unsigned int rtr;
+	unsigned int t0pr;
+	unsigned int t1pr;
+	unsigned int t2pr;
+};
 
-extern int ddram_init(unsigned int ddram_controller_address,
-                      unsigned int ddram_address,
-                      struct SDdramConfig *ddram_config);
-extern void ddramc_hw_init(void);
+extern int ddram_initialize(unsigned int base_address,
+		unsigned int ram_address,
+		struct ddramc_register *ddramc_config);
 
-#endif                          /*SDRAMC_H_ */
+#endif /* #ifndef __DDRAMC_H__ */

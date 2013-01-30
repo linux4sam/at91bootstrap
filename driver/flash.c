@@ -1,9 +1,6 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2007, Stelian Pop <stelian.pop@leadtechdesign.com>
- * Copyright (c) 2007 Lead Tech Design <www.leadtechdesign.com>
- *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,33 +22,19 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : norflash.c
- * Object              : ATMEL NorFlash High level functions
- * Creation            :
- *---------------------------------------------------------------------------
 */
-
 #include "../include/part.h"
 #include "../include/main.h"
 #include "../include/flash.h"
 #include <stdlib.h>
 
-#ifdef CONFIG_FLASH
 
-extern void *memcpy(void *out, void *in, size_t length);
-
-/*------------------------------------------------------------------------------*/
-/* \fn    load_df								*/
-/* \brief This function loads norflash content to specified address		*/
-/*------------------------------------------------------------------------------*/
-int load_norflash(unsigned int img_addr, unsigned int img_size,
-                  unsigned int img_dest)
+int load_norflash(unsigned int img_addr,
+		unsigned int img_size,
+		unsigned int img_dest)
 {
     norflash_hw_init();
 
     memcpy((char *)img_dest, (char *)(AT91_NORFLASH_BASE + img_addr), img_size);
     return 0;
 }
-
-#endif                          /* CONFIG_DATAFLASH */

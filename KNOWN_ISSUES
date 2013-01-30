@@ -1,0 +1,10 @@
+KNOWN ISSUES
+
+1./ Using the toolchain comes with ubuntu 12.04(arm-linux-gnueabi-gcc), it builds OK
+    without warning and error, But for ek with "926ej-s" core, it fails to run on the board.
+    It seems there is some problem with "__aeabi_uidiv", "__aeabi_uidivmod" symbol of its gcclib.
+    and for sama5d3xek with "cortex-a5" core, it is OK to run on the boards.
+
+2./ Using the toolchain from the buildroot-2011.05 to build for at91sam9g10ek boards
+    after introducing the gcclibc, it builds OK without warning and error,
+    but it fails to run on the boards.

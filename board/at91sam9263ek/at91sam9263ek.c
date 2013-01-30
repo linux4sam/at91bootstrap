@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2009, Atmel Corporation
  * All rights reserved.
@@ -23,461 +23,518 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : at91sam9263ek.c
- * Object              :
- * Creation            : NLe Aug 8th 2006
- *-----------------------------------------------------------------------------
  */
-#if defined(WINCE) && !defined(CONFIG_AT91SAM9263EK)
-
-#else
-
-#include "part.h"
-#include "main.h"
+#include "common.h"
+#include "hardware.h"
+#include "arch/at91_ccfg.h"
+#include "arch/at91_matrix.h"
+#include "arch/at91_rstc.h"
+#include "arch/at91_pmc.h"
+#include "arch/at91_smc.h"
+#include "arch/at91_pio.h"
+#include "arch/at91_sdramc.h"
+#include "spi.h"
 #include "gpio.h"
 #include "pmc.h"
-#include "rstc.h"
-#include "debug.h"
 #include "dbgu.h"
-#include "memory.h"
+#include "debug.h"
+#include "sdramc.h"
 #include "psram.h"
-#include "matrix.h"
+#include "timer.h"
+#include "watchdog.h"
+#include "at91sam9263ek.h"
 
-int get_cp15(void);
+#ifdef CONFIG_USER_HW_INIT
+extern void hw_init_hook(void);
+#endif
 
-void set_cp15(unsigned int value);
-
-int get_cpsr(void);
-
-void set_cpsr(unsigned int value);
-
-#ifdef CONFIG_HW_INIT
-/*---------------------------------------------------------------------------- */
-/* \fn    hw_init							       */
-/* \brief This function performs very low level HW initialization	       */
-/* This function is invoked as soon as possible during the c_startup	       */
-/* The bss segment must be initialized					       */
-/*---------------------------------------------------------------------------- */
-void hw_init(void)
+static inline void matrix_writel(const unsigned int value, unsigned int reg)
 {
-    /*
-     * Configure PIOs 
-     */
-    const struct pio_desc hw_pio[] = {
-#ifdef CONFIG_DEBUG
-        {"RXD", AT91C_PIN_PC(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"TXD", AT91C_PIN_PC(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
-#endif
-        {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-    };
+	writel(value, reg + AT91C_BASE_MATRIX);
+}
 
-    /*
-     * Disable watchdog 
-     */
-    writel(AT91C_WDTC_WDDIS, AT91C_BASE_WDTC + WDTC_WDMR);
+static inline unsigned int matrix_readl(unsigned int reg)
+{
+	return readl(reg + AT91C_BASE_MATRIX);
+}
 
-    /*
-     * At this stage the main oscillator is supposed to be enabled
-     * * PCK = MCK = MOSC 
-     */
+static void at91_matrix_hw_init(void)
+{
+	/* Bus Matrix Master Configuration Register */
+	matrix_writel(AT91C_MATRIX_ULBT_16_BEAT, MATRIX_MCFG0);		/* OHCI */
+	matrix_writel(AT91C_MATRIX_ULBT_8_BEAT, MATRIX_MCFG1);		/* ISI */
+	matrix_writel(AT91C_MATRIX_ULBT_8_BEAT, MATRIX_MCFG2);		/* 2D */
+	matrix_writel(AT91C_MATRIX_ULBT_8_BEAT, MATRIX_MCFG3);		/* DMAC */
+	matrix_writel(AT91C_MATRIX_ULBT_4_BEAT, MATRIX_MCFG4);		/* MACB */
+	matrix_writel(AT91C_MATRIX_ULBT_16_BEAT, MATRIX_MCFG5);		/* LCDC */
+	matrix_writel(AT91C_MATRIX_ULBT_SINGLE_ACCESS, MATRIX_MCFG6);	/* PDC */
+	matrix_writel(AT91C_MATRIX_ULBT_8_BEAT, MATRIX_MCFG7);		/* DBUS */
+	matrix_writel(AT91C_MATRIX_ULBT_4_BEAT, MATRIX_MCFG8);		/* IBUS */
 
-    /*
-     * Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA 
-     */
-    pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
+	/* Bus Matrix Slave Configuration Registers */
+	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
+			| AT91C_MATRIX_FIXED_DEFMSTR_ARM926I
+			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
+			| AT91C_MATRIX_SLOT_CYCLE_(32)),
+			MATRIX_SCFG0);		/* ROM */
 
-    /*
-     * PCK = PLLA = 2 * MCK 
-     */
-    pmc_cfg_mck(MCKR_SETTINGS, PLL_LOCK_TIMEOUT);
-    /*
-     * Switch MCK on PLLA output 
-     */
-    pmc_cfg_mck(MCKR_CSS_SETTINGS, PLL_LOCK_TIMEOUT);
+	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
+			| AT91C_MATRIX_FIXED_DEFMSTR_EMAC
+			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
+			| AT91C_MATRIX_SLOT_CYCLE_(32)),
+			MATRIX_SCFG1);		/* RAM80K */
 
-    /*
-     * Configure PLLB 
-     */
-    pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
+	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
+			| AT91C_MATRIX_FIXED_DEFMSTR_USB
+			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
+			| AT91C_MATRIX_SLOT_CYCLE_(16)),
+			MATRIX_SCFG2);		/* RAM16K */
 
-    /*
-     * Enable External Reset 
-     */
-    writel(AT91C_RSTC_KEY_UNLOCK
-           || AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
+	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
+			| AT91C_MATRIX_FIXED_DEFMSTR_PDC
+			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
+			| AT91C_MATRIX_SLOT_CYCLE_(4)),
+			MATRIX_SCFG3);		/* PERIPHERALS */
 
-    /*
-     * Configure the PIO controller to output PCK0 
-     */
-    pio_setup(hw_pio);
+	matrix_writel((AT91C_MATRIX_ARBT_ROUND_ROBIN
+			| AT91C_MATRIX_FIXED_DEFMSTR_ARM926I
+			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
+			| AT91C_MATRIX_SLOT_CYCLE_(32)),
+			MATRIX_SCFG4);		/* EBI0 */
 
-    /*
-     * Configure TCMs (Tightly coupled memories) 
-     */
+	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
+			| AT91C_MATRIX_FIXED_DEFMSTR_LCDC
+			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
+			| AT91C_MATRIX_SLOT_CYCLE_(64)),
+			MATRIX_SCFG5);		/* EBI1 */
 
-    /*
-     * Configure the EBI0 Slave Slot Cycle to 64 
-     */
-    // writel( (readl((AT91C_BASE_MATRIX + MATRIX_SCFG4)) & ~0xFF) | 0x40, (AT91C_BASE_MATRIX + MATRIX_SCFG4));
+	matrix_writel((AT91C_MATRIX_ARBT_FIXED_PRIORITY
+			| AT91C_MATRIX_FIXED_DEFMSTR_ARM926D
+			| AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR
+			| AT91C_MATRIX_SLOT_CYCLE_(4)),
+			MATRIX_SCFG6);		/* APB */
 
-    writel(BURST_16WORD_BEAT, AHB_MATRIX_MASTER_OHCI);
-    writel(BURST_8WORD_BEAT, AHB_MATRIX_MASTER_ISI);
-    writel(BURST_8WORD_BEAT, AHB_MATRIX_MASTER_2D);
-    writel(BURST_8WORD_BEAT, AHB_MATRIX_MASTER_DMAC);
-    writel(BURST_4WORD_BEAT, AHB_MATRIX_MASTER_MACB);
-    writel(BURST_16WORD_BEAT, AHB_MATRIX_MASTER_LCDC);
-    writel(BURST_SINGLE_ACCESS, AHB_MATRIX_MASTER_PDC);
-    writel(BURST_8WORD_BEAT, AHB_MATRIX_MASTER_DBUS);
-    writel(BURST_4WORD_BEAT, AHB_MATRIX_MASTER_IBUS);
+	/* ROM */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(0)
+			| AT91C_MATRIX_M2PR_(2)
+			| AT91C_MATRIX_M3PR_(1)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(3)
+			| AT91C_MATRIX_M6PR_(2)
+			| AT91C_MATRIX_M7PR_(3)),
+			MATRIX_PRAS0);
 
-#if	0
-    // ARBT
-    AHB_MATRIX_FIXED_PRIORITY || AHB_MATRIX_ROUND_ROBIN ||
-        // FIXED_DEFMSTR
-        AT91C_MATRIX_FIXED_DEFMSTR0_ARM926I ||
-        AT91C_MATRIX_FIXED_DEFMSTR0_ARM926D ||
-        AT91C_MATRIX_FIXED_DEFMSTR0_PDC ||
-        AT91C_MATRIX_FIXED_DEFMSTR0_LCDC ||
-        AT91C_MATRIX_FIXED_DEFMSTR0_2DGC ||
-        AT91C_MATRIX_FIXED_DEFMSTR0_ISI ||
-        AT91C_MATRIX_FIXED_DEFMSTR0_DMA ||
-        AT91C_MATRIX_FIXED_DEFMSTR0_EMAC || AT91C_MATRIX_FIXED_DEFMSTR0_USB ||
-        // DEFMSTR_TYPE
-        AT91C_MATRIX_DEFMSTR_TYPE_NO_DEFMSTR ||
-        AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR ||
-        AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR ||
-        // SLOT_CYCLE
-        SLOT_CYCLE(),
-#endif
-        writel(
-                  // ARBT
-                  AHB_MATRIX_FIXED_PRIORITY ||
-                  // FIXED_DEFMSTR
-                  AT91C_MATRIX_FIXED_DEFMSTR0_ARM926I ||
-                  // DEFMSTR_TYPE
-                  AT91C_MATRIX_DEFMSTR_TYPE_LAST_DEFMSTR ||
-                  // SLOT_CYCLE
-                  SLOT_CYCLE(32), AHB_MATRIX_SLAVE_ROM);
+	matrix_writel(AT91C_MATRIX_M8PR_(0),
+			MATRIX_PRBS0);
 
-    writel(
-              // ARBT
-              AHB_MATRIX_FIXED_PRIORITY ||
-              // FIXED_DEFMSTR
-              AT91C_MATRIX_FIXED_DEFMSTR0_EMAC ||
-              // DEFMSTR_TYPE
-              AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR ||
-              // SLOT_CYCLE
-              SLOT_CYCLE(32), AHB_MATRIX_SLAVE_RAM80K);
+	/* RAM80K */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(2)
+			| AT91C_MATRIX_M2PR_(1)
+			| AT91C_MATRIX_M3PR_(3)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(0)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(0)),
+			MATRIX_PRAS1);
 
-    writel(
-              // ARBT
-              AHB_MATRIX_FIXED_PRIORITY ||
-              // FIXED_DEFMSTR
-              AT91C_MATRIX_FIXED_DEFMSTR0_USB ||
-              // DEFMSTR_TYPE
-              AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR ||
-              // SLOT_CYCLE
-              SLOT_CYCLE(16), AHB_MATRIX_SLAVE_RAM16K);
+	matrix_writel(AT91C_MATRIX_M8PR_(2),
+			MATRIX_PRBS1);
 
-    writel(
-              // ARBT
-              AHB_MATRIX_FIXED_PRIORITY ||
-              // FIXED_DEFMSTR
-              AT91C_MATRIX_FIXED_DEFMSTR0_PDC ||
-              // DEFMSTR_TYPE
-              AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR ||
-              // SLOT_CYCLE
-              SLOT_CYCLE(4), AHB_MATRIX_SLAVE_PERIPHERALS);
+	/* RAM16K */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(0)
+			| AT91C_MATRIX_M2PR_(2)
+			| AT91C_MATRIX_M3PR_(1)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(3)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(2)),
+			MATRIX_PRAS2);
 
-    writel(
-              // ARBT
-              AHB_MATRIX_ROUND_ROBIN ||
-              // FIXED_DEFMSTR
-              AT91C_MATRIX_FIXED_DEFMSTR0_ARM926I ||
-              // DEFMSTR_TYPE
-              AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR ||
-              // SLOT_CYCLE
-              SLOT_CYCLE(32), AHB_MATRIX_SLAVE_EBI0);
+	matrix_writel(AT91C_MATRIX_M8PR_(0),
+			MATRIX_PRBS2);
 
-    writel(
-              // ARBT
-              AHB_MATRIX_FIXED_PRIORITY ||
-              // FIXED_DEFMSTR
-              AT91C_MATRIX_FIXED_DEFMSTR0_LCDC ||
-              // DEFMSTR_TYPE
-              AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR ||
-              // SLOT_CYCLE
-              SLOT_CYCLE(64), AHB_MATRIX_SLAVE_EBI1);
+	/* PERIPHERALS */
+	matrix_writel((AT91C_MATRIX_M0PR_(0)
+			| AT91C_MATRIX_M1PR_(1)
+			| AT91C_MATRIX_M2PR_(0)
+			| AT91C_MATRIX_M3PR_(2)
+			| AT91C_MATRIX_M4PR_(1)
+			| AT91C_MATRIX_M5PR_(0)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(2)),
+			MATRIX_PRAS3);
 
-    writel(
-              // ARBT
-              AHB_MATRIX_FIXED_PRIORITY ||
-              // FIXED_DEFMSTR
-              AT91C_MATRIX_FIXED_DEFMSTR0_ARM926D ||
-              // DEFMSTR_TYPE
-              AT91C_MATRIX_DEFMSTR_TYPE_FIXED_DEFMSTR ||
-              // SLOT_CYCLE
-              SLOT_CYCLE(4), AHB_MATRIX_SLAVE_APB);
+	matrix_writel(AT91C_MATRIX_M8PR_(3),
+			MATRIX_PRBS3);
 
-    AHB_PRIORITY9(ABH_PRIORITY_ROM, AHB_IBUS_ID, AHB_DBUS_ID,
-                  // Rest should not access the ROM
-                  AHB_PDC_ID,
-                  AHB_DMAC_ID,
-                  AHB_OHCI_ID, AHB_ISI_ID, AHB_2D_ID, AHB_MACB_ID, AHB_LCDC_ID);
-    AHB_PRIORITY9(ABH_PRIORITY_RAM80K,
-                  AHB_PDC_ID,
-                  AHB_MACB_ID,
-                  AHB_DMAC_ID, AHB_OHCI_ID, AHB_IBUS_ID, AHB_DBUS_ID,
-                  // Rest should not access the large SRAM
-                  AHB_ISI_ID, AHB_2D_ID, AHB_LCDC_ID);
-    AHB_PRIORITY9(ABH_PRIORITY_RAM16K,
-                  AHB_OHCI_ID,
-                  AHB_PDC_ID, AHB_DMAC_ID, AHB_DBUS_ID, AHB_IBUS_ID,
-                  // Rest should not access the small SRAM
-                  AHB_ISI_ID, AHB_2D_ID, AHB_MACB_ID, AHB_LCDC_ID);
-    AHB_PRIORITY9(ABH_PRIORITY_PERIPHERALS, AHB_DBUS_ID,
-                  // Rest should not access & reconfigure peripherals
-                  AHB_PDC_ID,
-                  AHB_DMAC_ID,
-                  AHB_OHCI_ID,
-                  AHB_ISI_ID, AHB_2D_ID, AHB_MACB_ID, AHB_LCDC_ID, AHB_IBUS_ID);
+#if defined(CONFIG_PSRAM)
+	/* EBI0 */
+	matrix_writel((AT91C_MATRIX_M0PR_(2)
+			| AT91C_MATRIX_M1PR_(1)
+			| AT91C_MATRIX_M2PR_(1)
+			| AT91C_MATRIX_M3PR_(3)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(3)
+			| AT91C_MATRIX_M6PR_(0)
+			| AT91C_MATRIX_M7PR_(0)),
+			MATRIX_PRAS4);
 
-#if	defined(CONFIG_PSRAM)
-    // LCD on EBI1
-    AHB_PRIORITY9(ABH_PRIORITY_EBI0,
-                  AHB_PDC_ID,
-                  AHB_MACB_ID,
-                  AHB_OHCI_ID, AHB_DMAC_ID, AHB_IBUS_ID, AHB_DBUS_ID,
-                  // Rest should not access EBI0
-                  AHB_ISI_ID, AHB_LCDC_ID, AHB_2D_ID);
+	matrix_writel(AT91C_MATRIX_M8PR_(2),
+			MATRIX_PRBS4);
 #else
-    // LCD on EBI0
-    AHB_PRIORITY9(ABH_PRIORITY_EBI0,
-                  AHB_PDC_ID,
-                  AHB_LCDC_ID,
-                  AHB_MACB_ID,
-                  AHB_OHCI_ID, AHB_DMAC_ID, AHB_2D_ID, AHB_IBUS_ID, AHB_DBUS_ID,
-                  // Rest should not access EBI0
-                  AHB_ISI_ID);
-#endif
+	/* EBI0 */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(3)
+			| AT91C_MATRIX_M2PR_(0)
+			| AT91C_MATRIX_M3PR_(2)
+			| AT91C_MATRIX_M4PR_(3)
+			| AT91C_MATRIX_M5PR_(0)
+			| AT91C_MATRIX_M6PR_(0)
+			| AT91C_MATRIX_M7PR_(1)),
+			MATRIX_PRAS4);
 
-    AHB_PRIORITY9(ABH_PRIORITY_EBI1,
-                  AHB_LCDC_ID, AHB_PDC_ID, AHB_DMAC_ID, AHB_2D_ID, AHB_DBUS_ID,
-                  // Rest should not access ABI1
-                  AHB_IBUS_ID, AHB_OHCI_ID, AHB_ISI_ID, AHB_MACB_ID);
+	matrix_writel(AT91C_MATRIX_M8PR_(2),
+			MATRIX_PRBS4);
+#endif /* #if defined(CONFIG_PSRAM) */
+	/* EBI1 */
+	matrix_writel((AT91C_MATRIX_M0PR_(0)
+			| AT91C_MATRIX_M1PR_(1)
+			| AT91C_MATRIX_M2PR_(0)
+			| AT91C_MATRIX_M3PR_(0)
+			| AT91C_MATRIX_M4PR_(3)
+			| AT91C_MATRIX_M5PR_(2)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(2)),
+			MATRIX_PRAS5);
 
-    AHB_PRIORITY9(ABH_PRIORITY_APB, AHB_PDC_ID, AHB_DMAC_ID, AHB_DBUS_ID,
-                  // Rest should not access APB
-                  AHB_IBUS_ID,
-                  AHB_OHCI_ID, AHB_ISI_ID, AHB_2D_ID, AHB_MACB_ID, AHB_LCDC_ID);
+	matrix_writel(AT91C_MATRIX_M8PR_(1),
+			MATRIX_PRBS5);
 
-#ifdef CONFIG_DEBUG
-    /*
-     * Enable Debug messages on the DBGU 
-     */
-    dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
-    dbgu_print("Start AT91Bootstrap...\n\r");
-#endif
+	/* APB */
+	matrix_writel((AT91C_MATRIX_M0PR_(1)
+			| AT91C_MATRIX_M1PR_(0)
+			| AT91C_MATRIX_M2PR_(2)
+			| AT91C_MATRIX_M3PR_(1)
+			| AT91C_MATRIX_M4PR_(0)
+			| AT91C_MATRIX_M5PR_(0)
+			| AT91C_MATRIX_M6PR_(3)
+			| AT91C_MATRIX_M7PR_(3)),
+			MATRIX_PRAS4);
+
+	matrix_writel(AT91C_MATRIX_M8PR_(2),
+			MATRIX_PRBS4);
+}
+
+static void at91_dbgu_hw_init(void)
+{
+	/* Configure DBGU pin */
+	const struct pio_desc dbgu_pins[] = {
+		{"RXD", AT91C_PIN_PC(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TXD", AT91C_PIN_PC(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(dbgu_pins);
+
+	/*  Configure the dbgu pins */
+	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+}
+
+static void initialize_dbgu(void)
+{
+	at91_dbgu_hw_init();
+
+	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
+}
 
 #ifdef CONFIG_SDRAM
-    /*
-     * Initialize the matrix 
-     */
-    /*
-     * VDDIOMSEL = 1 -> Memories are 3.3V powered 
-     */
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBI0CSA) | (1 << 16) |
-           AT91C_EBI_CS1A_SDRAMC, AT91C_BASE_CCFG + CCFG_EBI0CSA);
-    /*
-     * Configure SDRAM Controller 
-     */
-#if	defined(CONFIG_SDRAM_16BIT)
-    sdram_init(AT91C_SDRAMC_NC_10 | AT91C_SDRAMC_NR_13 | AT91C_SDRAMC_CAS_2 | AT91C_SDRAMC_NB_4_BANKS | AT91C_SDRAMC_DBW_16_BITS | AT91C_SDRAMC_TWR_2 | AT91C_SDRAMC_TRC_7 | AT91C_SDRAMC_TRP_2 | AT91C_SDRAMC_TRCD_2 | AT91C_SDRAMC_TRAS_5 | AT91C_SDRAMC_TXSR_8,      /* Control Register       */
-               (MASTER_CLOCK * 7) / 1000000,    /* Refresh Timer Register */
-               AT91C_SDRAMC_MD_SDRAM);  /* SDRAM (no low power)   */
-#else
-    sdram_init(AT91C_SDRAMC_NC_9 | AT91C_SDRAMC_NR_13 | AT91C_SDRAMC_CAS_2 | AT91C_SDRAMC_NB_4_BANKS | AT91C_SDRAMC_DBW_32_BITS | AT91C_SDRAMC_TWR_2 | AT91C_SDRAMC_TRC_7 | AT91C_SDRAMC_TRP_2 | AT91C_SDRAMC_TRCD_2 | AT91C_SDRAMC_TRAS_5 | AT91C_SDRAMC_TXSR_8,       /* Control Register       */
-               (MASTER_CLOCK * 7) / 1000000,    /* Refresh Timer Register */
-               AT91C_SDRAMC_MD_SDRAM);  /* SDRAM (no low power)   */
-#endif
-#endif                          /* CONFIG_SDRAM */
-
-#if	defined(CONFIG_PSRAM)
-    psram_hw_init();
-#endif                          /* CFG_PSRAM */
-}
-#endif                          /* CONFIG_HW_INIT */
-
-#ifdef CONFIG_SDRAM
-//*----------------------------------------------------------------------------
-//* \fn    sdramc_hw_init
-//* \brief This function performs SDRAMC HW initialization
-//*----------------------------------------------------------------------------*/
-void sdramc_hw_init(void)
+static void sdramc_hw_init(void)
 {
-    /*
-     * Configure PIOs 
-     */
-    const struct pio_desc sdramc_pio[] = {
-        {"D16", AT91C_PIN_PD(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D17", AT91C_PIN_PD(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D18", AT91C_PIN_PD(18), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D19", AT91C_PIN_PD(19), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D20", AT91C_PIN_PD(20), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D21", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D22", AT91C_PIN_PD(22), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D23", AT91C_PIN_PD(23), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D24", AT91C_PIN_PD(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D25", AT91C_PIN_PD(25), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D26", AT91C_PIN_PD(26), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D27", AT91C_PIN_PD(27), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D28", AT91C_PIN_PD(28), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D29", AT91C_PIN_PD(29), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D30", AT91C_PIN_PD(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {"D31", AT91C_PIN_PD(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
-        {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-    };
+	/* Configure sdramc pins */
+	const struct pio_desc sdramc_pins[] = {
+		{"D16", AT91C_PIN_PD(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D17", AT91C_PIN_PD(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D18", AT91C_PIN_PD(18), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D19", AT91C_PIN_PD(19), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D20", AT91C_PIN_PD(20), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D21", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D22", AT91C_PIN_PD(22), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D23", AT91C_PIN_PD(23), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D24", AT91C_PIN_PD(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D25", AT91C_PIN_PD(25), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D26", AT91C_PIN_PD(26), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D27", AT91C_PIN_PD(27), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D28", AT91C_PIN_PD(28), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D29", AT91C_PIN_PD(29), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D30", AT91C_PIN_PD(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"D31", AT91C_PIN_PD(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *) 0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 
-    /*
-     * Configure the SDRAMC PIO controller 
-     */
-    pio_setup(sdramc_pio);
+	/* Configure the SDRAMC PINs */
+	writel((1 << AT91C_ID_PIOCDE), (PMC_PCER + AT91C_BASE_PMC));
+	pio_configure(sdramc_pins);
 }
-#endif
+
+static void sdramc0_init(void)
+{
+	unsigned int reg;
+	struct sdramc_register sdramc_config;
+
+#ifdef CONFIG_SDRAM_16BIT
+	sdramc_config.cr = AT91C_SDRAMC_NC_10 | AT91C_SDRAMC_NR_13 | AT91C_SDRAMC_CAS_2
+				| AT91C_SDRAMC_NB_4_BANKS | AT91C_SDRAMC_DBW_16_BITS
+				| AT91C_SDRAMC_TWR_2 | AT91C_SDRAMC_TRC_7
+				| AT91C_SDRAMC_TRP_2 | AT91C_SDRAMC_TRCD_2
+				| AT91C_SDRAMC_TRAS_5 | AT91C_SDRAMC_TXSR_8;
+#else
+	sdramc_config.cr = AT91C_SDRAMC_NC_9 | AT91C_SDRAMC_NR_13 | AT91C_SDRAMC_CAS_2
+				| AT91C_SDRAMC_NB_4_BANKS | AT91C_SDRAMC_DBW_32_BITS
+				| AT91C_SDRAMC_TWR_2 | AT91C_SDRAMC_TRC_7
+				| AT91C_SDRAMC_TRP_2 | AT91C_SDRAMC_TRCD_2
+				| AT91C_SDRAMC_TRAS_5 | AT91C_SDRAMC_TXSR_8;
+#endif	/* #ifdef CONFIG_SDRAM_16BIT */
+
+	sdramc_config.tr = (MASTER_CLOCK * 7) / 1000000;
+	sdramc_config.mdr = AT91C_SDRAMC_MD_SDRAM;
+
+	sdramc_hw_init();
+
+	reg =  readl(AT91C_BASE_CCFG + CCFG_EBI0CSA);
+	reg |= AT91C_VDDIOM_SEL_33V;
+	reg |= AT91C_EBI_CS1A_SDRAMC;
+	writel(reg, AT91C_BASE_CCFG + CCFG_EBI0CSA);
+
+	sdramc_initialize(&sdramc_config, AT91C_BASE_EBI0_CS1);
+}
+#endif /* #ifdef CONFIG_SDRAM */
 
 #ifdef CONFIG_PSRAM
-void psram_hw_init(void)
+
+#define CONFIG_SYS_PSRAM_DATA_ACCESS_PIN	AT91C_PIN_PE(16)
+static void data_access_enable(void)
 {
-    volatile unsigned short tmp;
-
-    unsigned short *addressMax = (unsigned short *)MICRON_8MB_ADDRESS_MAX;
-
-    /*
-     * Configure PIOs 
-     */
-    const struct pio_desc psram_pio[] = {
-        {"CRE", AT91C_PIN_PE(16), 0, PIO_DEFAULT, PIO_OUTPUT},
-        {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-    };
-
-    writel((AT91C_PSRAM_NWE_SETUP |
-            AT91C_PSRAM_NCS_WR_SETUP |
-            AT91C_PSRAM_NRD_SETUP |
-            AT91C_PSRAM_NCS_RD_SETUP), AT91C_BASE_SMC1 + SMC_SETUP0);
-    writel((AT91C_PSRAM_NWE_PULSE |
-            AT91C_PSRAM_NCS_WR_PULSE |
-            AT91C_PSRAM_NRD_PULSE |
-            AT91C_PSRAM_NCS_RD_PULSE), AT91C_BASE_SMC1 + SMC_PULSE0);
-    writel((AT91C_PSRAM_NWE_CYCLE |
-            AT91C_PSRAM_NRD_CYCLE), AT91C_BASE_SMC1 + SMC_CYCLE0);
-    writel((AT91C_SMC_READMODE |
-            AT91C_SMC_WRITEMODE |
-            AT91C_SMC_BAT_BYTE_SELECT |
-            AT91C_SMC_PMEN |
-            AT91C_SMC_DBW_WIDTH_SIXTEEN_BITS |
-            AT91C_SMC_PS_SIZE_THIRTY_TWO_BYTES), AT91C_BASE_SMC1 + SMC_CTRL0);
-
-    pio_setup(psram_pio);
-    pio_set_value(AT91C_PIN_PE(16), 0); // Data access.
-
-    //Enable page mode
-    tmp = readl(addressMax);
-    tmp = readl(addressMax);
-    writel(MICRON_RCR, addressMax);
-    writel(MICRON_PAGE_MODE_ENABLE, addressMax);
+	pio_set_value(CONFIG_SYS_PSRAM_DATA_ACCESS_PIN, 0);
 }
-#endif                          /* CONFIG_PSRAM */
+
+static void psram_hw_init(void)
+{
+	unsigned short *addressMax = (unsigned short *)MICRON_8MB_ADDRESS_MAX;
+
+	const struct pio_desc psram_pins[] = {
+		{"CRE", CONFIG_SYS_PSRAM_DATA_ACCESS_PIN, 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	/* Configure SMC1 CS0 */
+	writel((AT91C_SMC_NWESETUP_(0)
+		| AT91C_SMC_NCS_WRSETUP_(0)
+		| AT91C_SMC_NRDSETUP_(0)
+		| AT91C_SMC_NCS_RDSETUP_(0)),
+		AT91C_BASE_SMC1 + SMC_SETUP0);
+
+	writel((AT91C_SMC_NWEPULSE_(4)
+		| AT91C_SMC_NCS_WRPULSE_(5)
+		| AT91C_SMC_NRDPULSE_(2)
+		| AT91C_SMC_NCS_RDPULSE_(5)),
+		AT91C_BASE_SMC1 + SMC_PULSE0);
+
+	writel((AT91C_SMC_NWECYCLE_(5)
+		|  AT91C_SMC_NRDCYCLE_(7)),
+		AT91C_BASE_SMC1 + SMC_CYCLE0);
+
+	writel((AT91C_SMC_READMODE
+		| AT91C_SMC_WRITEMODE
+		| AT91C_SMC_BAT_BYTE_SELECT
+		| AT91C_SMC_DBW_WIDTH_BITS_16
+		| AT91C_SMC_PMEN
+		| AT91C_SMC_PS_SIZE_THIRTY_TWO_BYTES),
+		AT91C_BASE_SMC1 + SMC_CTRL0);
+
+	/* Configure psram pins */
+	pio_configure(psram_pins);
+
+	data_access_enable();
+
+	/* Enable page mode */
+	readl(addressMax);
+	readl(addressMax);
+	writel(MICRON_RCR, addressMax);
+	writel(MICRON_PAGE_MODE_ENABLE, addressMax);
+}
+#endif /* #ifdef CONFIG_PSRAM */
+
+#if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
+static void recovery_buttons_hw_init(void)
+{
+	/* Configure recovery button PINs */
+	const struct pio_desc recovery_button_pins[] = {
+		{"RECOVERY_BUTTON", CONFIG_SYS_RECOVERY_BUTTON_PIN, 0, PIO_PULLUP, PIO_INPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	writel((1 << AT91C_ID_PIOCDE), PMC_PCER + AT91C_BASE_PMC);
+	pio_configure(recovery_button_pins);
+}
+#endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
+
+#ifdef CONFIG_HW_INIT
+void hw_init(void)
+{
+	/* Disable watchdog */
+	at91_disable_wdt();
+
+	/*
+	 * At this stage the main oscillator is supposed to be enabled
+	 * PCK = MCK = MOSC
+	 */
+	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
+	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
+
+	/* PCK = PLLA = 2 * MCK */
+	pmc_cfg_mck(MCKR_SETTINGS, PLL_LOCK_TIMEOUT);
+
+	/* Switch MCK on PLLA output */
+	pmc_cfg_mck(MCKR_CSS_SETTINGS, PLL_LOCK_TIMEOUT);
+
+	/* Configure PLLB */
+	//pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
+
+	/* Enable External Reset */
+	writel(((0xA5 << 24) | AT91C_RSTC_URSTEN), AT91C_BASE_RSTC + RSTC_RMR);
+
+	at91_matrix_hw_init();
+
+	/* Init timer */
+	timer_init();
+
+	/* Initialize dbgu */
+	initialize_dbgu();
+
+#ifdef CONFIG_SDRAM
+	/* Initialize SDRAMC0 */
+	sdramc0_init();
+#endif
+
+#if defined(CONFIG_PSRAM)
+	psram_hw_init();
+#endif
+
+#ifdef CONFIG_USER_HW_INIT
+	hw_init_hook();
+#endif
+
+#if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
+	/* Init the recovery buttons pins */
+	recovery_buttons_hw_init();
+#endif
+}
+#endif /* #ifdef CONFIG_HW_INIT */
 
 #ifdef CONFIG_DATAFLASH
-/*------------------------------------------------------------------------------*/
-/* \fn    df_hw_init								*/
-/* \brief This function performs DataFlash HW initialization			*/
-/*------------------------------------------------------------------------------*/
-void df_hw_init(void)
+void at91_spi0_hw_init(void)
 {
-    /*
-     * Configure PIOs 
-     */
-    const struct pio_desc df_pio[] = {
-        {"MISO", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_B},
-        {"MOSI", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_B},
-        {"SPCK", AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_B},
-        {"NPCS0", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_B},
-        {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-    };
+	/* Configure spi0 PINs */
+	const struct pio_desc spi0_pins[] = {
+		{"MISO",	AT91C_PIN_PA(0),	0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"MOSI",	AT91C_PIN_PA(1),	0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"SPCK",	AT91C_PIN_PA(2),	0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"NPCS",	CONFIG_SYS_SPI_PCS,	1, PIO_PULLUP, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 
-    /*
-     * Configure the PIO controller 
-     */
-    pio_setup(df_pio);
+	/* Configure the spi0 pins */
+	pio_configure(spi0_pins);
+	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
+
+	/* Enable the spi0 clock */
+	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
 }
-#endif                          /* CONFIG_DATAFLASH */
+#endif /* CONFIG_DATAFLASH */
+
+#ifdef CONFIG_SDCARD
+void at91_mci0_hw_init(void)
+{
+	/* Note: For at91sam9263ek, using MCI1 instead of MCI0 as SD Card booting */
+	/* Configure the MCI1 pins */
+	const struct pio_desc mci_pins[] = {
+		{"MCI1_CK",	AT91C_PIN_PA(6), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_CDA",	AT91C_PIN_PA(7), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_DA0",	AT91C_PIN_PA(8), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_DA1",	AT91C_PIN_PA(9), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_DA2",	AT91C_PIN_PA(10), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"MCI1_DA3",	AT91C_PIN_PA(11), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+
+	};
+
+	pio_configure(mci_pins);
+	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
+
+	/* Enable the clock */
+	writel((1 << AT91C_ID_MCI1), (PMC_PCER + AT91C_BASE_PMC));
+}
+#endif /* #ifdef CONFIG_SDCARD */
 
 #ifdef CONFIG_NANDFLASH
-/*------------------------------------------------------------------------------*/
-/* \fn    nandflash_hw_init							*/
-/* \brief NandFlash HW init							*/
-/*------------------------------------------------------------------------------*/
 void nandflash_hw_init(void)
 {
-    /*
-     * Configure PIOs 
-     */
-    const struct pio_desc nand_pio[] = {
-        {"RDY_BSY", AT91C_PIN_PA(22), 0, PIO_PULLUP, PIO_INPUT},
-        {"NANDCS", AT91C_PIN_PD(15), 0, PIO_PULLUP, PIO_OUTPUT},
-        {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-    };
+	unsigned int reg;
 
-    /*
-     * Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface 
-     */
-    writel(readl(AT91C_BASE_CCFG + CCFG_EBI0CSA) | AT91C_EBI_CS3A_SM,
-           AT91C_BASE_CCFG + CCFG_EBI0CSA);
+	/* Configure NANDFlash pins*/
+	const struct pio_desc nand_pins[] = {
+		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	1, PIO_PULLUP, PIO_OUTPUT},
+		{(char *)0, 	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 
-    /*
-     * Configure SMC CS3 
-     */
-    writel((AT91C_SM_NWE_SETUP | AT91C_SM_NCS_WR_SETUP | AT91C_SM_NRD_SETUP |
-            AT91C_SM_NCS_RD_SETUP), AT91C_BASE_SMC0 + SMC_SETUP3);
-    writel((AT91C_SM_NWE_PULSE | AT91C_SM_NCS_WR_PULSE | AT91C_SM_NRD_PULSE |
-            AT91C_SM_NCS_RD_PULSE), AT91C_BASE_SMC0 + SMC_PULSE3);
-    writel((AT91C_SM_NWE_CYCLE | AT91C_SM_NRD_CYCLE),
-           AT91C_BASE_SMC0 + SMC_CYCLE3);
-    writel((AT91C_SMC_READMODE | AT91C_SMC_WRITEMODE |
-            AT91C_SMC_NWAITM_NWAIT_DISABLE | AT91C_SMC_DBW_WIDTH_SIXTEEN_BITS |
-            AT91C_SM_TDF), AT91C_BASE_SMC0 + SMC_CTRL3);
+	/* Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface  */
+	reg = readl(AT91C_BASE_CCFG + CCFG_EBI0CSA);
+	reg |= AT91C_EBI_CS3A_SM;
+	writel(reg, AT91C_BASE_CCFG + CCFG_EBI0CSA);
 
-    /*
-     * Configure the PIO controller 
-     */
-    writel((1 << AT91C_ID_PIOA), PMC_PCER + AT91C_BASE_PMC);
-    writel((1 << AT91C_ID_PIOCDE), PMC_PCER + AT91C_BASE_PMC);
+	/* Configure SMC CS3 */
+	writel((AT91C_SMC_NWESETUP_(1)
+		| AT91C_SMC_NCS_WRSETUP_(1)
+		| AT91C_SMC_NRDSETUP_(1)
+		| AT91C_SMC_NCS_RDSETUP_(1)),
+		AT91C_BASE_SMC0 + SMC_SETUP3);
 
-    pio_setup(nand_pio);
+	writel((AT91C_SMC_NWEPULSE_(3)
+		| AT91C_SMC_NCS_WRPULSE_(3)
+		| AT91C_SMC_NRDPULSE_(3)
+		| AT91C_SMC_NCS_RDPULSE_(3)),
+		AT91C_BASE_SMC0 + SMC_PULSE3);
+
+	writel((AT91C_SMC_NWECYCLE_(5)
+		|  AT91C_SMC_NRDCYCLE_(5)),
+		AT91C_BASE_SMC0 + SMC_CYCLE3);
+
+	writel((AT91C_SMC_READMODE
+		| AT91C_SMC_WRITEMODE
+		| AT91C_SMC_NWAITM_NWAIT_DISABLE
+		| AT91C_SMC_DBW_WIDTH_BITS_16
+		| AT91_SMC_TDF_(2)),
+		AT91C_BASE_SMC0 + SMC_CTRL3);
+
+	/* Configure the NANDFlash pins */
+	pio_configure(nand_pins);
+	writel((1 << AT91C_ID_PIOCDE), PMC_PCER + AT91C_BASE_PMC);
 }
 
-/*------------------------------------------------------------------------------*/
-/* \fn    nandflash_cfg_16bits_dbw_init						*/
-/* \brief Configure SMC in 16 bits mode						*/
-/*------------------------------------------------------------------------------*/
-void nandflash_cfg_16bits_dbw_init(void)
+void nandflash_config_buswidth(unsigned char busw)
 {
-    writel(readl(AT91C_BASE_SMC0 + SMC_CTRL3) |
-           AT91C_SMC_DBW_WIDTH_SIXTEEN_BITS, AT91C_BASE_SMC0 + SMC_CTRL3);
+	unsigned long csa;
+
+	csa = readl(AT91C_BASE_SMC0 + SMC_CTRL3);
+
+	if (busw == 0)
+		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
+	else
+		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
+
+	writel(csa, AT91C_BASE_SMC0 + SMC_CTRL3);
 }
-
-/*------------------------------------------------------------------------------*/
-/* \fn    nandflash_cfg_8bits_dbw_init						*/
-/* \brief Configure SMC in 8 bits mode						*/
-/*------------------------------------------------------------------------------*/
-void nandflash_cfg_8bits_dbw_init(void)
-{
-    writel((readl(AT91C_BASE_SMC0 + SMC_CTRL3) & ~(AT91C_SMC_DBW)) |
-           AT91C_SMC_DBW_WIDTH_EIGTH_BITS, AT91C_BASE_SMC0 + SMC_CTRL3);
-}
-
-#endif                          /* #ifdef CONFIG_NANDFLASH */
-
-#endif
+#endif /* #ifdef CONFIG_NANDFLASH */

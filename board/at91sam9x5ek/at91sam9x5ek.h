@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2010, Atmel Corporation
 
@@ -24,87 +24,104 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : at91sam9x5ek.h
- * Object              :
- * Creation            : HXu Aug. 2010
- *-----------------------------------------------------------------------------
  */
-#ifndef _AT91SAM9X5EK_H
-#define _AT91SAM9X5EK_H
+#ifndef __AT91SAM9X5EK_H__
+#define __AT91SAM9X5EK_H__
 
-/* ***************************************************************************** */
-/* PMC Settings                                                                  */
-/*                                                                               */
-/* The main oscillator is enabled as soon as possible in the lowlevel_clock_init */
-/* and MCK is switched on the main oscillator.                                   */
-/* PLL initialization is done later in the hw_init() function                    */
-/* ***************************************************************************** */
-#define MASTER_CLOCK		(132096000)
+/*
+ * PMC Settings
+ *
+ * The main oscillator is enabled as soon as possible in the lowlevel_clock_init
+ * and MCK is switched on the main oscillator.
+ * PLL initialization is done later in the hw_init() function
+ */
+#define MASTER_CLOCK		132096000
 #define PLL_LOCK_TIMEOUT	10000
 
-#define BOARD_MAINOSC               12000000
-#define BOARD_MCK                   ((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200 ))       // 133MHz
-#define BOARD_OSCOUNT               (AT91C_CKGR_OSCOUNT & (64 << 8))
-#define BOARD_CKGR_PLLA             (AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
-#define BOARD_PLLACOUNT             (0x3F << 8)
-#define BOARD_MULA                  (AT91C_CKGR_MULA & (199 << 16))
-#define BOARD_DIVA                  (AT91C_CKGR_DIVA & 3)
+#define BAUD_RATE		115200
+#define BOARD_MAINOSC		12000000
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200))
+#define BOARD_OSCOUNT		(AT91C_CKGR_OSCOUNT & (64 << 8))
+#define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
+#define BOARD_PLLACOUNT		(0x3F << 8)
+#define BOARD_MULA		(AT91C_CKGR_MULA & (199 << 16))
+#define BOARD_DIVA		(AT91C_CKGR_DIVA & 3)
 
-#define BOARD_PRESCALER_MAIN_CLOCK  (AT91C_PMC_PLLADIV2_2 | AT91C_PMC_MDIV_3 | AT91C_PMC_CSS_MAIN_CLK)
-#define BOARD_PRESCALER_PLLA        (AT91C_PMC_PLLADIV2_2 | AT91C_PMC_MDIV_3 | AT91C_PMC_CSS_PLLA_CLK)
+#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_MAIN_CLK)
 
-#define PLLA_SETTINGS           ( BOARD_CKGR_PLLA \
-                                | BOARD_PLLACOUNT \
-                                | BOARD_MULA \
-                                | BOARD_DIVA)
+#define BOARD_PRESCALER_PLLA		(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_PLLA_CLK)
+
+#define PLLA_SETTINGS	(BOARD_CKGR_PLLA \
+			| BOARD_PLLACOUNT \
+			| BOARD_MULA \
+			| BOARD_DIVA)
 
 #define PLLUTMI
-#define PLLUTMI_SETTINGS	0x10193F05
+#define PLLUTMI_SETTINGS        0x10193F05
 
-/* ******************************************************************* */
-/* DataFlash Settings                                                  */
-/*                                                                     */
-/* ******************************************************************* */
-#define AT91C_BASE_SPI	AT91C_BASE_SPI0
-#define AT91C_ID_SPI	AT91C_ID_SPI0
+/*
+ * DataFlash Settings
+ */
+#define CONFIG_SYS_SPI_CLOCK    AT91C_SPI_CLK
+#define CONFIG_SYS_SPI_BUS      0
+#define CONFIG_SYS_SPI_MODE     SPI_MODE3
 
-#define DF_CS_SETTINGS	(AT91C_SPI_CPOL | ((MASTER_CLOCK / AT91C_SPI_CLK) << 8))
+#if CONFIG_SYS_SPI_BUS == 0
+#define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI0
+#elif CONFIG_SYS_SPI_BUS == 1
+#define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI1
+#endif
 
-/* ******************************************************************* */
-/* NandFlash Settings                                                  */
-/* ******************************************************************* */
-#define AT91C_SMARTMEDIA_BASE	0x40000000
+#if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS0_DATAFLASH)
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(14)
+#elif (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(7)
+#endif
 
-#define AT91_SMART_MEDIA_ALE    (1 << 21)       /* our ALE is AD21 */
-#define AT91_SMART_MEDIA_CLE    (1 << 22)       /* our CLE is AD22 */
+/*
+ * NandFlash Settings
+  */
+#define CONFIG_SYS_NAND_BASE            AT91C_BASE_CS3
+#define CONFIG_SYS_NAND_MASK_ALE        (1 << 21)
+#define CONFIG_SYS_NAND_MASK_CLE        (1 << 22)
 
-#define NAND_DISABLE_CE() do { *(volatile unsigned int *)AT91C_PIOD_SODR = AT91C_PIO_PD4;} while(0)
-#define NAND_ENABLE_CE() do { *(volatile unsigned int *)AT91C_PIOD_CODR = AT91C_PIO_PD4;} while(0)
+#define CONFIG_SYS_NAND_OE_PIN		AT91C_PIN_PD(0)
+#define CONFIG_SYS_NAND_WE_PIN		AT91C_PIN_PD(1)
+#define CONFIG_SYS_NAND_ALE_PIN		AT91C_PIN_PD(2)
+#define CONFIG_SYS_NAND_CLE_PIN		AT91C_PIN_PD(3)
+#define CONFIG_SYS_NAND_ENABLE_PIN      AT91C_PIN_PD(4)
 
-/* ******************************************************************** */
-/* SMC Chip Select 3 Timings for NandFlash for MASTER_CLOCK = 133000000 */
-/* Please refer to SMC section in AT91SAM9 datasheet to learn how       */
-/* to generate these values.                                            */
-/* ******************************************************************** */
-#define AT91C_SM_NWE_SETUP	(1 << 0)
-#define AT91C_SM_NCS_WR_SETUP	(0 << 8)
-#define AT91C_SM_NRD_SETUP	(1 << 16)
-#define AT91C_SM_NCS_RD_SETUP	(0 << 24)
+#define	PMECC_ERROR_CORR_BITS		2
+#define	PMECC_SECTOR_SIZE		512
 
-#define AT91C_SM_NWE_PULSE 	(3 << 0)
-#define AT91C_SM_NCS_WR_PULSE	(5 << 8)
-#define AT91C_SM_NRD_PULSE	(4 << 16)
-#define AT91C_SM_NCS_RD_PULSE	(6 << 24)
+#define CONFIG_LOOKUP_TABLE_ALPHA_OFFSET	0xC000
+#define CONFIG_LOOKUP_TABLE_INDEX_OFFSET	0x8000
 
-#define AT91C_SM_NWE_CYCLE 	(5 << 0)
-#define AT91C_SM_NRD_CYCLE	(6 << 16)
+#define CONFIG_LOOKUP_TABLE_ALPHA_OFFSET_1024	0x18000
+#define CONFIG_LOOKUP_TABLE_INDEX_OFFSET_1024	0x10000
 
-#define AT91C_SM_TDF	        (1 << 16)
+/*
+ * MCI Settings
+ */
+#define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0
 
-#define BOARD_SD_PINS \
-    {(0x1D << 16), AT91C_BASE_PIOA, AT91C_ID_PIOA_B, PIO_PERIPH_A, PIO_PULLUP}, \
-    {(0x01 << 15), AT91C_BASE_PIOA, AT91C_ID_PIOA_B, PIO_PERIPH_A, PIO_PULLUP}, \
-    {(0x01 << 17), AT91C_BASE_PIOA, AT91C_ID_PIOA_B, PIO_PERIPH_A, PIO_DEFAULT}
+/*
+ * One wire pin
+ */
+#define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PB(18)
 
-#endif                          /* _AT91SAM9X5EK_H */
+/* function */
+extern void hw_init(void);
+
+extern void nandflash_hw_init(void);
+extern void nandflash_config_buswidth(unsigned char busw);
+
+extern void at91_spi0_hw_init(void);
+
+extern void at91_mci0_hw_init(void);
+
+#endif /*#ifndef __AT91SAM9X5EK_H__ */

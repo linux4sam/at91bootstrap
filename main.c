@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,111 +24,131 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : main.c
- * Object              :
- * Creation            : ODi Apr 19th 2006
- *-----------------------------------------------------------------------------
  */
-#include "part.h"
-#include "main.h"
+#include "common.h"
+#include "hardware.h"
+#include "board.h"
 #include "dbgu.h"
 #include "debug.h"
+#include "slowclk.h"
 #include "dataflash.h"
 #include "nandflash.h"
+#include "sdcard.h"
 #include "flash.h"
+#include "string.h"
+#include "onewire_info.h"
 
-#ifdef CONFIG_USER_HW_INIT
-void user_hw_init(void);
-#endif
+extern int load_kernel(struct image_info *img_info);
 
-/* Function import from startup.s file */
-extern void Jump(unsigned int addr);
+typedef int (*load_function)(struct image_info *img_info);
 
-extern unsigned int load_SDCard(void *dst);
+static load_function load_image;
 
-void LoadLinux();
-
-void LoadWince();
-
-/*------------------------------------------------------------------------------*/
-/* Function Name       : Wait							*/
-/* Object              : software loop waiting function				*/
-/*------------------------------------------------------------------------------*/
-#ifdef WINCE
-void Wait(unsigned int count)
+static int init_loadfunction(void)
 {
-    volatile unsigned int i;
-    volatile unsigned int j = 0;
-
-    for (i = 0; i < count; i++)
-        j++;
-}
+#if defined(CONFIG_LOAD_LINUX)
+	load_image = &load_kernel;
 #else
-void Wait(unsigned int count)
-{
-    unsigned int i;
-
-    for (i = 0; i < count; i++)
-        asm volatile ("    nop");
-}
+#if defined (CONFIG_DATAFLASH)
+	load_image = &load_dataflash;
+#elif defined(CONFIG_NANDFLASH)
+	load_image = &load_nandflash;
+#elif defined(CONFIG_SDCARD)
+	load_image = &load_sdcard;
+#else
+#error "No booting media_str specified!"
 #endif
+#endif
+	return 0;
+}
 
-/*------------------------------------------------------------------------------*/
-/* Function Name       : main							*/
-/* Object              : Main function						*/
-/* Input Parameters    : none							*/
-/* Output Parameters   : True							*/
-/*------------------------------------------------------------------------------*/
+static void display_banner (void)
+{
+	char *version = "AT91Bootstrap";
+	char *ver_num = AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
+
+	dbgu_print("\n\r");
+	dbgu_print("\n\r");
+	dbgu_print(version);
+	dbgu_print(ver_num);
+	dbgu_print("\n\r");
+	dbgu_print("\n\r");
+}
+
 int main(void)
 {
+	struct image_info image;
+	char *media_str = NULL;
+	int ret;
+
+	memset(&image, 0, sizeof(image));
+
+	image.dest = (unsigned char *)JUMP_ADDR;
+#ifdef CONFIG_OF_LIBFDT
+	image.of = 1;
+	image.of_dest = (unsigned char *)OF_ADDRESS;
+#endif
+
+#ifdef CONFIG_NANDFLASH
+	media_str = "NAND: ";
+	image.offset = IMG_ADDRESS;
+	image.length = IMG_SIZE;
+#ifdef CONFIG_OF_LIBFDT
+	image.of_offset = OF_OFFSET;
+	image.of_length = OF_LENGTH;
+#endif
+#endif
+
+#ifdef CONFIG_DATAFLASH
+	media_str = "SF: ";
+	image.offset = IMG_ADDRESS;
+	image.length = IMG_SIZE;
+#ifdef CONFIG_OF_LIBFDT
+	image.of_offset = OF_OFFSET;
+	image.of_length = OF_LENGTH;
+#endif
+#endif
+
+#ifdef CONFIG_SDCARD
+	media_str = "SD/MMC: ";
+	image.filename = OS_IMAGE_NAME;
+#ifdef CONFIG_OF_LIBFDT
+	image.of_filename = OF_FILENAME;
+#endif
+#endif
+
 #ifdef CONFIG_HW_INIT
-    hw_init();
+	hw_init();
 #endif
 
-#ifdef CONFIG_USER_HW_INIT
-    user_hw_init();
+	display_banner();
+
+#ifdef CONFIG_LOAD_ONE_WIRE
+	/* Load one wire informaion */
+	load_1wire_info();
+#endif
+	init_loadfunction();
+
+	ret = (*load_image)(&image);
+
+	if (media_str)
+		dbgu_print(media_str);
+
+	if (ret == 0){
+		dbgu_print("Done to load image\n\r");
+	}
+	if (ret == -1) {
+		dbgu_print("Failed to load image\n\r");
+		while(1);
+	}
+	if (ret == -2) {
+		dbgu_print("Success to recovery\n\r");
+		while (1);
+	}
+
+#ifdef CONFIG_SCLK
+	slowclk_switch_osc32();
 #endif
 
-#if defined(CONFIG_AT91SAM9X5EK)
-    extern void load_1wire_info();
-    load_1wire_info();
-#endif
-
-    dbg_log(1, "Downloading image...\n\r");
-
-#if defined(CONFIG_LOAD_LINUX)
-    LoadLinux();
-#elif defined(CONFIG_LOAD_NK) || defined(CONFIG_LOAD_EBOOT)
-    LoadWince();
-#else
-/* Booting stand-alone application, e.g. U-Boot */
-#if defined (CONFIG_DATAFLASH)
-    load_df(AT91C_SPI_PCS_DATAFLASH, IMG_ADDRESS, IMG_SIZE, JUMP_ADDR);
-#elif defined(CONFIG_NANDFLASH)
-    read_nandflash((unsigned char *)JUMP_ADDR, (unsigned long)IMG_ADDRESS,
-        (int)IMG_SIZE);
-#elif defined(CONFIG_SDCARD)
-    load_SDCard((void *)JUMP_ADDR);
-#else
-#error "No booting media specified!"
-#endif
-
-#endif
-
-    dbg_log(1, "Done!\n\r");
-
-#ifdef WINCE
-#ifdef CONFIG_LOAD_NK
-    Jump(JUMP_ADDR + 0x1000);
-#else
-    Jump(JUMP_ADDR);
-#endif
-#else                           /* !WINCE */
-#ifdef CONFIG_LOAD_NK
-    return (JUMP_ADDR + 0x1000);
-#else
-    return JUMP_ADDR;
-#endif
-#endif
+	return JUMP_ADDR;
 }

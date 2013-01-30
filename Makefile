@@ -17,21 +17,19 @@ endif
 
 BINDIR:=$(TOPDIR)/binaries
 
-DATE:=$(shell date +%Y%m%d)
+DATE := $(shell date)
+VERSION := 3.5.1
+REVISION :=
 
-VERSION:=3.1
-
- 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
 # Check first if we want to configure at91bootstrap
 #
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
-#$(if $(wildcard .config),,$(error No .config found!))
--include	.config
+-include .config
 endif
 
-include		host-utilities/host.mk
+include	host-utilities/host.mk
 
 ifeq ($(HAVE_DOT_CONFIG),)
 
@@ -84,9 +82,7 @@ defconfig: $(CONFIG)/conf
 		$(CONFIG)/conf -d $(CONFIG_CONFIG_IN)
 
 
-else
-##  Have DOT Config
-#
+else #  Have DOT Config
 
 ifeq ($(CROSS_COMPILE),)
 $(error Environment variable "CROSS_COMPILE" must be defined!)
@@ -99,71 +95,41 @@ NM= $(CROSS_COMPILE)nm
 SIZE=$(CROSS_COMPILE)size
 OBJCOPY=$(CROSS_COMPILE)objcopy
 OBJDUMP=$(CROSS_COMPILE)objdump
-#CONFIG_NO_DWARF_CFI_ASM=y
-#CONFIG_THUMB=
-
-ifeq ($(CONFIG_NO_DWARF_CFI_ASM),)
-NO_DWARF_CFI_ASM=
-else
-NO_DWARF_CFI_ASM=-fno-dwarf2-cfi-asm
-endif
 
 PROJECT := $(strip $(subst ",,$(CONFIG_PROJECT)))
-
 IMG_ADDRESS := $(strip $(subst ",,$(CONFIG_IMG_ADDRESS)))
-
 IMG_SIZE := $(strip $(subst ",,$(CONFIG_IMG_SIZE)))
-
 JUMP_ADDR := $(strip $(subst ",,$(CONFIG_JUMP_ADDR)))
-
+OF_OFFSET := $(strip $(subst ",,$(CONFIG_OF_OFFSET)))
+OF_LENGTH := $(strip $(subst ",,$(CONFIG_OF_LENGTH)))
+OF_FILENAME := $(strip $(subst ",,$(CONFIG_OF_FILENAME)))
+OF_ADDRESS := $(strip $(subst ",,$(CONFIG_OF_ADDRESS)))
 BOOTSTRAP_MAXSIZE := $(strip $(subst ",,$(CONFIG_BOOTSTRAP_MAXSIZE)))
-
 MEMORY := $(strip $(subst ",,$(CONFIG_MEMORY)))
-
+IMAGE_NAME:= $(strip $(subst ",,$(CONFIG_IMAGE_NAME)))
 CARD_SUFFIX := $(strip $(subst ",,$(CONFIG_CARD_SUFFIX)))
-
 OS_MEM_BANK := $(strip $(subst ",,$(CONFIG_OS_MEM_BANK)))
-
 OS_MEM_SIZE := $(strip $(subst ",,$(CONFIG_OS_MEM_SIZE)))
-
-OS_IMG_SIZE := $(strip $(subst ",,$(CONFIG_OS_IMG_SIZE)))
-
 OS_IMAGE_NAME := $(strip $(subst ",,$(CONFIG_OS_IMAGE_NAME)))
-
-LINUX_IMG_NAND_OFFSET := $(strip $(subst ",,$(CONFIG_LINUX_IMG_NAND_OFFSET)))
-
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
 
-GLBDRV_ADDR := $(strip $(subst ",,$(CONFIG_GLBDRV_ADDR)))
-
 # Board definitions
-
 BOARDNAME=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
 
 # CHIP is UNUSED
 CHIP:=$(strip $(subst ",,$(CONFIG_CHIP)))
-
 BOARD:=$(strip $(subst ",,$(CONFIG_BOARD)))
-
 MACH_TYPE:=$(strip $(subst ",,$(CONFIG_MACH_TYPE)))
-
 LINK_ADDR:=$(strip $(subst ",,$(CONFIG_LINK_ADDR)))
-
 DATA_SECTION_ADDR:=$(strip $(subst ",,$(CONFIG_DATA_SECTION_ADDR)))
-
 TOP_OF_MEMORY:=$(strip $(subst ",,$(CONFIG_TOP_OF_MEMORY)))
 
 # CRYSTAL is UNUSED
 CRYSTAL:=$(strip $(subst ",,$(CONFIG_CRYSTAL)))
 
 # driver definitions
-
 SPI_CLK:=$(strip $(subst ",,$(CONFIG_SPI_CLK)))
-#"))
 SPI_BOOT:=$(strip $(subst ",,$(CONFIG_SPI_BOOT)))
-#"))
-SPI_MODE:=SPI_MODE_$(strip $(subst ",,$(CONFIG_SPI_MODE)))
-#"))
 
 ifeq ($(REVISION),)
 REV:=
@@ -171,15 +137,16 @@ else
 REV:=-$(strip $(subst ",,$(REVISION)))
 endif
 
+ifeq ($(CONFIG_OF_LIBFDT), y)
+BLOB:=-dt
+else
+BLOB:=
+endif
+
 obj=build/$(BOARDNAME)/
 
-BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(VERSION)$(REV)
-
+BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(IMAGE_NAME)$(BLOB)-$(VERSION)$(REV)
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
-
-ifeq ($(DESTDIR),)
-DESTDIR=install
-endif
 
 ifeq ($(IMAGE),)
 IMAGE=$(BOOT_NAME).bin
@@ -189,60 +156,31 @@ ifeq ($(SYMLINK),)
 SYMLINK=at91bootstrap.bin
 endif
 
-EXTRA_INSTALL=
-ifeq ($(CONFIG_AT91SAM9G45EKES),y)
-EXTRA_INSTALL+=files/AT91SAM9G45_RomCode_Replacement_13.bin.zip
-EXTRA_INSTALL+=files/README.TXT
-endif
-EXTRA_INSTALL+=scripts/fixboot.py
-EXTRA_INSTALL+=files/Makefile.jffs2
-EXTRA_INSTALL+=files/NAND-empty-1MB.jffs2.bz2
-EXTRA_INSTALL+=files/SD-card-tools.tar.bz2
-
-ifeq ($(CONFIG_RAW_AT91),y)
-RAW_AT91=$(BINDIR)raw-at91
-EXTRA_INSTALL+=$(BINDIR)raw-at91
-endif
-ifeq ($(CONFIG_SX_AT91),y)
-SX_AT91=$(BINDIR)/sx-at91
-EXTRA_INSTALL+=$(BINDIR)/sx-at91
-endif
-
 COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 DIRS:=$(TOPDIR) $(TOPDIR)/board/$(BOARDNAME) $(TOPDIR)/lib $(TOPDIR)/driver
 
+include	lib/libc.mk
+include	driver/driver.mk
+include	fs/src/fat.mk
 
-include 	lib/libc.mk
-include		driver/driver.mk
+#$(SOBJS-y:.o=.S)
 
-# $(SOBJS-y:.o=.S)
-
-SRCS	:= $(COBJS-y:.o=.c)
-
-OBJS	:= $(SOBJS-y) $(COBJS-y)
-
+SRCS:= $(COBJS-y:.o=.c)
+OBJS:= $(SOBJS-y) $(COBJS-y)
 INCL=board/$(BOARD)
-
-#AT91_CUSTOM_FLAGS:=-mcpu=arm9
-#AT91_CUSTOM_FLAGS:=-mcpu=arm926ej-s
 GC_SECTIONS=--gc-sections
 
-CPPFLAGS=-ffunction-sections -g -Os -Wall 	-I$(INCL) -Iinclude	\
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\"	\
-	$(NO_DWARF_CFI_ASM) \
-	$(AT91_CUSTOM_FLAGS) 
+CPPFLAGS=-ffunction-sections -g -Os -Wall \
+	-fno-stack-protector \
+	-I$(INCL) -Iinclude -Ifs/include \
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\" -DCOMPILE_TIME="\"$(DATE)\""
 
-CPPFLAGS_UTIL=-g -Os -Wall 	-I$(INCL) -Iinclude	\
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)\" 
+ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
 
-
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude  		\
-	$(AT91_CUSTOM_FLAGS)
-
-include		toplevel_cpp.mk
-include		board/board_cpp.mk
-include		driver/driver_cpp.mk
+include	toplevel_cpp.mk
+include	board/board_cpp.mk
+include	driver/driver_cpp.mk
 
 # Linker flags.
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -250,13 +188,17 @@ include		driver/driver_cpp.mk
 #    --cref:    add cross reference to map file
 #  -lc 	   : 	tells the linker to tie in newlib
 #  -lgcc   : 	tells the linker to tie in newlib
-LDFLAGS+=-nostartfiles -Map=$(BINDIR)/$(BOOT_NAME).map --cref
-#LDFLAGS+=-lc -lgcc
+LDFLAGS+=-nostartfiles -Map=$(BINDIR)/$(BOOT_NAME).map --cref -static
 LDFLAGS+=-T elf32-littlearm.lds $(GC_SECTIONS) -Ttext $(LINK_ADDR)
 
 ifneq ($(DATA_SECTION_ADDR),)
 LDFLAGS+=-Tdata $(DATA_SECTION_ADDR)
 endif
+
+gccversion := $(shell expr `$(CC) -dumpversion`)
+
+gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
+LIBPATH := -lgcc -L$(gcclibdir)
 
 ifdef YYY   # For other utils
 ifeq ($(CC),gcc) 
@@ -273,12 +215,18 @@ PHONY:=all
 all: PrintFlags $(AT91BOOTSTRAP) ChkFileSize
 
 PrintFlags:
+	@echo CC
+	@echo ========
+	@echo $(CC) $(gccversion)&& echo
 	@echo as FLAGS
 	@echo ========
 	@echo $(ASFLAGS) && echo
 	@echo gcc FLAGS
 	@echo =========
 	@echo $(CPPFLAGS) && echo
+	@echo lib Path
+	@echo ========
+	@echo $(LIBPATH) && echo
 	@echo ld FLAGS
 	@echo ========
 	@echo $(LDFLAGS) && echo
@@ -286,7 +234,7 @@ PrintFlags:
 $(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
 	@echo "  LD        "$(BOOT_NAME).elf
-	@$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
+	@$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS) ${LIBPATH}
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
 	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 
@@ -298,39 +246,8 @@ $(AT91BOOTSTRAP): $(OBJS)
 	@echo "  AS        "$<
 	@$(AS) $(ASFLAGS)  -c -o $@  $<
 
-$(AT91BOOTSTRAP).fixboot:	$(AT91BOOTSTRAP)
-	./scripts/fixboot.py $(AT91BOOTSTRAP)
 
-boot:	$(AT91BOOTSTRAP).fixboot
-
-install:	bootstrap	utilities
-
-bootstrap:	$(AT91BOOTSTRAP).fixboot
-	-install -d $(DESTDIR)
-	install $(AT91BOOTSTRAP).fixboot $(DESTDIR)/$(IMAGE)
-	-rm -f $(DESTDIR)/$(SYMLINK)
-	(cd ${DESTDIR} ; \
-	 ln -sf ${IMAGE} ${SYMLINK} \
-	)
-
-PHONY+= boot install bootstrap
-
-utilities:
-	-install -d $(DESTDIR)/Utilities
-	(for f in $(EXTRA_INSTALL) ; do \
-		install $$f $(DESTDIR)/Utilities/`basename $$f`; \
-	done)
-
-
-host-utilities:	$(RAW_AT91) $(SX_AT91) 
-
-PHONY+=utilities host-utilities
-
-$(BINDIR)/raw-at91:	$(BINDIR)
-	$(HOSTCC) -o $(BINDIR)/raw-at91 host-utilities/raw-at91.c
-
-$(BINDIR)/sx-at91:	$(BINDIR)
-	$(HOSTCC) -o $(BINDIR)/sx-at91 host-utilities/sx-at91.c
+PHONY+= boot bootstrap
 
 rebuild: clean all
 
@@ -338,14 +255,15 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	@( fsize=`stat -c%s $(BINDIR)/$(BOOT_NAME).bin`; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
-		echo "[Failed***] It's too big to fit into SRAM area."; \
+		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
+		rm -rf $(BINDIR); \
 		exit 2;\
 	  else \
 	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
 	  fi )
 endif  # HAVE_DOT_CONFIG
 
-PHONY+= rebuild chkFilesize
+PHONY+= rebuild
 
 %_defconfig:
 	echo $(shell find ./board/ -name $@)
@@ -431,7 +349,7 @@ tarball: distrib
 	bzip2  ../source/at91bootstrap-$(VERSION).tar
 	cp ../source/at91bootstrap-$(VERSION).tar.bz2 /usr/local/install/downloads
 
-tarballx:	clean
+tarballx: clean
 	F=`basename $(CURDIR)` ; cd .. ; \
 	T=`basename $(CURDIR)`-$(VERSION).tar ;  \
 	tar --force-local -cvf $$T $$F; \

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,15 +24,9 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : debug.h
- * Object              :
- * Creation            : ODi Apr 24th 2006
- * ODi Nov 9th         : dstp #3499 "BAUDRATE macro buggy in include/uart.h"
- *-----------------------------------------------------------------------------
  */
-#ifndef _DEBUG_H_
-#define _DEBUG_H_
+#ifndef __DEBUG_H__
+#define __DEBUG_H__
 
 #define	MSG_FAILURE	0
 #define	MSG_SUCCESS	1
@@ -63,20 +57,10 @@
 #define DEBUG_LOUD        2
 #define DEBUG_VERY_LOUD   4
 
-#ifdef	CONFIG_DEBUG
-
-#define MAX_BUFFER 128
-
+#ifdef CONFIG_DEBUG
 extern int dbg_log(const char level, const char *fmt_str, ...);
-
-#else                           /* CONFIG_DEBUG */
-
-#if defined(WINCE) && !defined(WINCE600)
-#define dbg_log()
 #else
 #define dbg_log(...)
 #endif
 
-#endif
-
-#endif /*_DEBUG_H_*/
+#endif /* #ifndef __DEBUG_H__ */

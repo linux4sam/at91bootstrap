@@ -23,10 +23,6 @@ ifeq ($(CONFIG_SCLK),y)
 CPPFLAGS += -DCONFIG_SCLK
 endif
 
-ifeq ($(CONFIG_LOAD_NK),y)
-CPPFLAGS += -DCONFIG_LOAD_NK
-endif
-
 # Crystal frequency
 
 ifeq ($(CONFIG_CRYSTAL_12_000MHZ),y)
@@ -71,6 +67,10 @@ ifeq ($(CONFIG_CPU_CLK_400MHZ),y)
 CPPFLAGS += -DCONFIG_CPU_CLK_400MHZ
 endif
 
+ifeq ($(CONFIG_CPU_CLK_533MHZ),y)
+CPPFLAGS += -DCONFIG_CPU_CLK_533MHZ
+endif
+
 # Bus speed
 
 ifeq ($(CONFIG_BUS_SPEED_83MHZ),y)
@@ -89,10 +89,20 @@ ifeq ($(CONFIG_BUS_SPEED_133MHZ),y)
 CPPFLAGS += -DCONFIG_BUS_SPEED_133MHZ
 endif
 
+# other
+
 ifeq ($(CONFIG_HAS_PIO3),y)
 CPPFLAGS += -DCONFIG_HAS_PIO3
 endif
 
 ifeq ($(CPU_HAS_PMECC),y)
 CPPFLAGS += -DCPU_HAS_PMECC
+endif
+
+ifeq ($(CONFIG_LOAD_ONE_WIRE), y)
+CPPFLAGS += -DCONFIG_LOAD_ONE_WIRE
+endif
+
+ifeq ($(CONFIG_MMC_SUPPORT), y)
+CPPFLAGS += -DCONFIG_MMC_SUPPORT
 endif

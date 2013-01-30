@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support  -  ROUSSET  -
+ *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
 
@@ -24,22 +24,15 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- * File Name           : pmc.h
- * Object              :
- * Creation            : ODi May 18th 2006
- *-----------------------------------------------------------------------------
  */
-#ifndef PMC_H_
-#define PMC_H_
+#ifndef __PMC_H__
+#define __PMC_H__
 
 extern int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout);
-
 extern int pmc_cfg_pllb(unsigned int pmc_pllbr, unsigned int timeout);
-
 extern int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout);
+extern int pmc_cfg_pck(unsigned char x,
+			unsigned int clk_sel,
+			unsigned int prescaler);
 
-extern int pmc_cfg_pck(unsigned char x, unsigned int clk_sel,
-                       unsigned int prescaler);
-
-#endif                          /*PMC_H_ */
+#endif	/* #ifndef __PMC_H__ */

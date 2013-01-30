@@ -9,7 +9,7 @@ config	CONFIG_SPI_CLK
 	  Which speed (in Hz) should the SPI run at.
 
 config CONFIG_SMALL_DATAFLASH
-	bool	"Support < 32 Mbit dataflashes"
+	bool "Support < 32 Mbit dataflashes"
 	default	y
 	depends on CONFIG_DATAFLASH
 	help
@@ -31,7 +31,6 @@ config ALLOW_DATAFLASH_RECOVERY
 	default	n
 
 # ------- SPI boot source -----------------------------------------------------
-
 choice
 	prompt "Chip Select"
 	depends on CONFIG_DATAFLASH
@@ -113,40 +112,4 @@ config CONFIG_SPI_BOOT
 	default "AT91C_SPI_PCS2_DATAFLASH"	if CONFIG_SPI_BOOT_CS2
 	default "AT91C_SPI_PCS3_DATAFLASH"	if CONFIG_SPI_BOOT_CS3
 
-# ------- SPI mode ------------------------------------------------------------
-choice
-	prompt "SPI Mode"
-	depends on CONFIG_DATAFLASH
-	default CONFIG_SPI_MODE_0
-	help
-	  Determine which SPI chip select is to be used
-
-config	CONFIG_SPI_MODE_0
-	bool	"Run SPI in Mode 0"
-	depends on CONFIG_DATAFLASH
-
-config	CONFIG_SPI_MODE_1
-	bool	"Run SPI in Mode 1"
-	depends on CONFIG_DATAFLASH
-
-config	CONFIG_SPI_MODE_2
-	bool	"Run SPI in Mode 2"
-	depends on CONFIG_DATAFLASH
-
-config	CONFIG_SPI_MODE_3
-	bool	"Run SPI in Mode 3"
-	depends on CONFIG_DATAFLASH
-
-endchoice
-
-config	CONFIG_SPI_MODE
-	int
-	default 0 if CONFIG_SPI_MODE_0
-	default 1 if CONFIG_SPI_MODE_1
-	default 2 if CONFIG_SPI_MODE_2
-	default 3 if CONFIG_SPI_MODE_3
-	help
-	  SPI Mode (clocking and data)
-
 endmenu
-
