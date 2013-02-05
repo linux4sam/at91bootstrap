@@ -190,4 +190,6 @@
  */
 #define AT91C_CPU_NAME		"AT91SAMA5D3X"
 
+#define BACKUP_REGISTER_BOOT_MODE_R4 (AT91C_BASE_GPBR + 0x4)
+
 #endif /* #ifndef __AT91SAMA5D3X_H__ */

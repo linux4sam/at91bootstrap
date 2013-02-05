@@ -26,6 +26,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <hardware.h>
+
 .section start
 	.text
 
@@ -68,6 +70,11 @@ irq_vector:
 fiq_vector:
 	b 	fiq_vector
 reset_vector:
+
+#ifdef BACKUP_REGISTER_BOOT_MODE_R4
+	ldr	r1, =BACKUP_REGISTER_BOOT_MODE_R4
+	str	r4, [r1]
+#endif
 
 /* Init the stack */
 _init_stack:
@@ -177,6 +184,10 @@ _branch_main:
 
 /* Branch to the application at the end of the bootstrap init */
 _go:
+#ifdef BACKUP_REGISTER_BOOT_MODE_R4
+	ldr	r1, =BACKUP_REGISTER_BOOT_MODE_R4
+	ldr	r4, [r1]
+#endif
 	ldr 	r1, =MACH_TYPE
 	mov     lr, pc
 	bx      r0
