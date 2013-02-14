@@ -57,5 +57,6 @@
 #define AT91C_RSTC_URSTIEN	(0x1UL << 4)
 #define AT91C_RSTC_ERSTL	(0xFUL << 8)
 #define AT91C_RSTC_RMRKEY	(0xFFUL <<24)
+#define AT91C_RSTC_KEY_UNLOCK	(0xA5UL <<24)
 
 #endif /* #ifndef __AT91_RSTC_H__ */
