@@ -83,6 +83,22 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_DECOD_INTERLEAVED);/*Interleaved decode*/
 
 	/*
+	 * Make sure to uncomment the following line if the DDR controller
+	 * shares the EBI with another memory controller (SMC, NAND,..).
+	 * For instance, AT91C_DDRC2_EBISHARE shall be set if NAND flash
+	 * data line 0 is positioned on EBI data line 0 (AT91C_EBI_NFD0_ON_D16 bit
+	 * cleared in CCFG_EBICSA register).
+	 *
+	 * For Atmel AT91SAM9x5-EK revision B onwards, this AT91C_DDRC2_EBISHARE bit
+	 * is cleared because the NAND flash data line 0 is positioned on EBI
+	 * data line number 16 (AT91C_EBI_NFD0_ON_D16 bit set in CCFG_EBICSA
+	 * register). Only the DDR controller function is thus used on lower
+	 * EBI data lines.
+	 */
+	//ddramc_config->cr |= AT91C_DDRC2_EBISHARE;       /* DQM is shared with other controller */
+
+
+	/*
 	 * The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
 	 * With a 133 MHz frequency, the refresh timer count register must to be
 	 * set with (15.625 x 133 MHz) ~ 2084 i.e. 0x824
