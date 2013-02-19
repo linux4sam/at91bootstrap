@@ -698,16 +698,18 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 /*-----------------------------------------------------------------*/
 #ifdef CONFIG_MMC_SUPPORT
 
+#define OCR_VOLTAGE_WIN_27_36	0x00FF8000
+#define OCR_ACCESS_MODE		0x60000000
+
 static int mmc_cmd_send_op_cond(struct sd_card *sdcard,
 				unsigned int ocr)
 {
 	struct sd_command *command = sdcard->command;
-	unsigned int volage_mask = (~(ocr & 0x01 << 0x17)) << 15;
 	int ret;
 
 	command->cmd = MMC_CMD_SEND_OP_COND;
-	command->argu = (sdcard->votage_host_support & volage_mask)
-				| (ocr & ((~(0x1 << 2)) << 30));
+	command->argu = (ocr & OCR_VOLTAGE_WIN_27_36)
+			| (ocr & OCR_ACCESS_MODE);
 
 	ret = sd_send_command(command);
 	if (ret)
