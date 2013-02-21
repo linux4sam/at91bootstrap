@@ -75,24 +75,15 @@ int at91_spi_init(unsigned int pcs, unsigned int clock, unsigned int mode)
 	spi_writel(SPI_CR, AT91C_SPI_SWRST);
 	spi_writel(SPI_CR, AT91C_SPI_SWRST);
 
-	switch (pcs) {
-	case AT91C_SPI_PCS0_DATAFLASH:
+	if (pcs == AT91C_SPI_PCS0_DATAFLASH) {
 		ncs = 0;
-		break;
-
-	case AT91C_SPI_PCS1_DATAFLASH:
+	} else if (pcs == AT91C_SPI_PCS1_DATAFLASH) {
 		ncs = 1;
-		break;
-
-	case AT91C_SPI_PCS2_DATAFLASH:
+	} else if (pcs == AT91C_SPI_PCS2_DATAFLASH) {
 		ncs = 2;
-		break;
-
-	case AT91C_SPI_PCS3_DATAFLASH:
+	} else if (pcs == AT91C_SPI_PCS3_DATAFLASH) {
 		ncs = 3;
-		break;
-
-	default:
+	} else {
 		dbg_log(1, "SPI: Error pcs : %d\n\r", pcs);
 		return -1;
 	}
@@ -110,22 +101,13 @@ int at91_spi_init(unsigned int pcs, unsigned int clock, unsigned int mode)
 	reg = AT91C_SPI_SCBR(scbr);
 	reg |= AT91C_SPI_BITS_8;
 
-	switch (mode) {
-	case SPI_MODE0:
+	if (mode == SPI_MODE0) {
 		reg |= AT91C_SPI_NCPHA;
-		break;
-
-	case SPI_MODE1:
-		break;
-
-	case SPI_MODE2:
+	} else if (mode == SPI_MODE2) {
 		reg |= (AT91C_SPI_NCPHA | AT91C_SPI_CPOL);
-		break;
-
-	case SPI_MODE3:
+	} else if (mode == SPI_MODE3) {
 		reg |= AT91C_SPI_CPOL;
-		break;
-	default:
+	} else if (mode != SPI_MODE1) {
 		dbg_log(1, "SPI: Error mode : %d\n\r", mode);
 		return -1;
 	}

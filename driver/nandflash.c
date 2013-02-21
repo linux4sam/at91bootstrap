@@ -557,6 +557,8 @@ static int nandflash_get_type(struct nand_info *nand)
 static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 				struct nand_info *nand)
 {
+	unsigned int sectors;
+
 	if ((nand->pagesize == 2048) || (nand->pagesize == 4096)) {
 		/* Sector Size */
 		pmecc_params->sectorSize = (PMECC_SECTOR_SIZE == 512) ?
@@ -621,22 +623,18 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 		}
 
 		/* Number of Sectors in the Page */
-		switch (nand->pagesize / PMECC_SECTOR_SIZE) {
-		case 1:
+		sectors = div(nand->pagesize, PMECC_SECTOR_SIZE);
+		if (sectors == 1) {
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_1SEC;
-			break;
-		case 2:
+		} else if (sectors == 2) {
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_2SEC;
-			break;
-		case 4:
+		} else if (sectors == 4) {
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_4SEC;
-			break;
-		case 8:
+		} else if (sectors == 8) {
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_8SEC;
-			break;
-		default:
+		} else {
 			dbg_log(1, "PMECC: Not supported sector size: %d\n\r",
-				nand->pagesize / PMECC_SECTOR_SIZE);
+				sectors);
 			return -1;
 		}
 
