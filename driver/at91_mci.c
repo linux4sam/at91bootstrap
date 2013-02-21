@@ -29,7 +29,7 @@
 #include "hardware.h"
 #include "board.h"
 #include "arch/at91_mci.h"
-
+#include "div.h"
 #include "debug.h"
 
 inline unsigned int mci_readl(unsigned int reg)
@@ -48,7 +48,7 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 	unsigned int clkdiv;
 	unsigned int reg;
 
-	clkdiv = (MASTER_CLOCK + clock) / clock;
+	clkdiv = div((MASTER_CLOCK + clock), clock);
 
 	blklen &= 0xfffc;
 

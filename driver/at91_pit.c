@@ -69,8 +69,17 @@ static unsigned int at91_get_pit_value(void)
 void udelay(unsigned int usec)
 {
 	unsigned int base = at91_get_pit_value();
-	unsigned int delay = ((MASTER_CLOCK / 1000) * usec) / (16 * 1000);
+	unsigned int delay;
 	unsigned int current;
+
+	/* Since our division function which costs much run time
+	 * causes the delay time error.
+	 * So here using shifting to implement the division.
+	 * to change "1000" to "1024", this cause some inaccuacy,
+	 * but it is acceptable.
+	 * ((MASTER_CLOCK / 1024) * usec) / (16 * 1024)
+	 */
+	delay = ((MASTER_CLOCK >> 10) * usec) >> 14;
 
 	do {
 		current = at91_get_pit_value();

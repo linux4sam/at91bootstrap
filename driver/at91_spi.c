@@ -32,6 +32,7 @@
 #include "arch/at91_pio.h"
 #include "gpio.h"
 #include "debug.h"
+#include "div.h"
 #include "board.h"
 
 static inline unsigned int spi_readl(unsigned int reg)
@@ -105,7 +106,7 @@ int at91_spi_init(unsigned int pcs, unsigned int clock, unsigned int mode)
 	if (!clock)
 		return -1;
 
-	scbr = MASTER_CLOCK/clock;
+	scbr = div(MASTER_CLOCK, clock);
 	reg = AT91C_SPI_SCBR(scbr);
 	reg |= AT91C_SPI_BITS_8;
 

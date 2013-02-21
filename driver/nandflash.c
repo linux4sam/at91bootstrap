@@ -37,6 +37,7 @@
 #include "nand.h"
 #include "hamming.h"
 #include "timer.h"
+#include "div.h"
 
 #define ECC_CORRECT_ERROR  0xfe
 
@@ -498,7 +499,7 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	/* number of bytes in page area */
 	nand->pagesize = chip->pagesize;
 	/* number of pages in block */
-	nand->pages_block = nand->blocksize / nand->pagesize;
+	nand->pages_block = div(nand->blocksize, nand->pagesize);
 	/* number of pages in device */
 	nand->pages_device = nand->numblocks * nand->pages_block;
 	/* number of bytes in oob area */
@@ -802,8 +803,8 @@ static int substitute(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 		if (si[j] == 0)
 			si[i] = 0;
 		else
-			si[i] = alpha_to[(2 * index_of[si[j]])
-				% (unsigned int)pPmeccDescriptor->nn];
+			si[i] = alpha_to[mod((2 * index_of[si[j]]),
+				(unsigned int)pPmeccDescriptor->nn)];
 	}
 
 	return 0;
@@ -950,9 +951,9 @@ static unsigned int get_sigma(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 			/* Compute smu[i+1] */
 			for (k = 0; k <= lmu[ro]>>1; k++)
 				if (pPmeccDescriptor->smu[ro][k] && dmu[i])
-					 pPmeccDescriptor->smu[i + 1][k + diff] = pPmeccDescriptor->alpha_to[(pPmeccDescriptor->index_of[dmu[i]]
-									+ (pPmeccDescriptor->nn	- pPmeccDescriptor->index_of[dmu[ro]])
-									+ pPmeccDescriptor->index_of[pPmeccDescriptor->smu[ro][k]]) % (unsigned int)pPmeccDescriptor->nn];
+					pPmeccDescriptor->smu[i + 1][k + diff] = pPmeccDescriptor->alpha_to[mod((pPmeccDescriptor->index_of[dmu[i]]
+						+ (pPmeccDescriptor->nn	- pPmeccDescriptor->index_of[dmu[ro]])
+						+ pPmeccDescriptor->index_of[pPmeccDescriptor->smu[ro][k]]), (unsigned int)pPmeccDescriptor->nn)];
 
 			for (k = 0; k <= lmu[i]>>1; k++)
 				pPmeccDescriptor->smu[i+1][k] ^= pPmeccDescriptor->smu[i][k];
@@ -976,8 +977,8 @@ static unsigned int get_sigma(struct _PMECC_paramDesc_struct *pPmeccDescriptor)
 				 * is null, its index is -1
 				 */
 				else if (pPmeccDescriptor->smu[i+1][k] && si[2 * (i - 1) + 3 - k])
-					dmu[i + 1] = pPmeccDescriptor->alpha_to[(pPmeccDescriptor->index_of[pPmeccDescriptor->smu[i + 1][k]]
-							+ pPmeccDescriptor->index_of[si[2 * (i - 1) + 3 - k]]) % (unsigned int)pPmeccDescriptor->nn] ^ dmu[i + 1];
+					dmu[i + 1] = pPmeccDescriptor->alpha_to[mod((pPmeccDescriptor->index_of[pPmeccDescriptor->smu[i + 1][k]]
+							+ pPmeccDescriptor->index_of[si[2 * (i - 1) + 3 - k]]), (unsigned int)pPmeccDescriptor->nn)] ^ dmu[i + 1];
 			}
 		}
 	}
@@ -1111,7 +1112,8 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 	/* Set the sector size (512 or 1024 bytes) */
 	pmecclor_writel((pPmeccDescriptor->sectorSize >> 4), PMERRLOC_ELCFG);
 
-	sector_num_per_page = pPmeccDescriptor->eccSizeByte / get_pmecc_bytes();
+	sector_num_per_page = div(pPmeccDescriptor->eccSizeByte,
+					get_pmecc_bytes());
 	page_size_byte = sector_num_per_page * PMECC_SECTOR_SIZE;
 	ecc_byte_per_sector = get_pmecc_bytes();
 
@@ -1538,13 +1540,17 @@ static int nand_loadimage(struct nand_info *nand,
 {
 	unsigned char *buffer = dest;
 	unsigned int readsize;
-	unsigned int block;
-	unsigned int page, start_page, end_page;
-	unsigned int numpages;
+	unsigned int block = 0;
+	unsigned int page;
+	unsigned int start_page = 0;
+	unsigned int end_page;
+	unsigned int numpages = 0;
+	unsigned int offsetpage = 0;
 	int ret;
 
-	block = offset / nand->blocksize;
-	start_page = (offset % nand->blocksize) / nand->pagesize;
+	division(offset, nand->blocksize, &block, &start_page);
+	start_page = div(start_page, nand->pagesize);
+
 	while (length > 0) {
 		/* read a buffer corresponding to a block */
 		if (length < nand->blocksize)
@@ -1553,8 +1559,8 @@ static int nand_loadimage(struct nand_info *nand,
 			readsize = nand->blocksize;
 
 		/* adjust the number of pages to read */
-		numpages = readsize / nand->pagesize;
-		if (readsize % nand->pagesize)
+		division(readsize, nand->pagesize, &numpages, &offsetpage);
+		if (offsetpage)
 			numpages++;
 
 		end_page = start_page + numpages;

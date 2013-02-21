@@ -2105,7 +2105,7 @@ FRESULT chk_mounted (	/* FR_OK(0): successful, !=0: any error occurred */
 	/* Determine the FAT sub type */
 	sysect = nrsv + fasize + fs->n_rootdir / (SS(fs) / SZ_DIR);	/* RSV+FAT+DIR */
 	if (tsect < sysect) return FR_NO_FILESYSTEM;			/* (Invalid volume size) */
-	nclst = (tsect - sysect) / fs->csize;				/* Number of clusters */
+	nclst = div((tsect - sysect), fs->csize);			/* Number of clusters */
 	if (!nclst) return FR_NO_FILESYSTEM;				/* (Invalid volume size) */
 	fmt = FS_FAT12;
 	if (nclst >= MIN_FAT16) fmt = FS_FAT16;

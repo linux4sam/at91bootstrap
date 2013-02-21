@@ -34,6 +34,7 @@
 #include "nand.h"
 #include "hamming.h"
 #include "timer.h"
+#include "div.h"
 
 #define ECC_CORRECT_ERROR  0xfe
 
@@ -163,7 +164,7 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	/* number of bytes in page area */
 	nand->pagesize = chip->pagesize;
 	/* number of pages in block */
-	nand->pages_block = nand->blocksize / nand->pagesize;
+	nand->pages_block = div(nand->blocksize, nand->pagesize);
 	/* number of pages in device */
 	nand->pages_device = nand->numblocks * nand->pages_block;
 	/* number of bytes in oob area */
@@ -533,8 +534,12 @@ int load_nandflash(struct image_info *img_info)
 	unsigned char *buffer = img_info->dest;
 
 	unsigned int length, readsize;
-	unsigned int block;
-	unsigned int page, start_page, end_page, numpages;
+	unsigned int block = 0;
+	unsigned int page;
+	unsigned int start_page = 0;
+	unsigned int end_page;
+	unsigned int numpages = 0;
+	unsigned int offsetpage = 0;
 	int ret;
 
 	nandflash_hw_init();
@@ -549,8 +554,8 @@ int load_nandflash(struct image_info *img_info)
 
 	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, buffer);
 
-	block = offset / nand.blocksize;
-	start_page = (offset % nand.blocksize) / nand.pagesize;
+	division(offset, nand.blocksize, &block, &start_page);
+	start_page = div(start_page, nand.pagesize);
 
 	length = size;
 	while (length > 0) {
@@ -561,8 +566,8 @@ int load_nandflash(struct image_info *img_info)
 			readsize = nand.blocksize;
 
 		/* adjust the number of pages to read */
-		numpages = readsize / nand.pagesize;
-		if (readsize % nand.pagesize)
+		division(readsize, nand.pagesize, &numpages, &offsetpage);
+		if (offsetpage)
 			numpages++;
 
 		end_page = start_page + numpages;

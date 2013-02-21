@@ -33,7 +33,7 @@
 #include "gpio.h"
 #include "string.h"
 #include "timer.h"
-
+#include "div.h"
 #include "debug.h"
 
 /* Manufacturer Device ID Read */
@@ -124,8 +124,8 @@ static int dataflash_read_array(struct dataflash_descriptor *df_desc,
 	unsigned char cmd[5];
 	unsigned char cmd_len;
 	unsigned int address;
-	unsigned int page_addr;
-	unsigned int byte_addr;
+	unsigned int page_addr = 0;
+	unsigned int byte_addr = 0;
 	unsigned int page_shift;
 	unsigned int page_size;
 	int ret;
@@ -134,8 +134,7 @@ static int dataflash_read_array(struct dataflash_descriptor *df_desc,
 		page_shift = df_desc->page_offset;
 		page_size = df_desc->page_size;
 
-		page_addr = offset / page_size;
-		byte_addr = offset % page_size;
+		division(offset, page_size, &page_addr, &byte_addr);
 
 		address = (page_addr << page_shift) + byte_addr;
 	} else

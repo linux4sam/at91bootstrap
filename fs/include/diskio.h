@@ -8,6 +8,7 @@
 #define _USE_IOCTL	0	/* 1: Use disk_ioctl fucntion */
 
 #include "integer.h"
+#include "div.h"
 
 
 /* Status of Disk Functions */
