@@ -197,9 +197,6 @@ endif
 
 gccversion := $(shell expr `$(CC) -dumpversion`)
 
-gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
-LIBPATH := -lgcc -L$(gcclibdir)
-
 ifdef YYY   # For other utils
 ifeq ($(CC),gcc) 
 TARGETS=no-cross-compiler
@@ -224,9 +221,6 @@ PrintFlags:
 	@echo gcc FLAGS
 	@echo =========
 	@echo $(CPPFLAGS) && echo
-	@echo lib Path
-	@echo ========
-	@echo $(LIBPATH) && echo
 	@echo ld FLAGS
 	@echo ========
 	@echo $(LDFLAGS) && echo
@@ -234,7 +228,7 @@ PrintFlags:
 $(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
 	@echo "  LD        "$(BOOT_NAME).elf
-	@$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS) ${LIBPATH}
+	@$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
 	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 
