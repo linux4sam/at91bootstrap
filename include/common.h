@@ -54,8 +54,14 @@ struct image_info
 
 static inline unsigned int swap_uint32(unsigned int data)
 {
-	return ((data & 0x000000ff) << 24) | ((data & 0x0000ff00) << 8)
-		| ((data & 0xff000000) >> 24) | ((data & 0x00ff0000) >> 8);
+	volatile unsigned int a, b, c, d;
+
+	a = ((data) & 0xff000000) >> 24;
+	b = ((data) & 0x00ff0000) >> 8;
+	c = ((data) & 0x0000ff00) << 8;
+	d = ((data) & 0x000000ff) << 24;
+
+	return a | b | c | d;
 }
 
 #endif /* #ifdef __COMMON_H__ */
