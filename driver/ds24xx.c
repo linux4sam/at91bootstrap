@@ -94,8 +94,13 @@ struct one_wire_info {
 	unsigned char year;
 	unsigned char week;
 	unsigned char revision_code;
+#ifdef CONFIG_AT91SAM9X5EK
 	unsigned char revision_id;
 	unsigned char reserved;
+#else
+	unsigned char schema_rev;
+	unsigned char revision_id;
+#endif
 };
 
 struct ek_boards {
@@ -519,6 +524,7 @@ struct board_info {
 	unsigned char board_id;
 	unsigned char revision_code;
 	unsigned char revision_id;
+	unsigned char schema_rev;
 	unsigned char vendor_id;
 };
 
@@ -534,8 +540,9 @@ static int get_board_info(unsigned char *buffer,
 
 	char *boardname;
 	char *vendorname;
-	unsigned revcode;
-	unsigned revid;
+	unsigned char revcode;
+	unsigned char revid;
+	unsigned char schema_rev;
 
 	p->total_bytes = (unsigned char)*pbuf;
 
@@ -554,7 +561,12 @@ static int get_board_info(unsigned char *buffer,
 	p->year = *pbuf++;
 	p->week = *pbuf++;
 	p->revision_code = *pbuf++;
+#ifdef CONFIG_AT91SAM9X5EK
 	p->revision_id = *pbuf++;
+#else
+	p->schema_rev = *pbuf++;
+	p->revision_id = *pbuf++;
+#endif
 
 	memset(tmp, 0, sizeof(tmp));
 
@@ -573,6 +585,10 @@ static int get_board_info(unsigned char *buffer,
 			bd_info->revision_code
 				= normalize_rev_code(p->revision_code);
 			bd_info->revision_id = normalize_rev_id(p->revision_id);
+
+#ifndef CONFIG_AT91SAM9X5EK
+			bd_info->schema_rev = normalize_rev_code(p->schema_rev);
+#endif
 			break;
 		}
 	}
@@ -580,6 +596,7 @@ static int get_board_info(unsigned char *buffer,
 	boardname = board_list[i].board_name;
 	revcode = bd_info->revision_code;
 	revid = bd_info->revision_id;
+	schema_rev = bd_info->schema_rev;
 
 	if (i == ARRAY_SIZE(board_list)) {
 		return -1;
@@ -607,8 +624,13 @@ static int get_board_info(unsigned char *buffer,
 	vendorname = vendor_list[i].vendor_name;
 
 	dbg_log(1, "  #%d", bd_sn);
+#ifdef CONFIG_AT91SAM9X5EK
 	dbg_log(1, "  %s [%c%c]      %s\n\r",
 			boardname, revcode, revid, vendorname);
+#else
+	dbg_log(1, "  %s [%c%c%c]      %s\n\r",
+			boardname, revcode, revid, schema_rev, vendorname);
+#endif
 
 	return 0;
 }
@@ -654,21 +676,21 @@ void load_1wire_info()
 			sn  |= (bd_info->board_id & 0x1F);
 			sn  |= ((bd_info->vendor_id & 0x1F) << 5);
 			rev |= (bd_info->revision_code - 'A');
-			rev |= (((bd_info->revision_id - '0') & 0x3) << 15);
+			rev |= (((bd_info->revision_id - '0') & 0x7) << 15);
 			break;
 
 		case BOARD_TYPE_DM:
 			sn  |= ((bd_info->board_id & 0x1F) << 10);
 			sn  |= ((bd_info->vendor_id & 0x1F) << 15);
 			rev |= ((bd_info->revision_code - 'A') << 5);
-			rev |= (((bd_info->revision_id - '0') & 0x3) << 18);
+			rev |= (((bd_info->revision_id - '0') & 0x7) << 18);
 			break;
 
 		case BOARD_TYPE_EK:
 			sn  |= ((bd_info->board_id & 0x1F) << 20);
 			sn  |= ((bd_info->vendor_id & 0x1F) << 25);
 			rev |= ((bd_info->revision_code - 'A') << 10);
-			rev |= (((bd_info->revision_id - '0') & 0x3) << 21);
+			rev |= (((bd_info->revision_id - '0') & 0x7) << 21);
 			break;
 
 		default:
@@ -678,6 +700,8 @@ void load_1wire_info()
 	}
 
 	/* save to GPBR #2 and #3 */
+	dbg_log(1, "\n\r1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\r", sn, rev);
+
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);
 
