@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Thu Dec 27 17:19:12 2012
+# Fri Feb 22 16:05:13 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sama5d3xek"
@@ -121,6 +121,5 @@ CONFIG_DEBUG_INFO=y
 # CONFIG_DEBUG_VERY_LOUD is not set
 CONFIG_HW_INIT=y
 # CONFIG_USER_HW_INIT is not set
-CONFIG_THUMB=y
 CONFIG_SCLK=y
 CONFIG_DISABLE_WATCHDOG=y

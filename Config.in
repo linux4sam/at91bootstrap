@@ -266,6 +266,7 @@ config CONFIG_USER_HW_INIT
 	  Initialize Hardware
 
 config CONFIG_THUMB
+	depends on !CONFIG_AT91SAMA5D3XEK
 	bool "Build in thumb mode"
 	help
 	  Build code in thumb mode
