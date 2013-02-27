@@ -288,7 +288,7 @@ static int dataflash_page0_erase_at25(void)
 {
 	unsigned char status;
 	unsigned char cmd[5];
-	unsigned int timeout = 100;
+	unsigned int timeout = 1000;
 	int ret;
 
 	ret = at25_unprotect();
@@ -311,7 +311,7 @@ static int dataflash_page0_erase_at25(void)
 		return ret;
 	}
 
-	udelay(1000000); /* 1000 ms */
+	udelay(33000); /* 33 ms: the maximum delay of udelay() */
 
 	do {
 		ret = df_read_status_at25(&status);
@@ -334,7 +334,7 @@ static int dataflash_page0_erase_at45(void)
 {
 	unsigned char status;
 	unsigned char cmd[4];
-	unsigned int timeout = 100;
+	unsigned int timeout = 1000;
 	int ret;
 
 	cmd[0] = CMD_ERASE_PAGE_AT45;
@@ -348,7 +348,7 @@ static int dataflash_page0_erase_at45(void)
 		return ret;
 	}
 
-	udelay(500000); /* 500 ms */
+	udelay(33000); /* 33 ms: the maximum delay of udelay() */
 
 	do {
 		ret = df_read_status_at45(&status);

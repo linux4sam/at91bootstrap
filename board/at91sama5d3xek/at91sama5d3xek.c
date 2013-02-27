@@ -187,9 +187,9 @@ static void HDMI_Qt1070_workaround(void)
 	 * so, the irq line can not used by QT1070
 	 */
 	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
-	udelay(500000);
+	udelay(33000);
 	pio_set_gpio_output(AT91C_PIN_PC(31), 0);
-	udelay(500000);
+	udelay(33000);
 	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
 }
 
