@@ -629,7 +629,7 @@ static int get_board_info(unsigned char *buffer,
 			boardname, revcode, revid, vendorname);
 #else
 	dbg_log(1, "  %s [%c%c%c]      %s\n\r",
-			boardname, revcode, revid, schema_rev, vendorname);
+			boardname, revcode, schema_rev, revid, vendorname);
 #endif
 
 	return 0;
