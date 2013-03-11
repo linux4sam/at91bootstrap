@@ -94,13 +94,9 @@ struct one_wire_info {
 	unsigned char year;
 	unsigned char week;
 	unsigned char revision_code;
-#ifdef CONFIG_AT91SAM9X5EK
 	unsigned char revision_id;
-	unsigned char reserved;
-#else
-	unsigned char schema_rev;
-	unsigned char revision_id;
-#endif
+	unsigned char bom_revision;
+	unsigned char revision_mapping;
 };
 
 struct ek_boards {
@@ -524,7 +520,7 @@ struct board_info {
 	unsigned char board_id;
 	unsigned char revision_code;
 	unsigned char revision_id;
-	unsigned char schema_rev;
+	unsigned char bom_revision;
 	unsigned char vendor_id;
 };
 
@@ -540,9 +536,6 @@ static int get_board_info(unsigned char *buffer,
 
 	char *boardname;
 	char *vendorname;
-	unsigned char revcode;
-	unsigned char revid;
-	unsigned char schema_rev;
 
 	p->total_bytes = (unsigned char)*pbuf;
 
@@ -561,12 +554,9 @@ static int get_board_info(unsigned char *buffer,
 	p->year = *pbuf++;
 	p->week = *pbuf++;
 	p->revision_code = *pbuf++;
-#ifdef CONFIG_AT91SAM9X5EK
 	p->revision_id = *pbuf++;
-#else
-	p->schema_rev = *pbuf++;
-	p->revision_id = *pbuf++;
-#endif
+	p->bom_revision = *pbuf++;
+	p->revision_mapping = *pbuf++;
 
 	memset(tmp, 0, sizeof(tmp));
 
@@ -582,21 +572,24 @@ static int get_board_info(unsigned char *buffer,
 			strlen(board_list[i].board_name)) == 0) {
 			bd_info->board_type = board_list[i].board_type;
 			bd_info->board_id = board_list[i].board_id;
+
 			bd_info->revision_code
 				= normalize_rev_code(p->revision_code);
-			bd_info->revision_id = normalize_rev_id(p->revision_id);
+			if (p->revision_mapping == 'B') {
+				bd_info->revision_id
+					= normalize_rev_id(p->bom_revision);
+				bd_info->bom_revision
+					= normalize_rev_code(p->revision_id);
+			} else {
+				bd_info->revision_id
+					= normalize_rev_id(p->revision_id);
+			}
 
-#ifndef CONFIG_AT91SAM9X5EK
-			bd_info->schema_rev = normalize_rev_code(p->schema_rev);
-#endif
 			break;
 		}
 	}
 
 	boardname = board_list[i].board_name;
-	revcode = bd_info->revision_code;
-	revid = bd_info->revision_id;
-	schema_rev = bd_info->schema_rev;
 
 	if (i == ARRAY_SIZE(board_list)) {
 		return -1;
@@ -624,13 +617,20 @@ static int get_board_info(unsigned char *buffer,
 	vendorname = vendor_list[i].vendor_name;
 
 	dbg_log(1, "  #%d", bd_sn);
-#ifdef CONFIG_AT91SAM9X5EK
-	dbg_log(1, "  %s [%c%c]      %s\n\r",
-			boardname, revcode, revid, vendorname);
-#else
-	dbg_log(1, "  %s [%c%c%c]      %s\n\r",
-			boardname, revcode, schema_rev, revid, vendorname);
-#endif
+	if (p->revision_mapping == 'B') {
+		dbg_log(1, "  %s [%c%c%c]      %s\n\r",
+				boardname,
+				bd_info->revision_code,
+				bd_info->bom_revision,
+				bd_info->revision_id,
+				vendorname);
+	} else {
+		dbg_log(1, "  %s [%c%c]      %s\n\r",
+				boardname,
+				bd_info->revision_code,
+				bd_info->revision_id,
+				vendorname);
+	}
 
 	return 0;
 }
