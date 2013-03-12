@@ -1,14 +1,66 @@
 menu  "NAND Flash configuration"
 	depends on CONFIG_NANDFLASH
 
-config	CONFIG_ENABLE_SW_ECC
-	bool
-	default y
-	depends on CONFIG_NANDFLASH && !CPU_HAS_PMECC
+choice
+	prompt "ECC Configuration"
+	default CONFIG_USE_PMECC if CPU_HAS_PMECC
+	default CONFIG_ENABLE_SW_ECC if !CPU_HAS_PMECC
+	help
+		Select ECC Configuration
 
-config	CONFIG_ENABLE_SW_ECC
-	bool "Support NAND flash software ECC"
-	depends on CONFIG_NANDFLASH && CPU_HAS_PMECC
+config CONFIG_ENABLE_SW_ECC
+	bool "Using Software ECC"
+
+config CONFIG_USE_PMECC
+	bool "Using PMECC"
+	depends on CPU_HAS_PMECC
+
+config CONFIG_ON_DIE_ECC
+	bool "Using On-Die ECC"
+
+endchoice
+
+menu "PMECC Configuration"
+	depends on CONFIG_USE_PMECC
+
+choice
+	prompt "PMECC Error Correction Bits"
+	default CONFIG_PMECC_CORRECT_BITS_2
+	help
+		Select the PMECC correction bits
+
+config CONFIG_PMECC_CORRECT_BITS_2
+	bool "2-bit"
+
+config CONFIG_PMECC_CORRECT_BITS_4
+	bool "4-bit"
+
+config CONFIG_PMECC_CORRECT_BITS_8
+	bool "8-bit"
+
+config CONFIG_PMECC_CORRECT_BITS_12
+	bool "12-bit"
+
+config CONFIG_PMECC_CORRECT_BITS_24
+	bool "24-bit"
+
+endchoice
+
+choice
+	prompt "PMECC Sector Size"
+	default CONFIG_PMECC_SECTOR_SIZE_512
+	help
+		Select the PMECC sector size
+
+config CONFIG_PMECC_SECTOR_SIZE_512
+	bool "512-byte"
+
+config CONFIG_PMECC_SECTOR_SIZE_1024
+	bool "1024-byte"
+
+endchoice
+
+endmenu
 
 config CONFIG_NANDFLASH_SMALL_BLOCKS
 	bool "Use NAND flash with small blocks"
