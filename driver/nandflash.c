@@ -686,6 +686,9 @@ static int init_pmecc(struct nand_info *nand)
 	if (init_pmecc_descripter(&PMECC_paramDesc, nand) != 0)
 		return -1;
 
+	dbg_log(1, "NAND: Initialize PMECC params, cap: %d, sector: %d\n\r",
+			PMECC_ERROR_CORR_BITS, PMECC_SECTOR_SIZE);
+
 	init_pmecc_core(&PMECC_paramDesc);
 
 	return 0;
