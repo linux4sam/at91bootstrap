@@ -1617,6 +1617,10 @@ int load_nandflash(struct image_info *image)
 		return -1;
 #endif
 
+#ifdef CONFIG_ENABLE_SW_ECC
+	dbg_log(1, "NAND: Using Software ECC\n\r");
+#endif
+
 	dbg_log(1, "NAND: Image: Copy %d bytes from %d to %d\r\n",
 			image->length, image->offset, image->dest);
 
