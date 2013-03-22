@@ -35,6 +35,7 @@
 #include "string.h"
 #include "onewire_info.h"
 
+/* Commands */
 #define ROM_COMMAND_READ		0x33
 #define ROM_COMMAND_MATCH		0x55
 #define ROM_COMMAND_SEARCH		0xF0
@@ -48,6 +49,7 @@
 #define MEMORY_COMMAND_CSCRATCHPAD	0x55
 #define MEMORY_COMMAND_READMEMORY	0xF0
 
+/* Timing */
 #define tSLOT				65
 #define tRSTL				480
 #define tPDH				60
@@ -58,34 +60,59 @@
 #define tMSR				10
 #define tPROG				13000
 
-#define FAMILY_CODE_DS2431		0x2D
-#define FAMILY_CODE_DS2433		0x23
-#define FAMILY_CODE_DS28EC		0x43
-
 #define MAX_RETRY			10
 #define MAX_BUF_LEN			256
-
-#define BOARD_TYPE_CPU			1
-#define BOARD_TYPE_EK			2
-#define BOARD_TYPE_DM			3
 
 #define MAX_ITEMS			5
 #define CHIP_ADDR_LEN			8
 
-#define BOARD_NAME_LEN			12
-#define VENDOR_NAME_LEN			10
-#define VENDOR_COUNTRY_LEN		2
+/* Family Code */
+#define FAMILY_CODE_DS2431		0x2D
+#define FAMILY_CODE_DS2433		0x23
+#define FAMILY_CODE_DS28EC		0x43
 
-#define CM_SN_MASK			0x1F
-#define CM_SN_OFFSET			0
-#define CM_VENDOR_MASK			(0x1F << 5)
-#define CM_VENDOR_OFFSET		5
-#define CM_REV_MASK			0x1F
-#define CM_REV_OFFSET			0
+/* Board Type */
+#define BOARD_TYPE_CPU		1
+#define BOARD_TYPE_EK		2
+#define BOARD_TYPE_DM		3
 
-#define LEN_ONE_WIRE_INFO		0x20
+/*
+ * sn
+ */
+/* SN */
+#define SN_MASK			0x1F
+#define CM_SN_OFFSET		0
+#define DM_SN_OFFSET		10
+#define EK_SN_OFFSET		20
 
-/*  */
+/* Vendor */
+#define VENDOR_MASK		0x1F
+#define CM_VENDOR_OFFSET	5
+#define DM_VENDOR_OFFSET	15
+#define EK_VENDOR_OFFSET	25
+
+/*
+ * rev
+ */
+/* Revision Code */
+#define REV_MASK		0x1F
+#define CM_REV_OFFSET		0
+#define DM_REV_OFFSET		5
+#define EK_REV_OFFSET		10
+
+/* Revision ID */
+#define	REV_ID_MASK		0x07
+#define CM_REV_ID_OFFSET	15
+#define DM_REV_ID_OFFSET	18
+#define EK_REV_ID_OFFSET	21
+
+/* One Wire informaion */
+#define BOARD_NAME_LEN		12
+#define VENDOR_NAME_LEN		10
+#define VENDOR_COUNTRY_LEN	2
+
+#define LEN_ONE_WIRE_INFO	0x20
+
 struct one_wire_info {
 	unsigned char total_bytes;
 	char vendor_name[VENDOR_NAME_LEN];
@@ -97,6 +124,15 @@ struct one_wire_info {
 	unsigned char revision_id;
 	unsigned char bom_revision;
 	unsigned char revision_mapping;
+};
+
+struct board_info {
+	unsigned char board_type;
+	unsigned char board_id;
+	unsigned char revision_code;
+	unsigned char revision_id;
+	unsigned char bom_revision;
+	unsigned char vendor_id;
 };
 
 struct ek_boards {
@@ -122,30 +158,30 @@ static unsigned char buf[MAX_BUF_LEN];
 static unsigned char cmp[MAX_BUF_LEN];
 
 static struct ek_boards	board_list[] = {
-	{"SAM9x5-EK",		BOARD_TYPE_EK,		0},
-	{"SAM9x5-DM",		BOARD_TYPE_DM,		1},
-	{"SAM9G15-CM",		BOARD_TYPE_CPU,		2},
-	{"SAM9G25-CM",		BOARD_TYPE_CPU,		3},
-	{"SAM9G35-CM",		BOARD_TYPE_CPU,		4},
-	{"SAM9X25-CM",		BOARD_TYPE_CPU,		5},
-	{"SAM9X35-CM",		BOARD_TYPE_CPU,		6},
-	{"PDA-DM",		BOARD_TYPE_DM,		7},
-	{"SAMA5D3x-MB",		BOARD_TYPE_EK,		8},
-	{"SAMA5D3x-DM",		BOARD_TYPE_DM,		9},
-	{"SAMA5D31-CM",		BOARD_TYPE_CPU,		10},
-	{"SAMA5D33-CM",		BOARD_TYPE_CPU,		11},
-	{"SAMA5D34-CM",		BOARD_TYPE_CPU,		12},
-	{"SAMA5D35-CM",		BOARD_TYPE_CPU,		13},
-	{0,			0,			0},
+	{"SAM9x5-EK",	BOARD_TYPE_EK,	BOARD_ID_SAM9X5_EK},
+	{"SAM9x5-DM",	BOARD_TYPE_DM,	BOARD_ID_SAM9x5_DM},
+	{"SAM9G15-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAM9G15_CM},
+	{"SAM9G25-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAM9G25_CM},
+	{"SAM9G35-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAM9G35_CM},
+	{"SAM9X25-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAM9X25_CM},
+	{"SAM9X35-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAM9X35_CM},
+	{"PDA-DM",	BOARD_TYPE_DM,	BOARD_ID_PDA_DM},
+	{"SAMA5D3x-MB",	BOARD_TYPE_EK,	BOARD_ID_SAMA5D3X_MB},
+	{"SAMA5D3x-DM",	BOARD_TYPE_DM,	BOARD_ID_SAMA5D3X_DM},
+	{"SAMA5D31-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAMA5D31_CM},
+	{"SAMA5D33-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAMA5D33_CM},
+	{"SAMA5D34-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAMA5D34_CM},
+	{"SAMA5D35-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAMA5D35_CM},
+	{0,		0,		0},
 };
 
 static struct ek_vendors	vendor_list[] = {
-	{"EMBEST",		VENDOR_EMBEST},
-	{"FLEX",		VENDOR_FLEX},
-	{"RONETIX",		VENDOR_RONETIX},
-	{"COGENT",		VENDOR_COGENT},
-	{"PDA",			VENDOR_PDA},
-	{0,			0},
+	{"EMBEST",	VENDOR_EMBEST},
+	{"FLEX",	VENDOR_FLEX},
+	{"RONETIX",	VENDOR_RONETIX},
+	{"COGENT",	VENDOR_COGENT},
+	{"PDA",		VENDOR_PDA},
+	{0,		0},
 };
 
 /*------------------------------------------------*/
@@ -515,15 +551,6 @@ static unsigned char normalize_rev_id(const unsigned char c)
 	return '0';
 }
 
-struct board_info {
-	unsigned char board_type;
-	unsigned char board_id;
-	unsigned char revision_code;
-	unsigned char revision_id;
-	unsigned char bom_revision;
-	unsigned char vendor_id;
-};
-
 static int get_board_info(unsigned char *buffer,
 				unsigned char bd_sn,
 				struct board_info *bd_info)
@@ -635,6 +662,25 @@ static int get_board_info(unsigned char *buffer,
 	return 0;
 }
 
+/*******************************************************************************
+ * SN layout
+ *
+ *   32  30         25         20         15         10         5          0
+ *   -----------------------------------------------------------------------
+ *   |   | Vendor ID| Board ID | Vendor ID| Board ID | Vendor ID| Board ID |
+ *   -----------------------------------------------------------------------
+ *       |         EK          |         DM          |         CPU         |
+ *
+ * Rev layout
+ *
+ *   32              24     21     18     15         10         5          0
+ *   -----------------------------------------------------------------------
+ *   |               |  EK  |  DM  |  CPU |    EK    |    DM    |   CPU    |
+ *   -----------------------------------------------------------------------
+ *                   |     Revision id    |        Revision Code           |
+ *
+ *******************************************************************************
+ */
 void load_1wire_info()
 {
 	int i;
@@ -673,24 +719,32 @@ void load_1wire_info()
 
 		switch (bd_info->board_type) {
 		case BOARD_TYPE_CPU:
-			sn  |= (bd_info->board_id & 0x1F);
-			sn  |= ((bd_info->vendor_id & 0x1F) << 5);
-			rev |= (bd_info->revision_code - 'A');
-			rev |= (((bd_info->revision_id - '0') & 0x7) << 15);
+			sn  |= (bd_info->board_id & SN_MASK);
+			sn  |= ((bd_info->vendor_id & VENDOR_MASK)
+							<< CM_VENDOR_OFFSET);
+			rev |= ((bd_info->revision_code - 'A') & REV_MASK);
+			rev |= (((bd_info->revision_id - '0') & REV_ID_MASK)
+							<< CM_REV_ID_OFFSET);
 			break;
 
 		case BOARD_TYPE_DM:
-			sn  |= ((bd_info->board_id & 0x1F) << 10);
-			sn  |= ((bd_info->vendor_id & 0x1F) << 15);
-			rev |= ((bd_info->revision_code - 'A') << 5);
-			rev |= (((bd_info->revision_id - '0') & 0x7) << 18);
+			sn  |= ((bd_info->board_id & SN_MASK) << DM_SN_OFFSET);
+			sn  |= ((bd_info->vendor_id & VENDOR_MASK)
+							<< DM_VENDOR_OFFSET);
+			rev |= (((bd_info->revision_code - 'A') & REV_MASK)
+							<< DM_REV_OFFSET);
+			rev |= (((bd_info->revision_id - '0') & REV_ID_MASK)
+							<< DM_REV_ID_OFFSET);
 			break;
 
 		case BOARD_TYPE_EK:
-			sn  |= ((bd_info->board_id & 0x1F) << 20);
-			sn  |= ((bd_info->vendor_id & 0x1F) << 25);
-			rev |= ((bd_info->revision_code - 'A') << 10);
-			rev |= (((bd_info->revision_id - '0') & 0x7) << 21);
+			sn  |= ((bd_info->board_id & SN_MASK) << EK_SN_OFFSET);
+			sn  |= ((bd_info->vendor_id & VENDOR_MASK)
+							<< EK_VENDOR_OFFSET);
+			rev |= (((bd_info->revision_code - 'A') & REV_MASK)
+							<< EK_REV_OFFSET);
+			rev |= (((bd_info->revision_id - '0') & REV_ID_MASK)
+							<< EK_REV_ID_OFFSET);
 			break;
 
 		default:
@@ -733,15 +787,20 @@ unsigned int get_sys_rev()
 
 unsigned int get_cm_sn()
 {
-	return (sn & CM_SN_MASK) >> CM_SN_OFFSET;
+	return (sn  >> CM_SN_OFFSET) & SN_MASK;
 }
 
 unsigned int get_cm_vendor()
 {
-	return (sn & CM_VENDOR_MASK) >> CM_VENDOR_OFFSET;
+	return (sn >> CM_VENDOR_OFFSET) & VENDOR_MASK;
 }
 
 char get_cm_rev()
 {
-	return 'A' + ((rev & CM_REV_MASK) >> CM_REV_OFFSET);
+	return 'A' + ((rev >> CM_REV_OFFSET) & REV_MASK);
+}
+
+unsigned int get_dm_sn(void)
+{
+	return (sn >> DM_SN_OFFSET) & SN_MASK;
 }

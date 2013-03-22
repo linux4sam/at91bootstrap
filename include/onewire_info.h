@@ -28,6 +28,23 @@
 #ifndef __DS24XX_H__
 #define __DS24XX_H__
 
+/* Board id definition */
+#define BOARD_ID_SAM9X5_EK	0
+#define BOARD_ID_SAM9x5_DM	1
+#define	BOARD_ID_SAM9G15_CM	2
+#define	BOARD_ID_SAM9G25_CM	3
+#define	BOARD_ID_SAM9G35_CM	4
+#define	BOARD_ID_SAM9X25_CM	5
+#define	BOARD_ID_SAM9X35_CM	6
+#define	BOARD_ID_PDA_DM		7
+#define	BOARD_ID_SAMA5D3X_MB	8
+#define	BOARD_ID_SAMA5D3X_DM	9
+#define	BOARD_ID_SAMA5D31_CM	10
+#define	BOARD_ID_SAMA5D33_CM	11
+#define	BOARD_ID_SAMA5D34_CM	12
+#define	BOARD_ID_SAMA5D35_CM	13
+
+/* Vendor id definition */
 #define VENDOR_EMBEST		1
 #define VENDOR_FLEX		2
 #define VENDOR_RONETIX		3
@@ -37,6 +54,7 @@
 extern unsigned int get_cm_sn();
 extern char get_cm_rev();
 extern unsigned int get_cm_vendor();
+extern unsigned int get_dm_sn(void);
 extern unsigned int get_sys_sn();
 extern unsigned int get_sys_rev();
 
