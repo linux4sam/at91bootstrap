@@ -101,6 +101,12 @@ int load_sdcard(struct image_info *image)
 	}
 
 	if (image->of) {
+		if (sdcard_set_of_name) {
+			ret = sdcard_set_of_name(image->of_filename);
+			if (ret)
+				return ret;
+		}
+
 		/* mount fs */
 		fret = f_mount(0, &fs);
 		if (fret != FR_OK) {

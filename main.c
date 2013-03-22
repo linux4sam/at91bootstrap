@@ -44,6 +44,8 @@ typedef int (*load_function)(struct image_info *img_info);
 
 static load_function load_image;
 
+int (*sdcard_set_of_name)(char *) = NULL;
+
 static int init_loadfunction(void)
 {
 #if defined(CONFIG_LOAD_LINUX)
@@ -81,7 +83,12 @@ int main(void)
 	char *media_str = NULL;
 	int ret;
 
+	char filename[FILENAME_BUF_LEN];
+	char of_filename[FILENAME_BUF_LEN];
+
 	memset(&image, 0, sizeof(image));
+	memset(filename, 0, FILENAME_BUF_LEN);
+	memset(of_filename, 0, FILENAME_BUF_LEN);
 
 	image.dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
@@ -111,9 +118,11 @@ int main(void)
 
 #ifdef CONFIG_SDCARD
 	media_str = "SD/MMC: ";
-	image.filename = OS_IMAGE_NAME;
+	image.filename = filename;
+	strcpy(image.filename, OS_IMAGE_NAME);
 #ifdef CONFIG_OF_LIBFDT
-	image.of_filename = OF_FILENAME;
+	image.of_filename = of_filename;
+	strcpy(image.of_filename, OF_FILENAME);
 #endif
 #endif
 

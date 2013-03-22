@@ -37,6 +37,8 @@
 #define	NULL	0
 #endif
 
+#define FILENAME_BUF_LEN	13
+
 /* structure definition */
 struct image_info
 {
@@ -52,6 +54,8 @@ struct image_info
 	unsigned char *of_dest;
 };
 
+extern int (*sdcard_set_of_name)(char *);
+
 static inline unsigned int swap_uint32(unsigned int data)
 {
 	volatile unsigned int a, b, c, d;
@@ -63,5 +67,6 @@ static inline unsigned int swap_uint32(unsigned int data)
 
 	return a | b | c | d;
 }
+
 
 #endif /* #ifdef __COMMON_H__ */

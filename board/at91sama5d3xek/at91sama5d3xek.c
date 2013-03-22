@@ -36,6 +36,8 @@
 #include "slowclk.h"
 #include "timer.h"
 #include "watchdog.h"
+#include "string.h"
+#include "onewire_info.h"
 
 #include "arch/at91_pmc.h"
 #include "arch/at91_rstc.h"
@@ -265,6 +267,43 @@ void at91_spi0_hw_init(void)
 #endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
+static int sdcard_set_of_name_sama5d3xek(char *of_name)
+{
+	char filename[FILENAME_BUF_LEN];
+
+	/* CPU TYPE*/
+	switch (get_cm_sn()) {
+	case BOARD_ID_SAMA5D31_CM:
+		strcpy(filename, "d31");
+		break;
+
+	case BOARD_ID_SAMA5D33_CM:
+		strcpy(filename, "d33");
+		break;
+
+	case BOARD_ID_SAMA5D34_CM:
+		strcpy(filename, "d34");
+		break;
+
+	case BOARD_ID_SAMA5D35_CM:
+		strcpy(filename, "d35");
+		break;
+
+	default:
+		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
+		return 0;
+	}
+
+	if (get_dm_sn() == BOARD_ID_PDA_DM)
+		strcat(filename, "_pda");
+
+	strcat(filename, ".dtb");
+
+	strcpy(of_name, filename);
+
+	return 0;
+}
+
 void at91_mci0_hw_init(void)
 {
 	const struct pio_desc mci_pins[] = {
@@ -288,6 +327,8 @@ void at91_mci0_hw_init(void)
 
 	/* Enable the clock */
 	writel((1 << AT91C_ID_HSMCI0), (PMC_PCER + AT91C_BASE_PMC));
+
+	sdcard_set_of_name = &sdcard_set_of_name_sama5d3xek;
 }
 #endif /* #ifdef CONFIG_SDCARD */
 
