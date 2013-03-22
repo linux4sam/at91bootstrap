@@ -78,6 +78,18 @@ char *strcpy(char *dst, const char *src)
 	return bak;
 }
 
+char *strcat(char *dst, const char *src)
+{
+	char *p = dst;
+
+	while (*dst != '\0')
+		dst++;
+
+	while ((*dst++ = *src++) != '\0') ;
+
+	return p;
+}
+
 int strcmp(const char *p1, const char *p2)
 {
 	unsigned char c1, c2;

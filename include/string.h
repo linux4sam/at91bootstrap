@@ -33,6 +33,7 @@ extern void *memset(void *dst, int val, int cnt);
 extern int memcmp(const void *dst, const void *src, unsigned int cnt);
 extern unsigned int strlen(const char *str);
 extern char *strcpy(char *dst, const char *src);
+extern char *strcat(char *dst, const char *src);
 extern int strcmp(const char *p1, const char *p2);
 extern int strncmp(const char *p1, const char *p2, unsigned int cnt);
 extern char *strchr(const char *s, int c);
