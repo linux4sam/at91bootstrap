@@ -30,6 +30,7 @@
 #include "board.h"
 
 #include "ff.h"
+#include "string.h"
 
 #include "debug.h"
 
@@ -71,6 +72,25 @@ open_fail:
 
 }
 
+static int sdcard_set_of_name(char *of_name)
+{
+	int ret;
+
+#ifdef CONFIG_AT91SAMA5D3XEK
+	ret = sdcard_set_of_name_sama5d3xek(of_name);
+	if (ret)
+		return ret;
+#endif
+
+#ifdef CONFIG_AT91SAM9X5EK
+	ret = sdcard_set_of_name_at91sam9x5ek(of_name);
+	if (ret)
+		return ret;
+#endif
+
+	return 0;
+}
+
 int load_sdcard(struct image_info *image)
 {
 	FATFS	fs;
@@ -101,6 +121,10 @@ int load_sdcard(struct image_info *image)
 	}
 
 	if (image->of) {
+		ret = sdcard_set_of_name(image->of_filename);
+		if (ret)
+			return ret;
+
 		/* mount fs */
 		fret = f_mount(0, &fs);
 		if (fret != FR_OK) {

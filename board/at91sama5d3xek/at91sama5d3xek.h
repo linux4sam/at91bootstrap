@@ -146,5 +146,6 @@ extern void nandflash_config_buswidth(unsigned char busw);
 extern void at91_spi0_hw_init(void);
 
 extern void at91_mci0_hw_init(void);
+extern int sdcard_set_of_name_sama5d3xek(char *of_name);
 
 #endif /* #ifndef __AT91SAMA5EK_H__ */
