@@ -316,7 +316,7 @@ int sdcard_set_of_name_sama5d3xek(char *of_name)
 
 	default:
 		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
-		strcpy(filename, "d35");
+		strcpy(filename, "ek");
 		break;
 	}
 

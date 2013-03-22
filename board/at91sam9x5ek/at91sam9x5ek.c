@@ -268,7 +268,7 @@ int sdcard_set_of_name_at91sam9x5ek(char *of_name)
 		strcpy(filename, "x35");
 	} else {
 		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
-		strcpy(filename, "g25");
+		strcpy(filename, "ek");
 	}
 
 	if (disp_board_id == BOARD_ID_PDA_DM)
