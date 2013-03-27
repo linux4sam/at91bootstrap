@@ -146,8 +146,8 @@ struct ek_vendors {
 	char vendor_id;
 };
 
-static unsigned int sn = 0xffffffff;
-static unsigned int rev = 0xffffffff;
+static unsigned int sn;
+static unsigned int rev;
 
 static unsigned char device_id_array[MAX_ITEMS][CHIP_ADDR_LEN];
 static unsigned char LastDiscrepancy;
@@ -662,6 +662,96 @@ static int get_board_info(unsigned char *buffer,
 	return 0;
 }
 
+static unsigned int set_default_sn(void)
+{
+	unsigned int board_id_cm;
+	unsigned int board_id_dm;
+	unsigned int board_id_ek;
+	unsigned int vendor_cm;
+	unsigned int vendor_dm;
+	unsigned int vendor_ek;
+
+#ifdef CONFIG_AT91SAM9X5EK
+	/* at91sam9x5ek
+	 * CPU Module: SAM9X25-CM, EMBEST
+	 * Display Module: SAM9x5-DM, FLEX
+	 * EK Module: SAM9x5-EK, FLEX
+	 */
+	board_id_cm = BOARD_ID_SAM9X25_CM;
+	board_id_dm = BOARD_ID_SAM9x5_DM;
+	board_id_ek = BOARD_ID_SAM9X5_EK;
+	vendor_cm = VENDOR_EMBEST;
+	vendor_dm = VENDOR_FLEX;
+	vendor_ek = VENDOR_FLEX;
+#endif
+
+#ifdef CONFIG_AT91SAMA5D3XEK
+	/* at91sama5d3xek
+	 * CPU Module: SAMA5D31-CM, EMBEST
+	 * Display Module: SAMA5D3x-DM, FLEX
+	 * EK Module: SAMA5D3x-MB, FLEX
+	 */
+	board_id_cm = BOARD_ID_SAMA5D31_CM;
+	board_id_dm = BOARD_ID_SAMA5D3X_DM;
+	board_id_ek = BOARD_ID_SAMA5D3X_MB;
+	vendor_cm = VENDOR_EMBEST;
+	vendor_dm = VENDOR_FLEX;
+	vendor_ek = VENDOR_FLEX;
+#endif
+
+	return (board_id_cm & SN_MASK)
+		| ((vendor_cm & VENDOR_MASK) << CM_VENDOR_OFFSET)
+		| ((board_id_dm & SN_MASK) << DM_SN_OFFSET)
+		| ((vendor_dm & VENDOR_MASK) << DM_VENDOR_OFFSET)
+		| ((board_id_ek & SN_MASK) << EK_SN_OFFSET)
+		| ((vendor_ek & VENDOR_MASK) << EK_VENDOR_OFFSET);
+}
+
+static unsigned int set_default_rev(void)
+{
+	unsigned int rev_cm;
+	unsigned int rev_dm;
+	unsigned int rev_ek;
+	unsigned int rev_id_cm;
+	unsigned int rev_id_dm;
+	unsigned int rev_id_ek;
+
+#ifdef CONFIG_AT91SAM9X5EK
+	/* at91sam9x5ek
+	 * CPU Module: 'B', '1'
+	 * Display Module: 'B', '0'
+	 * EK Module: 'B','0'
+	 */
+	rev_cm = 'B';
+	rev_dm = 'B';
+	rev_ek = 'B';
+	rev_id_cm = '1';
+	rev_id_dm = '0';
+	rev_id_ek = '0';
+#endif
+
+#ifdef CONFIG_AT91SAMA5D3XEK
+	/* at91sama5d3xek
+	 * CPU Module: 'D', '4'
+	 * Display Module: 'B', '2'
+	 * EK Module: 'C','3'
+	 */
+	rev_cm = 'D';
+	rev_dm = 'B';
+	rev_ek = 'C';
+	rev_id_cm = '4';
+	rev_id_dm = '2';
+	rev_id_ek = '3';
+#endif
+
+	return ((rev_cm - 'A') & REV_MASK)
+		| (((rev_dm - 'A') & REV_MASK) << DM_REV_OFFSET)
+		| (((rev_ek - 'A') & REV_MASK) << EK_REV_OFFSET)
+		| (((rev_id_cm - '0') & REV_ID_MASK) << CM_REV_ID_OFFSET)
+		| (((rev_id_dm - '0') & REV_ID_MASK) << DM_REV_ID_OFFSET)
+		| (((rev_id_ek - '0') & REV_ID_MASK) << EK_REV_ID_OFFSET);
+}
+
 /*******************************************************************************
  * SN layout
  *
@@ -706,14 +796,12 @@ void load_1wire_info()
 
 	for (i = 0; i < cnt; i++) {
 		if (ds24xx_read_memory(i, 0, 0, size, buf) < 0) {
-			dbg_log(1, "WARNING: 1-Wire: Failed to " \
-				"read from 1-Wire chip!\n\r");
+			dbg_log(1, "WARNING: 1-Wire: Failed to read from 1-Wire chip!\n\r");
 			goto err;
 		}
 
 		if (get_board_info(buf,	i, bd_info)) {
-			dbg_log(1, "WARNING: 1-Wire: Failed to " \
-						"get board information\n\r");
+			dbg_log(1, "WARNING: 1-Wire: Failed to get board information\n\r");
 			goto err;
 		}
 
@@ -754,34 +842,32 @@ void load_1wire_info()
 	}
 
 	/* save to GPBR #2 and #3 */
-	dbg_log(1, "\n\r1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\r", sn, rev);
+	dbg_log(1, "\n\r1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\r\n\r", sn, rev);
 
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);
 
+	return;
+
 err:
-	dbg_log(1, "\n\r");
+	sn = set_default_sn();
+	rev = set_default_rev();
+
+	dbg_log(1, "\n\r1-Wire: Using defalt value SYS_GPBR2: %d, SYS_GPBR3: %d\n\r\n\r", sn, rev);
+
+	writel(sn, AT91C_BASE_GPBR + 4 * 2);
+	writel(rev, AT91C_BASE_GPBR + 4 * 3);
 
 	return;
 }
 
 unsigned int get_sys_sn()
 {
-	if (sn == 0xffffffff) {
-		dbg_log(1, "Error: no system_sn defined, using 0!\n\r");
-		return 0;
-	}
-
 	return sn;
 }
 
 unsigned int get_sys_rev()
 {
-	if (rev == 0xffffffff) {
-		dbg_log(1, "Error: no system_rev defined, using 0!\n\r");
-		return 0;
-	}
-
 	return rev;
 }
 
