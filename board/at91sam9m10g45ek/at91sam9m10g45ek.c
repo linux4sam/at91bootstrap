@@ -41,6 +41,7 @@
 #include "slowclk.h"
 #include "timer.h"
 #include "watchdog.h"
+#include "string.h"
 #include "at91sam9m10g45ek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -234,6 +235,11 @@ void at91_spi0_hw_init(void)
 #endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
+static void sdcard_set_of_name_board(char *of_name)
+{
+	strcpy(of_name, "at91sam9m10g45ek.dtb");
+}
+
 void at91_mci0_hw_init(void)
 {
 	const struct pio_desc mci_pins[] = {
@@ -252,6 +258,9 @@ void at91_mci0_hw_init(void)
 
 	/* Enable the clock */
 	writel((1 << AT91C_ID_MCI0), (PMC_PCER + AT91C_BASE_PMC));
+
+	/* Set of name function pointer */
+	sdcard_set_of_name = &sdcard_set_of_name_board;
 }
 #endif /* #ifdef CONFIG_SDCARD */
 

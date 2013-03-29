@@ -230,35 +230,28 @@ void at91_spi0_hw_init(void)
 #endif	/* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
-static int sdcard_set_of_name_at91sam9x5ek(char *of_name)
+static void sdcard_set_of_name_board(char *of_name)
 {
-	char filename[FILENAME_BUF_LEN];
 	unsigned int cpu_board_id = get_cm_sn();
 	unsigned int disp_board_id = get_dm_sn();
 
-	if (cpu_board_id == BOARD_ID_SAM9G15_CM) {
-		strcpy(filename, "g15");
-	} else if (cpu_board_id == BOARD_ID_SAM9G25_CM) {
-		strcpy(filename, "g25");
-	} else if (cpu_board_id == BOARD_ID_SAM9G35_CM) {
-		strcpy(filename, "g35");
-	} else if (cpu_board_id == BOARD_ID_SAM9X25_CM) {
-		strcpy(filename, "x25");
-	} else if (cpu_board_id == BOARD_ID_SAM9X35_CM) {
-		strcpy(filename, "x35");
-	} else {
+	if (cpu_board_id == BOARD_ID_SAM9G15_CM)
+		strcpy(of_name, "at91sam9g15ek");
+	else if (cpu_board_id == BOARD_ID_SAM9G25_CM)
+		strcpy(of_name, "at91sam9g25ek");
+	else if (cpu_board_id == BOARD_ID_SAM9G35_CM)
+		strcpy(of_name, "at91sam9g35ek");
+	else if (cpu_board_id == BOARD_ID_SAM9X25_CM)
+		strcpy(of_name, "at91sam9x25ek");
+	else if (cpu_board_id == BOARD_ID_SAM9X35_CM)
+		strcpy(of_name, "at91sam9x35ek");
+	else
 		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
-		return 0;
-	}
 
 	if (disp_board_id == BOARD_ID_PDA_DM)
-		strcat(filename, "_pda");
+		strcat(of_name, "_pda");
 
-	strcat(filename, ".dtb");
-
-	strcpy(of_name, filename);
-
-	return 0;
+	strcat(of_name, ".dtb");
 }
 
 void at91_mci0_hw_init(void)
@@ -280,7 +273,8 @@ void at91_mci0_hw_init(void)
 	/* Enable the clock */
 	writel((1 << AT91C_ID_HSMCI0), (PMC_PCER + AT91C_BASE_PMC));
 
-	sdcard_set_of_name = &sdcard_set_of_name_at91sam9x5ek;
+	/* Set of name function pointer */
+	sdcard_set_of_name = &sdcard_set_of_name_board;
 }
 #endif /* #ifdef CONFIG_SDCARD */
 

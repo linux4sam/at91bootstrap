@@ -42,6 +42,7 @@
 #include "psram.h"
 #include "timer.h"
 #include "watchdog.h"
+#include "string.h"
 #include "at91sam9263ek.h"
 
 #ifdef CONFIG_USER_HW_INIT
@@ -456,6 +457,11 @@ void at91_spi0_hw_init(void)
 #endif /* CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
+static void sdcard_set_of_name_board(char *of_name)
+{
+	strcpy(of_name, "at91sam9263ek.dtb");
+}
+
 void at91_mci0_hw_init(void)
 {
 	/* Note: For at91sam9263ek, using MCI1 instead of MCI0 as SD Card booting */
@@ -476,6 +482,9 @@ void at91_mci0_hw_init(void)
 
 	/* Enable the clock */
 	writel((1 << AT91C_ID_MCI1), (PMC_PCER + AT91C_BASE_PMC));
+
+	/* Set of name function pointer */
+	sdcard_set_of_name = &sdcard_set_of_name_board;
 }
 #endif /* #ifdef CONFIG_SDCARD */
 

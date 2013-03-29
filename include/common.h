@@ -54,7 +54,7 @@ struct image_info
 	unsigned char *of_dest;
 };
 
-extern int (*sdcard_set_of_name)(char *);
+extern void (*sdcard_set_of_name)(char *);
 
 static inline unsigned int swap_uint32(unsigned int data)
 {

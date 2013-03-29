@@ -267,41 +267,35 @@ void at91_spi0_hw_init(void)
 #endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
-static int sdcard_set_of_name_sama5d3xek(char *of_name)
+static void sdcard_set_of_name_board(char *of_name)
 {
-	char filename[FILENAME_BUF_LEN];
-
 	/* CPU TYPE*/
 	switch (get_cm_sn()) {
 	case BOARD_ID_SAMA5D31_CM:
-		strcpy(filename, "d31");
+		strcpy(of_name, "sama5d31ek");
 		break;
 
 	case BOARD_ID_SAMA5D33_CM:
-		strcpy(filename, "d33");
+		strcpy(of_name, "sama5d33ek");
 		break;
 
 	case BOARD_ID_SAMA5D34_CM:
-		strcpy(filename, "d34");
+		strcpy(of_name, "sama5d34ek");
 		break;
 
 	case BOARD_ID_SAMA5D35_CM:
-		strcpy(filename, "d35");
+		strcpy(of_name, "sama5d35ek");
 		break;
 
 	default:
 		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
-		return 0;
+		break;
 	}
 
 	if (get_dm_sn() == BOARD_ID_PDA_DM)
-		strcat(filename, "_pda");
+		strcat(of_name, "_pda");
 
-	strcat(filename, ".dtb");
-
-	strcpy(of_name, filename);
-
-	return 0;
+	strcat(of_name, ".dtb");
 }
 
 void at91_mci0_hw_init(void)
@@ -328,7 +322,8 @@ void at91_mci0_hw_init(void)
 	/* Enable the clock */
 	writel((1 << AT91C_ID_HSMCI0), (PMC_PCER + AT91C_BASE_PMC));
 
-	sdcard_set_of_name = &sdcard_set_of_name_sama5d3xek;
+	/* Set of name function pointer */
+	sdcard_set_of_name = &sdcard_set_of_name_board;
 }
 #endif /* #ifdef CONFIG_SDCARD */
 

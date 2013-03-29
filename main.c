@@ -44,7 +44,7 @@ typedef int (*load_function)(struct image_info *img_info);
 
 static load_function load_image;
 
-int (*sdcard_set_of_name)(char *) = NULL;
+void (*sdcard_set_of_name)(char *) = NULL;
 
 static int init_loadfunction(void)
 {
