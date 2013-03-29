@@ -37,7 +37,7 @@
 #define	NULL	0
 #endif
 
-#define FILENAME_BUF_LEN	13
+#define FILENAME_BUF_LEN	33
 
 /* structure definition */
 struct image_info

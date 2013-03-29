@@ -3,7 +3,10 @@
 
 FS_FAT:=$(TOPDIR)/fs/src
 
-COBJS-$(CONFIG_SDCARD)	+=  $(FS_FAT)/ff.o
-COBJS-$(CONFIG_SDCARD)	+=  $(FS_FAT)/diskio.o
+COBJS-$(CONFIG_FATFS)	+=  $(FS_FAT)/ff.o
+COBJS-$(CONFIG_FATFS)	+=  $(FS_FAT)/diskio.o
+ifeq ($(CONFIG_LONG_FILENAME), y)
+COBJS-$(CONFIG_FATFS)	+=  $(FS_FAT)/option/ccsbcs.o
+endif
 
 
