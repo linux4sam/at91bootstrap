@@ -109,6 +109,9 @@ config CONFIG_MEMORY
 	default "nandflash"	if CONFIG_NANDFLASH
 	default "sdcard"	if CONFIG_SDCARD
 
+menu  "SD Card Configuration"
+	depends on CONFIG_SDCARD
+
 config CONFIG_SDCARD_HS
 	bool
 	default y if CONFIG_AT91SAM9M10G45EK
@@ -116,6 +119,20 @@ config CONFIG_SDCARD_HS
 	default y if CONFIG_AT91SAM9N12EK
 	default y if CONFIG_AT91SAMA5D3XEK
 	default n
+
+config CONFIG_FATFS
+	bool
+	depends on CONFIG_SDCARD
+	default y if CONFIG_SDCARD
+
+config CONFIG_LONG_FILENAME
+	bool "Support Long FileName(LFN)"
+	depends on CONFIG_FATFS
+	default y if !CONFIG_AT91SAM9G10EK
+	help
+	  Configure support to FatFS Long FileName(LFN)
+
+endmenu
 
 source "driver/Config.in.dataflash"
 
