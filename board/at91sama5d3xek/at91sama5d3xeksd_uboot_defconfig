@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Fri Feb 22 16:09:31 2013
+# Mon Apr  1 15:23:52 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sama5d3xek"
@@ -69,7 +69,13 @@ CONFIG_RAM_512MB=y
 # CONFIG_NANDFLASH is not set
 CONFIG_SDCARD=y
 CONFIG_MEMORY="sdcard"
+
+#
+# SD Card Configuration
+#
 CONFIG_SDCARD_HS=y
+CONFIG_FATFS=y
+CONFIG_LONG_FILENAME=y
 ALLOW_BOOT_FROM_DATAFLASH_CS0=y
 CONFIG_BOOTSTRAP_MAXSIZE="65536"
 CONFIG_PROJECT="sdcard"

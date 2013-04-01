@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Fri Dec 21 09:01:58 2012
+# Mon Apr  1 15:03:30 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9263ek"
@@ -44,6 +44,7 @@ CONFIG_BUS_SPEED_100MHZ=y
 # ALLOW_PIO3 is not set
 # CPU_HAS_PMECC is not set
 # CONFIG_LOAD_ONE_WIRE is not set
+# CONFIG_MMC_SUPPORT is not set
 
 #
 # Memory selection
@@ -70,7 +71,13 @@ CONFIG_PSRAM=y
 # CONFIG_NANDFLASH is not set
 CONFIG_SDCARD=y
 CONFIG_MEMORY="sdcard"
+
+#
+# SD Card Configuration
+#
 # CONFIG_SDCARD_HS is not set
+CONFIG_FATFS=y
+CONFIG_LONG_FILENAME=y
 ALLOW_DATAFLASH_RECOVERY=y
 ALLOW_BOOT_FROM_DATAFLASH_CS0=y
 DATAFLASHCARD_ON_CS0=y
