@@ -386,7 +386,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	unsigned char *param;
 	int i, j;
 	unsigned short crc;
-	unsigned char jedec_id, model, ecc_bits;
+	unsigned char manf_id, dev_id;
 
 	nand_cs_enable();
 	nand_command(CMD_READID);
@@ -442,9 +442,9 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	chip->buswidth	= (*(unsigned char *)(p + PARAMS_OFFSET_BUSWIDTH))
 								& 0x01;
 
-	jedec_id = *(unsigned char *)(p + PARAMS_OFFSET_JEDEC_ID);
-	model	 = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);
-	ecc_bits = *(unsigned char *)(p + PARAMS_OFFSET_ECC_BITS);
+	manf_id = *(unsigned char *)(p + PARAMS_OFFSET_JEDEC_ID);
+	dev_id = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);
+	dbg_log(1, "NAND: Manufacturer ID: %d Chip ID: %d\n\r", manf_id, dev_id);
 
 	nand_disable_internal_ecc(jedec_id, model, ecc_bits);
 
