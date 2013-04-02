@@ -39,8 +39,6 @@
 #include "timer.h"
 #include "div.h"
 
-#define ECC_CORRECT_ERROR  0xfe
-
 static struct nand_chip nand_ids[] = {
 	/* Samsung K9F2G08U0M 256MB */
 	{0xecda, 0x800, 0x20000, 0x800, 0x40, 0x0},
@@ -62,11 +60,6 @@ static struct nand_chip nand_ids[] = {
 	{0x92f1, 0x400, 0x20000, 0x800, 0x40, 0x0},
 	{0,}
 };
-
-#undef CONFIG_USE_PMECC
-#if defined(CPU_HAS_PMECC) && !defined(CONFIG_ENABLE_SW_ECC)
-#define CONFIG_USE_PMECC
-#endif
 
 #ifdef CONFIG_USE_PMECC
 
@@ -325,28 +318,81 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 					- layout->oobavail_offset;
 }
 
-static int nand_disable_internal_ecc(unsigned char manfid,
-				unsigned char devicemodel,
-				unsigned char ecc_bits)
+static void nand_set_feature_on_die_ecc(unsigned char is_enable)
 {
-	if (((manfid & 0x2c) == 0x2c)	/* Micron */
-		&& (ecc_bits == 0x04)
-		&& ((devicemodel == '1') 	/* 1G */
-		|| (devicemodel == '2')		/* 2G*/
-		|| (devicemodel == '4'))) {	/* 4G */
+	unsigned char i;
 
-		nand_cs_enable();
-		nand_command(CMD_SET_FEATURE);
-		nand_address(0x90);
+	nand_cs_enable();
 
+	nand_command(CMD_SET_FEATURE);
+	nand_address(0x90);
+
+	if (is_enable)
+		write_byte(0x08);
+	else
 		write_byte(0x00);
+
+	for (i = 0; i < 3; i++)
 		write_byte(0x00);
-		write_byte(0x00);
-		write_byte(0x00);
-		nand_cs_disable();
+
+	nand_cs_disable();
+}
+
+static unsigned char nand_get_feature_on_die_ecc(void)
+{
+	unsigned char buffer[4];
+	unsigned char i;
+
+	nand_cs_enable();
+
+	nand_command(CMD_GET_FEATURE);
+	nand_address(0x90);
+
+	for (i = 0; i < 4; i++)
+		buffer[i] = read_byte();
+
+	nand_cs_disable();
+
+	return buffer[0];
+}
+
+#define ENABLE_ECC	0x08
+
+static int nand_set_on_die_ecc(unsigned char is_enable)
+{
+	unsigned char status;
+
+	status = (nand_get_feature_on_die_ecc() & ENABLE_ECC) ? 1 : 0;
+	if (is_enable == status)
+		return 0;
+
+	nand_set_feature_on_die_ecc(is_enable);
+	status = (nand_get_feature_on_die_ecc() & ENABLE_ECC) ? 1 : 0;
+	if (is_enable == status)
+		return 0;
+
+	return -1;
+}
+
+static int nand_init_on_die_ecc(void)
+{
+	unsigned char is_enable;
+
+#ifdef CONFIG_ON_DIE_ECC
+	is_enable = 1;
+#else
+	is_enable = 0;
+#endif
+	if (nand_set_on_die_ecc(is_enable)) {
+		dbg_log(1, "WARNING: Fail to %s On-Die ECC\n\r",
+				is_enable ? "enable" : "disable");
+
+		return -1;
+	} else {
+		dbg_log(1, "NAND: %s On-Die ECC\n\r",
+				is_enable ? "Enable" : "Disable");
+		return 0;
 	}
-	return 0;
-
 }
 
 static unsigned short onfi_crc16(unsigned short crc,
@@ -446,8 +492,6 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	dev_id = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);
 	dbg_log(1, "NAND: Manufacturer ID: %d Chip ID: %d\n\r", manf_id, dev_id);
 
-	nand_disable_internal_ecc(jedec_id, model, ecc_bits);
-
 	return 0;
 }
 
@@ -543,6 +587,9 @@ static int nandflash_get_type(struct nand_info *nand)
 			return -1;
 		}
 	}
+
+	if (nand_init_on_die_ecc())
+		return -1;
 
 	nand_info_init(nand, chip);
 	
@@ -1213,7 +1260,7 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 		if (result != 0) {
 			dbg_log(1, "PMECC: failed to " \
 					"correct corrupted bits!\n\r");
-			ret =  ECC_CORRECT_ERROR;
+			ret =  -1;
 
 			/* dump the whole page for test */
 			page_dump(buffer, nand->pagesize, nand->oobsize);
@@ -1223,6 +1270,31 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 	return ret;
 }
 #endif /* #ifdef CONFIG_USE_PMECC */
+
+static int nand_read_status(void)
+{
+	unsigned int timeout = 1000;
+	unsigned char status;
+
+	do {
+		nand_command(CMD_STATUS);
+		status = read_byte();
+		if (status & STATUS_READY)
+			break;
+	} while (--timeout);
+
+	if (!timeout)
+		return -1;
+
+#ifdef CONFIG_ON_DIE_ECC
+	if (status & STATUS_ERROR) {
+		dbg_log(1, "WARNING: Read On-Die ECC error\n\r");
+		return -1;
+	}
+#endif
+
+	return 0;
+}
 
 #ifdef NANDFLASH_SMALL_BLOCKS
 static int nand_read_sector(struct nand_info *nand, 
@@ -1274,7 +1346,9 @@ static int nand_read_sector(struct nand_info *nand,
 		nand_address((row_address >> 16) & 0xff);
 	}
 
-	nand_wait_ready();
+	if (nand_read_status())
+		return -1;
+
 	if (nand->buswidth)
 		nand_command16(CMD_READ_A0);
 	else
@@ -1380,7 +1454,9 @@ static int nand_read_sector(struct nand_info *nand,
 	else
 		nand_command(CMD_READ_2);
 
-	nand_wait_ready();
+	if (nand_read_status())
+		return -1;
+
 	if (nand->buswidth)
 		nand_command16(CMD_READ_1);
 	else
@@ -1472,7 +1548,7 @@ static int nand_read_page(struct nand_info *nand,
 	error = Hamming_Verify256x(buffer, nand->pagesize, hamming);
 	if (error && (error != Hamming_ERROR_SINGLEBIT)) {
 		dbg_log(1, "NAND: Hamming ECC error!\n\r");
-		return ECC_CORRECT_ERROR;
+		return -1;
 	}
 
 	return 0;
@@ -1583,7 +1659,7 @@ static int nand_loadimage(struct nand_info *nand,
 		for (page = start_page; page < end_page; page++) {
 			ret = nand_read_page(nand, block, page,
 						ZONE_DATA, buffer);
-			if (ret == ECC_CORRECT_ERROR)
+			if (ret)
 				return -1;
 			else
 				buffer += nand->pagesize;
