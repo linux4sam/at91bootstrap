@@ -77,6 +77,26 @@
 
 #endif /* #if defined(CONFIG_CPU_CLK_533MHZ) */
 
+#if defined(CONFIG_CPU_CLK_266MHZ)
+#define BOARD_MAINOSC		12000000
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 44 ) / 2 ))	/* 266M */
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 44 ) / 2 / 2))/* 132M */
+
+#define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
+#define BOARD_PLLACOUNT		(0x3F << 8)
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (43 << 18))
+#define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
+
+#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_2 \
+					| AT91C_PMC_CSS_MAIN_CLK)
+
+#define BOARD_PRESCALER_PLLA		(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_2 \
+					| AT91C_PMC_CSS_PLLA_CLK)
+
+#endif /* #if defined(CONFIG_CPU_CLK_266MHZ) */
+
 #define PLLA_SETTINGS		(BOARD_CKGR_PLLA | \
 				BOARD_PLLACOUNT | \
 				BOARD_MULA | \
