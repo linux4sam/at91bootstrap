@@ -32,6 +32,11 @@ config CONFIG_LOAD_LINUX
 	---help---
 	   Load Linux kernel directly from storage media
 
+config CONFIG_LOAD_ANDROID
+	bool "Support loading android directly"
+	help
+	   Load android image directly from storage media
+
 config CONFIG_LOAD_1MB
 	bool "Load 1 MB into start of SDRAM"
 	help
@@ -150,6 +155,84 @@ config CONFIG_OF_ADDRESS
 endmenu
 
 #
+# Android Image Storage Setup
+#
+menu "Android Image Storage Setup"
+	depends on CONFIG_LOAD_ANDROID
+
+config CONFIG_OS_MEM_BANK
+	string "Extern Memory Bank Base Address"
+	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x20000000"
+
+config CONFIG_OS_MEM_SIZE
+	string "Extern Memory Bank Size"
+	default "0x20000000" if CONFIG_AT91SAMA5D3XEK
+	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
+	default "0x4000000"
+
+config CONFIG_LINUX_KERNEL_ARG_STRING
+	string "android kernel command line"
+	default "console=ttyS0,115200 mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_AT91SAMA5D3XEK && !CONFIG_SDCARD
+	default "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_AT91SAMA5D3XEK && CONFIG_SDCARD
+
+config CONFIG_OS_IMAGE_NAME
+	string "Binary Name on SD Card"
+	depends on CONFIG_SDCARD
+	default "image.bin"
+
+config CONFIG_IMG_ADDRESS
+	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	string "Flash Offset for Linux Kernel Image"
+	default "0x00008000" if CONFIG_FLASH
+	default "0x00042000" if CONFIG_DATAFLASH
+	default "0x00200000" if CONFIG_NANDFLASH
+	default	"0x00000000" if CONFIG_SDCARD
+	help
+
+config CONFIG_IMG_SIZE
+	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	string "Linux Kernel Image Size"
+	default "0x300000"
+
+config CONFIG_JUMP_ADDR
+	string "The External Ram Address to Load Kernel Image"
+	default "0x72000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x22000000"
+	help
+	  The entry point to which the bootstrap will pass control.
+
+config CONFIG_OF_LIBFDT
+	bool "Flattened Device Tree Support"
+	default y
+
+config CONFIG_OF_OFFSET
+	string "The Offset of Flash Device Tree Blob "
+	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
+	default "0x00008400" if CONFIG_DATAFLASH
+	default "0x00180000" if CONFIG_NANDFLASH
+	default	"0x00000000" if CONFIG_SDCARD
+
+config CONFIG_OF_LENGTH
+	string "The Length of Flash Device Tree Blob"
+	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
+	default "0x30000"
+
+config CONFIG_OF_FILENAME
+	string "Device Tree Filename on SD Card"
+	depends on CONFIG_OF_LIBFDT && CONFIG_SDCARD
+	default "ek.dtb"
+
+config CONFIG_OF_ADDRESS
+	string "The External Ram Address to Load Device Tree Blob"
+	depends on CONFIG_OF_LIBFDT
+	default "0x71000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x21000000"
+	help
+
+endmenu
+
+#
 # U-Boot Image Storage Setup
 #
 menu "U-Boot Image Storage Setup"
@@ -225,6 +308,7 @@ endmenu
 
 config CONFIG_IMAGE_NAME
 	string
+	default "android" if CONFIG_LOAD_ANDROID
 	default "linux" if CONFIG_LOAD_LINUX
 	default "uboot" if CONFIG_LOAD_UBOOT
 	default "softapp" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB

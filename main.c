@@ -48,7 +48,7 @@ void (*sdcard_set_of_name)(char *) = NULL;
 
 static int init_loadfunction(void)
 {
-#if defined(CONFIG_LOAD_LINUX)
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 	load_image = &load_kernel;
 #else
 #if defined (CONFIG_DATAFLASH)
