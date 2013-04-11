@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Mon Apr  1 15:22:15 2013
+# Thu Apr 11 11:12:41 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sama5d3xek"
@@ -80,14 +80,11 @@ ALLOW_BOOT_FROM_DATAFLASH_CS0=y
 CONFIG_BOOTSTRAP_MAXSIZE="65536"
 CONFIG_PROJECT="sdcard"
 # CONFIG_LOAD_UBOOT is not set
-CONFIG_LOAD_LINUX=y
+# CONFIG_LOAD_LINUX is not set
+CONFIG_LOAD_ANDROID=y
 # CONFIG_LOAD_1MB is not set
 # CONFIG_LOAD_4MB is not set
 # CONFIG_LOAD_64KB is not set
-
-#
-# Linux Image Storage Setup
-#
 CONFIG_OS_MEM_BANK="0x20000000"
 CONFIG_OS_MEM_SIZE="0x20000000"
 CONFIG_LINUX_KERNEL_ARG_STRING="console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0"
@@ -96,7 +93,11 @@ CONFIG_JUMP_ADDR="0x22000000"
 CONFIG_OF_LIBFDT=y
 CONFIG_OF_FILENAME="ek.dtb"
 CONFIG_OF_ADDRESS="0x21000000"
-CONFIG_IMAGE_NAME="linux"
+
+#
+# Android Image Storage Setup
+#
+CONFIG_IMAGE_NAME="android"
 # CONFIG_LONG_TEST is not set
 CONFIG_DEBUG=y
 CONFIG_DEBUG_INFO=y
