@@ -18,7 +18,7 @@ endif
 BINDIR:=$(TOPDIR)/binaries
 
 DATE := $(shell date)
-VERSION := 3.5.2
+VERSION := 3.5.3
 REVISION :=
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
