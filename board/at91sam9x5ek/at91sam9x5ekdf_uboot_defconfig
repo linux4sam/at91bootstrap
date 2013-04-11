@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Thu Dec 20 13:20:43 2012
+# Thu Apr 11 16:43:38 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9x5ek"
@@ -43,6 +43,7 @@ ALLOW_PIO3=y
 CONFIG_HAS_PIO3=y
 CPU_HAS_PMECC=y
 CONFIG_LOAD_ONE_WIRE=y
+# CONFIG_MMC_SUPPORT is not set
 
 #
 # Memory selection
@@ -67,7 +68,6 @@ CONFIG_DATAFLASH=y
 # CONFIG_NANDFLASH is not set
 # CONFIG_SDCARD is not set
 CONFIG_MEMORY="dataflash"
-CONFIG_SDCARD_HS=y
 
 #
 # SPI configuration
@@ -96,6 +96,7 @@ CONFIG_BOOTSTRAP_MAXSIZE="23000"
 CONFIG_PROJECT="dataflash"
 CONFIG_LOAD_UBOOT=y
 # CONFIG_LOAD_LINUX is not set
+# CONFIG_LOAD_ANDROID is not set
 # CONFIG_LOAD_1MB is not set
 # CONFIG_LOAD_4MB is not set
 # CONFIG_LOAD_64KB is not set

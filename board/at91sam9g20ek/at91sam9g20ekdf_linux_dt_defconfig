@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Tue Jan  8 09:10:10 2013
+# Thu Apr 11 17:01:24 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9g20ek"
@@ -67,7 +67,6 @@ CONFIG_DATAFLASH=y
 # CONFIG_NANDFLASH is not set
 # CONFIG_SDCARD is not set
 CONFIG_MEMORY="dataflash"
-# CONFIG_SDCARD_HS is not set
 
 #
 # SPI configuration
@@ -96,6 +95,7 @@ CONFIG_BOOTSTRAP_MAXSIZE="23000"
 CONFIG_PROJECT="dataflash"
 # CONFIG_LOAD_UBOOT is not set
 CONFIG_LOAD_LINUX=y
+# CONFIG_LOAD_ANDROID is not set
 # CONFIG_LOAD_1MB is not set
 # CONFIG_LOAD_4MB is not set
 # CONFIG_LOAD_64KB is not set

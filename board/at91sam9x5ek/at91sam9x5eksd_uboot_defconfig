@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Mon Apr  1 15:21:22 2013
+# Thu Apr 11 16:47:13 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sam9x5ek"
@@ -82,6 +82,7 @@ CONFIG_BOOTSTRAP_MAXSIZE="23000"
 CONFIG_PROJECT="sdcard"
 CONFIG_LOAD_UBOOT=y
 # CONFIG_LOAD_LINUX is not set
+# CONFIG_LOAD_ANDROID is not set
 # CONFIG_LOAD_1MB is not set
 # CONFIG_LOAD_4MB is not set
 # CONFIG_LOAD_64KB is not set

@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Fri Feb 22 16:05:13 2013
+# Thu Apr 11 16:29:39 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="at91sama5d3xek"
@@ -33,6 +33,7 @@ CONFIG_CRYSTAL="CRYSTAL_12_000MHZ"
 # CONFIG_CPU_CLK_266MHZ is not set
 # CONFIG_CPU_CLK_400MHZ is not set
 CONFIG_CPU_CLK_533MHZ=y
+ALLOW_CPU_CLK_266MHZ=y
 ALLOW_CPU_CLK_400MHZ=y
 ALLOW_CPU_CLK_533MHZ=y
 # DISABLE_CPU_CLK_240MHZ is not set
@@ -69,7 +70,6 @@ CONFIG_DATAFLASH=y
 # CONFIG_NANDFLASH is not set
 # CONFIG_SDCARD is not set
 CONFIG_MEMORY="dataflash"
-CONFIG_SDCARD_HS=y
 
 #
 # SPI configuration
@@ -96,6 +96,7 @@ CONFIG_BOOTSTRAP_MAXSIZE="65536"
 CONFIG_PROJECT="dataflash"
 # CONFIG_LOAD_UBOOT is not set
 CONFIG_LOAD_LINUX=y
+# CONFIG_LOAD_ANDROID is not set
 # CONFIG_LOAD_1MB is not set
 # CONFIG_LOAD_4MB is not set
 # CONFIG_LOAD_64KB is not set
