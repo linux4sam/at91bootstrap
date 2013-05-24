@@ -90,6 +90,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_DECOD_INTERLEAVED  /* Interleaved decoding */
 				| AT91C_DDRC2_UNAL_SUPPORTED);   /* Unaligned access is supported */
 
+#if defined(CONFIG_BUS_SPEED_133MHZ)
 	/*
 	 * The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
 	 * With a 133 MHz frequency, the refresh timer count register must to be
@@ -118,6 +119,38 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_TRPA_2            /* 2 * 7.5 = 15 ns */
 			| AT91C_DDRC2_TXARDS_7          /* 7 clock cycles */
 			| AT91C_DDRC2_TXARD_8);         /* MR12 = 1 : slow exit power down */
+
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
+	/*
+	 * The DDR2-SDRAM device requires a refresh of all rows every 64ms.
+	 * ((64ms) / 8192) * 166MHz = 1296 i.e. 0x510
+	 */
+	ddramc_config->rtr = 0x500;
+
+	/* One clock cycle @ 166 MHz = 6.0 ns */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_8	/* 8 * 6 = 48 ns */
+			| AT91C_DDRC2_TRCD_3		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TWR_3		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TRC_10		/* 10 * 6 = 60 ns */
+			| AT91C_DDRC2_TRP_3		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TRRD_2		/* 2 * 6 = 12 ns */
+			| AT91C_DDRC2_TWTR_2		/* 2 clock cycles*/
+			| AT91C_DDRC2_TMRD_2);		/* 2 clock cycles at least */
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_3	/* 3 * 6 = 18ns, 2 clock cycles a least */
+			| AT91C_DDRC2_TXSRD_202		/* 202 clock cycles: Exit self refresh delay to Read command */
+			| AT91C_DDRC2_TXSNR_35		/* 35 * 6 = 210 ns*/
+			| AT91C_DDRC2_TRFC_31);		/* 31 * 6 = 186 ns */
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_8	/* 45 ns for 16bit * 8 bank */
+			| AT91C_DDRC2_TRTP_2		/* 2 * 6 = 15ns clock cycles min */
+			| AT91C_DDRC2_TRPA_3		/* 15 ns */
+			| AT91C_DDRC2_TXARDS_10		/* 7 ~ 10 clock cycles */
+			| AT91C_DDRC2_TXARD_3);		/* 2 ~ 3 clock cycles */
+
+#else
+#error "No bus clock provided!"
+#endif
 }
 
 static void ddramc_init(void)
