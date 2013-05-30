@@ -28,6 +28,7 @@
 #ifndef __PMC_H__
 #define __PMC_H__
 
+extern void pmc_init_pll(unsigned int pmc_pllicpr);
 extern int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout);
 extern int pmc_cfg_pllb(unsigned int pmc_pllbr, unsigned int timeout);
 extern int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout);

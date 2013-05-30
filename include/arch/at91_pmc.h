@@ -212,6 +212,8 @@
 #define AT91C_PMC_IPLLA		(0xFUL <<  8)
 #define 	AT91C_PMC_IPLLA_0		(0x0UL <<  8)
 #define 	AT91C_PMC_IPLLA_1		(0x1UL <<  8)
+#define 	AT91C_PMC_IPLLA_2		(0x2UL <<  8)
+#define 	AT91C_PMC_IPLLA_3		(0x3UL <<  8)
 
 /* -------- PMC_FEATURES : (PMC Offset: 0xf8)   --------*/ 
 #define AT91C_PMC_CFGAHBCLK	(0x1UL <<  0)

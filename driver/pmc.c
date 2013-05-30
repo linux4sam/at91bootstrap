@@ -99,6 +99,11 @@ void lowlevel_clock_init()
 	return;
 }
 
+void pmc_init_pll(unsigned int pmc_pllicpr)
+{
+	write_pmc(PMC_PLLICPR, pmc_pllicpr);
+}
+
 int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout)
 {
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
