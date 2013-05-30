@@ -20,6 +20,7 @@ BINDIR:=$(TOPDIR)/binaries
 DATE := $(shell date)
 VERSION := 3.5.3
 REVISION :=
+SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
@@ -174,7 +175,7 @@ GC_SECTIONS=--gc-sections
 CPPFLAGS=-ffunction-sections -g -Os -Wall \
 	-fno-stack-protector \
 	-I$(INCL) -Iinclude -Ifs/include \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\" -DCOMPILE_TIME="\"$(DATE)\""
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
 
 ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
 
