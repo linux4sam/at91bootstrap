@@ -73,8 +73,12 @@
 
 /* Board Type */
 #define BOARD_TYPE_CPU		1
+#define BOARD_TYPE_CPU_MASK	1
 #define BOARD_TYPE_EK		2
+#define BOARD_TYPE_EK_MASK	2
 #define BOARD_TYPE_DM		3
+#define BOARD_TYPE_DM_MASK	4
+#define BOARD_TYPE_MASK		7
 
 /*
  * sn
@@ -778,6 +782,7 @@ void load_1wire_info()
 	unsigned int	size = LEN_ONE_WIRE_INFO;
 	struct board_info	board_info;
 	struct board_info	*bd_info;
+	int missing = BOARD_TYPE_MASK;
 
 	memset(&board_info, 0, sizeof(board_info));
 	bd_info= &board_info;
@@ -801,12 +806,12 @@ void load_1wire_info()
 		}
 
 		if (get_board_info(buf,	i, bd_info)) {
-			dbg_log(1, "WARNING: 1-Wire: Failed to get board information\n\r");
-			goto err;
+			continue;
 		}
 
 		switch (bd_info->board_type) {
 		case BOARD_TYPE_CPU:
+			missing &= (BOARD_TYPE_MASK & ~BOARD_TYPE_CPU_MASK);
 			sn  |= (bd_info->board_id & SN_MASK);
 			sn  |= ((bd_info->vendor_id & VENDOR_MASK)
 							<< CM_VENDOR_OFFSET);
@@ -816,6 +821,7 @@ void load_1wire_info()
 			break;
 
 		case BOARD_TYPE_DM:
+			missing &= (BOARD_TYPE_MASK & ~BOARD_TYPE_DM_MASK);
 			sn  |= ((bd_info->board_id & SN_MASK) << DM_SN_OFFSET);
 			sn  |= ((bd_info->vendor_id & VENDOR_MASK)
 							<< DM_VENDOR_OFFSET);
@@ -826,6 +832,7 @@ void load_1wire_info()
 			break;
 
 		case BOARD_TYPE_EK:
+			missing &= (BOARD_TYPE_MASK & ~BOARD_TYPE_EK_MASK);
 			sn  |= ((bd_info->board_id & SN_MASK) << EK_SN_OFFSET);
 			sn  |= ((bd_info->vendor_id & VENDOR_MASK)
 							<< EK_VENDOR_OFFSET);
@@ -840,6 +847,15 @@ void load_1wire_info()
 			goto err;
 		}
 	}
+
+	if (missing & BOARD_TYPE_CPU_MASK)
+		dbg_log(1, "1-Wire: Failed to read CM board information\n\r");
+
+	if (missing & BOARD_TYPE_DM_MASK)
+		dbg_log(1, "1-Wire: Failed to read DM board information\n\r");
+
+	if (missing & BOARD_TYPE_EK_MASK)
+		dbg_log(1, "1-Wire: Failed to read EK board information\n\r");
 
 	/* save to GPBR #2 and #3 */
 	dbg_log(1, "\n\r1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\r\n\r", sn, rev);
