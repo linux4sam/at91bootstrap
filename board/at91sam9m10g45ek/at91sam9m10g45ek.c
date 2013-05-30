@@ -173,7 +173,7 @@ void hw_init(void)
 
 	/* At this stage the main oscillator
 	 * is supposed to be enabled PCK = MCK = MOSC */
-	writel(0x00, AT91C_BASE_PMC + PMC_PLLICPR);
+	pmc_init_pll(0);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
