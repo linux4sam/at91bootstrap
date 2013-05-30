@@ -620,11 +620,11 @@ static int get_board_info(unsigned char *buffer,
 		}
 	}
 
-	boardname = board_list[i].board_name;
-
 	if (i == ARRAY_SIZE(board_list)) {
 		return -1;
 	}
+
+	boardname = board_list[i].board_name;
 
 	memset(tmp, 0, sizeof(tmp));
 	for (i = 0; i < VENDOR_NAME_LEN; i++) {
