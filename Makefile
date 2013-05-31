@@ -241,6 +241,11 @@ $(AT91BOOTSTRAP): $(OBJS)
 	@$(AS) $(ASFLAGS)  -c -o $@  $<
 
 
+$(AT91BOOTSTRAP).fixboot: $(AT91BOOTSTRAP)
+	./scripts/fixboot.py $(AT91BOOTSTRAP)
+
+boot: $(AT91BOOTSTRAP).fixboot
+
 PHONY+= boot bootstrap
 
 rebuild: clean all
