@@ -42,13 +42,15 @@
 #ifdef CONFIG_SAMA5D3XEK
 #ifdef CONFIG_NANDFLASH
 static char *cmd_line_android_pda = "console=ttyS0,115200 " \
-		"mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) " \
+		"mtdparts=atmel_nand:8M(bootstrap/kernel),125M(system)," \
+		"-(userdata) " \
 		"ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs "\
 		"init=/init "\
 		"androidboot.hardware=sama5d3x-pda androidboot.console=ttyS0";
 
 static char *cmd_line_android = "console=ttyS0,115200 " \
-		"mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) " \
+		"mtdparts=atmel_nand:8M(bootstrap/kernel),125M(system)," \
+		"-(userdata) " \
 		"ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs " \
 		"init=/init " \
 		"androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0";
