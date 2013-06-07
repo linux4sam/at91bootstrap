@@ -287,6 +287,10 @@ static void sdcard_set_of_name_board(char *of_name)
 		strcpy(of_name, "sama5d35ek");
 		break;
 
+	case BOARD_ID_SAMA5D36_CM:
+		strcpy(of_name, "sama5d36ek");
+		break;
+
 	default:
 		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
 		break;
