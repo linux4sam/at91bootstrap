@@ -26,11 +26,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "common.h"
 #include "hardware.h"
-#include "arch/at91_pmc.h"
 #include "arch/at91_ddrsdrc.h"
-#include "arch/at91_ccfg.h"
 #include "debug.h"
 #include "ddramc.h"
 #include "timer.h"
