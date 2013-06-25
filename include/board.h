@@ -76,4 +76,8 @@
 #include "sama5d3_xplained.h"
 #endif
 
+#ifdef CONFIG_SAMA5D4EK
+#include "sama5d4ek.h"
+#endif
+
 #endif /* #ifndef __BOARD_H__ */

@@ -20,6 +20,7 @@ source "board/at91sam9x5ek/Config.in.board"
 source "board/at91sam9n12ek/Config.in.board"
 source "board/sama5d3xek/Config.in.board"
 source "board/sama5d3_xplained/Config.in.board"
+source "board/sama5d4ek/Config.in.board"
 
 endchoice
 
@@ -41,6 +42,7 @@ source "board/at91sam9n12ek/Config.in.boardname"
 source "board/at91sam9x5ek/Config.in.boardname"
 source "board/sama5d3xek/Config.in.boardname"
 source "board/sama5d3_xplained/Config.in.boardname"
+source "board/sama5d4ek/Config.in.boardname"
 
 config AT91SAM9260
 	bool
@@ -75,6 +77,9 @@ config AT91SAM9N12
 config SAMA5D3X
 	bool
 
+config SAMA5D4
+	bool
+
 config CONFIG_MACH_TYPE
 	string
 	default "1099"	if AT91SAM9260
@@ -88,11 +93,12 @@ config CONFIG_MACH_TYPE
 	default "3373"	if AT91SAM9X5
 	default "9999"	if AT91SAM9N12
 	default "9999"	if SAMA5D3X
+	default "9999"	if SAMA5D4
 	help
 
 config CONFIG_LINK_ADDR
 	string
-	default "0x200000" if AT91SAM9260 || AT91SAM9G20
+	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4
 	default "0x300000" if !(AT91SAM9260 && AT91SAM9G20)
 	help
 
@@ -114,6 +120,7 @@ config CONFIG_TOP_OF_MEMORY
 	default "0x308000"	if AT91SAM9X5
 	default "0x308000"	if AT91SAM9N12
 	default "0x310000"	if SAMA5D3X
+	default "0x210000"	if SAMA5D4
 	help
 	    The top address of internal SRAM
 
@@ -206,6 +213,10 @@ config CONFIG_CPU_CLK_498MHZ
 	bool "498 MHz"
 	depends on ALLOW_CPU_CLK_498MHZ
 
+config CONFIG_CPU_CLK_510MHZ
+	bool "510 MHz"
+	depends on ALLOW_CPU_CLK_510MHZ
+
 config CONFIG_CPU_CLK_528MHZ
 	bool "528 MHz"
 	depends on ALLOW_CPU_CLK_528MHZ
@@ -237,6 +248,9 @@ config	ALLOW_CPU_CLK_400MHZ
 	bool
 
 config  ALLOW_CPU_CLK_498MHZ
+	bool
+
+config  ALLOW_CPU_CLK_510MHZ
 	bool
 
 config  ALLOW_CPU_CLK_528MHZ
@@ -272,5 +286,9 @@ config CONFIG_BUS_SPEED_133MHZ
 config CONFIG_BUS_SPEED_166MHZ
 	bool "166 MHz"
 	depends on CONFIG_CPU_CLK_498MHZ || CONFIG_CPU_CLK_332MHZ
+
+config CONFIG_BUS_SPEED_170MHZ
+	bool "170 MHz"
+	depends on CONFIG_CPU_CLK_510MHZ
 
 endchoice

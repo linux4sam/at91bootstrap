@@ -134,7 +134,7 @@ config CONFIG_SDCARD_HS
 	default y if AT91SAM9G45
 	default y if AT91SAM9X5
 	default y if AT91SAM9N12
-	default y if SAMA5D3X
+	default y if SAMA5D3X || SAMA5D4
 	default n
 
 config CONFIG_FATFS
@@ -160,7 +160,7 @@ config CONFIG_BOOTSTRAP_MAXSIZE
 	default "4096" if AT91SAM9260
 	default "8192" if AT91SAM9G10 && CONFIG_SDCARD
 	default "12288" if AT91SAM9G10 && !CONFIG_SDCARD
-	default "65536"	if SAMA5D3X
+	default "65536"	if SAMA5D3X || SAMA5D4
 	default "23000"
 
 endmenu

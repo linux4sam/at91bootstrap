@@ -52,3 +52,8 @@ ifeq ($(SAMA5D3X), y)
 CPPFLAGS += -DSAMA5D3X
 ASFLAGS += -DSAMA5D3X
 endif
+
+ifeq ($(SAMA5D4), y)
+CPPFLAGS += -DSAMA5D4
+ASFLAGS += -DSAMA5D4
+endif
