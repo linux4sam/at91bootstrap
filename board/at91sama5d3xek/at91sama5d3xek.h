@@ -59,7 +59,7 @@
 
 #if defined(CONFIG_CPU_CLK_533MHZ)
 #define BOARD_MAINOSC		12000000
-#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 44)))	/* 533M */
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 44)))	/* 528M */
 #define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 44) / 4))/* 132M */
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
@@ -77,7 +77,7 @@
 
 #if defined(CONFIG_CPU_CLK_266MHZ)
 #define BOARD_MAINOSC		12000000
-#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 44 ) / 2 ))	/* 266M */
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 44 ) / 2 ))	/* 264M */
 #define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 44 ) / 2 / 2))/* 132M */
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
