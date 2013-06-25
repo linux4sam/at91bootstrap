@@ -190,7 +190,7 @@ config CONFIG_AT91SAMA5D3XEK
 	select CONFIG_LOAD_ONE_WIRE
 	select CONFIG_MMC_SUPPORT
 	help
-	  Use the AT91SAM9N12EK Development board
+	  Use the SAMA5D3EK Development board
 
 endchoice
 
