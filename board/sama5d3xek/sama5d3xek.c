@@ -41,7 +41,7 @@
 
 #include "arch/at91_pmc.h"
 #include "arch/at91_rstc.h"
-#include "arch/at91sama5_smc.h"
+#include "arch/sama5_smc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
 #include "sama5d3xek.h"
