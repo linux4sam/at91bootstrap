@@ -69,7 +69,7 @@
 #endif
 
 #ifdef CONFIG_AT91SAMA5D3XEK
-#include "at91sama5d3xek.h"
+#include "sama5d3xek.h"
 #endif
 
 #endif /* #ifndef __BOARD_H__ */

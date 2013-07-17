@@ -44,7 +44,7 @@
 #include "arch/at91sama5_smc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
-#include "at91sama5d3xek.h"
+#include "sama5d3xek.h"
 
 #ifdef CONFIG_USER_HW_INIT
 extern void hw_init_hook(void);
