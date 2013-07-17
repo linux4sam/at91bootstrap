@@ -68,7 +68,7 @@
 #include "at91sam9n12ek.h"
 #endif
 
-#ifdef CONFIG_AT91SAMA5D3XEK
+#ifdef CONFIG_SAMA5D3XEK
 #include "sama5d3xek.h"
 #endif
 

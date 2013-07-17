@@ -39,7 +39,7 @@
 #include "debug.h"
 
 #ifdef CONFIG_LOAD_ANDROID
-#ifdef CONFIG_AT91SAMA5D3XEK
+#ifdef CONFIG_SAMA5D3XEK
 #ifdef CONFIG_NANDFLASH
 static char *cmd_line_android_pda = "console=ttyS0,115200 " \
 		"mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) " \
@@ -62,7 +62,7 @@ static char *cmd_line_android = "console=ttyS0,115200 " \
 		"root=/dev/mmcblk0p2 rw rootwait init=/init " \
 		"androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0";
 #endif
-#endif /* #ifdef CONFIG_AT91SAMA5D3XEK */
+#endif /* #ifdef CONFIG_SAMA5D3XEK */
 #endif /* #ifdef CONFIG_LOAD_ANDROID */
 
 #ifdef CONFIG_OF_LIBFDT
@@ -83,7 +83,7 @@ static int setup_dt_blob(void *blob)
 	dbg_log(1, "\n\rUsing device tree in place at %d\n\r",
 						(unsigned int)blob);
 
-#if defined(CONFIG_LOAD_ANDROID) && defined(CONFIG_AT91SAMA5D3XEK)
+#if defined(CONFIG_LOAD_ANDROID) && defined(CONFIG_SAMA5D3XEK)
 	if (get_dm_sn() == BOARD_ID_PDA_DM)
 		bootargs = cmd_line_android_pda;
 	else

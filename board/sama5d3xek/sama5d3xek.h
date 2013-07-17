@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __AT91SAMA5D3XEK_H__
-#define __AT91SAMA5D3XEK_H__
+#ifndef __SAMA5D3XEK_H__
+#define __SAMA5D3XEK_H__
 
 /*
  * PMC Setting
@@ -212,4 +212,4 @@ extern void at91_spi0_hw_init(void);
 
 extern void at91_mci0_hw_init(void);
 
-#endif /* #ifndef __AT91SAMA5EK_H__ */
+#endif /* #ifndef __SAMA5EK_H__ */

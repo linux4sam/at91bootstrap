@@ -690,8 +690,8 @@ static unsigned int set_default_sn(void)
 	vendor_ek = VENDOR_FLEX;
 #endif
 
-#ifdef CONFIG_AT91SAMA5D3XEK
-	/* at91sama5d3xek
+#ifdef CONFIG_SAMA5D3XEK
+	/* sama5d3xek
 	 * CPU Module: SAMA5D31-CM, EMBEST
 	 * Display Module: SAMA5D3x-DM, FLEX
 	 * EK Module: SAMA5D3x-MB, FLEX
@@ -735,8 +735,8 @@ static unsigned int set_default_rev(void)
 	rev_id_ek = '0';
 #endif
 
-#ifdef CONFIG_AT91SAMA5D3XEK
-	/* at91sama5d3xek
+#ifdef CONFIG_SAMA5D3XEK
+	/* sama5d3xek
 	 * CPU Module: 'D', '4'
 	 * Display Module: 'B', '2'
 	 * EK Module: 'C','3'

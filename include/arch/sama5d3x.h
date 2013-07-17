@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __AT91SAMA5D3X_H__
-#define __AT91SAMA5D3X_H__
+#ifndef __SAMA5D3X_H__
+#define __SAMA5D3X_H__
 
 /*
  * Peripheral identifiers/interrupts.
@@ -188,8 +188,8 @@
 /*
  * SoC specific defines
  */
-#define AT91C_CPU_NAME		"AT91SAMA5D3X"
+#define AT91C_CPU_NAME		"SAMA5D3X"
 
 #define BACKUP_REGISTER_BOOT_MODE_R4 (AT91C_BASE_GPBR + 0x4)
 
-#endif /* #ifndef __AT91SAMA5D3X_H__ */
+#endif /* #ifndef __SAMA5D3X_H__ */
