@@ -225,7 +225,7 @@ config CONFIG_BOARD
 	default "at91sam9x5ek"	if CONFIG_AT91SAM9X5EK
 	default "at91sam9n12ek"	if CONFIG_AT91SAM9N12EK
 	default "at91sam9m10g45ek"	if CONFIG_AT91SAM9M10G45EK
-	default "at91sama5d3xek"	if CONFIG_AT91SAMA5D3XEK
+	default "sama5d3xek"	if CONFIG_AT91SAMA5D3XEK
 	help
 	  Name of the board, A Board Support package
 	  (BSP) must be available.
