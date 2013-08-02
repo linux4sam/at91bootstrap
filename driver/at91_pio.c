@@ -30,14 +30,53 @@
 #include "gpio.h"
 #include "debug.h"
 
-static inline void write_pio(unsigned int offset, const unsigned int value)
+static inline int pio_base_addr(unsigned int pio)
 {
-	writel(value, offset + AT91C_BASE_PIOA);
+	if (pio > AT91C_NUM_PIO)
+		return -1;
+
+	if (pio == 0)
+		return AT91C_BASE_PIOA;
+	else if (pio == 1)
+		return AT91C_BASE_PIOB;
+	else if (pio == 2)
+		return AT91C_BASE_PIOC;
+	else if (pio == 3)
+#ifdef AT91C_BASE_PIOD
+		return AT91C_BASE_PIOD;
+#else
+		return -1;
+#endif
+	else if (pio == 4)
+#ifdef AT91C_BASE_PIOE
+		return AT91C_BASE_PIOE;
+#else
+		return -1;
+#endif
+	else
+		return -1;
 }
 
-static inline unsigned int read_pio(volatile unsigned int offset)
+static inline void write_pio(unsigned int pio,
+			unsigned int offset,
+			const unsigned int value)
 {
-	return readl(offset + AT91C_BASE_PIOA);
+	int base = pio_base_addr(pio);
+
+	if (base == -1)
+		return;
+
+	writel(value, offset + base);
+}
+
+static inline unsigned int read_pio(unsigned int pio, unsigned int offset)
+{
+	int base = pio_base_addr(pio);
+
+	if (base == -1)
+		return 0;
+
+	return readl(offset + base);
 }
 
 static inline unsigned pin_to_controller(unsigned pin)
@@ -58,15 +97,16 @@ static int pio_set_a_periph(unsigned pin, int use_pullup)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	write_pio(PIO_IDR(pio), mask);
-	write_pio(use_pullup ? PIO_PPUER(pio) : PIO_PPUDR(pio), mask);
+	write_pio(pio, PIO_IDR, mask);
+	write_pio(pio, use_pullup ? PIO_PPUER : PIO_PPUDR, mask);
 #ifndef CONFIG_HAS_PIO3
-	write_pio(PIO_ASR(pio), mask);
+	write_pio(pio, PIO_ASR, mask);
 #else
-	write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) & ~mask);
-	write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) & ~mask);
+	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
+	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) & ~mask);
 #endif
-	write_pio(PIO_PDR(pio), mask);
+	write_pio(pio, PIO_PDR, mask);
+
 	return 0;
 }
 
@@ -78,15 +118,16 @@ static int pio_set_b_periph(unsigned pin, int use_pullup)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	write_pio(PIO_IDR(pio), mask);
-	write_pio((use_pullup ? PIO_PPUER(pio) : PIO_PPUDR(pio)), mask);
+	write_pio(pio, PIO_IDR, mask);
+	write_pio(pio, (use_pullup ? PIO_PPUER : PIO_PPUDR), mask);
 #ifndef CONFIG_HAS_PIO3
-	write_pio(PIO_BSR(pio), mask);
+	write_pio(pio, PIO_BSR, mask);
 #else
-	write_pio(PIO_SP1(pio), read_pio(PIO_SP1(pio)) | mask);
-	write_pio(PIO_SP2(pio), read_pio(PIO_SP2(pio)) & ~mask);
+	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) | mask);
+	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) & ~mask);
 #endif
-	write_pio(PIO_PDR(pio), mask);
+	write_pio(pio, PIO_PDR, mask);
+
 	return 0;
 }
 
@@ -98,10 +139,11 @@ int pio_set_gpio_input(unsigned pin, int use_pullup)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	write_pio(PIO_IDR(pio), mask);
-	write_pio((use_pullup ? PIO_PPUER(pio) : PIO_PPUDR(pio)), mask);
-	write_pio(PIO_ODR(pio), mask);
-	write_pio(PIO_PER(pio), mask);
+	write_pio(pio, PIO_IDR, mask);
+	write_pio(pio, (use_pullup ? PIO_PPUER : PIO_PPUDR), mask);
+	write_pio(pio, PIO_ODR, mask);
+	write_pio(pio, PIO_PER, mask);
+
 	return 0;
 }
 
@@ -113,11 +155,12 @@ int pio_set_gpio_output(unsigned pin, int value)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	write_pio(PIO_IDR(pio), mask);
-	write_pio(PIO_PPUDR(pio), mask);
-	write_pio((value ? PIO_SODR(pio) : PIO_CODR(pio)), mask);
-	write_pio(PIO_OER(pio), mask);
-	write_pio(PIO_PER(pio), mask);
+	write_pio(pio, PIO_IDR, mask);
+	write_pio(pio, PIO_PPUDR, mask);
+	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
+	write_pio(pio, PIO_OER, mask);
+	write_pio(pio, PIO_PER, mask);
+
 	return 0;
 }
 
@@ -129,7 +172,8 @@ static int pio_set_deglitch(unsigned pin, int is_on)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	write_pio((is_on ? PIO_IFER(pio) : PIO_IFDR(pio)), mask);
+	write_pio(pio, (is_on ? PIO_IFER : PIO_IFDR), mask);
+
 	return 0;
 }
 
@@ -141,11 +185,11 @@ static int pio_set_multi_drive(unsigned pin, int is_on)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	write_pio((is_on ? PIO_MDER(pio) : PIO_MDDR(pio)), mask);
+	write_pio(pio, (is_on ? PIO_MDER : PIO_MDDR), mask);
+
 	return 0;
 }
 
-#if !defined(at91sam9g10)
 int pio_set_value(unsigned pin, int value)
 {
 	unsigned pio = pin_to_controller(pin);
@@ -154,10 +198,10 @@ int pio_set_value(unsigned pin, int value)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	write_pio((value ? PIO_SODR(pio) : PIO_CODR(pio)), mask);
+	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
+
 	return 0;
 }
-#endif
 
 int pio_get_value(unsigned pin)
 {
@@ -168,7 +212,8 @@ int pio_get_value(unsigned pin)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	pdsr = read_pio(PIO_PDSR(pio));
+	pdsr = read_pio(pio, PIO_PDSR);
+
 	return ((pdsr & mask) != 0);
 }
 
@@ -179,20 +224,20 @@ int pio_configure(const struct pio_desc *pio_desc)
 	if (pio_desc == 0) return 0;
 
 	/*
-	 * Sets all the pio muxing of the corresponding device as defined in its platform_data struct 
+	 * Sets all the pio muxing of the corresponding device as defined
+	 * in its platform_data struct
 	 */
 	while (pio_desc->pin_name) {
 		pio = pin_to_controller(pio_desc->pin_num);
-		if (pio >= AT91C_NUM_PIO)
+		if (pio >= AT91C_NUM_PIO) {
 			return 0;
-		else if (pio_desc->type == PIO_PERIPH_A)
+		} else if (pio_desc->type == PIO_PERIPH_A) {
 			pio_set_a_periph(pio_desc->pin_num,
 			 	(pio_desc->attribute & PIO_PULLUP) ? 1 : 0);
-#if !(defined(at91sam9g10)&&defined(CONFIG_SDCARD))
-		else if (pio_desc->type == PIO_PERIPH_B)
+		} else if (pio_desc->type == PIO_PERIPH_B) {
 			pio_set_b_periph(pio_desc->pin_num,
 				(pio_desc->attribute & PIO_PULLUP) ? 1 : 0);
-		else if (pio_desc->type == PIO_INPUT) {
+		} else if (pio_desc->type == PIO_INPUT) {
 			pio_set_deglitch(pio_desc->pin_num,
 				(pio_desc->attribute & PIO_DEGLITCH) ? 1 : 0);
 			pio_set_gpio_input(pio_desc->pin_num,
@@ -202,13 +247,13 @@ int pio_configure(const struct pio_desc *pio_desc)
 				(pio_desc->attribute & PIO_OPENDRAIN) ? 1 : 0);
 			pio_set_gpio_output(pio_desc->pin_num,
 				pio_desc->default_value);
-		}
-#endif
-		else
+		} else {
 			return 0;
+		}
 		
 		++pin;
 		++pio_desc;
 	}
+
 	return pin;
 }
