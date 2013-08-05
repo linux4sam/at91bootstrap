@@ -127,4 +127,7 @@
 #define AT91C_BASE_CS6		0x70000000
 #define AT91C_BASE_CS7		0x80000000
 
+#define AT91C_NUM_PIO		3
+
+
 #endif /* #ifndef __AT91SAM9XE_H__ */

@@ -143,6 +143,8 @@
 #define AT91C_BASE_CS5		0x60000000
 #define AT91C_BASE_CS6		0x70000000	/* DRAM0 */
 
+#define AT91C_NUM_PIO		5
+
 /*
  * SoC specific defines
  */

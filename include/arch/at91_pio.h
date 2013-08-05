@@ -77,8 +77,6 @@
 #define PIO_OWSR	0x00a8	/* Output Write Status Register */
 /* 0x00ac */
 
-#define AT91C_NUM_PIO		5
-
 /* Number of IO handled by one PIO controller */
 #define PIO_NUM_IO		32
 

@@ -122,6 +122,8 @@
 #define AT91C_BASE_CS4		0x50000000	/* Compact Flash Slot 0 */
 #define AT91C_BASE_CS5		0x60000000	/* Compact Flash Slot 1 */
 
+#define AT91C_NUM_PIO		4
+
 /*
  * SoC specific defines
  */
