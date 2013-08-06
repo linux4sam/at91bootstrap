@@ -27,6 +27,7 @@
  */
 
 #include <hardware.h>
+#include <mon_macros.h>
 
 .section start
 	.text
@@ -78,7 +79,12 @@ reset_vector:
 
 /* Init the stack */
 _init_stack:
+
+#if defined(CONFIG_TRUSTZONE_SUPPORT)
+	ldr	sp,=SVC_STACK_BASE
+#else
 	ldr     sp,=TOP_OF_MEMORY
+#endif
 
 #ifdef CONFIG_FLASH
 /*
@@ -109,53 +115,6 @@ _relocate_to_sram:
 	mov     lr, pc
 	bx      r4
 
-#if 0
-_setup_clocks:
-/* Test if main oscillator is enabled */
-	ldr 	r0,=AT91C_PMC_SR
-	ldr 	r1, [r0]
-	ldr 	r2,=AT91C_PMC_MOSCS
-	ands 	r1, r1, r2
-	bne     _switch_to_mosc
-
-
-/* Enable the main oscillator */
-_enable_mosc:
-	ldr 	r0,=AT91C_PMC_MOR
-	mov 	r1, #(0x40 << 8)
-	ldr 	r2,=AT91C_CKGR_MOSCEN
-	orr 	r1, r1, r2
-	str	r1, [r0]
-	ldr 	r0,=AT91C_PMC_SR
-1:
-	ldr 	r1, [r0]
-	ldr 	r2,=AT91C_PMC_MOSCS
-	ands 	r1, r1, r2
-	beq     1b
-	
-/* Test if MCK == SLOW CLOCK */
-_switch_to_mosc:
-	ldr 	r0,=AT91C_PMC_MCKR
-	ldr 	r1,=AT91C_PMC_CSS
-	ldr 	r2, [r0]
-	and 	r2, r2, r1
-	mov	r1, #0
-	cmp    	r1, r2
-/* No => Do nothing */
-	bne	_init_data
-/* Yes => Switch to the main oscillator */
-	ldr 	r1,=AT91C_PMC_CSS_MAIN_CLK
-	ldr 	r2,=AT91C_PMC_PRES_CLK
-	orr	r1, r1, r2
-	str 	r1, [r0]
-	ldr 	r0,=AT91C_PMC_SR
-1:
-	ldr     r1, [r0]
-	ldr	r2,=AT91C_PMC_MCKRDY
-	ands    r1, r1, r2
-	beq     1b
-#endif
-
 /* Copy the data section in RAM at .data link address */
 _init_data:
         ldr      r2, =_lp_data
@@ -176,6 +135,18 @@ _init_bss:
 	strcc  r2, [r3], #4
 	bcc    1b
 
+#if defined(CONFIG_TRUSTZONE_SUPPORT)
+/* Copy the monitor in RAM at its VMA address */
+_init_mon:
+        ldr      r2, =_lp_mon
+        ldmia    r2, {r1, r3, r4}
+1:
+        cmp      r3, r4
+        ldrcc    r2, [r1], #4
+        strcc    r2, [r3], #4
+        bcc      1b
+#endif
+
 /* Branch on C code Main function (with interworking) */
 _branch_main:
 	ldr     r4, = main
@@ -190,6 +161,12 @@ _go:
 #endif
 	ldr 	r1, =MACH_TYPE
 	mov     lr, pc
+
+#if defined(CONFIG_TRUSTZONE_SUPPORT)
+loop:
+	b	loop
+#endif
+
 	bx      r0
 
 /*#ifdef CONFIG_THUMB*/
@@ -254,3 +231,10 @@ _lp_data:
 _lp_bss:
 	.word _sbss
 	.word _ebss
+
+#if defined(CONFIG_TRUSTZONE_SUPPORT)
+_lp_mon:
+        .word _emon_dummy
+	.word _smon_text
+	.word _emon_text
+#endif

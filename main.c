@@ -37,6 +37,7 @@
 #include "flash.h"
 #include "string.h"
 #include "onewire_info.h"
+#include "tz_utils.h"
 
 extern int load_kernel(struct image_info *img_info);
 
@@ -158,6 +159,12 @@ int main(void)
 
 #ifdef CONFIG_SCLK
 	slowclk_switch_osc32();
+#endif
+
+#ifdef CONFIG_TRUSTZONE_SUPPORT
+	switch_normal_world();
+
+	/* point never reached with TZ support */
 #endif
 
 	return JUMP_ADDR;

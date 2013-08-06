@@ -196,6 +196,12 @@ include	toplevel_cpp.mk
 include	board/board_cpp.mk
 include	driver/driver_cpp.mk
 
+ifeq ($(CONFIG_TRUSTZONE_SUPPORT), y)
+link_script:=elf32-littlearm-tz.lds
+else
+link_script:=elf32-littlearm.lds
+endif
+
 # Linker flags.
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
@@ -203,7 +209,7 @@ include	driver/driver_cpp.mk
 #  -lc 	   : 	tells the linker to tie in newlib
 #  -lgcc   : 	tells the linker to tie in newlib
 LDFLAGS+=-nostartfiles -Map=$(BINDIR)/$(BOOT_NAME).map --cref -static
-LDFLAGS+=-T elf32-littlearm.lds $(GC_SECTIONS) -Ttext $(LINK_ADDR)
+LDFLAGS+=-T $(link_script) $(GC_SECTIONS) -Ttext $(LINK_ADDR)
 
 ifneq ($(DATA_SECTION_ADDR),)
 LDFLAGS+=-Tdata $(DATA_SECTION_ADDR)
