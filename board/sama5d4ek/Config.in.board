@@ -14,5 +14,6 @@ config CONFIG_SAMA5D4EK
 	select CPU_HAS_PMECC
 	select CONFIG_LOAD_ONE_WIRE
 	select CONFIG_MMC_SUPPORT
+	select CONFIG_TRUSTZONE_SUPPORT
 	help
 	  Use the SAMA5D4EK Development board

@@ -45,7 +45,13 @@
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
 #include "arch/at91_sfr.h"
+#include "arch/tz_matrix.h"
 #include "sama5d4ek.h"
+#include "matrix.h"
+
+void matrix_read_slave_security(void);
+
+void matrix_read_periperal_security(void);
 
 static void at91_dbgu_hw_init(void)
 {
@@ -211,6 +217,227 @@ static void one_wire_hw_init(void)
 	pmc_enable_periph_clock(AT91C_ID_PIOE);
 }
 
+static int matrix_configure_slave(void)
+{
+	unsigned int ddr_port;
+	unsigned int ssr_setting, sasplit_setting, srtop_setting;
+
+	/*
+	 * Matrix 0 (H64MX)
+	 */
+
+	/* 0: Bridge from H64MX to AXIMX */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX64,
+					H64MX_SLAVE_BRIDGE_TO_AXIMX,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 1: H64MX Peripheral Bridge: Non-Secure */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX64,
+					H64MX_SLAVE_PERI_BRIDGE,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 2: Video Decoder 128K: Non-Secure */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX64,
+					H64MX_SLAVE_VIDEO_DECODER,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 4 ~ 10 DDR2 Port1 ~ 7: Non-Secure */
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_128M);
+	sasplit_setting = (MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(1, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(2, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(3, MATRIX_SASPLIT_VALUE_128M));
+	ssr_setting = (MATRIX_LANSECH_NS(0)
+			| MATRIX_LANSECH_NS(1)
+			| MATRIX_LANSECH_NS(2)
+			| MATRIX_LANSECH_NS(3)
+			| MATRIX_RDNSECH_NS(0)
+			| MATRIX_RDNSECH_NS(1)
+			| MATRIX_RDNSECH_NS(2)
+			| MATRIX_RDNSECH_NS(3)
+			| MATRIX_WRNSECH_NS(0)
+			| MATRIX_WRNSECH_NS(1)
+			| MATRIX_WRNSECH_NS(2)
+			| MATRIX_WRNSECH_NS(3));
+	/* DDR port 0 not used from NWd */
+	for (ddr_port = 1; ddr_port < 8; ddr_port++) {
+		matrix_configure_slave_security(AT91C_BASE_MATRIX64,
+					(H64MX_SLAVE_DDR2_PORT_0 + ddr_port),
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+	}
+
+	/* 11: Internal SRAM 128K
+	 * TOP0 is set to 128K
+	 * SPLIT0 is set to 64K
+	 * LANSECH0 is set to 0, the low area of region 0 is the Securable one
+	 * RDNSECH0 is set to 0, region 0 Securable area is secured for reads.
+	 * WRNSECH0 is set to 0, region 0 Securable area is secured for writes
+	 */
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_128K);
+	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_64K);
+	ssr_setting = (MATRIX_LANSECH_S(0)
+			| MATRIX_RDNSECH_S(0)
+			| MATRIX_WRNSECH_S(0));
+	matrix_configure_slave_security(AT91C_BASE_MATRIX64,
+					H64MX_SLAVE_INTERNAL_SRAM,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 12:  Bridge from H64MX to H32MX: Non-Secure */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX64,
+					H64MX_SLAVE_BRIDGE_TO_H32MX,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/*
+	 * Matrix 1 (H32MX)
+	 */
+
+	/* 0: Bridge from H32MX to H64MX */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_BRIDGE_TO_H64MX,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 1: H32MX Peripheral Bridge 0 */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_PERI_BRIDGE_0,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 2: H32MX Peripheral Bridge 1 */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_PERI_BRIDGE_1,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 3: External Bus Interface: Non-Secure */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_EXTERNAL_EBI,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 4: NFC SRAM (4K): Non-Secure */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_NFC_SRAM,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 5: DPHS RAM(1M), UHP OHCI (1M), UHP EHCI (1M): Non-Secure */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_USB,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 6: Soft Modem (1M): Non-Secure */
+	srtop_setting = 0xffffffff;
+	sasplit_setting = 0xffffffff;
+	ssr_setting = 0xffffffff;
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_SMD,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+	return 0;
+}
+
+static unsigned int security_ps_peri_id[] = {
+	AT91C_ID_VDEC,
+	AT91C_ID_PIOA,
+	AT91C_ID_PIOB,
+	AT91C_ID_PIOC,
+	AT91C_ID_PIOE,
+	AT91C_ID_USART3,
+	AT91C_ID_USART4,
+	AT91C_ID_TWI2,
+	AT91C_ID_HSMCI0,
+	AT91C_ID_TC0,
+	AT91C_ID_TC1,
+	AT91C_ID_UHPHS,
+	AT91C_ID_UDPHS,
+	AT91C_ID_LCDC,
+	AT91C_ID_GMAC,
+	AT91C_ID_SPI1,
+	AT91C_ID_SMD,
+};
+
+static int matrix_config_periheral(void)
+{
+	unsigned int *peri_id = security_ps_peri_id;
+	unsigned int array_size = sizeof(security_ps_peri_id) / sizeof(unsigned int);
+	int ret;
+
+	ret = matrix_configure_peri_security(peri_id, array_size);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+static int matrix_init(void)
+{
+	int ret;
+
+	matrix_write_disable(AT91C_BASE_MATRIX64);
+	matrix_write_disable(AT91C_BASE_MATRIX32);
+
+	ret = matrix_configure_slave();
+	if (ret)
+		return -1;
+
+	ret = matrix_config_periheral();
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -238,8 +465,14 @@ void hw_init(void)
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN,
 					AT91C_BASE_RSTC + RSTC_RMR);
 
+	/* Initialize the matrix */
+	matrix_init();
+
 	/* initialize the dbgu */
 	initialize_dbgu();
+
+	matrix_read_slave_security();
+	matrix_read_periperal_security();
 
 	/* Init timer */
 	timer_init();
