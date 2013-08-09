@@ -701,6 +701,9 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 #define OCR_VOLTAGE_WIN_27_36	0x00FF8000
 #define OCR_ACCESS_MODE		0x60000000
 
+#define OCR_ACCESS_MODE_BYTE	(0x00 << 30)
+#define OCR_ACCESS_MODE_SECTOR	(0x01 << 30)
+
 static int mmc_cmd_send_op_cond(struct sd_card *sdcard,
 				unsigned int ocr)
 {
@@ -731,7 +734,7 @@ static int mmc_verify_operating_condition(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	ocr = command->resp[0];
+	ocr = command->resp[0] | OCR_ACCESS_MODE_SECTOR;
 
 	for (i = 0; i < retries; i++) {
 		ret = mmc_cmd_send_op_cond(sdcard, ocr);
