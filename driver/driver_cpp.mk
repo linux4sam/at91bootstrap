@@ -195,3 +195,7 @@ endif
 ifeq ($(CONFIG_LONG_FILENAME), y)
 CPPFLAGS += -DCONFIG_LONG_FILENAME
 endif
+
+ifeq ($(CONFIG_TWI), y)
+CPPFLAGS += -DCONFIG_TWI
+endif
