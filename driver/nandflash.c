@@ -628,7 +628,7 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 
 		pmecc_params->interrupt = 0;
 		pmecc_params->tt = PMECC_ERROR_CORR_BITS;
-		pmecc_params->mm = 13;
+		pmecc_params->mm = (PMECC_SECTOR_SIZE == 512) ? 13 : 14;
 		pmecc_params->nn = (1 << pmecc_params->mm) - 1;
 
 		if (PMECC_SECTOR_SIZE == 512) {
