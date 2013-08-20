@@ -33,7 +33,13 @@
 	(mck / (baud * 16) + 1) : ((mck) / (baud * 16))
 
 extern void usart_init(unsigned int);
+
+#ifndef CONFIG_NO_CONSOLE_OUTPUT
 extern void usart_puts(const char *ptr);
+#else
+static inline void usart_puts(const char *ptr) {/*NOTHING*/}
+#endif
+
 extern char usart_getc(void);
 
 #endif /* __USART_H__ */
