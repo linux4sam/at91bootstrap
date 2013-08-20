@@ -59,9 +59,11 @@
 
 #ifdef CONFIG_DEBUG
 extern int dbg_printf(const char *fmt_str, ...);
+extern int dbg_dump_buffer(const char level, const char* prefix, unsigned char* buffer, unsigned int len);
 #else
 #define BOOTSTRAP_DEBUG_LEVEL 0
 static inline int dbg_printf(const char *fmt_str, ...) { return 0; }
+static inline int dbg_dump_buffer(const char level, const char* prefix, unsigned char* buffer, unsigned int len) { return 0; }
 #endif
 
 #define dbg_log(level, fmt_str, args...) \

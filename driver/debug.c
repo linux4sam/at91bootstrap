@@ -34,6 +34,8 @@
 
 static char dbg_buf[MAX_BUFFER];
 
+static char* BIN_TO_HEX[]={"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
+
 static inline short fill_char(char *buf, char val)
 {
 	*buf = val;
@@ -147,3 +149,35 @@ int dbg_printf(const char *fmt_str, ...)
 
 	return 0;
 }
+//***********************************************************************
+int dbg_dump_buffer(const char level, const char* prefix, unsigned char* buffer, unsigned int len)
+{
+	unsigned int pos = 0;
+	if (level > BOOTSTRAP_DEBUG_LEVEL)
+			return 0;
+	dbgu_print(prefix);
+	dbgu_print("\n\r\t");
+	if (!len)
+	{
+		dbgu_print("EMPTY");
+	}
+	do
+	{
+		dbgu_print("[");
+		dbgu_print(BIN_TO_HEX[*buffer >> 4]);
+		dbgu_print(BIN_TO_HEX[*buffer & 0x0F]);
+		dbgu_print("],");
+		buffer++;
+		pos++;
+		if (pos == 0x10 )
+		{
+			dbgu_print("\n\r\t");
+			pos = 0;
+		}
+	}
+	while (--len);
+	dbgu_print("\n\r");
+	return 0;
+}
+//***********************************************************************
+
