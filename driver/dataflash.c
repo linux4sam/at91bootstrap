@@ -589,8 +589,9 @@ int load_dataflash(struct image_info *image)
 
 	at91_spi0_hw_init();
 
+  //If SPI clock if above 50MHz, Id read will fail (See DS).
 	ret = at91_spi_init(AT91C_SPI_PCS_DATAFLASH,
-				CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
+				(CONFIG_SYS_SPI_CLOCK > 50000000) ? CONFIG_SYS_SPI_CLOCK / 2 : CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
 	if (ret) {
 		dbg_info("SF: Fail to initialize spi\n");
 		return -1;
@@ -604,6 +605,21 @@ int load_dataflash(struct image_info *image)
 		ret = -1;
 		goto err_exit;
 	}
+	
+	//Set the SPI at full speed if needed
+	if (CONFIG_SYS_SPI_CLOCK > 50000000)
+  {
+    dbg_log(2, "SF: Speeding up ...\n\r");
+    at91_spi_disable();
+    ret = at91_spi_init(AT91C_SPI_PCS_DATAFLASH,
+            CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
+    if (ret) {
+      dbg_log(1, "SF: Fail to speed-up spi\n\r");
+      return -1;
+    }
+    at91_spi_enable();
+  }
+
 
 #ifdef CONFIG_DATAFLASH_RECOVERY
 	if (!dataflash_recovery(df_desc)) {
