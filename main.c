@@ -42,29 +42,24 @@
 extern int load_kernel(struct image_info *img_info);
 #endif
 
-typedef int (*load_function)(struct image_info *img_info);
-
-static load_function load_image;
-
-void (*sdcard_set_of_name)(char *) = NULL;
-
-static int init_loadfunction(void)
-{
+//! Firmware loader definitions
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-	load_image = &load_kernel;
+#define load_image load_kernel
 #else
 #if defined (CONFIG_DATAFLASH)
-	load_image = &load_dataflash;
+#define load_image load_dataflash
 #elif defined(CONFIG_NANDFLASH)
-	load_image = &load_nandflash;
+#define load_image load_nandflash
 #elif defined(CONFIG_SDCARD)
-	load_image = &load_sdcard;
+#define load_image load_sdcard
 #else
 #error "No booting media_str specified!"
 #endif
 #endif
-	return 0;
-}
+
+typedef int (*load_function)(struct image_info *img_info);
+
+void (*sdcard_set_of_name)(char *) = NULL;
 
 static void display_banner (void)
 {
@@ -151,9 +146,8 @@ int main(void)
 	/* Load one wire information */
 	load_1wire_info();
 #endif
-	init_loadfunction();
-
-	ret = (*load_image)(&image);
+	
+	ret = load_image(&image);
 
 	if (media_str)
 		usart_puts(media_str);
