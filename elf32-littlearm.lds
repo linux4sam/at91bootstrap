@@ -42,3 +42,5 @@ SECTIONS
 }
 end = .;  /* define a global symbol marking the end of application */
 
+/* Set the Memory descriptor table at the top of the SRAM memory.*/
+PROVIDE(MEMORY_DESCRIPTOR_TABLE_ENTRY = 0x320000 - 0x4000);

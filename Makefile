@@ -176,8 +176,12 @@ ifeq ($(SYMLINK),)
 SYMLINK=at91bootstrap.bin
 endif
 
-COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
-SOBJS-y:= $(TOPDIR)/crt0_gnu.o
+
+
+COBJS-y := $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
+SOBJS-y := $(TOPDIR)/crt0_gnu.o
+
+
 DIRS:=$(TOPDIR) $(TOPDIR)/board/$(BOARDNAME) $(TOPDIR)/lib $(TOPDIR)/driver
 
 include	lib/libc.mk
@@ -186,8 +190,6 @@ include	fs/src/fat.mk
 
 #$(SOBJS-y:.o=.S)
 
-SRCS:= $(COBJS-y:.o=.c)
-OBJS:= $(SOBJS-y) $(COBJS-y)
 INCL=board/$(BOARD)
 GC_SECTIONS=--gc-sections
 
@@ -216,6 +218,10 @@ endif
 include	toplevel_cpp.mk
 include	board/board_cpp.mk
 include	driver/driver_cpp.mk
+
+#Must be defined once all include hase been done as new source files can be added in included MAKE rules file.
+SRCS:= $(COBJS-y:.o=.c)
+OBJS:= $(SOBJS-y) $(COBJS-y)
 
 # Linker flags.
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -279,7 +285,7 @@ endif
 	@echo ld FLAGS
 	@echo ========
 	@echo $(LDFLAGS) && echo
-
+	
 $(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
 	@echo "  LD        "$(BOOT_NAME).elf

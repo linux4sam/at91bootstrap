@@ -36,11 +36,7 @@ config CONFIG_BUILD_DEBUG
     This set the LINK address to 0x300000
 
 endchoice
-config CONFIG_NO_CONSOLE_OUTPUT
-  bool "NO DEBUG console output"
-  default n
-  help
-    "No log will be done to the debug console (DBGU console)"
+
 choice
 	prompt "Image Loading Strategy"
 	default CONFIG_LOAD_UBOOT
@@ -309,11 +305,18 @@ config CONFIG_LONG_TEST
 	default n
 	help
 	  
+config CONFIG_NO_CONSOLE_OUTPUT
+  bool "NO DBGU console output"
+  default n
+  help
+    "No log will be done to the DBGU console"
+
 config CONFIG_DEBUG
 	bool "Debug Support"
 	default n
 	help
 	  Output Debug messages
+	  
 choice
 	prompt "Debug Level"
 	depends on CONFIG_DEBUG

@@ -30,6 +30,12 @@ config ALLOW_DATAFLASH_RECOVERY
 	bool
 	default	n
 
+config CONFIG_DATAFLASH_LOAD_WITH_DMA
+  bool "Use DMA"
+  depends on CONFIG_DATAFLASH
+  help
+    Dataflash contents will be loaded with DMA help
+    
 # ------- SPI boot source -----------------------------------------------------
 choice
 	prompt "Chip Select"

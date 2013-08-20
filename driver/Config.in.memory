@@ -46,6 +46,7 @@ config	ALLOW_SDRAM_16BIT
 	bool
 	default n
 
+
 choice
 	prompt "RAM size"
 	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDR2
@@ -70,6 +71,20 @@ config	CONFIG_RAM_512MB
 	bool "512 MB"
 
 endchoice
+
+config CONFIG_WITH_MMU
+  bool "Activate MMU"
+  depends on ALLOW_WITH_MMU
+  default n
+  help
+    "Use the MMU"
+
+config CONFIG_WITH_CACHE
+  bool "Activate the cache management"
+  depends on ALLOW_WITH_CACHE && CONFIG_WITH_MMU
+  default n
+  help
+    "Cache activated, requires the MMU activation."
 
 config	CONFIG_SDRAM_16BIT
 	bool "Use 16 bit SDRAM"
@@ -148,5 +163,60 @@ config CONFIG_BOOTSTRAP_MAXSIZE
 	default "12288" if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
 	default "65536"	if CONFIG_SAMA5D3XEK
 	default "23000"
+
+config ALLOW_ROM_EBI
+  bool
+  default y if CONFIG_AT91SAMA5D3XEK
+  default n if !CONFIG_AT91SAMA5D3XEK
+  
+  
+endmenu
+
+menu  "External Bus Interface memory"
+  depends on ALLOW_ROM_EBI
+  
+  config CONFIG_EBI_0_USED
+  bool "EBI 0 is used"
+  default n
+
+  config CONFIG_EBI_0_SIZE
+  int "EBI0 size (in Mega Bytes)"
+  default 0
+  depends on CONFIG_EBI_0_USED
+  help
+    "Size in Mega Bytes of the attached to the EBI0 memory interface."
+  
+  config CONFIG_EBI_1_USED
+  bool "EBI 1 is used"
+  default n
+  
+  config CONFIG_EBI_1_SIZE
+  int "EBI1 size (in Mega Bytes)"
+  default 0
+  depends on CONFIG_EBI_1_USED
+  help
+    "Size in bytes of the attached to the EBI1 memory interface."
+  
+  config CONFIG_EBI_2_USED
+  bool "EBI 2 is used"
+  default n
+  
+  config CONFIG_EBI_2_SIZE
+  int "EBI2 size (in Mega Bytes)"
+  default 0
+  depends on CONFIG_EBI_2_USED
+  help
+    "Size in bytes of the attached to the EBI2 memory interface."
+
+  config CONFIG_EBI_3_USED
+  bool "EBI 3 is used"
+  default n
+  
+  config CONFIG_EBI_3_SIZE
+  int "EBI3 size (in Mega Bytes)"
+  default 0
+  depends on CONFIG_EBI_3_USED
+  help
+    "Size in bytes of the attached to the EBI3 memory interface."
 
 endmenu

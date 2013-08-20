@@ -28,6 +28,21 @@
 #ifndef __SAMA5D3XEK_H__
 #define __SAMA5D3XEK_H__
 
+#include <stdint.h>
+#include "arch/at91sama5d3x.h"
+/**
+ * This structure give the size of each of the external memories EBIi and DDRCS
+ * @note all the sizes are in MEGA BYTES !!!
+ */
+struct ExtMemDescriptor
+{
+  uint32_t EBICS0Size;
+  uint32_t EBICS1Size;
+  uint32_t EBICS2Size;
+  uint32_t EBICS3Size;
+  uint32_t DDRCSSize;
+};
+
 /*
  * PMC Setting
  * 
@@ -233,5 +248,6 @@ extern void nandflash_config_buswidth(unsigned char busw);
 extern void at91_spi0_hw_init(void);
 
 extern void at91_mci0_hw_init(void);
+
 
 #endif /* #ifndef __SAMA5EK_H__ */
