@@ -77,6 +77,9 @@
 #define STATUS_PAGE_SIZE_AT45		(1 << 0)
 #define STATUS_READY_AT45		(1 << 7)
 
+//! Maximum BASE speed for any SPI Flash device now (50MHz)
+#define SPI_MAX_BASE_SPEED 50000000
+
 struct dataflash_descriptor;
 
 struct dataflash_descriptor
@@ -286,7 +289,8 @@ static int update_image_length(struct dataflash_descriptor *df_desc,
 #endif
 }
 #endif
-
+//*******************************************************************
+#ifndef CONFIG_SET_PARAMS_SPI_FLASH
 static unsigned char df_read_status_at45(unsigned char *status)
 {
   unsigned char cmd = CMD_READ_STATUS_AT45;
@@ -298,6 +302,7 @@ static unsigned char df_read_status_at45(unsigned char *status)
 
   return 0;
 }
+#endif
 
 #ifdef CONFIG_DATAFLASH_RECOVERY
 
@@ -529,6 +534,7 @@ static int dataflash_recovery(struct dataflash_descriptor *df_desc)
   }
 #endif /* #ifdef CONFIG_DATAFLASH_RECOVERY */
 
+#ifndef CONFIG_SET_PARAMS_SPI_FLASH
 static int
 df_at45_desc_init(struct dataflash_descriptor *df_desc)
 {
@@ -654,9 +660,10 @@ df_desc_init(struct dataflash_descriptor *df_desc, unsigned char family)
 
   return 0;
 }
+#endif /*CONFIG_SET_PARAMS_SPI_FLASH*/
 
 static int
-dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
+dataflash_probe_chip(struct dataflash_descriptor *df_desc)
 {
   unsigned char dev_id[5];
   unsigned char cmd = CMD_READ_DEV_ID;
@@ -677,13 +684,22 @@ dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
 	dbg_info("\n");
 #endif
 
+#ifndef CONFIG_SET_PARAMS_SPI_FLASH
   if (dev_id[0] != MANUFACTURER_ID_ATMEL){
       dbg_info("Not supported spi flash Manufactorer ID: %d\n",
               dev_id[0]);
       return -1;
     }
-
   ret = df_desc_init(df_desc, (dev_id[1] & 0xe0));
+#else
+#warning Use SPI Flash Parameters from CONFIGURATION
+   df_desc->family = 0;
+   df_desc->page_offset = CONFIG_SPI_FLASH_PARAMS_PAGE_OFFSET;
+   df_desc->page_size = CONFIG_SPI_FLASH_PARAMS_PAGE_SIZE;
+   df_desc->pages = CONFIG_SPI_FLASH_PARAMS_PAGES;
+   df_desc->is_power_2 = CONFIG_SPI_FLASH_PARAMS_PAGE_SIZE_IS_POWER2;
+
+#endif
   if (ret)
     return ret;
 
@@ -701,9 +717,8 @@ load_dataflash(struct image_info *image)
 
   //If SPI clock if above 50MHz, Id read will fail (See DS).
   ret = at91_spi_init(AT91C_SPI_PCS_DATAFLASH,
-      (CONFIG_SYS_SPI_CLOCK > 50000000) ?
-          CONFIG_SYS_SPI_CLOCK / 2 : CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
- CONFIG_SYS_SPI_CLOCK / 2 : CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
+      (CONFIG_SYS_SPI_CLOCK > SPI_MAX_BASE_SPEED) ?
+          SPI_MAX_BASE_SPEED : CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
   if (ret)
     {
       dbg_info("SF: Fail to initialize spi\n");
@@ -712,7 +727,7 @@ load_dataflash(struct image_info *image)
 
   at91_spi_enable();
 
-  ret = dataflash_probe_atmel(df_desc);
+  ret = dataflash_probe_chip(df_desc);
   if (ret) {
       dbg_info("SF: Fail to probe atmel spi flash\n");
       ret = -1;
@@ -720,7 +735,7 @@ load_dataflash(struct image_info *image)
     }
 
   //Set the SPI at full speed if needed
-  if (CONFIG_SYS_SPI_CLOCK > 50000000)
+  if (CONFIG_SYS_SPI_CLOCK > SPI_MAX_BASE_SPEED)
     {
       dbg_log(2, "SF: Speeding up ...\n\r");
       at91_spi_disable();

@@ -118,4 +118,58 @@ config CONFIG_SPI_BOOT
 	default "AT91C_SPI_PCS2_DATAFLASH"	if CONFIG_SPI_BOOT_CS2
 	default "AT91C_SPI_PCS3_DATAFLASH"	if CONFIG_SPI_BOOT_CS3
 
+choice
+  prompt "SPI Flash Parameters"
+  depends on CONFIG_DATAFLASH
+  default CONFIG_PROBE_PARAMS_SPI_FLASH
+  help
+    "Set the actual way to get the SPI Flash parameters (static or probbed)"
+
+config CONFIG_PROBE_PARAMS_SPI_FLASH
+  bool "Probe the SPI Flash to set the parameters."
+  depends on CONFIG_DATAFLASH
+  default n
+  help 
+    "Probe the SPI Flash to set the parameters. Must be a well known one (from ATMEL at this time)"
+    
+  config CONFIG_SET_PARAMS_SPI_FLASH
+  bool "Set the SPI Flash the parameters."
+  depends on CONFIG_DATAFLASH
+  default n
+  help 
+    "Set the SPI FLash parameters"
+endchoice
+
+menu "SPI FLash Parameters"
+  depends on CONFIG_SET_PARAMS_SPI_FLASH
+  
+config CONFIG_SPI_FLASH_PARAMS_PAGES
+  int "SPI Flash Pages quantity"
+  default 16384
+  help
+    "The number of pages of the SPI Serial Flash Device"
+
+config CONFIG_SPI_FLASH_PARAMS_PAGE_SIZE_IS_POWER2
+  bool "Page size is Power2"
+  default true
+  help
+    "The Page Size is Power of 2 (128,256,512,1024,...)"
+
+config CONFIG_SPI_FLASH_PARAMS_PAGE_SIZE
+  int "SPI Flash Pages size"
+  depends on !CONFIG_SPI_FLASH_PARAMS_PAGE_SIZE_IS_POWER2
+  default 256
+  help
+    "The size of pages of the SPI Serial Flash Device (in byte)"
+    
+config CONFIG_SPI_FLASH_PARAMS_PAGE_OFFSET
+  int "SPI Flash Page Offset in command"
+  depends on !CONFIG_SPI_FLASH_PARAMS_PAGE_SIZE_IS_POWER2
+  default 0
+  help
+    "Pages offset (ECC,Data)"
+
 endmenu
+
+endmenu
+
