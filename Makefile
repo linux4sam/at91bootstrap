@@ -251,10 +251,14 @@ CheckCrossCompile:
 
 PrintFlags:
 ifeq ($(CONFIG_BUILD_RELEASE),y)
-	@echo " !! --- RELEASE BUILD --- !! "
+	@echo " !! --- RELEASE BUILD --- !! " && echo
 else
-	@echo " !! --- DEBUG BUILD --- !! "
+	@echo " !! --- DEBUG BUILD --- !! " && echo
 endif
+	@echo Driver config
+	@echo ========
+	@echo SPI_CLCK : $(SPI_CLK)
+	@echo SPI_BOOT : $(SPI_BOOT) && echo
 	@echo CC
 	@echo ========
 	@echo $(CC) $(gccversion)&& echo
