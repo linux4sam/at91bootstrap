@@ -189,8 +189,49 @@ _go:
 	ldr	r4, [r1]
 #endif
 	ldr 	r1, =MACH_TYPE
+	/*EDF*/
+#ifdef CONFIG_DEBUG_3RD_STAGE
+#warning DEBUGGER wait activated for third stage
+
+_wait_dbg:
+	//TEST DEBUG Mode enabled : below => Data align exception ! => no message wait cebug
+	// Enable  the Missaligned exception and interrupts  (FIQ & IRQ), Note : will do Data Abort Exception under debugger !
+	/* Change the interrupt flag I,F,A only if not under DEBUG : unknown state according to the ARMv7 ref manual => Data Abort Exception ! */
+/* Get the DBGDSCR registre */
+        mrc p14, 0, r0, c0, c2, 2
+/* Check the MDBGen bit (b15) and act accordingly */
+        and   r0, r0, #0x8000
+        cmp r0, #0x00
+/* Under Monitor => no CPSIE !! */
+        bne _after_cpsie
+        CPSIE   A
+_after_cpsie:
+
+	//Enable the HALT mode in DEBUG (DBGDSCR:HDBGen = 1)
+	mrc p14, 0, r0, c0, c2, 2
+	orr   r0, r0, #0x4000
+	mcr p14, 0, r0, c0, c2, 2
+	//Read it back to check !
+	// DBGDSCRext[id:34]
+	mrc p14, 0, r0, c0, c2, 2
+	mrs   r1, CPSR
+	ldr     r4, = displayWaitDbg
+	mov     lr, pc
+	bx      r4
+	//Then DEBUG activation
+	bkpt
+	//If failed : message
+	ldr     r4, = displayFailedMsg
+	mov     lr, pc
+	bx      r4
+	//STOP here !
+_inifinite_loop:
+	b _inifinite_loop
+
+#else
 	mov     lr, pc
 	bx      r0
+#endif /*CONFIG_DEBUG_APPLICATION*/
 
 /*#ifdef CONFIG_THUMB*/
 

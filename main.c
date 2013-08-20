@@ -174,3 +174,20 @@ int main(void)
 
 	return JUMP_ADDR;
 }
+//****************************************************
+//Will just display a running symbol
+void displayWaitDbg(void)
+{
+  register unsigned int dbgdscr asm("r0");
+  register unsigned int cpsr asm("r1");
+
+  dbg_log(2,"DBGDSCR:%b ; CPSR:0x%b\n\r", dbgdscr, cpsr);
+  dbgu_print("Entering HALT Debug Mode, Waiting for the DEBUGGER ...\n\r");
+}
+//****************************************************
+//Failure message
+void displayFailedMsg()
+{
+  dbgu_print("CPU not HALTED !\n\r");
+}
+//****************************************************

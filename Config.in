@@ -353,3 +353,9 @@ config CONFIG_DISABLE_WATCHDOG
 	default y
 	help
 	  Disable the watchdog in the boostrap
+
+config CONFIG_DEBUG_3RD_STAGE
+  bool "Third Stage (APPLICATION/KERNEL) DEBUG"
+  default n
+  help
+    The bootstrap will load the third stage (application or kernel) into the memory and then will wait for a debugger being attached to the board. Then the PC should be manualy set to the application's load address.

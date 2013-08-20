@@ -208,6 +208,11 @@ CPPFLAGS += -g -O0
 ASFLAGS += -g -O0
 endif
 
+## Set the flags for third statge debug
+ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
+ASFLAGS += -DCONFIG_DEBUG_3RD_STAGE
+endif
+
 include	toplevel_cpp.mk
 include	board/board_cpp.mk
 include	driver/driver_cpp.mk
@@ -254,6 +259,9 @@ ifeq ($(CONFIG_BUILD_RELEASE),y)
 	@echo " !! --- RELEASE BUILD --- !! " && echo
 else
 	@echo " !! --- DEBUG BUILD --- !! " && echo
+endif
+ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
+	@echo " !! --- WAIT FOR DEBUGGER ONCE THIRD STAGE LOADED --- !!"
 endif
 	@echo Driver config
 	@echo ========
