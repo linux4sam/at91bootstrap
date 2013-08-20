@@ -19,7 +19,7 @@ BINDIR:=$(TOPDIR)/binaries
 
 DATE := $(shell date)
 VERSION := 3.6.0
-REVISION :=
+REVISION :=hgr_BaV
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
@@ -191,12 +191,22 @@ OBJS:= $(SOBJS-y) $(COBJS-y)
 INCL=board/$(BOARD)
 GC_SECTIONS=--gc-sections
 
-CPPFLAGS=-ffunction-sections -g -Os -Wall \
+# Compiler Flags
+CPPFLAGS = -ffunction-sections -Wall \
 	-fno-stack-protector \
 	-I$(INCL) -Iinclude -Ifs/include \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\" -DCOMPILE_TIME="\"$(DATE)\""
 
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
+ASFLAGS=-Wall -I$(INCL) -Iinclude
+## Release BUILD
+ifeq ($(CONFIG_BUILD_RELEASE),y)
+CPPFLAGS += -Os
+ASFLAGS += -Os
+## debug Release
+else
+CPPFLAGS += -g -O0
+ASFLAGS += -g -O0
+endif
 
 include	toplevel_cpp.mk
 include	board/board_cpp.mk
@@ -240,6 +250,11 @@ CheckCrossCompile:
 	fi )
 
 PrintFlags:
+ifeq ($(CONFIG_BUILD_RELEASE),y)
+	@echo " !! --- RELEASE BUILD --- !! "
+else
+	@echo " !! --- DEBUG BUILD --- !! "
+endif
 	@echo CC
 	@echo ========
 	@echo $(CC) $(gccversion)&& echo
@@ -282,11 +297,11 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	@( fsize=`stat -c%s $(BINDIR)/$(BOOT_NAME).bin`; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
-		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
+		echo "[Failed***] It's too big to fit into SRAM area. the support maximum size is $(BOOTSTRAP_MAXSIZE)"; \
 		rm -rf $(BINDIR); \
 		exit 2;\
 	  else \
-	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
+	  	echo "[Succeeded] It's OK to fit into SRAM area ($(BOOTSTRAP_MAXSIZE) bytes)"; \
 	  fi )
 endif  # HAVE_DOT_CONFIG
 

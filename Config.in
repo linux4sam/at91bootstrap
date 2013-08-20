@@ -17,6 +17,26 @@ config CONFIG_PROJECT
 	default "nandflash"	if CONFIG_NANDFLASH
 	default "sdcard"	if CONFIG_SDCARD
 
+choice 
+  prompt "Build Type"
+  default CONFIG_BUILD_RELEASE
+  
+config CONFIG_BUILD_RELEASE
+  bool "Release"
+  help
+    The build binary will be used 
+    only once flashed on to the board.
+    This set the LINK address to 0x000000
+
+config CONFIG_BUILD_DEBUG
+  bool "Debug"
+  help
+    The build binary will be used once 
+    downloaded through a JTAG probe and then debugged.
+    This set the LINK address to 0x300000
+
+endchoice
+	
 choice
 	prompt "Image Loading Strategy"
 	default CONFIG_LOAD_UBOOT
