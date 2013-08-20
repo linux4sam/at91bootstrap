@@ -69,10 +69,22 @@ static void display_banner (void)
 	char *version = "AT91Bootstrap";
 	char *ver_num = " "AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
 
+#if defined( CONFIG_CPU_CLK_498MHZ)
+	const char* const clocks_msg = " CLOCKS : Core:498MHz, Bus:166MHz\n\r";
+#elif defined (CONFIG_CPU_CLK_400MHZ)
+	const char* const clocks_msg = " CLOCKS : Core:400MHz, Bus:132MHz\n\r";
+#elif defined (CONFIG_CPU_CLK_533MHZ)
+	const char* const clocks_msg = " CLOCKS : Core:533MHz, Bus:132MHz\n\r";
+#else
+#error NO Clock defined !!
+	const char* const clocks_msg = "UNKNOWN";
+#endif
+
 	usart_puts("\n");
 	usart_puts("\n");
 	usart_puts(version);
 	usart_puts(ver_num);
+	usart_puts(clocks_msg);
 	usart_puts("\n");
 	usart_puts("\n");
 }
@@ -134,7 +146,7 @@ int main(void)
 	display_banner();
 
 #ifdef CONFIG_LOAD_ONE_WIRE
-	/* Load one wire informaion */
+	/* Load one wire information */
 	load_1wire_info();
 #endif
 	init_loadfunction();
