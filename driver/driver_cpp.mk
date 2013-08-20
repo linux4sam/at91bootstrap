@@ -28,6 +28,10 @@ endif
 
 # SDRAM/DDR/DDR2 size
 
+ifeq ($(CONFIG_RAM_16MB),y)
+CPPFLAGS += -DCONFIG_RAM_16MB
+endif
+
 ifeq ($(CONFIG_RAM_32MB),y)
 CPPFLAGS += -DCONFIG_RAM_32MB
 endif

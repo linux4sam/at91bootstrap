@@ -51,6 +51,9 @@ choice
 	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDR2
 	default CONFIG_RAM_64MB
 
+config  CONFIG_RAM_16MB
+  bool "16 MB"
+
 config	CONFIG_RAM_32MB
 	bool "32 MB"
 
