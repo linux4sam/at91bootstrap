@@ -38,7 +38,9 @@
 #include "string.h"
 #include "onewire_info.h"
 
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 extern int load_kernel(struct image_info *img_info);
+#endif
 
 typedef int (*load_function)(struct image_info *img_info);
 
