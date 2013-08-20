@@ -81,6 +81,7 @@
 #define AT91C_ID_IRQ	47	/* Advanced Interrupt Controller (IRQ) */
 #define AT91C_ID_FUSE	48	/* Fuse Controller */
 #define AT91C_ID_MPDDRC	49	/* MPDDR Controller */
+#define AT91C_ID_MEMORY 255 /* RAM device ID */
 
 /*
  * User Peripherals physical base addresses.
