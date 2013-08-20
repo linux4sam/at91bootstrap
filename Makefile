@@ -362,7 +362,8 @@ clean:
 	find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.o' \
-		-o -name '*~' \) \
+		-o -name '*~' \
+		-o -name '*.S.txt' \) \
 		-print0 \
 		| xargs -0 rm -f
 	rm -fr $(obj)
@@ -400,5 +401,10 @@ tarballx: clean
 	cp -f $$T.bz2 /usr/local/install/downloads
 
 PHONY+=tarball tarballx
+
+disassembly: all
+	$(OBJDUMP) -DS $(BINDIR)/$(BOOT_NAME).elf > $(BINDIR)/$(BOOT_NAME).S.txt
+
+PHONY += disassembly
 
 .PHONY: $(PHONY)
