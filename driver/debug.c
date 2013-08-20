@@ -70,7 +70,25 @@ static inline short fill_hex_int(char *buf, unsigned int data)
 
 	return num;
 }
+static inline short fill_bin_int (char *buf, unsigned int data)
+{
+	short num = 0;
+	int idxBit = 31;
+	do
+	{
+		*buf++ = data & (1<<idxBit)  ?  '1' : '0';
+		num++;
 
+		//add decoration for each byte
+		if ((idxBit&0xF8) == idxBit)
+		{
+			*buf++=':';
+			num++;
+		}
+	} while (idxBit-- > 0);
+
+	return num;
+}
 int dbg_printf(const char *fmt_str, ...)
 {
 	va_list ap;
@@ -89,6 +107,11 @@ int dbg_printf(const char *fmt_str, ...)
 		} else {
 			fmt_str++;	/* skip % */
 			switch (*fmt_str) {
+			case 'b':// Add binary dump support
+				*p++='0';
+				*p++='b';
+				num=fill_bin_int(p, va_arg(ap, unsigned int));
+				break;
 			case 'd':
 			case 'i':
 			case 'u':
