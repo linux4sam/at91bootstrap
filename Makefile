@@ -210,7 +210,7 @@ CPPFLAGS += -g -O0
 ASFLAGS += -g -O0
 endif
 
-## Set the flags for third statge debug
+## Set the flags for third stage debug
 ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
 ASFLAGS += -DCONFIG_DEBUG_3RD_STAGE
 endif
