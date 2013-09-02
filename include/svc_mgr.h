@@ -2,14 +2,14 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
  * - Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the disclaiimer below.
+ * this list of conditions and the disclaimer below.
  *
  * Atmel's name may not be used to endorse or promote products derived from
  * this software without specific prior written permission.
@@ -25,23 +25,20 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
 
-extern void matrix_write_enable(unsigned int matrix_base);
-extern void matrix_write_disable(unsigned int matrix_base);
-extern void matrix_configure_slave_security(unsigned int matrix_base,
-				unsigned int slave,
-				unsigned int srtop_setting,
-				unsigned int srsplit_setting,
-				unsigned int ssr_setting);
-extern int matrix_configure_peri_security(unsigned int *peri_id_array,
-					unsigned int size);
+#ifndef __SVC_MGR_H__
+#define __SVC_MGR_H__
 
-extern int is_peripheral_secure(unsigned int periph_id);
-extern int is_sys_clk_secure(unsigned int sys_mask);
-extern int is_usb_hs_secure(void);
-extern int is_usb_host_secure(void);
-extern int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_on, unsigned int *silent);
+/* A structure which can hold the contents of the registers r0-r7 */
+struct smc_args_t {
+	unsigned int	r0;
+	unsigned int	r1;
+	unsigned int	r2;
+	unsigned int	r3;
+	unsigned int	r4;
+	unsigned int	r5;
+	unsigned int	r6;
+	unsigned int	r7;
+};
 
-#endif /* #ifndef __MATRIX_H__ */
+#endif

@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
+#include "timer.h"
 #include "arch/at91_pmc.h"
 
 static inline void write_pmc(unsigned int offset, const unsigned int value)
@@ -300,3 +301,111 @@ void pmc_enable_system_clock(unsigned int clock_id)
 {
 	 write_pmc(PMC_SCER, clock_id);
 }
+
+#if defined(CONFIG_TRUSTZONE_SUPPORT)
+unsigned int pmc_read_reg(unsigned int reg_offset)
+{
+	if (reg_offset <= PMC_OCR)
+		return read_pmc(reg_offset);
+	else
+		return 0xffffffff;
+}
+
+void pmc_enable_clock(unsigned int per_id)
+{
+	unsigned long regval;
+
+	regval = AT91C_PMC_CMD | AT91C_PMC_EN;
+	regval |= (per_id & AT91C_PMC_PID);
+
+	/* No need to use Peripheral Divisor value
+	 * peripherals are supposed to work @ 90MHz
+	 */
+	write_pmc(PMC_PCR, regval);
+}
+
+void pmc_disable_clock(unsigned int per_id)
+{
+	unsigned long regval;
+
+	regval = AT91C_PMC_CMD;
+	regval |= (per_id & AT91C_PMC_PID);
+	write_pmc(PMC_PCR, regval);
+}
+
+int pmc_periph_clk(unsigned int periph_id, unsigned int is_on)
+{
+	if ((periph_id > AT91C_ID_FIQ) && (periph_id < AT91C_ID_COUNTS)) {
+		if (is_on)
+			pmc_enable_clock(periph_id);
+		else
+			pmc_disable_clock(periph_id);
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
+unsigned int sys_mask_to_per_id(unsigned int sys_mask)
+{
+	switch (sys_mask) {
+	case AT91C_PMC_LCDCK:
+		return AT91C_ID_LCDC;
+	case AT91C_PMC_SMDCK:
+		return AT91C_ID_SMD;
+	case AT91C_PMC_UHP:
+		return AT91C_ID_UHPHS;
+	case AT91C_PMC_UDP:
+		return AT91C_ID_UDPHS;
+	}
+
+	return 0xffffffff;
+}
+
+int pmc_sys_clk(unsigned int sys_clock_mask, unsigned int is_on)
+{
+	if (sys_clock_mask & AVAILABLE_SYS_CLK) {
+		if (is_on)
+			write_pmc(PMC_SCER, sys_clock_mask);
+		else
+			write_pmc(PMC_SCDR, sys_clock_mask);
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
+int pmc_uckr_clk(unsigned int is_on)
+{
+	unsigned int uckr = read_pmc(PMC_UCKR);
+	unsigned int sr;
+
+	if (is_on) {
+		uckr |= (AT91C_CKGR_UPLLCOUNT_DEFAULT | AT91C_CKGR_UPLLEN_ENABLED);
+		sr = AT91C_PMC_LOCKU;
+	} else {
+		uckr &= ~AT91C_CKGR_UPLLEN_ENABLED;
+		sr = 0;
+	}
+
+	write_pmc(PMC_UCKR, uckr);
+
+	do {
+		udelay(1);
+	} while ((read_pmc(PMC_SR) & AT91C_PMC_LOCKU) != sr);
+
+	return 0;
+}
+
+unsigned int pmc_usb_setup(void)
+{
+	unsigned int usbr = AT91C_PMC_USBS_USB_UPLL;
+
+	/* Setup divider by 10 to reach 48 MHz */
+	usbr |= ((10 - 1) << 8) & AT91C_PMC_USBDIV;
+
+	write_pmc(PMC_USB, usbr);
+
+	return usbr;
+}
+#endif

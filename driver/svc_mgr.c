@@ -2,14 +2,14 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
  * - Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the disclaiimer below.
+ * this list of conditions and the disclaimer below.
  *
  * Atmel's name may not be used to endorse or promote products derived from
  * this software without specific prior written permission.
@@ -25,23 +25,78 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
+#include "svc_mgr.h"
+#include "arch/at91_pmc.h"
+#include "pmc.h"
+#include "matrix.h"
+#include "l2cc.h"
+#include "debug.h"
 
-extern void matrix_write_enable(unsigned int matrix_base);
-extern void matrix_write_disable(unsigned int matrix_base);
-extern void matrix_configure_slave_security(unsigned int matrix_base,
-				unsigned int slave,
-				unsigned int srtop_setting,
-				unsigned int srsplit_setting,
-				unsigned int ssr_setting);
-extern int matrix_configure_peri_security(unsigned int *peri_id_array,
-					unsigned int size);
+/*
+ * svc_mgr_main - C entry point of the secure world when a SMC is processed
+ * in Normal World
+ */
+int svc_mgr_main(struct smc_args_t const *args)
+{
+	int ret = 0;
+	unsigned int silent = 1;
 
-extern int is_peripheral_secure(unsigned int periph_id);
-extern int is_sys_clk_secure(unsigned int sys_mask);
-extern int is_usb_hs_secure(void);
-extern int is_usb_host_secure(void);
-extern int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_on, unsigned int *silent);
+	dbg_loud("--> svc_mgr_main\n\r");
 
-#endif /* #ifndef __MATRIX_H__ */
+	switch (args->r0) {
+	case 0x24:
+		if (args->r1 == PMC_PLLAR
+			|| args->r1 == PMC_MCKR)
+			ret = pmc_read_reg(args->r1);
+		else
+			ret = -1;
+		break;
+
+	case 0x25:
+		if (is_peripheral_secure(args->r1))
+			ret = -1;
+		else if (is_switching_clock_forbiden(args->r1, args->r2, &silent))
+			if (silent)
+				ret = 0;
+			else
+				ret = -1;
+		else
+			ret = pmc_periph_clk(args->r1, args->r2);
+		break;
+
+	case 0x26:
+		if (is_sys_clk_secure(args->r1))
+			ret = -1;
+		else
+			ret = pmc_sys_clk(args->r1, args->r2);
+		break;
+
+	case 0x27:
+		if (is_usb_hs_secure())
+			ret = -1;
+		else
+			ret = pmc_uckr_clk(args->r1);
+		break;
+
+	case 0x28:
+		if (is_usb_host_secure())
+			ret = -1;
+		else
+			ret = pmc_usb_setup();
+		break;
+
+	case 0x42:
+		l2cache_init();
+		break;
+
+	default:
+		dbg_info("svc mgr error: SMC ID (%d) not defined\n\r",
+							args->r0);
+		ret = -1;
+		break;
+	}
+
+	dbg_loud("<-- svc_mgr_main\n\r");
+
+	return ret;
+}

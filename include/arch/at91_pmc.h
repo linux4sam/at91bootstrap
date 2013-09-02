@@ -70,16 +70,24 @@
 
 /* -------- PMC_SCER : (PMC Offset: 0x0) System Clock Enable Register --------*/ 
 #define AT91C_PMC_DDR		(0x1UL <<  2)
+#define AT91C_PMC_LCDCK		(0x1UL <<  3)
+#define AT91C_PMC_SMDCK		(0x1UL <<  4)
 #define AT91C_PMC_UHP		(0x1UL <<  6)
 #define AT91C_PMC_UDP		(0x1UL <<  7)
 #define AT91C_PMC_PCK0		(0x1UL <<  8)
 #define AT91C_PMC_PCK1		(0x1UL <<  9)
 
+#define AVAILABLE_SYS_CLK (AT91C_PMC_DDR \
+			 | AT91C_PMC_LCDCK \
+			 | AT91C_PMC_SMDCK \
+			 | AT91C_PMC_UHP \
+			 | AT91C_PMC_UDP)
+
 /* -------- PMC_SCDR : (PMC Offset: 0x4) System Clock Disable Register --------*/ 
 /* -------- PMC_SCSR : (PMC Offset: 0x8) System Clock Status Register ---------*/
 #define AT91C_PMC_PCK		(0x1UL <<  0)
 
-/* -------- CKGR_UCKR : (PMC Offset: 0x1c) UTMI Clock Configuration Register --------*/ 
+/*-- PMC_UCKR : (PMC Offset: 0x1c) UTMI Clock Configuration Register ------*/
 #define AT91C_CKGR_UOSCEN	(0x1UL <<  0)
 #define AT91C_CKGR_OSCBYPASS	(0x1UL <<  1)
 #define AT91C_CKGR_OSCOUNT	(0xFFUL << 8)
@@ -87,6 +95,7 @@
 #define 	AT91C_CKGR_UPLLEN_DISABLED	(0x0UL << 16)
 #define 	AT91C_CKGR_UPLLEN_ENABLED	(0x1UL << 16)
 #define AT91C_CKGR_UPLLCOUNT	(0xFUL << 20)
+#define		AT91C_CKGR_UPLLCOUNT_DEFAULT	(0x1UL << 20)
 #define AT91C_CKGR_BIASEN	(0x1UL << 24)
 #define 	AT91C_CKGR_BIASEN_DISABLED	(0x0UL << 24)
 #define 	AT91C_CKGR_BIASEN_ENABLED	(0x1UL << 24)

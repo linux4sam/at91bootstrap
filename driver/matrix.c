@@ -27,6 +27,7 @@
  */
 #include "common.h"
 #include "hardware.h"
+#include "pmc.h"
 #include "arch/tz_matrix.h"
 #include "debug.h"
 
@@ -601,4 +602,75 @@ int matrix_configure_peri_security(unsigned int *peri_id_array,
 	}
 
 	return 0;
+}
+
+/*
+ * is_peripheral_secure - tell if the peripheral is in secure mode
+ * @periph_id: the peripheral id that is checked
+ *
+ * Check security of a particular peripheral by providing its ID.
+ * Note that a wrong preripheral ID leads to the "true" return code.
+ */
+int is_peripheral_secure(unsigned int periph_id)
+{
+	struct peri_security *periperal_sec;
+	unsigned int matrix;
+	unsigned int base;
+	unsigned int mask;
+
+	if ((periph_id > AT91C_ID_FIQ) && (periph_id < AT91C_ID_COUNTS)) {
+		/* special cases here */
+		if ((periph_id == AT91C_ID_IRQ)
+		 || (periph_id == AT91C_ID_AIC)
+		 || (periph_id == AT91C_ID_XDMAC1))
+			return 0;
+
+		periperal_sec = get_peri_security(periph_id);
+		if (periperal_sec == NULL)
+			return -1;
+
+		matrix = periperal_sec->matrix;
+		if (matrix == MATRIX_H32MX)
+			base = AT91C_BASE_MATRIX32;
+		else if (matrix == MATRIX_H64MX)
+			base = AT91C_BASE_MATRIX64;
+		else
+			return -1;
+
+		mask = 1 << (periph_id % 32);
+		if (matrix_read(base, MATRIX_SPSELR(periph_id / 32)) & mask)
+			return 0;
+
+	}
+	return 1;
+}
+
+int is_sys_clk_secure(unsigned int sys_mask)
+{
+	unsigned int periph_id = sys_mask_to_per_id(sys_mask);
+
+	return is_peripheral_secure(periph_id);
+}
+
+int is_usb_hs_secure(void)
+{
+	return is_peripheral_secure(AT91C_ID_UHPHS)
+		|| is_peripheral_secure(AT91C_ID_UDPHS);
+}
+
+int is_usb_host_secure(void)
+{
+	return is_peripheral_secure(AT91C_ID_UHPHS);
+}
+
+int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_on, unsigned int *silent)
+{
+	/* disable console clock : forbiden */
+	if ((periph_id == AT91C_ID_USART3) && (is_on == 0)) {
+		/* keep it silent */
+		*silent = 1;
+		return 1;
+	} else {
+		return 0;
+	}
 }

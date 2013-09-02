@@ -2,14 +2,14 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
  * - Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the disclaiimer below.
+ * this list of conditions and the disclaimer below.
  *
  * Atmel's name may not be used to endorse or promote products derived from
  * this software without specific prior written permission.
@@ -25,23 +25,29 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
 
-extern void matrix_write_enable(unsigned int matrix_base);
-extern void matrix_write_disable(unsigned int matrix_base);
-extern void matrix_configure_slave_security(unsigned int matrix_base,
-				unsigned int slave,
-				unsigned int srtop_setting,
-				unsigned int srsplit_setting,
-				unsigned int ssr_setting);
-extern int matrix_configure_peri_security(unsigned int *peri_id_array,
-					unsigned int size);
+.section svc_mgr
+	.text
+	.align
 
-extern int is_peripheral_secure(unsigned int periph_id);
-extern int is_sys_clk_secure(unsigned int sys_mask);
-extern int is_usb_hs_secure(void);
-extern int is_usb_host_secure(void);
-extern int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_on, unsigned int *silent);
+	.extern svc_mgr_main
+	.global svc_mgr_veneer
 
-#endif /* #ifndef __MATRIX_H__ */
+svc_mgr_veneer:
+	/* Push registers onto the stack */
+	stmdb	sp!, {r0-r7}
+	/* r0 should point to the argument structure */
+	mov	r0, sp
+
+	/* Call the C code SMC handler */
+	bl	svc_mgr_main
+
+	/* Restore the stack pointer to reset value */
+	add	sp, sp, #(8*4)
+
+	/* Return to Normal World */
+	smc	#0
+
+	bx	lr
+
+	.end

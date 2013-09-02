@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,23 +25,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
+#ifndef __L2CC_H__
+#define __L2CC_H__
 
-extern void matrix_write_enable(unsigned int matrix_base);
-extern void matrix_write_disable(unsigned int matrix_base);
-extern void matrix_configure_slave_security(unsigned int matrix_base,
-				unsigned int slave,
-				unsigned int srtop_setting,
-				unsigned int srsplit_setting,
-				unsigned int ssr_setting);
-extern int matrix_configure_peri_security(unsigned int *peri_id_array,
-					unsigned int size);
+void l2cache_init(void);
 
-extern int is_peripheral_secure(unsigned int periph_id);
-extern int is_sys_clk_secure(unsigned int sys_mask);
-extern int is_usb_hs_secure(void);
-extern int is_usb_host_secure(void);
-extern int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_on, unsigned int *silent);
-
-#endif /* #ifndef __MATRIX_H__ */
+#endif

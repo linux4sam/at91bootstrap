@@ -40,4 +40,11 @@ extern int pmc_cfg_h32mxdiv(unsigned int pmc_mckr, unsigned int timeout);
 extern int pmc_enable_periph_clock(unsigned int periph_id);
 extern void pmc_enable_system_clock(unsigned int clock_id);
 
+extern unsigned int pmc_read_reg(unsigned int reg_offset);
+extern int pmc_periph_clk(unsigned int periph_id, unsigned int is_on);
+extern unsigned int sys_mask_to_per_id(unsigned int sys_mask);
+extern int pmc_sys_clk(unsigned int sys_clock_mask, unsigned int is_on);
+extern int pmc_uckr_clk(unsigned int is_on);
+extern unsigned int pmc_usb_setup(void);
+
 #endif	/* #ifndef __PMC_H__ */
