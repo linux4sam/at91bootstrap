@@ -38,6 +38,12 @@
 
 #define ECC_CORRECT_ERROR  0xfe
 
+#ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
+static struct nand_chip nand_ids[] = {
+	{0xec75, 0x800, 0x4000,  0x200, 0x10, 0x0},	/* Samsung 32MB 8Bit */
+	{0,}
+};
+#else
 static struct nand_chip nand_ids[] = {
 	{0xecda, 0x800, 0x20000, 0x800, 0x40, 0x0},	/* Samsung K9F2G08U0M 256MB */
 	{0xecaa, 0x800, 0x20000, 0x800, 0x40, 0x0},	/* Samsung K9F2G08U0A 256MB */
@@ -47,6 +53,7 @@ static struct nand_chip nand_ids[] = {
 	{0x2c38, 0x800, 0x80000, 0x1000, 0xe0, 0x0},	/* Mircon MT29H8G08ACAH1 1GB */
 	{0,}
 };
+#endif
 
 static struct nand_ooblayout nand_oob_layout;
 
