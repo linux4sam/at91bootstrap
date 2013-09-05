@@ -26,16 +26,21 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
+#include "board.h"
 #include "arch/at91_dbgu.h"
+
+#ifndef USART_BASE
+#define USART_BASE	AT91C_BASE_DBGU
+#endif
 
 static inline void write_dbgu(unsigned int offset, const unsigned int value)
 {
-	writel(value, offset + AT91C_BASE_DBGU);
+	writel(value, offset + USART_BASE);
 }
 
 static inline unsigned int read_dbgu(unsigned int offset)
 {
-	return readl(offset + AT91C_BASE_DBGU);
+	return readl(offset + USART_BASE);
 }
 
 void dbgu_init(unsigned int baudrate)
