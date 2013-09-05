@@ -50,7 +50,8 @@ void dbgu_init(unsigned int baudrate)
 	write_dbgu(DBGU_BRGR, baudrate);
 
 	/* Configure USART in Asynchronous mode */
-	write_dbgu(DBGU_MR, AT91C_DBGU_PAR);
+	write_dbgu(DBGU_MR, AT91C_DBGU_PAR_NONE | AT91C_DBGU_CHMODE_NORMAL |
+				AT91C_DBGU_CHRL_8BIT | AT91C_DBGU_NBSTOP_1BIT);
 
 	/* Enable RX and Tx */
 	write_dbgu(DBGU_CR, AT91C_DBGU_RXEN | AT91C_DBGU_TXEN);

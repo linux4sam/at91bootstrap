@@ -57,6 +57,15 @@
 #define AT91C_DBGU_RSTSTA	(0x1UL << 8)
 
 /* -------- DBGU_MR : (DBGU Offset: 0x4) Debug Unit Mode Register --------*/ 
+#define AT91C_DBGU_NBSTOP	(0x3UL << 12)
+#define		AT91C_DBGU_NBSTOP_1BIT			(0x0UL << 12)
+#define		AT91C_DBGU_NBSTOP_1_5BIT		(0x1UL << 12)
+#define		AT91C_DBGU_NBSTOP_2BIT			(0x2UL << 12)
+#define AT91C_DBGU_CHRL		(0x3UL << 6)
+#define		AT91C_DBGU_CHRL_5BIT			(0x0UL << 6)
+#define		AT91C_DBGU_CHRL_6BIT			(0x1UL << 6)
+#define		AT91C_DBGU_CHRL_7BIT			(0x2UL << 6)
+#define		AT91C_DBGU_CHRL_8BIT			(0x3UL << 6)
 #define AT91C_DBGU_PAR		(0x7UL << 9)
 #define 	AT91C_DBGU_PAR_EVEN			(0x0UL << 9)
 #define 	AT91C_DBGU_PAR_ODD			(0x1UL << 9)
