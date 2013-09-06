@@ -59,8 +59,8 @@ static void at91_dbgu_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(dbgu_pins);
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
 }
 
 static void initialize_dbgu(void)
@@ -137,7 +137,7 @@ static void ddramc_init(void)
 	ddramc_reg_config(&ddramc_reg);
 
 	/* ENABLE DDR2 clock */
-	writel(AT91C_PMC_DDR, AT91C_BASE_PMC + PMC_SCER);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* Chip select 1 is for DDR2/SDRAM */
 	csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
@@ -160,7 +160,7 @@ static void one_wire_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(wire_pio);
 }
 
@@ -222,10 +222,10 @@ void at91_spi0_hw_init(void)
 		{(char *)0,	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(spi0_pins);
 
-	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif	/* #ifdef CONFIG_DATAFLASH */
 
@@ -267,11 +267,11 @@ void at91_mci0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
-	writel((1 << AT91C_ID_HSMCI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
 
 	/* Set of name function pointer */
 	sdcard_set_of_name = &sdcard_set_of_name_board;
@@ -350,7 +350,7 @@ void nandflash_hw_init(void)
 	else
 		pio_configure(nand_pins_hi);
 
-	writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOC_D);
 }
 
 void nandflash_config_buswidth(unsigned char busw)

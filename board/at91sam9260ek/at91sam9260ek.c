@@ -57,7 +57,7 @@ static void initialize_dbgu(void)
 	writel(((0x01 << 14) | (0x01 << 15)), AT91C_BASE_PIOB + PIO_ASR(0));
 	writel(((0x01 << 14) | (0x01 << 15)), AT91C_BASE_PIOB + PIO_PDR(0));
 
-	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOB);
 
 	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
@@ -81,7 +81,7 @@ static void sdramc_init(void)
 	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_ASR(0));
 	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_PDR(0));
 
-	writel((1 << AT91C_ID_PIOC), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
 
 	/* Initialize the matrix (memory voltage = 3.3) */
 	writel(readl(AT91C_BASE_CCFG + CCFG_EBICSA) | AT91C_EBI_CS1A_SDRAMC,
@@ -101,7 +101,7 @@ static void recovery_buttons_hw_init(void)
 	writel((0x01 << 31), AT91C_BASE_PIOA + PIO_ODR(0));
 	writel((0x01 << 31), AT91C_BASE_PIOA + PIO_PER(0));
 
-	writel((1 << AT91C_ID_PIOA), PMC_PCER + AT91C_BASE_PMC);
+	pmc_enable_periph_clock(AT91C_ID_PIOA);
 }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
 
@@ -175,7 +175,7 @@ void at91_spi0_hw_init(void)
 	writel((0x01 << 3), AT91C_BASE_PIOA + PIO_OER(0));
 	writel((0x01 << 3), AT91C_BASE_PIOA + PIO_PER(0));
 
-	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA);
 #endif
 
 #if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
@@ -186,11 +186,12 @@ void at91_spi0_hw_init(void)
 	writel((0x01 << 11), AT91C_BASE_PIOC + PIO_OER(0));
 	writel((0x01 << 11), AT91C_BASE_PIOC + PIO_PER(0));
 
-	writel(((1 << AT91C_ID_PIOA) | (1 << AT91C_ID_PIOC)), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA);
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
 #endif
 
 	/* Enable the spi0 clock */
-	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
@@ -240,7 +241,7 @@ void nandflash_hw_init(void)
 	writel((0x01 << 14), AT91C_BASE_PIOC + PIO_PER(0));
 
 	/* enable PIOC clock  */
-	writel((1 << AT91C_ID_PIOC), PMC_PCER + AT91C_BASE_PMC);
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
 }
 
 void nandflash_config_buswidth(unsigned char busw)

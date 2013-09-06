@@ -238,10 +238,9 @@ static void at91_dbgu_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	pio_configure(dbgu_pins);
-
 	/*  Configure the dbgu pins */
-	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOCDE);
+	pio_configure(dbgu_pins);
 }
 
 static void initialize_dbgu(void)
@@ -276,7 +275,7 @@ static void sdramc_hw_init(void)
 	};
 
 	/* Configure the SDRAMC PINs */
-	writel((1 << AT91C_ID_PIOCDE), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOCDE);
 	pio_configure(sdramc_pins);
 }
 
@@ -377,7 +376,7 @@ static void recovery_buttons_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOCDE), PMC_PCER + AT91C_BASE_PMC);
+	pmc_enable_periph_clock(AT91C_ID_PIOCDE);
 	pio_configure(recovery_button_pins);
 }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
@@ -448,11 +447,11 @@ void at91_spi0_hw_init(void)
 	};
 
 	/* Configure the spi0 pins */
+	pmc_enable_periph_clock(AT91C_ID_PIOA);
 	pio_configure(spi0_pins);
-	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable the spi0 clock */
-	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif /* CONFIG_DATAFLASH */
 
@@ -477,11 +476,11 @@ void at91_mci0_hw_init(void)
 
 	};
 
+	pmc_enable_periph_clock(AT91C_ID_PIOA);
 	pio_configure(mci_pins);
-	writel((1 << AT91C_ID_PIOA), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable the clock */
-	writel((1 << AT91C_ID_MCI1), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_MCI1);
 
 	/* Set of name function pointer */
 	sdcard_set_of_name = &sdcard_set_of_name_board;
@@ -498,6 +497,10 @@ void nandflash_hw_init(void)
 		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,	1, PIO_PULLUP, PIO_OUTPUT},
 		{(char *)0, 	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+
+	/* Configure the NANDFlash pins */
+	pio_configure(nand_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOCDE);
 
 	/* Setup Smart Media, first enable the address range of CS3 in HMATRIX user interface  */
 	reg = readl(AT91C_BASE_CCFG + CCFG_EBI0CSA);
@@ -527,10 +530,6 @@ void nandflash_hw_init(void)
 		| AT91C_SMC_DBW_WIDTH_BITS_16
 		| AT91_SMC_TDF_(2)),
 		AT91C_BASE_SMC0 + SMC_CTRL3);
-
-	/* Configure the NANDFlash pins */
-	pio_configure(nand_pins);
-	writel((1 << AT91C_ID_PIOCDE), PMC_PCER + AT91C_BASE_PMC);
 }
 
 void nandflash_config_buswidth(unsigned char busw)

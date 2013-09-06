@@ -60,11 +60,11 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	/*  Configure the dbgu pins */
+	pmc_enable_periph_clock(AT91C_ID_PIOB);
 	pio_configure(dbgu_pins);
-	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable clock */
-	writel(1 << AT91C_ID_DBGU, (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_DBGU);
 }
 
 static void initialize_dbgu(void)
@@ -161,8 +161,8 @@ static void ddramc_init(void)
 	ddramc_reg_config(&ddramc_reg);
 
 	/* enable ddr2 clock */
-	writel(1 << (AT91C_ID_MPDDRC - 32),  (PMC_PCER1 + AT91C_BASE_PMC));
-	writel(AT91C_PMC_DDR, (PMC_SCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* Init the special register for sama5d3x */
 	/* MPDDRC DLL Slave Offset Register: DDR2 configuration */
@@ -197,7 +197,7 @@ static void one_wire_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOE), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOE);
 	pio_configure(one_wire_pio);
 }
 
@@ -210,7 +210,7 @@ static void recovery_buttons_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOE), PMC_PCER + AT91C_BASE_PMC);
+	pmc_enable_periph_clock(AT91C_ID_PIOE);
 	pio_configure(recovery_button_pins);
 }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
@@ -293,11 +293,11 @@ void at91_spi0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOD), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOD);
 	pio_configure(spi0_pins);
 
 	/* Enable the clock */
-	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
@@ -355,11 +355,11 @@ void at91_mci0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOD), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
-	writel((1 << AT91C_ID_HSMCI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
 
 	/* Set of name function pointer */
 	sdcard_set_of_name = &sdcard_set_of_name_board;
@@ -377,11 +377,11 @@ void nandflash_hw_init(void)
 	};
 
 	/* Configure the nand controller pins*/
+	pmc_enable_periph_clock(AT91C_ID_PIOE);
 	pio_configure(nand_pins);
-	writel((1 << AT91C_ID_PIOE), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable the clock */
-	writel(1 << AT91C_ID_SMC, (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SMC);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
 	writel(AT91C_SMC_SETUP_NWE(1)
