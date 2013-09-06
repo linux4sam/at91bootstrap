@@ -231,3 +231,22 @@ int pmc_cfg_pck(unsigned char x, unsigned int clk_sel, unsigned int prescaler)
 
 	return 0;
 }
+
+int pmc_enable_periph_clock(unsigned int periph_id)
+{
+	unsigned int mask = 0x01 << (periph_id % 32);
+
+	if ((periph_id / 32) == 1)
+		write_pmc(PMC_PCER1, mask);
+	else if ((periph_id / 32) == 0)
+		write_pmc(PMC_PCER, mask);
+	else
+		return -1;
+
+	return 0;
+}
+
+void pmc_enable_system_clock(unsigned int clock_id)
+{
+	 write_pmc(PMC_SCER, clock_id);
+}
