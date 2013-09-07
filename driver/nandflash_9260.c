@@ -275,7 +275,7 @@ static void write_row_address(struct nand_info *nand, unsigned int row_address)
 	}
 }
 
-#ifdef NANDFLASH_SMALL_BLOCKS
+#ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static int nand_read_sector(struct nand_info *nand,
 			unsigned int row_address,
 			unsigned char *buffer,
@@ -431,7 +431,7 @@ static int nand_read_sector(struct nand_info *nand,
 
 	return ret;
 }
-#endif /* #ifdef NANDFLASH_SMALL_BLOCKS */
+#endif /* #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS */
 
 static int nand_check_badblock(struct nand_info *nand,
 				unsigned int block,
