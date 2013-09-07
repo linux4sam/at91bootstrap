@@ -126,27 +126,28 @@ static void nand_cs_disable(void)
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chip *chip)
 {
-	unsigned int i;
-
 	layout->badblockpos = 5;
+	layout->eccpos[0] = 0;
+	layout->eccpos[1] = 1;
+	layout->eccpos[2] = 2;
 
 	switch (chip->pagesize) {
 	case 256:
 		layout->eccbytes = 3;
-		layout->oobavail_offset = 6;
+		layout->oobavail_offset = 2;
 		break;
 
 	case 512:
 		layout->eccbytes = 6;
 		layout->oobavail_offset = 6;
+		layout->eccpos[3] = 3;
+		layout->eccpos[4] = 6;
+		layout->eccpos[5] = 7;
 		break;
 
 	default:
 		break;
 	}
-
-	for (i = 0; i < layout->eccbytes; i++)
-		layout->eccpos[i] = chip->oobsize - layout->eccbytes + i;
 
 	layout->oobavailbytes = chip->oobsize - layout->eccbytes - layout->oobavail_offset;
 }
