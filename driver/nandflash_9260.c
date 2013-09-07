@@ -272,22 +272,7 @@ static int nandflash_get_type(struct nand_info *nand)
 	return 0;
 }
 
-static void write_column_address(struct nand_info *nand,
-					unsigned int column_address)
-{
-	volatile unsigned int page_size = nand->pagesize;
-
-	if (nand->buswidth)
-		column_address >>= 1;
-
-	while (page_size > 2) {
-		nand->address(column_address & 0xff);
-
-		page_size >>= 8;
-		column_address >>= 8;
-	}
-}
-
+#if defined(CONFIG_NANDFLASH_RECOVERY) || !defined(CONFIG_NANDFLASH_SMALL_BLOCKS)
 static void write_row_address(struct nand_info *nand, unsigned int row_address)
 {
 	volatile unsigned int num_pages = nand->pages_device;
@@ -299,6 +284,7 @@ static void write_row_address(struct nand_info *nand, unsigned int row_address)
 		row_address >>= 8;
 	}
 }
+#endif
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static int nand_read_sector(struct nand_info *nand,
@@ -382,6 +368,22 @@ static int nand_read_sector(struct nand_info *nand,
 }
 
 #else /* large blocks */
+static void write_column_address(struct nand_info *nand,
+					unsigned int column_address)
+{
+	volatile unsigned int page_size = nand->pagesize;
+
+	if (nand->buswidth)
+		column_address >>= 1;
+
+	while (page_size > 2) {
+		nand->address(column_address & 0xff);
+
+		page_size >>= 8;
+		column_address >>= 8;
+	}
+}
+
 static int nand_read_sector(struct nand_info *nand,
 			unsigned int row_address,
 			unsigned char *buffer,
