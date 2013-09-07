@@ -71,16 +71,13 @@ static inline short fill_hex_int(char *buf, unsigned int data)
 	return num;
 }
 
-int dbg_log(const char level, const char *fmt_str, ...)
+int dbg_printf(const char *fmt_str, ...)
 {
 	va_list ap;
 
 	char *p = dbg_buf;
 
 	short num = 0;
-
-	if (level > BOOTSTRAP_DEBUG_LEVEL)
-		return 0;
 
 	va_start(ap, fmt_str);
 	while (*fmt_str != 0) {

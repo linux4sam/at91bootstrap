@@ -277,7 +277,7 @@ static int at25_unprotect(void)
 		return ret;
 
 	if (status & (STATUS_SPRL_AT25 | STATUS_SWP_AT25)) {
-		dbg_log(1, "SF: Unprotect AT25 failed\n");
+		dbg_info("SF: Unprotect AT25 failed\n");
 		return -1;
 	}
 
@@ -307,7 +307,7 @@ static int dataflash_page0_erase_at25(void)
 
 	ret = df_send_command(cmd, 4, NULL, 0);
 	if (ret) {
-		dbg_log(1, "SF: AT25 page 0 erase failed\n");
+		dbg_info("SF: AT25 page 0 erase failed\n");
 		return ret;
 	}
 
@@ -323,7 +323,7 @@ static int dataflash_page0_erase_at25(void)
 	} while (--timeout);
 
 	if (!timeout) {
-		dbg_log(1, "SF: AT25 page0 erase timed out\n");
+		dbg_info("SF: AT25 page0 erase timed out\n");
 		return -1;
 	}
 
@@ -344,7 +344,7 @@ static int dataflash_page0_erase_at45(void)
 
 	ret = df_send_command(cmd, 4, NULL, 0);
 	if (ret) {
-		dbg_log(1, "SF: AT45 page 0 erase failed\n");
+		dbg_info("SF: AT45 page 0 erase failed\n");
 		return ret;
 	}
 
@@ -360,7 +360,7 @@ static int dataflash_page0_erase_at45(void)
 	} while (--timeout);
 
 	if (!(status & STATUS_READY_AT45)) {
-		dbg_log(1,	"SF: AT45 page0 erase timed out\n");
+		dbg_info("SF: AT45 page0 erase timed out\n");
 		return -1;
 	}
 
@@ -375,13 +375,13 @@ static int dataflash_recovery(struct dataflash_descriptor *df_desc)
 	 * If Recovery Button is pressed during boot sequence,
 	 * erase dataflash page0
 	*/
-	dbg_log(1, "SF: Press the recovery button (%s) to recovery\n",
+	dbg_info("SF: Press the recovery button (%s) to recovery\n",
 			RECOVERY_BUTTON_NAME);
 
 	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
-		dbg_log(1, "SF: The recovery button (%s) has been pressed,\n",
+		dbg_info("SF: The recovery button (%s) has been pressed,\n",
 				RECOVERY_BUTTON_NAME);
-		dbg_log(1, "SF: The page 0 is erasing...\n");
+		dbg_info("SF: The page 0 is erasing...\n");
 
 		if ((df_desc->family == DF_FAMILY_AT26F)
 			|| (df_desc->family == DF_FAMILY_AT26DF))
@@ -390,10 +390,10 @@ static int dataflash_recovery(struct dataflash_descriptor *df_desc)
 			ret = dataflash_page0_erase_at45();
 
 		if (ret) {
-			dbg_log(1, "SF: The erasing failed\n");
+			dbg_info("SF: The erasing failed\n");
 			return ret;
 		}
-		dbg_log(1, "SF: The erasing is done\n");
+		dbg_info("SF: The erasing is done\n");
 
 		return 0;
 	}
@@ -515,7 +515,7 @@ static int df_desc_init(struct dataflash_descriptor *df_desc,
 		if (ret)
 			return ret;
 	} else {
-		dbg_log(1, "SF: Unsupported SerialFlash family %d\n", family);
+		dbg_info("SF: Unsupported SerialFlash family %d\n", family);
 		return -1;
 	}
 
@@ -537,14 +537,14 @@ static int dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
 	unsigned int i;
 	unsigned char *p = dev_id;
 
-	dbg_log(1, "SF: Got Manufacturer and Device ID:");
+	dbg_info("SF: Got Manufacturer and Device ID:");
 	for (i = 0; i < 5; i++)
-		dbg_log(1, "%d ", *p++);
-	dbg_log(1, "\n");
+		dbg_info("%d ", *p++);
+	dbg_info("\n");
 #endif
 
 	if (dev_id[0] != MANUFACTURER_ID_ATMEL) {
-		dbg_log(1, "Not supported spi flash Manufactorer ID: %d\n",
+		dbg_info("Not supported spi flash Manufactorer ID: %d\n",
 				dev_id[0]);
 		return -1;
 	}
@@ -567,7 +567,7 @@ int load_dataflash(struct image_info *image)
 	ret = at91_spi_init(AT91C_SPI_PCS_DATAFLASH,
 				CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
 	if (ret) {
-		dbg_log(1, "SF: Fail to initialize spi\n");
+		dbg_info("SF: Fail to initialize spi\n");
 		return -1;
 	}
 
@@ -575,7 +575,7 @@ int load_dataflash(struct image_info *image)
 
 	ret = dataflash_probe_atmel(df_desc);
 	if (ret) {
-		dbg_log(1, "SF: Fail to probe atmel spi flash\n");
+		dbg_info("SF: Fail to probe atmel spi flash\n");
 		ret = -1;
 		goto err_exit;
 	}
@@ -587,25 +587,25 @@ int load_dataflash(struct image_info *image)
 	}
 #endif
 
-	dbg_log(1, "SF: Copy %d bytes from %d to %d\n",
+	dbg_info("SF: Copy %d bytes from %d to %d\n",
 			image->length, image->offset, image->dest);
 
 	ret = dataflash_read_array(df_desc,
 			image->offset, image->length, image->dest);
 	if (ret) {
-		dbg_log(1, "** SF: Serial flash read error**\n");
+		dbg_info("** SF: Serial flash read error**\n");
 		ret = -1;
 		goto err_exit;
 	}
 
 	if (image->of) {
-		dbg_log(1, "SF: dt blob: Copy %d bytes from %d to %d\n",
+		dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
 			image->of_length, image->of_offset, image->of_dest);
 
 		ret = dataflash_read_array(df_desc,
 			image->of_offset, image->of_length, image->of_dest);
 		if (ret) {
-			dbg_log(1, "** SF: DT: Serial flash read error**\n");
+			dbg_info("** SF: DT: Serial flash read error**\n");
 			ret = -1;
 			goto err_exit;
 		}

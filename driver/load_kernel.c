@@ -78,11 +78,11 @@ static int setup_dt_blob(void *blob)
 	int ret;
 
 	if (check_dt_blob_valid(blob)) {
-		dbg_log(1, "DT: the blob is not a valid fdt\n");
+		dbg_info("DT: the blob is not a valid fdt\n");
 		return -1;
 	}
 
-	dbg_log(1, "\nUsing device tree in place at %d\n",
+	dbg_info("\nUsing device tree in place at %d\n",
 						(unsigned int)blob);
 
 #if defined(CONFIG_LOAD_ANDROID) && defined(CONFIG_SAMA5D3XEK)
@@ -291,15 +291,15 @@ int load_kernel(struct image_info *image)
 
 	image_header = (struct kernel_image_header *)jump_addr;
 	magic_number = swap_uint32(image_header->magic);
-	dbg_log(1, "\nImage magic: %d is found\n", magic_number);
+	dbg_info("\nImage magic: %d is found\n", magic_number);
 	if (magic_number != KERNEL_IMAGE_MAGIC) {
-		dbg_log(1, "** Bad image magic number found: %d\n",
+		dbg_info("** Bad image magic number found: %d\n",
 						magic_number);
 		return -1;
 	}
 
 	if (image_header->comp_type != 0) {
-		dbg_log(1, "The comp type has not been supported\n");
+		dbg_info("The comp type has not been supported\n");
 		return -1;
 	}
 
@@ -309,13 +309,13 @@ int load_kernel(struct image_info *image)
 	kernel_entry = (void (*)(int, int, unsigned int))
 					swap_uint32(image_header->entry_point);
 
-	dbg_log(1, "Relocating kernel image, dest: %d, src: %d\n",
+	dbg_info("Relocating kernel image, dest: %d, src: %d\n",
 		load_addr, jump_addr + sizeof(struct kernel_image_header));
 
 	memcpy((void *)load_addr, (void *)(jump_addr
 			+ sizeof(struct kernel_image_header)), image_size);
 
-	dbg_log(1, " ...... %d bytes data transferred\n", image_size);
+	dbg_info(" ...... %d bytes data transferred\n", image_size);
 
 	if (image->of) {
 		ret = setup_dt_blob((char *)image->of_dest);
@@ -331,7 +331,7 @@ int load_kernel(struct image_info *image)
 		r2 = (unsigned int)(OS_MEM_BANK + 0x100);
 	}
 
-	dbg_log(1, "\nStarting linux kernel ..., machid: %d\n\n",
+	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",
 							mach_type);
 
 	kernel_entry(0, mach_type, r2);
