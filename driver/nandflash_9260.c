@@ -123,31 +123,47 @@ static void nand_cs_disable(void)
 	pio_set_value(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 
+#ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chip *chip)
 {
 	unsigned int i;
 
+	layout->badblockpos = 5;
+
 	switch (chip->pagesize) {
 	case 256:
-		layout->badblockpos = 5;
 		layout->eccbytes = 3;
 		layout->oobavail_offset = 6;
 		break;
 
 	case 512:
-		layout->badblockpos = 5;
 		layout->eccbytes = 6;
 		layout->oobavail_offset = 6;
 		break;
 
+	default:
+		break;
+	}
+
+	for (i = 0; i < layout->eccbytes; i++)
+		layout->eccpos[i] = chip->oobsize - layout->eccbytes + i;
+
+	layout->oobavailbytes = chip->oobsize - layout->eccbytes - layout->oobavail_offset;
+}
+#else
+static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chip *chip)
+{
+	unsigned int i;
+
+	layout->badblockpos = 0;
+
+	switch (chip->pagesize) {
 	case 2048:
-		layout->badblockpos = 0;
 		layout->eccbytes = 24;
 		layout->oobavail_offset = 1;
 		break;
 
 	case 4096:
-		layout->badblockpos = 0;
 		layout->eccbytes = 48;
 		layout->oobavail_offset = 1;
 		break;
@@ -161,6 +177,7 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 
 	layout->oobavailbytes = chip->oobsize - layout->eccbytes - layout->oobavail_offset;
 }
+#endif
 
 static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 {
