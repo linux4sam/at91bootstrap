@@ -48,6 +48,7 @@ struct nand_chip {
 };
 
 struct nand_info {
+	unsigned long	chipsize;
 	unsigned int	blocksize;	/* size of a block */
 	unsigned int	pagesize;	/* size of a page */
 	unsigned int	oobsize;	/* size of a oob */
@@ -58,6 +59,9 @@ struct nand_info {
 	unsigned int	pages_block;	/* number of pages in block */
 
 	unsigned int	buswidth;	/* data bus width (8/16 bits) */
+
+	void (*command)(unsigned char cmd);
+	void (*address)(unsigned char addr);
 
 	struct nand_ooblayout	*ecclayout;
 };

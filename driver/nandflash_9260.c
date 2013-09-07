@@ -84,7 +84,7 @@ static unsigned char read_byte(void)
 }
 
 /* 16 bits devices */
-static void nand_command16(unsigned short cmd)
+static void nand_command16(unsigned char cmd)
 {
 	volatile unsigned long ioaddr = (unsigned long)CONFIG_SYS_NAND_BASE
 						| CONFIG_SYS_NAND_MASK_CLE;
@@ -92,7 +92,7 @@ static void nand_command16(unsigned short cmd)
 	writew(cmd, ioaddr);
 }
 
-static void nand_address16(unsigned short addr)
+static void nand_address16(unsigned char addr)
 {
 	volatile unsigned long ioaddr = (unsigned long)CONFIG_SYS_NAND_BASE
 						| CONFIG_SYS_NAND_MASK_ALE;
@@ -201,8 +201,14 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	nand->ecclayout = &nand_oob_layout;
 	/* data bus width (8/16 bits) */
 	nand->buswidth = chip->buswidth;
-	if (nand->buswidth)
+	if (nand->buswidth) {
 		nand->ecclayout->badblockpos *= 2;
+		nand->command = nand_command16;
+		nand->address = nand_address16;
+	} else {
+		nand->command = nand_command;
+		nand->address = nand_address;
+	}
 }
 
 static void nandflash_reset(void)
@@ -275,10 +281,7 @@ static void write_column_address(struct nand_info *nand,
 		column_address >>= 1;
 
 	while (page_size > 2) {
-		if (nand->buswidth)
-			nand_address16(column_address & 0xff);
-		else
-			nand_address(column_address & 0xff);
+		nand->address(column_address & 0xff);
 
 		page_size >>= 8;
 		column_address >>= 8;
@@ -290,10 +293,7 @@ static void write_row_address(struct nand_info *nand, unsigned int row_address)
 	volatile unsigned int num_pages = nand->pages_device;
 
 	while(num_pages) {
-		if (nand->buswidth)
-			nand_address16(row_address & 0xff);
-		else
-			nand_address(row_address & 0xff);
+		nand->address(row_address & 0xff);
 
 		num_pages >>= 8;
 		row_address >>= 8;
@@ -333,22 +333,12 @@ static int nand_read_sector(struct nand_info *nand,
 	nand_cs_enable();
 
 	/* Write specific command, Read from start */
-	if (nand->buswidth)
-		nand_command16(command);
-	else
-		nand_command(command);
+	nand->command(command);
 
-	if (nand->buswidth) {
-		nand_address16(0x00);
-		nand_address16((row_address >> 0) & 0xff);
-		nand_address16((row_address >> 8) & 0xff);
-		nand_address16((row_address >> 16) & 0xff);
-	} else {
-		nand_address(0x00);
-		nand_address((row_address >> 0) & 0xff);
-		nand_address((row_address >> 8) & 0xff);
-		nand_address((row_address >> 16) & 0xff);
-	}
+	nand->address(0x00);
+	nand->address((row_address >> 0) & 0xff);
+	nand->address((row_address >> 8) & 0xff);
+	nand->address((row_address >> 16) & 0xff);
 
 	nand_wait_ready();
 	nand_command(CMD_READ_A0);
@@ -370,11 +360,11 @@ static int nand_read_sector(struct nand_info *nand,
 				buffer++;
 			}
 
-			nand_command(CMD_READ_A1);
-			nand_address(0x00);
-			nand_address((row_address >> 0) & 0xff);
-			nand_address((row_address >> 8) & 0xff);
-			nand_address((row_address >> 16) & 0xff);
+			nand->command(CMD_READ_A1);
+			nand->address(0x00);
+			nand->address((row_address >> 0) & 0xff);
+			nand->address((row_address >> 8) & 0xff);
+			nand->address((row_address >> 16) & 0xff);
 
 			nand_wait_ready();
 			nand_command(CMD_READ_A0);
@@ -423,24 +413,15 @@ static int nand_read_sector(struct nand_info *nand,
 
 	nand_cs_enable();
 
-	if (nand->buswidth)
-		nand_command16(CMD_READ_1);
-	else
-		nand_command(CMD_READ_1);
+	nand->command(CMD_READ_1);
 
 	write_column_address(nand, column_address);
 	write_row_address(nand, row_address);
 
-	if (nand->buswidth)
-		nand_command16(CMD_READ_2);
-	else
-		nand_command(CMD_READ_2);
+	nand->command(CMD_READ_2);
 
 	nand_wait_ready();
-	if (nand->buswidth)
-		nand_command16(CMD_READ_1);
-	else
-		nand_command(CMD_READ_1);
+	nand->command(CMD_READ_1);
 
 	/* Read loop */
 	if (nand->buswidth)
