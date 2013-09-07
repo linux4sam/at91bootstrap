@@ -186,6 +186,8 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	nand->numblocks = chip->numblocks;
 	/* number of data bytes in a block */
 	nand->blocksize = chip->blocksize;
+	/* chip size */
+	nand->chipsize = nand->numblocks * nand->blocksize;
 	/* number of bytes in page area */
 	nand->pagesize = chip->pagesize;
 	/* number of pages in block */
@@ -264,10 +266,7 @@ static int nandflash_get_type(struct nand_info *nand)
 
 	nand_info_init(nand, chip);
 
-	if (nand->buswidth == 0)
-		nandflash_config_buswidth(0);
-	else
-		nandflash_config_buswidth(1);
+	nandflash_config_buswidth(nand->buswidth != 0);
 
 	return 0;
 }
@@ -287,6 +286,20 @@ static void write_row_address(struct nand_info *nand, unsigned int row_address)
 #endif
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
+static void nand_page_command(struct nand_info *nand, unsigned char cmd, unsigned int page)
+{
+	/* Write specific command, Read from start */
+	nand->command(cmd);
+
+	nand->address(0x0);
+	nand->address((page >> 0) & 0xff);
+	nand->address((page >> 8) & 0xff);
+	if (nand->chipsize > (32 << 20))
+		nand->address((page >> 16) & 0xff);
+
+	nand_wait_ready();
+}
+
 static int nand_read_sector(struct nand_info *nand,
 			unsigned int row_address,
 			unsigned char *buffer,
@@ -318,16 +331,9 @@ static int nand_read_sector(struct nand_info *nand,
 
 	nand_cs_enable();
 
-	/* Write specific command, Read from start */
-	nand->command(command);
+	nand_page_command(nand, command, row_address);
 
-	nand->address(0x00);
-	nand->address((row_address >> 0) & 0xff);
-	nand->address((row_address >> 8) & 0xff);
-	nand->address((row_address >> 16) & 0xff);
-
-	nand_wait_ready();
-	nand_command(CMD_READ_A0);
+	nand->command(CMD_READ_A0);
 
 	if (nand->buswidth) {
 		for (i = 0; i < readbytes / 2; i++) {
@@ -335,30 +341,9 @@ static int nand_read_sector(struct nand_info *nand,
 			buffer += 2;
 		}
 	} else {
-		if (command == CMD_READ_C) {
-			for (i = 0; i < readbytes; i++) {
-				*buffer = read_byte();
-				buffer++;
-			}
-		} else {
-			for (i = 0; i < readbytes / 2; i++) {
-				*buffer = read_byte();
-				buffer++;
-			}
-
-			nand->command(CMD_READ_A1);
-			nand->address(0x00);
-			nand->address((row_address >> 0) & 0xff);
-			nand->address((row_address >> 8) & 0xff);
-			nand->address((row_address >> 16) & 0xff);
-
-			nand_wait_ready();
-			nand_command(CMD_READ_A0);
-
-			for (i = 0; i < (readbytes / 2); i++) {
-				*buffer = read_byte();
-				buffer++;
-			}
+		for (i = 0; i < readbytes; i++) {
+			*buffer = read_byte();
+			buffer++;
 		}
 	}
 
