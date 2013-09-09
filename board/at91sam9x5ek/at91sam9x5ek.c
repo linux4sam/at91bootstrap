@@ -246,7 +246,7 @@ static void sdcard_set_of_name_board(char *of_name)
 	else if (cpu_board_id == BOARD_ID_SAM9X35_CM)
 		strcpy(of_name, "at91sam9x35ek");
 	else
-		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
+		dbg_log(1, "WARNING: Not correct CPU board ID\n");
 
 	if (disp_board_id == BOARD_ID_PDA_DM)
 		strcat(of_name, "_pda");

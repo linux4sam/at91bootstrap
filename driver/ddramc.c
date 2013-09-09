@@ -69,7 +69,7 @@ int ddram_initialize(unsigned int base_address,
 
 	ba_offset += (ddramc_config->mdr & AT91C_DDRC2_DBW) ? 1 : 2;
 
-	dbg_log(3, " ba_offset = %x ...\n\r", ba_offset);
+	dbg_log(3, " ba_offset = %x ...\n", ba_offset);
 
 	/*
 	 * Step 1: Program the memory device type into the Memory Device Register

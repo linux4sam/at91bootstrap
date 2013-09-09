@@ -69,12 +69,12 @@ static void display_banner (void)
 	char *version = "AT91Bootstrap";
 	char *ver_num = " "AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
 
-	usart_puts("\n\r");
-	usart_puts("\n\r");
+	usart_puts("\n");
+	usart_puts("\n");
 	usart_puts(version);
 	usart_puts(ver_num);
-	usart_puts("\n\r");
-	usart_puts("\n\r");
+	usart_puts("\n");
+	usart_puts("\n");
 }
 
 int main(void)
@@ -144,14 +144,14 @@ int main(void)
 		usart_puts(media_str);
 
 	if (ret == 0){
-		usart_puts("Done to load image\n\r");
+		usart_puts("Done to load image\n");
 	}
 	if (ret == -1) {
-		usart_puts("Failed to load image\n\r");
+		usart_puts("Failed to load image\n");
 		while(1);
 	}
 	if (ret == -2) {
-		usart_puts("Success to recovery\n\r");
+		usart_puts("Success to recovery\n");
 		while (1);
 	}
 

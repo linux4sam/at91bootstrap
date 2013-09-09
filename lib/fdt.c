@@ -166,7 +166,7 @@ static int of_get_token_nextoffset(void *blob,
 	*nextoffset = -1;
 
 	if (offset % 4) {
-		dbg_log(1, "DT: the token offset is not aligned\n\r");
+		dbg_log(1, "DT: the token offset is not aligned\n");
 		return -1;
 	}
 
@@ -531,14 +531,14 @@ static int of_set_property(void *blob,
 		ret = of_add_property(blob, nodeoffset,
 				property_name, value, valuelen);
 		if (ret)
-			dbg_log(1, "DT: fail to add property\n\r");
+			dbg_log(1, "DT: fail to add property\n");
 
 		return ret;
 	}
 
 	ret = of_update_property_value(blob, property_offset, value, valuelen);
 	if (ret) {
-		dbg_log(1, "DT: fail to update property\n\r");
+		dbg_log(1, "DT: fail to update property\n");
 		return ret;
 	}
 
@@ -566,7 +566,7 @@ int fixup_chosen_node(void *blob, char *bootargs)
 
 	ret = of_get_node_offset(blob, "chosen", &nodeoffset);
 	if (ret) {
-		dbg_log(1, "DT: doesn't support add node\n\r");
+		dbg_log(1, "DT: doesn't support add node\n");
 		return ret;
 	}
 
@@ -576,7 +576,7 @@ int fixup_chosen_node(void *blob, char *bootargs)
 	 */
 	ret = of_set_property(blob, nodeoffset, "bootargs", value, valuelen);
 	if (ret) {
-		dbg_log(1, "fail to set bootargs property\n\r");
+		dbg_log(1, "fail to set bootargs property\n");
 		return ret;
 	}
 
@@ -599,7 +599,7 @@ int fixup_memory_node(void *blob,
 
 	ret = of_get_node_offset(blob, "memory", &nodeoffset);
 	if (ret) {
-		dbg_log(1, "DT: doesn't support add node\n\r");
+		dbg_log(1, "DT: doesn't support add node\n");
 		return ret;
 	}
 
@@ -611,7 +611,7 @@ int fixup_memory_node(void *blob,
 	ret = of_set_property(blob, nodeoffset,
 			"device_type", "memory", sizeof("memory"));
 	if (ret) {
-		dbg_log(1, "DT: could not set device_type property\n\r");
+		dbg_log(1, "DT: could not set device_type property\n");
 		return ret;
 	}
 
@@ -622,7 +622,7 @@ int fixup_memory_node(void *blob,
 
 	ret = of_set_property(blob, nodeoffset, "reg", data, valuelen);
 	if (ret) {
-		dbg_log(1, "DT: could not set reg property\n\r");
+		dbg_log(1, "DT: could not set reg property\n");
 		return ret;
 	}
 

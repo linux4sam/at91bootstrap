@@ -321,7 +321,7 @@ static int ds24xx_search_rom()
 		/* 1-Wire reset */
 		if (!ds24xx_reset()) {
 			 /* reset the search*/
-			 dbg_log(1, "1-Wire: reset fail\n\r");
+			 dbg_log(1, "1-Wire: reset fail\n");
 			 LastDiscrepancy = 0;
 			 LastDeviceFlag = 0;
 			 LastFamilyDiscrepancy = 0;
@@ -474,7 +474,7 @@ static unsigned int enumerate_all_rom(void)
 		result = ds24xx_find_next();
 	}
 
-	dbg_log(1, "Done, %d 1-Wire chips found\n\r\n\r", cnt);
+	dbg_log(1, "Done, %d 1-Wire chips found\n\n", cnt);
 
 	return cnt;
 }
@@ -491,7 +491,7 @@ static int ds24xx_read_memory(int chip_index, unsigned char addrh,
 	case FAMILY_CODE_DS28EC:
 		break;
 	default:
-		dbg_log(1, "1-Wire: family %d is not supported\n\r",
+		dbg_log(1, "1-Wire: family %d is not supported\n",
 					device_id_array[chip_index][0]);
 		return -1;
 	}
@@ -499,7 +499,7 @@ static int ds24xx_read_memory(int chip_index, unsigned char addrh,
 retry:
 	for (round = 0; round < 2; round++) {
 		if (!ds24xx_reset())
-			dbg_log(1, "1-Wire: reset failed\n\r");
+			dbg_log(1, "1-Wire: reset failed\n");
 
 		ds24xx_write_byte(ROM_COMMAND_MATCH);
 		for(i = 0; i < 8; i++)
@@ -650,14 +650,14 @@ static int get_board_info(unsigned char *buffer,
 
 	dbg_log(1, "  #%d", bd_sn);
 	if (p->revision_mapping == 'B') {
-		dbg_log(1, "  %s [%c%c%c]      %s\n\r",
+		dbg_log(1, "  %s [%c%c%c]      %s\n",
 				boardname,
 				bd_info->revision_code,
 				bd_info->bom_revision,
 				bd_info->revision_id,
 				vendorname);
 	} else {
-		dbg_log(1, "  %s [%c%c]      %s\n\r",
+		dbg_log(1, "  %s [%c%c]      %s\n",
 				boardname,
 				bd_info->revision_code,
 				bd_info->revision_id,
@@ -788,21 +788,22 @@ void load_1wire_info()
 	memset(&board_info, 0, sizeof(board_info));
 	bd_info= &board_info;
 
-	dbg_log(1, "1-Wire: Loading 1-Wire information ...\n\r");
+	dbg_log(1, "1-Wire: Loading 1-Wire information ...\n");
 
 	sn = rev = 0;
 
 	cnt = enumerate_all_rom();
 	if (!cnt) {
-		dbg_log(1, "WARNING: 1-Wire: No 1-Wire chip found\n\r ");
+		dbg_log(1, "WARNING: 1-Wire: No 1-Wire chip found\n ");
 		goto err;
 	}
 
-	dbg_log(1, "1-Wire: BoardName | [Revid] | VendorName\n\r");
+	dbg_log(1, "1-Wire: BoardName | [Revid] | VendorName\n");
 
 	for (i = 0; i < cnt; i++) {
 		if (ds24xx_read_memory(i, 0, 0, size, buf) < 0) {
-			dbg_log(1, "WARNING: 1-Wire: Failed to read from 1-Wire chip!\n\r");
+			dbg_log(1, "WARNING: 1-Wire: Failed to read from" \
+							"1-Wire chip!\n");
 			goto err;
 		}
 
@@ -844,22 +845,22 @@ void load_1wire_info()
 			break;
 
 		default:
-			dbg_log(1, "WARNING: 1-Wire: Unknown board type\n\r");
+			dbg_log(1, "WARNING: 1-Wire: Unknown board type\n");
 			goto err;
 		}
 	}
 
 	if (missing & BOARD_TYPE_CPU_MASK)
-		dbg_log(1, "1-Wire: Failed to read CM board information\n\r");
+		dbg_log(1, "1-Wire: Failed to read CM board information\n");
 
 	if (missing & BOARD_TYPE_DM_MASK)
-		dbg_log(1, "1-Wire: Failed to read DM board information\n\r");
+		dbg_log(1, "1-Wire: Failed to read DM board information\n");
 
 	if (missing & BOARD_TYPE_EK_MASK)
-		dbg_log(1, "1-Wire: Failed to read EK board information\n\r");
+		dbg_log(1, "1-Wire: Failed to read EK board information\n");
 
 	/* save to GPBR #2 and #3 */
-	dbg_log(1, "\n\r1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\r\n\r", sn, rev);
+	dbg_log(1, "\n1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\n", sn, rev);
 
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);
@@ -870,7 +871,8 @@ err:
 	sn = set_default_sn();
 	rev = set_default_rev();
 
-	dbg_log(1, "\n\r1-Wire: Using defalt value SYS_GPBR2: %d, SYS_GPBR3: %d\n\r\n\r", sn, rev);
+	dbg_log(1, "\n1-Wire: Using defalt value SYS_GPBR2: %d, " \
+					"SYS_GPBR3: %d\n\n", sn, rev);
 
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);

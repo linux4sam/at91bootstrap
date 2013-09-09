@@ -327,7 +327,7 @@ static void sdcard_set_of_name_board(char *of_name)
 		break;
 
 	default:
-		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
+		dbg_log(1, "WARNING: Not correct CPU board ID\n");
 		break;
 	}
 

@@ -184,7 +184,7 @@ static int at91_mci_read_data(unsigned int *data)
 			&& (!(status & error_check))); 
 
 	if (status & error_check) {
-		dbg_log(1, "Error to read data, sr: %d\n\r", status);
+		dbg_log(1, "Error to read data, sr: %d\n", status);
 		return -1;
 	}
 
@@ -223,7 +223,7 @@ int at91_mci_read_block_data(unsigned int *data,
 		;
 
 	if (!timeout) {
-		dbg_log(1, "Data Transfer in Progress.\n\r");
+		dbg_log(1, "Data Transfer in Progress.\n");
 		return -1;
 	}
 
@@ -252,7 +252,7 @@ int at91_mci_read_blocks(unsigned int *data,
 		;
 
 	if (!timeout) {
-		dbg_log(1, "Data Transfer in Progress.\n\r");
+		dbg_log(1, "Data Transfer in Progress.\n");
 		return -1;
 	}
 
@@ -305,7 +305,7 @@ int at91_mci_write_block_data(unsigned int *data,
 		;
 
 	if (!timeout) {
-		dbg_log(1, "Data Transfer in Progress.\n\r");
+		dbg_log(1, "Data Transfer in Progress.\n");
 		return -1;
 	}
 

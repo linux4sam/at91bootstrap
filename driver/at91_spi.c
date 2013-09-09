@@ -84,7 +84,7 @@ int at91_spi_init(unsigned int pcs, unsigned int clock, unsigned int mode)
 	} else if (pcs == AT91C_SPI_PCS3_DATAFLASH) {
 		ncs = 3;
 	} else {
-		dbg_log(1, "SPI: Error pcs : %d\n\r", pcs);
+		dbg_log(1, "SPI: Error pcs : %d\n", pcs);
 		return -1;
 	}
 
@@ -108,7 +108,7 @@ int at91_spi_init(unsigned int pcs, unsigned int clock, unsigned int mode)
 	} else if (mode == SPI_MODE3) {
 		reg |= AT91C_SPI_CPOL;
 	} else if (mode != SPI_MODE1) {
-		dbg_log(1, "SPI: Error mode : %d\n\r", mode);
+		dbg_log(1, "SPI: Error mode : %d\n", mode);
 		return -1;
 	}
 
