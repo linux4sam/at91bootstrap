@@ -123,7 +123,7 @@ int dbg_log(const char level, const char *fmt_str, ...)
 	/* Terminate the result string */
 	*p = '\0';
 
-	usart_print(dbg_buf);
+	usart_puts(dbg_buf);
 
 	return 0;
 }
