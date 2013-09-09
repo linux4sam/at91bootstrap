@@ -38,11 +38,6 @@ static inline unsigned int read_pmc(unsigned int offset)
 	return readl(offset + AT91C_BASE_PMC);
 }
 
-void die()
-{
-	for (;;) ;
-}
-
 void lowlevel_clock_init()
 {
 	unsigned long tmp;
