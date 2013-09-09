@@ -115,6 +115,108 @@ int get_pmecc_bytes()
 	return ecc_bytes;	/* 0 indicate not found */
 }
 
+#if defined(NO_GALOIS_TABLE_IN_ROM)
+static short *pmecc_gf;
+#define PMECC_INDEX_TABLE_SIZE_512	0x2000
+#define PMECC_INDEX_TABLE_SIZE_1024	0x4000
+/* work for sama5d3, at91sam9x5, at91sam9n12 */
+#define PMECC_GF_TABLE_ADDR_IN_DDR	0x21000000
+/*
+ * \brief This fuction is able to build Galois Field.
+ * \param mm degree of the remainders.
+ * \param index_of Pointer to a buffer for index_of table.
+ * \param alpha_to Pointer to a buffer for alpha_to table.
+ */
+static void build_gf(unsigned int mm, short *index_of, short *alpha_to)
+{
+	unsigned int i;
+	unsigned int mask;
+	unsigned int nn;
+	unsigned int p[15];
+
+	nn = (1 << mm) - 1;
+	/* set default value */
+	for (i = 1; i < mm; i++)
+		p[i] = 0;
+
+	/* 1 + X^mm */
+	p[0]  = 1;
+	p[mm] = 1;
+
+	/*  others  */
+	if (mm == 3)
+		p[1] = 1;
+	else if (mm == 4)
+		p[1] = 1;
+	else if (mm == 5)
+		p[2] = 1;
+	else if (mm == 6)
+		p[1] = 1;
+	else if (mm == 7)
+		p[3] = 1;
+	else if (mm == 8)
+		p[2] = p[3] = p[4] = 1;
+	else if (mm == 9)
+		p[4] = 1;
+	else if (mm == 10)
+		p[3] = 1;
+	else if (mm == 11)
+		p[2] = 1;
+	else if (mm == 12)
+		p[1] = p[4] = p[6] = 1;
+	else if (mm == 13)
+		p[1] = p[3] = p[4] = 1;
+	else if (mm == 14)
+		p[1] = p[6] = p[10] = 1;
+	else if (mm == 15)
+		p[1] = 1;
+
+	/*-- First of All */
+	/*-- build alpha ^ mm it will help to generate the field (primitiv) */
+	alpha_to[mm] = 0;
+	for (i = 0; i < mm; i++) {
+		if (p[i])
+			alpha_to[mm] |= 1 << i;
+	}
+
+	/* Secondly */
+	/* Build elements from 0 to mm - 1 */
+	/* very easy because degree is less than mm so it is */
+	/* just a logical shift ! (only the remainder) */
+	mask = 1;
+	for (i = 0; i < mm; i++) {
+		alpha_to[i] = mask;
+		index_of[alpha_to[i]] = i;
+		mask <<= 1;
+	}
+
+	index_of[alpha_to[mm]] = mm ;
+
+	/* use a mask to select the MSB bit of the */
+	/* LFSR ! */
+	mask >>= 1; /* previous value moust be decremented */
+
+	/* then finish the building */
+	for (i = mm + 1; i <= nn; i++) {
+		/* check if the msb bit of the lfsr is set */
+		if (alpha_to[i-1] & mask) {
+			/* feedback loop is set */
+			alpha_to[i] = alpha_to[mm]
+					^ ((alpha_to[i-1] ^ mask) << 1);
+		} else {
+			/*  only shift is enabled */
+			alpha_to[i] = alpha_to[i-1] << 1;
+		}
+		/*  lookup table */
+		/* index_of[alpha_to[i]] = i; */
+		index_of[alpha_to[i]] = mod(i, nn);
+	}
+
+	/* of course index of 0 is undefined in a multiplicative field */
+	index_of[0] = -1;
+}
+#endif
+
 static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 				struct nand_info *nand)
 {
@@ -144,6 +246,18 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 		pmecc_params->mm = (PMECC_SECTOR_SIZE == 512) ? 13 : 14;
 		pmecc_params->nn = (1 << pmecc_params->mm) - 1;
 
+#if defined(NO_GALOIS_TABLE_IN_ROM)
+		int size = PMECC_SECTOR_SIZE == 512 ?
+				PMECC_INDEX_TABLE_SIZE_512 :
+				PMECC_INDEX_TABLE_SIZE_1024;
+		pmecc_gf = (short *)PMECC_GF_TABLE_ADDR_IN_DDR;
+		build_gf(PMECC_SECTOR_SIZE == 512 ? 13 : 14,
+			pmecc_gf,				/* index table */
+			pmecc_gf + (size * sizeof(short)));	/* alpha table */
+		pmecc_params->index_of = pmecc_gf;
+		pmecc_params->alpha_to = pmecc_gf + (size * sizeof(short));
+#else
+
 		if (PMECC_SECTOR_SIZE == 512) {
 			pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM
 					+ CONFIG_LOOKUP_TABLE_ALPHA_OFFSET);
@@ -155,7 +269,7 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 			pmecc_params->index_of = (short *)(AT91C_BASE_ROM
 				+ CONFIG_LOOKUP_TABLE_INDEX_OFFSET_1024);
 		}
-
+#endif
 		/* Error Correct Capability */
 		switch (PMECC_ERROR_CORR_BITS) {
 		case 2:
