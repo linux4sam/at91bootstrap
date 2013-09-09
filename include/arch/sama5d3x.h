@@ -122,7 +122,6 @@
 /*
  * System Peripherals physical base addresses.
  */
-#define AT91C_BASE_SYS		0xffffc000
 #define AT91C_BASE_SMC		0xffffc000
 /* Reserved */
 #define AT91C_BASE_FUSE		0xffffe400
@@ -179,9 +178,6 @@
  */
 #define AT91C_BASE_PMECC	(AT91C_BASE_SMC + 0x70)
 #define AT91C_BASE_PMERRLOC	(AT91C_BASE_SMC + 0x500)
-
-#define AT91_PMECC		(AT91C_BASE_PMECC - AT91C_BASE_SYS)
-#define AT91_PMERRLOC		(AT91C_BASE_PMERRLOC - AT91C_BASE_SYS)
 
 #define ATMEL_BASE_SMC		(AT91C_BASE_SMC + 0x600)
 #define AT91C_SYS_SCKCR		AT91C_BASE_SCKCR

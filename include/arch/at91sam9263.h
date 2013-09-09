@@ -87,7 +87,6 @@
 #define AT91C_BASE_EMAC		0xfffbc000
 #define AT91C_BASE_ISI		0xfffc4000
 #define AT91C_BASE_2DGE		0xfffc8000
-#define AT91C_BASE_SYS		0xffffc000
 
 /*
  * System Peripherals physical base addresses.
@@ -138,12 +137,6 @@
 #define AT91C_BASE_EBI1_CS0	0x70000000
 #define AT91C_BASE_EBI1_CS1	0x80000000	/* EBI1 SDRAMC */
 #define AT91C_BASE_EBI1_CS2	0x90000000	/* EBI1 NANDFlash */
-
-/*
- * Other misc defines
- */
-#define AT91_BASE_SYS		AT91C_BASE_SYS
-#define AT91_SMC		(AT91C_BASE_SMC0 - AT91_BASE_SYS)
 
 /*
  * SoC specific defines
