@@ -25,7 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "dbgu.h"
+#include "usart.h"
 #include "debug.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -123,7 +123,7 @@ int dbg_log(const char level, const char *fmt_str, ...)
 	/* Terminate the result string */
 	*p = '\0';
 
-	dbgu_print(dbg_buf);
+	usart_print(dbg_buf);
 
 	return 0;
 }

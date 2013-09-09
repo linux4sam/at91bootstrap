@@ -37,7 +37,7 @@
 #include "spi.h"
 #include "gpio.h"
 #include "pmc.h"
-#include "dbgu.h"
+#include "usart.h"
 #include "debug.h"
 #include "sdramc.h"
 #include "timer.h"
@@ -91,7 +91,7 @@ static void initialize_dbgu(void)
 
 	pmc_enable_periph_clock(AT91C_ID_PIOA);
 
-	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
+	usart_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
 
 #ifdef CONFIG_SDRAM

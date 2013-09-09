@@ -25,15 +25,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __DBGU_H__
-#define __DBGU_H__
+#ifndef __USART_H__
+#define __USART_H__
 
 #define BAUDRATE(mck, baud) \
 	(((((mck) * 10) / ((baud) * 16)) % 10) >= 5) ? \
 	(mck / (baud * 16) + 1) : ((mck) / (baud * 16))
 
-extern void dbgu_init(unsigned int);
-extern void dbgu_print(const char *ptr);
-extern char dbgu_getc(void);
+extern void usart_init(unsigned int);
+extern void usart_puts(const char *ptr);
+extern char usart_getc(void);
 
-#endif /* #ifndef __DBGU_H__ */
+#endif /* __USART_H__ */

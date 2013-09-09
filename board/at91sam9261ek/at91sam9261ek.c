@@ -38,7 +38,7 @@
 #include "gpio.h"
 #include "pmc.h"
 #include "debug.h"
-#include "dbgu.h"
+#include "usart.h"
 #include "sdramc.h"
 #include "timer.h"
 #include "watchdog.h"
@@ -95,7 +95,7 @@ static void at91_dbgu_hw_init(void)
 static void initialize_dbgu(void)
 {
 	at91_dbgu_hw_init();
-	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
+	usart_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
 
 #ifdef CONFIG_SDRAM
