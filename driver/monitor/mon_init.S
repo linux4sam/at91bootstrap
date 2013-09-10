@@ -61,6 +61,10 @@ monitor_init:
 	ldr	r2, =monitor_vectors
 	mcr	p15, 0, r2, c12, c0, 1
 
+	/* Program the DACR to allow client access to *all* domains */
+	ldr	r2, =0x55555555
+	mcr	p15, 0, r2, c3, c0, 0
+
 	/*
 	 * Configure SCR so that A bit in the CPSR
 	 * can be modified when in the Non-secure state

@@ -28,6 +28,8 @@
 #ifndef __TZ_UTILS_H__
 #define __TZ_UTILS_H__
 
+extern void cpacr_init(void);
+extern void dacr_swd_init(void);
 extern void switch_normal_world(void);
 
 #endif
