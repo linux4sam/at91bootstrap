@@ -86,7 +86,7 @@
 #define AT91C_ID_ISI		52	/* Image Sensor Interface */
 #define AT91C_ID_TRNG		53	/* True Random Number Generator */
 #define AT91C_ID_GMAC		54	/* Gigabit Ethernet MAC */
-/* 55 reserved */
+#define AT91C_ID_GMAC1		55	/* Gigabit Ethernet MAC */
 #define AT91C_ID_IRQ		56	/* IRQ Interrupt ID */
 #define AT91C_ID_SFC		57	/* Fuse Controller */
 /* 58 reserved */

@@ -404,6 +404,7 @@ static unsigned int security_ps_peri_id[] = {
 	AT91C_ID_UDPHS,
 	AT91C_ID_LCDC,
 	AT91C_ID_GMAC,
+	AT91C_ID_GMAC1,
 	AT91C_ID_SPI0,
 	AT91C_ID_SPI1,
 	AT91C_ID_SMD,

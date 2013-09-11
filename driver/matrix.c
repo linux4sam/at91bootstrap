@@ -376,6 +376,12 @@ static const struct peri_security peri_security_array[] = {
 		.matrix = MATRIX_H32MX,
 		.security_type = SECURITY_TYPE_PS,
 	},
+	/* GMAC1 */
+	{
+		.peri_id = AT91C_ID_GMAC1,
+		.matrix = MATRIX_H32MX,
+		.security_type = SECURITY_TYPE_PS,
+	},
 	/* IRQ */
 	{
 		.peri_id = AT91C_ID_IRQ,
