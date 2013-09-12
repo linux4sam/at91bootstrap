@@ -63,7 +63,8 @@ swi_vector:
 pabt_vector:
 	b 	pabt_vector
 dabt_vector:
-	b 	dabt_vector
+	subs	pc, r14, #4	/* return */
+	nop
 rsvd_vector:
 	b 	rsvd_vector
 irq_vector:
@@ -114,6 +115,17 @@ _relocate_to_sram:
 	ldr     r4, = lowlevel_clock_init
 	mov     lr, pc
 	bx      r4
+
+#if defined(CONFIG_CPU_V7)
+/* Clear Abort condition if it is pending with help of the abort handler */
+	ldr	r1, =(CPSR_A_BIT)
+	mrs	r0, cpsr
+	eor	r0, r0, r1
+	msr	cpsr_x, r0
+	nop
+	eor	r0, r0, r1
+	msr	cpsr_x, r0
+#endif
 
 /* Copy the data section in RAM at .data link address */
 _init_data:

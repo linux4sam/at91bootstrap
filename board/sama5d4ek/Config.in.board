@@ -1,6 +1,7 @@
 config CONFIG_SAMA5D4EK
 	bool "sama5d4ek"
 	select SAMA5D4
+	select CONFIG_CPU_V7
 	select CONFIG_DDRC
 	select ALLOW_DATAFLASH
 	select ALLOW_NANDFLASH

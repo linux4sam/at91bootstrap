@@ -292,3 +292,7 @@ config CONFIG_BUS_SPEED_170MHZ
 	depends on CONFIG_CPU_CLK_510MHZ
 
 endchoice
+
+config CONFIG_CPU_V7
+	bool
+	default n
