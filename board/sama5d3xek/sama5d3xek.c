@@ -215,6 +215,50 @@ static void recovery_buttons_hw_init(void)
 }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
 
+/*
+ * Special setting for PM.
+ * Since for the chips with no EMAC or GMAC, No actions is done to make
+ * its phy to enter the power save mode when linux system enter suspend
+ * to memory or standby.
+ * And it causes the VDDCORE current is higher than our expection.
+ * So set GMAC clock related pins GTXCK(PB8), GRXCK(PB11), GMDCK(PB16),
+ * G125CK(PB18) and EMAC clock related pins EREFCK(PC7), EMDC(PC8)
+ * to Pullup and Pulldown disabled, and output low.
+ */
+
+#define GMAC_PINS	((0x01 << 8) | (0x01 << 11) \
+				| (0x01 << 16) | (0x01 << 18))
+
+#define EMAC_PINS	((0x01 << 7) | (0x01 << 8))
+
+static void at91_special_pio_output_low(void)
+{
+	unsigned int base;
+	unsigned int value;
+
+	base = AT91C_BASE_PIOB;
+	value = GMAC_PINS;
+
+	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+
+	writel(value, base + PIO_REG_PPUDR);	/* PIO_PPUDR */
+	writel(value, base + PIO_REG_PPDDR);	/* PIO_PPDDR */
+	writel(value, base + PIO_REG_PER);	/* PIO_PER */
+	writel(value, base + PIO_REG_OER);	/* PIO_OER */
+	writel(value, base + PIO_REG_CODR);	/* PIO_CODR */
+
+	base = AT91C_BASE_PIOC;
+	value = EMAC_PINS;
+
+	writel((1 << AT91C_ID_PIOC), (PMC_PCER + AT91C_BASE_PMC));
+
+	writel(value, base + PIO_REG_PPUDR);	/* PIO_PPUDR */
+	writel(value, base + PIO_REG_PPDDR);	/* PIO_PPDDR */
+	writel(value, base + PIO_REG_PER);	/* PIO_PER */
+	writel(value, base + PIO_REG_OER);	/* PIO_OER */
+	writel(value, base + PIO_REG_CODR);	/* PIO_CODR */
+}
+
 static void HDMI_Qt1070_workaround(void)
 {
 	/* For the HDMI and QT1070 shar the irq line
@@ -250,6 +294,9 @@ void hw_init(void)
 
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
+
+	/* Set GMAC & EMAC pins to output low */
+	at91_special_pio_output_low();
 
 	/* Init timer */
 	timer_init();
