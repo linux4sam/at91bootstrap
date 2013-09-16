@@ -35,6 +35,8 @@
 #include "sdcard.h"
 #include "fdt.h"
 #include "onewire_info.h"
+#include "mon.h"
+#include "tz_utils.h"
 
 #include "debug.h"
 
@@ -408,8 +410,18 @@ int load_kernel(struct image_info *image)
 
 	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",
 							mach_type);
+#if defined(CONFIG_TRUSTZONE_SUPPORT)
+	monitor_init();
 
+	init_loadkernel_args(0, mach_type, r2, (unsigned int)kernel_entry);
+
+	dbg_info("Enter Normal World, Run Kernel at %d\n\r",
+					(unsigned int)kernel_entry);
+
+	enter_normal_world();
+#else
 	kernel_entry(0, mach_type, r2);
+#endif
 
 	return 0;
 }

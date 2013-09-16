@@ -131,9 +131,27 @@ swd_to_nwd:
 	/* Only to adjust the stack pointer */
 	ldmia	sp!, {r0-r3}
 
+	/* Restore r0-r2 from DB for kernel loading */
+	ldr	r3, =MON_DATA_BASE
+	mov	r4, #DB_R012_VALID
+	ldr	r5, [r3, #NWD_R012_VALID_OFF]
+	cmp	r4, r5
+	bne	not_valid
+
+	mov	r4, #0x00
+	str	r4, [r3, #NWD_R012_VALID_OFF]
+
+	ldr	r0, [r3, #NWD_R0_OFF]
+	ldr	r1, [r3, #NWD_R1_OFF]
+	ldr	r2, [r3, #NWD_R2_OFF]
+	b	zero_regs
+
+not_valid:
 	/* Zero out r1-r7 and r12 registers */
 	mov	r1, #0
 	mov	r2, #0
+
+zero_regs:
 	mov	r3, #0
 	mov	r4, #0
 	mov	r5, #0

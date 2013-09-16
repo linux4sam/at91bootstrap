@@ -29,4 +29,9 @@
 
 extern void monitor_init(void);
 
+extern void init_loadkernel_args(unsigned int r0,
+				unsigned int r1,
+				unsigned int r2,
+				unsigned int r3);
+
 #endif

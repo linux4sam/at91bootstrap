@@ -30,6 +30,7 @@
 
 extern void cpacr_init(void);
 extern void dacr_swd_init(void);
+extern void enter_normal_world(void);
 extern void switch_normal_world(void);
 
 #endif

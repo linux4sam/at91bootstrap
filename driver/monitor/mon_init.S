@@ -32,6 +32,7 @@
 	.align
 
 	.global monitor_init
+	.global init_loadkernel_args
 	.extern monitor_vectors
 	.extern svc_mgr_veneer
 
@@ -103,6 +104,27 @@ monitor_init:
 	msr	cpsr_c, r0
 
 	/* Return to SWd calling function */
+	bx	lr
+
+/*
+ * Save r0, r1, r2 to DB for loading kernel.
+ * void init_loadkernel_args(unsigned int r0, unsigned int r1,
+ *			unsigned int r2, unsigned int r3)
+ *
+ * r0 : 0
+ * r1 : Valid machine type number
+ * r2 : physical pointer to the device-tree block
+ * r3 : overwrite the PC_OFF
+ */
+init_loadkernel_args:
+	ldr	r5, =MON_DATA_BASE
+	str	r0, [r5, #NWD_R0_OFF]
+	str	r1, [r5, #NWD_R1_OFF]
+	str	r2, [r5, #NWD_R2_OFF]
+	str	r3, [r5, #NWD_PC_OFF]
+	mov	r4, #DB_R012_VALID
+	str	r4, [r5, #NWD_R012_VALID_OFF]
+
 	bx	lr
 
 	.end
