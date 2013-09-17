@@ -48,7 +48,7 @@ int division(unsigned int dividend,
 		return 0;
 	}
 
-	while (dividend > divisor) {
+	while (dividend >= divisor) {
 		for (shift = 0, divisor_shift = divisor;
 			dividend >= divisor_shift;
 			divisor_shift <<= 1, shift++) {
