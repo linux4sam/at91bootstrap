@@ -31,6 +31,7 @@
 #include "matrix.h"
 #include "l2cc.h"
 #include "debug.h"
+#include "rstc.h"
 
 /*
  * svc_mgr_main - C entry point of the secure world when a SMC is processed
@@ -84,6 +85,8 @@ int svc_mgr_main(struct smc_args_t const *args)
 		else
 			ret = pmc_usb_setup();
 		break;
+	case 0x29:
+		cpu_reset();
 
 	case 0x42:
 		l2cache_init();
