@@ -38,6 +38,7 @@
 #include "string.h"
 #include "onewire_info.h"
 
+#ifndef CONFIG_UPLOAD_3RD_STAGE
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 extern int load_kernel(struct image_info *img_info);
 #endif
@@ -56,14 +57,28 @@ extern int load_kernel(struct image_info *img_info);
 #error "No booting media_str specified!"
 #endif
 #endif
+#else
+int load_nothing (struct image_info* unused)
+{
+  //NOTHING TO DO
+  dbgu_print("NOTHING is LOADED\n\r");
+  return 0;
+}
+#define load_image load_nothing
+#endif /*CONFIG_UPLOAD_3RD_STAGE*/
 
-typedef int (*load_function)(struct image_info *img_info);
+//typedef int (*load_function)(struct image_info *img_info);
 
 void (*sdcard_set_of_name)(char *) = NULL;
 
 static void display_banner (void)
 {
-	char *version = "AT91Bootstrap";
+#ifndef CONFIG_UPLOAD_3RD_STAGE
+  char *version = "AT91Bootstrap";
+#else
+  char *version = "AT91Bootstrap - 3rd stage uploaded through DEBUG PROBE";
+#endif
+
 	char *ver_num = " "AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
 
 #if defined( CONFIG_CPU_CLK_498MHZ)
@@ -76,7 +91,6 @@ static void display_banner (void)
 #error NO Clock defined !!
 	const char* const clocks_msg = "UNKNOWN";
 #endif
-
 	usart_puts("\n");
 	usart_puts("\n");
 	usart_puts(version);
@@ -104,6 +118,8 @@ int main(void)
 	image.of = 1;
 	image.of_dest = (unsigned char *)OF_ADDRESS;
 #endif
+
+#ifndef CONFIG_UPLOAD_3RD_STAGE
 
 #ifdef CONFIG_NANDFLASH
 	media_str = "NAND: ";
@@ -135,7 +151,9 @@ int main(void)
 	image.of_filename = of_filename;
 #endif
 #endif
-
+ 
+#endif /*CONFIG_UPLOAD_3RD_STAGE*/
+  
 #ifdef CONFIG_HW_INIT
 	hw_init();
 #endif

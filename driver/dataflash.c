@@ -803,13 +803,12 @@ load_dataflash(struct image_info *image)
           image->of_offset, image->of_length, image->of_dest);
 #endif
     if (ret) {	
-          dbg_info("** SF: DT: Serial flash read error**\n");
+        dbg_info("** SF: DT: Serial flash read error**\n");
 
-          ret = -1;
-          goto err_exit;
-        }
-    }
-
+        ret = -1;
+        goto err_exit;
+     }
+  }
   err_exit: at91_spi_disable();
   return ret;
 }
