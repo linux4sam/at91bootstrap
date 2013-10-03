@@ -85,8 +85,8 @@ static void display_banner (void)
 	const char* const clocks_msg = " CLOCKS : Core:498MHz, Bus:166MHz\n\r";
 #elif defined (CONFIG_CPU_CLK_400MHZ)
 	const char* const clocks_msg = " CLOCKS : Core:400MHz, Bus:132MHz\n\r";
-#elif defined (CONFIG_CPU_CLK_533MHZ)
-	const char* const clocks_msg = " CLOCKS : Core:533MHz, Bus:132MHz\n\r";
+#elif defined (CONFIG_CPU_CLK_528MHZ)
+	const char* const clocks_msg = " CLOCKS : Core:528MHz, Bus:133MHz\n\r";
 #else
 #error NO Clock defined !!
 	const char* const clocks_msg = "UNKNOWN";
