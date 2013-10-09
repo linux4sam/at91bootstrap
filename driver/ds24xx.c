@@ -664,8 +664,8 @@ static int get_board_info(unsigned char *buffer,
 		dbg_info("  %s [%c%c%c]      %s\n",
 				boardname,
 				bd_info->revision_code,
-				bd_info->bom_revision,
 				bd_info->revision_id,
+				bd_info->bom_revision,
 				vendorname);
 	} else {
 		dbg_info("  %s [%c%c]      %s\n",
