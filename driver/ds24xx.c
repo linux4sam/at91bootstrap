@@ -557,6 +557,16 @@ static unsigned char normalize_rev_id(const unsigned char c)
 	return '0';
 }
 
+static unsigned char normalize_rev_id_map_b(const unsigned char c)
+{
+	return normalize_rev_code(c);
+}
+
+static unsigned char normalize_bom_revision(const unsigned char c)
+{
+	return normalize_rev_id(c);
+}
+
 static int get_board_info(unsigned char *buffer,
 				unsigned char bd_sn,
 				struct board_info *bd_info)
@@ -610,9 +620,9 @@ static int get_board_info(unsigned char *buffer,
 				= normalize_rev_code(p->revision_code);
 			if (p->revision_mapping == 'B') {
 				bd_info->revision_id
-					= normalize_rev_id(p->revision_id);
+					= normalize_rev_id_map_b(p->revision_id);
 				bd_info->bom_revision
-					= normalize_rev_code(p->bom_revision);
+					= normalize_bom_revision(p->bom_revision);
 			} else {
 				bd_info->revision_id
 					= normalize_rev_id(p->revision_id);
