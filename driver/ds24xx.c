@@ -610,9 +610,9 @@ static int get_board_info(unsigned char *buffer,
 				= normalize_rev_code(p->revision_code);
 			if (p->revision_mapping == 'B') {
 				bd_info->revision_id
-					= normalize_rev_id(p->bom_revision);
+					= normalize_rev_id(p->revision_id);
 				bd_info->bom_revision
-					= normalize_rev_code(p->revision_id);
+					= normalize_rev_code(p->bom_revision);
 			} else {
 				bd_info->revision_id
 					= normalize_rev_id(p->revision_id);
