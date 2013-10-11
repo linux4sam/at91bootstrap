@@ -270,7 +270,9 @@ static void nand_cs_disable(void)
 #endif
 }
 
-static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chip *chip)
+#ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
+static void config_nand_ooblayout(struct nand_ooblayout *layout,
+				struct nand_chip *chip)
 {
 	unsigned int i;
 	unsigned int oobsize = 0;
@@ -290,6 +292,21 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 		oobsize = chip->oobsize;
 		break;
 
+	default:
+		break;
+	}
+
+	for (i = 0; i < layout->eccbytes; i++)
+		layout->eccpos[i] = oobsize - layout->eccbytes + i;
+}
+#else
+static void config_nand_ooblayout(struct nand_ooblayout *layout,
+				struct nand_chip *chip)
+{
+	unsigned int i;
+	unsigned int oobsize = 0;
+
+	switch (chip->pagesize) {
 	case 2048:
 		layout->badblockpos = 0;
 		oobsize = chip->oobsize;
@@ -321,10 +338,8 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout, struct nand_chi
 
 	for (i = 0; i < layout->eccbytes; i++)
 		layout->eccpos[i] = oobsize - layout->eccbytes + i;
-
-	layout->oobavailbytes = oobsize - layout->eccbytes
-					- layout->oobavail_offset;
 }
+#endif /* #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS */
 
 static void nand_set_feature_on_die_ecc(unsigned char is_enable)
 {
