@@ -100,11 +100,6 @@ static unsigned char read_byte(void)
 	return(readb((unsigned long)CONFIG_SYS_NAND_BASE));
 }
 
-static void write_byte(unsigned char data)
-{
-	writeb(data, (unsigned long)CONFIG_SYS_NAND_BASE);
-}
-
 /* 16 bits devices */
 static void nand_command16(unsigned char cmd)
 {
@@ -219,6 +214,12 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 }
 #endif /* #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS */
 
+#ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT
+static void write_byte(unsigned char data)
+{
+	writeb(data, (unsigned long)CONFIG_SYS_NAND_BASE);
+}
+
 static void nand_set_feature_on_die_ecc(unsigned char is_enable)
 {
 	unsigned char i;
@@ -295,6 +296,7 @@ static int nand_init_on_die_ecc(void)
 		return 0;
 	}
 }
+#endif /* #ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT */
 
 #ifdef CONFIG_ONFI_DETECT_SUPPORT
 static unsigned short onfi_crc16(unsigned short crc,
@@ -505,8 +507,10 @@ static int nandflash_get_type(struct nand_info *nand)
 	}
 #endif
 
+#ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT
 	if (nand_init_on_die_ecc())
 		return -1;
+#endif
 
 	nand_info_init(nand, chip);
 	
