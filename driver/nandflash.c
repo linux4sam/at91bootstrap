@@ -296,6 +296,7 @@ static int nand_init_on_die_ecc(void)
 	}
 }
 
+#ifdef CONFIG_ONFI_DETECT_SUPPORT
 static unsigned short onfi_crc16(unsigned short crc,
 				unsigned char const *p,
 				unsigned int len)
@@ -395,6 +396,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 
 	return 0;
 }
+#endif /* #ifdef CONFIG_ONFI_DETECT_SUPPORT */
 
 static int nandflash_detect_non_onfi(struct nand_chip *chip)
 {
@@ -482,9 +484,11 @@ static void nandflash_reset(void)
 static int nandflash_get_type(struct nand_info *nand)
 {
 	struct nand_chip *chip = &nand_chip_default;
-	int ret;
 
 	nandflash_reset();
+
+#ifdef CONFIG_ONFI_DETECT_SUPPORT
+	int ret;
 
 	/* Check if the Nandflash is ONFI compliant */
 	ret = nandflash_detect_onfi(chip);
@@ -494,6 +498,12 @@ static int nandflash_get_type(struct nand_info *nand)
 			return -1;
 		}
 	}
+#else
+	if (nandflash_detect_non_onfi(chip)) {
+		dbg_info("NAND: Not find support device!\n");
+		return -1;
+	}
+#endif
 
 	if (nand_init_on_die_ecc())
 		return -1;
