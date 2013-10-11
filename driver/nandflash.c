@@ -1321,22 +1321,26 @@ static int nand_read_sector(struct nand_info *nand,
 			unsigned int zone_flag)
 {
 	unsigned int readbytes, i;
+	unsigned int column_address;
 	unsigned char command;
 
 	switch (zone_flag) {
 	case ZONE_DATA:
 		readbytes = nand->pagesize;
+		column_address = 0x00;
 		command = CMD_READ_A0;
 		break;
 
 	case ZONE_INFO:
 		readbytes = nand->oobsize;
+		column_address = nand->pagesize;
 		buffer += nand->pagesize;
 		command = CMD_READ_C;
 		break;
 
 	case ZONE_DATA | ZONE_INFO:
 		readbytes = nand->sectorsize;
+		column_address = 0x00;
 		command = CMD_READ_A0;
 		break;
 
@@ -1349,10 +1353,8 @@ static int nand_read_sector(struct nand_info *nand,
 	/* Write specific command, Read from start */
 	nand->command(command);
 
-	nand->address(0x00);
-	nand->address((row_address >> 0) & 0xff);
-	nand->address((row_address >> 8) & 0xff);
-	nand->address((row_address >> 16) & 0xff);
+	write_column_address(nand, column_address);
+	write_row_address(nand, row_address);
 
 	if (nand_read_status())
 		return -1;
@@ -1366,30 +1368,9 @@ static int nand_read_sector(struct nand_info *nand,
 			buffer += 2;
 		}
 	} else {
-		if (command == CMD_READ_C)
-			for (i = 0; i < readbytes; i++) {
-				*buffer = read_byte();
-				buffer++;
-			}
-		else {
-			for (i = 0; i < readbytes / 2; i++) {
-				*buffer = read_byte();
-				buffer++;
-			}
-
-			nand->command(CMD_READ_A1);
-			nand->address(0x00);
-			nand->address((row_address >> 0) & 0xff);
-			nand->address((row_address >> 8) & 0xff);
-			nand->address((row_address >> 16) & 0xff);
-
-			nand_wait_ready();
-			nand->command(CMD_READ_A0);
-
-			for (i = 0; i < (readbytes / 2); i++) {
-				*buffer = read_byte();
-				buffer++;
-			}
+		for (i = 0; i < readbytes; i++) {
+			*buffer = read_byte();
+			buffer++;
 		}
 	}
 
