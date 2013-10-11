@@ -29,6 +29,7 @@ ifeq ($(CONFIG_BOARD), "at91sam9260ek")
 COBJS-$(CONFIG_NANDFLASH)	+= $(DRIVERS_SRC)/nandflash_9260.o
 else
 COBJS-$(CONFIG_NANDFLASH)	+= $(DRIVERS_SRC)/nandflash.o
+COBJS-$(CONFIG_USE_PMECC)	+= $(DRIVERS_SRC)/pmecc.o
 endif
 COBJS-$(CONFIG_ENABLE_SW_ECC) 	+= $(DRIVERS_SRC)/hamming.o
 
