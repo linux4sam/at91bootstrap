@@ -157,12 +157,10 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 	switch (chip->pagesize) {
 	case 256:
 		layout->eccbytes = 3;
-		layout->oobavail_offset = 2;
 		break;
 
 	case 512:
 		layout->eccbytes = 6;
-		layout->oobavail_offset = 6;
 		layout->eccpos[3] = 3;
 		layout->eccpos[4] = 6;
 		layout->eccpos[5] = 7;
@@ -189,7 +187,6 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 #else
 		layout->eccbytes = 24;
 #endif
-		layout->oobavail_offset = 1;
 		break;
 
 	case 4096:
@@ -202,7 +199,6 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 		layout->eccbytes = 48;
 		oobsize = 128;
 #endif
-		layout->oobavail_offset = 1;
 		break;
 
 	default:

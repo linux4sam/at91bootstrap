@@ -34,8 +34,6 @@ struct nand_ooblayout {
 	unsigned char	badblockpos;
 	unsigned char	eccbytes;
 	unsigned char	eccpos[MAX_ECC_BYTES];
-	unsigned char	oobavailbytes;
-	unsigned char	oobavail_offset;
 };
 
 struct nand_chip {
@@ -48,7 +46,6 @@ struct nand_chip {
 };
 
 struct nand_info {
-	unsigned long	chipsize;
 	unsigned int	blocksize;	/* size of a block */
 	unsigned int	pagesize;	/* size of a page */
 	unsigned int	oobsize;	/* size of a oob */
