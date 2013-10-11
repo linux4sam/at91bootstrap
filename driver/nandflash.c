@@ -411,6 +411,8 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	manf_id  = read_byte();
 	dev_id   = read_byte();
 
+	nand_cs_disable();
+
 	chipid = (manf_id << 8) | dev_id;
 
 	for (i = 0; i < ARRAY_SIZE(nand_ids); i++) {
