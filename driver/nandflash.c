@@ -285,12 +285,12 @@ static int nand_init_on_die_ecc(void)
 		dbg_info("WARNING: Fail to %s On-Die ECC\n",
 				is_enable ? "enable" : "disable");
 
-		return -1;
 	} else {
 		dbg_info("NAND: %s On-Die ECC\n",
 				is_enable ? "Enable" : "Disable");
-		return 0;
 	}
+
+	return 0;
 }
 #endif /* #ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT */
 
