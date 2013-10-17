@@ -408,4 +408,12 @@ unsigned int pmc_usb_setup(void)
 
 	return usbr;
 }
+
+void pmc_smd_setup(unsigned int val)
+{
+	val &= (AT91C_PMC_SMDS | AT91C_PMC_SMDDIV);
+
+	write_pmc(PMC_SMD, val);
+}
+
 #endif

@@ -46,5 +46,6 @@ extern unsigned int sys_mask_to_per_id(unsigned int sys_mask);
 extern int pmc_sys_clk(unsigned int sys_clock_mask, unsigned int is_on);
 extern int pmc_uckr_clk(unsigned int is_on);
 extern unsigned int pmc_usb_setup(void);
+extern void pmc_smd_setup(unsigned int val);
 
 #endif	/* #ifndef __PMC_H__ */
