@@ -85,10 +85,6 @@ defconfig: $(CONFIG)/conf
 
 else #  Have DOT Config
 
-ifeq ($(CROSS_COMPILE),)
-$(error Environment variable "CROSS_COMPILE" must be defined!)
-endif
-
 AS=$(CROSS_COMPILE)gcc
 CC=$(CROSS_COMPILE)gcc
 LD=$(CROSS_COMPILE)ld
@@ -210,7 +206,13 @@ TARGETS=$(obj) $(AT91BOOTSTRAP)
 
 PHONY:=all
 
-all: PrintFlags $(AT91BOOTSTRAP) ChkFileSize
+all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize
+
+CheckCrossCompile:
+	@( if [ "x$(CROSS_COMPILE)" == "x" ]; then \
+		echo "error: Environment variable "CROSS_COMPILE" must be defined!"; \
+		exit 2; \
+	fi )
 
 PrintFlags:
 	@echo CC
