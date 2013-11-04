@@ -1,4 +1,4 @@
-menu  "NAND Flash configuration"
+menu  "NAND flash configuration"
 	depends on CONFIG_NANDFLASH
 
 choice
@@ -17,6 +17,7 @@ config CONFIG_USE_PMECC
 
 config CONFIG_ON_DIE_ECC
 	bool "Using On-Die ECC"
+	depends on CONFIG_USE_ON_DIE_ECC_SUPPORT
 
 endchoice
 
@@ -66,10 +67,10 @@ config CONFIG_NANDFLASH_SMALL_BLOCKS
 	bool "Use NAND flash with small blocks"
 	default n
 	help
-	  Use NAND Flash with small blocks
+	  Use NAND flash with small blocks
 
 config CONFIG_NANDFLASH_RECOVERY
-	bool "Support Nandflash recovery by pressing a button"
+	bool "Support NAND flash recovery by pressing a button"
 	default y
 	depends on CONFIG_NANDFLASH
 	depends on ALLOW_NANDFLASH_RECOVERY
@@ -77,6 +78,16 @@ config CONFIG_NANDFLASH_RECOVERY
 	  Let bootstrap disassemble the first 7 double words
 	  and check that all, except the reserved vector
 	  contains a jump/branch
+
+config CONFIG_ONFI_DETECT_SUPPORT
+	bool "Support NAND flash ONFI detect function"
+	default y
+	help
+
+config CONFIG_USE_ON_DIE_ECC_SUPPORT
+	bool "Support to use NAND flash On-Die ECC"
+	default y
+	help
 
 config ALLOW_NANDFLASH_RECOVERY
 	bool

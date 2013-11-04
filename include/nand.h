@@ -34,8 +34,6 @@ struct nand_ooblayout {
 	unsigned char	badblockpos;
 	unsigned char	eccbytes;
 	unsigned char	eccpos[MAX_ECC_BYTES];
-	unsigned char	oobavailbytes;
-	unsigned char	oobavail_offset;
 };
 
 struct nand_chip {
@@ -58,6 +56,9 @@ struct nand_info {
 	unsigned int	pages_block;	/* number of pages in block */
 
 	unsigned int	buswidth;	/* data bus width (8/16 bits) */
+
+	void (*command)(unsigned char cmd);
+	void (*address)(unsigned char addr);
 
 	struct nand_ooblayout	*ecclayout;
 };

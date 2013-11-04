@@ -171,6 +171,7 @@ static struct ek_boards	board_list[] = {
 	{"SAM9X35-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAM9X35_CM},
 	{"PDA-DM",	BOARD_TYPE_DM,	BOARD_ID_PDA_DM},
 	{"TM4300",	BOARD_TYPE_DM,	BOARD_ID_PDA_DM},
+	{"TM4301",	BOARD_TYPE_DM,	BOARD_ID_PDA_DM},
 	{"SAMA5D3x-MB",	BOARD_TYPE_EK,	BOARD_ID_SAMA5D3X_MB},
 	{"SAMA5D3x-DM",	BOARD_TYPE_DM,	BOARD_ID_SAMA5D3X_DM},
 	{"SAMA5D31-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAMA5D31_CM},
@@ -186,6 +187,7 @@ static struct ek_vendors	vendor_list[] = {
 	{"FLEX",	VENDOR_FLEX},
 	{"RONETIX",	VENDOR_RONETIX},
 	{"COGENT",	VENDOR_COGENT},
+	{"PDA INC",	VENDOR_PDA},
 	{"PDA",		VENDOR_PDA},
 	{0,		0},
 };
@@ -557,6 +559,16 @@ static unsigned char normalize_rev_id(const unsigned char c)
 	return '0';
 }
 
+static unsigned char normalize_rev_id_map_b(const unsigned char c)
+{
+	return normalize_rev_code(c);
+}
+
+static unsigned char normalize_bom_revision(const unsigned char c)
+{
+	return normalize_rev_id(c);
+}
+
 static int get_board_info(unsigned char *buffer,
 				unsigned char bd_sn,
 				struct board_info *bd_info)
@@ -610,9 +622,9 @@ static int get_board_info(unsigned char *buffer,
 				= normalize_rev_code(p->revision_code);
 			if (p->revision_mapping == 'B') {
 				bd_info->revision_id
-					= normalize_rev_id(p->bom_revision);
+					= normalize_rev_id_map_b(p->revision_id);
 				bd_info->bom_revision
-					= normalize_rev_code(p->revision_id);
+					= normalize_bom_revision(p->bom_revision);
 			} else {
 				bd_info->revision_id
 					= normalize_rev_id(p->revision_id);
@@ -654,8 +666,8 @@ static int get_board_info(unsigned char *buffer,
 		dbg_info("  %s [%c%c%c]      %s\n",
 				boardname,
 				bd_info->revision_code,
-				bd_info->bom_revision,
 				bd_info->revision_id,
+				bd_info->bom_revision,
 				vendorname);
 	} else {
 		dbg_info("  %s [%c%c]      %s\n",
