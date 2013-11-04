@@ -36,7 +36,7 @@
 #include "arch/at91_ddrsdrc.h"
 #include "gpio.h"
 #include "pmc.h"
-#include "dbgu.h"
+#include "usart.h"
 #include "debug.h"
 #include "ddramc.h"
 #include "slowclk.h"
@@ -60,14 +60,15 @@ static void at91_dbgu_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
+	/* Configure the dbgu pins */
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(dbgu_pins);
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
 }
 
 static void initialize_dbgu(void)
 {
 	at91_dbgu_hw_init();
-	dbgu_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
+	usart_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
 }
 
 // addressing RTC lockup at reboot and correct working of wakeup function to be able to restart the board
@@ -175,7 +176,7 @@ static void one_wire_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(wire_pio);
 }
 
@@ -188,7 +189,7 @@ void hw_init(void)
 	/* At this stage the main oscillator is
 	 *supposed to be enabled PCK = MCK = MOSC
 	 */
-	writel(0x00, AT91C_BASE_PMC + PMC_PLLICPR);
+	pmc_init_pll(0);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
@@ -243,10 +244,10 @@ void at91_spi0_hw_init(void)
 		{(char *)0,	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(spi0_pins);
 
-	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif	/* #ifdef CONFIG_DATAFLASH */
 
@@ -288,7 +289,7 @@ void at91_mci0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
