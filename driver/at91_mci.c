@@ -57,7 +57,7 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 	reg |= (blklen << 16);
 	mci_writel(MCI_BLKR, reg);
 
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X)
 	clkdiv -= 2;
 	reg = mci_readl(MCI_MR);
 	reg &= ~((0x01 << 8) - 1);
@@ -184,7 +184,7 @@ static int at91_mci_read_data(unsigned int *data)
 			&& (!(status & error_check))); 
 
 	if (status & error_check) {
-		dbg_log(1, "Error to read data, sr: %d\n\r", status);
+		dbg_info("Error to read data, sr: %d\n", status);
 		return -1;
 	}
 
@@ -223,7 +223,7 @@ int at91_mci_read_block_data(unsigned int *data,
 		;
 
 	if (!timeout) {
-		dbg_log(1, "Data Transfer in Progress.\n\r");
+		dbg_info("Data Transfer in Progress.\n");
 		return -1;
 	}
 
@@ -252,7 +252,7 @@ int at91_mci_read_blocks(unsigned int *data,
 		;
 
 	if (!timeout) {
-		dbg_log(1, "Data Transfer in Progress.\n\r");
+		dbg_info("Data Transfer in Progress.\n");
 		return -1;
 	}
 
@@ -305,7 +305,7 @@ int at91_mci_write_block_data(unsigned int *data,
 		;
 
 	if (!timeout) {
-		dbg_log(1, "Data Transfer in Progress.\n\r");
+		dbg_info("Data Transfer in Progress.\n");
 		return -1;
 	}
 

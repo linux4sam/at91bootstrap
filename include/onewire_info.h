@@ -43,6 +43,7 @@
 #define	BOARD_ID_SAMA5D33_CM	11
 #define	BOARD_ID_SAMA5D34_CM	12
 #define	BOARD_ID_SAMA5D35_CM	13
+#define	BOARD_ID_SAMA5D36_CM	14
 
 /* Vendor id definition */
 #define VENDOR_EMBEST		1

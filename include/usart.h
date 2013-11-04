@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2010, Atmel Corporation
+ * Copyright (c) 2006, Atmel Corporation
 
  * All rights reserved.
  *
@@ -25,50 +25,15 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "hardware.h"
-#include "arch/at91_dbgu.h"
+#ifndef __USART_H__
+#define __USART_H__
 
-static inline void write_dbgu(unsigned int offset, const unsigned int value)
-{
-	writel(value, offset + AT91C_BASE_DBGU);
-}
+#define BAUDRATE(mck, baud) \
+	(((((mck) * 10) / ((baud) * 16)) % 10) >= 5) ? \
+	(mck / (baud * 16) + 1) : ((mck) / (baud * 16))
 
-static inline unsigned int read_dbgu(unsigned int offset)
-{
-	return readl(offset + AT91C_BASE_DBGU);
-}
+extern void usart_init(unsigned int);
+extern void usart_puts(const char *ptr);
+extern char usart_getc(void);
 
-void dbgu_init(unsigned int baudrate)
-{
-	/* Disable interrupts */
-	write_dbgu(DBGU_IDR, -1);
-
-	/* Reset the receiver and transmitter */
-	write_dbgu(DBGU_CR, AT91C_DBGU_RSTRX | AT91C_DBGU_RSTTX | AT91C_DBGU_RXDIS | AT91C_DBGU_TXDIS);
-
-	/* Configure the baudrate */
-	write_dbgu(DBGU_BRGR, baudrate);
-
-	/* Configure USART in Asynchronous mode */
-	write_dbgu(DBGU_MR, AT91C_DBGU_PAR);
-
-	/* Enable RX and Tx */
-	write_dbgu(DBGU_CR, AT91C_DBGU_RXEN | AT91C_DBGU_TXEN);
-}
-
-void dbgu_print(const char *ptr)
-{
-	int i = 0;
-
-	while (ptr[i] != '\0') {
-		while (!(read_dbgu(DBGU_CSR) & AT91C_DBGU_TXRDY)) ;
-		write_dbgu(DBGU_THR, ptr[i]);
-		i++;
-	}
-}
-
-char dbgu_getc(void)
-{
-	while (!(read_dbgu(DBGU_CSR) & AT91C_DBGU_RXRDY)) ;
-	return (char)read_dbgu(DBGU_RHR);
-}
+#endif /* __USART_H__ */

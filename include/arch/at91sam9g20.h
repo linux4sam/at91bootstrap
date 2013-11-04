@@ -91,7 +91,6 @@
 /*
  * System Peripherals physical base addresses.
  */
-#define AT91C_BASE_SYS		0xffffc000
 #define AT91C_BASE_ECC		0xffffe800
 #define AT91C_BASE_SDRAMC	0xffffea00
 #define AT91C_BASE_SMC		0xffffec00
@@ -130,12 +129,6 @@
 #define AT91C_BASE_CS5		0x60000000	/* Compact Flash Slot1 */
 #define AT91C_BASE_CS6		0x70000000
 #define AT91C_BASE_CS7		0x80000000
-
-/*
- * Other misc defines
- */
-#define AT91_BASE_SYS		AT91C_BASE_SYS
-#define AT91_SMC		(AT91C_BASE_SMC	- AT91_BASE_SYS)
 
 /*
  * SoC specific defines

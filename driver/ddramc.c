@@ -26,11 +26,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "common.h"
 #include "hardware.h"
-#include "arch/at91_pmc.h"
 #include "arch/at91_ddrsdrc.h"
-#include "arch/at91_ccfg.h"
 #include "debug.h"
 #include "ddramc.h"
 #include "timer.h"
@@ -51,7 +48,7 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
 {
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(AT91SAMA5D3X)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X)
 	if (ddramc_cr & AT91C_DDRC2_DECOD_INTERLEAVED)
 		return 0;
 #endif
@@ -72,7 +69,7 @@ int ddram_initialize(unsigned int base_address,
 
 	ba_offset += (ddramc_config->mdr & AT91C_DDRC2_DBW) ? 1 : 2;
 
-	dbg_log(3, " ba_offset = %x ...\n\r", ba_offset);
+	dbg_very_loud(" ba_offset = %x ...\n", ba_offset);
 
 	/*
 	 * Step 1: Program the memory device type into the Memory Device Register

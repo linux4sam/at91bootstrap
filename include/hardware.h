@@ -68,8 +68,8 @@
 #include "arch/at91sam9n12.h"
 #endif
 
-#ifdef AT91SAMA5D3X
-#include "arch/at91sama5d3x.h"
+#ifdef SAMA5D3X
+#include "arch/sama5d3x.h"
 #endif
 
 /* I/O Function Macro */

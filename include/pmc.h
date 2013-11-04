@@ -28,11 +28,15 @@
 #ifndef __PMC_H__
 #define __PMC_H__
 
+extern void pmc_init_pll(unsigned int pmc_pllicpr);
 extern int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout);
 extern int pmc_cfg_pllb(unsigned int pmc_pllbr, unsigned int timeout);
 extern int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout);
 extern int pmc_cfg_pck(unsigned char x,
 			unsigned int clk_sel,
 			unsigned int prescaler);
+
+extern int pmc_enable_periph_clock(unsigned int periph_id);
+extern void pmc_enable_system_clock(unsigned int clock_id);
 
 #endif	/* #ifndef __PMC_H__ */

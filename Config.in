@@ -70,9 +70,8 @@ config CONFIG_OS_MEM_BANK
 	
 config CONFIG_OS_MEM_SIZE
 	string "Extern Memory Bank Size"
-	default "0x20000000" if CONFIG_AT91SAMA5D3XEK
+	default "0x20000000" if CONFIG_SAMA5D3XEK
 	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91ARIAG25 || CONFIG_AT91SAM9N12EK
-	default "0x4000000"
 	
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "Linux kernel parameters"
@@ -85,7 +84,7 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9G20EK && !CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_AT91SAM9X5EK && !CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_AT91SAM9N12EK && !CONFIG_SDCARD
-	default "mem=512M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_AT91SAMA5D3XEK && !CONFIG_SDCARD
+	default "mem=512M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_SAMA5D3XEK && !CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9M10G45EK && !CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9RLEK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
@@ -96,7 +95,7 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9X5EK && CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91ARIAG25 && CONFIG_SDCARD
 	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9N12EK && CONFIG_SDCARD
-	default "mem=512M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAMA5D3XEK && CONFIG_SDCARD
+	default "mem=512M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_SAMA5D3XEK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9M10G45EK && CONFIG_SDCARD
 
 config CONFIG_OS_IMAGE_NAME
@@ -168,14 +167,14 @@ config CONFIG_OS_MEM_BANK
 
 config CONFIG_OS_MEM_SIZE
 	string "Extern Memory Bank Size"
-	default "0x20000000" if CONFIG_AT91SAMA5D3XEK
 	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91ARIAG25 || CONFIG_AT91SAM9N12EK
+	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
 	default "0x4000000"
 
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "android kernel command line"
-	default "console=ttyS0,115200 mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_AT91SAMA5D3XEK && !CONFIG_SDCARD
-	default "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_AT91SAMA5D3XEK && CONFIG_SDCARD
+	default "console=ttyS0,115200 mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_SAMA5D3XEK && !CONFIG_SDCARD
+	default "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_SAMA5D3XEK && CONFIG_SDCARD
 
 config CONFIG_OS_IMAGE_NAME
 	string "Binary Name on SD Card"
@@ -351,7 +350,7 @@ config CONFIG_USER_HW_INIT
 	  Initialize Hardware
 
 config CONFIG_THUMB
-	depends on !CONFIG_AT91SAMA5D3XEK
+	depends on !CONFIG_SAMA5D3XEK
 	bool "Build in thumb mode"
 	help
 	  Build code in thumb mode

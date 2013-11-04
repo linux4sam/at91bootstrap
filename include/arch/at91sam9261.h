@@ -73,7 +73,6 @@
 #define AT91C_BASE_SSC2		0xfffc4000
 #define AT91C_BASE_SPI0		0xfffc8000
 #define AT91C_BASE_SPI1		0xfffcc000
-#define AT91C_BASE_SYS		0xffffc000
 
 /*
  * System Peripherals physical base addresses.

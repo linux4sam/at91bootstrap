@@ -28,6 +28,7 @@
 #include "hardware.h"
 #include "board.h"
 #include "debug.h"
+#include "pmc.h"
 
 #include "arch/at91_pit.h"
 #include "arch/at91_pmc.h"
@@ -54,9 +55,9 @@ int timer_init(void)
 
 	/* Enable PITC Clock */
 #ifdef AT91C_ID_PIT
-	writel((1 << AT91C_ID_PIT), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIT);
 #else
-	writel((1 << AT91C_ID_SYS), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SYS);
 #endif
 	return 0;
 }

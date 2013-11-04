@@ -227,7 +227,7 @@ static int nandflash_get_type(struct nand_info *nand)
 
 	chip = nand_find_type();
 	if (chip == NULL) {
-		dbg_log(1, "Not Found the NANDFlash!\n\r");
+		dbg_info("Not Found the NANDFlash!\n");
 		return -1;
 	}
 
@@ -479,7 +479,7 @@ static int nand_read_page(struct nand_info *nand,
 
 	error = Hamming_Verify256x(buffer, nand->pagesize, hamming);
 	if (error && (error != Hamming_ERROR_SINGLEBIT)) {
-		dbg_log(1, "Hamming ECC error!\n\r");
+		dbg_info("Hamming ECC error!\n");
 		return ECC_CORRECT_ERROR;
 	}
 
@@ -515,9 +515,9 @@ static int nandflash_recovery(struct nand_info *nand)
 	 * erase nandflash block0
 	*/
 	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
-		dbg_log(1, "Nand: The recovery button (%s) is pressed\n\r",
+		dbg_info("Nand: The recovery button (%s) is pressed\n",
 				RECOVERY_BUTTON_NAME);
-		dbg_log(1, "Nand: The block 0 is erasing ...\n\r");
+		dbg_info("Nand: The block 0 is erasing ...\n");
 
 		ret = nand_erase_block0(nand);
 	}
@@ -552,7 +552,7 @@ int load_nandflash(struct image_info *img_info)
 		return -2;
 #endif
 
-	dbg_log(1, "Nand: Copy %d bytes from %d to %d\r\n", size, offset, buffer);
+	dbg_info("Nand: Copy %d bytes from %d to %d\n", size, offset, buffer);
 
 	division(offset, nand.blocksize, &block, &start_page);
 	start_page = div(start_page, nand.pagesize);
@@ -576,7 +576,7 @@ int load_nandflash(struct image_info *img_info)
 		while (1) {
 			if (nand_check_badblock(&nand, block, buffer) != 0) {
 				block++; /* skip this block */
-				dbg_log(1, "Bad block: #%d\n\r", block);
+				dbg_info("Bad block: #%d\n", block);
 			} else
 				break;
 		}

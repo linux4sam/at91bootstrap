@@ -132,14 +132,14 @@ static int is_valid_pmecc_params()
 	case 24:
 		break;
 	default:
-		dbg_log(DEBUG_INFO, "Invalid Pmecc error bits: %d. Should " \
-			"be 2, 4, 8, 12 or 24.\r\n", PMECC_ERROR_CORR_BITS);
+		dbg_info("Invalid Pmecc error bits: %d. Should " \
+			"be 2, 4, 8, 12 or 24.\n", PMECC_ERROR_CORR_BITS);
 		ret = 0;
 	}
 
 	if (PMECC_SECTOR_SIZE != 512 && PMECC_SECTOR_SIZE != 1024) {
-		dbg_log(DEBUG_INFO, "Invalid Pmecc sector size: %d. Should " \
-				"be 512 or 1024.\r\n", PMECC_SECTOR_SIZE);
+		dbg_info("Invalid Pmecc sector size: %d. Should " \
+				"be 512 or 1024.\n", PMECC_SECTOR_SIZE);
 		ret = 0;
 	}
 
@@ -384,12 +384,12 @@ static int nand_init_on_die_ecc(void)
 	is_enable = 0;
 #endif
 	if (nand_set_on_die_ecc(is_enable)) {
-		dbg_log(1, "WARNING: Fail to %s On-Die ECC\n\r",
+		dbg_info("WARNING: Fail to %s On-Die ECC\n",
 				is_enable ? "enable" : "disable");
 
 		return -1;
 	} else {
-		dbg_log(1, "NAND: %s On-Die ECC\n\r",
+		dbg_info("NAND: %s On-Die ECC\n",
 				is_enable ? "Enable" : "Disable");
 		return 0;
 	}
@@ -448,11 +448,11 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 		|| (onfi_ind[1] != 'N')
 		|| (onfi_ind[2] != 'F')
 		|| (onfi_ind[3] != 'I')) {
-		dbg_log(1, "NAND: ONFI not supported\n\r");
+		dbg_info("NAND: ONFI not supported\n");
 		return -1;
 	}
 
-	dbg_log(1, "NAND: ONFI flash detected\n\r");
+	dbg_info("NAND: ONFI flash detected\n");
 
 	nand_cs_enable();
 
@@ -476,7 +476,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	nand_cs_disable();
 
 	if (i == 3) {
-		dbg_log(1, "NAND: ONFI para CRC error!\n\r");
+		dbg_info("NAND: ONFI para CRC error!\n");
 		return -1;
 	}
 
@@ -490,7 +490,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 
 	manf_id = *(unsigned char *)(p + PARAMS_OFFSET_JEDEC_ID);
 	dev_id = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);
-	dbg_log(1, "NAND: Manufacturer ID: %d Chip ID: %d\n\r", manf_id, dev_id);
+	dbg_info("NAND: Manufacturer ID: %d Chip ID: %d\n", manf_id, dev_id);
 
 	return 0;
 }
@@ -518,13 +518,13 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	}
 
 	if (i == ARRAY_SIZE(nand_ids)) {
-		dbg_log(1, "NAND: Not found Manufacturer ID: %d," \
-			"Chip ID: 0x%d\n\r", manf_id, dev_id);
+		dbg_info("NAND: Not found Manufacturer ID: %d," \
+			"Chip ID: 0x%d\n", manf_id, dev_id);
 
 		return -1;
 	}
 
-	dbg_log(1, "NAND: Manufacturer ID: %d Chip ID: %d\n\r",
+	dbg_info("NAND: Manufacturer ID: %d Chip ID: %d\n",
 						manf_id, dev_id);
 
 	chip->pagesize	= nand_ids[i].pagesize;
@@ -583,7 +583,7 @@ static int nandflash_get_type(struct nand_info *nand)
 	ret = nandflash_detect_onfi(chip);
 	if (ret == -1) {
 		if (nandflash_detect_non_onfi(chip)) {
-			dbg_log(1, "NAND: Not find support device!\n\r");
+			dbg_info("NAND: Not find support device!\n");
 			return -1;
 		}
 	}
@@ -628,7 +628,7 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 
 		pmecc_params->interrupt = 0;
 		pmecc_params->tt = PMECC_ERROR_CORR_BITS;
-		pmecc_params->mm = 13;
+		pmecc_params->mm = (PMECC_SECTOR_SIZE == 512) ? 13 : 14;
 		pmecc_params->nn = (1 << pmecc_params->mm) - 1;
 
 		if (PMECC_SECTOR_SIZE == 512) {
@@ -666,8 +666,8 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 						= AT91C_PMECC_BCH_ERR24;
 			break;
 		default:
-			dbg_log(1, "PMECC: Invalid error correctable " \
-				"bits: %d\n\r",	PMECC_ERROR_CORR_BITS);
+			dbg_info("PMECC: Invalid error correctable " \
+				"bits: %d\n",	PMECC_ERROR_CORR_BITS);
 			return -1;
 		}
 
@@ -682,20 +682,20 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 		} else if (sectors == 8) {
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_8SEC;
 		} else {
-			dbg_log(1, "PMECC: Not supported sector size: %d\n\r",
+			dbg_info("PMECC: Not supported sector size: %d\n",
 				sectors);
 			return -1;
 		}
 
-		dbg_log(DEBUG_LOUD, "PMECC: page_size: %u, oob_size: %u, " \
-					"pmecc_cap: %u, sector_size: %u\r\n",
+		dbg_loud("PMECC: page_size: %u, oob_size: %u, " \
+					"pmecc_cap: %u, sector_size: %u\n",
 			nand->pagesize, nand->oobsize, pmecc_params->tt,
 			pmecc_params->sectorSize
 				== AT91C_PMECC_SECTORSZ_512 ? 512 : 1024);
 
 		return 0;
 	} else {
-		dbg_log(1, "PMECC: Not supported page size: %d\n\r",
+		dbg_info("PMECC: Not supported page size: %d\n",
 							nand->pagesize);
 		return -1;
 	}
@@ -733,7 +733,7 @@ static int init_pmecc(struct nand_info *nand)
 	if (init_pmecc_descripter(&PMECC_paramDesc, nand) != 0)
 		return -1;
 
-	dbg_log(1, "NAND: Initialize PMECC params, cap: %d, sector: %d\n\r",
+	dbg_info("NAND: Initialize PMECC params, cap: %d, sector: %d\n",
 			PMECC_ERROR_CORR_BITS, PMECC_SECTOR_SIZE);
 
 	init_pmecc_core(&PMECC_paramDesc);
@@ -1113,8 +1113,8 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 		if (bytePos < sectorSize) {
 			/* If error is located in the data area(not in ECC) */
 			errByte = (unsigned char *)(sectorBaseAddress + bytePos);
-			dbg_log(1, "Correct error bit @[#Byte %u,Bit# %u] " \
-				"%u -> %u\n\r",
+			dbg_info("Correct error bit @[#Byte %u,Bit# %u] " \
+				"%u -> %u\n",
 				(unsigned int)bytePos,
 				(unsigned int)bitPos,
 				*errByte,
@@ -1124,8 +1124,8 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 			/* error is located in oob area */
 			errByte = (unsigned char *)(eccBaseAddress
 					+ (bytePos - sectorSize));
-			dbg_log(1, "Correct error bit in OOB @[#Byte %u,Bit# %u]" \
-				" %u -> %u\n\r",
+			dbg_info("Correct error bit in OOB @[#Byte %u,Bit# %u]" \
+				" %u -> %u\n",
 				(unsigned int)bytePos - sectorSize,
 				(unsigned int)bitPos,
 				(*errByte),
@@ -1212,18 +1212,18 @@ void buf_dump(unsigned char *buf, int offset, int len)
 	int i = 0;
 	for (i = 0; i < len; i++) {
 		if (i % 16 == 0)
-			dbg_log(DEBUG_LOUD, "\r\n");
-		dbg_log(DEBUG_LOUD, "%u ", buf[offset + i]);
+			dbg_loud("\n");
+		dbg_loud("%u ", buf[offset + i]);
 	}
 }
 
 void page_dump(unsigned char *buf, int page_size, int oob_size)
 {
-	dbg_log(DEBUG_LOUD, "Dump Error Page: Data:\r\n");
+	dbg_loud("Dump Error Page: Data:\n");
 	buf_dump(buf, 0, page_size);
-	dbg_log(DEBUG_LOUD, "\r\nOOB:\r\n");
+	dbg_loud("\nOOB:\n");
 	buf_dump(buf, page_size, oob_size);
-	dbg_log(DEBUG_LOUD, "\r\n");
+	dbg_loud("\n");
 }
 
 static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
@@ -1249,8 +1249,8 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 		 * If we have 4 sectors, then that means the first
 		 * and last sector has errors.
 		 */
-		dbg_log(1, "PMECC: sector bits = %d, bit 1 means " \
-			"corrupted sector, Now correcting...\n\r", erris);
+		dbg_info("PMECC: sector bits = %d, bit 1 means " \
+			"corrupted sector, Now correcting...\n", erris);
 		result = PMECC_CorrectionAlgo(AT91C_BASE_PMECC,
 					AT91C_BASE_PMERRLOC,
 					&PMECC_paramDesc,
@@ -1258,8 +1258,8 @@ static int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 					buffer);
 
 		if (result != 0) {
-			dbg_log(1, "PMECC: failed to " \
-					"correct corrupted bits!\n\r");
+			dbg_info("PMECC: failed to " \
+					"correct corrupted bits!\n");
 			ret =  -1;
 
 			/* dump the whole page for test */
@@ -1288,7 +1288,7 @@ static int nand_read_status(void)
 
 #ifdef CONFIG_ON_DIE_ECC
 	if (status & STATUS_ERROR) {
-		dbg_log(1, "WARNING: Read On-Die ECC error\n\r");
+		dbg_info("WARNING: Read On-Die ECC error\n");
 		return -1;
 	}
 #endif
@@ -1547,7 +1547,7 @@ static int nand_read_page(struct nand_info *nand,
 
 	error = Hamming_Verify256x(buffer, nand->pagesize, hamming);
 	if (error && (error != Hamming_ERROR_SINGLEBIT)) {
-		dbg_log(1, "NAND: Hamming ECC error!\n\r");
+		dbg_info("NAND: Hamming ECC error!\n");
 		return -1;
 	}
 
@@ -1593,19 +1593,19 @@ static int nandflash_recovery(struct nand_info *nand)
 	 * If Recovery Button is pressed during boot sequence,
 	 * erase nandflash block0
 	*/
-	dbg_log(1, "NAND: Press the recovery button (%s) to recovery\n\r",
+	dbg_info("NAND: Press the recovery button (%s) to recovery\n",
 			RECOVERY_BUTTON_NAME);
 
 	if ((pio_get_value(CONFIG_SYS_RECOVERY_BUTTON_PIN)) == 0) {
-		dbg_log(1, "NAND: The recovery button (%s) has been "\
-				"pressed\n\r", RECOVERY_BUTTON_NAME);
-		dbg_log(1, "NAND: The block 0 is erasing ...\n\r");
+		dbg_info("NAND: The recovery button (%s) has been "\
+				"pressed\n", RECOVERY_BUTTON_NAME);
+		dbg_info("NAND: The block 0 is erasing ...\n");
 
 		ret = nand_erase_block0(nand);
 		if (ret)
-			dbg_log(1, "NAND: The erasing failed\n\r");
+			dbg_info("NAND: The erasing failed\n");
 		else
-			dbg_log(1, "NAND: The erasing is done\n\r");
+			dbg_info("NAND: The erasing is done\n");
 	}
 
 	return ret;
@@ -1649,8 +1649,8 @@ static int nand_loadimage(struct nand_info *nand,
 			if (nand_check_badblock(nand,
 					block, buffer) != 0) {
 				block++; /* skip this block */
-				dbg_log(1, "NAND: Bad block:" \
-					" #%d\n\r", block);
+				dbg_info("NAND: Bad block:" \
+					" #%d\n", block);
 			} else
 				break;
 		}
@@ -1694,10 +1694,10 @@ int load_nandflash(struct image_info *image)
 #endif
 
 #ifdef CONFIG_ENABLE_SW_ECC
-	dbg_log(1, "NAND: Using Software ECC\n\r");
+	dbg_info("NAND: Using Software ECC\n");
 #endif
 
-	dbg_log(1, "NAND: Image: Copy %d bytes from %d to %d\r\n",
+	dbg_info("NAND: Image: Copy %d bytes from %d to %d\n",
 			image->length, image->offset, image->dest);
 
 	ret = nand_loadimage(&nand, image->offset, image->length, image->dest);
@@ -1705,7 +1705,7 @@ int load_nandflash(struct image_info *image)
 		return ret;
 
 	if (image->of) {
-		dbg_log(1, "NAND: dt blob: Copy %d bytes from %d to %d\r\n",
+		dbg_info("NAND: dt blob: Copy %d bytes from %d to %d\n",
 			image->of_length, image->of_offset, image->of_dest);
 
 		ret = nand_loadimage(&nand, image->of_offset,

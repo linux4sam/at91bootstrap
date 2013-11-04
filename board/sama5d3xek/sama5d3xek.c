@@ -28,7 +28,7 @@
 #include "common.h"
 #include "hardware.h"
 #include "pmc.h"
-#include "dbgu.h"
+#include "usart.h"
 #include "debug.h"
 #include "ddramc.h"
 #include "spi.h"
@@ -41,10 +41,10 @@
 
 #include "arch/at91_pmc.h"
 #include "arch/at91_rstc.h"
-#include "arch/at91sama5_smc.h"
+#include "arch/sama5_smc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
-#include "at91sama5d3xek.h"
+#include "sama5d3xek.h"
 
 #ifdef CONFIG_USER_HW_INIT
 extern void hw_init_hook(void);
@@ -60,17 +60,17 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	/*  Configure the dbgu pins */
+	pmc_enable_periph_clock(AT91C_ID_PIOB);
 	pio_configure(dbgu_pins);
-	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable clock */
-	writel(1 << AT91C_ID_DBGU, (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_DBGU);
 }
 
 static void initialize_dbgu(void)
 {
 	at91_dbgu_hw_init();
-	dbgu_init(BAUDRATE(MASTER_CLOCK, 115200));
+	usart_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
 
 #ifdef CONFIG_DDR2
@@ -90,6 +90,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_DECOD_INTERLEAVED  /* Interleaved decoding */
 				| AT91C_DDRC2_UNAL_SUPPORTED);   /* Unaligned access is supported */
 
+#if defined(CONFIG_BUS_SPEED_133MHZ)
 	/*
 	 * The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
 	 * With a 133 MHz frequency, the refresh timer count register must to be
@@ -118,6 +119,38 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_TRPA_2            /* 2 * 7.5 = 15 ns */
 			| AT91C_DDRC2_TXARDS_7          /* 7 clock cycles */
 			| AT91C_DDRC2_TXARD_8);         /* MR12 = 1 : slow exit power down */
+
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
+	/*
+	 * The DDR2-SDRAM device requires a refresh of all rows every 64ms.
+	 * ((64ms) / 8192) * 166MHz = 1296 i.e. 0x510
+	 */
+	ddramc_config->rtr = 0x500;
+
+	/* One clock cycle @ 166 MHz = 6.0 ns */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_8	/* 8 * 6 = 48 ns */
+			| AT91C_DDRC2_TRCD_3		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TWR_3		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TRC_10		/* 10 * 6 = 60 ns */
+			| AT91C_DDRC2_TRP_3		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TRRD_2		/* 2 * 6 = 12 ns */
+			| AT91C_DDRC2_TWTR_2		/* 2 clock cycles*/
+			| AT91C_DDRC2_TMRD_2);		/* 2 clock cycles at least */
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_3	/* 3 * 6 = 18ns, 2 clock cycles a least */
+			| AT91C_DDRC2_TXSRD_202		/* 202 clock cycles: Exit self refresh delay to Read command */
+			| AT91C_DDRC2_TXSNR_35		/* 35 * 6 = 210 ns*/
+			| AT91C_DDRC2_TRFC_31);		/* 31 * 6 = 186 ns */
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_8	/* 45 ns for 16bit * 8 bank */
+			| AT91C_DDRC2_TRTP_2		/* 2 * 6 = 15ns clock cycles min */
+			| AT91C_DDRC2_TRPA_3		/* 15 ns */
+			| AT91C_DDRC2_TXARDS_10		/* 7 ~ 10 clock cycles */
+			| AT91C_DDRC2_TXARD_3);		/* 2 ~ 3 clock cycles */
+
+#else
+#error "No bus clock provided!"
+#endif
 }
 
 static void ddramc_init(void)
@@ -128,8 +161,8 @@ static void ddramc_init(void)
 	ddramc_reg_config(&ddramc_reg);
 
 	/* enable ddr2 clock */
-	writel(1 << (AT91C_ID_MPDDRC - 32),  (PMC_PCER1 + AT91C_BASE_PMC));
-	writel(AT91C_PMC_DDR, (PMC_SCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* Init the special register for sama5d3x */
 	/* MPDDRC DLL Slave Offset Register: DDR2 configuration */
@@ -164,7 +197,7 @@ static void one_wire_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOE), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOE);
 	pio_configure(one_wire_pio);
 }
 
@@ -177,10 +210,54 @@ static void recovery_buttons_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOE), PMC_PCER + AT91C_BASE_PMC);
+	pmc_enable_periph_clock(AT91C_ID_PIOE);
 	pio_configure(recovery_button_pins);
 }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
+
+/*
+ * Special setting for PM.
+ * Since for the chips with no EMAC or GMAC, No actions is done to make
+ * its phy to enter the power save mode when linux system enter suspend
+ * to memory or standby.
+ * And it causes the VDDCORE current is higher than our expection.
+ * So set GMAC clock related pins GTXCK(PB8), GRXCK(PB11), GMDCK(PB16),
+ * G125CK(PB18) and EMAC clock related pins EREFCK(PC7), EMDC(PC8)
+ * to Pullup and Pulldown disabled, and output low.
+ */
+
+#define GMAC_PINS	((0x01 << 8) | (0x01 << 11) \
+				| (0x01 << 16) | (0x01 << 18))
+
+#define EMAC_PINS	((0x01 << 7) | (0x01 << 8))
+
+static void at91_special_pio_output_low(void)
+{
+	unsigned int base;
+	unsigned int value;
+
+	base = AT91C_BASE_PIOB;
+	value = GMAC_PINS;
+
+	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+
+	writel(value, base + PIO_REG_PPUDR);	/* PIO_PPUDR */
+	writel(value, base + PIO_REG_PPDDR);	/* PIO_PPDDR */
+	writel(value, base + PIO_REG_PER);	/* PIO_PER */
+	writel(value, base + PIO_REG_OER);	/* PIO_OER */
+	writel(value, base + PIO_REG_CODR);	/* PIO_CODR */
+
+	base = AT91C_BASE_PIOC;
+	value = EMAC_PINS;
+
+	writel((1 << AT91C_ID_PIOC), (PMC_PCER + AT91C_BASE_PMC));
+
+	writel(value, base + PIO_REG_PPUDR);	/* PIO_PPUDR */
+	writel(value, base + PIO_REG_PPDDR);	/* PIO_PPDDR */
+	writel(value, base + PIO_REG_PER);	/* PIO_PER */
+	writel(value, base + PIO_REG_OER);	/* PIO_OER */
+	writel(value, base + PIO_REG_CODR);	/* PIO_CODR */
+}
 
 static void HDMI_Qt1070_workaround(void)
 {
@@ -202,10 +279,12 @@ void hw_init(void)
 	at91_disable_wdt();
 
 	/* At this stage the main oscillator is supposed to be enabled PCK = MCK = MOSC */
-	writel(0x00, AT91C_BASE_PMC + PMC_PLLICPR);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
+
+	/* Initialize PLLA charge pump */
+	pmc_init_pll(AT91C_PMC_IPLLA_3);
 
 	/* PCK = PLLA/2 = 3 * MCK */
 	pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK, PLL_LOCK_TIMEOUT);
@@ -215,6 +294,9 @@ void hw_init(void)
 
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
+
+	/* Set GMAC & EMAC pins to output low */
+	at91_special_pio_output_low();
 
 	/* Init timer */
 	timer_init();
@@ -258,11 +340,11 @@ void at91_spi0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOD), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOD);
 	pio_configure(spi0_pins);
 
 	/* Enable the clock */
-	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
@@ -287,8 +369,12 @@ static void sdcard_set_of_name_board(char *of_name)
 		strcpy(of_name, "sama5d35ek");
 		break;
 
+	case BOARD_ID_SAMA5D36_CM:
+		strcpy(of_name, "sama5d36ek");
+		break;
+
 	default:
-		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
+		dbg_info("WARNING: Not correct CPU board ID\n");
 		break;
 	}
 
@@ -316,11 +402,11 @@ void at91_mci0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOD), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
-	writel((1 << AT91C_ID_HSMCI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
 
 	/* Set of name function pointer */
 	sdcard_set_of_name = &sdcard_set_of_name_board;
@@ -338,11 +424,11 @@ void nandflash_hw_init(void)
 	};
 
 	/* Configure the nand controller pins*/
+	pmc_enable_periph_clock(AT91C_ID_PIOE);
 	pio_configure(nand_pins);
-	writel((1 << AT91C_ID_PIOE), (PMC_PCER + AT91C_BASE_PMC));
 
 	/* Enable the clock */
-	writel(1 << AT91C_ID_SMC, (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SMC);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
 	writel(AT91C_SMC_SETUP_NWE(1)

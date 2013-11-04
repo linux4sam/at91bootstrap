@@ -256,13 +256,13 @@ static int sd_send_command(struct sd_command *command)
 
 	/* Check error bits in the status register */
 	if (status & AT91C_MCI_RTOE) {
-		dbg_log(1, "Cmd: %d Response Time-out\n\r",
+		dbg_info("Cmd: %d Response Time-out\n",
 				command->cmd & (~(SD_APP_CMD | MMC_CMD)));
 		return ERROR_TIMEOUT;
 	}
 
 	if (status & command->error_check) {
-		dbg_log(1, "Cmd: %d, error check, status: %d\n\r", \
+		dbg_info("Cmd: %d, error check, status: %d\n", \
 			command->cmd & (~(SD_APP_CMD | MMC_CMD)), status);
 		return ERROR_COMM;
 	}
@@ -446,7 +446,7 @@ static int sd_cmd_send_status(struct sd_card *sdcard, unsigned int retries)
 	};
 
 	if (i == retries) {
-		dbg_log(1, "Timeout, wait for card ready\n\r");
+		dbg_info("Timeout, wait for card ready\n");
 		return ERROR_TIMEOUT;
 	}
 
@@ -654,7 +654,7 @@ static int sd_switch_func_high_speed(struct sd_card *sdcard)
 		return ret;
 
 	if (!support) {
-		dbg_log(1, "SD: Not support hs function switch\n\r");
+		dbg_info("SD: Not support hs function switch\n");
 		return 0;
 	}
 
@@ -701,6 +701,9 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 #define OCR_VOLTAGE_WIN_27_36	0x00FF8000
 #define OCR_ACCESS_MODE		0x60000000
 
+#define OCR_ACCESS_MODE_BYTE	(0x00 << 30)
+#define OCR_ACCESS_MODE_SECTOR	(0x01 << 30)
+
 static int mmc_cmd_send_op_cond(struct sd_card *sdcard,
 				unsigned int ocr)
 {
@@ -731,7 +734,7 @@ static int mmc_verify_operating_condition(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	ocr = command->resp[0];
+	ocr = command->resp[0] | OCR_ACCESS_MODE_SECTOR;
 
 	for (i = 0; i < retries; i++) {
 		ret = mmc_cmd_send_op_cond(sdcard, ocr);
@@ -954,7 +957,7 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 		}
 
 		if (i == len) {
-			dbg_log(1, "MMC: %d-bit bus width detected\n\r", busw);
+			dbg_info("MMC: %d-bit bus width detected\n", busw);
 			break;
 		}
 
@@ -996,14 +999,14 @@ static int sdcard_identification(struct sd_card *sdcard)
 			/* Ver 2.00 or later SD Memory Card */
 			ret = sd_check_operational_condition(sdcard, 1);
 			if (ret == ERROR_UNUSABLE_CARD) {
-				dbg_log(1, "Unusable Card\n\r");
+				dbg_info("Unusable Card\n");
 				return -1;
 			} else if (ret)
 				return ret;
 		} else if (ret == ERROR_TIMEOUT) {
 			ret = sd_check_operational_condition(sdcard, 0);
 			if (ret == ERROR_UNUSABLE_CARD) {
-				dbg_log(1, "Unusable Card\n\r");
+				dbg_info("Unusable Card\n");
 				return -1;
 			} else if (ret)
 				return ret;
@@ -1017,7 +1020,7 @@ static int sdcard_identification(struct sd_card *sdcard)
 		 * Non-compatible voltage range
 		 * or checkpattern not correct
 		 */
-		dbg_log(1, "Unusable Card\n\r");
+		dbg_info("Unusable Card\n");
 		return -1;
 	} else
 		return ret;
@@ -1026,11 +1029,11 @@ static int sdcard_identification(struct sd_card *sdcard)
 	sdcard->highcapacity_card = (sdcard->reg->ocr & OCR_HCR_CCS) ? 1 : 0;
 
 	if (sdcard->card_type == CARD_TYPE_SD) {
-		dbg_log(1, "SD: Card Capacity: ");
+		dbg_info("SD: Card Capacity: ");
 		if (sdcard->highcapacity_card)
-			dbg_log(1, "High or Extended\n\r");
+			dbg_info("High or Extended\n");
 		else
-			dbg_log(1, "Standard\n\r");
+			dbg_info("Standard\n");
 	}
 
 	/*
@@ -1084,24 +1087,24 @@ static int sd_initialization(struct sd_card *sdcard)
 #ifdef CONFIG_SDCARD_HS
 	unsigned int version;
 	version = (sdcard->reg->scr[0] >> 24) & 0x0f;
-	dbg_log(1, "SD: Specification Version ");
+	dbg_info("SD: Specification Version ");
 	if (version == 0) {
 		sdcard->sd_spec_version = SD_VERSION_1_0;
-		dbg_log(1, "1.0 and 1.01\n\r");
+		dbg_info("1.0 and 1.01\n");
 	} else if (version == 1) {
 		sdcard->sd_spec_version = SD_VERSION_1_10;
-		dbg_log(1, "1.10\n\r");
+		dbg_info("1.10\n");
 	} else if (version == 2) {
 		if ((sdcard->reg->scr[0] >> 15) & 0x01) {
 			sdcard->sd_spec_version = SD_VERSION_3;
-			dbg_log(1, "3.0X\n\r");
+			dbg_info("3.0X\n");
 		} else {
 			sdcard->sd_spec_version = SD_VERSION_2;
-			dbg_log(1, "2.00\n\r");
+			dbg_info("2.00\n");
 		}
 	} else {
 		sdcard->sd_spec_version = SD_VERSION_1_0;
-		dbg_log(1, "1.0 and 1.01\n\r");
+		dbg_info("1.0 and 1.01\n");
 	}
 
 	if (sdcard->highspeed_host) {
@@ -1134,25 +1137,25 @@ static int mmc_initialization(struct sd_card *sdcard)
 	int ret;
 
 	version = (sdcard->reg->csd[0] >> 26) & 0xf;
-	dbg_log(1, "MMC: Specification Version ");
+	dbg_info("MMC: Specification Version ");
 	if (version == 0) {
 		sdcard->sd_spec_version = MMC_VERSION_1_2;
-		dbg_log(1, "1.2\n\r");
+		dbg_info("1.2\n");
 	} else if (version == 1) {
 		sdcard->sd_spec_version = MMC_VERSION_1_4;
-		dbg_log(1, "1.4\n\r");
+		dbg_info("1.4\n");
 	} else if (version == 2) {
 		sdcard->sd_spec_version = MMC_VERSION_2_2;
-		dbg_log(1, "2.2\n\r");
+		dbg_info("2.2\n");
 	} else if (version == 3) {
 		sdcard->sd_spec_version = MMC_VERSION_3;
-		dbg_log(1, "3.0\n\r");
+		dbg_info("3.0\n");
 	} else if (version == 4) {
 		sdcard->sd_spec_version = MMC_VERSION_4;
-		dbg_log(1, "4.1 - 4.2\n\r");
+		dbg_info("4.1 - 4.2\n");
 	} else {
 		sdcard->sd_spec_version = MMC_VERSION_1_2;
-		dbg_log(1, "1.2\n\r");
+		dbg_info("1.2\n");
 	}
 
 	/*

@@ -25,10 +25,10 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __AT91SAMA5_SMC_H__
-#define __AT91SAMA5_SMC_H__
+#ifndef __SAMA5_SMC_H__
+#define __SAMA5_SMC_H__
 
-/**** Register offset in AT91SAMA5 SMC structure ***/
+/**** Register offset in SAMA5 SMC structure ***/
 #define SMC_SETUP0	0x00	/* Setup Register for CS 0 */
 #define SMC_PULSE0	0x04	/* Pulse Register for CS 0 */
 #define SMC_CYCLE0	0x08	/* Cycle Register for CS 0 */
@@ -93,4 +93,4 @@
 #define 	AT91C_SMC_MODE_TDF_MODE_DISABLED		(0x00 << 20)
 #define 	AT91C_SMC_MODE_TDF_MODE_ENABLED		(0x01 << 20)
 
-#endif	/* #ifndef __AT91SAMA5_SMC_H__ */
+#endif	/* #ifndef __SAMA5_SMC_H__ */

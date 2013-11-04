@@ -75,7 +75,6 @@
 #define AT91C_BASE_TSADC	0xfffd0000
 #define AT91C_BASE_UDPHS	0xfffd4000
 #define AT91C_BASE_AC97C	0xfffd8000
-#define AT91C_BASE_SYS		0xffffc000
 
 /*
  * Base Address Definitions
@@ -122,12 +121,6 @@
 #define AT91C_BASE_CS3		0x40000000	/* NANDFlash */
 #define AT91C_BASE_CS4		0x50000000	/* Compact Flash Slot 0 */
 #define AT91C_BASE_CS5		0x60000000	/* Compact Flash Slot 1 */
-
-/*
- * Other misc defines
- */
-#define AT91_BASE_SYS		AT91C_BASE_SYS
-#define AT91_SMC		(AT91C_BASE_SMC - AT91_BASE_SYS)
 
 /*
  * SoC specific defines

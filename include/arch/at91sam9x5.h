@@ -93,7 +93,6 @@
 /*
  * System Peripherals physical base addresses.
  */
-#define AT91C_BASE_SYS		0xffffc000
 #define AT91C_BASE_MATRIX	0xffffde00
 #define AT91C_BASE_PMECC	0xffffe000
 #define AT91C_BASE_PMERRLOC	0xffffe600
@@ -139,14 +138,6 @@
 #define AT91C_BASE_CS3          0x40000000      /* typically NAND */
 #define AT91C_BASE_CS4          0x50000000
 #define AT91C_BASE_CS5          0x60000000
-
-/*
- * Other misc defines
- */
-#define AT91_BASE_SYS           AT91C_BASE_SYS
-#define AT91_PMECC              (AT91C_BASE_PMECC       - AT91_BASE_SYS)
-#define AT91_PMERRLOC           (AT91C_BASE_PMERRLOC    - AT91_BASE_SYS)
-#define AT91_SMC                (AT91C_BASE_SMC         - AT91_BASE_SYS)
 
 /*
  * SoC specific defines

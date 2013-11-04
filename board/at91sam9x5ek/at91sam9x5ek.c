@@ -35,7 +35,7 @@
 #include "arch/at91_ddrsdrc.h"
 #include "gpio.h"
 #include "pmc.h"
-#include "dbgu.h"
+#include "usart.h"
 #include "debug.h"
 #include "ddramc.h"
 #include "slowclk.h"
@@ -59,14 +59,14 @@ static void at91_dbgu_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(dbgu_pins);
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
 }
 
 static void initialize_dbgu(void)
 {
 	at91_dbgu_hw_init();
-	dbgu_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
+	usart_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
 }
 
 #ifdef CONFIG_DDR2
@@ -137,7 +137,7 @@ static void ddramc_init(void)
 	ddramc_reg_config(&ddramc_reg);
 
 	/* ENABLE DDR2 clock */
-	writel(AT91C_PMC_DDR, AT91C_BASE_PMC + PMC_SCER);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* Chip select 1 is for DDR2/SDRAM */
 	csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
@@ -160,7 +160,7 @@ static void one_wire_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(wire_pio);
 }
 
@@ -173,7 +173,7 @@ void hw_init(void)
 	/* At this stage the main oscillator is
 	 *supposed to be enabled PCK = MCK = MOSC
 	 */
-	writel(0x00, AT91C_BASE_PMC + PMC_PLLICPR);
+	pmc_init_pll(0);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
@@ -222,10 +222,10 @@ void at91_spi0_hw_init(void)
 		{(char *)0,	0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(spi0_pins);
 
-	writel((1 << AT91C_ID_SPI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif	/* #ifdef CONFIG_DATAFLASH */
 
@@ -246,7 +246,7 @@ static void sdcard_set_of_name_board(char *of_name)
 	else if (cpu_board_id == BOARD_ID_SAM9X35_CM)
 		strcpy(of_name, "at91sam9x35ek");
 	else
-		dbg_log(1, "WARNING: Not correct CPU board ID\n\r");
+		dbg_info("WARNING: Not correct CPU board ID\n");
 
 	if (disp_board_id == BOARD_ID_PDA_DM)
 		strcat(of_name, "_pda");
@@ -267,11 +267,11 @@ void at91_mci0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	writel((1 << AT91C_ID_PIOA_B), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOA_B);
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
-	writel((1 << AT91C_ID_HSMCI0), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
 
 	/* Set of name function pointer */
 	sdcard_set_of_name = &sdcard_set_of_name_board;
@@ -350,7 +350,7 @@ void nandflash_hw_init(void)
 	else
 		pio_configure(nand_pins_hi);
 
-	writel((1 << AT91C_ID_PIOC_D), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOC_D);
 }
 
 void nandflash_config_buswidth(unsigned char busw)

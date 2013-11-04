@@ -72,8 +72,8 @@
 #include "at91sam9n12ek.h"
 #endif
 
-#ifdef CONFIG_AT91SAMA5D3XEK
-#include "at91sama5d3xek.h"
+#ifdef CONFIG_SAMA5D3XEK
+#include "sama5d3xek.h"
 #endif
 
 #endif /* #ifndef __BOARD_H__ */

@@ -45,7 +45,7 @@ static int sdcard_loadimage(char *filename, BYTE *dest)
 
 	fret = f_open(&file, filename, FA_OPEN_EXISTING | FA_READ);
 	if (fret != FR_OK) {
-		dbg_log(1, "*** FATFS: f_open, filename: [%s]: error\n\r", filename);
+		dbg_info("*** FATFS: f_open, filename: [%s]: error\n", filename);
 		ret = -1;
 		goto open_fail;
 	}
@@ -57,7 +57,7 @@ static int sdcard_loadimage(char *filename, BYTE *dest)
 	} while (byte_read >= byte_to_read);
 
 	if (fret != FR_OK) {
-		dbg_log(1, "*** FATFS: f_read: error\n\r");
+		dbg_info("*** FATFS: f_read: error\n");
 		 ret = -1;
 		goto read_fail;
 	}
@@ -82,11 +82,11 @@ int load_sdcard(struct image_info *image)
 	/* mount fs */
 	fret = f_mount(0, &fs);
 	if (fret != FR_OK) {
-		dbg_log(1, "*** FATFS: f_mount mount error **\n\r");
+		dbg_info("*** FATFS: f_mount mount error **\n");
 		return -1;
 	}
 
-	dbg_log(1, "SD/MMC: Image: Read file %s to %d\n\r",
+	dbg_info("SD/MMC: Image: Read file %s to %d\n",
 					image->filename, image->dest);
 
 	ret = sdcard_loadimage(image->filename, image->dest);
@@ -96,7 +96,7 @@ int load_sdcard(struct image_info *image)
 	/* umount fs */
 	fret = f_mount(0, NULL);
 	if (fret != FR_OK) {
-		dbg_log(1, "*** FATFS: f_mount umount error **\n\r");
+		dbg_info("*** FATFS: f_mount umount error **\n");
 		return -1;
 	}
 
@@ -107,11 +107,11 @@ int load_sdcard(struct image_info *image)
 		/* mount fs */
 		fret = f_mount(0, &fs);
 		if (fret != FR_OK) {
-			dbg_log(1, "*** FATFS: f_mount error **\n\r");
+			dbg_info("*** FATFS: f_mount error **\n");
 			return -1;
 		}
 
-		dbg_log(1, "SD/MMC: dt blob: Read file %s to %d\n\r",
+		dbg_info("SD/MMC: dt blob: Read file %s to %d\n",
 				image->of_filename, image->of_dest);
 
 		ret = sdcard_loadimage(image->of_filename, image->of_dest);
@@ -121,7 +121,7 @@ int load_sdcard(struct image_info *image)
 		/* umount fs */
 		fret = f_mount(0, NULL);
 		if (fret != FR_OK) {
-			dbg_log(1, "*** FATFS: f_mount umount error **\n\r");
+			dbg_info("*** FATFS: f_mount umount error **\n");
 			return -1;
 		}
 	}

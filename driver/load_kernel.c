@@ -39,16 +39,18 @@
 #include "debug.h"
 
 #ifdef CONFIG_LOAD_ANDROID
-#ifdef CONFIG_AT91SAMA5D3XEK
+#ifdef CONFIG_SAMA5D3XEK
 #ifdef CONFIG_NANDFLASH
 static char *cmd_line_android_pda = "console=ttyS0,115200 " \
-		"mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) " \
+		"mtdparts=atmel_nand:8M(bootstrap/kernel),125M(system)," \
+		"-(userdata) " \
 		"ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs "\
 		"init=/init "\
 		"androidboot.hardware=sama5d3x-pda androidboot.console=ttyS0";
 
 static char *cmd_line_android = "console=ttyS0,115200 " \
-		"mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) " \
+		"mtdparts=atmel_nand:8M(bootstrap/kernel),125M(system)," \
+		"-(userdata) " \
 		"ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs " \
 		"init=/init " \
 		"androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0";
@@ -62,7 +64,7 @@ static char *cmd_line_android = "console=ttyS0,115200 " \
 		"root=/dev/mmcblk0p2 rw rootwait init=/init " \
 		"androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0";
 #endif
-#endif /* #ifdef CONFIG_AT91SAMA5D3XEK */
+#endif /* #ifdef CONFIG_SAMA5D3XEK */
 #endif /* #ifdef CONFIG_LOAD_ANDROID */
 
 #ifdef CONFIG_OF_LIBFDT
@@ -76,14 +78,14 @@ static int setup_dt_blob(void *blob)
 	int ret;
 
 	if (check_dt_blob_valid(blob)) {
-		dbg_log(1, "DT: the blob is not a valid fdt\n\r");
+		dbg_info("DT: the blob is not a valid fdt\n");
 		return -1;
 	}
 
-	dbg_log(1, "\n\rUsing device tree in place at %d\n\r",
+	dbg_info("\nUsing device tree in place at %d\n",
 						(unsigned int)blob);
 
-#if defined(CONFIG_LOAD_ANDROID) && defined(CONFIG_AT91SAMA5D3XEK)
+#if defined(CONFIG_LOAD_ANDROID) && defined(CONFIG_SAMA5D3XEK)
 	if (get_dm_sn() == BOARD_ID_PDA_DM)
 		bootargs = cmd_line_android_pda;
 	else
@@ -289,15 +291,15 @@ int load_kernel(struct image_info *image)
 
 	image_header = (struct kernel_image_header *)jump_addr;
 	magic_number = swap_uint32(image_header->magic);
-	dbg_log(1, "\n\rImage magic: %d is found\n\r", magic_number);
+	dbg_info("\nImage magic: %d is found\n", magic_number);
 	if (magic_number != KERNEL_IMAGE_MAGIC) {
-		dbg_log(1, "** Bad image magic number found: %d\n\r",
+		dbg_info("** Bad image magic number found: %d\n",
 						magic_number);
 		return -1;
 	}
 
 	if (image_header->comp_type != 0) {
-		dbg_log(1, "The comp type has not been supported\n\r");
+		dbg_info("The comp type has not been supported\n");
 		return -1;
 	}
 
@@ -307,13 +309,13 @@ int load_kernel(struct image_info *image)
 	kernel_entry = (void (*)(int, int, unsigned int))
 					swap_uint32(image_header->entry_point);
 
-	dbg_log(1, "Relocating kernel image, dest: %d, src: %d\n\r",
+	dbg_info("Relocating kernel image, dest: %d, src: %d\n",
 		load_addr, jump_addr + sizeof(struct kernel_image_header));
 
 	memcpy((void *)load_addr, (void *)(jump_addr
 			+ sizeof(struct kernel_image_header)), image_size);
 
-	dbg_log(1, " ...... %d bytes data transferred\n\r", image_size);
+	dbg_info(" ...... %d bytes data transferred\n", image_size);
 
 	if (image->of) {
 		ret = setup_dt_blob((char *)image->of_dest);
@@ -329,7 +331,7 @@ int load_kernel(struct image_info *image)
 		r2 = (unsigned int)(OS_MEM_BANK + 0x100);
 	}
 
-	dbg_log(1, "\n\rStarting linux kernel ..., machid: %d\n\r\n\r",
+	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",
 							mach_type);
 
 	kernel_entry(0, mach_type, r2);

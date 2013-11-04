@@ -92,7 +92,6 @@
 /*
  * System Peripherals physical base addresses.
  */
-#define AT91C_BASE_SYS		0xffffc000
 #define AT91C_BASE_ECC		0xffffe200
 #define AT91C_BASE_DDRSDRC1	0xffffe400
 #define AT91C_BASE_DDRSDRC0	0xffffe600
@@ -143,12 +142,6 @@
 #define AT91C_BASE_CS4		0x50000000
 #define AT91C_BASE_CS5		0x60000000
 #define AT91C_BASE_CS6		0x70000000	/* DRAM0 */
-
-/*
- * Other misc defines
- */
-#define AT91_BASE_SYS		AT91C_BASE_SYS
-#define AT91_SMC		(AT91C_BASE_SMC	- AT91_BASE_SYS)
 
 /*
  * SoC specific defines
