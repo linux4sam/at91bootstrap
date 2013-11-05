@@ -34,6 +34,7 @@
 #include "string.h"
 #include "timer.h"
 #include "div.h"
+#include "fdt.h"
 #include "debug.h"
 
 /* Manufacturer Device ID Read */
@@ -162,6 +163,30 @@ static int dataflash_read_array(struct dataflash_descriptor *df_desc,
 
 	return 0;
 }
+
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+static int update_image_length(struct dataflash_descriptor *df_desc,
+				unsigned int offset,
+				unsigned char *dest,
+				unsigned char flag)
+{
+	unsigned int length = df_desc->page_size;
+	int ret;
+
+	ret = dataflash_read_array(df_desc, offset, length, dest);
+	if (ret)
+		return -1;
+
+	if (flag == KERNEL_IMAGE)
+		return kernel_size(dest);
+#ifdef CONFIG_OF_LIBFDT
+	else
+		return of_get_dt_total_size((void *)dest);
+#else
+	return -1;
+#endif
+}
+#endif
 
 static unsigned char df_read_status_at45(unsigned char *status)
 {
@@ -587,6 +612,15 @@ int load_dataflash(struct image_info *image)
 	}
 #endif
 
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+	int length = update_image_length(df_desc,
+				image->offset, image->dest, KERNEL_IMAGE);
+	if (length == -1)
+		return -1;
+
+	image->length = length;
+#endif
+
 	dbg_info("SF: Copy %d bytes from %d to %d\n",
 			image->length, image->offset, image->dest);
 
@@ -599,6 +633,16 @@ int load_dataflash(struct image_info *image)
 	}
 
 	if (image->of) {
+
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+		length = update_image_length(df_desc,
+				image->of_offset, image->of_dest, DT_BLOB);
+		if (length == -1)
+			return -1;
+
+		image->of_length = length;
+#endif
+
 		dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
 			image->of_length, image->of_offset, image->of_dest);
 
