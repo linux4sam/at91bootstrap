@@ -296,6 +296,15 @@ static int boot_uimage_setup(unsigned char *addr, unsigned int *entry)
 	return 0;
 }
 
+unsigned int kernel_size(unsigned char *addr)
+{
+	struct linux_uimage_header *image_header
+		= (struct linux_uimage_header *)addr;
+
+	return swap_uint32(image_header->size)
+			+ sizeof(struct linux_uimage_header);
+}
+
 #elif defined(CONFIG_LINUX_ZIMAGE)
 
 #define	LINUX_ZIMAGE_MAGIC	0x016f2818
@@ -325,6 +334,13 @@ static int boot_zimage_setup(unsigned char *addr, unsigned int *entry)
 	return 0;
 }
 
+unsigned int kernel_size(unsigned char *addr)
+{
+	struct linux_zimage_header *image_header
+		= (struct linux_zimage_header *)addr;
+
+	return image_header->end - image_header->start;
+}
 #else
 #error "No Linux image type provided!"
 #endif
