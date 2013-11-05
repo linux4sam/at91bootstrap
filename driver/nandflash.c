@@ -37,6 +37,7 @@
 #include "pmecc.h"
 #include "hamming.h"
 #include "timer.h"
+#include "fdt.h"
 #include "div.h"
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
@@ -898,6 +899,31 @@ static int nand_loadimage(struct nand_info *nand,
 	return 0;
 }
 
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+
+static int update_image_length(struct nand_info *nand,
+				unsigned int offset,
+				unsigned char *dest,
+				unsigned char flag)
+{
+	unsigned int length = nand->pagesize;
+	int ret;
+
+	ret = nand_loadimage(nand, offset, length, dest);
+	if (ret)
+		return -1;
+
+	if (flag == KERNEL_IMAGE)
+		return kernel_size(dest);
+#ifdef CONFIG_OF_LIBFDT
+	else
+		return of_get_dt_total_size((void *)dest);
+#else
+	return -1;
+#endif
+}
+#endif
+
 int load_nandflash(struct image_info *image)
 {
 	struct nand_info nand;
@@ -922,6 +948,15 @@ int load_nandflash(struct image_info *image)
 	dbg_info("NAND: Using Software ECC\n");
 #endif
 
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+	int length = update_image_length(&nand,
+				image->offset, image->dest, KERNEL_IMAGE);
+	if (length == -1)
+		return -1;
+
+	image->length = length;
+#endif
+
 	dbg_info("NAND: Image: Copy %d bytes from %d to %d\n",
 			image->length, image->offset, image->dest);
 
@@ -930,6 +965,15 @@ int load_nandflash(struct image_info *image)
 		return ret;
 
 	if (image->of) {
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+		length = update_image_length(&nand,
+				image->of_offset, image->of_dest, DT_BLOB);
+		if (length == -1)
+			return -1;
+
+		image->of_length = length;
+#endif
+
 		dbg_info("NAND: dt blob: Copy %d bytes from %d to %d\n",
 			image->of_length, image->of_offset, image->of_dest);
 
