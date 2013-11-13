@@ -241,10 +241,10 @@ static void setup_boot_params(void)
 }
 #endif /* #ifdef CONFIG_OF_LIBFDT */
 
-/* Kernel Image Header */
-#define KERNEL_IMAGE_MAGIC	0x27051956
+/* Linux uImage Header */
+#define LINUX_UIMAGE_MAGIC	0x27051956
 
-struct kernel_image_header {
+struct linux_uimage_header {
 	unsigned int	magic;
 	unsigned int	header_crc;
 	unsigned int	time;
@@ -259,63 +259,82 @@ struct kernel_image_header {
 	unsigned char	name[32];
 };
 
+static int boot_uimage_setup(unsigned char *addr, unsigned int *entry)
+{
+	struct linux_uimage_header *image_header
+			= (struct linux_uimage_header *)addr;
+	unsigned int src, dest;
+	unsigned int size;
+	unsigned int magic;
+
+	dbg_info("\nBooting uImage ......\n");
+	magic = swap_uint32(image_header->magic);
+	dbg_info("uImage magic: %d is found\n", magic);
+	if (magic != LINUX_UIMAGE_MAGIC) {
+		dbg_info("** Bad uImage magic found: %d\n", magic);
+		return -1;
+	}
+
+	if (image_header->comp_type != 0) {
+		dbg_info("The uImage compress type not supported\n");
+		return -1;
+	}
+
+	size = swap_uint32(image_header->size);
+	dest = swap_uint32(image_header->load);
+	src = (unsigned int)addr + sizeof(struct linux_uimage_header);
+
+	dbg_info("Relocating kernel image, dest: %d, src: %d\n", dest, src);
+
+	memcpy((void *)dest, (void *)src, size);
+
+	dbg_info(" ...... %d bytes data transferred\n", size);
+
+	*entry = swap_uint32(image_header->entry_point);
+
+	return 0;
+}
+
+static int load_kernel_image(struct image_info *image)
+{
+	int ret;
+
+#if defined(CONFIG_DATAFLASH)
+	ret = load_dataflash(image);
+#elif defined(CONFIG_NANDFLASH)
+	ret = load_nandflash(image);
+#elif defined(CONFIG_SDCARD)
+	ret = load_sdcard(image);
+#endif
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 int load_kernel(struct image_info *image)
 {
-	struct kernel_image_header *image_header;
-	unsigned int load_addr, image_size;
-	unsigned int magic_number;
-	unsigned int jump_addr = (unsigned int)image->dest;
+	unsigned char *addr = image->dest;
+	unsigned int entry_point;
 	unsigned int r2;
 	unsigned int mach_type;
 	int ret;
 
 	void (*kernel_entry)(int zero, int arch, unsigned int params);
 
-#ifdef CONFIG_DATAFLASH
-	ret = load_dataflash(image);
-#endif
-
-#ifdef CONFIG_NANDFLASH
-	ret = load_nandflash(image);
-#endif
-
-#ifdef CONFIG_SDCARD
-	ret = load_sdcard(image);
-#endif
-	if (ret != 0)
+	ret = load_kernel_image(image);
+	if (ret)
 		return ret;
 
 #ifdef CONFIG_SCLK
 	slowclk_switch_osc32();
 #endif
 
-	image_header = (struct kernel_image_header *)jump_addr;
-	magic_number = swap_uint32(image_header->magic);
-	dbg_info("\nImage magic: %d is found\n", magic_number);
-	if (magic_number != KERNEL_IMAGE_MAGIC) {
-		dbg_info("** Bad image magic number found: %d\n",
-						magic_number);
+	ret = boot_uimage_setup(addr, &entry_point);
+	if (ret)
 		return -1;
-	}
 
-	if (image_header->comp_type != 0) {
-		dbg_info("The comp type has not been supported\n");
-		return -1;
-	}
-
-	image_size = swap_uint32(image_header->size);
-	load_addr = swap_uint32(image_header->load);
-
-	kernel_entry = (void (*)(int, int, unsigned int))
-					swap_uint32(image_header->entry_point);
-
-	dbg_info("Relocating kernel image, dest: %d, src: %d\n",
-		load_addr, jump_addr + sizeof(struct kernel_image_header));
-
-	memcpy((void *)load_addr, (void *)(jump_addr
-			+ sizeof(struct kernel_image_header)), image_size);
-
-	dbg_info(" ...... %d bytes data transferred\n", image_size);
+	kernel_entry = (void (*)(int, int, unsigned int))entry_point;
 
 	if (image->of) {
 		ret = setup_dt_blob((char *)image->of_dest);
