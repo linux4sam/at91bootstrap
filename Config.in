@@ -124,11 +124,6 @@ config CONFIG_IMG_ADDRESS
 	default	"0x00000000" if CONFIG_SDCARD
 	help
 
-config CONFIG_IMG_SIZE
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
-	string "Linux Kernel Image Size"
-	default "0x300000"
-
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
 	default "0x72000000" if CONFIG_AT91SAM9M10G45EK
@@ -146,11 +141,6 @@ config CONFIG_OF_OFFSET
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00180000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
-
-config CONFIG_OF_LENGTH
-	string "The Length of Flash Device Tree Blob"
-	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
-	default "0x2FFFF"
 
 config CONFIG_OF_FILENAME
 	string "Device Tree Filename on SD Card"
@@ -197,11 +187,6 @@ config CONFIG_IMG_ADDRESS
 	default	"0x00000000" if CONFIG_SDCARD
 	help
 
-config CONFIG_IMG_SIZE
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
-	string "Linux Kernel Image Size"
-	default "0x300000"
-
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
 	default "0x72000000" if CONFIG_AT91SAM9M10G45EK
@@ -219,11 +204,6 @@ config CONFIG_OF_OFFSET
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00180000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
-
-config CONFIG_OF_LENGTH
-	string "The Length of Flash Device Tree Blob"
-	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
-	default "0x30000"
 
 config CONFIG_OF_FILENAME
 	string "Device Tree Filename on SD Card"
