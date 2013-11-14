@@ -241,6 +241,7 @@ static void setup_boot_params(void)
 }
 #endif /* #ifdef CONFIG_OF_LIBFDT */
 
+#if defined(CONFIG_LINUX_UIMAGE)
 /* Linux uImage Header */
 #define LINUX_UIMAGE_MAGIC	0x27051956
 
@@ -295,6 +296,39 @@ static int boot_uimage_setup(unsigned char *addr, unsigned int *entry)
 	return 0;
 }
 
+#elif defined(CONFIG_LINUX_ZIMAGE)
+
+#define	LINUX_ZIMAGE_MAGIC	0x016f2818
+
+struct linux_zimage_header {
+	unsigned int	code[9];
+	unsigned int	magic;
+	unsigned int	start;
+	unsigned int	end;
+};
+
+static int boot_zimage_setup(unsigned char *addr, unsigned int *entry)
+{
+	struct linux_zimage_header *image_header
+			= (struct linux_zimage_header *)addr;
+
+	dbg_info("\nBooting zImage ......\n");
+	dbg_info("zImage magic: %d is found\n", image_header->magic);
+	if (image_header->magic != LINUX_ZIMAGE_MAGIC) {
+		dbg_info("** Bad zImage magic found: %d\n",
+					image_header->magic);
+		return -1;
+	}
+
+	*entry = ((unsigned int)addr + image_header->start);
+
+	return 0;
+}
+
+#else
+#error "No Linux image type provided!"
+#endif
+
 static int load_kernel_image(struct image_info *image)
 {
 	int ret;
@@ -330,7 +364,13 @@ int load_kernel(struct image_info *image)
 	slowclk_switch_osc32();
 #endif
 
+#if defined(CONFIG_LINUX_UIMAGE)
 	ret = boot_uimage_setup(addr, &entry_point);
+#elif defined(CONFIG_LINUX_ZIMAGE)
+	ret = boot_zimage_setup(addr, &entry_point);
+#else
+#error "No Linux image type provided!"
+#endif
 	if (ret)
 		return -1;
 
