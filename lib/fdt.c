@@ -101,7 +101,7 @@ static inline unsigned int of_dt_struct_offset(void *blob, unsigned int offset)
 	return (unsigned int)blob + of_get_offset_dt_struct(blob) + offset;
 }
 
-static inline unsigned int of_get_dt_total_size(void *blob)
+unsigned int of_get_dt_total_size(void *blob)
 {
 	struct boot_param_header *header = (struct boot_param_header *)blob;
 
