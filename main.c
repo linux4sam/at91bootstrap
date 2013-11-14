@@ -99,20 +99,22 @@ int main(void)
 #ifdef CONFIG_NANDFLASH
 	media_str = "NAND: ";
 	image.offset = IMG_ADDRESS;
+#if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
 	image.length = IMG_SIZE;
+#endif
 #ifdef CONFIG_OF_LIBFDT
 	image.of_offset = OF_OFFSET;
-	image.of_length = OF_LENGTH;
 #endif
 #endif
 
 #ifdef CONFIG_DATAFLASH
 	media_str = "SF: ";
 	image.offset = IMG_ADDRESS;
+#if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
 	image.length = IMG_SIZE;
+#endif
 #ifdef CONFIG_OF_LIBFDT
 	image.of_offset = OF_OFFSET;
-	image.of_length = OF_LENGTH;
 #endif
 #endif
 
