@@ -80,12 +80,12 @@ endchoice
 menu "Linux Image Storage Setup"
 	depends on CONFIG_LOAD_LINUX
 
-config CONFIG_OS_MEM_BANK
+config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
 	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
 	default "0x20000000"
 	
-config CONFIG_OS_MEM_SIZE
+config CONFIG_MEM_SIZE
 	string "Extern Memory Bank Size"
 	default "0x20000000" if CONFIG_SAMA5D3XEK
 	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
@@ -157,12 +157,12 @@ endmenu
 menu "Android Image Storage Setup"
 	depends on CONFIG_LOAD_ANDROID
 
-config CONFIG_OS_MEM_BANK
+config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
 	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
 	default "0x20000000"
 
-config CONFIG_OS_MEM_SIZE
+config CONFIG_MEM_SIZE
 	string "Extern Memory Bank Size"
 	default "0x20000000" if CONFIG_SAMA5D3XEK
 	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
