@@ -109,7 +109,6 @@ IMAGE_NAME:= $(strip $(subst ",,$(CONFIG_IMAGE_NAME)))
 CARD_SUFFIX := $(strip $(subst ",,$(CONFIG_CARD_SUFFIX)))
 OS_MEM_BANK := $(strip $(subst ",,$(CONFIG_OS_MEM_BANK)))
 OS_MEM_SIZE := $(strip $(subst ",,$(CONFIG_OS_MEM_SIZE)))
-OS_IMAGE_NAME := $(strip $(subst ",,$(CONFIG_OS_IMAGE_NAME)))
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
 
 # Board definitions
@@ -142,9 +141,33 @@ else
 BLOB:=
 endif
 
+ifeq ($(CONFIG_LOAD_LINUX), y)
+TARGET_NAME:=linux-$(subst I,i,$(IMAGE_NAME))
+endif
+
+ifeq ($(CONFIG_LOAD_ANDROID), y)
+TARGET_NAME:=android-$(subst I,i,$(IMAGE_NAME))
+endif
+
+ifeq ($(CONFIG_LOAD_UBOOT), y)
+TARGET_NAME:=$(subst -,,$(basename $(IMAGE_NAME)))
+endif
+
+ifeq ($(CONFIG_LOAD_64KB), y)
+TARGET_NAME:=$(basename $(IMAGE_NAME))
+endif
+
+ifeq ($(CONFIG_LOAD_1MB), y)
+TARGET_NAME:=$(basename $(IMAGE_NAME))
+endif
+
+ifeq ($(CONFIG_LOAD_4MB), y)
+TARGET_NAME:=$(basename $(IMAGE_NAME))
+endif
+
 obj=build/$(BOARDNAME)/
 
-BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(IMAGE_NAME)$(BLOB)-$(VERSION)$(REV)
+BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
 ifeq ($(IMAGE),)

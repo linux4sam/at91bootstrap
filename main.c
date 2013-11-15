@@ -119,7 +119,7 @@ int main(void)
 #ifdef CONFIG_SDCARD
 	media_str = "SD/MMC: ";
 	image.filename = filename;
-	strcpy(image.filename, OS_IMAGE_NAME);
+	strcpy(image.filename, IMAGE_NAME);
 #ifdef CONFIG_OF_LIBFDT
 	image.of_filename = of_filename;
 	strcpy(image.of_filename, OF_FILENAME);
