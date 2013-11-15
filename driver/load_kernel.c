@@ -73,8 +73,8 @@ static int setup_dt_blob(void *blob)
 {
 	char *bootargs = LINUX_KERNEL_ARG_STRING;
 	char *p;
-	unsigned int mem_bank = OS_MEM_BANK;
-	unsigned int mem_size = OS_MEM_SIZE;
+	unsigned int mem_bank = MEM_BANK;
+	unsigned int mem_size = MEM_SIZE;
 	int ret;
 
 	if (check_dt_blob_valid(blob)) {
@@ -191,7 +191,7 @@ static void setup_commandline_tag(struct tag_cmdline *params,
 
 static void setup_boot_params(void)
 {
-	unsigned int *params = (unsigned int *)(OS_MEM_BANK + 0x100);
+	unsigned int *params = (unsigned int *)(MEM_BANK + 0x100);
 
 	struct tag_core *coreparam = (struct tag_core *)params;
 	coreparam->header.tag = TAG_FLAG_CORE;
@@ -207,8 +207,8 @@ static void setup_boot_params(void)
 	memparam->header.tag = TAG_FLAG_MEM;
 	memparam->header.size = TAG_SIZE_MEM32;
 
-	memparam->start = OS_MEM_BANK;
-	memparam->size = OS_MEM_SIZE;
+	memparam->start = MEM_BANK;
+	memparam->size = MEM_SIZE;
 
 	params = (unsigned int *)params + TAG_SIZE_MEM32;
 
@@ -403,7 +403,7 @@ int load_kernel(struct image_info *image)
 		setup_boot_params();
 
 		mach_type = MACH_TYPE;
-		r2 = (unsigned int)(OS_MEM_BANK + 0x100);
+		r2 = (unsigned int)(MEM_BANK + 0x100);
 	}
 
 	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",

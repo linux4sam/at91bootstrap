@@ -105,8 +105,8 @@ BOOTSTRAP_MAXSIZE := $(strip $(subst ",,$(CONFIG_BOOTSTRAP_MAXSIZE)))
 MEMORY := $(strip $(subst ",,$(CONFIG_MEMORY)))
 IMAGE_NAME:= $(strip $(subst ",,$(CONFIG_IMAGE_NAME)))
 CARD_SUFFIX := $(strip $(subst ",,$(CONFIG_CARD_SUFFIX)))
-OS_MEM_BANK := $(strip $(subst ",,$(CONFIG_OS_MEM_BANK)))
-OS_MEM_SIZE := $(strip $(subst ",,$(CONFIG_OS_MEM_SIZE)))
+MEM_BANK := $(strip $(subst ",,$(CONFIG_MEM_BANK)))
+MEM_SIZE := $(strip $(subst ",,$(CONFIG_MEM_SIZE)))
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
 
 # Board definitions
