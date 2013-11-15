@@ -124,7 +124,6 @@ int main(void)
 	strcpy(image.filename, IMAGE_NAME);
 #ifdef CONFIG_OF_LIBFDT
 	image.of_filename = of_filename;
-	strcpy(image.of_filename, OF_FILENAME);
 #endif
 #endif
 
