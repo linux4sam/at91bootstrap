@@ -40,12 +40,17 @@
 
 #define BAUD_RATE		115200
 #define BOARD_MAINOSC		12000000
-#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC / 3 / 2 / 3) * 200))
+
+/* PCK = 396MHz, MCK = 132MHz */
+#define PLLA_MULA		199
+#define PLLA_DIVA		3
+#define BOARD_MCK		((unsigned long)(((BOARD_MAINOSC / \
+					PLLA_DIVA) * (PLLA_MULA + 1)) / 2 / 3))
 #define BOARD_OSCOUNT		(AT91C_CKGR_OSCOUNT & (64 << 8))
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
 #define BOARD_PLLACOUNT		(0x3F << 8)
-#define BOARD_MULA		(AT91C_CKGR_MULA & (199 << 16))
-#define BOARD_DIVA		(AT91C_CKGR_DIVA & 3)
+#define BOARD_MULA		(AT91C_CKGR_MULA & (PLLA_MULA << 16))
+#define BOARD_DIVA		(AT91C_CKGR_DIVA & PLLA_DIVA)
 
 #define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
 					| AT91C_PMC_MDIV_3 \
