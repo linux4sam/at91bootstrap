@@ -41,12 +41,17 @@
 #define MASTER_CLOCK		132000000
 
 #if defined(CONFIG_CPU_CLK_528MHZ)
-#define BOARD_PCK		((unsigned long)(BOARD_MAINOSC * 44))		/* 528M */
-#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 44) / 4))	/* 132M */
+
+/* PCK = 528MHz, MCK = 132MHz */
+#define PLLA_MULA		43
+#define BOARD_PCK		((unsigned long)(BOARD_MAINOSC * \
+							(PLLA_MULA + 1)))
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * \
+							(PLLA_MULA + 1)) / 4))
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
 #define BOARD_PLLACOUNT		(0x3F << 8)
-#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (43 << 18))
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (PLLA_MULA << 18))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
 
 #define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_MDIV_4 \
@@ -57,12 +62,16 @@
 
 #elif defined(CONFIG_CPU_CLK_396MHZ)
 
-#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 66 ) / 2 ))	/* 396M */
-#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 66 ) / 2 / 3))/* 132M */
+/* PCK = 396MHz, MCK = 132MHz */
+#define PLLA_MULA		65
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * \
+						(PLLA_MULA + 1)) / 2))
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * \
+						(PLLA_MULA + 1)) / 2 / 3))
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
 #define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT && (0x3F << 8))
-#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (65 << 18)) /* PLLA Multiplier */
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (PLLA_MULA << 18))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
 
 /* Master Clock Register */
@@ -76,12 +85,16 @@
 
 #elif defined(CONFIG_CPU_CLK_266MHZ)
 
-#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 44 ) / 2 ))	/* 264M */
-#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 44 ) / 2 / 2))/* 132M */
+/* PCK = 264MHz, MCK = 132MHz */
+#define PLLA_MULA		43
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * \
+						(PLLA_MULA + 1)) / 2))
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * \
+						(PLLA_MULA + 1)) / 2 / 2))
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
 #define BOARD_PLLACOUNT		(0x3F << 8)
-#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (43 << 18))
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (PLLA_MULA << 18))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
 
 #define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
@@ -99,13 +112,18 @@
 #elif defined(CONFIG_BUS_SPEED_166MHZ)
 
 #if defined(CONFIG_CPU_CLK_498MHZ)
-#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 83 ) / 2))	/* 498M */
-#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 83 ) / 2 / 3))/* 166M */
+
+/* PCK = 496MHz, MCK = 166MHz */
+#define PLLA_MULA		82
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * \
+						(PLLA_MULA + 1)) / 2))
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * \
+						(PLLA_MULA + 1)) / 2 / 3))
 #define MASTER_CLOCK		166000000
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
 #define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT && (0x3F << 8))
-#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (82 << 18)) /* PLLA Multiplier */
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (PLLA_MULA << 18))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
 
 /* Master Clock Register */
@@ -119,13 +137,17 @@
 
 #elif defined(CONFIG_CPU_CLK_332MHZ)
 
-#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 55) / 2))	/* 330M */
-#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * 55) / 2 / 2))	/* 165M */
+/* PCK = 330MHz, MCK = 166MHz */
+#define PLLA_MULA		54
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * \
+						(PLLA_MULA + 1)) / 2))
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * \
+						(PLLA_MULA + 1)) / 2 / 2))
 #define MASTER_CLOCK		165000000
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
 #define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT && (0x3F << 8))
-#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (54 << 18)) /* PLLA Multiplier */
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (PLLA_MULA << 18))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
 
 /* Master Clock Register */
