@@ -98,11 +98,6 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	default "mem=512M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_SAMA5D3XEK && CONFIG_SDCARD
 	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9M10G45EK && CONFIG_SDCARD
 
-config CONFIG_OS_IMAGE_NAME
-	string "Binary Name on SD Card"
-	depends on CONFIG_SDCARD
-	default "image.bin"
-
 config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
 	string "Flash Offset for Linux Kernel Image"
@@ -176,11 +171,6 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	default "console=ttyS0,115200 mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_SAMA5D3XEK && !CONFIG_SDCARD
 	default "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_SAMA5D3XEK && CONFIG_SDCARD
 
-config CONFIG_OS_IMAGE_NAME
-	string "Binary Name on SD Card"
-	depends on CONFIG_SDCARD
-	default "image.bin"
-
 config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
 	string "Flash Offset for Linux Kernel Image"
@@ -238,11 +228,6 @@ endmenu
 menu "U-Boot Image Storage Setup"
 	depends on CONFIG_LOAD_UBOOT
 
-config CONFIG_OS_IMAGE_NAME
-	string "Binary Name on SD Card"
-	depends on CONFIG_SDCARD
-	default "u-boot.bin"
-
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for U-Boot"
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
@@ -276,11 +261,6 @@ endmenu
 menu "Demo Application Image Storage Setup"
 	depends on CONFIG_LOAD_64KB || CONFIG_LOAD_1MB || CONFIG_LOAD_4MB
 
-config CONFIG_OS_IMAGE_NAME
-	string "Binary Name on SD Card"
-	depends on CONFIG_SDCARD
-	default "demo-app.bin"
-
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for Demo-App"
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
@@ -308,10 +288,9 @@ endmenu
 
 config CONFIG_IMAGE_NAME
 	string
-	default "android" if CONFIG_LOAD_ANDROID
-	default "linux" if CONFIG_LOAD_LINUX
-	default "uboot" if CONFIG_LOAD_UBOOT
-	default "softapp" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
+	default "uImage" if CONFIG_LOAD_LINUX || CONFIG_LOAD_ANDROID
+	default "u-boot.bin" if CONFIG_LOAD_UBOOT
+	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
 
 config CONFIG_LONG_TEST
 	bool "Perform a memory test at startup"
