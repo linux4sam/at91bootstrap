@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Thu May 30 09:15:09 2013
+# Fri Nov 15 12:40:36 2013
 #
 HAVE_DOT_CONFIG=y
 CONFIG_BOARDNAME="sama5d3xek"
@@ -92,13 +92,12 @@ CONFIG_LOAD_UBOOT=y
 # CONFIG_LOAD_1MB is not set
 # CONFIG_LOAD_4MB is not set
 # CONFIG_LOAD_64KB is not set
-CONFIG_OS_IMAGE_NAME="u-boot.bin"
 CONFIG_JUMP_ADDR="0x26F00000"
 
 #
 # U-Boot Image Storage Setup
 #
-CONFIG_IMAGE_NAME="uboot"
+CONFIG_IMAGE_NAME="u-boot.bin"
 # CONFIG_LONG_TEST is not set
 CONFIG_DEBUG=y
 CONFIG_DEBUG_INFO=y
