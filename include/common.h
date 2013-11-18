@@ -39,6 +39,11 @@
 
 #define FILENAME_BUF_LEN	33
 
+enum {
+	KERNEL_IMAGE,
+	DT_BLOB,
+};
+
 /* structure definition */
 struct image_info
 {
