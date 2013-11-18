@@ -171,18 +171,20 @@ void hw_init(void)
 	/* Disable watchdog */
 	at91_disable_wdt();
 
-	/* At this stage the main oscillator
-	 * is supposed to be enabled PCK = MCK = MOSC */
+	/*
+	 * At this stage the main oscillator
+	 * is supposed to be enabled PCK = MCK = MOSC
+	 */
 	pmc_init_pll(0);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
 
-	/* PCK = PLLA/2 = 3 * MCK */
-	pmc_cfg_mck(BOARD_PRESCALER, PLL_LOCK_TIMEOUT);
+	/* Switch PCK/MCK on Main clock output */
+	pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK, PLL_LOCK_TIMEOUT);
 
-	/* Switch MCK on PLLA output */
-	pmc_cfg_mck(0x1302, PLL_LOCK_TIMEOUT);
+	/* Switch PCK/MCK on PLLA output */
+	pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
 
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
