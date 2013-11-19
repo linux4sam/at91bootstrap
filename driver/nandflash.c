@@ -175,36 +175,25 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 				struct nand_chip *chip)
 {
 	unsigned int i;
-	unsigned int oobsize = 0;
+	unsigned int oobsize = chip->oobsize;
+	layout->badblockpos = 0;
 
+#ifdef CONFIG_USE_PMECC
+	layout->eccbytes = chip->pagesize / PMECC_SECTOR_SIZE
+		* get_pmecc_bytes();
+#else	/* Use Software ECC */
 	switch (chip->pagesize) {
-	case 2048:
-		layout->badblockpos = 0;
-		oobsize = chip->oobsize;
-#ifdef CONFIG_USE_PMECC
-		layout->eccbytes = chip->pagesize / PMECC_SECTOR_SIZE
-			* get_pmecc_bytes();
-#else
+	case 2048:	/* oobsize is 64. */
 		layout->eccbytes = 24;
-#endif
 		break;
-
-	case 4096:
-		layout->badblockpos = 0;
-#ifdef CONFIG_USE_PMECC
-		layout->eccbytes = chip->pagesize / PMECC_SECTOR_SIZE
-			* get_pmecc_bytes();
-		oobsize = chip->oobsize;
-#else
+	case 4096:	/* oobsize is 224. */
 		layout->eccbytes = 48;
 		oobsize = 128;
-#endif
 		break;
-
 	default:
 		break;
 	}
-
+#endif
 	for (i = 0; i < layout->eccbytes; i++)
 		layout->eccpos[i] = oobsize - layout->eccbytes + i;
 }
