@@ -381,7 +381,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	chip->pagesize	= *(unsigned short *)(p + PARAMS_OFFSET_PAGESIZE);
 	chip->blocksize = *(unsigned int  *)(p + PARAMS_OFFSET_BLOCKSIZE)
 							* chip->pagesize;
-	chip->oobsize	= *(unsigned char *)(p + PARAMS_OFFSET_OOBSIZE);
+	chip->oobsize	= *(unsigned short *)(p + PARAMS_OFFSET_OOBSIZE);
 	chip->buswidth	= (*(unsigned char *)(p + PARAMS_OFFSET_BUSWIDTH))
 								& 0x01;
 
