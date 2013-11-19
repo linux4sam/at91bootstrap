@@ -120,7 +120,8 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 {
 	unsigned int sectors;
 
-	if ((nand->pagesize == 2048) || (nand->pagesize == 4096)) {
+	if ((nand->pagesize == 2048) || (nand->pagesize == 4096) ||
+			(nand->pagesize == 8192)) {
 		/* Sector Size */
 		pmecc_params->sectorSize = (PMECC_SECTOR_SIZE == 512) ?
 			AT91C_PMECC_SECTORSZ_512 : AT91C_PMECC_SECTORSZ_1024;
