@@ -186,11 +186,19 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 	case 2048:	/* oobsize is 64. */
 		layout->eccbytes = 24;
 		break;
-	case 4096:	/* oobsize is 224. */
-		layout->eccbytes = 48;
-		oobsize = 128;
-		break;
 	default:
+		layout->eccbytes = 48;
+		/* Software ECC support up to 128-byte oob */
+		if (oobsize >= 128) {
+			/* oobsize can be 224, 448. */
+			dbg_info("NAND: Use software ECC." \
+				"But may cannot correct all errors!\n");
+			oobsize = 128;
+		} else {
+			dbg_info("NAND: Error! Software ECC not support pagesize: %d\n",
+				chip->pagesize);
+			return;
+		}
 		break;
 	}
 #endif
