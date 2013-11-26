@@ -155,7 +155,8 @@ dataflash_read_array_DMA(struct dataflash_descriptor *df_desc,
   unsigned int byte_addr = 0;
   unsigned int page_shift;
   unsigned int page_size;
-  const uint32_t DMA_CHUNK_MAX_LENGTH = 0xFFFF;
+  static const uint32_t DMA_CHUNK_MAX_LENGTH = 0xFFFF;
+  static const uint32_t DBG_DUMP_LENGTH = 32;
   uint32_t round_length = DMA_CHUNK_MAX_LENGTH;
   DMA_DEV_IOStream_t readArrayStream;
   int ret = 0;
@@ -201,7 +202,7 @@ dataflash_read_array_DMA(struct dataflash_descriptor *df_desc,
           return -1;
         }
 
-      dbg_dump_buffer(DEBUG_VERY_LOUD,"RECV:",buf,round_length);
+      dbg_dump_buffer(DEBUG_VERY_LOUD,"RECV:",buf,DBG_DUMP_LENGTH);
 
       len -= round_length;
       address += round_length;
