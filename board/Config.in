@@ -2,12 +2,6 @@ config	HAVE_DOT_CONFIG
 	bool
 	default y
 
-config CONFIG_BOARDNAME
-	string "Board Name"
-	default "at91sam9260ek"
-	help
-	  Name of the target
-
 choice
 	prompt "Board Type"
 	default	CONFIG_AT91SAM9260EK
@@ -213,7 +207,7 @@ config CONFIG_CHIP
 	  Name of the board, A Board Support package
 	  (BSP) must be available.
 
-config CONFIG_BOARD
+config CONFIG_BOARDNAME
 	string
 	default "at91sam9260ek"	if CONFIG_AT91SAM9260EK
 	default "at91sam9261ek"	if CONFIG_AT91SAM9261EK
