@@ -82,7 +82,7 @@ menu "Linux Image Storage Setup"
 
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
-	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x70000000" if AT91SAM9G45
 	default "0x20000000"
 	
 config CONFIG_MEM_SIZE
@@ -126,7 +126,7 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
-	default "0x72000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x72000000" if AT91SAM9G45
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -145,7 +145,7 @@ config CONFIG_OF_OFFSET
 config CONFIG_OF_ADDRESS
 	string "The External Ram Address to Load Device Tree Blob"
 	depends on CONFIG_OF_LIBFDT
-	default "0x71000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x71000000" if AT91SAM9G45
 	default "0x21000000"
 	help
 
@@ -159,7 +159,7 @@ menu "Android Image Storage Setup"
 
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
-	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x70000000" if AT91SAM9G45
 	default "0x20000000"
 
 config CONFIG_MEM_SIZE
@@ -184,7 +184,7 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
-	default "0x72000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x72000000" if AT91SAM9G45
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -203,7 +203,7 @@ config CONFIG_OF_OFFSET
 config CONFIG_OF_ADDRESS
 	string "The External Ram Address to Load Device Tree Blob"
 	depends on CONFIG_OF_LIBFDT
-	default "0x71000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x71000000" if AT91SAM9G45
 	default "0x21000000"
 	help
 
@@ -233,9 +233,9 @@ config CONFIG_IMG_SIZE
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load U-Boot Image"
-	default "0x73F00000" if CONFIG_AT91SAM9M10G45EK
-	default "0x26F00000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK || CONFIG_SAMA5D3XEK
-	default "0x21F00000" if CONFIG_AT91SAM9260EK || CONFIG_AT91SAM9261EK || CONFIG_AT91SAM9263EK || CONFIG_AT91SAM9G10EK || CONFIG_AT91SAM9G20EK || CONFIG_AT91SAM9RLEK
+	default "0x73F00000" if AT91SAM9G45
+	default "0x26F00000" if AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X
+	default "0x21F00000" if AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || AT91SAM9G20 || AT91SAM9RL
 	default "0x23F00000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -266,7 +266,7 @@ config CONFIG_IMG_SIZE
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Demo-App Image"
-	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x70000000" if AT91SAM9G45
 	default "0x20000000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -317,13 +317,13 @@ config CONFIG_USER_HW_INIT
 	  Initialize Hardware
 
 config CONFIG_THUMB
-	depends on !CONFIG_SAMA5D3XEK
+	depends on !SAMA5D3X
 	bool "Build in thumb mode"
 	help
 	  Build code in thumb mode
 
 config CONFIG_SCLK	  
-	depends on CONFIG_AT91SAM9RLEK || CONFIG_AT91SAM9M10G45EK || CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK || CONFIG_SAMA5D3XEK
+	depends on AT91SAM9RL || AT91SAM9G45 || AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X
 	bool "Use external 32KHZ oscillator as source of slow clock"
 	help
 	  Use external 32KHZ oscillator as source of slow clock

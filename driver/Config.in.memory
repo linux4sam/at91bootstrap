@@ -114,10 +114,10 @@ menu  "SD Card Configuration"
 
 config CONFIG_SDCARD_HS
 	bool
-	default y if CONFIG_AT91SAM9M10G45EK
-	default y if CONFIG_AT91SAM9X5EK
-	default y if CONFIG_AT91SAM9N12EK
-	default y if CONFIG_SAMA5D3XEK
+	default y if AT91SAM9G45
+	default y if AT91SAM9X5
+	default y if AT91SAM9N12
+	default y if SAMA5D3X
 	default n
 
 config CONFIG_FATFS
@@ -128,7 +128,7 @@ config CONFIG_FATFS
 config CONFIG_LONG_FILENAME
 	bool "Support Long FileName(LFN)"
 	depends on CONFIG_FATFS
-	default y if !CONFIG_AT91SAM9G10EK
+	default y if !AT91SAM9G10
 	help
 	  Configure support to FatFS Long FileName(LFN)
 
@@ -140,10 +140,10 @@ source "driver/Config.in.nandflash"
 
 config CONFIG_BOOTSTRAP_MAXSIZE
 	string
-	default "4096" if CONFIG_AT91SAM9260EK
-	default "8192" if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
-	default "12288" if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
-	default "65536"	if CONFIG_SAMA5D3XEK
+	default "4096" if AT91SAM9260
+	default "8192" if AT91SAM9G10 && CONFIG_SDCARD
+	default "12288" if AT91SAM9G10 && !CONFIG_SDCARD
+	default "65536"	if SAMA5D3X
 	default "23000"
 
 endmenu
