@@ -163,8 +163,6 @@ ifeq ($(CONFIG_LOAD_4MB), y)
 TARGET_NAME:=$(basename $(IMAGE_NAME))
 endif
 
-obj=build/$(BOARDNAME)/
-
 BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
@@ -221,11 +219,11 @@ ifdef YYY   # For other utils
 ifeq ($(CC),gcc) 
 TARGETS=no-cross-compiler
 else
-TARGETS=$(obj) $(AT91BOOTSTRAP) host-utilities .config filesize
+TARGETS=$(AT91BOOTSTRAP) host-utilities .config filesize
 endif
 endif
 
-TARGETS=$(obj) $(AT91BOOTSTRAP)
+TARGETS=$(AT91BOOTSTRAP)
 
 PHONY:=all
 
@@ -350,7 +348,6 @@ clean:
 		-o -name '*~' \) \
 		-print0 \
 		| xargs -0 rm -f
-	rm -fr $(obj)
 
 distclean: clean config-clean
 #	rm -fr $(BINDIR)
