@@ -1,5 +1,6 @@
 config	CONFIG_AT91SAM9260EK
 	bool "at91sam9260ek"
+	select AT91SAM9260
 	select CONFIG_SDRAM
 	select ALLOW_DATAFLASH
 	select ALLOW_NANDFLASH
