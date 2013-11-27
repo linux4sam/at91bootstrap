@@ -1,12 +1,10 @@
 CPPFLAGS += \
-	-D$(CHIP) 				\
 	-D$(BOARDNAME)				\
 	-DMACH_TYPE=$(MACH_TYPE) 		\
 	-DTOP_OF_MEMORY=$(TOP_OF_MEMORY)	\
 	-D$(CRYSTAL)
 
 ASFLAGS += \
-	-D$(CHIP)				\
 	-D$(BOARDNAME)				\
 	-DMACH_TYPE=$(MACH_TYPE) 		\
 	-DTOP_OF_MEMORY=$(TOP_OF_MEMORY)	\

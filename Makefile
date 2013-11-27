@@ -112,8 +112,6 @@ LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING))
 # Board definitions
 BOARDNAME:=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
 
-# CHIP is UNUSED
-CHIP:=$(strip $(subst ",,$(CONFIG_CHIP)))
 MACH_TYPE:=$(strip $(subst ",,$(CONFIG_MACH_TYPE)))
 LINK_ADDR:=$(strip $(subst ",,$(CONFIG_LINK_ADDR)))
 DATA_SECTION_ADDR:=$(strip $(subst ",,$(CONFIG_DATA_SECTION_ADDR)))
