@@ -10,6 +10,7 @@ ASFLAGS += \
 	-DTOP_OF_MEMORY=$(TOP_OF_MEMORY)	\
 	-D$(CRYSTAL)
 
+include board/chips.mk
 include	board/$(BOARDNAME)/board.mk
 
 ifeq ($(CONFIG_THUMB),y)
