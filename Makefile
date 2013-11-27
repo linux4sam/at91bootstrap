@@ -110,11 +110,10 @@ MEM_SIZE := $(strip $(subst ",,$(CONFIG_MEM_SIZE)))
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
 
 # Board definitions
-BOARDNAME=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
+BOARDNAME:=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
 
 # CHIP is UNUSED
 CHIP:=$(strip $(subst ",,$(CONFIG_CHIP)))
-BOARD:=$(strip $(subst ",,$(CONFIG_BOARD)))
 MACH_TYPE:=$(strip $(subst ",,$(CONFIG_MACH_TYPE)))
 LINK_ADDR:=$(strip $(subst ",,$(CONFIG_LINK_ADDR)))
 DATA_SECTION_ADDR:=$(strip $(subst ",,$(CONFIG_DATA_SECTION_ADDR)))
@@ -174,7 +173,7 @@ ifeq ($(SYMLINK),)
 SYMLINK=at91bootstrap.bin
 endif
 
-COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
+COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARDNAME).o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 
 include	lib/libc.mk
@@ -185,7 +184,7 @@ include	fs/src/fat.mk
 
 SRCS:= $(COBJS-y:.o=.c)
 OBJS:= $(SOBJS-y) $(COBJS-y)
-INCL=board/$(BOARD)
+INCL=board/$(BOARDNAME)
 GC_SECTIONS=--gc-sections
 
 CPPFLAGS=-ffunction-sections -g -Os -Wall \
@@ -295,7 +294,7 @@ PHONY+= rebuild
 	@$(MAKE) oldconfig
 
 update:
-	cp .config board/$(BOARD)/$(BOARDNAME)_defconfig
+	cp .config board/$(BOARDNAME)/$(BOARDNAME)_defconfig
 
 no-cross-compiler:
 	@echo

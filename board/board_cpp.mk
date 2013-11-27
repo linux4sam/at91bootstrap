@@ -1,18 +1,18 @@
 CPPFLAGS += \
 	-D$(CHIP) 				\
-	-D$(BOARD)				\
+	-D$(BOARDNAME)				\
 	-DMACH_TYPE=$(MACH_TYPE) 		\
 	-DTOP_OF_MEMORY=$(TOP_OF_MEMORY)	\
 	-D$(CRYSTAL)
 
 ASFLAGS += \
 	-D$(CHIP)				\
-	-D$(BOARD)				\
+	-D$(BOARDNAME)				\
 	-DMACH_TYPE=$(MACH_TYPE) 		\
 	-DTOP_OF_MEMORY=$(TOP_OF_MEMORY)	\
 	-D$(CRYSTAL)
 
-include	board/$(BOARD)/board.mk
+include	board/$(BOARDNAME)/board.mk
 
 ifeq ($(CONFIG_THUMB),y)
 CPPFLAGS += -DCONFIG_THUMB -mthumb -mthumb-interwork
