@@ -8,187 +8,37 @@ choice
 	help
 	  Select which board you want to build for
 
-config	CONFIG_AT91SAM9260EK
-	bool "at91sam9260ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select DATAFLASHCARD_ON_CS0
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS1
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9260EK Development board
-
-config	CONFIG_AT91SAM9261EK
-	bool "at91sam9261ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CPU_CLK_266MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS3
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9261EK Development board
-
-config	CONFIG_AT91SAM9263EK
-	bool "at91sam9263ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD	
-	select ALLOW_PSRAM
-	select ALLOW_SDRAM_16BIT
-	select DATAFLASHCARD_ON_CS0
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CPU_CLK_240MHZ
-	select ALLOW_CRYSTAL_16_36766MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9263EK Development board
-
-config	CONFIG_AT91SAM9RLEK
-	bool "at91sam9rlek"
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select CONFIG_SDRAM
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CPU_CLK_266MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9RLEK Development board
-
-config	CONFIG_AT91SAM9XEEK
-	bool "at91sam9xeek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select DATAFLASHCARD_ON_CS0
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS1
-	help
-	  Use the AT91SAM9XEEK Development board
-
-config	CONFIG_AT91SAM9G10EK
-	bool "at91sam9g10ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CPU_CLK_266MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS3
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9G10EK Development board
-
-config	CONFIG_AT91SAM9G20EK
-	bool "at91sam9g20ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_CPU_CLK_400MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS1
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9G20EK Development board
-
-config	CONFIG_AT91SAM9M10G45EK
-	bool "at91sam9m10g45ek"
-	select CONFIG_DDR2
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_HSMCI
-	select ALLOW_CPU_CLK_400MHZ
-	select ALLOW_CRYSTAL_12_000MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9M10G45EK Development board
-	  Can also be used for AT91SAM9G45/AT91SAM9M10 family
-
-config	CONFIG_AT91SAM9X5EK
-	bool "at91sam9x5ek"
-	select CONFIG_DDR2
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_HSMCI
-	select ALLOW_CPU_CLK_400MHZ
-	select ALLOW_CRYSTAL_12_000MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	select ALLOW_PIO3
-	select CPU_HAS_PMECC
-	select CONFIG_LOAD_ONE_WIRE
-	help
-	  Use the AT91SAM9X5EK Development board
-
-config	CONFIG_AT91SAM9N12EK
-	bool "at91sam9n12ek"
-	select CONFIG_DDR2
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_HSMCI
-	select ALLOW_CPU_CLK_400MHZ
-	select ALLOW_CRYSTAL_12_000MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	select ALLOW_PIO3
-	select CPU_HAS_PMECC
-	help
-	  Use the AT91SAM9N12EK Development board
-
-config CONFIG_SAMA5D3XEK
-	bool "sama5d3xek"
-	select CONFIG_DDR2
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_HSMCI
-	select ALLOW_CPU_CLK_266MHZ
-	select ALLOW_CPU_CLK_332MHZ
-	select ALLOW_CPU_CLK_396MHZ
-	select ALLOW_CPU_CLK_498MHZ
-	select ALLOW_CPU_CLK_528MHZ
-	select ALLOW_CRYSTAL_12_000MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_PIO3
-	select CPU_HAS_PMECC
-	select CONFIG_LOAD_ONE_WIRE
-	select CONFIG_MMC_SUPPORT
-	help
-	  Use the SAMA5D3EK Development board
+source "board/at91sam9260ek/Config.in.board"
+source "board/at91sam9261ek/Config.in.board"
+source "board/at91sam9263ek/Config.in.board"
+source "board/at91sam9rlek/Config.in.board"
+source "board/at91sam9xeek/Config.in.board"
+source "board/at91sam9g10ek/Config.in.board"
+source "board/at91sam9g20ek/Config.in.board"
+source "board/at91sam9m10g45ek/Config.in.board"
+source "board/at91sam9x5ek/Config.in.board"
+source "board/at91sam9n12ek/Config.in.board"
+source "board/sama5d3xek/Config.in.board"
 
 endchoice
+
+config CONFIG_BOARDNAME
+	string "Board Name"
+	help
+	    Name of the board, A Board Support package
+	    (BSP) must be available.
+
+source "board/at91sam9260ek/Config.in.boardname"
+source "board/at91sam9261ek/Config.in.boardname"
+source "board/at91sam9263ek/Config.in.boardname"
+source "board/at91sam9rlek/Config.in.boardname"
+source "board/at91sam9xeek/Config.in.boardname"
+source "board/at91sam9g10ek/Config.in.boardname"
+source "board/at91sam9g20ek/Config.in.boardname"
+source "board/at91sam9m10g45ek/Config.in.boardname"
+source "board/at91sam9n12ek/Config.in.boardname"
+source "board/at91sam9x5ek/Config.in.boardname"
+source "board/sama5d3xek/Config.in.boardname"
 
 config CONFIG_CHIP
 	string
@@ -203,23 +53,6 @@ config CONFIG_CHIP
 	default "AT91SAM9X5"	if CONFIG_AT91SAM9X5EK
 	default "AT91SAM9N12"	if CONFIG_AT91SAM9N12EK
 	default "SAMA5D3X"	if CONFIG_SAMA5D3XEK
-	help
-	  Name of the board, A Board Support package
-	  (BSP) must be available.
-
-config CONFIG_BOARDNAME
-	string
-	default "at91sam9260ek"	if CONFIG_AT91SAM9260EK
-	default "at91sam9261ek"	if CONFIG_AT91SAM9261EK
-	default "at91sam9263ek"	if CONFIG_AT91SAM9263EK
-	default "at91sam9rlek"	if CONFIG_AT91SAM9RLEK
-	default "at91sam9xeek"	if CONFIG_AT91SAM9XEEK
-	default "at91sam9g10ek"	if CONFIG_AT91SAM9G10EK
-	default "at91sam9g20ek"	if CONFIG_AT91SAM9G20EK
-	default "at91sam9x5ek"	if CONFIG_AT91SAM9X5EK
-	default "at91sam9n12ek"	if CONFIG_AT91SAM9N12EK
-	default "at91sam9m10g45ek"	if CONFIG_AT91SAM9M10G45EK
-	default "sama5d3xek"	if CONFIG_SAMA5D3XEK
 	help
 	  Name of the board, A Board Support package
 	  (BSP) must be available.

@@ -1,0 +1,2 @@
+config CONFIG_BOARDNAME
+	default "at91sam9m10g45ek" if CONFIG_AT91SAM9M10G45EK
