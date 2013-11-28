@@ -159,8 +159,7 @@ config CONFIG_MEM_SIZE
 
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "android kernel command line"
-	default "console=ttyS0,115200 mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_SAMA5D3XEK && !CONFIG_SDCARD
-	default "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_SAMA5D3XEK && CONFIG_SDCARD
+source "board/sama5d3xek/Config.in.android_arg"
 
 config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
