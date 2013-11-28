@@ -87,9 +87,11 @@ config CONFIG_MEM_BANK
 	
 config CONFIG_MEM_SIZE
 	string "Extern Memory Bank Size"
-	default "0x20000000" if CONFIG_SAMA5D3XEK
-	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
-	default "0x4000000"
+	default "0x2000000" if CONFIG_RAM_32MB
+	default "0x4000000" if CONFIG_RAM_64MB
+	default "0x8000000" if CONFIG_RAM_128MB
+	default "0x10000000" if CONFIG_RAM_256MB
+	default "0x20000000" if CONFIG_RAM_512MB
 	
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "Linux kernel parameters"
@@ -153,9 +155,11 @@ config CONFIG_MEM_BANK
 
 config CONFIG_MEM_SIZE
 	string "Extern Memory Bank Size"
-	default "0x20000000" if CONFIG_SAMA5D3XEK
-	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
-	default "0x4000000"
+	default "0x2000000" if CONFIG_RAM_32MB
+	default "0x4000000" if CONFIG_RAM_64MB
+	default "0x8000000" if CONFIG_RAM_128MB
+	default "0x10000000" if CONFIG_RAM_256MB
+	default "0x20000000" if CONFIG_RAM_512MB
 
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "android kernel command line"

@@ -47,7 +47,7 @@ config	ALLOW_SDRAM_16BIT
 	default n
 
 choice
-	prompt "RAM size"
+	prompt "Extern RAM size"
 	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDR2
 	default CONFIG_RAM_64MB
 
