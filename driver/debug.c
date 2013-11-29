@@ -155,28 +155,28 @@ int dbg_dump_buffer(const char level, const char* prefix, unsigned char* buffer,
 	unsigned int pos = 0;
 	if (level > BOOTSTRAP_DEBUG_LEVEL)
 			return 0;
-	dbgu_print(prefix);
-	dbgu_print("\n\r\t");
+	usart_puts(prefix);
+	usart_puts("\n\t");
 	if (!len)
 	{
-		dbgu_print("EMPTY");
+		usart_puts("EMPTY");
 	}
 	do
 	{
-		dbgu_print("[");
-		dbgu_print(BIN_TO_HEX[*buffer >> 4]);
-		dbgu_print(BIN_TO_HEX[*buffer & 0x0F]);
-		dbgu_print("],");
+		usart_puts("[");
+		usart_puts(BIN_TO_HEX[*buffer >> 4]);
+		usart_puts(BIN_TO_HEX[*buffer & 0x0F]);
+		usart_puts("],");
 		buffer++;
 		pos++;
 		if (pos == 0x10 )
 		{
-			dbgu_print("\n\r\t");
+			usart_puts("\n\t");
 			pos = 0;
 		}
 	}
 	while (--len);
-	dbgu_print("\n\r");
+	usart_puts("\n");
 	return 0;
 }
 //***********************************************************************

@@ -198,7 +198,7 @@ dataflash_read_array_DMA(struct dataflash_descriptor *df_desc,
           round_length);
       if (ret)
         {
-          dbg_log(DEBUG_INFO,"Transfer canceled after error : %d\n\r", ret);
+          dbg_log(DEBUG_INFO,"Transfer canceled after error : %d\n", ret);
           return -1;
         }
 
@@ -261,7 +261,7 @@ static int dataflash_read_array_PIO(struct dataflash_descriptor *df_desc,
     ret = df_send_command(cmd, cmd_len, buf, len);
     if (ret)
       {
-        dbg_log(DEBUG_INFO,"Transfer canceled after error : %d\n\r", ret);
+        dbg_log(DEBUG_INFO,"Transfer canceled after error : %d\n", ret);
         return -1;
       }
     return 0;
@@ -738,13 +738,13 @@ load_dataflash(struct image_info *image)
   //Set the SPI at full speed if needed
   if (CONFIG_SYS_SPI_CLOCK > SPI_MAX_BASE_SPEED)
     {
-      dbg_log(2, "SF: Speeding up ...\n\r");
+      dbg_log(2, "SF: Speeding up ...\n");
       at91_spi_disable();
       ret = at91_spi_init(AT91C_SPI_PCS_DATAFLASH, CONFIG_SYS_SPI_CLOCK,
           CONFIG_SYS_SPI_MODE);
       if (ret)
         {
-          dbg_log(1, "SF: Fail to speed-up spi\n\r");
+          dbg_log(1, "SF: Fail to speed-up spi\n");
           return -1;
         }
       at91_spi_enable();

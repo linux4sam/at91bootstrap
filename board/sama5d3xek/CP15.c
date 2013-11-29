@@ -113,11 +113,11 @@ void CP15_EnableMMU(void)
 
         control |= (1 << CP15_M_BIT);
         CP15_WriteControl(control);
-        dbg_log(DEBUG_LOUD,"MMU enabled.\n\r");
+        dbg_log(DEBUG_LOUD,"MMU enabled.\n");
     }
     else {
 
-    	dbg_log(DEBUG_LOUD,"MMU is already enabled.\n\r");
+    	dbg_log(DEBUG_LOUD,"MMU is already enabled.\n");
     }
 }
 //**************************************************
@@ -133,11 +133,11 @@ void CP15_DisableMMU(void)
         control &= ~(1ul << CP15_M_BIT);
         control &= ~(1ul << CP15_C_BIT);
         CP15_WriteControl(control);
-        dbg_log(DEBUG_LOUD,"MMU disabled.\n\r");
+        dbg_log(DEBUG_LOUD,"MMU disabled.\n");
     }
     else {
 
-    	dbg_log(DEBUG_LOUD,"MMU is already disabled.\n\r");
+    	dbg_log(DEBUG_LOUD,"MMU is already disabled.\n");
     }
 }
 //**************************************************
@@ -161,12 +161,12 @@ void CP15_EnableIcache(void)
 
         control |= (1 << CP15_I_BIT);
         CP15_WriteControl(control);
-        dbg_log(DEBUG_LOUD,"I cache enabled.\n\r");
+        dbg_log(DEBUG_LOUD,"I cache enabled.\n");
     }
 #if !defined(OP_BOOTSTRAP_on)
     else {
 
-    	dbg_log(DEBUG_LOUD,"I cache is already enabled.\n\r");
+    	dbg_log(DEBUG_LOUD,"I cache is already enabled.\n");
     }
 #endif
 }
@@ -182,11 +182,11 @@ void CP15_DisableIcache(void)
 
         control &= ~(1ul << CP15_I_BIT);
         CP15_WriteControl(control);
-        dbg_log(DEBUG_LOUD,"I cache disabled.\n\r");
+        dbg_log(DEBUG_LOUD,"I cache disabled.\n");
     }
     else {
 
-    	dbg_log(DEBUG_LOUD,"I cache is already disabled.\n\r");
+    	dbg_log(DEBUG_LOUD,"I cache is already disabled.\n");
     }
 }
 //**********************************************************
@@ -205,7 +205,7 @@ void CP15_EnableDcache(void)
     control = CP15_ReadControl();
 
     if( !CP15_IsMMUEnabled() ) {
-    	dbg_log(DEBUG_LOUD, "Do nothing: MMU not enabled\n\r");
+    	dbg_log(DEBUG_LOUD, "Do nothing: MMU not enabled\n");
     }
     else {
         // Check if cache is disabled
@@ -213,11 +213,11 @@ void CP15_EnableDcache(void)
 
             control |= (1 << CP15_C_BIT);
             CP15_WriteControl(control);
-            dbg_log(DEBUG_LOUD,"D cache enabled.\n\r");
+            dbg_log(DEBUG_LOUD,"D cache enabled.\n");
         }
         else {
 
-        	dbg_log(DEBUG_LOUD,"D cache is already enabled.\n\r");
+        	dbg_log(DEBUG_LOUD,"D cache is already enabled.\n");
         }
     }
 }
@@ -233,11 +233,11 @@ void CP15_DisableDcache(void)
 
         control &= ~(1ul << CP15_C_BIT);
         CP15_WriteControl(control);
-        dbg_log(DEBUG_LOUD,"D cache disabled.\n\r");
+        dbg_log(DEBUG_LOUD,"D cache disabled.\n");
     }
     else {
 
-    	dbg_log(DEBUG_LOUD,"D cache is already disabled.\n\r");
+    	dbg_log(DEBUG_LOUD,"D cache is already disabled.\n");
     }
 }
 //*********************************************************

@@ -43,7 +43,7 @@
 #include "spi.h"
 #include "dmad.h"
 #include "gpio.h"
-#include "dbgu.h"
+#include "usart.h"
 #include "debug.h"
 
 //! DMA_DEV_WITH_DMA_IRQ Will be set when IRQ support will be needed and set (IRQ stack in startup code)
@@ -156,7 +156,7 @@ DMA_DEV_OpenSPIIOStream(DMA_DEV_IOStream_t* const stream, const uint32_t spi_ctr
   stream->RxChannel = DMAD_AllocateChannel(&dmad, spi_id, AT91C_ID_MEMORY);
   if (stream->TxChannel == DMAD_ALLOC_FAILED || stream->RxChannel == DMAD_ALLOC_FAILED)
     {
-      dbgu_print("DMA channel allocation error\n\r");
+      usart_puts("DMA channel allocation error\n");
       return 1;
     }
 
@@ -226,7 +226,7 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
   if (DMAD_IsTransferDone(&dmad, stream->RxChannel) != DMAD_OK)
     DMAD_StopTransfer(&dmad, stream->RxChannel);
 
-  dbg_log(DEBUG_LOUD,"============= SEND Command ==============\n\r");
+  dbg_log(DEBUG_LOUD,"============= SEND Command ==============\n");
   //First phase : send the command
   tdSendStream[0].dwSrcAddr = (uint32_t) toSend;
   tdSendStream[0].dwDstAddr = stream->spi_ctrlr_base_addr + SPI_TDR;
@@ -243,7 +243,7 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
       | DMAC_CTRLB_SRC_INCR_FIXED | DMAC_CTRLB_DST_INCR_FIXED;
   tdReceiveStream[0].dwDscAddr = (uint32_t) &tdReceiveStream[1];
 
-  dbg_log(DEBUG_LOUD,"============= RECEIVE Response ==============\n\r");
+  dbg_log(DEBUG_LOUD,"============= RECEIVE Response ==============\n");
   //Second phase : just drive the bus to get the response.
   tdSendStream[1].dwSrcAddr = (uint32_t) &junkByte;
   tdSendStream[1].dwDstAddr = stream->spi_ctrlr_base_addr + SPI_TDR;
@@ -262,14 +262,14 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
 
   //Prepare the transfers
   driverReturnStatus = DMAD_PrepareMultiTransfer(&dmad, stream->RxChannel, tdReceiveStream);
-  dbg_log(DEBUG_VERY_LOUD, "DBG : RX DMAD_PrepareMultiTransfer()=>%d\n\r", driverReturnStatus);
+  dbg_log(DEBUG_VERY_LOUD, "DBG : RX DMAD_PrepareMultiTransfer()=>%d\n", driverReturnStatus);
   if (driverReturnStatus != DMAD_OK)
     {
       goto EXIT_POINT;
     }
 
   driverReturnStatus = DMAD_PrepareMultiTransfer(&dmad, stream->TxChannel, tdSendStream);
-  dbg_log(DEBUG_VERY_LOUD, "DBG:TX : DMAD_PrepareMultiTransfer()=>%d\n\r",driverReturnStatus);
+  dbg_log(DEBUG_VERY_LOUD, "DBG:TX : DMAD_PrepareMultiTransfer()=>%d\n",driverReturnStatus);
   if (driverReturnStatus != DMAD_OK)
     {
       goto EXIT_POINT;
@@ -284,12 +284,12 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
 #endif
 
   driverReturnStatus = DMAD_StartTransfer(&dmad, stream->RxChannel);
-  dbg_log(DEBUG_VERY_LOUD, "DBG : RX DMAD_StartTransfer()=>%d\n\r", driverReturnStatus);
+  dbg_log(DEBUG_VERY_LOUD, "DBG : RX DMAD_StartTransfer()=>%d\n", driverReturnStatus);
   if (driverReturnStatus != DMAD_OK)
     goto EXIT_POINT;
 
   driverReturnStatus = DMAD_StartTransfer(&dmad, stream->TxChannel);
-  dbg_log(DEBUG_VERY_LOUD, "DBG, TX : DMAD_StartTransfer()=>%d\n\r", driverReturnStatus);
+  dbg_log(DEBUG_VERY_LOUD, "DBG, TX : DMAD_StartTransfer()=>%d\n", driverReturnStatus);
   if (driverReturnStatus != DMAD_OK)
     {
       DMAD_StopTransfer(&dmad, stream->RxChannel);

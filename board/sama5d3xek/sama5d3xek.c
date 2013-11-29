@@ -384,19 +384,19 @@ hw_init(void)
 #if defined(CONFIG_WITH_MMU)
 //Check MMU & Cache status
   if (CP15_IsMMUEnabled())
-    dbgu_print("MMU ENabled\n\r");
+    usart_puts("MMU ENabled\n");
   else
-    dbgu_print("MMU DISabled\n\r");
+    usart_puts("MMU DISabled\n");
 
   if (CP15_IsDcacheEnabled())
-    dbgu_print("D Cache ENabled\n\r");
+    usart_puts("D Cache ENabled\n");
   else
-    dbgu_print("D Cache DISabled\n\r");
+    usart_puts("D Cache DISabled\n");
 
   if (CP15_IsIcacheEnabled())
-    dbgu_print("I Cache ENabled\n\r");
+    usart_puts("I Cache ENabled\n");
   else
-    dbgu_print("I Cache DISabled\n\r");
+    usart_puts("I Cache DISabled\n");
 #endif
 
 }

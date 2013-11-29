@@ -61,7 +61,7 @@ extern int load_kernel(struct image_info *img_info);
 int load_nothing (struct image_info* unused)
 {
   //NOTHING TO DO
-  dbgu_print("NOTHING is LOADED\n\r");
+  uasrt_puts("NOTHING is LOADED\n");
   return 0;
 }
 #define load_image load_nothing
@@ -82,11 +82,11 @@ static void display_banner (void)
 	char *ver_num = " "AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
 
 #if defined( CONFIG_CPU_CLK_498MHZ)
-	const char* const clocks_msg = " CLOCKS : Core:498MHz, Bus:166MHz\n\r";
+	const char* const clocks_msg = " CLOCKS : Core:498MHz, Bus:166MHz\n";
 #elif defined (CONFIG_CPU_CLK_400MHZ)
-	const char* const clocks_msg = " CLOCKS : Core:400MHz, Bus:132MHz\n\r";
+	const char* const clocks_msg = " CLOCKS : Core:400MHz, Bus:132MHz\n";
 #elif defined (CONFIG_CPU_CLK_528MHZ)
-	const char* const clocks_msg = " CLOCKS : Core:528MHz, Bus:133MHz\n\r";
+	const char* const clocks_msg = " CLOCKS : Core:528MHz, Bus:133MHz\n";
 #else
 #error NO Clock defined !!
 	const char* const clocks_msg = "UNKNOWN";
@@ -195,13 +195,13 @@ void displayWaitDbg(void)
   register unsigned int dbgdscr asm("r0");
   register unsigned int cpsr asm("r1");
 
-  dbg_log(2,"DBGDSCR:%b ; CPSR:0x%b\n\r", dbgdscr, cpsr);
-  dbgu_print("Entering HALT Debug Mode, Waiting for the DEBUGGER ...\n\r");
+  dbg_log(2,"DBGDSCR:%b ; CPSR:0x%b\n", dbgdscr, cpsr);
+  usart_puts("Entering HALT Debug Mode, Waiting for the DEBUGGER ...\n");
 }
 //****************************************************
 //Failure message
 void displayFailedMsg()
 {
-  dbgu_print("CPU not HALTED !\n\r");
+  usart_puts("CPU not HALTED !\n");
 }
 //****************************************************

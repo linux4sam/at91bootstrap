@@ -100,7 +100,7 @@ extern void PMC_EnablePeripheral( uint32_t dwId )
     {
         if ( (readl (AT91C_BASE_PMC + PMC_PCSR) & ((uint32_t)1 << dwId)) == ((uint32_t)1 << dwId) )
         {
-         //   TRACE_DEBUG( "PMC_EnablePeripheral: clock of peripheral"  " %u is already enabled\n\r", dwId ) ;
+         //   TRACE_DEBUG( "PMC_EnablePeripheral: clock of peripheral"  " %u is already enabled\n", dwId ) ;
         }
         else
         {
@@ -109,7 +109,7 @@ extern void PMC_EnablePeripheral( uint32_t dwId )
     } else {
         if ( (readl (AT91C_BASE_PMC + PMC_PCSR1) & ((uint32_t)1 << ( dwId - 32))) == ((uint32_t)1 << (dwId - 32)) )
         {
-           // TRACE_DEBUG( "PMC_EnablePeripheral: clock of peripheral"  " %u is already enabled\n\r", dwId ) ;
+           // TRACE_DEBUG( "PMC_EnablePeripheral: clock of peripheral"  " %u is already enabled\n", dwId ) ;
         }
         else
         {
