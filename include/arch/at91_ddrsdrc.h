@@ -69,7 +69,8 @@
 #define 	AT91C_DDRC2_MODE_RFSH_CMD		(0x4UL)
 #define 	AT91C_DDRC2_MODE_EXT_LMR_CMD		(0x5UL)
 #define 	AT91C_DDRC2_MODE_DEEP_CMD		(0x6UL)
-#define 	AT91C_DDRC2_MODE_Reserved		(0x7UL)
+#define		AT91C_DDRC2_MODE_LPDDR2_CMD		(0x7UL)
+#define AT91C_DDRC2_MRS(value)	(value << 8)
 
 /* -------- HDDRSDRC2_RTR : (HDDRSDRC2 Offset: 0x4) Refresh Timer Register -------- */
 #define AT91C_DDRC2_COUNT	(0xFFFUL << 0)
@@ -98,10 +99,18 @@
 #define AT91C_DDRC2_DIS_DLL	(0x1UL << 9)
 #define 	AT91C_DDRC2_DIS_DLL_DISABLED	(0x0UL << 9)
 #define 	AT91C_DDRC2_DIS_DLL_ENABLED	(0x1UL << 9)
+#define AT91C_DDRC2_ZQ		(0x03 << 10)
+#define		AT91C_DDRC2_ZQ_INIT		(0x00 << 10)
+#define		AT91C_DDRC2_ZQ_LONG		(0x01 << 10)
+#define		AT91C_DDRC2_ZQ_SHORT		(0x10 << 10)
+#define		AT91C_DDRC2_ZQ_RESET		(0x11 << 10)
 #define AT91C_DDRC2_OCD		(0x7UL << 12)
 #define 	AT91C_DDRC2_OCD_EXIT		(0x0UL << 12)
 #define 	AT91C_DDRC2_OCD_DEFAULT		(0x7UL << 12)
 #define AT91C_DDRC2_EBISHARE	(0x1UL << 16)
+#define AT91C_DDRC2_DQMS	(0x1UL << 16)
+#define		AT91C_DDRC2_DQMS_NOT_SHARED	(0x0UL << 16)
+#define		AT91C_DDRC2_DQMS_SHARED		(0x1UL << 16)
 #define AT91C_DDRC2_ENRDM	(0x1UL << 17)
 #define 	AT91C_DDRC2_ENRDM_DISABLE	(0x0UL << 17)
 #define 	AT91C_DDRC2_ENRDM_ENABLE	(0x1UL << 17)
@@ -285,6 +294,7 @@
 #define 	AT91C_DDRC2_TXSNR_0		(0x0UL << 8)
 #define 	AT91C_DDRC2_TXSNR_8		(0x8UL << 8)
 #define 	AT91C_DDRC2_TXSNR_16		(0x10UL << 8)
+#define		AT91C_DDRC2_TXSNR_18		(0x12UL << 8)
 #define 	AT91C_DDRC2_TXSNR_19		(0x13UL << 8)
 #define 	AT91C_DDRC2_TXSNR_28		(0x1CUL << 8)
 #define 	AT91C_DDRC2_TXSNR_32		(0x20UL << 8)
@@ -305,7 +315,9 @@
 #define 	AT91C_DDRC2_TXSNR_255		(0xFFUL << 8)
 #define AT91C_DDRC2_TXSRD	(0xFFUL << 16)
 #define 	AT91C_DDRC2_TXSRD_0		(0x0UL << 16)
+#define		AT91C_DDRC2_TXSRD_1		(0x1UL << 16)
 #define 	AT91C_DDRC2_TXSRD_8		(0x8UL << 16)
+#define		AT91C_DDRC2_TXSRD_14		(0xEUL << 16)
 #define 	AT91C_DDRC2_TXSRD_16		(0x10UL << 16)
 #define 	AT91C_DDRC2_TXSRD_32		(0x20UL << 16)
 #define 	AT91C_DDRC2_TXSRD_48		(0x30UL << 16)
@@ -455,6 +467,7 @@
 #define 	AT91C_DDRC2_MD_DDR_SDRAM	(0x2UL)
 #define 	AT91C_DDRC2_MD_LP_DDR_SDRAM	(0x3UL)
 #define 	AT91C_DDRC2_MD_DDR2_SDRAM	(0x6UL)
+#define		AT91C_DDRC2_MD_LPDDR2_SDRAM	(0x7UL)
 #define AT91C_DDRC2_DBW		(0x1UL << 4)
 #define 	AT91C_DDRC2_DBW_32_BITS		(0x0UL << 4)
 #define 	AT91C_DDRC2_DBW_16_BITS		(0x1UL << 4)
@@ -465,8 +478,16 @@
 #define AT91C_DDRC2_MDOVF	(0x1UL << 2)
 #define AT91C_DDRC2_MDVAL	(0xFFUL << 8
 
+/* ------- MPDDRC_LPDDR2_LPR (offset: 0x28) */
+#define AT91C_LPDDRC2_BK_MASK_PASR(value)	(value << 0)
+#define AT91C_LPDDRC2_SEG_MASK(value)		(value << 8)
+#define AT91C_LPDDRC2_DS(value)			(value << 24)
+
 /* -------- HDDRSDRC2_HS : (HDDRSDRC2 Offset: 0x2c) High Speed Register --------*/ 
 #define AT91C_DDRC2_NO_ANT	(0x1UL << 2)
+
+/* -------- MPDDRC_LPDDR2_TIM_CAL : (MPDDRC Offset: 0x30) */
+#define AT91C_DDRC2_ZQCS(value)	(value << 0)
 
 /* -------- MPDDRC_IO_CALIBR : (MPDDRC Offset: 0x34) IO Calibration --------*/
 #define AT91C_MPDDRC_RDIV	(0x7UL << 0)
@@ -479,17 +500,18 @@
 #define 	AT91C_MPDDRC_RDIV_DDR2_RZQ_50		(0x4UL << 0)
 #define 	AT91C_MPDDRC_RDIV_DDR2_RZQ_100		(0x7UL << 0)
 
-#define AT91C_MPDDRC_TZQIO	(0x1FUL << 8)
-#define 	AT91C_MPDDRC_TZQIO_0			(0x0UL << 8)
-#define 	AT91C_MPDDRC_TZQIO_1			(0x1UL << 8)
-#define 	AT91C_MPDDRC_TZQIO_4			(0x4UL << 8)
-#define 	AT91C_MPDDRC_TZQIO_31			(0x1FUL << 8)
+#define		AT91C_MPDDRC_TZQIO	(0x1FUL << 8)
+#define		AT91C_MPDDRC_TZQIO_0	(0x0UL << 8)
+#define		AT91C_MPDDRC_TZQIO_1	(0x1UL << 8)
+#define		AT91C_MPDDRC_TZQIO_3	(0x3UL << 8)
+#define		AT91C_MPDDRC_TZQIO_4	(0x4UL << 8)
+#define		AT91C_MPDDRC_TZQIO_31	(0x1FUL << 8)
 
 /* -------- MPDDRC_DLL_MOR : (MPDDRC Offset: 0x74) DLL Master Offset Register --------*/
-#define AT91C_MPDDRC_MOFF	(0xFUL << 0)
+#define AT91C_MPDDRC_MOFF(value)	(value << 0)
 #define 	AT91C_MPDDRC_MOFF_1	(0x1UL << 0)
 #define 	AT91C_MPDDRC_MOFF_7	(0x7UL << 0)
-#define AT91C_MPDDRC_CLK90OFF	(0x1FUL << 8)
+#define AT91C_MPDDRC_CLK90OFF(value)		(value << 8)
 #define 	AT91C_MPDDRC_CLK90OFF_1		(0x1UL << 8)
 #define 	AT91C_MPDDRC_CLK90OFF_31	(0x1FUL << 8)
 #define AT91C_MPDDRC_SELOFF	(0x1UL << 16)
@@ -502,6 +524,11 @@
 #define AT91C_MPDDRC_S1OFF_1	(0x1UL << 8)
 #define AT91C_MPDDRC_S2OFF_1	(0x1UL << 16)
 #define AT91C_MPDDRC_S3OFF_1	(0x1UL << 24)
+
+#define AT91C_MPDDRC_S0OFF(value)	(value << 0)
+#define AT91C_MPDDRC_S1OFF(value)	(value << 8)
+#define AT91C_MPDDRC_S2OFF(value)	(value << 16)
+#define AT91C_MPDDRC_S3OFF(value)	(value << 24)
 
 /* -------- HDDRSDRC2_WPCR : (HDDRSDRC2 Offset: 0xe4) Write Protect Control Register --------*/ 
 #define AT91C_DDRC2_WPEN	(0x1UL << 0)

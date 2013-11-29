@@ -10,6 +10,14 @@ ifeq ($(CONFIG_SDDRC),y)
 CPPFLAGS += -DCONFIG_SDDRC
 endif
 
+ifeq ($(CONFIG_DDRC),y)
+CPPFLAGS += -DCONFIG_DDRC
+endif
+
+ifeq ($(CONFIG_LPDDR2),y)
+CPPFLAGS += -DCONFIG_LPDDR2
+endif
+
 ifeq ($(CONFIG_DDR2),y)
 CPPFLAGS += -DCONFIG_DDR2
 endif

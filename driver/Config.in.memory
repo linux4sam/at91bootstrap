@@ -12,7 +12,7 @@ config CONFIG_SDDRC
 	help
 	  Initialize DDR SDRAM controller before copying
 
-config CONFIG_DDR2
+config CONFIG_DDRC
 	bool
 	default n
 	help
@@ -46,9 +46,11 @@ config	ALLOW_SDRAM_16BIT
 	bool
 	default n
 
+menu "RAM Configuration"
+
 choice
-	prompt "Extern RAM size"
-	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDR2
+	prompt "RAM size"
+	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDRC
 	default CONFIG_RAM_64MB
 
 config	CONFIG_RAM_32MB
@@ -67,6 +69,21 @@ config	CONFIG_RAM_512MB
 	bool "512 MB"
 
 endchoice
+
+choice
+	prompt "DDR-SDRAM device type"
+	depends on CONFIG_DDRC
+	default CONFIG_DDR2
+
+config CONFIG_LPDDR2
+	bool "Low-power DDR2-SDRAM"
+
+config CONFIG_DDR2
+	bool "DDR2-SDRAM"
+
+endchoice
+
+endmenu
 
 config	CONFIG_SDRAM_16BIT
 	bool "Use 16 bit SDRAM"

@@ -1,7 +1,7 @@
 config	CONFIG_AT91SAM9N12EK
 	bool "at91sam9n12ek"
 	select AT91SAM9N12
-	select CONFIG_DDR2
+	select CONFIG_DDRC
 	select ALLOW_DATAFLASH
 	select ALLOW_NANDFLASH
 	select ALLOW_SDCARD

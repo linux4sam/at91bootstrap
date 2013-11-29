@@ -35,10 +35,16 @@ struct ddramc_register {
 	unsigned int t0pr;
 	unsigned int t1pr;
 	unsigned int t2pr;
+	unsigned int lpddr2_lpr;
+	unsigned int tim_calr;
 };
 
 extern int ddram_initialize(unsigned int base_address,
 		unsigned int ram_address,
 		struct ddramc_register *ddramc_config);
+
+extern int lpddr2_sdram_initialize(unsigned int base_address,
+				unsigned int ram_address,
+				struct ddramc_register *ddramc_config);
 
 #endif /* #ifndef __DDRAMC_H__ */
