@@ -188,6 +188,93 @@ static void ddramc_init(void)
 	/* DDRAM2 Controller initialize */
 	ddram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
 }
+
+#elif defined(CONFIG_LPDDR2)
+
+static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
+{
+	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
+				| AT91C_DDRC2_MD_LPDDR2_SDRAM);
+
+	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
+				| AT91C_DDRC2_NR_14
+				| AT91C_DDRC2_CAS_3
+				| AT91C_DDRC2_ZQ_SHORT
+				| AT91C_DDRC2_NB_BANKS_8
+				| AT91C_DDRC2_UNAL_SUPPORTED);
+
+	ddramc_config->lpddr2_lpr = AT91C_LPDDRC2_DS(0x03);
+
+	/*
+	 * The MT42128M32 refresh window: 32ms
+	 * Required number of REFRESH commands(MIN): 8192
+	 * (32ms / 8192) * 132MHz = 514 i.e. 0x202
+	 */
+	ddramc_config->rtr = 0x202;
+	ddramc_config->tim_calr = 12;
+
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6
+			| AT91C_DDRC2_TRCD_2
+			| AT91C_DDRC2_TWR_3
+			| AT91C_DDRC2_TRC_8
+			| AT91C_DDRC2_TRP_2
+			| AT91C_DDRC2_TRRD_2
+			| AT91C_DDRC2_TWTR_2
+			| AT91C_DDRC2_TMRD_3);
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2
+			| AT91C_DDRC2_TXSNR_18
+			| AT91C_DDRC2_TRFC_17);
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_8
+			| AT91C_DDRC2_TRTP_2
+			| AT91C_DDRC2_TRPA_3
+			| AT91C_DDRC2_TXARDS_1
+			| AT91C_DDRC2_TXARD_1);
+}
+
+static void lpddr2_init(void)
+{
+	struct ddramc_register ddramc_reg;
+	unsigned int reg;
+
+	lpddr2_reg_config(&ddramc_reg);
+
+	/* enable ddr2 clock */
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
+
+	/* Init the special register for sama5d3x */
+	/* MPDDRC DLL Slave Offset Register: DDR2 configuration */
+	reg = AT91C_MPDDRC_S0OFF(0x04)
+		| AT91C_MPDDRC_S1OFF(0x03)
+		| AT91C_MPDDRC_S2OFF(0x04)
+		| AT91C_MPDDRC_S3OFF(0x04);
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_SOR));
+
+	/* MPDDRC DLL Master Offset Register */
+	/* write master + clk90 offset */
+	reg = AT91C_MPDDRC_MOFF(7)
+		| AT91C_MPDDRC_CLK90OFF(0x1F)
+		| AT91C_MPDDRC_SELOFF_ENABLED | AT91C_MPDDRC_KEY;
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_MOR));
+
+	/* MPDDRC I/O Calibration Register */
+	/* DDR2 RZQ = 50 Ohm */
+	/* TZQIO = 4 */
+	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
+	reg &= ~AT91C_MPDDRC_RDIV;
+	reg &= ~AT91C_MPDDRC_TZQIO;
+	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
+	reg |= AT91C_MPDDRC_TZQIO_3;
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
+
+	/* DDRAM2 Controller initialize */
+	lpddr2_sdram_initialize(AT91C_BASE_MPDDRC,
+				AT91C_BASE_DDRCS, &ddramc_reg);
+}
+#else
+#error "No right DDR-SDRAM device type provided"
 #endif /* #ifdef CONFIG_DDR2 */
 
 static void one_wire_hw_init(void)
@@ -311,9 +398,11 @@ void hw_init(void)
 	/* initialize the dbgu */
 	initialize_dbgu();
 
-#ifdef CONFIG_DDR2
 	/* Initialize MPDDR Controller */
+#ifdef CONFIG_DDR2
 	ddramc_init();
+#elif defined(CONFIG_LPDDR2)
+	lpddr2_init();
 #endif
 	/* load one wire information */
 	one_wire_hw_init();
