@@ -26,8 +26,6 @@
 #include "../include/part.h"
 #include "../include/main.h"
 #include "../include/flash.h"
-#include <stdlib.h>
-
 
 int load_norflash(unsigned int img_addr,
 		unsigned int img_size,
