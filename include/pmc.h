@@ -38,7 +38,10 @@ extern int pmc_cfg_pck(unsigned char x,
 
 extern int pmc_cfg_h32mxdiv(unsigned int pmc_mckr, unsigned int timeout);
 extern int pmc_enable_periph_clock(unsigned int periph_id);
+extern int pmc_disable_periph_clock(unsigned int periph_id);
 extern void pmc_enable_system_clock(unsigned int clock_id);
+extern void pmc_disable_system_clock(unsigned int clock_id);
+extern void pmc_set_smd_clock_divider(unsigned int divider);
 
 extern unsigned int pmc_read_reg(unsigned int reg_offset);
 extern int pmc_periph_clk(unsigned int periph_id, unsigned int is_on);

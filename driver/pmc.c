@@ -299,9 +299,38 @@ int pmc_enable_periph_clock(unsigned int periph_id)
 	return 0;
 }
 
+int pmc_disable_periph_clock(unsigned int periph_id)
+{
+	unsigned int mask = 0x01 << (periph_id % 32);
+
+	if ((periph_id / 32) == 1)
+		write_pmc(PMC_PCDR1, mask);
+	else if ((periph_id / 32) == 0)
+		write_pmc(PMC_PCDR, mask);
+	else
+		return -1;
+
+	return 0;
+}
+
 void pmc_enable_system_clock(unsigned int clock_id)
 {
 	 write_pmc(PMC_SCER, clock_id);
+}
+
+void pmc_disable_system_clock(unsigned int clock_id)
+{
+	 write_pmc(PMC_SCDR, clock_id);
+};
+
+void pmc_set_smd_clock_divider(unsigned int divider)
+{
+	unsigned int tmp = read_pmc(PMC_SMD);
+
+	tmp &= ~AT91C_PMC_SMDDIV;
+	tmp |= AT91C_PMC_SMDDIV_(divider);
+
+	write_pmc(PMC_SMD, tmp);
 }
 
 #if defined(CONFIG_ENTER_NWD)

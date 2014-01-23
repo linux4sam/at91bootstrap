@@ -196,6 +196,7 @@
 #define 	AT91C_PMC_SMDS_SMD_PLLA		(0x0UL)
 #define 	AT91C_PMC_SMDS_SMD_PLLB		(0x1UL)
 #define AT91C_PMC_SMDDIV	(0x1FUL <<  8)
+#define AT91C_PMC_SMDDIV_(x)	((x & 0x1F) << 8)
 
 /* -------- PMC_PCKR : (PMC Offset: 0x40) Programmable Clock Register --------*/ 
 #define AT91C_PMC_SLCKMCK	(0x1UL <<  8)
