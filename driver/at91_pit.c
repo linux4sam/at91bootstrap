@@ -96,6 +96,18 @@ void udelay(unsigned int usec)
 	} while (current < delay);
 }
 
+void mdelay(unsigned int msec)
+{
+	unsigned int base = at91_get_pit_value();
+	unsigned int delay = ((MASTER_CLOCK / 1000) * msec) / 16;
+	unsigned int current;
+
+	do {
+		current = at91_get_pit_value();
+		current -= base;
+	} while (current < delay);
+}
+
 /* Init a special timer for slow clock switch function */
 static int timer1_base;
 
