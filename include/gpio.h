@@ -43,6 +43,7 @@ enum pio_type {
 #define PIO_PULLUP	(1 << 0)
 #define PIO_DEGLITCH	(1 << 1)
 #define PIO_OPENDRAIN	(1 << 2)
+#define PIO_PULLDOWN	(1 << 3)
 
 struct pio_desc {
 	const char	*pin_name;	/* Pin Name */
@@ -58,7 +59,7 @@ extern int pio_get_value(unsigned pin);
 /* pio_device_pio_setup: Configure PIO in periph mode according to the platform informations */
 extern int pio_configure(const struct pio_desc *pio_desc);
 
-extern int pio_set_gpio_input(unsigned pin, int use_pullup);
+extern int pio_set_gpio_input(unsigned pin, int config);
 extern int pio_set_gpio_output(unsigned pin, int value);
 
 #endif /* #ifndef __GPIO_H__ */
