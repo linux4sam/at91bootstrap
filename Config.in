@@ -105,6 +105,7 @@ source "board/at91sam9m10g45ek/Config.in.linux_arg"
 source "board/at91sam9x5ek/Config.in.linux_arg"
 source "board/at91sam9n12ek/Config.in.linux_arg"
 source "board/sama5d3xek/Config.in.linux_arg"
+source "board/sama5d3_xplained/Config.in.linux_arg"
 
 config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
