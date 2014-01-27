@@ -15,4 +15,4 @@ config CONFIG_SAMA5D3_XPLAINED
 	select CPU_HAS_PMECC
 	select CONFIG_MMC_SUPPORT
 	help
-	    Use the sama5d3_xplained Development board
+	    Use the SAMA5D3 Xplained development board
