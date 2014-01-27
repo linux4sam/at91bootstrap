@@ -541,6 +541,9 @@ static unsigned char normalize_rev_code(const unsigned char c)
 	if ((c >= 'a') && (c <= 'z'))
 		return c - 0x20;
 
+	if ((c >= '0') && (c <='9'))
+		return c;
+
 	/* by default, return revision 'A' */
 	return 'A';
 }
