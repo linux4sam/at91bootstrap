@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2012, Atmel Corporation
+ * Copyright (c) 2014, Atmel Corporation
 
  * All rights reserved.
  *
