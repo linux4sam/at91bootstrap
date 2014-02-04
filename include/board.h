@@ -64,6 +64,10 @@
 #include "at91sam9x5ek.h"
 #endif
 
+#ifdef CONFIG_AT91ARIAG25
+#include "at91ariag25.h"
+#endif
+
 #ifdef CONFIG_AT91SAM9N12EK
 #include "at91sam9n12ek.h"
 #endif
