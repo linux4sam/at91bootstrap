@@ -12,14 +12,50 @@ source "driver/Config.in.driver"
 
 config CONFIG_PROJECT
 	string
-	default "dataflash"	if CONFIG_DATAFLASH
-	default "flash"		if CONFIG_FLASH
-	default "nandflash"	if CONFIG_NANDFLASH
-	default "sdcard"	if CONFIG_SDCARD
+	default "dataflash"	if CONFIG_DATAFLASH && !CONFIG_UPLOAD_3RD_STAGE
+	default "flash"		if CONFIG_FLASH && !CONFIG_UPLOAD_3RD_STAGE
+	default "nandflash"	if CONFIG_NANDFLASH && !CONFIG_UPLOAD_3RD_STAGE
+	default "sdcard"	if CONFIG_SDCARD && !CONFIG_UPLOAD_3RD_STAGE
+	default "Upld3rdStage" if CONFIG_UPLOAD_3RD_STAGE
+
+choice 
+  prompt "Build Type"
+  default CONFIG_BUILD_RELEASE
+  
+config CONFIG_BUILD_RELEASE
+  bool "RELEASE BUILD"
+  help
+    The build binary will be used 
+    only once flashed on to the board.
+    This set the LINK address to 0x000000
+
+config CONFIG_BUILD_DEBUG
+  bool "DEBUG BUILD"
+  help
+    The build binary will be used once 
+    downloaded through a JTAG probe and then debugged.
+    This set the LINK address to 0x300000
+
+endchoice
+
+config CONFIG_UPLOAD_3RD_STAGE
+  bool "Third stage image is uploaded"
+  default n
+  select CONFIG_DEBUG_3RD_STAGE
+  help
+    This option will skip the third stage (App, Android or Linux kernel) load operation 
+    and go straight to waiting for the debug probe connection.
+
+config CONFIG_DEBUG_3RD_STAGE
+  bool "Third Stage (APPLICATION/KERNEL) DEBUG"
+  default n
+  help
+    The bootstrap will wait for a debugger being attached to the board for third stage debug purpose (uploaded with debug probe or read from ROM memroy). Then the Program Counter should be manualy set to the application's load address.
 
 choice
 	prompt "Image Loading Strategy"
 	default CONFIG_LOAD_UBOOT
+	depends on !CONFIG_UPLOAD_3RD_STAGE
 
 config CONFIG_LOAD_UBOOT
 	bool "Load U-Boot into last MBYTE of SDRAM"
@@ -285,11 +321,18 @@ config CONFIG_LONG_TEST
 	default n
 	help
 	  
+config CONFIG_NO_CONSOLE_OUTPUT
+  bool "NO DBGU console output"
+  default n
+  help
+    "No log will be done to the DBGU console"
+
 config CONFIG_DEBUG
 	bool "Debug Support"
 	default n
 	help
 	  Output Debug messages
+	  
 choice
 	prompt "Debug Level"
 	depends on CONFIG_DEBUG

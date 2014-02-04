@@ -191,6 +191,8 @@ config CONFIG_SAMA5D3XEK
 	select CPU_HAS_PMECC
 	select CONFIG_LOAD_ONE_WIRE
 	select CONFIG_MMC_SUPPORT
+	select ALLOW_WITH_MMU
+	select ALLOW_WITH_CACHE
 	help
 	  Use the SAMA5D3EK Development board
 
@@ -247,10 +249,12 @@ config CONFIG_MACH_TYPE
 
 config CONFIG_LINK_ADDR
 	string
-	default "0x200000" if CONFIG_AT91SAM9260EK || CONFIG_AT91SAM9G20EK
-	default "0x300000" if !(CONFIG_AT91SAM9260EK && CONFIG_AT91SAM9G20EK)
+	default "0x000000" if CONFIG_BUILD_RELEASE
+	default "0x200000" if CONFIG_BUILD_DEBUG && (CONFIG_AT91SAM9260EK || CONFIG_AT91SAM9G20EK)
+	default "0x300000" if CONFIG_BUILD_DEBUG && (!(CONFIG_AT91SAM9260EK && CONFIG_AT91SAM9G20EK))
 	help
-
+    This set the link address accordingly with the way the software is set in RAM.
+    
 config CONFIG_DATA_SECTION_ADDR
 	string
 	default "0x304000" if CONFIG_AT91SAM9XEEK
@@ -428,3 +432,9 @@ config CONFIG_BUS_SPEED_166MHZ
 	depends on CONFIG_CPU_CLK_498MHZ || CONFIG_CPU_CLK_332MHZ
 
 endchoice
+
+config ALLOW_WITH_MMU
+  bool
+
+config ALLOW_WITH_CACHE
+  bool

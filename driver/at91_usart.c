@@ -67,6 +67,7 @@ void usart_init(unsigned int baudrate)
 	write_usart(DBGU_CR, AT91C_DBGU_RXEN | AT91C_DBGU_TXEN);
 }
 
+#ifndef CONFIG_NO_CONSOLE_OUTPUT
 static void usart_putc(const char c)
 {
 	while (!(read_usart(DBGU_CSR) & AT91C_DBGU_TXRDY))
@@ -86,7 +87,7 @@ void usart_puts(const char *ptr)
 		i++;
 	}
 }
-
+#endif
 char usart_getc(void)
 {
 	while (!(read_usart(DBGU_CSR) & AT91C_DBGU_RXRDY))

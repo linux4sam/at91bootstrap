@@ -116,7 +116,19 @@ int at91_spi_init(unsigned int pcs, unsigned int clock, unsigned int mode)
 
 	return 0;
 }
-
+//***********************************************************************
+int at91_spi_oisync (int isActive)
+{
+	unsigned int reg;
+	reg = spi_readl(SPI_MR);
+	if (isActive)
+		reg |= AT91C_SPI_WDRBT;
+	else
+		reg &= ~AT91C_SPI_WDRBT;
+	spi_writel(SPI_MR, reg);
+	return 0;
+}
+//***********************************************************************
 void at91_spi_write_data(unsigned short data)
 {
 	while ((spi_readl(SPI_SR) & AT91C_SPI_TXEMPTY) == 0)

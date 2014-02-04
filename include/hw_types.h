@@ -1,15 +1,15 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         SAM Software Package License
  * ----------------------------------------------------------------------------
- * Copyright (c) 2006, Atmel Corporation
-
+ * Copyright (c) 2012, Atmel Corporation
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * modification, are permitted provided that the following condition is met:
  *
  * - Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the disclaiimer below.
+ * this list of conditions and the disclaimer below.
  *
  * Atmel's name may not be used to endorse or promote products derived from
  * this software without specific prior written permission.
@@ -24,22 +24,23 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ----------------------------------------------------------------------------
  */
-#ifndef __USART_H__
-#define __USART_H__
+#ifndef HW_TYPES_H_
+#define HW_TYPES_H_
 
-#define BAUDRATE(mck, baud) \
-	(((((mck) * 10) / ((baud) * 16)) % 10) >= 5) ? \
-	(mck / (baud * 16) + 1) : ((mck) / (baud * 16))
+#if !( defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__) )
 
-extern void usart_init(unsigned int);
+#include <stdint.h>
 
-#ifndef CONFIG_NO_CONSOLE_OUTPUT
-extern void usart_puts(const char *ptr);
+#ifndef __cplusplus
+typedef volatile const uint32_t RoReg; /**< Read only 32-bit register (volatile const unsigned int) */
 #else
-static inline void usart_puts(const char *ptr) {/*NOTHING*/}
+typedef volatile       uint32_t RoReg; /**< Read only 32-bit register (volatile const unsigned int) */
+#endif
+typedef volatile       uint32_t WoReg; /**< Write only 32-bit register (volatile unsigned int) */
+typedef volatile       uint32_t RwReg; /**< Read-Write 32-bit register (volatile unsigned int) */
 #endif
 
-extern char usart_getc(void);
 
-#endif /* __USART_H__ */
+#endif /* HW_TYPES_H_ */

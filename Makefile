@@ -19,7 +19,7 @@ BINDIR:=$(TOPDIR)/binaries
 
 DATE := $(shell date)
 VERSION := 3.6.0
-REVISION :=
+REVISION :=fastload
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
@@ -176,8 +176,12 @@ ifeq ($(SYMLINK),)
 SYMLINK=at91bootstrap.bin
 endif
 
-COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
-SOBJS-y:= $(TOPDIR)/crt0_gnu.o
+
+
+COBJS-y := $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
+SOBJS-y := $(TOPDIR)/crt0_gnu.o
+
+
 DIRS:=$(TOPDIR) $(TOPDIR)/board/$(BOARDNAME) $(TOPDIR)/lib $(TOPDIR)/driver
 
 include	lib/libc.mk
@@ -186,21 +190,38 @@ include	fs/src/fat.mk
 
 #$(SOBJS-y:.o=.S)
 
-SRCS:= $(COBJS-y:.o=.c)
-OBJS:= $(SOBJS-y) $(COBJS-y)
 INCL=board/$(BOARD)
 GC_SECTIONS=--gc-sections
 
-CPPFLAGS=-ffunction-sections -g -Os -Wall \
+# Compiler Flags
+CPPFLAGS = -ffunction-sections -Wall \
 	-fno-stack-protector \
 	-I$(INCL) -Iinclude -Ifs/include \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\" -DCOMPILE_TIME="\"$(DATE)\""
 
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
+ASFLAGS=-Wall -I$(INCL) -Iinclude
+## Release BUILD
+ifeq ($(CONFIG_BUILD_RELEASE),y)
+CPPFLAGS += -Os
+ASFLAGS += -Os
+## debug Release
+else
+CPPFLAGS += -g -O0
+ASFLAGS += -g -O0
+endif
+
+## Set the flags for third stage debug
+ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
+ASFLAGS += -DCONFIG_DEBUG_3RD_STAGE
+endif
 
 include	toplevel_cpp.mk
 include	board/board_cpp.mk
 include	driver/driver_cpp.mk
+
+#Must be defined once all include hase been done as new source files can be added in included MAKE rules file.
+SRCS:= $(COBJS-y:.o=.c)
+OBJS:= $(SOBJS-y) $(COBJS-y)
 
 # Linker flags.
 #  -Wl,...:     tell GCC to pass this to linker.
@@ -240,6 +261,18 @@ CheckCrossCompile:
 	fi )
 
 PrintFlags:
+ifeq ($(CONFIG_BUILD_RELEASE),y)
+	@echo " !! --- RELEASE BUILD --- !! " && echo
+else
+	@echo " !! --- DEBUG BUILD --- !! " && echo
+endif
+ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
+	@echo " !! --- WAIT FOR DEBUGGER ONCE THIRD STAGE LOADED --- !!"
+endif
+	@echo Driver config
+	@echo ========
+	@echo SPI_CLCK : $(SPI_CLK)
+	@echo SPI_BOOT : $(SPI_BOOT) && echo
 	@echo CC
 	@echo ========
 	@echo $(CC) $(gccversion)&& echo
@@ -252,7 +285,7 @@ PrintFlags:
 	@echo ld FLAGS
 	@echo ========
 	@echo $(LDFLAGS) && echo
-
+	
 $(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
 	@echo "  LD        "$(BOOT_NAME).elf
@@ -282,11 +315,11 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	@( fsize=`stat -c%s $(BINDIR)/$(BOOT_NAME).bin`; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
-		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
+		echo "[Failed***] It's too big to fit into SRAM area. the support maximum size is $(BOOTSTRAP_MAXSIZE)"; \
 		rm -rf $(BINDIR); \
 		exit 2;\
 	  else \
-	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
+	  	echo "[Succeeded] It's OK to fit into SRAM area ($(BOOTSTRAP_MAXSIZE) bytes)"; \
 	  fi )
 endif  # HAVE_DOT_CONFIG
 
@@ -347,7 +380,8 @@ clean:
 	find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.o' \
-		-o -name '*~' \) \
+		-o -name '*~' \
+		-o -name '*.S.txt' \) \
 		-print0 \
 		| xargs -0 rm -f
 	rm -fr $(obj)
@@ -385,5 +419,10 @@ tarballx: clean
 	cp -f $$T.bz2 /usr/local/install/downloads
 
 PHONY+=tarball tarballx
+
+disassembly: all
+	$(OBJDUMP) -DS $(BINDIR)/$(BOOT_NAME).elf > $(BINDIR)/$(BOOT_NAME).S.txt
+
+PHONY += disassembly
 
 .PHONY: $(PHONY)

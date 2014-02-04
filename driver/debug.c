@@ -34,6 +34,8 @@
 
 static char dbg_buf[MAX_BUFFER];
 
+static char* BIN_TO_HEX[]={"0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"};
+
 static inline short fill_char(char *buf, char val)
 {
 	*buf = val;
@@ -70,7 +72,25 @@ static inline short fill_hex_int(char *buf, unsigned int data)
 
 	return num;
 }
+static inline short fill_bin_int (char *buf, unsigned int data)
+{
+	short num = 0;
+	int idxBit = 31;
+	do
+	{
+		*buf++ = data & (1<<idxBit)  ?  '1' : '0';
+		num++;
 
+		//add decoration for each byte
+		if ((idxBit&0xF8) == idxBit)
+		{
+			*buf++=':';
+			num++;
+		}
+	} while (idxBit-- > 0);
+
+	return num;
+}
 int dbg_printf(const char *fmt_str, ...)
 {
 	va_list ap;
@@ -89,6 +109,11 @@ int dbg_printf(const char *fmt_str, ...)
 		} else {
 			fmt_str++;	/* skip % */
 			switch (*fmt_str) {
+			case 'b':// Add binary dump support
+				*p++='0';
+				*p++='b';
+				num=fill_bin_int(p, va_arg(ap, unsigned int));
+				break;
 			case 'd':
 			case 'i':
 			case 'u':
@@ -124,3 +149,35 @@ int dbg_printf(const char *fmt_str, ...)
 
 	return 0;
 }
+//***********************************************************************
+int dbg_dump_buffer(const char level, const char* prefix, unsigned char* buffer, unsigned int len)
+{
+	unsigned int pos = 0;
+	if (level > BOOTSTRAP_DEBUG_LEVEL)
+			return 0;
+	usart_puts(prefix);
+	usart_puts("\n\t");
+	if (!len)
+	{
+		usart_puts("EMPTY");
+	}
+	do
+	{
+		usart_puts("[");
+		usart_puts(BIN_TO_HEX[*buffer >> 4]);
+		usart_puts(BIN_TO_HEX[*buffer & 0x0F]);
+		usart_puts("],");
+		buffer++;
+		pos++;
+		if (pos == 0x10 )
+		{
+			usart_puts("\n\t");
+			pos = 0;
+		}
+	}
+	while (--len);
+	usart_puts("\n");
+	return 0;
+}
+//***********************************************************************
+

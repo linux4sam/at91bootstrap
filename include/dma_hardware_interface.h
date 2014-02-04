@@ -1,8 +1,8 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2006, Atmel Corporation
-
+ * Copyright (c) 2012, Atmel Corporation
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,44 +24,35 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * ----------------------------------------------------------------------------
  */
-#ifndef __SPI_H__
-#define __SPI_H__
 
-/* SPI mode flags */
-#define	SPI_MODE0	0
-#define	SPI_MODE1	1
-#define	SPI_MODE2	2	
-#define	SPI_MODE3	3
+#ifndef _DMAD_IF_H
+#define _DMAD_IF_H
 
-/* Controller-specific definitions: */
-#define AT91C_SPI_PCS0_DATAFLASH	0
-#define AT91C_SPI_PCS1_DATAFLASH	1
-#define AT91C_SPI_PCS2_DATAFLASH	2
-#define AT91C_SPI_PCS3_DATAFLASH	3
+/*----------------------------------------------------------------------------
+ *        Includes
+ *----------------------------------------------------------------------------*/
 
-/* functions */
-extern void at91_spi_cs_activate(void);
-extern void at91_spi_cs_deactivate(void);
+#include "board.h"
 
-extern void at91_spi_enable(void);
-extern void at91_spi_disable(void);
-extern int at91_spi_init(unsigned int pcs,
-			unsigned int clock,
-			unsigned int mode);
+/*----------------------------------------------------------------------------
+ *        Types
+ *----------------------------------------------------------------------------*/
 
-/**
- * This function drives the the SPI controller with the Wait Data Read Before Transfer mode.
- * If active, this will synchronize the Output with the Input, see SPI controller datasheet.
- * @note this is mandatory for DMA multi-buffers transfers, otherwise data loss can occur at high speeds (above 30MHz).
- * @param isActive [IN] boolean
- *  - 0 : disable the  Wait Data Read Before Transfer mode.
- *  - other : enable the Wait Data Read Before Transfer mode.
- */
-extern int at91_spi_oisync (int isActive);
+/** DMA hardware interface */
+typedef struct _DmaHardwareInterface {
+    uint8_t bDmac;                  /**< DMA Controller number */
+    uint32_t bPeriphID;             /**< Peripheral ID */
+    uint8_t bTransfer;              /**< Transfer type 0: Tx, 1 :Rx*/
+    uint8_t bIfID;                  /**< DMA Interface ID */
+} DmaHardwareInterface;
 
-extern void at91_spi_write_data(unsigned short data);
-extern unsigned int at91_spi_read_spi(void);
-extern unsigned int at91_spi_read_sr(void);
+/*----------------------------------------------------------------------------
+ *        Exported functions
+ *----------------------------------------------------------------------------*/
 
-#endif	/* #ifndef __SPI_H__ */
+extern uint8_t DMAIF_IsValidatedPeripherOnDma( uint8_t bDmac, uint8_t bPeriphID);
+extern uint8_t DMAIF_Get_ChannelNumber (uint8_t bDmac, uint8_t bPeriphID, uint8_t bTransfer);
+
+#endif //#ifndef _DMAD_IF_H
