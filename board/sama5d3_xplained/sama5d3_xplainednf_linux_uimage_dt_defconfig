@@ -1,6 +1,6 @@
 #
 # Automatically generated make config: don't edit
-# Sun Jan 26 11:58:44 2014
+# Mon Feb 17 16:32:38 2014
 #
 HAVE_DOT_CONFIG=y
 # CONFIG_AT91SAM9260EK is not set
@@ -58,7 +58,7 @@ CONFIG_MMC_SUPPORT=y
 #
 # CONFIG_SDRAM is not set
 # CONFIG_SDDRC is not set
-CONFIG_DDR2=y
+CONFIG_DDRC=y
 # ALLOW_DATAFLASH is not set
 # ALLOW_FLASH is not set
 ALLOW_NANDFLASH=y
@@ -66,11 +66,17 @@ ALLOW_SDCARD=y
 ALLOW_HSMCI=y
 # ALLOW_PSRAM is not set
 # ALLOW_SDRAM_16BIT is not set
+
+#
+# RAM Configuration
+#
 # CONFIG_RAM_32MB is not set
 # CONFIG_RAM_64MB is not set
 # CONFIG_RAM_128MB is not set
 # CONFIG_RAM_256MB is not set
 CONFIG_RAM_512MB=y
+# CONFIG_LPDDR2 is not set
+CONFIG_DDR2=y
 # CONFIG_DATAFLASH is not set
 # CONFIG_FLASH is not set
 CONFIG_NANDFLASH=y
