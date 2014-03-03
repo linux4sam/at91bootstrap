@@ -406,6 +406,7 @@ static unsigned int security_ps_peri_id[] = {
 	AT91C_ID_UDPHS,
 	AT91C_ID_LCDC,
 	AT91C_ID_GMAC,
+	AT91C_ID_SPI0,
 	AT91C_ID_SPI1,
 	AT91C_ID_SMD,
 };
@@ -506,19 +507,19 @@ void hw_init(void)
 void at91_spi0_hw_init(void)
 {
 	/* Configure PIN for SPI0 */
-	const struct pio_desc spi1_pins[] = {
-		{"SPI1_MISO",	AT91C_PIN_PB(18), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPI1_MOSI",	AT91C_PIN_PB(19), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPI1_SPCK",	AT91C_PIN_PB(20), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPI1_NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+	const struct pio_desc spi0_pins[] = {
+		{"SPI0_MISO",	AT91C_PIN_PC(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPI0_MOSI",	AT91C_PIN_PC(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPI0_SPCK",	AT91C_PIN_PC(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPI0_NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	/* Configure the PIO controller */
-	pio_configure(spi1_pins);
+	pio_configure(spi0_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_PIOB);
-	pmc_enable_periph_clock(AT91C_ID_SPI1);
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
+	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
