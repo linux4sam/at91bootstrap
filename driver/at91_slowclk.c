@@ -52,9 +52,9 @@ int slowclk_switch_osc32(void)
 
 	/*
 	 * Wait 32768 Hz Startup Time for clock stabilization (software loop)
-	 * wait about 1s (1000ms)
+	 * wait about 1s (1300ms)
 	 */
-	wait_interval_timer(1000);
+	wait_interval_timer(1300);
 
 	/*
 	 * Switching from internal 32kHz RC oscillator to 32768 Hz oscillator
@@ -76,6 +76,19 @@ int slowclk_switch_osc32(void)
 	reg = readl(AT91C_BASE_SCKCR);
 	reg &= ~AT91C_SLCKSEL_RCEN;
 	writel(reg, AT91C_BASE_SCKCR);
+
+	/*
+	 * Bypass the 32kHz oscillator by using an external clock
+	 */
+#ifdef CONFIG_SCLK_BYPASS
+	reg = readl(AT91C_BASE_SCKCR);
+	reg |= AT91C_SLCKSEL_OSC32BYP;
+	writel(reg, AT91C_BASE_SCKCR);
+
+	reg = readl(AT91C_BASE_SCKCR);
+	reg &= ~AT91C_SLCKSEL_OSC32EN;
+	writel(reg, AT91C_BASE_SCKCR);
+#endif
 
 	return 0;
 }
