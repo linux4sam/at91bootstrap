@@ -86,8 +86,8 @@ static void initialize_dbgu(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	}; */
 	/* Configure the dbgu pins */
-	writel(((0x01 << 9) | (0x01 << 10)), AT91C_BASE_PIOA + PIO_ASR(0));
-	writel(((0x01 << 9) | (0x01 << 10)), AT91C_BASE_PIOA + PIO_PDR(0));
+	writel(((0x01 << 9) | (0x01 << 10)), AT91C_BASE_PIOA + PIO_ASR);
+	writel(((0x01 << 9) | (0x01 << 10)), AT91C_BASE_PIOA + PIO_PDR);
 
 	pmc_enable_periph_clock(AT91C_ID_PIOA);
 
@@ -123,8 +123,8 @@ static void sdramc_init(void)
 	sdramc_config.mdr = AT91C_SDRAMC_MD_SDRAM;
 
 	/* configure sdramc pins */
-	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_ASR(0));
-	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_PDR(0));
+	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_ASR);
+	writel(0xFFFF0000, AT91C_BASE_PIOC + PIO_PDR);
 
 	pmc_enable_periph_clock(AT91C_ID_PIOC);
 
@@ -238,9 +238,9 @@ void at91_mci0_hw_init(void)
 
 	/* configure mci0 pins */
 	writel(((0x01 < 0) | (0x01 << 1) | (0x01 << 2) | (0x01 < 4)
-			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_BSR(0));
+			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_BSR);
 	writel(((0x01 < 0) | (0x01 << 1) | (0x01 << 2) | (0x01 < 4)
-			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_PDR(0));
+			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_PDR);
 
 	pmc_enable_periph_clock(AT91C_ID_PIOA);
 

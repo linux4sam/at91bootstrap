@@ -160,7 +160,8 @@ static int ek_special_hw_init(void)
 	 *
 	 * PHY has internal pull-down
 	 */
-	 writel((0x01 << 12) | (0x01 << 13) | (0x01 << 15),  AT91C_BASE_PIOA + PIO_PPUDR(0));
+	 writel((0x01 << 12) | (0x01 << 13) | (0x01 << 15),
+				AT91C_BASE_PIOA + PIO_PPUDR);
 
 	 return 0;
 }
