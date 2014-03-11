@@ -43,7 +43,7 @@ void lowlevel_clock_init()
 	unsigned long tmp;
 	unsigned int times;
 
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || defined(SAMA5D4)
 	/*
 	 * Enable the 12MHz oscillator
 	 * tST_max = 2ms
@@ -158,6 +158,44 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	unsigned int tmp;
 	unsigned int times;
 
+#if defined(SAMA5D4)
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_CSS);
+	tmp |= (pmc_mckr & AT91C_PMC_CSS);
+	write_pmc(PMC_MCKR, tmp);
+
+	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_MDIV);
+	tmp |= (pmc_mckr & AT91C_PMC_MDIV);
+	write_pmc(PMC_MCKR, tmp);
+
+	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_PLLADIV2);
+	tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
+	write_pmc(PMC_MCKR, tmp);
+
+	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_PRES);
+	tmp |= (pmc_mckr & AT91C_PMC_PRES);
+	write_pmc(PMC_MCKR, tmp);
+
+	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+#else
 	/*
 	 * Program the PRES field in the PMC_MCKR register,
 	 * wait for MCKRDY bit to be set in the PMC_SR register
@@ -212,6 +250,23 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	write_pmc(PMC_MCKR, tmp);
 
 	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+#endif
+	return 0;
+}
+
+int pmc_cfg_h32mxdiv(unsigned int pmc_mckr, unsigned int timeout)
+{
+	unsigned int tmp;
+	unsigned int times = timeout;
+
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_H32MXDIV);
+	tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
+	write_pmc(PMC_MCKR, tmp);
+
 	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
 		;
 

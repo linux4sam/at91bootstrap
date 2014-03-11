@@ -167,6 +167,9 @@
 #define AT91C_PMC_PLLADIV2	(0x1UL << 12)
 #define 	AT91C_PMC_PLLADIV2_1		(0x0UL << 12)
 #define 	AT91C_PMC_PLLADIV2_2		(0x1UL << 12)
+#define AT91C_PMC_H32MXDIV	(0x1UL << 24)
+#define		AT91C_PMC_H32MXDIV_H32MXDIV1	(0x00UL << 24)
+#define		AT91C_PMC_H32MXDIV_H32MXDIV2	(0x01UL << 24)
 
 /* -------- PMC_USB : (PMC Offset: 0x38) USB Clock Register --------*/ 
 #define AT91C_PMC_USBS		(0x1UL <<  0)
