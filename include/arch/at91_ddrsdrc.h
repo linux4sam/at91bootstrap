@@ -56,6 +56,8 @@
 #define	MPDDRC_DLL_S0SR		0x80	/* MPDDRC DLL Slave 0 Status Register */
 #define	MPDDRC_DLL_S1SR		0x84	/* MPDDRC DLL Slave 1 Status Register */
 
+#define MPDDRC_RD_DATA_PATH	0x5C	/* MPDDRC Read Data Path */
+
 /* 0x94 ~ 0xE0 Reserved */
 #define HDDRSDRC2_WPCR		0xE4	/* Write Protect Mode Register */
 #define HDDRSDRC2_WPSR		0xE8	/* Write Protect Status Register */
@@ -257,7 +259,7 @@
 #define 	AT91C_DDRC2_TMRD_15		(0xFUL << 28)
 
 /* -------- HDDRSDRC2_T1PR : (HDDRSDRC2 Offset: 0x10) Timing1 Register -------- */
-#define AT91C_DDRC2_TRFC	(0x1FUL <<  0)
+#define AT91C_DDRC2_TRFC	(0x7FUL <<  0)
 #define 	AT91C_DDRC2_TRFC_0		(0x0UL)
 #define 	AT91C_DDRC2_TRFC_1		(0x1UL)
 #define 	AT91C_DDRC2_TRFC_2		(0x2UL)
@@ -290,6 +292,7 @@
 #define 	AT91C_DDRC2_TRFC_29		(0x1DUL)
 #define 	AT91C_DDRC2_TRFC_30		(0x1EUL)
 #define 	AT91C_DDRC2_TRFC_31		(0x1FUL)
+#define		AT91C_DDRC2_TRFC_34		(0x22UL)
 #define AT91C_DDRC2_TXSNR	(0xFFUL << 8)
 #define 	AT91C_DDRC2_TXSNR_0		(0x0UL << 8)
 #define 	AT91C_DDRC2_TXSNR_8		(0x8UL << 8)
@@ -500,12 +503,24 @@
 #define 	AT91C_MPDDRC_RDIV_DDR2_RZQ_50		(0x4UL << 0)
 #define 	AT91C_MPDDRC_RDIV_DDR2_RZQ_100		(0x7UL << 0)
 
+#define	AT91C_MPDDRC_ENABLE_CALIB	(0x01 << 4)
+#define		AT91C_MPDDRC_DISABLE_CALIB		(0x00 << 4)
+#define		AT91C_MPDDRC_EN_CALIB		(0x01 << 4)
+
 #define		AT91C_MPDDRC_TZQIO	(0x1FUL << 8)
 #define		AT91C_MPDDRC_TZQIO_0	(0x0UL << 8)
 #define		AT91C_MPDDRC_TZQIO_1	(0x1UL << 8)
 #define		AT91C_MPDDRC_TZQIO_3	(0x3UL << 8)
 #define		AT91C_MPDDRC_TZQIO_4	(0x4UL << 8)
+#define		AT91C_MPDDRC_TZQIO_5	(0x5UL << 8)
 #define		AT91C_MPDDRC_TZQIO_31	(0x1FUL << 8)
+
+/* ---- MPDDRC_RD_DATA_PATH : (MPDDRC Offset: 0x5c) MPDDRC Read Data Path */
+#define AT91_MPDDRC_SHIFT_SAMPLING	(0x03 << 0)
+#define		AT91C_MPDDRC_RD_DATA_PATH_NO_SHIFT	(0x00 << 0)
+#define		AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES	(0x01 << 0)
+#define		AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES	(0x02 << 0)
+#define		AT91C_MPDDRC_RD_DATA_PATH_THREE_CYCLES	(0x03 << 0)
 
 /* -------- MPDDRC_DLL_MOR : (MPDDRC Offset: 0x74) DLL Master Offset Register --------*/
 #define AT91C_MPDDRC_MOFF(value)	(value << 0)
