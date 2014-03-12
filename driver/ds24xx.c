@@ -693,7 +693,7 @@ static unsigned int set_default_sn(void)
 	unsigned int vendor_dm;
 	unsigned int vendor_ek;
 
-#ifdef CONFIG_AT91SAM9X5EK
+#if defined(CONFIG_AT91SAM9X5EK)
 	/* at91sam9x5ek
 	 * CPU Module: SAM9X25-CM, EMBEST
 	 * Display Module: SAM9x5-DM, FLEX
@@ -705,9 +705,9 @@ static unsigned int set_default_sn(void)
 	vendor_cm = VENDOR_EMBEST;
 	vendor_dm = VENDOR_FLEX;
 	vendor_ek = VENDOR_FLEX;
-#endif
 
-#ifdef CONFIG_SAMA5D3XEK
+#elif defined(CONFIG_SAMA5D3XEK) || defined(CONFIG_SAMA5D4EK)
+
 	/* sama5d3xek
 	 * CPU Module: SAMA5D31-CM, EMBEST
 	 * Display Module: SAMA5D3x-DM, FLEX
@@ -719,6 +719,8 @@ static unsigned int set_default_sn(void)
 	vendor_cm = VENDOR_EMBEST;
 	vendor_dm = VENDOR_FLEX;
 	vendor_ek = VENDOR_FLEX;
+#else
+#error "OneWire: No defined board"
 #endif
 
 	return (board_id_cm & SN_MASK)
@@ -738,7 +740,7 @@ static unsigned int set_default_rev(void)
 	unsigned int rev_id_dm;
 	unsigned int rev_id_ek;
 
-#ifdef CONFIG_AT91SAM9X5EK
+#if defined(CONFIG_AT91SAM9X5EK)
 	/* at91sam9x5ek
 	 * CPU Module: 'B', '1'
 	 * Display Module: 'B', '0'
@@ -750,9 +752,9 @@ static unsigned int set_default_rev(void)
 	rev_id_cm = '1';
 	rev_id_dm = '0';
 	rev_id_ek = '0';
-#endif
 
-#ifdef CONFIG_SAMA5D3XEK
+#elif defined(CONFIG_SAMA5D3XEK) || defined(CONFIG_SAMA5D4EK)
+
 	/* sama5d3xek
 	 * CPU Module: 'D', '4'
 	 * Display Module: 'B', '2'
@@ -764,6 +766,8 @@ static unsigned int set_default_rev(void)
 	rev_id_cm = '4';
 	rev_id_dm = '2';
 	rev_id_ek = '3';
+#else
+#error "OneWire: No defined board"
 #endif
 
 	return ((rev_cm - 'A') & REV_MASK)
@@ -878,8 +882,10 @@ void load_1wire_info()
 	/* save to GPBR #2 and #3 */
 	dbg_info("\n1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\n", sn, rev);
 
+#ifdef AT91C_BASE_GPBR
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);
+#endif
 
 	return;
 
@@ -889,8 +895,10 @@ err:
 
 	dbg_info("\n1-Wire: Using defalt value SYS_GPBR2: %d, SYS_GPBR3: %d\n\n", sn, rev);
 
+#ifdef AT91C_BASE_GPBR
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);
+#endif
 
 	return;
 }
