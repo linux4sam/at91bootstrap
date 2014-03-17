@@ -97,7 +97,8 @@ static void ISR_DMA(void)
 static void _DmaRxCallback0( uint32_t dmaStatus, void* arg )
   {
 #if defined (CONFIG_WITH_CACHE)
-    CP15_flush_dcache_for_dma ((uint32_t)RES_BUFFER, ((uint32_t)RES_BUFFER) + RAM_BUFFER_SIZE);
+    //Force a cache re-load
+    CP15_invalidate_dcache_for_dma((uint32_t)RES_BUFFER, ((uint32_t)RES_BUFFER) + RAM_BUFFER_SIZE);
 #endif
     sRxLastStatus = dmaStatus;
     //Set the PIN according to status
@@ -111,7 +112,8 @@ static void _DmaRxCallback0( uint32_t dmaStatus, void* arg )
 static void _DmaTxCallback0( uint32_t dmaStatus, void* arg )
   {
 #if defined (CONFIG_WITH_CACHE)
-    CP15_flush_dcache_for_dma ((uint32_t)CMD_BUFFER, ((uint32_t)(CMD_BUFFER)) + RAM_BUFFER_SIZE);
+    //Force a cache re-load
+    CP15_invalidate_dcache_for_dma((uint32_t)CMD_BUFFER, ((uint32_t)(CMD_BUFFER)) + RAM_BUFFER_SIZE);
 #endif
     sTxLastStatus = dmaStatus;
     //Set the PIN according to status
@@ -277,10 +279,11 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
 
   //Start !!
 #if defined (CONFIG_WITH_CACHE)
-  CP15_coherent_dcache_for_dma((uint32_t)tdReceiveStream, (uint32_t)tdReceiveStream + 2*sizeof(sDmaTransferDescriptor));
-  CP15_coherent_dcache_for_dma((uint32_t)tdSendStream, (uint32_t)tdSendStream + 2*sizeof(sDmaTransferDescriptor));
-  CP15_coherent_dcache_for_dma((uint32_t)toSend, ((uint32_t)(toSend + sendLength)));
-  CP15_coherent_dcache_for_dma((uint32_t)toRecv, ((uint32_t)(toRecv + recvLength)));
+//Flush (clean and invalidate) the cached DMA parameters into the memory for the DMA controller.
+  CP15_flush_dcache_for_dma((uint32_t)tdReceiveStream, (uint32_t)tdReceiveStream + 2*sizeof(sDmaTransferDescriptor));
+  CP15_flush_dcache_for_dma((uint32_t)tdSendStream, (uint32_t)tdSendStream + 2*sizeof(sDmaTransferDescriptor));
+  CP15_flush_dcache_for_dma((uint32_t)toSend, ((uint32_t)(toSend + sendLength)));
+  CP15_flush_dcache_for_dma((uint32_t)toRecv, ((uint32_t)(toRecv + recvLength)));
 #endif
 
   driverReturnStatus = DMAD_StartTransfer(&dmad, stream->RxChannel);
@@ -302,10 +305,11 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
     ;
 
 #if defined (CONFIG_WITH_CACHE)
-  //CP15_coherent_dcache_for_dma((uint32_t)&tdReceiveStream, (uint32_t)&tdReceiveStream + 2*sizeof(sDmaTransferDescriptor));
-  //CP15_coherent_dcache_for_dma((uint32_t)&tdSendStream, (uint32_t)&tdSendStream + 2*sizeof(sDmaTransferDescriptor));
-  CP15_flush_dcache_for_dma((uint32_t)toSend, ((uint32_t)(toSend + sendLength)));
-  CP15_flush_dcache_for_dma((uint32_t)toRecv, ((uint32_t)(toRecv + recvLength)));
+//Force a fresh copy of the transfered AREA into the cache. note : not actually needed as a flush is done before.
+  CP15_invalidate_dcache_for_dma((uint32_t)&tdReceiveStream, (uint32_t)&tdReceiveStream + 2*sizeof(sDmaTransferDescriptor));
+  CP15_invalidate_dcache_for_dma((uint32_t)&tdSendStream, (uint32_t)&tdSendStream + 2*sizeof(sDmaTransferDescriptor));
+  CP15_invalidate_dcache_for_dma((uint32_t)toSend, ((uint32_t)(toSend + sendLength)));
+  CP15_invalidate_dcache_for_dma((uint32_t)toRecv, ((uint32_t)(toRecv + recvLength)));
 #endif
 
   EXIT_POINT: at91_spi_oisync(0);
