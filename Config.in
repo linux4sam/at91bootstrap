@@ -337,3 +337,11 @@ config CONFIG_MATRIX
 	default y
 	help
 	  The switch to configure the matrix.
+
+config CONFIG_ENTER_NWD
+	depends on CONFIG_TRUSTZONE
+	select CONFIG_MATRIX
+	bool "Enable Enter the Normal World when Exiting"
+	default y
+	help
+	  The switch to enter from Secure World to Nomal World when exiting.

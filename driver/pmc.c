@@ -302,7 +302,7 @@ void pmc_enable_system_clock(unsigned int clock_id)
 	 write_pmc(PMC_SCER, clock_id);
 }
 
-#if defined(CONFIG_TRUSTZONE_SUPPORT)
+#if defined(CONFIG_ENTER_NWD)
 unsigned int pmc_read_reg(unsigned int reg_offset)
 {
 	if (reg_offset <= PMC_OCR)
@@ -415,5 +415,4 @@ void pmc_smd_setup(unsigned int val)
 
 	write_pmc(PMC_SMD, val);
 }
-
-#endif
+#endif	/* #if defined(CONFIG_ENTER_NWD) */

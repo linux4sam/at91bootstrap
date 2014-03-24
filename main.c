@@ -161,7 +161,7 @@ int main(void)
 	slowclk_switch_osc32();
 #endif
 
-#ifdef CONFIG_TRUSTZONE_SUPPORT
+#if defined(CONFIG_ENTER_NWD)
 	switch_normal_world();
 
 	/* point never reached with TZ support */

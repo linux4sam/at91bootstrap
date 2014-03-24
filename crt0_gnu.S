@@ -81,7 +81,7 @@ reset_vector:
 /* Init the stack */
 _init_stack:
 
-#if defined(CONFIG_TRUSTZONE_SUPPORT)
+#if defined(CONFIG_ENTER_NWD)
 	ldr	sp,=SVC_STACK_BASE
 #else
 	ldr     sp,=TOP_OF_MEMORY
@@ -147,7 +147,7 @@ _init_bss:
 	strcc  r2, [r3], #4
 	bcc    1b
 
-#if defined(CONFIG_TRUSTZONE_SUPPORT)
+#if defined(CONFIG_ENTER_NWD)
 /* Copy the monitor in RAM at its VMA address */
 _init_mon:
         ldr      r2, =_lp_mon
@@ -174,7 +174,7 @@ _go:
 	ldr 	r1, =MACH_TYPE
 	mov     lr, pc
 
-#if defined(CONFIG_TRUSTZONE_SUPPORT)
+#if defined(CONFIG_ENTER_NWD)
 loop:
 	b	loop
 #endif
@@ -244,7 +244,7 @@ _lp_bss:
 	.word _sbss
 	.word _ebss
 
-#if defined(CONFIG_TRUSTZONE_SUPPORT)
+#if defined(CONFIG_ENTER_NWD)
 _lp_mon:
         .word _emon_dummy
 	.word _smon_text

@@ -468,10 +468,12 @@ void hw_init(void)
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN,
 					AT91C_BASE_RSTC + RSTC_RMR);
 
+#if defined(CONFIG_ENTER_NWD)
 	cpacr_init();
 
 	/* Program the DACR to allow client access to *all* domains */
 	dacr_swd_init();
+#endif
 
 #if defined(CONFIG_MATRIX)
 	/* Initialize the matrix */

@@ -196,7 +196,7 @@ include	toplevel_cpp.mk
 include	board/board_cpp.mk
 include	driver/driver_cpp.mk
 
-ifeq ($(CONFIG_TRUSTZONE_SUPPORT), y)
+ifeq ($(CONFIG_ENTER_NWD), y)
 link_script:=elf32-littlearm-tz.lds
 else
 link_script:=elf32-littlearm.lds

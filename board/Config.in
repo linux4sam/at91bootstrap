@@ -293,6 +293,10 @@ config CONFIG_BUS_SPEED_170MHZ
 
 endchoice
 
+config CONFIG_TRUSTZONE
+	bool
+	default n
+
 config CONFIG_CPU_V7
 	bool
 	default n

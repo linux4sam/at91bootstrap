@@ -410,7 +410,7 @@ int load_kernel(struct image_info *image)
 
 	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",
 							mach_type);
-#if defined(CONFIG_TRUSTZONE_SUPPORT)
+#if defined(CONFIG_ENTER_NWD)
 	monitor_init();
 
 	init_loadkernel_args(0, mach_type, r2, (unsigned int)kernel_entry);
