@@ -330,3 +330,10 @@ config CONFIG_DISABLE_WATCHDOG
 	default y
 	help
 	  Disable the watchdog in the boostrap
+
+config CONFIG_MATRIX
+	depends on CONFIG_TRUSTZONE
+	bool "Enable Configure the Matrix"
+	default y
+	help
+	  The switch to configure the matrix.

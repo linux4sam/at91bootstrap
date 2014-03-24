@@ -50,10 +50,6 @@
 #include "tz_utils.h"
 #include "matrix.h"
 
-void matrix_read_slave_security(void);
-
-void matrix_read_periperal_security(void);
-
 static void at91_dbgu_hw_init(void)
 {
 	const struct pio_desc dbgu_pins[] = {
@@ -218,6 +214,7 @@ static void one_wire_hw_init(void)
 	pmc_enable_periph_clock(AT91C_ID_PIOE);
 }
 
+#if defined(CONFIG_MATRIX)
 static int matrix_configure_slave(void)
 {
 	unsigned int ddr_port;
@@ -442,6 +439,7 @@ static int matrix_init(void)
 
 	return 0;
 }
+#endif	/* #if defined(CONFIG_MATRIX) */
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
@@ -475,14 +473,18 @@ void hw_init(void)
 	/* Program the DACR to allow client access to *all* domains */
 	dacr_swd_init();
 
+#if defined(CONFIG_MATRIX)
 	/* Initialize the matrix */
 	matrix_init();
+#endif
 
 	/* initialize the dbgu */
 	initialize_dbgu();
 
+#if defined(CONFIG_MATRIX)
 	matrix_read_slave_security();
 	matrix_read_periperal_security();
+#endif
 
 	/* Init timer */
 	timer_init();
