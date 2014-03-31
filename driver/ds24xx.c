@@ -180,6 +180,7 @@ static struct ek_boards	board_list[] = {
 	{"SAMA5D34-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAMA5D34_CM},
 	{"SAMA5D35-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAMA5D35_CM},
 	{"SAMA5D36-CM",	BOARD_TYPE_CPU,	BOARD_ID_SAMA5D36_CM},
+	{"SAMA5D44-MB",	BOARD_TYPE_EK,	BOARD_ID_SAMA5D4_MB},
 	{0,		0,		0},
 };
 
@@ -686,12 +687,12 @@ static int get_board_info(unsigned char *buffer,
 
 static unsigned int set_default_sn(void)
 {
-	unsigned int board_id_cm;
-	unsigned int board_id_dm;
-	unsigned int board_id_ek;
-	unsigned int vendor_cm;
-	unsigned int vendor_dm;
-	unsigned int vendor_ek;
+	unsigned int board_id_cm = 0;
+	unsigned int board_id_dm = 0;
+	unsigned int board_id_ek = 0;
+	unsigned int vendor_cm = 0;
+	unsigned int vendor_dm = 0;
+	unsigned int vendor_ek = 0;
 
 #if defined(CONFIG_AT91SAM9X5EK)
 	/* at91sam9x5ek
@@ -706,7 +707,7 @@ static unsigned int set_default_sn(void)
 	vendor_dm = VENDOR_FLEX;
 	vendor_ek = VENDOR_FLEX;
 
-#elif defined(CONFIG_SAMA5D3XEK) || defined(CONFIG_SAMA5D4EK)
+#elif defined(CONFIG_SAMA5D3XEK)
 
 	/* sama5d3xek
 	 * CPU Module: SAMA5D31-CM, EMBEST
@@ -719,6 +720,16 @@ static unsigned int set_default_sn(void)
 	vendor_cm = VENDOR_EMBEST;
 	vendor_dm = VENDOR_FLEX;
 	vendor_ek = VENDOR_FLEX;
+#elif defined(CONFIG_SAMA5D4EK)
+	/*
+	 * SAMA5D4-EK
+	 * Display Module: SAMA5D3x-DM, FLEX
+	 * EK Module: SAMA5D4x-MB, FLEX
+	 */
+	board_id_dm = BOARD_ID_SAMA5D3X_DM;
+	board_id_ek = BOARD_ID_SAMA5D4_MB;
+	vendor_cm = VENDOR_EMBEST;
+	vendor_dm = VENDOR_FLEX;
 #else
 #error "OneWire: No defined board"
 #endif
@@ -753,7 +764,7 @@ static unsigned int set_default_rev(void)
 	rev_id_dm = '0';
 	rev_id_ek = '0';
 
-#elif defined(CONFIG_SAMA5D3XEK) || defined(CONFIG_SAMA5D4EK)
+#elif defined(CONFIG_SAMA5D3XEK)
 
 	/* sama5d3xek
 	 * CPU Module: 'D', '4'
@@ -764,6 +775,18 @@ static unsigned int set_default_rev(void)
 	rev_dm = 'B';
 	rev_ek = 'C';
 	rev_id_cm = '4';
+	rev_id_dm = '2';
+	rev_id_ek = '3';
+#elif defined(CONFIG_SAMA5D4EK)
+	/*
+	 * SAMA5D4-EK
+	 * Display Module: 'B', '2'
+	 * EK Module: 'B','3'
+	 */
+	rev_cm = 'A';
+	rev_dm = 'B';
+	rev_ek = 'C';
+	rev_id_cm = '0';
 	rev_id_dm = '2';
 	rev_id_ek = '3';
 #else
@@ -804,7 +827,11 @@ void load_1wire_info()
 	unsigned int	size = LEN_ONE_WIRE_INFO;
 	struct board_info	board_info;
 	struct board_info	*bd_info;
+#if defined(CONFIG_SAMA5D4EK)
+	int missing = BOARD_TYPE_EK_MASK | BOARD_TYPE_DM_MASK;
+#else
 	int missing = BOARD_TYPE_MASK;
+#endif
 
 	memset(&board_info, 0, sizeof(board_info));
 	bd_info= &board_info;
@@ -879,25 +906,23 @@ void load_1wire_info()
 	if (missing & BOARD_TYPE_EK_MASK)
 		dbg_info("1-Wire: Failed to read EK board information\n");
 
-	/* save to GPBR #2 and #3 */
-	dbg_info("\n1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\n", sn, rev);
-
-#ifdef AT91C_BASE_GPBR
-	writel(sn, AT91C_BASE_GPBR + 4 * 2);
-	writel(rev, AT91C_BASE_GPBR + 4 * 3);
-#endif
-
-	return;
+	goto save_info;
 
 err:
+	dbg_info("\n1-Wire: Using defalt information\n");
+
 	sn = set_default_sn();
 	rev = set_default_rev();
 
-	dbg_info("\n1-Wire: Using defalt value SYS_GPBR2: %d, SYS_GPBR3: %d\n\n", sn, rev);
-
+save_info:
 #ifdef AT91C_BASE_GPBR
+	/* save to GPBR #2 and #3 */
+	dbg_info("\n1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\n", sn, rev);
+
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);
+#else
+	dbg_info("\n1-Wire: Board sn: %d, revsion: %d\n\n", sn, rev);
 #endif
 
 	return;
