@@ -822,7 +822,7 @@ static unsigned int set_default_rev(void)
  */
 void load_1wire_info()
 {
-	int i;
+	int i, j;
 	unsigned int	cnt;
 	unsigned int	size = LEN_ONE_WIRE_INFO;
 	struct board_info	board_info;
@@ -832,6 +832,7 @@ void load_1wire_info()
 #else
 	int missing = BOARD_TYPE_MASK;
 #endif
+	unsigned char *tmp = buf;
 
 	memset(&board_info, 0, sizeof(board_info));
 	bd_info= &board_info;
@@ -853,6 +854,12 @@ void load_1wire_info()
 			dbg_info("WARNING: 1-Wire: Failed to read from 1-Wire chip!\n");
 			goto err;
 		}
+
+		dbg_loud("board: #%d: ", i);
+		for (j = 0; j < size; j++)
+			dbg_loud("%d ", *tmp++);
+
+		dbg_loud("\n");
 
 		if (get_board_info(buf,	i, bd_info)) {
 			continue;
