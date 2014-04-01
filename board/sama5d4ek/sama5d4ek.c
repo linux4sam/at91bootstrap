@@ -537,20 +537,20 @@ static void sdcard_set_of_name_board(char *of_name)
 void at91_mci0_hw_init(void)
 {
 	const struct pio_desc mci_pins[] = {
-		{"MCI0_CK", AT91C_PIN_PC(4), 0, PIO_DEFAULT, PIO_PERIPH_B},
-		{"MCI0_CDA", AT91C_PIN_PC(5), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"MCI1_CK", AT91C_PIN_PE(18), 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"MCI1_CDA", AT91C_PIN_PE(19), 0, PIO_DEFAULT, PIO_PERIPH_C},
 
-		{"MCI0_DA0", AT91C_PIN_PC(6), 0, PIO_DEFAULT, PIO_PERIPH_B},
-		{"MCI0_DA1", AT91C_PIN_PC(7), 0, PIO_DEFAULT, PIO_PERIPH_B},
-		{"MCI0_DA2", AT91C_PIN_PC(8), 0, PIO_DEFAULT, PIO_PERIPH_B},
-		{"MCI0_DA3", AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"MCI1_DA0", AT91C_PIN_PE(20), 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"MCI1_DA1", AT91C_PIN_PE(21), 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"MCI1_DA2", AT91C_PIN_PE(22), 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"MCI1_DA3", AT91C_PIN_PE(23), 0, PIO_DEFAULT, PIO_PERIPH_C},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	/* Configure the PIO controller */
 	pio_configure(mci_pins);
-	pmc_enable_periph_clock(AT91C_ID_PIOC);
-	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
+	pmc_enable_periph_clock(AT91C_ID_PIOE);
+	pmc_enable_periph_clock(AT91C_ID_HSMCI1);
 
 	/* Set of name function pointer */
 	sdcard_set_of_name = &sdcard_set_of_name_board;

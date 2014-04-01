@@ -142,7 +142,7 @@
 /*
  * MCI Settings
  */
-#define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0
+#define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI1
 
 /*
  * Recovery function
