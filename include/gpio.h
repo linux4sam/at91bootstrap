@@ -32,6 +32,8 @@
 enum pio_type {
 	PIO_PERIPH_A,
 	PIO_PERIPH_B,
+	PIO_PERIPH_C,
+	PIO_PERIPH_D,
 	PIO_INPUT,
 	PIO_OUTPUT
 };

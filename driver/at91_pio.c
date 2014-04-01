@@ -131,6 +131,42 @@ static int pio_set_b_periph(unsigned pin, int use_pullup)
 	return 0;
 }
 
+#ifdef CONFIG_HAS_PIO3
+static int pio_set_c_periph(unsigned pin, int use_pullup)
+{
+	unsigned pio = pin_to_controller(pin);
+	unsigned mask = pin_to_mask(pin);
+
+	if (pio >= AT91C_NUM_PIO)
+		return -1;
+
+	write_pio(pio, PIO_IDR, mask);
+	write_pio(pio, (use_pullup ? PIO_PPUER : PIO_PPUDR), mask);
+	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
+	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) | mask);
+	write_pio(pio, PIO_PDR, mask);
+
+	return 0;
+}
+
+static int pio_set_d_periph(unsigned pin, int use_pullup)
+{
+	unsigned pio = pin_to_controller(pin);
+	unsigned mask = pin_to_mask(pin);
+
+	if (pio >= AT91C_NUM_PIO)
+		return -1;
+
+	write_pio(pio, PIO_IDR, mask);
+	write_pio(pio, (use_pullup ? PIO_PPUER : PIO_PPUDR), mask);
+	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) | mask);
+	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) | mask);
+	write_pio(pio, PIO_PDR, mask);
+
+	return 0;
+}
+#endif
+
 int pio_set_gpio_input(unsigned pin, int use_pullup)
 {
 	unsigned pio = pin_to_controller(pin);
@@ -237,6 +273,14 @@ int pio_configure(const struct pio_desc *pio_desc)
 		} else if (pio_desc->type == PIO_PERIPH_B) {
 			pio_set_b_periph(pio_desc->pin_num,
 				(pio_desc->attribute & PIO_PULLUP) ? 1 : 0);
+#ifdef CONFIG_HAS_PIO3
+		} else if (pio_desc->type == PIO_PERIPH_C) {
+			pio_set_c_periph(pio_desc->pin_num,
+				(pio_desc->attribute & PIO_PULLUP) ? 1 : 0);
+		} else if (pio_desc->type == PIO_PERIPH_D) {
+			pio_set_d_periph(pio_desc->pin_num,
+				(pio_desc->attribute & PIO_PULLUP) ? 1 : 0);
+#endif
 		} else if (pio_desc->type == PIO_INPUT) {
 			pio_set_deglitch(pio_desc->pin_num,
 				(pio_desc->attribute & PIO_DEGLITCH) ? 1 : 0);
