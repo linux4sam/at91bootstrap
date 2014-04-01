@@ -272,11 +272,6 @@ config CONFIG_IMAGE_NAME
 	default "zImage" if CONFIG_LINUX_ZIMAGE
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
 	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
-
-config CONFIG_LONG_TEST
-	bool "Perform a memory test at startup"
-	default n
-	help
 	  
 config CONFIG_DEBUG
 	bool "Debug Support"
