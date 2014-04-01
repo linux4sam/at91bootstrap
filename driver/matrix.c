@@ -485,25 +485,24 @@ void matrix_configure_slave_security(unsigned int matrix_base,
 	matrix_write(matrix_base, MATRIX_SASSR(slave), srsplit_setting);
 }
 
-#if defined(CONFIG_DEBUG_VERY_LOUD)
 void matrix_read_slave_security(void)
 {
 	unsigned int matrix_base;
 	unsigned int slave;
 
-	dbg_info("\n\r\n\rMATRIX64:\n\r");
+	dbg_very_loud("\n\nMATRIX64:\n");
 	matrix_base = AT91C_BASE_MATRIX64;
 	for (slave = 0; slave < 13; slave++) {
-		dbg_info("MATRIX_SRTSR%d: %d, MATRIX_SASSR%d: %d, MATRIX_SSR%d: %d\n\r",
+		dbg_very_loud("MATRIX_SRTSR%d: %d, MATRIX_SASSR%d: %d, MATRIX_SSR%d: %d\n",
 			slave, matrix_read(matrix_base, MATRIX_SRTSR(slave)),
 			slave, matrix_read(matrix_base, MATRIX_SASSR(slave)),
 			slave, matrix_read(matrix_base, MATRIX_SSR(slave)));
 	}
 
-	dbg_info("\n\r\n\rMATRIX32:\n\r");
+	dbg_very_loud("\n\nMATRIX32:\n");
 	matrix_base = AT91C_BASE_MATRIX32;
 	for (slave = 0; slave < 7; slave++) {
-		dbg_info("MATRIX_SRTSR%d: %d, MATRIX_SASSR%d: %d, MATRIX_SSR%d: %d\n\r",
+		dbg_very_loud("MATRIX_SRTSR%d: %d, MATRIX_SASSR%d: %d, MATRIX_SSR%d: %d\n",
 			slave, matrix_read(matrix_base, MATRIX_SRTSR(slave)),
 			slave, matrix_read(matrix_base, MATRIX_SASSR(slave)),
 			slave, matrix_read(matrix_base, MATRIX_SSR(slave)));
@@ -515,21 +514,19 @@ void matrix_read_periperal_security(void)
 	unsigned int i;
 
 	unsigned int matrix_base = AT91C_BASE_MATRIX32;
-	dbg_info("\n\r\n\rMATRIX32\n\r");
-	for (i = 0; i < 3; i++)
-		dbg_info("MATRIX_SPSELR(%d): %d \n\r", i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
+	dbg_very_loud("\n\nMATRIX32\n");
+	for (i = 0; i < 3; i++) {
+		dbg_very_loud("MATRIX_SPSELR(%d): %d\n",
+				i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
+	}
 
 	matrix_base = AT91C_BASE_MATRIX64;
-	dbg_info("\n\r\n\r_MATRIX64\n\r");
-	for (i = 0; i < 3; i++)
-		dbg_info("MATRIX_SPSELR(%d): %d \n\r", i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
-
+	dbg_very_loud("\n\n_MATRIX64\n");
+	for (i = 0; i < 3; i++) {
+		dbg_very_loud("MATRIX_SPSELR(%d): %d\n",
+				i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
+	}
 }
-#else
-void matrix_read_slave_security(void) {}
-void matrix_read_periperal_security(void) {}
-#endif
-
 
 static struct peri_security *get_peri_security(unsigned int peri_id)
 {
