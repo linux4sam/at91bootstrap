@@ -415,7 +415,7 @@ int load_kernel(struct image_info *image)
 
 	init_loadkernel_args(0, mach_type, r2, (unsigned int)kernel_entry);
 
-	dbg_info("Enter Normal World, Run Kernel at %d\n\r",
+	dbg_info("Enter Normal World, Run Kernel at %d\n",
 					(unsigned int)kernel_entry);
 
 	enter_normal_world();

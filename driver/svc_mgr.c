@@ -42,7 +42,7 @@ int svc_mgr_main(struct smc_args_t const *args)
 	int ret = 0;
 	unsigned int silent = 1;
 
-	dbg_loud("--> svc_mgr_main\n\r");
+	dbg_loud("--> svc_mgr_main\n");
 
 	switch (args->r0) {
 	case 0x24:
@@ -96,13 +96,13 @@ int svc_mgr_main(struct smc_args_t const *args)
 		break;
 
 	default:
-		dbg_info("svc mgr error: SMC ID (%d) not defined\n\r",
+		dbg_info("svc mgr error: SMC ID (%d) not defined\n",
 							args->r0);
 		ret = -1;
 		break;
 	}
 
-	dbg_loud("<-- svc_mgr_main\n\r");
+	dbg_loud("<-- svc_mgr_main\n");
 
 	return ret;
 }

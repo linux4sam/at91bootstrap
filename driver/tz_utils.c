@@ -60,7 +60,7 @@ void switch_normal_world(void)
 {
 	monitor_init();
 
-	dbg_info("Enter Normal World, Run at %d\n\r", NWD_BOOT_ADDR);
+	dbg_info("Enter Normal World, Run at %d\n", NWD_BOOT_ADDR);
 
 	enter_normal_world();
 }
