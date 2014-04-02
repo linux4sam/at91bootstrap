@@ -32,6 +32,7 @@
 #include "l2cc.h"
 #include "debug.h"
 #include "rstc.h"
+#include "watchdog.h"
 
 /*
  * svc_mgr_main - C entry point of the secure world when a SMC is processed
@@ -93,6 +94,14 @@ int svc_mgr_main(struct smc_args_t const *args)
 		break;
 	case 0x50:
 		pmc_smd_setup(args->r1);
+		break;
+
+	case 0x60:
+		ret = at91_wdt_set_counter(args->r1);
+		break;
+
+	case 0x61:
+		ret = at91_wdt_reload_counter();
 		break;
 
 	default:

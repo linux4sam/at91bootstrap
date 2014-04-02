@@ -30,4 +30,9 @@
 
 extern void at91_disable_wdt(void);
 
+#if defined(CONFIG_ENTER_NWD)
+extern unsigned int at91_wdt_set_counter(unsigned int count);
+extern unsigned int at91_wdt_reload_counter(void);
+#endif
+
 #endif /* __WATCHDOG_H__ */
