@@ -408,6 +408,8 @@ static unsigned int security_ps_peri_id[] = {
 	AT91C_ID_SPI0,
 	AT91C_ID_SPI1,
 	AT91C_ID_SMD,
+	AT91C_ID_SSC0,
+	AT91C_ID_SSC1,
 };
 
 static int matrix_config_periheral(void)
