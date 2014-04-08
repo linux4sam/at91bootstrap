@@ -79,12 +79,14 @@ void lowlevel_clock_init()
 	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCSELS)))
 		;
 
+#if !defined(SAMA5D4)
 	/* Disable the 12MHz RC oscillator */
 	tmp = read_pmc(PMC_MOR);
 	tmp &= (~AT91C_CKGR_MOSCRCEN);
 	tmp &= (~AT91C_CKGR_KEY);
 	tmp |= AT91C_CKGR_PASSWD;
 	write_pmc(PMC_MOR, tmp);
+#endif
 
 #else
 	/*
