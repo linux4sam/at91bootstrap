@@ -491,10 +491,6 @@ void hw_init(void)
 	/* Init timer */
 	timer_init();
 
-#ifdef CONFIG_SCLK
-	slowclk_enable_osc32();
-#endif
-
 #ifdef CONFIG_DDR2
 	/* Initialize MPDDR Controller */
 	ddramc_init();
