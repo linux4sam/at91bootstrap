@@ -22,6 +22,13 @@ VERSION := 3.6.2
 REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
+# Use 'make V=1' for the verbose mode
+ifneq ("$(origin V)", "command line")
+Q=@
+export Q
+MAKE_OPTION=--no-print-directory
+endif
+
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
 # Check first if we want to configure at91bootstrap
@@ -44,14 +51,14 @@ export HOSTCFLAGS
 
 $(CONFIG)/conf:
 	@mkdir -p $(CONFIG)/at91bootstrap-config
-	$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf
+	@$(MAKE) $(MAKE_OPTION) CC="$(HOSTCC)" -C $(CONFIG) conf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
 
 $(CONFIG)/mconf:
 	@mkdir -p $(CONFIG)/at91bootstrap-config
-	$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
+	@$(MAKE) $(MAKE_OPTION) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
@@ -329,7 +336,7 @@ distrib: config-clean
 	rm -fr .auto.deps
 	rm -fr ..make.deps.tmp
 	rm -fr .config.cmd .config.old
-	make -C config clean
+	make $(MAKE_OPTION) -C config clean
 	rm -fr config/at91bootstrap-config
 	rm -fr config/conf
 	rm -f  config/.depend
@@ -338,12 +345,14 @@ distrib: config-clean
 	rm -f .configured
 
 config-clean:
-	make -C config distclean
-	rm -fr config/at91bootstrap-config
-	rm -f  config/.depend
+	@echo "  CLEAN        "configuration files!
+	$(Q)make $(MAKE_OPTION) -C config distclean
+	$(Q)rm -fr config/at91bootstrap-config
+	$(Q)rm -f  config/.depend
 
 clean:
-	find . -type f \( -name .depend \
+	@echo "  CLEAN        "obj and misc files!
+	$(Q)find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.o' \
 		-o -name '*~' \) \
@@ -352,15 +361,16 @@ clean:
 
 distclean: clean config-clean
 #	rm -fr $(BINDIR)
-	rm -fr .config .config.cmd .config.old
-	rm -fr .auto.deps
-	rm -f .installed
-	rm -f ..*.tmp
-	rm -f .configured
+	$(Q)rm -fr .config .config.cmd .config.old
+	$(Q)rm -fr .auto.deps
+	$(Q)rm -f .installed
+	$(Q)rm -f ..*.tmp
+	$(Q)rm -f .configured
 
 mrproper: distclean
-	rm -fr $(BINDIR)
-	rm -fr log
+	@echo "  CLEAN        "binary files!
+	$(Q)rm -fr $(BINDIR)
+	$(Q)rm -fr log
 
 PHONY+=distrib config-clean clean distclean mrproper
 
