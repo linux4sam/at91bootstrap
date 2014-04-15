@@ -322,7 +322,7 @@ debug:
 PHONY+=update no-cross-compiler debug
 
 distrib: mrproper
-	find . -type f \( -name .depend \
+	$(Q)find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.elf' \
 		-o -name '*.map' \
@@ -330,10 +330,10 @@ distrib: mrproper
 		-o -name '*~' \) \
 		-print0 \
 		| xargs -0 rm -f
-	rm -fr result
-	rm -fr build
-	rm -fr ..make.deps.tmp
-	rm -fr config/conf
+	$(Q)rm -fr result
+	$(Q)rm -fr build
+	$(Q)rm -fr ..make.deps.tmp
+	$(Q)rm -fr config/conf
 
 config-clean:
 	@echo "  CLEAN        "configuration files!
@@ -366,21 +366,21 @@ mrproper: distclean
 PHONY+=distrib config-clean clean distclean mrproper
 
 tarball: distrib
-	rm -fr ../source/at91bootstrap-$(VERSION)
-	rm -fr ../source/at91bootstrap-$(VERSION).tar*
-	mkdir -p ../source
-	find . -depth -print0 | cpio --null -pvd ../source/at91bootstrap-$(VERSION)
-	rm -fr ../source/at91bootstrap-$(VERSION)/.git
-	tar -C ../source -cvf ../source/at91bootstrap-$(VERSION).tar at91bootstrap-$(VERSION)
-	bzip2  ../source/at91bootstrap-$(VERSION).tar
+	$(Q)rm -fr ../source/at91bootstrap-$(VERSION)
+	$(Q)rm -fr ../source/at91bootstrap-$(VERSION).tar*
+	$(Q)mkdir -p ../source
+	$(Q)find . -depth -print0 | cpio --null -pd ../source/at91bootstrap-$(VERSION)
+	$(Q)rm -fr ../source/at91bootstrap-$(VERSION)/.git
+	$(Q)tar -C ../source -cf ../source/at91bootstrap-$(VERSION).tar at91bootstrap-$(VERSION)
+	$(Q)bzip2  ../source/at91bootstrap-$(VERSION).tar
 	cp ../source/at91bootstrap-$(VERSION).tar.bz2 /usr/local/install/downloads
 
 tarballx: clean
-	F=`basename $(CURDIR)` ; cd .. ; \
-	T=`basename $(CURDIR)`-$(VERSION).tar ;  \
-	tar --force-local -cvf $$T $$F; \
-	rm -f $$T.bz2 ; \
-	bzip2 $$T ; \
+	$(Q)F=`basename $(CURDIR)` ; cd .. ; \
+	$(Q)T=`basename $(CURDIR)`-$(VERSION).tar ;  \
+	$(Q)tar --force-local -cf $$T $$F > /dev/null; \
+	$(Q)rm -f $$T.bz2 ; \
+	$(Q)bzip2 $$T ; \
 	cp -f $$T.bz2 /usr/local/install/downloads
 
 PHONY+=tarball tarballx
