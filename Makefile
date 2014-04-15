@@ -321,7 +321,7 @@ debug:
 
 PHONY+=update no-cross-compiler debug
 
-distrib: config-clean
+distrib: mrproper
 	find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.elf' \
@@ -332,17 +332,8 @@ distrib: config-clean
 		| xargs -0 rm -f
 	rm -fr result
 	rm -fr build
-	rm -fr log
-	rm -fr .auto.deps
 	rm -fr ..make.deps.tmp
-	rm -fr .config.cmd .config.old
-	make $(MAKE_OPTION) -C config clean
-	rm -fr config/at91bootstrap-config
 	rm -fr config/conf
-	rm -f  config/.depend
-	rm -fr $(BINDIR)
-	rm -f .installed
-	rm -f .configured
 
 config-clean:
 	@echo "  CLEAN        "configuration files!
