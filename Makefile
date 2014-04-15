@@ -287,8 +287,13 @@ endif  # HAVE_DOT_CONFIG
 PHONY+= rebuild
 
 %_defconfig:
-	echo $(shell find ./board/ -name $@)
-	cp $(shell find ./board/ -name $@) .config
+	@(conf_file=`find ./board -name $@`; \
+	if [ "$$conf_file"x != "x" ]; then \
+		cp $$conf_file .config; \
+	else \
+		echo "Error: *** Cannot find file: $@"; \
+		exit 2; \
+	fi )
 	@$(MAKE) oldconfig
 
 update:
