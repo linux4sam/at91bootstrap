@@ -182,7 +182,7 @@ static const struct peri_security peri_security_array[] = {
 	{
 		.peri_id = AT91C_ID_HSMC,
 		.matrix = MATRIX_H32MX,
-		.security_type = SECURITY_TYPE_AS,
+		.security_type = SECURITY_TYPE_PS,
 	},
 	/* PIOA*/
 	{
