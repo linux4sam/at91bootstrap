@@ -54,7 +54,7 @@ static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
 #endif
 	return 1;
 }
-
+#if defined (CONFIG_DDR2)
 int ddram_initialize(unsigned int base_address,
 			unsigned int ram_address,
 			struct ddramc_register *ddramc_config)
@@ -279,3 +279,6 @@ int ddram_initialize(unsigned int base_address,
 
 	return 0;
 }
+#else
+#error Wrong memory type, here for DDR2.
+#endif

@@ -14,11 +14,19 @@ COBJS-y				+= $(DRIVERS_SRC)/at91_pit.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_wdt.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_usart.o
 
+#Provide a stub implementation. otherwise : done in each board directory.
+ifeq ($(CONFIG_USER_HW_INIT),)
 COBJS-$(CONFIG_USER_HW_INIT)	+= $(DRIVERS_SRC)/hw_init_hook.o
+endif
 
+#Only if external RAM used.
+ifeq ($(CONFIG_ONLY_INTERNAL_RAM),)
 COBJS-$(CONFIG_SDRAM)		+= $(DRIVERS_SRC)/sdramc.o
 COBJS-$(CONFIG_SDDRC)		+= $(DRIVERS_SRC)/sddrc.o
-COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/ddramc.o
+COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/ddramc_DDR2.o
+COBJS-$(CONFIG_LPDDR1)		+= $(DRIVERS_SRC)/ddramc_LPDDR1.o
+COBJS-$(CONFIG_EXTERNAL_RAM_TEST) += $(DRIVERS_SRC)/ddram_utils.o
+endif
 
 COBJS-$(CONFIG_SDCARD)		+= $(DRIVERS_SRC)/at91_mci.o
 

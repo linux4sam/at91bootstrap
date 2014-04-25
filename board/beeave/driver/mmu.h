@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2006, Atmel Corporation
+ * Copyright (c) 2012, Atmel Corporation
 
  * All rights reserved.
  *
@@ -9,7 +9,7 @@
  * modification, are permitted provided that the following conditions are met:
  *
  * - Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the disclaiimer below.
+ * this list of conditions and the disclaimer below.
  *
  * Atmel's name may not be used to endorse or promote products derived from
  * this software without specific prior written permission.
@@ -25,35 +25,47 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __DDRAMC_H__
-#define __DDRAMC_H__
+#ifndef MMU_H_
+#define MMU_H_
 
-struct ddramc_register {
-	unsigned int mdr;
-	unsigned int cr;
-	unsigned int rtr;
-	unsigned int t0pr;
-	unsigned int t1pr;
-#ifdef CONFIG_DDR2  
-	unsigned int t2pr;
-#endif
-#ifdef CONFIG_LPDDR1
-  unsigned int lpr;
-#endif
+#include <stdint.h>
+
+
+/**
+ * This structure give the size of each of the external memories EBIi and DDRCS
+ * @note all the sizes are in MEGA BYTES !!!
+ */
+struct ExtMemDescriptor
+{
+  uint32_t EBICS0Size;
+  uint32_t EBICS1Size;
+  uint32_t EBICS2Size;
+  uint32_t EBICS3Size;
+  uint32_t DDRCSSize;
 };
 
+/**
+ * @brief This function will set the given translation Table into the MMU.
+ * @param pTB [IN] The translation table pointer. (short descriptor). No actual Translation.
+ */
+void MMU_Set (uint32_t* pTB);
 
-#if defined (CONFIG_LPDDR1)
-//! @note bank offset is provided and not set inside the function : more flexible.
-extern int ddram_initialize(unsigned int base_address,
-      unsigned int ram_address,
-      unsigned int bank_offset,
-      struct ddramc_register *ddramc_config);
-#else
+/**
+ * \brief Initializes a MMU memory mapping, no translation activated according to the size of each external memories areas (EBI, DDRAM)
+ * @param pDesc [IN] : external memory descriptor
+ * \param pTB  [IN,OUT] : Address of the translation table.
+ * @todo The external memories sizes should be checked !!
+ */
+void MMU_TB_Initialize(struct ExtMemDescriptor* pDesc, uint32_t *pTB);
 
-extern int ddram_initialize(unsigned int base_address,
-		unsigned int ram_address,
-		struct ddramc_register *ddramc_config);
-#endif /*CONFIG_LPDDR1*/
+/**
+ * \brief Initializes the memory translation table & set the MMU with it.
+ * \param pTB  Address of the translation table.
+ * @deprecated use MMU_TB_Initialize() and MMU_Set() instead
+ */
+void MMU_Initialize(uint32_t *pTB);
 
-#endif /* #ifndef __DDRAMC_H__ */
+//! The Memory descriptor table is defined in the linker script.
+extern uint32_t MEMORY_TRANSLATION_TABLE_BASE;
+
+#endif /*MMU_H_*/

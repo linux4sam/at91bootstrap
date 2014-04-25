@@ -1,154 +1,251 @@
 menu "Memory selection"
 
-config CONFIG_SDRAM
-	bool
-	default n
-	help
-	  Initialize SDRAM controller before copying
+config  ALLOW_DATAFLASH
+  bool
+  default n
 
+config  ALLOW_FLASH
+  bool
+  default n
+
+config  ALLOW_NANDFLASH
+  bool
+  default n
+
+config  ALLOW_SDCARD
+  bool
+  default n
+
+config  ALLOW_HSMCI
+  bool
+  default n
+  
+config  ALLOW_PSRAM
+  bool
+  default n
+
+config  ALLOW_SDRAM_16BIT
+  bool
+  default n
+  
+config ALLOW_LPDDR1
+  bool
+  default n
+
+
+config ALLOW_WITH_MMU
+  bool
+
+config ALLOW_WITH_CACHE
+  bool
+
+  
+config CONFIG_BOOTSTRAP_MAXSIZE
+  string
+  default "4096" if CONFIG_AT91SAM9260EK
+  default "8192" if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
+  default "12288" if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
+  default "65536" if CONFIG_SAMA5D3XEK || CONFIG_SAMA5D31_BEEAVE
+  default "23000"
+
+
+menu "RAM selection"
+config CONFIG_ONLY_INTERNAL_RAM
+  bool "ONLY use the internal RAM (SRAM)"
+  help
+    No external RAM will be used : can be disabled or even not here (USED for StartUp bootstrap)
+
+  config CONFIG_SDRAM
+  bool
+  default n
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+  help
+    Initialize SDRAM controller before copying
+
+config  CONFIG_SDRAM_16BIT
+  bool "Use 16 bit SDRAM"
+  depends on ALLOW_SDRAM_16BIT
+  help
+
+    
 config CONFIG_SDDRC
-	bool
-	default n
-	help
-	  Initialize DDR SDRAM controller before copying
+  bool
+  default n
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+  help
+    Initialize DDR SDRAM controller before copying
 
 config CONFIG_DDR2
-	bool
-	default n
-	help
-	  Initialize DDR-2 SDRAM controller before copying
-
-config	ALLOW_DATAFLASH
-	bool
-	default n
-
-config	ALLOW_FLASH
-	bool
-	default n
-
-config	ALLOW_NANDFLASH
-	bool
-	default n
-
-config	ALLOW_SDCARD
-	bool
-	default n
-
-config	ALLOW_HSMCI
-	bool
-	default n
-	
-config	ALLOW_PSRAM
-	bool
-	default n
-
-config	ALLOW_SDRAM_16BIT
-	bool
-	default n
-
+  bool
+  default n
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+  help
+    Initialize DDR-2 SDRAM controller before copying
+    
+config CONFIG_LPDDR1
+  bool "Use LP-DDR1 memory chips"
+  depends on ALLOW_LPDDR1 && !CONFIG_ONLY_INTERNAL_RAM
+  default n
+  help
+    Initialize LP-DDR-1 SDRAM controller before copying
 
 choice
-	prompt "RAM size"
-	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDR2
-	default CONFIG_RAM_64MB
+  prompt "RAM Definition"
+  default RAM_GENERIC_DEFINITION
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+config RAM_GENERIC_DEFINITION
+  bool "RAM Generic Definition (done by hand)"
+  
+config RAM_KNOWN_CHIP_DEFINITION
+  bool "Known RAM Chips"
+  
+endchoice
 
-config  CONFIG_RAM_16MB
+choice
+  depends on RAM_KNOWN_CHIP_DEFINITION
+  prompt "Installed Memory Chip"
+  
+config CONFIG_RAM_CHIP_IS43LR32400
+  depends on CONFIG_LPDDR1 && !CONFIG_SAMA5D31_BEEAVE
+  bool "ISSI IS43LR32400 (128Mb LP-DDR1) chip"
+  select CONFIG_RAM_16MB
+  
+config CONFIG_RAM_CHIP_IS43LR32800
+  depends on CONFIG_LPDDR1
+  bool "ISSI IS43LR32800 (256Mb LP-DDR1) chip"
+  select CONFIG_RAM_32MB
+
+config CONFIG_RAM_CHIP_W948D2
+  depends on CONFIG_LPDDR1
+  bool "Winbond W948D2 (256Mb LP-DDR1) chip"
+  select CONFIG_RAM_32MB
+  
+config CONFIG_RAM_CHIP_2X_MT47H128M16RT
+  depends on CONFIG_DDR2
+  bool "Dual Micron MT47H128M16RT (2Gb DDR2) chips"
+  select CONFIG_RAM_512MB
+  
+endchoice
+
+choice
+  prompt "RAM size"
+  depends on RAM_GENERIC_DEFINITION
+  
+config  GENERIC_RAM_16MB
   bool "16 MB"
+  select CONFIG_RAM_16MB
+  
+config  GENERIC_RAM_32MB
+  bool "32 MB"
+  select CONFIG_RAM_32MB
 
-config	CONFIG_RAM_32MB
-	bool "32 MB"
+config  GENERIC_RAM_64MB
+  bool "64 MB"
+  select CONFIG_RAM_64MB
+  
+config  GENERIC_RAM_128MB
+  bool "128 MB"
+  select CONFIG_RAM_128MB
 
-config	CONFIG_RAM_64MB
-	bool "64 MB"
-
-config	CONFIG_RAM_128MB
-	bool "128 MB"
-
-config	CONFIG_RAM_256MB
-	bool "256 MB"
-
-config	CONFIG_RAM_512MB
-	bool "512 MB"
+config  GENERIC_RAM_256MB
+  bool "256 MB"
+  select CONFIG_RAM_256MB
+  
+config  GENERIC_RAM_512MB
+  bool "512 MB"
+  select CONFIG_RAM_512MB
 
 endchoice
 
-config CONFIG_WITH_MMU
-  bool "Activate MMU"
-  depends on ALLOW_WITH_MMU
-  default n
-  help
-    "Use the MMU"
+    
+endmenu
 
-config CONFIG_WITH_CACHE
-  bool "Activate the cache management"
-  depends on ALLOW_WITH_CACHE && CONFIG_WITH_MMU
-  default n
-  help
-    "Cache activated, requires the MMU activation."
 
-config	CONFIG_SDRAM_16BIT
-	bool "Use 16 bit SDRAM"
-	depends on ALLOW_SDRAM_16BIT
-	help
-	  
-config	CONFIG_PSRAM
-	bool "Enable PSRAM on EBI1"
-	depends on ALLOW_PSRAM
-	help
-	  
+config  CONFIG_RAM_16MB
+  bool
+  default n
+
+config  CONFIG_RAM_32MB
+  bool
+  default n
+  
+config  CONFIG_RAM_64MB
+  bool
+  default n
+
+config  CONFIG_RAM_128MB
+  bool
+  default n
+
+config  CONFIG_RAM_256MB
+  bool
+  default n
+
+config  CONFIG_RAM_512MB
+  bool
+  default n
+
+
+menu "NAND/Flash selection"
+  depends on !CONFIG_UPLOAD_3RD_STAGE
+config  CONFIG_PSRAM
+  bool "Enable PSRAM on EBI1"
+  depends on ALLOW_PSRAM
+  help
+    
 choice
-	prompt "Flash Memory Technology"
-	default CONFIG_DATAFLASH
-	help
-	  Select memory for at91bootstrap
+  prompt "Flash Memory Technology"
+  default CONFIG_DATAFLASH
+  help
+    Select memory for at91bootstrap
 
-config	CONFIG_DATAFLASH
-	bool "Dataflash"
-	depends on ALLOW_DATAFLASH
+config  CONFIG_DATAFLASH
+  bool "Dataflash & Serial NOR flash"
+  depends on ALLOW_DATAFLASH
 
-config	CONFIG_FLASH
-	bool "Parallel NOR flash"
-	depends on ALLOW_FLASH
+config  CONFIG_FLASH
+  bool "Parallel NOR flash"
+  depends on ALLOW_FLASH
 
-config	CONFIG_NANDFLASH
-	bool "NAND flash"
-	depends on ALLOW_NANDFLASH
+config  CONFIG_NANDFLASH
+  bool "NAND flash"
+  depends on ALLOW_NANDFLASH
 
-config	CONFIG_SDCARD
-	bool "SD card"
-	depends on ALLOW_SDCARD
+config  CONFIG_SDCARD
+  bool "SD card"
+  depends on ALLOW_SDCARD
 
 endchoice
 
 config CONFIG_MEMORY
-	string
-	default "dataflash"	if CONFIG_DATAFLASH
-	default "flash"		if CONFIG_FLASH
-	default "nandflash"	if CONFIG_NANDFLASH
-	default "sdcard"	if CONFIG_SDCARD
+  string
+  default "dataflash" if CONFIG_DATAFLASH
+  default "flash"   if CONFIG_FLASH
+  default "nandflash" if CONFIG_NANDFLASH
+  default "sdcard"  if CONFIG_SDCARD
 
 menu  "SD Card Configuration"
-	depends on CONFIG_SDCARD
+  depends on CONFIG_SDCARD
 
 config CONFIG_SDCARD_HS
-	bool
-	default y if CONFIG_AT91SAM9M10G45EK
-	default y if CONFIG_AT91SAM9X5EK
-	default y if CONFIG_AT91SAM9N12EK
-	default y if CONFIG_SAMA5D3XEK
-	default n
+  bool
+  default y if CONFIG_AT91SAM9M10G45EK
+  default y if CONFIG_AT91SAM9X5EK
+  default y if CONFIG_AT91SAM9N12EK
+  default y if CONFIG_SAMA5D3XEK
+  default n
 
 config CONFIG_FATFS
-	bool
-	depends on CONFIG_SDCARD
-	default y if CONFIG_SDCARD
+  bool
+  depends on CONFIG_SDCARD
+  default y if CONFIG_SDCARD
 
 config CONFIG_LONG_FILENAME
-	bool "Support Long FileName(LFN)"
-	depends on CONFIG_FATFS
-	default y if !CONFIG_AT91SAM9G10EK
-	help
-	  Configure support to FatFS Long FileName(LFN)
+  bool "Support Long FileName(LFN)"
+  depends on CONFIG_FATFS
+  default y if !CONFIG_AT91SAM9G10EK
+  help
+    Configure support to FatFS Long FileName(LFN)
 
 endmenu
 
@@ -156,18 +253,11 @@ source "driver/Config.in.dataflash"
 
 source "driver/Config.in.nandflash"
 
-config CONFIG_BOOTSTRAP_MAXSIZE
-	string
-	default "4096" if CONFIG_AT91SAM9260EK
-	default "8192" if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
-	default "12288" if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
-	default "65536"	if CONFIG_SAMA5D3XEK
-	default "23000"
-
 config ALLOW_ROM_EBI
   bool
   default y if CONFIG_AT91SAMA5D3XEK
   default n if !CONFIG_AT91SAMA5D3XEK
+  default n if CONFIG_SAMA5D31_BEEAVE
   
   
 endmenu
@@ -218,5 +308,62 @@ menu  "External Bus Interface memory"
   depends on CONFIG_EBI_3_USED
   help
     "Size in bytes of the attached to the EBI3 memory interface."
+
+endmenu
+
+config CONFIG_WITH_MMU
+  bool "Activate MMU"
+  depends on ALLOW_WITH_MMU
+  default n
+  help
+    "Use the MMU"
+
+config CONFIG_WITH_CACHE
+  bool "Activate the cache management"
+  depends on ALLOW_WITH_CACHE && CONFIG_WITH_MMU
+  default n
+  help
+    "Cache activated, requires the MMU activation."
+
+config CONFIG_EXTERNAL_RAM_TEST
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+  bool "Perform an external RAM test at startup"
+  default n
+  help
+
+menu "External RAM test"
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+
+choice
+  prompt "Test run :"
+  depends on CONFIG_EXTERNAL_RAM_TEST
+  
+  config CONFIG_EXTERNAL_RAM_TEST_SINGLE
+  bool "Single "
+  help
+    Do a single pass at startup
+    
+  config CONFIG_EXTERNAL_RAM_TEST_INFINITE
+  bool "Loop"
+  help
+    keep testing ...
+    
+endchoice
+
+config CONFIG_EXTERNAL_RAM_TEST_WITH_BURST
+  bool "Burst access"
+  depends on CONFIG_WITH_CACHE && CONFIG_EXTERNAL_RAM_TEST
+  help
+    Use memory burst access (needs he MMU/CACHE)
+
+config CONFIG_EXTERNAL_RAM_TEST_WITHOUT_BURST
+  depends on CONFIG_EXTERNAL_RAM_TEST
+  bool "Base access"
+  default y
+  help
+    Use memory basic access (Do not need the MMU/CACHE).
+
+endmenu
+
 
 endmenu

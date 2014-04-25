@@ -6,48 +6,45 @@ config HAVE_DOT_CONFIG
 	help
 	  Indicate that have an included file.
 
+    
 source "board/Config.in"
 
 source "driver/Config.in.driver"
 
 config CONFIG_PROJECT
 	string
-	default "dataflash"	if CONFIG_DATAFLASH && !CONFIG_UPLOAD_3RD_STAGE
-	default "flash"		if CONFIG_FLASH && !CONFIG_UPLOAD_3RD_STAGE
-	default "nandflash"	if CONFIG_NANDFLASH && !CONFIG_UPLOAD_3RD_STAGE
-	default "sdcard"	if CONFIG_SDCARD && !CONFIG_UPLOAD_3RD_STAGE
-	default "Upld3rdStage" if CONFIG_UPLOAD_3RD_STAGE
+	default "dataflash"	if CONFIG_DATAFLASH && !CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "flash"		if CONFIG_FLASH && !CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "nandflash"	if CONFIG_NANDFLASH && !CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "sdcard"	if CONFIG_SDCARD && !CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "Upld3rdStage" if CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "internalRAM" if CONFIG_ONLY_INTERNAL_RAM
+  
 
 choice 
   prompt "Build Type"
   default CONFIG_BUILD_RELEASE
   
 config CONFIG_BUILD_RELEASE
-  bool "RELEASE BUILD"
+  bool "RELEASE BUILD (BOOTABLE)"
   help
     The build binary will be used 
     only once flashed on to the board.
     This set the LINK address to 0x000000
 
 config CONFIG_BUILD_DEBUG
-  bool "DEBUG BUILD"
+  bool "DEBUG BUILD (NOT BOOTABLE !!)"
   help
     The build binary will be used once 
     downloaded through a JTAG probe and then debugged.
-    This set the LINK address to 0x300000
+    This set the LINK address to 0x300000. Do not use it to boot : bootstrap size is invalid in the signature when starting from 0x00000000.
 
 endchoice
 
-config CONFIG_UPLOAD_3RD_STAGE
-  bool "Third stage image is uploaded"
-  default n
-  select CONFIG_DEBUG_3RD_STAGE
-  help
-    This option will skip the third stage (App, Android or Linux kernel) load operation 
-    and go straight to waiting for the debug probe connection.
 
 config CONFIG_DEBUG_3RD_STAGE
   bool "Third Stage (APPLICATION/KERNEL) DEBUG"
+  depends on CONFIG_UPLOAD_3RD_STAGE
   default n
   help
     The bootstrap will wait for a debugger being attached to the board for third stage debug purpose (uploaded with debug probe or read from ROM memroy). Then the Program Counter should be manualy set to the application's load address.
@@ -55,7 +52,16 @@ config CONFIG_DEBUG_3RD_STAGE
 choice
 	prompt "Image Loading Strategy"
 	default CONFIG_LOAD_UBOOT
-	depends on !CONFIG_UPLOAD_3RD_STAGE
+	depends on !CONFIG_ONLY_INTERNAL_RAM
+
+config CONFIG_UPLOAD_3RD_STAGE
+  bool "Third stage image is uploaded"
+  default n
+  select CONFIG_DEBUG_3RD_STAGE
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+  help
+    This option will skip the third stage (App, Android or Linux kernel) load operation 
+    and go straight to waiting for the debug probe connection.
 
 config CONFIG_LOAD_UBOOT
 	bool "Load U-Boot into last MBYTE of SDRAM"
@@ -316,10 +322,6 @@ config CONFIG_IMAGE_NAME
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
 	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
 
-config CONFIG_LONG_TEST
-	bool "Perform a memory test at startup"
-	default n
-	help
 	  
 config CONFIG_NO_CONSOLE_OUTPUT
   bool "NO DBGU console output"
@@ -336,7 +338,10 @@ config CONFIG_DEBUG
 choice
 	prompt "Debug Level"
 	depends on CONFIG_DEBUG
-
+	
+config CONFIG_DEBUG_ERROR
+  bool "Error information only"
+	
 config CONFIG_DEBUG_INFO
 	bool "General debug information"
 
@@ -345,6 +350,25 @@ config CONFIG_DEBUG_LOUD
 
 config CONFIG_DEBUG_VERY_LOUD
 	bool "Even louder debug output"
+
+endchoice
+
+config CONFIG_BEEAVE_WITH_DEBUG_LEDS
+  bool "DEBUG Leds are presents"
+  depends on CONFIG_SAMA5D31_BEEAVE
+  select CONFIG_USER_HW_INIT
+  help
+    DEBUG Red/Green leds are on the board
+
+choice 
+ prompt "DEBUG led init status"
+ depends on CONFIG_BEEAVE_WITH_DEBUG_LEDS
+ 
+config CONFIG_BEEAVE_DEBUG_LEDS_OFF
+  bool "OFF"
+  
+config CONFIG_BEEAVE_DEBUG_LEDS_ON
+  bool "ON (Green - Red - Green)"
 
 endchoice
 

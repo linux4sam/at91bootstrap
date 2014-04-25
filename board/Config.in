@@ -195,6 +195,23 @@ config CONFIG_SAMA5D3XEK
 	select ALLOW_WITH_CACHE
 	help
 	  Use the SAMA5D3EK Development board
+	  
+config CONFIG_SAMA5D31_BEEAVE
+  bool "BeeAVE Board"
+  select ALLOW_LPDDR1
+  select ALLOW_DATAFLASH
+  select ALLOW_CPU_CLK_498MHZ
+  select ALLOW_CRYSTAL_12_000MHZ
+  select ALLOW_BOOT_FROM_DATAFLASH_CS0
+  select ALLOW_PIO3
+  select CPU_HAS_PMECC
+  select ALLOW_WITH_MMU
+  select ALLOW_WITH_CACHE
+  select CONFIG_HW_INIT
+  select CONFIG_USER_HW_INIT
+  help
+    Use the BEE-AVE module board
+
 
 endchoice
 
@@ -210,10 +227,9 @@ config CONFIG_CHIP
 	default "AT91SAM9G45"	if CONFIG_AT91SAM9M10G45EK
 	default "AT91SAM9X5"	if CONFIG_AT91SAM9X5EK
 	default "AT91SAM9N12"	if CONFIG_AT91SAM9N12EK
-	default "SAMA5D3X"	if CONFIG_SAMA5D3XEK
+	default "SAMA5D3X"	if CONFIG_SAMA5D3XEK || CONFIG_SAMA5D31_BEEAVE
 	help
-	  Name of the board, A Board Support package
-	  (BSP) must be available.
+	  Name of the chip , The chip must be available.
 
 config CONFIG_BOARD
 	string
@@ -228,6 +244,7 @@ config CONFIG_BOARD
 	default "at91sam9n12ek"	if CONFIG_AT91SAM9N12EK
 	default "at91sam9m10g45ek"	if CONFIG_AT91SAM9M10G45EK
 	default "sama5d3xek"	if CONFIG_SAMA5D3XEK
+	default "beeave" if CONFIG_SAMA5D31_BEEAVE
 	help
 	  Name of the board, A Board Support package
 	  (BSP) must be available.
@@ -244,8 +261,9 @@ config CONFIG_MACH_TYPE
 	default "1830"	if CONFIG_AT91SAM9M10G45EK	# 1830
 	default "3373"	if CONFIG_AT91SAM9X5EK		# 3373
 	default "9999"	if CONFIG_AT91SAM9N12EK
-	default "9999"	if CONFIG_SAMA5D3XEK
+	default "9999"	if CONFIG_SAMA5D3XEK || CONFIG_SAMA5D31_BEEAVE
 	help
+	 Machine type value (only for uBoot -> Linux/Android) run.
 
 config CONFIG_LINK_ADDR
 	string
@@ -272,7 +290,7 @@ config CONFIG_TOP_OF_MEMORY
 	default "0x30A000"	if CONFIG_AT91SAM9M10G45EK
 	default "0x308000"	if CONFIG_AT91SAM9X5EK
 	default "0x308000"	if CONFIG_AT91SAM9N12EK
-	default "0x310000"	if CONFIG_SAMA5D3XEK
+	default "0x310000"	if CONFIG_SAMA5D3XEK || CONFIG_SAMA5D31_BEEAVE
 	help
 
 choice
@@ -405,6 +423,7 @@ config	DISABLE_CPU_CLK_240MHZ
 	default y if CONFIG_AT91SAM9263EK && CONFIG_CRYSTAL_16_36766MHZ
 	default n
 
+
 choice
 	prompt "Bus Speed"
 	default CONFIG_BUS_SPEED_133MHZ
@@ -432,9 +451,3 @@ config CONFIG_BUS_SPEED_166MHZ
 	depends on CONFIG_CPU_CLK_498MHZ || CONFIG_CPU_CLK_332MHZ
 
 endchoice
-
-config ALLOW_WITH_MMU
-  bool
-
-config ALLOW_WITH_CACHE
-  bool

@@ -1,10 +1,11 @@
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(reset)
+
 SECTIONS
 {
-        . = ALIGN(4);
-	.text : { 
+   
+	.text : ALIGN(4) { 
 		_stext = .;
 		*(.text)
 		*(.rodata)                 /* read-only data (constants) */
@@ -40,7 +41,8 @@ SECTIONS
 		_ebss = .;
 	}
 }
-end = .;  /* define a global symbol marking the end of application */
+end = .;  /* define a global symbol marking the end of application (W/O STACK !!) */
 
-/* Set the Memory descriptor table at the top of the SRAM memory.*/
-PROVIDE(MEMORY_DESCRIPTOR_TABLE_ENTRY = 0x320000 - 0x4000);
+/* Set the Memory translation table (16kB) at the top of the SRAM1 memory.*/
+PROVIDE(MEMORY_TRANSLATION_TABLE_BASE = 0x320000 - 0x4000);
+

@@ -17,10 +17,12 @@ endif
 
 BINDIR:=$(TOPDIR)/binaries
 
+
 DATE := $(shell date)
 VERSION := 3.6.0
-REVISION :=fastload
+REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
+
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
@@ -127,6 +129,56 @@ CRYSTAL:=$(strip $(subst ",,$(CONFIG_CRYSTAL)))
 SPI_CLK:=$(strip $(subst ",,$(CONFIG_SPI_CLK)))
 SPI_BOOT:=$(strip $(subst ",,$(CONFIG_SPI_BOOT)))
 
+#Add name decoration according to the BUILD destination.
+
+ifeq ($(CONFIG_DATAFLASH_LOAD_WITH_DMA),y)
+REVISION :=$(REVISION)-FASTLOAD
+endif
+
+ifeq ($(CONFIG_BUILD_RELEASE),)
+REVISION :=$(REVISION)-DEBUG
+endif
+
+ifeq ($(CONFIG_WITH_MMU),y)
+REVISION :=$(REVISION)-MMU
+endif
+
+ifeq ($(CONFIG_WITH_CACHE),y)
+REVISION :=$(REVISION)-CACHE
+endif
+
+
+#Add RAM type in name, TODO : to be refactored : set it in boards' directories.
+ifeq ($(CONFIG_ONLY_INTERNAL_RAM),y)
+REVISION :=$(REVISION)-SRAM
+endif
+
+ifeq ($(CONFIG_DDR2),y)
+REVISION :=$(REVISION)-DDR2
+endif
+
+ifeq ($(CONFIG_RAM_CHIP_IS43LR32400),y)
+REVISION :=$(REVISION)-IS43LR32400
+endif
+
+ifeq ($(CONFIG_RAM_CHIP_IS43LR32800),y)
+REVISION :=$(REVISION)-IS43LR32800
+endif
+
+ifeq ($(CONFIG_RAM_CHIP_W948D2),y)
+REVISION :=$(REVISION)-WD948D2
+endif
+
+ifeq ($(CONFIG_EXTERNAL_RAM_TEST),y)
+
+REVISION := $(REVISION)-CHECK
+ifeq ($(CONFIG_EXTERNAL_RAM_TEST_INFINITE),y)
+REVISION := $(REVISION)-INFINITE
+endif
+
+endif
+
+
 ifeq ($(REVISION),)
 REV:=
 else
@@ -138,6 +190,9 @@ BLOB:=-dt
 else
 BLOB:=
 endif
+
+#Default value
+TARGET_NAME := spinning
 
 ifeq ($(CONFIG_LOAD_LINUX), y)
 TARGET_NAME:=linux-$(subst I,i,$(IMAGE_NAME))
@@ -177,7 +232,6 @@ SYMLINK=at91bootstrap.bin
 endif
 
 
-
 COBJS-y := $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
 SOBJS-y := $(TOPDIR)/crt0_gnu.o
 
@@ -197,22 +251,22 @@ GC_SECTIONS=--gc-sections
 CPPFLAGS = -ffunction-sections -Wall \
 	-fno-stack-protector \
 	-I$(INCL) -Iinclude -Ifs/include \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\" -DCOMPILE_TIME="\"$(DATE)\""
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\" -DCOMPILE_TIME="\"$(DATE)\"" \
+	-DBOARD_NAME=\"$(BOARDNAME)\"
 
 ASFLAGS=-Wall -I$(INCL) -Iinclude
+
 ## Release BUILD
 ifeq ($(CONFIG_BUILD_RELEASE),y)
+## debug Release
 CPPFLAGS += -Os
 ASFLAGS += -Os
-## debug Release
+#Fake RELEASE => DEBUG from startup.
+# CPPFLAGS += -g -g3 -O0
+# ASFLAGS += -g -O0 
 else
-CPPFLAGS += -g -O0
+CPPFLAGS += -g -g3 -O0
 ASFLAGS += -g -O0
-endif
-
-## Set the flags for third stage debug
-ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
-ASFLAGS += -DCONFIG_DEBUG_3RD_STAGE
 endif
 
 include	toplevel_cpp.mk
@@ -285,6 +339,11 @@ endif
 	@echo ld FLAGS
 	@echo ========
 	@echo $(LDFLAGS) && echo
+	@echo ======
+	@echo Sources : $(SRCS) && echo
+	@echo Objets : $(OBJS) && echo
+	@echo ======
+	@echo Boot name : $(BOOT_NAME)
 	
 $(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
@@ -312,6 +371,7 @@ PHONY+= boot bootstrap
 rebuild: clean all
 
 ChkFileSize: $(AT91BOOTSTRAP)
+	
 	@( fsize=`stat -c%s $(BINDIR)/$(BOOT_NAME).bin`; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \

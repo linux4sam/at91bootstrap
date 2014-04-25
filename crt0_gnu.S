@@ -190,11 +190,12 @@ _go:
 #endif
 	ldr 	r1, =MACH_TYPE
 	/*EDF*/
-#ifdef CONFIG_DEBUG_3RD_STAGE
-#warning DEBUGGER wait activated for third stage
+  
 
+#if defined(CONFIG_DEBUG_3RD_STAGE) || defined (CONFIG_ONLY_INTERNAL_RAM)
+#warning DEBUGGER wait activated for third stage debug or simply spinnig
 _wait_dbg:
-	//TEST DEBUG Mode enabled : below => Data align exception ! => no message wait cebug
+	//TEST DEBUG Mode enabled : below => Data align exception ! => no message wait debug
 	// Enable  the Missaligned exception and interrupts  (FIQ & IRQ), Note : will do Data Abort Exception under debugger !
 	/* Change the interrupt flag I,F,A only if not under DEBUG : unknown state according to the ARMv7 ref manual => Data Abort Exception ! */
 /* Get the DBGDSCR registre */
@@ -218,20 +219,27 @@ _after_cpsie:
 	ldr     r4, = displayWaitDbg
 	mov     lr, pc
 	bx      r4
-	//Then DEBUG activation
+
+#if defined(CONFIG_DEBUG_3RD_STAGE)
+	//Then DEBUG activation : BREAK-POINT
 	bkpt
 	//If failed : message
 	ldr     r4, = displayFailedMsg
 	mov     lr, pc
 	bx      r4
-	//STOP here !
+#endif /*CONFIG_DEBUG_3RD_STAGE*/
+
 _inifinite_loop:
+	//STOP here (display the rolling prompt)
+  ldr     r4, = displayRollingPromptStep
+  mov     lr, pc
+  bx      r4
 	b _inifinite_loop
 
 #else
 	mov     lr, pc
 	bx      r0
-#endif /*CONFIG_DEBUG_APPLICATION*/
+#endif /* defined(CONFIG_DEBUG_3RD_STAGE) || defined (CONFIG_ONLY_INTERNAL_RAM) */
 
 /*#ifdef CONFIG_THUMB*/
 

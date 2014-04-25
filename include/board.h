@@ -72,4 +72,9 @@
 #include "sama5d3xek.h"
 #endif
 
+#ifdef CONFIG_SAMA5D31_BEEAVE
+#include "beeave.h"
+#endif
+
+
 #endif /* #ifndef __BOARD_H__ */

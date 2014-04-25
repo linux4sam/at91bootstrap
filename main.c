@@ -25,6 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdint.h>
+
 #include "common.h"
 #include "hardware.h"
 #include "board.h"
@@ -38,34 +40,61 @@
 #include "string.h"
 #include "onewire_info.h"
 
-#ifndef CONFIG_UPLOAD_3RD_STAGE
-#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-extern int load_kernel(struct image_info *img_info);
-#endif
+#ifdef CONFIG_EXTERNAL_RAM_TEST
+#include "ddram_utils.h"
+#include "CP15.h"
+#endif /*CONFIG_EXTERNAL_RAM_TEST*/
 
-//! Firmware loader definitions
-#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-#define load_image load_kernel
-#else
-#if defined (CONFIG_DATAFLASH)
-#define load_image load_dataflash
-#elif defined(CONFIG_NANDFLASH)
-#define load_image load_nandflash
-#elif defined(CONFIG_SDCARD)
-#define load_image load_sdcard
-#else
-#error "No booting media_str specified!"
-#endif
-#endif
-#else
+
+
+
+//Choose the loader function
+#if defined(CONFIG_ONLY_INTERNAL_RAM) || defined(CONFIG_UPLOAD_3RD_STAGE)
+//! Nothing to load at all.
+static const char* const BOOT_MSG_SUCCESS = "Init Done\n";
+static const char* const BOOT_MSG_FAILED =  "Init Failure\n";
+static const char* const BOOT_MSG_RECOVERY = "SHOULD NEVER HAPPENS\n";
+
 int load_nothing (struct image_info* unused)
 {
   //NOTHING TO DO
-  uasrt_puts("NOTHING is LOADED\n");
+  usart_puts("NOTHING is LOADED\n");
   return 0;
 }
 #define load_image load_nothing
-#endif /*CONFIG_UPLOAD_3RD_STAGE*/
+
+#else
+static const char* const BOOT_MSG_SUCCESS = "Done to load image\n";
+static const char* const BOOT_MSG_FAILED =  "Failed to load image\n";
+static const char* const BOOT_MSG_RECOVERY = "Success to recovery\n";
+
+
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+extern int load_kernel(struct image_info *img_info);
+#define load_image load_kernel
+#endif
+
+#if defined (CONFIG_DATAFLASH)
+#define load_image load_dataflash
+#endif
+
+#if defined(CONFIG_NANDFLASH)
+#define load_image load_nandflash
+#endif
+
+#if defined(CONFIG_SDCARD)
+#define load_image load_sdcard
+#endif
+
+#endif /*defined(CONFIG_ONLY_INTERNAL_RAM) || defined(CONFIG_UPLOAD_3RD_STAGE)*/
+
+
+//Check a loader as been defined
+#if !defined (load_image)
+#error "No loader defined : must choose one or no external memory !"
+#endif
+
+
 
 //typedef int (*load_function)(struct image_info *img_info);
 
@@ -73,31 +102,31 @@ void (*sdcard_set_of_name)(char *) = NULL;
 
 static void display_banner (void)
 {
-#ifndef CONFIG_UPLOAD_3RD_STAGE
-  char *version = "AT91Bootstrap";
+#if defined(CONFIG_UPLOAD_3RD_STAGE)
+  static const char* const version = BOARD_NAME" Bootstrap - 3rd stage uploaded through DEBUG PROBE";
+#elif defined(CONFIG_ONLY_INTERNAL_RAM)
+  static const char* const version = BOARD_NAME" Bootstrap - ONLY internal RAM activated";
 #else
-  char *version = "AT91Bootstrap - 3rd stage uploaded through DEBUG PROBE";
+  static const char* const version = BOARD_NAME" Bootstrap";
 #endif
 
 	char *ver_num = " "AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
 
 #if defined( CONFIG_CPU_CLK_498MHZ)
-	const char* const clocks_msg = " CLOCKS : Core:498MHz, Bus:166MHz\n";
+	static const char* const clocks_msg = " CLOCKS : Core:498MHz, Bus:166MHz\n";
 #elif defined (CONFIG_CPU_CLK_400MHZ)
-	const char* const clocks_msg = " CLOCKS : Core:400MHz, Bus:132MHz\n";
+	static const char* const clocks_msg = " CLOCKS : Core:400MHz, Bus:132MHz\n";
 #elif defined (CONFIG_CPU_CLK_528MHZ)
-	const char* const clocks_msg = " CLOCKS : Core:528MHz, Bus:133MHz\n";
+	static const char* const clocks_msg = " CLOCKS : Core:528MHz, Bus:133MHz\n";
 #else
 #error NO Clock defined !!
-	const char* const clocks_msg = "UNKNOWN";
+	static const char* const clocks_msg = "UNKNOWN";
 #endif
-	usart_puts("\n");
-	usart_puts("\n");
+	usart_puts("\n\n");
 	usart_puts(version);
 	usart_puts(ver_num);
 	usart_puts(clocks_msg);
-	usart_puts("\n");
-	usart_puts("\n");
+	usart_puts("\n\n");
 }
 
 int main(void)
@@ -105,10 +134,12 @@ int main(void)
 	struct image_info image;
 	char *media_str = NULL;
 	int ret;
+  
 
+#if !(defined(CONFIG_ONLY_INTERNAL_RAM) || defined(CONFIG_UPLOAD_3RD_STAGE))
 	char filename[FILENAME_BUF_LEN];
 	char of_filename[FILENAME_BUF_LEN];
-
+  
 	memset(&image, 0, sizeof(image));
 	memset(filename, 0, FILENAME_BUF_LEN);
 	memset(of_filename, 0, FILENAME_BUF_LEN);
@@ -119,7 +150,6 @@ int main(void)
 	image.of_dest = (unsigned char *)OF_ADDRESS;
 #endif
 
-#ifndef CONFIG_UPLOAD_3RD_STAGE
 
 #ifdef CONFIG_NANDFLASH
 	media_str = "NAND: ";
@@ -152,14 +182,77 @@ int main(void)
 #endif
 #endif
  
-#endif /*CONFIG_UPLOAD_3RD_STAGE*/
+#endif  /* defined(CONFIG_ONLY_INTERNAL_RAM) || defined(CONFIG_UPLOAD_3RD_STAGE)*/
   
 #ifdef CONFIG_HW_INIT
 	hw_init();
 #endif
 
 	display_banner();
+  
 
+//===================================================
+#ifdef CONFIG_EXTERNAL_RAM_TEST
+#warning RAM TEST
+  
+/**
+ * @note : simply calling the do_external_ram_tests() function is currently LETHAL !!
+ * The CP15_WriteControl() call in CP15_DisableDcache() raises an exception, but WHY ?? 
+ * Stack looks good and LR too until called, once done, PC == LR !!
+ * Nevertheless, it's ok when called "INLINE" as below.
+ */
+#if 1
+#ifdef CONFIG_WITH_CACHE
+  //disable the CACHE first.
+  CP15_DisableIcache();
+  CP15_DisableDcache();
+#endif
+  
+#ifdef CONFIG_EXTERNAL_RAM_TEST_INFINITE
+#warning INFINITE RAM TEST
+for(;;)
+{
+#endif /*CONFIG_EXTERNAL_RAM_TEST_INFINITE*/
+
+  usart_puts("##############################\n");
+  
+#ifdef CONFIG_EXTERNAL_RAM_TEST_WITHOUT_BURST  
+  dbg_log(DEBUG_INFO,"Base memory access\n");
+  do_external_ram_tests_step();  
+#endif /*CONFIG_EXTERNAL_RAM_TEST_WITHOUT_BURST*/
+  
+#ifdef CONFIG_EXTERNAL_RAM_TEST_WITH_BURST
+//Now test WITH CACHE Activated
+  dbg_log(DEBUG_INFO,"WITH Memory BURST\n");
+
+  CP15_EnableIcache();
+  CP15_EnableDcache();
+  
+  do_external_ram_tests_step();  
+  
+  CP15_DisableIcache();
+  CP15_DisableDcache();
+#endif /*CONFIG_EXTERNAL_RAM_TEST_WITH_BURST*/
+
+  dbg_log(DEBUG_INFO,"----------------------------\n");
+  
+#ifdef CONFIG_EXTERNAL_RAM_TEST_INFINITE
+}
+#endif /*CONFIG_EXTERNAL_RAM_TEST_INFINITE*/
+
+//===================================================#ifdef CONFIG_WITH_CACHE
+  //Enable the CACHE if needed
+  CP15_EnableIcache();
+  CP15_EnableDcache();
+
+#else 
+  //! @note Currently LETHAL, see the note above.
+ do_external_ram_tests();
+#endif  
+  
+#endif /*CONFIG_EXTERNAL_RAM_TEST*/
+//===================================================
+ 
 #ifdef CONFIG_LOAD_ONE_WIRE
 	/* Load one wire information */
 	load_1wire_info();
@@ -168,40 +261,48 @@ int main(void)
 	ret = load_image(&image);
 
 	if (media_str)
-		usart_puts(media_str);
+		dbg_log(DEBUG_INFO,media_str);
 
 	if (ret == 0){
-		usart_puts("Done to load image\n");
+		dbg_log(DEBUG_INFO,BOOT_MSG_SUCCESS);
 	}
 	if (ret == -1) {
-		usart_puts("Failed to load image\n");
-		while(1);
+		dbg_log(DEBUG_ERROR,BOOT_MSG_FAILED);
+  while(1);
 	}
 	if (ret == -2) {
-		usart_puts("Success to recovery\n");
+		dbg_log(DEBUG_INFO,BOOT_MSG_RECOVERY);
 		while (1);
 	}
 
 #ifdef CONFIG_SCLK
 	slowclk_switch_osc32();
 #endif
-
-	return JUMP_ADDR;
+  
+return JUMP_ADDR;
 }
 //****************************************************
-//Will just display a running symbol
-void displayWaitDbg(void)
+//Will just display a running symbol (use the ABI convention for parameters
+void displayWaitDbg(unsigned int dbgdscr, unsigned int cpsr)
 {
-  register unsigned int dbgdscr asm("r0");
-  register unsigned int cpsr asm("r1");
-
   dbg_log(2,"DBGDSCR:%b ; CPSR:0x%b\n", dbgdscr, cpsr);
-  usart_puts("Entering HALT Debug Mode, Waiting for the DEBUGGER ...\n");
+  dbg_log(DEBUG_INFO,"Entering HALT Debug Mode, Waiting for the DEBUGGER ...\n");
 }
 //****************************************************
 //Failure message
 void displayFailedMsg()
 {
-  usart_puts("CPU not HALTED !\n");
+  dbg_log(DEBUG_ERROR,"CPU not HALTED !\n");
 }
 //****************************************************
+//Add the rolling prompt
+static const char* ROLLING_PROMPT[] = {"|\r","/\r","-\r","\\\r"};
+
+//! This function is called from the startup code if nothing is loaded.
+void displayRollingPromptStep()
+{
+  static uint32_t loopIdx = 0;
+  usart_puts(ROLLING_PROMPT[loopIdx++&0x3]);
+}
+//****************************************************
+

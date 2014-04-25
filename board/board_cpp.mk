@@ -107,6 +107,10 @@ endif
 
 # other
 
+ifeq ($(CONFIG_ONLY_INTERNAL_RAM),y)
+CPPFLAGS += -DCONFIG_ONLY_INTERNAL_RAM
+endif
+
 ifeq ($(CONFIG_HAS_PIO3),y)
 CPPFLAGS += -DCONFIG_HAS_PIO3
 endif
