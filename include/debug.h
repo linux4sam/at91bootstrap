@@ -53,8 +53,9 @@
 #define	MSG_NANDFLASH	22
 #define	MSG_SIZE	23
 
-#define DEBUG_INFO        1
-#define DEBUG_LOUD        2
+#define DEBUG_ERROR       1
+#define DEBUG_INFO        2
+#define DEBUG_LOUD        3
 #define DEBUG_VERY_LOUD   4
 
 #ifdef CONFIG_DEBUG
