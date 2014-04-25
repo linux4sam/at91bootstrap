@@ -38,5 +38,6 @@ extern int pmc_cfg_pck(unsigned char x,
 
 extern int pmc_enable_periph_clock(unsigned int periph_id);
 extern void pmc_enable_system_clock(unsigned int clock_id);
+extern void pmc_disable_system_clock(unsigned int clock_id);
 
 #endif	/* #ifndef __PMC_H__ */

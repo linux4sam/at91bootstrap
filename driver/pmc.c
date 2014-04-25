@@ -220,10 +220,10 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 
 int pmc_cfg_pck(unsigned char x, unsigned int clk_sel, unsigned int prescaler)
 {
-	write_pmc(PMC_PCKR + x * 4, clk_sel | prescaler);
+ 	write_pmc(PMC_SCDR, 1 << (x + 8));
+  write_pmc(PMC_PCKR + x * 4, clk_sel | prescaler);
 	write_pmc(PMC_SCER, 1 << (x + 8));
 	while (!(read_pmc(PMC_SR) & (1 << (x + 8)))) ;
-
 	return 0;
 }
 
@@ -232,9 +232,15 @@ int pmc_enable_periph_clock(unsigned int periph_id)
 	unsigned int mask = 0x01 << (periph_id % 32);
 
 	if ((periph_id / 32) == 1)
+  {
 		write_pmc(PMC_PCER1, mask);
+    while((read_pmc(PMC_PCSR1) & mask) == 0);
+  }
 	else if ((periph_id / 32) == 0)
+  {
 		write_pmc(PMC_PCER, mask);
+    while((read_pmc(PMC_PCSR) & mask) == 1);
+  }
 	else
 		return -1;
 
@@ -244,4 +250,11 @@ int pmc_enable_periph_clock(unsigned int periph_id)
 void pmc_enable_system_clock(unsigned int clock_id)
 {
 	 write_pmc(PMC_SCER, clock_id);
+   while ((read_pmc(PMC_SCSR) & clock_id) == 0);
+}
+
+void pmc_disable_system_clock(unsigned int clock_id)
+{
+	 write_pmc(PMC_SCDR, clock_id);
+   while ((read_pmc(PMC_SCSR) & clock_id) == 1);
 }
