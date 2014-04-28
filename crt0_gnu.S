@@ -209,6 +209,7 @@ _wait_dbg:
 _after_cpsie:
 
 	//Enable the HALT mode in DEBUG (DBGDSCR:HDBGen = 1)
+	//Monitor == DEBUG in progress ! So, never when running freely.
 	mrc p14, 0, r0, c0, c2, 2
 	orr   r0, r0, #0x4000
 	mcr p14, 0, r0, c0, c2, 2
