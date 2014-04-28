@@ -42,7 +42,9 @@
 
 #ifdef CONFIG_EXTERNAL_RAM_TEST
 #include "ddram_utils.h"
+#ifdef CONFIG_WITH_CACHE
 #include "CP15.h"
+#endif /*CONFIG_WITH_CACHE*/
 #endif /*CONFIG_EXTERNAL_RAM_TEST*/
 
 
@@ -240,11 +242,12 @@ for(;;)
 }
 #endif /*CONFIG_EXTERNAL_RAM_TEST_INFINITE*/
 
-//===================================================#ifdef CONFIG_WITH_CACHE
+//===================================================
+#ifdef CONFIG_WITH_CACHE
   //Enable the CACHE if needed
   CP15_EnableIcache();
   CP15_EnableDcache();
-
+#endif /*CONFIG_WITH_CACHE*/
 #else 
   //! @note Currently LETHAL, see the note above.
  do_external_ram_tests();
