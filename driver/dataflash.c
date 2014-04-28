@@ -53,6 +53,7 @@
 /* JEDEC Code */
 #define MANUFACTURER_ID_ATMEL		0x1f
 
+
 /* Family Code */
 #define DF_FAMILY_AT26F			0x00
 #define DF_FAMILY_AT45			0x20

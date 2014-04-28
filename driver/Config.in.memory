@@ -332,11 +332,10 @@ config CONFIG_EXTERNAL_RAM_TEST
   help
 
 menu "External RAM test"
-  depends on !CONFIG_ONLY_INTERNAL_RAM
+  depends on CONFIG_EXTERNAL_RAM_TEST
 
 choice
   prompt "Test run :"
-  depends on CONFIG_EXTERNAL_RAM_TEST
   
   config CONFIG_EXTERNAL_RAM_TEST_SINGLE
   bool "Single "
@@ -352,12 +351,11 @@ endchoice
 
 config CONFIG_EXTERNAL_RAM_TEST_WITH_BURST
   bool "Burst access"
-  depends on CONFIG_WITH_CACHE && CONFIG_EXTERNAL_RAM_TEST
+  depends on CONFIG_WITH_CACHE
   help
     Use memory burst access (needs he MMU/CACHE)
 
 config CONFIG_EXTERNAL_RAM_TEST_WITHOUT_BURST
-  depends on CONFIG_EXTERNAL_RAM_TEST
   bool "Base access"
   default y
   help
