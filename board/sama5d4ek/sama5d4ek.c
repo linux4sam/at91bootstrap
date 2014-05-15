@@ -182,6 +182,42 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_TXARDS_8          /* MR12 = 1 */
 			| AT91C_DDRC2_TXARD_2);         /* MR12 = 0 */
 
+#elif defined(CONFIG_BUS_SPEED_176MHZ)
+
+	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
+				| AT91C_DDRC2_MD_DDR2_SDRAM);
+
+	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
+				| AT91C_DDRC2_NR_14
+				| AT91C_DDRC2_CAS_3
+				| AT91C_DDRC2_DLL_RESET_DISABLED
+				| AT91C_DDRC2_DIS_DLL_DISABLED
+				| AT91C_DDRC2_NB_BANKS_8
+				| AT91C_DDRC2_DECOD_INTERLEAVED
+				| AT91C_DDRC2_UNAL_SUPPORTED);
+
+	ddramc_config->rtr = 0x2b0;
+
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_8
+			| AT91C_DDRC2_TRCD_3
+			| AT91C_DDRC2_TWR_3
+			| AT91C_DDRC2_TRC_10
+			| AT91C_DDRC2_TRP_3
+			| AT91C_DDRC2_TRRD_3
+			| AT91C_DDRC2_TWTR_2
+			| AT91C_DDRC2_TMRD_2);
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2
+			| AT91C_DDRC2_TXSRD_200
+			| AT91C_DDRC2_TXSNR_37
+			| AT91C_DDRC2_TRFC_35);
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_8
+			| AT91C_DDRC2_TRTP_2
+			| AT91C_DDRC2_TRPA_3
+			| AT91C_DDRC2_TXARDS_2
+			| AT91C_DDRC2_TXARD_8);
+
 #else
 #error "No CLK setting defined"
 #endif
@@ -201,8 +237,10 @@ static void ddramc_init(void)
 	/* configure Shift Sampling Point of Data */
 #if defined(CONFIG_BUS_SPEED_133MHZ)
 	reg = AT91C_MPDDRC_RD_DATA_PATH_NO_SHIFT;
-#else
+#elif defined(CONFIG_BUS_SPEED_170MHZ)
 	reg = AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES;
+#elif defined(CONFIG_BUS_SPEED_176MHZ)
+	reg = AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES;
 #endif
 	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
 
@@ -210,11 +248,15 @@ static void ddramc_init(void)
 	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
 	reg &= ~AT91C_MPDDRC_RDIV;
 	reg &= ~AT91C_MPDDRC_TZQIO;
-	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
 #if defined(CONFIG_BUS_SPEED_133MHZ)
+	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
 	reg |= AT91C_MPDDRC_TZQIO_4;	/* @ 133 MHz */
-#else
+#elif defined(CONFIG_BUS_SPEED_170MHZ)
+	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
 	reg |= AT91C_MPDDRC_TZQIO_5;	/* @ 170 MHz */
+#elif defined(CONFIG_BUS_SPEED_176MHZ)
+	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_66_7;
+	reg |= AT91C_MPDDRC_TZQIO_5;
 #endif
 	reg |= AT91C_MPDDRC_EN_CALIB;
 	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));

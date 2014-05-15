@@ -291,6 +291,10 @@ config CONFIG_BUS_SPEED_170MHZ
 	bool "170 MHz"
 	depends on CONFIG_CPU_CLK_510MHZ
 
+config CONFIG_BUS_SPEED_176MHZ
+	bool "176 MHz"
+	depends on CONFIG_CPU_CLK_528MHZ
+
 endchoice
 
 config CONFIG_TRUSTZONE
