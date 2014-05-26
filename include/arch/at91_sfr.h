@@ -36,6 +36,7 @@
 #define SFR_EBICFG	0x40	/* EBI Configuration Register */
 #define SFR_SN0		0x4C	/* Serial Number 0 Register */
 #define SFR_SN1		0x50	/* Serial Number 1 Register */
+#define SFR_AICREDIR	0x54
 
 /*---SFR_EBICFG: (offset: 0x40) EBI Configuration Register ----*/
 #define AT91C_EBICFG_DRIVE0	(0x03 << 0)
@@ -63,5 +64,8 @@
 #define AT91C_EBICFG_BMS	(0x01 << 16)
 #define		AT91C_EBICFG_BMS_ROM		(0x00 << 16)
 #define		AT91C_EBICFG_BMS_EBI		(0x01 << 16)
+
+/*--- SFR_AICREDIR: (offset: 0x54)----*/
+#define	AICREDIR_KEY	0x5F67B102
 
 #endif /* #ifndef __AT91_SFR_H__ */

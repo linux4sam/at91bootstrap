@@ -345,3 +345,11 @@ config CONFIG_ENTER_NWD
 	default y
 	help
 	  The switch to enter from Secure World to Nomal World when exiting.
+
+config CONFIG_REDIRECT_ALL_INTS_AIC
+	depends on CONFIG_TRUSTZONE
+	bool "Redirect All Peripherals Interrupts to AIC"
+	default y
+	help
+	  Enable to redirect all peripherals interrupts to AIC,
+	  otherwise, the secure peripherals interrupts direct to SAIC, others to AIC.

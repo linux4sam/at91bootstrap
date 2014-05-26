@@ -50,6 +50,24 @@
 #include "tz_utils.h"
 #include "matrix.h"
 
+#if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
+static void redirect_interrupts_to_aic(void)
+{
+	volatile unsigned int key32;
+	volatile unsigned int die_uid;
+
+	die_uid = readl(SFR_SN1);	/* get the part serial number */
+	key32 = die_uid ^ AICREDIR_KEY;	/* generates unlock key */
+	writel(((key32 & 0xFFFFFFFE) | 0x1), SFR_AICREDIR + AT91C_BASE_SFR);
+			/* bits[31:1] = key */
+			/* bit[0] = 1 => all interrupts redirected to AIC */
+			/* bit[0] = 0 => secure interrupts directed to SAIC,
+						others to AIC (default) */
+}
+#else
+static void redirect_interrupts_to_aic(void) {}
+#endif
+
 static void at91_dbgu_hw_init(void)
 {
 	const struct pio_desc dbgu_pins[] = {
@@ -485,6 +503,9 @@ void hw_init(void)
 	/* Initialize the matrix */
 	matrix_init();
 #endif
+
+	/* Redirect all interrupts to non-secure AIC */
+	redirect_interrupts_to_aic();
 
 	/* initialize the dbgu */
 	initialize_dbgu();
