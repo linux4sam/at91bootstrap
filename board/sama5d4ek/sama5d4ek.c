@@ -53,16 +53,19 @@
 #if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
 static void redirect_interrupts_to_aic(void)
 {
-	volatile unsigned int key32;
-	volatile unsigned int die_uid;
+	unsigned int key32;
 
-	die_uid = readl(SFR_SN1);	/* get the part serial number */
-	key32 = die_uid ^ AICREDIR_KEY;	/* generates unlock key */
-	writel(((key32 & 0xFFFFFFFE) | 0x1), SFR_AICREDIR + AT91C_BASE_SFR);
+	if (!(readl(SFR_AICREDIR + AT91C_BASE_SFR) & 0x01)) {
+		key32 = readl(SFR_SN1 + AT91C_BASE_SFR) ^ AICREDIR_KEY;
+		writel(((key32 & ~0x01) | 0x1), SFR_AICREDIR + AT91C_BASE_SFR);
 			/* bits[31:1] = key */
 			/* bit[0] = 1 => all interrupts redirected to AIC */
 			/* bit[0] = 0 => secure interrupts directed to SAIC,
 						others to AIC (default) */
+
+		if ((readl(SFR_AICREDIR + AT91C_BASE_SFR) & 0x01))
+			dbg_info("\nAll interupts redirected to AIC\n");
+	}
 }
 #else
 static void redirect_interrupts_to_aic(void) {}
@@ -504,11 +507,11 @@ void hw_init(void)
 	matrix_init();
 #endif
 
-	/* Redirect all interrupts to non-secure AIC */
-	redirect_interrupts_to_aic();
-
 	/* initialize the dbgu */
 	initialize_dbgu();
+
+	/* Redirect all interrupts to non-secure AIC */
+	redirect_interrupts_to_aic();
 
 #if defined(CONFIG_MATRIX)
 	matrix_read_slave_security();
