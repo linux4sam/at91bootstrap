@@ -377,6 +377,11 @@ int pmc_sys_clk(unsigned int sys_clock_mask, unsigned int is_on)
 	}
 }
 
+void pmc_pck_setup(unsigned int reg_offset, unsigned int reg_value)
+{
+	write_pmc(reg_offset, reg_value);
+}
+
 int pmc_uckr_clk(unsigned int is_on)
 {
 	unsigned int uckr = read_pmc(PMC_UCKR);

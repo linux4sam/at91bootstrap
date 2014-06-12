@@ -47,5 +47,6 @@ extern int pmc_sys_clk(unsigned int sys_clock_mask, unsigned int is_on);
 extern int pmc_uckr_clk(unsigned int is_on);
 extern unsigned int pmc_usb_setup(void);
 extern void pmc_smd_setup(unsigned int val);
+extern void pmc_pck_setup(unsigned int reg_offset, unsigned int reg_value);
 
 #endif	/* #ifndef __PMC_H__ */
