@@ -27,6 +27,7 @@
  */
 #include "common.h"
 #include "hardware.h"
+#include "arch/at91_pmc.h"
 #include "pmc.h"
 #include "arch/tz_matrix.h"
 #include "debug.h"
@@ -653,6 +654,18 @@ int is_sys_clk_secure(unsigned int sys_mask)
 	unsigned int periph_id = sys_mask_to_per_id(sys_mask);
 
 	return is_peripheral_secure(periph_id);
+}
+
+int is_pck_clk_secure(unsigned int pck_mask)
+{
+	switch (pck_mask) {
+	case AT91C_PMC_PCK0:
+	case AT91C_PMC_PCK1:
+	case AT91C_PMC_PCK2:
+		return 0;
+	default:
+		return 1;
+	}
 }
 
 int is_usb_hs_secure(void)
