@@ -48,7 +48,10 @@ int svc_mgr_main(struct smc_args_t const *args)
 	switch (args->r0) {
 	case 0x24:
 		if (args->r1 == PMC_PLLAR
-			|| args->r1 == PMC_MCKR)
+			|| args->r1 == PMC_MCKR
+			|| args->r1 == PMC_PCKR
+			|| args->r1 == PMC_PCKR1
+			|| args->r1 == PMC_PCKR2)
 			ret = pmc_read_reg(args->r1);
 		else
 			ret = -1;
