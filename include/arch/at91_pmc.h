@@ -47,6 +47,7 @@
 #define PMC_SMD		0x3C	/* SMD clock register */
 #define PMC_PCKR	0x40	/* Programmable Clock 0 Register */
 #define PMC_PCKR1	0x44	/* Programmable Clock 1 Register */
+#define PMC_PCKR2	0x48	/* Programmable Clock 2 Register */
 /* 0x48 ~ 0x5C */
 #define PMC_IER		0x60	/* Interrupt Enable Register */
 #define PMC_IDR		0x64	/* Interrupt Disable Register */
@@ -76,6 +77,7 @@
 #define AT91C_PMC_UDP		(0x1UL <<  7)
 #define AT91C_PMC_PCK0		(0x1UL <<  8)
 #define AT91C_PMC_PCK1		(0x1UL <<  9)
+#define AT91C_PMC_PCK2		(0x1UL << 10)
 
 #define AVAILABLE_SYS_CLK (AT91C_PMC_DDR \
 			 | AT91C_PMC_LCDCK \
