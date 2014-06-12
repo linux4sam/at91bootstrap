@@ -41,6 +41,7 @@
 int svc_mgr_main(struct smc_args_t const *args)
 {
 	int ret = 0;
+	unsigned int pck_mask;
 	unsigned int silent = 1;
 
 	dbg_loud("--> svc_mgr_main\n");
@@ -91,6 +92,29 @@ int svc_mgr_main(struct smc_args_t const *args)
 		break;
 	case 0x29:
 		cpu_reset();
+
+	case 0x23:
+		switch (args->r1) {
+		case PMC_PCKR:
+			pck_mask = AT91C_PMC_PCK0;
+			break;
+		case PMC_PCKR1:
+			pck_mask = AT91C_PMC_PCK1;
+			break;
+		case PMC_PCKR2:
+			pck_mask = AT91C_PMC_PCK2;
+			break;
+		default:
+			return -1;
+		}
+
+		if (is_pck_clk_secure(pck_mask)) {
+			ret = -1;
+		} else {
+			pmc_pck_setup(args->r1, args->r2);
+			ret = 0;
+		}
+		break;
 
 	case 0x42:
 		l2cache_init();
