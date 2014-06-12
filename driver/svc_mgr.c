@@ -70,7 +70,7 @@ int svc_mgr_main(struct smc_args_t const *args)
 		break;
 
 	case 0x26:
-		if (is_sys_clk_secure(args->r1))
+		if (is_sys_clk_secure(args->r1) && is_pck_clk_secure(args->r1))
 			ret = -1;
 		else
 			ret = pmc_sys_clk(args->r1, args->r2);
