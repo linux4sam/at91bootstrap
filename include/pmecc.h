@@ -65,7 +65,7 @@ struct _PMECC_paramDesc_struct {
 
 } PMECC_paramDesc;
 
-extern int get_pmecc_bytes();
+extern int get_pmecc_bytes(unsigned int sector_size, unsigned int ecc_bits);
 extern int init_pmecc(struct nand_info *nand);
 extern void pmecc_enable(void);
 extern void pmecc_start_data_phase(void);

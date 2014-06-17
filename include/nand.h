@@ -61,6 +61,9 @@ struct nand_info {
 	void (*address)(unsigned char addr);
 
 	struct nand_ooblayout	*ecclayout;
+	/* Used by PMECC */
+	int			ecc_sector_size;
+	int			ecc_err_bits;
 };
 
 #define ZONE_DATA			0x01    /* Sector data zone */

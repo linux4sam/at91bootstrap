@@ -148,6 +148,7 @@ static void nand_cs_disable(void)
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static void config_nand_ooblayout(struct nand_ooblayout *layout,
+				struct nand_info *nand,
 				struct nand_chip *chip)
 {
 	layout->badblockpos = 5;
@@ -173,6 +174,7 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 }
 #else
 static void config_nand_ooblayout(struct nand_ooblayout *layout,
+				struct nand_info *nand,
 				struct nand_chip *chip)
 {
 	unsigned int i;
@@ -180,8 +182,8 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 	layout->badblockpos = 0;
 
 #ifdef CONFIG_USE_PMECC
-	layout->eccbytes = chip->pagesize / PMECC_SECTOR_SIZE
-		* get_pmecc_bytes();
+	layout->eccbytes = div(chip->pagesize, nand->ecc_sector_size)
+		* get_pmecc_bytes(nand->ecc_sector_size, nand->ecc_err_bits);
 #else	/* Use Software ECC */
 	switch (chip->pagesize) {
 	case 2048:	/* oobsize is 64. */
@@ -453,8 +455,13 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	nand->oobsize = chip->oobsize;
 	/* Total number of bytes in a sector */
 	nand->sectorsize = nand->pagesize + nand->oobsize;
+#ifdef CONFIG_USE_PMECC
+	/* Set PMECC sector size and ecc bits */
+	nand->ecc_sector_size = PMECC_SECTOR_SIZE;
+	nand->ecc_err_bits = PMECC_ERROR_CORR_BITS;
+#endif
 	/* the layout of the spare area */
-	config_nand_ooblayout(&nand_oob_layout, chip);
+	config_nand_ooblayout(&nand_oob_layout, nand, chip);
 	nand->ecclayout = &nand_oob_layout;
 	/* data bus width (8/16 bits) */
 	nand->buswidth = chip->buswidth;

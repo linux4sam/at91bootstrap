@@ -57,10 +57,11 @@ static void pmecclor_writel(unsigned int value, unsigned reg)
 /*
  * Return 1 means valid pmecc error bits & sector size. otherwise return 0;
  */
-static int is_valid_pmecc_params()
+static int is_valid_pmecc_params(unsigned int sector_size,
+		unsigned int ecc_bits)
 {
 	int ret = 1;
-	switch (PMECC_ERROR_CORR_BITS) {
+	switch (ecc_bits) {
 	case 2:
 	case 4:
 	case 8:
@@ -69,13 +70,13 @@ static int is_valid_pmecc_params()
 		break;
 	default:
 		dbg_info("Invalid Pmecc error bits: %d. Should " \
-			"be 2, 4, 8, 12 or 24.\n", PMECC_ERROR_CORR_BITS);
+			"be 2, 4, 8, 12 or 24.\n", ecc_bits);
 		ret = 0;
 	}
 
-	if (PMECC_SECTOR_SIZE != 512 && PMECC_SECTOR_SIZE != 1024) {
+	if (sector_size != 512 && sector_size != 1024) {
 		dbg_info("Invalid Pmecc sector size: %d. Should " \
-				"be 512 or 1024.\n", PMECC_SECTOR_SIZE);
+				"be 512 or 1024.\n", sector_size);
 		ret = 0;
 	}
 
@@ -95,7 +96,7 @@ static int is_valid_pmecc_params()
  *               12-bits                20-bytes                 21-bytes
  *               24-bits                39-bytes                 42-bytes
  */
-int get_pmecc_bytes()
+int get_pmecc_bytes(unsigned int sector_size, unsigned int ecc_bits)
 {
 	int i;
 	int error_corr_bits[] =		{2, 4, 8,  12, 24};
@@ -104,9 +105,9 @@ int get_pmecc_bytes()
 
 	int ecc_bytes = 0;
 	for (i = 0; i < 5; i++) {
-		if (error_corr_bits[i] == PMECC_ERROR_CORR_BITS) {
+		if (error_corr_bits[i] == ecc_bits) {
 			/* find out the index */
-			ecc_bytes = (PMECC_SECTOR_SIZE == 512) ?
+			ecc_bytes = (sector_size == 512) ?
 				ecc_bytes_sec_512[i] : ecc_bytes_sec_1024[i];
 			break;
 		}
@@ -221,11 +222,13 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 				struct nand_info *nand)
 {
 	unsigned int sectors;
+	unsigned int sector_size = nand->ecc_sector_size;
+	unsigned int ecc_bits = nand->ecc_err_bits;
 
 	if ((nand->pagesize == 2048) || (nand->pagesize == 4096) ||
 			(nand->pagesize == 8192)) {
 		/* Sector Size */
-		pmecc_params->sectorSize = (PMECC_SECTOR_SIZE == 512) ?
+		pmecc_params->sectorSize = (sector_size == 512) ?
 			AT91C_PMECC_SECTORSZ_512 : AT91C_PMECC_SECTORSZ_1024;
 
 		pmecc_params->nandWR = AT91C_PMECC_NANDWR_0;
@@ -242,23 +245,23 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 		pmecc_params->clkCtrl = 2;
 
 		pmecc_params->interrupt = 0;
-		pmecc_params->tt = PMECC_ERROR_CORR_BITS;
-		pmecc_params->mm = (PMECC_SECTOR_SIZE == 512) ? 13 : 14;
+		pmecc_params->tt = ecc_bits;
+		pmecc_params->mm = (sector_size == 512) ? 13 : 14;
 		pmecc_params->nn = (1 << pmecc_params->mm) - 1;
 
 #if defined(NO_GALOIS_TABLE_IN_ROM)
-		int size = PMECC_SECTOR_SIZE == 512 ?
+		int size = sector_size == 512 ?
 				PMECC_INDEX_TABLE_SIZE_512 :
 				PMECC_INDEX_TABLE_SIZE_1024;
 		pmecc_gf = (short *)PMECC_GF_TABLE_ADDR_IN_DDR;
-		build_gf(PMECC_SECTOR_SIZE == 512 ? 13 : 14,
+		build_gf(pmecc_params->mm,
 			pmecc_gf,				/* index table */
 			pmecc_gf + (size * sizeof(short)));	/* alpha table */
 		pmecc_params->index_of = pmecc_gf;
 		pmecc_params->alpha_to = pmecc_gf + (size * sizeof(short));
 #else
 
-		if (PMECC_SECTOR_SIZE == 512) {
+		if (sector_size == 512) {
 			pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM
 					+ CONFIG_LOOKUP_TABLE_ALPHA_OFFSET);
 			pmecc_params->index_of = (short *)(AT91C_BASE_ROM
@@ -271,7 +274,7 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 		}
 #endif
 		/* Error Correct Capability */
-		switch (PMECC_ERROR_CORR_BITS) {
+		switch (ecc_bits) {
 		case 2:
 			pmecc_params->errBitNbrCapability
 						= AT91C_PMECC_BCH_ERR2;
@@ -294,12 +297,12 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 			break;
 		default:
 			dbg_info("PMECC: Invalid error correctable " \
-				"bits: %d\n",	PMECC_ERROR_CORR_BITS);
+				"bits: %d\n", ecc_bits);
 			return -1;
 		}
 
 		/* Number of Sectors in the Page */
-		sectors = div(nand->pagesize, PMECC_SECTOR_SIZE);
+		sectors = div(nand->pagesize, sector_size);
 		if (sectors == 1) {
 			pmecc_params->pageSize = AT91C_PMECC_PAGESIZE_1SEC;
 		} else if (sectors == 2) {
@@ -353,15 +356,18 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 
 int init_pmecc(struct nand_info *nand)
 {
+	unsigned int sector_size = nand->ecc_sector_size;
+	unsigned int ecc_bits = nand->ecc_err_bits;
+
 	/* sanity check for the pmecc sector size and error bits */
-	if (!is_valid_pmecc_params())
+	if (!is_valid_pmecc_params(sector_size, ecc_bits))
 		return -1;
 
 	if (init_pmecc_descripter(&PMECC_paramDesc, nand) != 0)
 		return -1;
 
 	dbg_info("NAND: Initialize PMECC params, cap: %d, sector: %d\n",
-			PMECC_ERROR_CORR_BITS, PMECC_SECTOR_SIZE);
+			ecc_bits, sector_size);
 
 	init_pmecc_core(&PMECC_paramDesc);
 
@@ -706,7 +712,9 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 	unsigned int *pErrPos;
 	unsigned int bytePos;
 	unsigned int bitPos;
-	unsigned int sectorSize = PMECC_SECTOR_SIZE;
+	unsigned int sectorSize =
+		pPmeccDescriptor->sectorSize == AT91C_PMECC_SECTORSZ_512 ?
+		512 : 1024;
 
 	pErrPos = (unsigned int *)(pPMERRLOC + PMERRLOC_EL0);
 
@@ -763,14 +771,19 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 	unsigned int sectorBaseAddress, eccBaseAddr;
 	volatile int errorNbr;
 	unsigned int sector_num_per_page, page_size_byte, ecc_byte_per_sector;
+	/* Get the PMECC sector size and ecc_bits */
+	unsigned int sector_size =
+		pPmeccDescriptor->sectorSize == AT91C_PMECC_SECTORSZ_512 ?
+		512 : 1024;
+	unsigned int ecc_bits = pPmeccDescriptor->tt;
 
 	/* Set the sector size (512 or 1024 bytes) */
 	pmecclor_writel((pPmeccDescriptor->sectorSize >> 4), PMERRLOC_ELCFG);
 
+	ecc_byte_per_sector = get_pmecc_bytes(sector_size, ecc_bits);
 	sector_num_per_page = div(pPmeccDescriptor->eccSizeByte,
-					get_pmecc_bytes());
-	page_size_byte = sector_num_per_page * PMECC_SECTOR_SIZE;
-	ecc_byte_per_sector = get_pmecc_bytes();
+					ecc_byte_per_sector);
+	page_size_byte = sector_num_per_page * sector_size;
 
 	while (sectorNumber < sector_num_per_page) {
 
@@ -778,7 +791,7 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 		if (pmeccStatus & 0x1) {
 
 			sectorBaseAddress = (unsigned int)pageBuffer
-					+ (sectorNumber * PMECC_SECTOR_SIZE);
+					+ (sectorNumber * sector_size);
 			eccBaseAddr = (unsigned int)pageBuffer
 					+ page_size_byte
 					+ pmecc_readl(PMECC_SADDR)
