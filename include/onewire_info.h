@@ -54,13 +54,13 @@
 #define VENDOR_COGENT		4
 #define VENDOR_PDA		5
 
-extern unsigned int get_cm_sn();
-extern char get_cm_rev();
-extern unsigned int get_cm_vendor();
+extern unsigned int get_cm_sn(void);
+extern char get_cm_rev(void);
+extern unsigned int get_cm_vendor(void);
 extern unsigned int get_dm_sn(void);
-extern unsigned int get_sys_sn();
-extern unsigned int get_sys_rev();
+extern unsigned int get_sys_sn(void);
+extern unsigned int get_sys_rev(void);
 
-extern void load_1wire_info();
+extern void load_1wire_info(void);
 
 #endif	/* #ifndef __DS24XX_H__ */

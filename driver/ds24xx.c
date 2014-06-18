@@ -820,7 +820,7 @@ static unsigned int set_default_rev(void)
  *
  *******************************************************************************
  */
-void load_1wire_info()
+void load_1wire_info(void)
 {
 	int i, j;
 	unsigned int	cnt;
@@ -935,27 +935,27 @@ save_info:
 	return;
 }
 
-unsigned int get_sys_sn()
+unsigned int get_sys_sn(void)
 {
 	return sn;
 }
 
-unsigned int get_sys_rev()
+unsigned int get_sys_rev(void)
 {
 	return rev;
 }
 
-unsigned int get_cm_sn()
+unsigned int get_cm_sn(void)
 {
 	return (sn  >> CM_SN_OFFSET) & SN_MASK;
 }
 
-unsigned int get_cm_vendor()
+unsigned int get_cm_vendor(void)
 {
 	return (sn >> CM_VENDOR_OFFSET) & VENDOR_MASK;
 }
 
-char get_cm_rev()
+char get_cm_rev(void)
 {
 	return 'A' + ((rev >> CM_REV_OFFSET) & REV_MASK);
 }
