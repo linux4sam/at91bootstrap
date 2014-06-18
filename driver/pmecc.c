@@ -809,7 +809,7 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
  * \param ErrorNbr Number of error to correct
  * \return 0 if all errors have been corrected, 1 if too many errors detected
  */
-unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
+static unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 		unsigned long pPMERRLOC,
 		struct _PMECC_paramDesc_struct *pPmeccDescriptor,
 		unsigned int pmeccStatus,
@@ -873,7 +873,7 @@ unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 	return 0;
 }
 
-void buf_dump(unsigned char *buf, int offset, int len)
+static void buf_dump(unsigned char *buf, int offset, int len)
 {
 	int i = 0;
 	for (i = 0; i < len; i++) {
@@ -883,7 +883,7 @@ void buf_dump(unsigned char *buf, int offset, int len)
 	}
 }
 
-void page_dump(unsigned char *buf, int page_size, int oob_size)
+static void page_dump(unsigned char *buf, int page_size, int oob_size)
 {
 	dbg_loud("Dump Error Page: Data:\n");
 	buf_dump(buf, 0, page_size);
