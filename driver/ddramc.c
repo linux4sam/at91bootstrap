@@ -437,3 +437,24 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 #else
 #error "No right DDR-SDRAM device driver provided!"
 #endif /* #ifndef CONFIG_PDDR2 */
+
+void ddramc_print_config_regs(unsigned int base_address)
+{
+	dbg_very_loud("\n\nMPDDR Controller Registers configurations:\n");
+	dbg_very_loud("MPDDRC_MDR: %d\n",
+				read_ddramc(base_address, HDDRSDRC2_MDR));
+	dbg_very_loud("MPDDRC_READ_DATA_PATH: %d\n",
+				read_ddramc(base_address, MPDDRC_RD_DATA_PATH));
+	dbg_very_loud("MPDDRC_IO_CALIBR: %d\n",
+				read_ddramc(base_address, MPDDRC_IO_CALIBR));
+	dbg_very_loud("MPDDRC_TPR0: %d\n",
+				read_ddramc(base_address, HDDRSDRC2_T0PR));
+	dbg_very_loud("MPDDRC_TPR1: %d\n",
+				read_ddramc(base_address, HDDRSDRC2_T1PR));
+	dbg_very_loud("MPDDRC_TPR2: %d\n",
+				read_ddramc(base_address, HDDRSDRC2_T2PR));
+	dbg_very_loud("MPDDRC_RTR: %d\n",
+				read_ddramc(base_address, HDDRSDRC2_RTR));
+	dbg_very_loud("MPDDRC_CR: %d\n",
+				read_ddramc(base_address, HDDRSDRC2_CR));
+}

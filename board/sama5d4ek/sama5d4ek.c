@@ -263,6 +263,8 @@ static void ddramc_init(void)
 
 	/* DDRAM2 Controller initialize */
 	ddram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
+
+	ddramc_print_config_regs(AT91C_BASE_MPDDRC);
 }
 #endif /* #ifdef CONFIG_DDR2 */
 
