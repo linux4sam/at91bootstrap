@@ -43,6 +43,7 @@ struct nand_chip {
 	unsigned short	pagesize;
 	unsigned short	oobsize;
 	unsigned char	buswidth;
+	unsigned char	eccbits;
 };
 
 struct nand_info {

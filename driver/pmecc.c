@@ -83,6 +83,52 @@ static int is_valid_pmecc_params(unsigned int sector_size,
 	return ret;
 }
 
+int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip)
+{
+	unsigned int onfi_ecc_bits;
+	unsigned int onfi_sector_size;
+
+	/* PMECC information */
+	nand->ecc_sector_size = 0;
+	nand->ecc_err_bits = 0;
+
+#ifdef PMECC_SECTOR_SIZE
+	nand->ecc_sector_size = PMECC_SECTOR_SIZE;
+#endif
+#ifdef PMECC_ERROR_CORR_BITS
+	nand->ecc_err_bits = PMECC_ERROR_CORR_BITS;
+#endif
+
+	/* Check ONFI parameter is valid or not? */
+	if (chip->eccbits == 0) {
+		dbg_info("Nand flash is not ONFI compliant, use 2-bit/512-byte ecc.\n");
+		onfi_ecc_bits = 2;
+		onfi_sector_size = 512;
+	} else if (chip->eccbits == 0xff) {
+		dbg_info("ONFI use extended parameters, don't support yet. use 2-bit/512-byte ecc.\n");
+		onfi_ecc_bits = 2;
+		onfi_sector_size = 512;
+	} else {
+		onfi_ecc_bits = chip->eccbits;
+		onfi_sector_size = 512;
+	}
+
+	/* If PMECC_SECTOR_SIZE/PMECC_ERROR_CORR_BITS no defined, use ONFI */
+	if (!nand->ecc_sector_size)
+		nand->ecc_sector_size = onfi_sector_size;
+
+	if (!nand->ecc_err_bits)
+		nand->ecc_err_bits = onfi_ecc_bits;
+
+	if (nand->ecc_sector_size != onfi_sector_size ||
+			nand->ecc_err_bits != onfi_ecc_bits)
+		dbg_info("WARNING: ONFI requires %d-bit/%d-byte ECC, but we use %d-bit/%d-byte ECC.\n",
+				onfi_ecc_bits, onfi_sector_size,
+				nand->ecc_err_bits, nand->ecc_sector_size);
+
+	return 0;
+}
+
 /*
  * Return number of ecc bytes per sector according to sector size and
  * correction capability

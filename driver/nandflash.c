@@ -387,6 +387,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	chip->oobsize	= *(unsigned short *)(p + PARAMS_OFFSET_OOBSIZE);
 	chip->buswidth	= (*(unsigned char *)(p + PARAMS_OFFSET_BUSWIDTH))
 								& 0x01;
+	chip->eccbits	= *(unsigned char *)(p + PARAMS_OFFSET_ECC_BITS);
 
 	manf_id = *(unsigned char *)(p + PARAMS_OFFSET_JEDEC_ID);
 	dev_id = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);
@@ -456,9 +457,7 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	/* Total number of bytes in a sector */
 	nand->sectorsize = nand->pagesize + nand->oobsize;
 #ifdef CONFIG_USE_PMECC
-	/* Set PMECC sector size and ecc bits */
-	nand->ecc_sector_size = PMECC_SECTOR_SIZE;
-	nand->ecc_err_bits = PMECC_ERROR_CORR_BITS;
+	choose_pmecc_info(nand, chip);
 #endif
 	/* the layout of the spare area */
 	config_nand_ooblayout(&nand_oob_layout, nand, chip);
