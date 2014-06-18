@@ -98,8 +98,10 @@ static int pio_set_a_periph(unsigned pin, int use_pullup)
 		return -1;
 
 	write_pio(pio, PIO_IDR, mask);
+#ifdef CONFIG_HAS_PIO3
 	if (use_pullup)
 		write_pio(pio, PIO_PPDDR, mask);
+#endif
 	write_pio(pio, use_pullup ? PIO_PPUER : PIO_PPUDR, mask);
 #ifndef CONFIG_HAS_PIO3
 	write_pio(pio, PIO_ASR, mask);
@@ -121,8 +123,10 @@ static int pio_set_b_periph(unsigned pin, int use_pullup)
 		return -1;
 
 	write_pio(pio, PIO_IDR, mask);
+#ifdef CONFIG_HAS_PIO3
 	if (use_pullup)
 		write_pio(pio, PIO_PPDDR, mask);
+#endif
 	write_pio(pio, (use_pullup ? PIO_PPUER : PIO_PPUDR), mask);
 #ifndef CONFIG_HAS_PIO3
 	write_pio(pio, PIO_BSR, mask);
@@ -184,8 +188,10 @@ int pio_set_gpio_input(unsigned pin, int use_pullup)
 		return -1;
 
 	write_pio(pio, PIO_IDR, mask);
+#ifdef CONFIG_HAS_PIO3
 	if (use_pullup)
 		write_pio(pio, PIO_PPDDR, mask);
+#endif
 	write_pio(pio, (use_pullup ? PIO_PPUER : PIO_PPUDR), mask);
 	write_pio(pio, PIO_ODR, mask);
 	write_pio(pio, PIO_PER, mask);
