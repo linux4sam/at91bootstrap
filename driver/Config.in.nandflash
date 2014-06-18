@@ -24,8 +24,16 @@ endchoice
 menu "PMECC Configuration"
 	depends on CONFIG_USE_PMECC
 
+config CONFIG_PMECC_AUTO_DETECT
+	bool "Auto-detect ONFI minimum error requirement"
+	default y
+	help
+	  Detect the ONFI parameters and use the minimum error
+	  requirement
+
 choice
 	prompt "PMECC Error Correction Bits"
+	depends on !CONFIG_PMECC_AUTO_DETECT
 	default CONFIG_PMECC_CORRECT_BITS_2
 	help
 		Select the PMECC correction bits
@@ -49,6 +57,7 @@ endchoice
 
 choice
 	prompt "PMECC Sector Size"
+	depends on !CONFIG_PMECC_AUTO_DETECT
 	default CONFIG_PMECC_SECTOR_SIZE_512
 	help
 		Select the PMECC sector size
