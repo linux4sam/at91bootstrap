@@ -34,6 +34,8 @@
 #include "debug.h"
 #include "div.h"
 
+static struct _PMECC_paramDesc_struct PMECC_paramDesc;
+
 static int pmecc_readl(unsigned int reg)
 {
 	return readl(AT91C_BASE_PMECC + reg);

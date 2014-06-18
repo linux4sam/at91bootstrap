@@ -186,7 +186,7 @@ INCL=board/$(BOARDNAME)
 GC_SECTIONS=--gc-sections
 
 CPPFLAGS=-ffunction-sections -g -Os -Wall \
-	-fno-stack-protector \
+	-fno-stack-protector -fno-common \
 	-I$(INCL) -Iinclude -Ifs/include \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
 

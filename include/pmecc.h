@@ -63,7 +63,7 @@ struct _PMECC_paramDesc_struct {
 	/* polynom order */
 	short lmu[TT_MAX + 1];
 
-} PMECC_paramDesc;
+};
 
 extern int get_pmecc_bytes(unsigned int sector_size, unsigned int ecc_bits);
 extern int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip);
