@@ -234,13 +234,19 @@
 #define		AT91C_MPDDRC_DISABLE_CALIB		(0x00 << 4)
 #define		AT91C_MPDDRC_EN_CALIB		(0x01 << 4)
 
-#define		AT91C_MPDDRC_TZQIO	(0x1FUL << 8)
+#define	AT91C_MPDDRC_TZQIO	(0x1FUL << 8)
 #define		AT91C_MPDDRC_TZQIO_0	(0x0UL << 8)
 #define		AT91C_MPDDRC_TZQIO_1	(0x1UL << 8)
 #define		AT91C_MPDDRC_TZQIO_3	(0x3UL << 8)
 #define		AT91C_MPDDRC_TZQIO_4	(0x4UL << 8)
 #define		AT91C_MPDDRC_TZQIO_5	(0x5UL << 8)
 #define		AT91C_MPDDRC_TZQIO_31	(0x1FUL << 8)
+
+#define	AT91C_MPDDRC_CALCODEP	(0xFUL << 16)
+#define		AT91C_MPDDRC_CALCODEP_(x)	((x) << 16)
+
+#define	AT91C_MPDDRC_CALCODEN	(0xFUL << 20)
+#define		AT91C_MPDDRC_CALCODEN_(x)	((x) << 20)
 
 /* ---- MPDDRC_RD_DATA_PATH : (MPDDRC Offset: 0x5c) MPDDRC Read Data Path */
 #define AT91_MPDDRC_SHIFT_SAMPLING	(0x03 << 0)
