@@ -100,25 +100,25 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->rtr = 0x411;     /* Refresh timer: 7.8125us */
 
 	/* One clock cycle @ 133 MHz = 7.5 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6       /* 6 * 7.5 = 45 ns */
-			| AT91C_DDRC2_TRCD_2            /* 2 * 7.5 = 22.5 ns */
-			| AT91C_DDRC2_TWR_2             /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TRC_8             /* 8 * 7.5 = 75   ns */
-			| AT91C_DDRC2_TRP_2             /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TRRD_2            /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TWTR_2            /* 2 clock cycles min */
-			| AT91C_DDRC2_TMRD_2);          /* 2 clock cycles */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)	/* 6 * 7.5 = 45 ns */
+			| AT91C_DDRC2_TRCD_(2)		/* 2 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TWR_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRC_(8)		/* 8 * 7.5 = 75   ns */
+			| AT91C_DDRC2_TRP_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRRD_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TWTR_(2)		/* 2 clock cycles min */
+			| AT91C_DDRC2_TMRD_(2));	/* 2 clock cycles */
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2        /*  2 clock cycles */
-			| AT91C_DDRC2_TXSRD_200         /* 200 clock cycles */
-			| AT91C_DDRC2_TXSNR_28          /* 195 + 10 = 205ns ==> 28 * 7.5 = 210 ns*/
-			| AT91C_DDRC2_TRFC_26);         /* 26 * 7.5 = 195 ns */
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)	/*  2 clock cycles */
+			| AT91C_DDRC2_TXSRD_(200)	/* 200 clock cycles */
+			| AT91C_DDRC2_TXSNR_(28)	/* 195 + 10 = 205ns ==> 28 * 7.5 = 210 ns*/
+			| AT91C_DDRC2_TRFC_(26));	/* 26 * 7.5 = 195 ns */
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_7       /* 7 * 7.5 = 52.5 ns */
-			| AT91C_DDRC2_TRTP_2            /* 2 clock cycles min */
-			| AT91C_DDRC2_TRPA_2            /* 2 * 7.5 = 15 ns */
-			| AT91C_DDRC2_TXARDS_7          /* 7 clock cycles */
-			| AT91C_DDRC2_TXARD_8);         /* MR12 = 1 : slow exit power down */
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)	/* 7 * 7.5 = 52.5 ns */
+			| AT91C_DDRC2_TRTP_(2)		/* 2 clock cycles min */
+			| AT91C_DDRC2_TRPA_(2)		/* 2 * 7.5 = 15 ns */
+			| AT91C_DDRC2_TXARDS_(7)	/* 7 clock cycles */
+			| AT91C_DDRC2_TXARD_(8));	/* MR12 = 1 : slow exit power down */
 
 #elif defined(CONFIG_BUS_SPEED_166MHZ)
 	/*
@@ -128,25 +128,25 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->rtr = 0x500;
 
 	/* One clock cycle @ 166 MHz = 6.0 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_8	/* 8 * 6 = 48 ns */
-			| AT91C_DDRC2_TRCD_3		/* 3 * 6 = 18 ns */
-			| AT91C_DDRC2_TWR_3		/* 3 * 6 = 18 ns */
-			| AT91C_DDRC2_TRC_10		/* 10 * 6 = 60 ns */
-			| AT91C_DDRC2_TRP_3		/* 3 * 6 = 18 ns */
-			| AT91C_DDRC2_TRRD_2		/* 2 * 6 = 12 ns */
-			| AT91C_DDRC2_TWTR_2		/* 2 clock cycles*/
-			| AT91C_DDRC2_TMRD_2);		/* 2 clock cycles at least */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)	/* 8 * 6 = 48 ns */
+			| AT91C_DDRC2_TRCD_(3)		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TWR_(3)		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TRC_(10)		/* 10 * 6 = 60 ns */
+			| AT91C_DDRC2_TRP_(3)		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TRRD_(2)		/* 2 * 6 = 12 ns */
+			| AT91C_DDRC2_TWTR_(2)		/* 2 clock cycles*/
+			| AT91C_DDRC2_TMRD_(2));	/* 2 clock cycles at least */
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_3	/* 3 * 6 = 18ns, 2 clock cycles a least */
-			| AT91C_DDRC2_TXSRD_202		/* 202 clock cycles: Exit self refresh delay to Read command */
-			| AT91C_DDRC2_TXSNR_35		/* 35 * 6 = 210 ns*/
-			| AT91C_DDRC2_TRFC_31);		/* 31 * 6 = 186 ns */
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(3)	/* 3 * 6 = 18ns, 2 clock cycles a least */
+			| AT91C_DDRC2_TXSRD_(202)	/* 202 clock cycles: Exit self refresh delay to Read command */
+			| AT91C_DDRC2_TXSNR_(35)	/* 35 * 6 = 210 ns*/
+			| AT91C_DDRC2_TRFC_(31));	/* 31 * 6 = 186 ns */
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_8	/* 45 ns for 16bit * 8 bank */
-			| AT91C_DDRC2_TRTP_2		/* 2 * 6 = 15ns clock cycles min */
-			| AT91C_DDRC2_TRPA_3		/* 15 ns */
-			| AT91C_DDRC2_TXARDS_10		/* 7 ~ 10 clock cycles */
-			| AT91C_DDRC2_TXARD_3);		/* 2 ~ 3 clock cycles */
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(8)	/* 45 ns for 16bit * 8 bank */
+			| AT91C_DDRC2_TRTP_(2)		/* 2 * 6 = 15ns clock cycles min */
+			| AT91C_DDRC2_TRPA_(3)		/* 15 ns */
+			| AT91C_DDRC2_TXARDS_(10)	/* 7 ~ 10 clock cycles */
+			| AT91C_DDRC2_TXARD_(3));	/* 2 ~ 3 clock cycles */
 
 #else
 #error "No bus clock provided!"

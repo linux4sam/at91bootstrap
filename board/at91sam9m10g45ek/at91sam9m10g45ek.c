@@ -82,24 +82,24 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->rtr = 0x24B;
 
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6	/* 6 * 7.5 = 45 ns */
-			| AT91C_DDRC2_TRCD_2	/* 2 * 7.5 = 22.5 ns */
-			| AT91C_DDRC2_TWR_2	/* 2 * 7.5 = 15 ns */
-			| AT91C_DDRC2_TRC_8	/* 8 * 7.5 = 75 ns */
-			| AT91C_DDRC2_TRP_2	/* 2 * 7.5 = 22.5 ns */
-			| AT91C_DDRC2_TRRD_1	/* 1 * 7.5 = 7.5 ns */
-			| AT91C_DDRC2_TWTR_1	/* 1 clock cycle */
-			| AT91C_DDRC2_TMRD_2);	/* 2 clock cycles */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)	/* 6 * 7.5 = 45 ns */
+			| AT91C_DDRC2_TRCD_(2)		/* 2 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TWR_(2)		/* 2 * 7.5 = 15 ns */
+			| AT91C_DDRC2_TRC_(8)		/* 8 * 7.5 = 75 ns */
+			| AT91C_DDRC2_TRP_(2)		/* 2 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TRRD_(1)		/* 1 * 7.5 = 7.5 ns */
+			| AT91C_DDRC2_TWTR_(1)		/* 1 clock cycle */
+			| AT91C_DDRC2_TMRD_(2));	/* 2 clock cycles */
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2	/* 2 * 7.5 = 15 ns */
-			| 200 << 16			/* 200 clock cycles */
-			| 16 << 8			/* 16 * 7.5 = 120 ns */
-			| AT91C_DDRC2_TRFC_14 << 0);	/* 14 * 7.5 = 142 ns */
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)	/* 2 * 7.5 = 15 ns */
+			| AT91C_DDRC2_TXSRD_(200)	/* 200 clock cycles */
+			| AT91C_DDRC2_TXSNR_(16)	/* 16 * 7.5 = 120 ns */
+			| AT91C_DDRC2_TRFC_(14));	/* 14 * 7.5 = 142 ns */
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TRTP_1	/* 1 * 7.5 = 7.5 ns */
-			| AT91C_DDRC2_TRPA_0		/* 0 * 7.5 = 0 ns */
-			| AT91C_DDRC2_TXARDS_7		/* 7 clock cycles */
-			| AT91C_DDRC2_TXARD_2);		/* 2 clock cycles */
+	ddramc_config->t2pr = (AT91C_DDRC2_TRTP_(1)	/* 1 * 7.5 = 7.5 ns */
+			| AT91C_DDRC2_TRPA_(0)		/* 0 * 7.5 = 0 ns */
+			| AT91C_DDRC2_TXARDS_(7)	/* 7 clock cycles */
+			| AT91C_DDRC2_TXARD_(2));	/* 2 clock cycles */
 }
 
 static void ddramc_init(void)
