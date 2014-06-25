@@ -572,6 +572,14 @@ static void at91_disable_smd_clock(void)
 	pmc_disable_system_clock(AT91C_PMC_SMDCK);
 }
 
+static void SiI9022_hw_reset(void)
+{
+	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 1);
+	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 0);
+	udelay(500);
+	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 1);
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -631,6 +639,9 @@ void hw_init(void)
 #endif
 	/* load one wire information */
 	one_wire_hw_init();
+
+	/* Reset HDMI SiI9022 */
+	SiI9022_hw_reset();
 
 	/* Disable software modem device's clock */
 	at91_disable_smd_clock();

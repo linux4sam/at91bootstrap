@@ -184,6 +184,11 @@
  */
 #define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PE(28)
 
+/*
+ * Others
+ */
+#define CONFIG_SYS_HDMI_RESET_PIN	AT91C_PIN_PB(15)
+
 /* function */
 extern void hw_init(void);
 
