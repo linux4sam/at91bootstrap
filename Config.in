@@ -295,6 +295,20 @@ config CONFIG_DEBUG_VERY_LOUD
 
 endchoice
 
+config CONFIG_THUMB
+	depends on !(SAMA5D3X || SAMA5D4)
+	bool "Build in thumb mode"
+	help
+	  Build code in thumb mode
+
+config CONFIG_DISABLE_WATCHDOG
+	bool "Disable Watchdog"
+	default y
+	help
+	  Disable the watchdog in the boostrap
+
+menu "Hardware Initialization Options"
+
 config CONFIG_HW_INIT
 	bool "Call Hardware Initialization"
 	default y
@@ -306,14 +320,12 @@ config CONFIG_USER_HW_INIT
 	help
 	  Initialize Hardware
 
-config CONFIG_THUMB
-	depends on !(SAMA5D3X || SAMA5D4)
-	bool "Build in thumb mode"
-	help
-	  Build code in thumb mode
+endmenu
 
-config CONFIG_SCLK	  
+menu "Slow Clock Configuration Options"
 	depends on AT91SAM9RL || AT91SAM9G45 || AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X || SAMA5D4
+
+config CONFIG_SCLK
 	bool "Use external 32KHZ oscillator as source of slow clock"
 	help
 	  Use external 32KHZ oscillator as source of slow clock
@@ -325,31 +337,31 @@ config CONFIG_SCLK_BYPASS
 	help
 	  Use external 32kHz clock as source of slow clock
 
-config CONFIG_DISABLE_WATCHDOG
-	bool "Disable Watchdog"
-	default y
-	help
-	  Disable the watchdog in the boostrap
+endmenu
+
+menu "ARM TurstZone Options"
+	depends on CONFIG_TRUSTZONE
 
 config CONFIG_MATRIX
-	depends on CONFIG_TRUSTZONE
 	bool "Enable Configure the Matrix"
 	default y
 	help
-	  The switch to configure the matrix.
+	  This interface let you to configure the MATRIX0(H64MX) and
+	  MATRIX1(H32MX) slave security  and to select the APB slave security startup.
 
 config CONFIG_ENTER_NWD
-	depends on CONFIG_TRUSTZONE
 	select CONFIG_MATRIX
-	bool "Enable Enter the Normal World when Exiting"
+	bool "Enable Enter the Normal World before Jumping"
 	default y
 	help
-	  The switch to enter from Secure World to Nomal World when exiting.
+	  This interface let you to make the system to enter from the Secure World
+	  to the Non-Secure World before the jumping.
 
 config CONFIG_REDIRECT_ALL_INTS_AIC
-	depends on CONFIG_TRUSTZONE
 	bool "Redirect All Peripherals Interrupts to AIC"
 	default y
 	help
-	  Enable to redirect all peripherals interrupts to AIC,
+	  This interface let you to redirect all peripherals interrupts to AIC,
 	  otherwise, the secure peripherals interrupts direct to SAIC, others to AIC.
+
+endmenu
