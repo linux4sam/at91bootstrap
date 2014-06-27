@@ -363,10 +363,15 @@ static int matrix_configure_slave(void)
 	 * NANDFlash(EBI CS3) --> Slave Region 6: Non-Secure
 	 */
 	srtop_setting =	MATRIX_SRTOP(6, MATRIX_SRTOP_VALUE_128M);
+	srtop_setting |= MATRIX_SRTOP(7, MATRIX_SRTOP_VALUE_128M);
 	sasplit_setting = MATRIX_SASPLIT(6, MATRIX_SASPLIT_VALUE_128M);
+	sasplit_setting |= MATRIX_SASPLIT(7, MATRIX_SASPLIT_VALUE_128M);
 	ssr_setting = (MATRIX_LANSECH_NS(6)
 			| MATRIX_RDNSECH_NS(6)
 			| MATRIX_WRNSECH_NS(6));
+	ssr_setting |= (MATRIX_LANSECH_NS(7)
+			| MATRIX_RDNSECH_NS(7)
+			| MATRIX_WRNSECH_NS(7));
 	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
 					H32MX_EXTERNAL_EBI,
 					srtop_setting,
@@ -374,8 +379,8 @@ static int matrix_configure_slave(void)
 					ssr_setting);
 
 	/* 4: NFC SRAM (4K): Non-Secure */
-	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_4K);
-	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_4K);
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_8K);
+	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_8K);
 	ssr_setting = (MATRIX_LANSECH_NS(0)
 			| MATRIX_RDNSECH_NS(0)
 			| MATRIX_WRNSECH_NS(0));
