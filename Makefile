@@ -4,6 +4,12 @@
 # Then, `make menuconfig' if needed
 #
 
+# Do not:
+# o  use make's built-in rules and variables
+#    (this increases performance and avoids hard-to-debug behaviour);
+# o  print "Entering directory ...";
+MAKEFLAGS += -rR --no-print-directory
+
 TOPDIR=$(shell pwd)
 
 CONFIG_CONFIG_IN=Config.in
@@ -26,7 +32,6 @@ SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 ifneq ("$(origin V)", "command line")
 Q=@
 export Q
-MAKE_OPTION=--no-print-directory
 endif
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
@@ -51,14 +56,14 @@ export HOSTCFLAGS
 
 $(CONFIG)/conf:
 	@mkdir -p $(CONFIG)/at91bootstrap-config
-	@$(MAKE) $(MAKE_OPTION) CC="$(HOSTCC)" -C $(CONFIG) conf
+	@$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
 
 $(CONFIG)/mconf:
 	@mkdir -p $(CONFIG)/at91bootstrap-config
-	@$(MAKE) $(MAKE_OPTION) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
+	@$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
@@ -337,7 +342,7 @@ distrib: mrproper
 
 config-clean:
 	@echo "  CLEAN        "configuration files!
-	$(Q)make $(MAKE_OPTION) -C config distclean
+	$(Q)make -C config distclean
 	$(Q)rm -fr config/at91bootstrap-config
 	$(Q)rm -f  config/.depend
 
