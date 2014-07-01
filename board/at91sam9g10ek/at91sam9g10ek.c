@@ -294,18 +294,4 @@ void nandflash_hw_init(void)
 		| AT91_SMC_TDF_(2)),
 		AT91C_BASE_SMC + SMC_CTRL3);
 }
-
-void nandflash_config_buswidth(unsigned char busw)
-{
-	unsigned long csa;
-
-	csa = readl(AT91C_BASE_SMC + SMC_CTRL3);
-
-	if (busw == 0)
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
-	else
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
-
-	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
-}
 #endif /* #ifdef CONFIG_NANDFLASH */

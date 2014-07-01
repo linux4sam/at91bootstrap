@@ -242,18 +242,4 @@ void nandflash_hw_init(void)
 
 	writel((1 << AT91C_ID_PIOC), PMC_PCER + AT91C_BASE_PMC);
 }
-
-void nandflash_config_buswidth(unsigned char busw)
-{
-	unsigned long csa;
-
-	csa = readl(AT91C_BASE_SMC + SMC_CTRL3);
-
-	if (busw == 0)
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
-	else
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
-
-	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
-}
 #endif /* #ifdef CONFIG_NANDFLASH */
