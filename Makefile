@@ -86,13 +86,13 @@ oldconfig: $(CONFIG)/conf
 	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
-		$(CONFIG)/conf -o $(CONFIG_CONFIG_IN)
+		$(CONFIG)/conf --oldconfig $(CONFIG_CONFIG_IN)
 
 defconfig: $(CONFIG)/conf
 	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
-		$(CONFIG)/conf -d $(CONFIG_CONFIG_IN)
+		$(CONFIG)/conf --defconfig $(CONFIG_CONFIG_IN)
 
 
 else #  Have DOT Config
