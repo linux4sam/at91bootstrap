@@ -222,7 +222,11 @@ static void ddramc_init(void)
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* configure Shift Sampling Point of Data */
-	reg = AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES;
+#if defined(CONFIG_BUS_SPEED_133MHZ)
+	reg = AT91C_MPDDRC_RD_DATA_PATH_NO_SHIFT;
+#else
+	reg = AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES;
+#endif
 	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
 
 	/* MPDDRC I/O Calibration Register */
