@@ -149,7 +149,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->rtr = 0x229;
 
 	/* One clock cycle @ 170 MHz = 5.9 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(7)
 			| AT91C_DDRC2_TRCD_(3)
 			| AT91C_DDRC2_TWR_(3)
 			| AT91C_DDRC2_TRC_(10)
