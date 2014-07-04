@@ -242,8 +242,6 @@ static void ddramc_init(void)
 	reg |= AT91C_MPDDRC_TZQIO_5;	/* @ 170 & 176 MHz */
 #endif
 	reg |= AT91C_MPDDRC_EN_CALIB;
-	reg |= AT91C_MPDDRC_CALCODEP_(7);
-	reg |= AT91C_MPDDRC_CALCODEN_(8);
 
 	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
 
