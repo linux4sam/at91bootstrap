@@ -203,3 +203,7 @@ endif
 ifeq ($(CONFIG_ACT8865), y)
 CPPFLAGS += -DCONFIG_ACT8865
 endif
+
+ifeq ($(CONFIG_MACB), y)
+CPPFLAGS += -DCONFIG_MACB
+endif

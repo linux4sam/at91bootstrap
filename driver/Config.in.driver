@@ -23,4 +23,8 @@ config CONFIG_TWI
 	bool
 	default n
 
+config CONFIG_MACB
+	bool
+	default n
+
 source "driver/Config.in.memory"
