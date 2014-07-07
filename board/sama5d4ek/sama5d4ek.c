@@ -49,6 +49,7 @@
 #include "sama5d4ek.h"
 #include "tz_utils.h"
 #include "matrix.h"
+#include "twi.h"
 
 #if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
 static void redirect_interrupts_to_aic(void)
@@ -490,6 +491,36 @@ static int matrix_init(void)
 }
 #endif	/* #if defined(CONFIG_MATRIX) */
 
+#ifdef CONFIG_TWI
+
+#define TWI_CLOCK	400000
+
+static void at91_twi0_hw_init(void)
+{
+	const struct pio_desc twi0_pins[] = {
+		{"TWD0", AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TWCK0", AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(twi0_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOA);
+
+	pmc_enable_periph_clock(AT91C_ID_TWI0);
+}
+
+static void twi0_init(void)
+{
+	unsigned int bus_clock = MASTER_CLOCK / 2;
+
+	at91_twi_base = AT91C_BASE_TWI0;
+
+	at91_twi0_hw_init();
+
+	twi_configure_master_mode(bus_clock, TWI_CLOCK);
+}
+#endif /* #ifdef CONFIG_TWI */
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -549,6 +580,10 @@ void hw_init(void)
 #endif
 	/* load one wire information */
 	one_wire_hw_init();
+
+#ifdef CONFIG_TWI
+	twi0_init();
+#endif
 
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();
