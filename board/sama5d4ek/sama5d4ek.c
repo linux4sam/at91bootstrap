@@ -50,6 +50,7 @@
 #include "tz_utils.h"
 #include "matrix.h"
 #include "twi.h"
+#include "act8865.h"
 
 #if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
 static void redirect_interrupts_to_aic(void)
@@ -521,6 +522,42 @@ static void twi0_init(void)
 }
 #endif /* #ifdef CONFIG_TWI */
 
+#ifdef CONFIG_ACT8865
+static int sama5d4ek_act8865_set_reg_voltage(void)
+{
+	unsigned char reg, value;
+	int ret;
+
+	/* Check ACT8865 I2C interface */
+	if (act8865_check_i2c_disabled())
+		return 0;
+
+	/* Enable REG5 output 3.3V */
+	reg = REG5_0;
+	value = ACT8865_3V3;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_info("ACT8865: Failed to make REG5 output 3300mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG5 output 3300mV\n");
+
+	/* Enable REG6 output 1.8V */
+	reg = REG6_0;
+	value = ACT8865_1V8;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_info("ACT8865: Failed to make REG6 output 1800mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG6 output 1800mV\n");
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -583,6 +620,16 @@ void hw_init(void)
 
 #ifdef CONFIG_TWI
 	twi0_init();
+#endif
+
+#ifdef CONFIG_ACT8865
+	/* Set ACT8865 output voltage */
+	sama5d4ek_act8865_set_reg_voltage();
+
+	/* Dsiable ACT8865 I2C interface */
+	if (act8865_workaround_disable_i2c())
+		while (1)
+			;
 #endif
 
 #ifdef CONFIG_USER_HW_INIT
