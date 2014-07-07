@@ -31,4 +31,8 @@ config CONFIG_HDMI
 	bool
 	default n
 
+config CONFIG_WM8904
+	bool
+	default y
+
 source "driver/Config.in.memory"

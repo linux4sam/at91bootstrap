@@ -211,3 +211,7 @@ endif
 ifeq ($(CONFIG_HDMI), y)
 CPPFLAGS += -DCONFIG_HDMI
 endif
+
+ifeq ($(CONFIG_WM8904), y)
+CPPFLAGS += -DCONFIG_WM8904
+endif
