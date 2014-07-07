@@ -365,3 +365,17 @@ config CONFIG_REDIRECT_ALL_INTS_AIC
 	  otherwise, the secure peripherals interrupts direct to SAIC, others to AIC.
 
 endmenu
+
+menu "Board's Workaround Options"
+
+config CONFIG_ACT8865
+	bool "Disable the ACT8865 I2C interface"
+	depends on CONFIG_HAS_PMIC_ACT8865
+	select CONFIG_TWI
+	default n
+	help
+	  This interface let you to disable the ACT8865's I2C interface.
+	  There are some issue about active-semi ACT8865's I2C interface,
+	  which affects the other chip which stands on the same I2C bus, such as MXT touchscreen.
+
+endmenu

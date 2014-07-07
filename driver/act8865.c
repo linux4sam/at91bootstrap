@@ -1,0 +1,194 @@
+/* ----------------------------------------------------------------------------
+ *         ATMEL Microcontroller Software Support
+ * ----------------------------------------------------------------------------
+ * Copyright (c) 2013, Atmel Corporation
+
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * - Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the disclaiimer below.
+ *
+ * Atmel's name may not be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
+ * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+#include "common.h"
+#include "hardware.h"
+#include "twi.h"
+#include "act8865.h"
+#include "debug.h"
+
+/*
+ * ACT8865 Device Slave Address
+ */
+#define ACT8865_ADDR	0x5B
+
+static int act8865_read(unsigned char reg_addr, unsigned char *data)
+{
+	int ret;
+
+	ret = twi_read(ACT8865_ADDR, reg_addr, 1, data, 1);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+static int act8865_write(unsigned char reg_addr, unsigned char data)
+{
+	int ret;
+
+	ret = twi_write(ACT8865_ADDR, reg_addr, 1, &data, 1);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+int act8865_set_reg_voltage(unsigned char volt_reg, unsigned char value)
+{
+	unsigned char enable_reg;
+	unsigned char data;
+	int ret;
+
+	switch (volt_reg) {
+	case REG1_0:
+		enable_reg = REG1_2;
+		break;
+	case REG2_0:
+		enable_reg = REG2_2;
+		break;
+	case REG3_0:
+		enable_reg = REG3_2;
+		break;
+	case REG4_0:
+		enable_reg = REG4_1;
+		break;
+	case REG5_0:
+		enable_reg = REG5_1;
+		break;
+	case REG6_0:
+		enable_reg = REG6_1;
+		break;
+	case REG7_0:
+		enable_reg = REG7_1;
+		break;
+	default:
+		return -1;
+	}
+
+	/* Set output voltage */
+	ret = act8865_write(volt_reg, value);
+	if (ret)
+		return -1;
+
+	/* Enable Regulator */
+	data = 0;
+	ret = act8865_read(enable_reg, &data);
+	if (ret)
+		return -1;
+
+	data |= REG_ENABLE_BIT;
+	ret = act8865_write(enable_reg, data);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+/*--------------------- ACT8865 Workaround -----------------------*/
+
+/*
+ * Special Registers
+ */
+#define REGS_0B		0x0b
+#define REGS_02		0x02
+#define REGS_03		0x03
+
+enum version_id {
+	ACT8865_VERSION_303,
+	ACT8865_VERSION_304,
+	ACT8865_VERSION_305
+};
+
+static struct {
+	enum version_id	ver_id;
+	unsigned char	set_value;
+} version_array[] = {{ACT8865_VERSION_303, 0xE9},
+				{ACT8865_VERSION_304, 0xEE},
+				{ACT8865_VERSION_305, 0xEF} };
+
+/*
+ * About this workaround, for cases where ACT8865 I2C lines are already shared
+ * with some other components, ACT8865 features a function to allow user to
+ * disable its interface to avoid conflicts. please see
+ * Section ERRATA INFO, Workaround of the ACT8865 datasheet Rev 4
+ */
+static int act8865_disable_i2c_sequence(unsigned char data)
+{
+	int ret;
+
+	ret = act8865_write(REGS_0B, data);
+	if (ret)
+		return -1;
+
+	data = 0x07;
+	ret = act8865_write(REGS_02, data);
+	if (ret)
+		return -1;
+
+	data = 0x01;
+	ret = act8865_write(REGS_03, data);
+	if (ret)
+		return -1;
+
+	return 0;
+
+}
+
+int act8865_check_i2c_disabled(void)
+{
+	unsigned char data = 0;
+
+	return act8865_read(SYS_0, &data);
+}
+
+int act8865_workaround_disable_i2c(void)
+{
+	unsigned char value;
+	unsigned char i;
+
+	/* Check ACT8865 I2C interface */
+	if (act8865_check_i2c_disabled())
+		return 0;
+
+	/* Disable ACT8865 I2C interface */
+	for (i = 0; i < ARRAY_SIZE(version_array); i++) {
+		value = version_array[i].set_value;
+		act8865_disable_i2c_sequence(value);
+		if (act8865_check_i2c_disabled())
+			break;
+	}
+
+	if (i >= ARRAY_SIZE(version_array)) {
+		dbg_info("ACT8865: Failed to disable I2C interface\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: Disable ACT8865's I2C interface\n");
+
+	return 0;
+}

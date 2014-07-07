@@ -50,3 +50,4 @@ COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/monitor/mon_switch.o
 COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/monitor/mon_vectors.o
 
 COBJS-$(CONFIG_TWI)	+= $(DRIVERS_SRC)/at91_twi.o
+COBJS-$(CONFIG_ACT8865)	+= $(DRIVERS_SRC)/act8865.o

@@ -304,3 +304,7 @@ config CONFIG_TRUSTZONE
 config CONFIG_CPU_V7
 	bool
 	default n
+
+config CONFIG_HAS_PMIC_ACT8865
+	bool
+	default n
