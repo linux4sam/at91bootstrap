@@ -207,3 +207,7 @@ endif
 ifeq ($(CONFIG_MACB), y)
 CPPFLAGS += -DCONFIG_MACB
 endif
+
+ifeq ($(CONFIG_HDMI), y)
+CPPFLAGS += -DCONFIG_HDMI
+endif

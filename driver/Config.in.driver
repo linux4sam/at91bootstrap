@@ -27,4 +27,8 @@ config CONFIG_MACB
 	bool
 	default n
 
+config CONFIG_HDMI
+	bool
+	default n
+
 source "driver/Config.in.memory"
