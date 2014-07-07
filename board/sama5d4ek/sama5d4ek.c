@@ -51,6 +51,9 @@
 #include "matrix.h"
 #include "twi.h"
 #include "act8865.h"
+#include "hdmi_SiI9022.h"
+#include "wm8904.h"
+#include "macb.h"
 
 #if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
 static void redirect_interrupts_to_aic(void)
@@ -580,6 +583,70 @@ static void SiI9022_hw_reset(void)
 	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 1);
 }
 
+#if defined(CONFIG_PM_EXTERNAL_DEVICES)
+#if defined(CONFIG_MACB)
+static void gmac0_hw_init(void)
+{
+	const struct pio_desc macb_pins[] = {
+		{"G0_MDC",	AT91C_PIN_PB(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"G0_MDIO",	AT91C_PIN_PB(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(macb_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOB);
+}
+
+static void gmac1_hw_init(void)
+{
+	const struct pio_desc macb_pins[] = {
+		{"G1_MDC",	AT91C_PIN_PA(22), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"G1_MDIO",	AT91C_PIN_PA(23), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(macb_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOA);
+}
+
+static int phys_enter_power_down(void)
+{
+	struct mii_bus macb_mii_bus;
+
+	gmac0_hw_init();
+	gmac1_hw_init();
+
+	pmc_enable_periph_clock(AT91C_ID_GMAC);
+
+	macb_mii_bus.name = "GMAC0 KSZ8081RNB";
+	macb_mii_bus.reg_base = (void *)AT91C_BASE_GMAC;
+	macb_mii_bus.phy_addr = 1;
+
+	if (phy_power_down_mode(&macb_mii_bus)) {
+		dbg_info("%s: Failed to enter power down mode\n",
+						macb_mii_bus.name);
+	}
+
+	pmc_disable_periph_clock(AT91C_ID_GMAC);
+
+	macb_mii_bus.name = "GMAC1 KSZ8081RNB";
+	macb_mii_bus.reg_base = (void *)AT91C_BASE_GMAC1;
+	macb_mii_bus.phy_addr = 1;
+
+	pmc_enable_periph_clock(AT91C_ID_GMAC1);
+
+	if (phy_power_down_mode(&macb_mii_bus)) {
+		dbg_info("%s: Failed to enter power down mode\n",
+						macb_mii_bus.name);
+	}
+
+	pmc_disable_periph_clock(AT91C_ID_GMAC1);
+
+	return 0;
+}
+#endif	/* #if defined(CONFIG_MACB) */
+#endif	/* #if defined(CONFIG_PM_EXTERNAL_DEVICES) */
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -659,6 +726,19 @@ void hw_init(void)
 		while (1)
 			;
 #endif
+
+#ifdef CONFIG_PM_EXTERNAL_DEVICES
+#ifdef CONFIG_HDMI
+	SiI9022_enter_power_state_D3_Cold();
+#endif
+#ifdef CONFIG_WM8904
+	wm8904_enter_low_power();
+#endif
+#ifdef CONFIG_MACB
+	/* Make PHYs to power down mode */
+	phys_enter_power_down();
+#endif
+#endif	/* #ifdef CONFIG_PM_EXTERNAL_DEVICES */
 
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();

@@ -366,6 +366,24 @@ config CONFIG_REDIRECT_ALL_INTS_AIC
 
 endmenu
 
+menu "Power Management Options"
+	depends on CONFIG_PM
+
+config CONFIG_PM_EXTERNAL_DEVICES
+	bool "Make the External Devices Enter the Power Down Mode"
+	default n
+	select CONFIG_MACB
+	select CONFIG_TWI
+	select CONFIG_HDMI
+	select CONFIG_WM8904
+	help
+	  This interface let you select make the external devices on board
+	  enter the power down mode at startup, such as Codec wm8904, HDMI SiI9022ACUN
+	  and two PHYs KSZ8081RNB. Its purpose is to make sure the external devices
+	  which will not be touched in the kernel are set the proper power state.
+
+endmenu
+
 menu "Board's Workaround Options"
 
 config CONFIG_ACT8865

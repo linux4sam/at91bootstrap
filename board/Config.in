@@ -308,3 +308,7 @@ config CONFIG_CPU_V7
 config CONFIG_HAS_PMIC_ACT8865
 	bool
 	default n
+
+config CONFIG_PM
+	bool
+	default n

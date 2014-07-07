@@ -18,5 +18,6 @@ config CONFIG_SAMA5D4EK
 	select CONFIG_MMC_SUPPORT
 	select CONFIG_TRUSTZONE
 	select CONFIG_HAS_PMIC_ACT8865
+	select CONFIG_PM
 	help
 	  Use the SAMA5D4EK Development board
