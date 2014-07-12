@@ -92,7 +92,7 @@ defconfig: $(CONFIG)/conf
 	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
-		$(CONFIG)/conf --defconfig $(CONFIG_CONFIG_IN)
+		$(CONFIG)/conf --defconfig=.config $(CONFIG_CONFIG_IN)
 
 savedefconfig: $(CONFIG)/conf
 	@mkdir -p $(CONFIG)/at91bootstrap-config
@@ -317,7 +317,7 @@ PHONY+= rebuild
 		echo "Error: *** Cannot find file: $@"; \
 		exit 2; \
 	fi )
-	@$(MAKE) oldconfig
+	@$(MAKE) defconfig
 
 update:
 	cp .config board/$(BOARDNAME)/$(BOARDNAME)_defconfig
