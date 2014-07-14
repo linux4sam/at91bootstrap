@@ -27,6 +27,7 @@ enum input_mode {
 	allmodconfig,
 	randconfig,
 	defconfig,
+	savedefconfig,
 	nonint_oldconfig,
 	loose_nonint_oldconfig,
 } input_mode = oldaskconfig;
@@ -453,6 +454,7 @@ static struct option long_opts[] = {
 	{"oldconfig",       no_argument,       NULL, oldconfig},
 	{"silentoldconfig", no_argument,       NULL, silentoldconfig},
 	{"defconfig",       optional_argument, NULL, defconfig},
+	{"savedefconfig",       required_argument, NULL, savedefconfig},
 	{"allmodconfig",    no_argument,       NULL, allmodconfig},
 	{"randconfig",      no_argument,       NULL, randconfig},
 	{"nonint_oldconfig",       no_argument, NULL, nonint_oldconfig},
@@ -479,6 +481,7 @@ int main(int ac, char **av)
             sync_kconfig = 1;
             break;
 	case defconfig:
+	case savedefconfig:
             defconfig_file = optarg;
             break;
 	case randconfig:
@@ -535,6 +538,9 @@ int main(int ac, char **av)
             exit(1);
         }
         break;
+    case savedefconfig:
+	conf_read(NULL);
+	break;
     case silentoldconfig:
     case oldaskconfig:
     case oldconfig:
@@ -585,6 +591,8 @@ int main(int ac, char **av)
     case defconfig:
         conf_set_all_new_symbols(def_default);
         break;
+    case savedefconfig:
+        break;
     case oldconfig:
     case oldaskconfig:
         rootEntry = &rootmenu;
@@ -621,6 +629,12 @@ int main(int ac, char **av)
                     ("\n*** Error during update of the at91bootstrap configuration.\n\n"));
             return 1;
         }
+    } else if (input_mode == savedefconfig) {
+		if (conf_write_defconfig(defconfig_file)) {
+			fprintf(stderr, _("n*** Error while saving defconfig to: %s\n\n"),
+			        defconfig_file);
+			return 1;
+		}
     } else {
         if (conf_write(NULL)) {
             fprintf(stderr,
