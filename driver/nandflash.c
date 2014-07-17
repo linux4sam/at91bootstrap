@@ -510,8 +510,6 @@ static int nandflash_get_type(struct nand_info *nand)
 
 	nand_info_init(nand, chip);
 	
-	nandflash_config_buswidth(nand->buswidth != 0);
-
 	return 0;
 }
 
