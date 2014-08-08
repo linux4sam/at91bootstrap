@@ -239,7 +239,7 @@ all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize
 
 CheckCrossCompile:
 	@( if [ "$(HOSTARCH)" != "arm" ]; then \
-		if [ "x$(CROSS_COMPILE)" == "x" ]; then \
+		if [ "x$(CROSS_COMPILE)" = "x" ]; then \
 			echo "error: Environment variable "CROSS_COMPILE" must be defined!"; \
 			exit 2; \
 		fi \
