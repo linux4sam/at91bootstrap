@@ -14,5 +14,6 @@ config CONFIG_SAMA5D3_XPLAINED
 	select ALLOW_PIO3
 	select CPU_HAS_PMECC
 	select CONFIG_MMC_SUPPORT
+	select CONFIG_PM
 	help
 	    Use the SAMA5D3 Xplained development board

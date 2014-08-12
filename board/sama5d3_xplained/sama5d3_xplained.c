@@ -45,6 +45,7 @@
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
 #include "sama5d3_xplained.h"
+#include "macb.h"
 
 static void at91_dbgu_hw_init(void)
 {
@@ -246,6 +247,70 @@ static void HDMI_Qt1070_workaround(void)
 }
 #endif
 
+#if defined(CONFIG_PM_EXTERNAL_DEVICES)
+#if defined(CONFIG_MACB)
+static void gmac_hw_init(void)
+{
+	const struct pio_desc macb_pins[] = {
+		{"GMDC",	AT91C_PIN_PB(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"GMDIO",	AT91C_PIN_PB(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(macb_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOB);
+}
+
+static void emac_hw_init(void)
+{
+	const struct pio_desc macb_pins[] = {
+		{"EMDC",	AT91C_PIN_PC(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"EMDIO",	AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(macb_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
+}
+
+static int phys_enter_power_down(void)
+{
+	struct mii_bus macb_mii_bus;
+
+	gmac_hw_init();
+	emac_hw_init();
+
+	pmc_enable_periph_clock(AT91C_ID_GMAC);
+
+	macb_mii_bus.name = "GMAC KSZ9011RNI";
+	macb_mii_bus.reg_base = (void *)AT91C_BASE_GMAC;
+	macb_mii_bus.phy_addr = 1;
+
+	if (phy_power_down_mode(&macb_mii_bus)) {
+		dbg_info("%s: Failed to enter power down mode\n",
+						macb_mii_bus.name);
+	}
+
+	pmc_disable_periph_clock(AT91C_ID_GMAC);
+
+	macb_mii_bus.name = "EMAC KSZ8081RNB";
+	macb_mii_bus.reg_base = (void *)AT91C_BASE_EMAC;
+	macb_mii_bus.phy_addr = 1;
+
+	pmc_enable_periph_clock(AT91C_ID_EMAC);
+
+	if (phy_power_down_mode(&macb_mii_bus)) {
+		dbg_info("%s: Failed to enter power down mode\n",
+						macb_mii_bus.name);
+	}
+
+	pmc_disable_periph_clock(AT91C_ID_EMAC);
+
+	return 0;
+}
+#endif	/* #if defined(CONFIG_MACB) */
+#endif	/* #if defined(CONFIG_PM_EXTERNAL_DEVICES) */
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -296,6 +361,13 @@ void hw_init(void)
 #ifdef CONFIG_USER_HW_INIT
 	HDMI_Qt1070_workaround();
 #endif
+
+#ifdef CONFIG_PM_EXTERNAL_DEVICES
+#ifdef CONFIG_MACB
+	/* Make PHYs to power down mode */
+	phys_enter_power_down();
+#endif
+#endif	/* #ifdef CONFIG_PM_EXTERNAL_DEVICES */
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
