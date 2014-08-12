@@ -231,20 +231,6 @@ static void at91_special_pio_output_low(void)
 	writel(value, base + PIO_REG_OER);	/* PIO_OER */
 	writel(value, base + PIO_REG_CODR);	/* PIO_CODR */
 }
-
-static void HDMI_Qt1070_workaround(void)
-{
-	/*
-	 * For the HDMI and QT1070 shar the irq line
-	 * if the HDMI does not initialize, the irq line is pulled down by HDMI,
-	 * so, the irq line can not used by QT1070
-	 */
-	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
-	udelay(33000);
-	pio_set_gpio_output(AT91C_PIN_PC(31), 0);
-	udelay(33000);
-	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
-}
 #endif
 
 #if defined(CONFIG_PM_EXTERNAL_DEVICES)
@@ -356,10 +342,6 @@ void hw_init(void)
 #ifdef CONFIG_DDR2
 	/* Initialize MPDDR Controller */
 	ddramc_init();
-#endif
-
-#ifdef CONFIG_USER_HW_INIT
-	HDMI_Qt1070_workaround();
 #endif
 
 #ifdef CONFIG_PM_EXTERNAL_DEVICES
