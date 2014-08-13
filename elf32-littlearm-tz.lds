@@ -51,4 +51,5 @@ SECTIONS
 		_emon_text = .;
 	}
 }
+_romsize = _edata - _stext;
 end = .;  /* define a global symbol marking the end of application */
