@@ -108,6 +108,7 @@ int dbg_printf(const char *fmt_str, ...)
 
 				break;
 			default:
+				va_end(ap);
 				return -1;
 			}
 

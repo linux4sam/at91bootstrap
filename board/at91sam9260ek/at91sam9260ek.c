@@ -229,7 +229,7 @@ void nandflash_hw_init(void)
 		| AT91C_SMC_WRITEMODE
 		/* AT91C_SMC_NWAITM_NWAIT_DISABLE */
 		| (0x0 << 5)
-		| AT91C_SMC_DBW_WIDTH_BITS_16
+		| AT91C_SMC_DBW_WIDTH_BITS_8
 		| AT91_SMC_TDF_(2)),
 		AT91C_BASE_SMC + SMC_CTRL3);
 
@@ -244,19 +244,5 @@ void nandflash_hw_init(void)
 
 	/* enable PIOC clock  */
 	pmc_enable_periph_clock(AT91C_ID_PIOC);
-}
-
-void nandflash_config_buswidth(unsigned char busw)
-{
-	unsigned long csa;
-
-	csa = readl(AT91C_BASE_SMC + SMC_CTRL3);
-
-	if (busw == 0)
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
-	else
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
-
-	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */

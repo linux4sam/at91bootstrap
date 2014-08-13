@@ -4,6 +4,12 @@
 # Then, `make menuconfig' if needed
 #
 
+# Do not:
+# o  use make's built-in rules and variables
+#    (this increases performance and avoids hard-to-debug behaviour);
+# o  print "Entering directory ...";
+MAKEFLAGS += -rR --no-print-directory
+
 TOPDIR=$(shell pwd)
 
 CONFIG_CONFIG_IN=Config.in
@@ -21,6 +27,12 @@ DATE := $(shell date)
 VERSION := 3.6.2
 REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
+
+# Use 'make V=1' for the verbose mode
+ifneq ("$(origin V)", "command line")
+Q=@
+export Q
+endif
 
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
 
@@ -44,14 +56,14 @@ export HOSTCFLAGS
 
 $(CONFIG)/conf:
 	@mkdir -p $(CONFIG)/at91bootstrap-config
-	$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf
+	@$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
 
 $(CONFIG)/mconf:
 	@mkdir -p $(CONFIG)/at91bootstrap-config
-	$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
+	@$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
@@ -233,7 +245,7 @@ all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize
 
 CheckCrossCompile:
 	@( if [ "$(HOSTARCH)" != "arm" ]; then \
-		if [ "x$(CROSS_COMPILE)" == "x" ]; then \
+		if [ "x$(CROSS_COMPILE)" = "x" ]; then \
 			echo "error: Environment variable "CROSS_COMPILE" must be defined!"; \
 			exit 2; \
 		fi \
@@ -293,8 +305,13 @@ endif  # HAVE_DOT_CONFIG
 PHONY+= rebuild
 
 %_defconfig:
-	echo $(shell find ./board/ -name $@)
-	cp $(shell find ./board/ -name $@) .config
+	@(conf_file=`find ./board -name $@`; \
+	if [ "$$conf_file"x != "x" ]; then \
+		cp $$conf_file .config; \
+	else \
+		echo "Error: *** Cannot find file: $@"; \
+		exit 2; \
+	fi )
 	@$(MAKE) oldconfig
 
 update:
@@ -315,8 +332,8 @@ debug:
 
 PHONY+=update no-cross-compiler debug
 
-distrib: config-clean
-	find . -type f \( -name .depend \
+distrib: mrproper
+	$(Q)find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.elf' \
 		-o -name '*.map' \
@@ -324,27 +341,20 @@ distrib: config-clean
 		-o -name '*~' \) \
 		-print0 \
 		| xargs -0 rm -f
-	rm -fr result
-	rm -fr build
-	rm -fr log
-	rm -fr .auto.deps
-	rm -fr ..make.deps.tmp
-	rm -fr .config.cmd .config.old
-	make -C config clean
-	rm -fr config/at91bootstrap-config
-	rm -fr config/conf
-	rm -f  config/.depend
-	rm -fr $(BINDIR)
-	rm -f .installed
-	rm -f .configured
+	$(Q)rm -fr result
+	$(Q)rm -fr build
+	$(Q)rm -fr ..make.deps.tmp
+	$(Q)rm -fr config/conf
 
 config-clean:
-	make -C config distclean
-	rm -fr config/at91bootstrap-config
-	rm -f  config/.depend
+	@echo "  CLEAN        "configuration files!
+	$(Q)make -C config distclean
+	$(Q)rm -fr config/at91bootstrap-config
+	$(Q)rm -f  config/.depend
 
 clean:
-	find . -type f \( -name .depend \
+	@echo "  CLEAN        "obj and misc files!
+	$(Q)find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.o' \
 		-o -name '*~' \) \
@@ -353,34 +363,35 @@ clean:
 
 distclean: clean config-clean
 #	rm -fr $(BINDIR)
-	rm -fr .config .config.cmd .config.old
-	rm -fr .auto.deps
-	rm -f .installed
-	rm -f ..*.tmp
-	rm -f .configured
+	$(Q)rm -fr .config .config.cmd .config.old
+	$(Q)rm -fr .auto.deps
+	$(Q)rm -f .installed
+	$(Q)rm -f ..*.tmp
+	$(Q)rm -f .configured
 
 mrproper: distclean
-	rm -fr $(BINDIR)
-	rm -fr log
+	@echo "  CLEAN        "binary files!
+	$(Q)rm -fr $(BINDIR)
+	$(Q)rm -fr log
 
 PHONY+=distrib config-clean clean distclean mrproper
 
 tarball: distrib
-	rm -fr ../source/at91bootstrap-$(VERSION)
-	rm -fr ../source/at91bootstrap-$(VERSION).tar*
-	mkdir -p ../source
-	find . -depth -print0 | cpio --null -pvd ../source/at91bootstrap-$(VERSION)
-	rm -fr ../source/at91bootstrap-$(VERSION)/.git
-	tar -C ../source -cvf ../source/at91bootstrap-$(VERSION).tar at91bootstrap-$(VERSION)
-	bzip2  ../source/at91bootstrap-$(VERSION).tar
+	$(Q)rm -fr ../source/at91bootstrap-$(VERSION)
+	$(Q)rm -fr ../source/at91bootstrap-$(VERSION).tar*
+	$(Q)mkdir -p ../source
+	$(Q)find . -depth -print0 | cpio --null -pd ../source/at91bootstrap-$(VERSION)
+	$(Q)rm -fr ../source/at91bootstrap-$(VERSION)/.git
+	$(Q)tar -C ../source -cf ../source/at91bootstrap-$(VERSION).tar at91bootstrap-$(VERSION)
+	$(Q)bzip2  ../source/at91bootstrap-$(VERSION).tar
 	cp ../source/at91bootstrap-$(VERSION).tar.bz2 /usr/local/install/downloads
 
 tarballx: clean
-	F=`basename $(CURDIR)` ; cd .. ; \
-	T=`basename $(CURDIR)`-$(VERSION).tar ;  \
-	tar --force-local -cvf $$T $$F; \
-	rm -f $$T.bz2 ; \
-	bzip2 $$T ; \
+	$(Q)F=`basename $(CURDIR)` ; cd .. ; \
+	$(Q)T=`basename $(CURDIR)`-$(VERSION).tar ;  \
+	$(Q)tar --force-local -cf $$T $$F > /dev/null; \
+	$(Q)rm -f $$T.bz2 ; \
+	$(Q)bzip2 $$T ; \
 	cp -f $$T.bz2 /usr/local/install/downloads
 
 PHONY+=tarball tarballx

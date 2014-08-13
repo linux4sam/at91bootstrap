@@ -98,7 +98,6 @@
 extern void hw_init(void);
 
 extern void nandflash_hw_init(void);
-extern void nandflash_config_buswidth(unsigned char busw);
 
 extern void at91_spi0_hw_init(void);
 
