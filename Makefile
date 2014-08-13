@@ -34,7 +34,7 @@ Q=@
 export Q
 endif
 
-noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
+noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig
 
 # Check first if we want to configure at91bootstrap
 #
@@ -86,14 +86,19 @@ oldconfig: $(CONFIG)/conf
 	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
-		$(CONFIG)/conf -o $(CONFIG_CONFIG_IN)
+		$(CONFIG)/conf --oldconfig $(CONFIG_CONFIG_IN)
 
 defconfig: $(CONFIG)/conf
 	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
-		$(CONFIG)/conf -d $(CONFIG_CONFIG_IN)
+		$(CONFIG)/conf --defconfig=.config $(CONFIG_CONFIG_IN)
 
+savedefconfig: $(CONFIG)/conf
+	@mkdir -p $(CONFIG)/at91bootstrap-config
+	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
+		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
+		$(CONFIG)/conf --savedefconfig=defconfig $(CONFIG_CONFIG_IN)
 
 else #  Have DOT Config
 
@@ -312,7 +317,7 @@ PHONY+= rebuild
 		echo "Error: *** Cannot find file: $@"; \
 		exit 2; \
 	fi )
-	@$(MAKE) oldconfig
+	@$(MAKE) defconfig
 
 update:
 	cp .config board/$(BOARDNAME)/$(BOARDNAME)_defconfig

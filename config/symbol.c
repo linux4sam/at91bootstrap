@@ -222,23 +222,17 @@ static void sym_calc_visibility(struct symbol *sym)
     }
 }
 
-static struct symbol *sym_calc_choice(struct symbol *sym)
+/*
+ * Find the default symbol for a choice.
+ * First try the default values for the choice symbol
+ * Next locate the first visible choice value
+ * Return NULL if none was found
+ */
+struct symbol *sym_choice_default(struct symbol *sym)
 {
     struct symbol *def_sym;
-
     struct property *prop;
-
     struct expr *e;
-
-    /*
-     * is the user choice visible? 
-     */
-    def_sym = sym->def[S_DEF_USER].val;
-    if (def_sym) {
-        sym_calc_visibility(def_sym);
-        if (def_sym->visible != no)
-            return def_sym;
-    }
 
     /*
      * any of the defaults visible? 
@@ -263,11 +257,33 @@ static struct symbol *sym_calc_choice(struct symbol *sym)
             return def_sym;
     }
 
-    /*
-     * no choice? reset tristate value 
-     */
-    sym->curr.tri = no;
+	/* failed to locate any defaults */
     return NULL;
+}
+
+static struct symbol *sym_calc_choice(struct symbol *sym)
+{
+	struct symbol *def_sym;
+	struct property *prop;
+	struct expr *e;
+
+	/* first calculate all choice values' visibilities */
+	prop = sym_get_choice_prop(sym);
+	expr_list_for_each_sym(prop->expr, e, def_sym)
+		sym_calc_visibility(def_sym);
+
+	/* is the user choice visible? */
+	def_sym = sym->def[S_DEF_USER].val;
+	if (def_sym && def_sym->visible != no)
+		return def_sym;
+
+	def_sym = sym_choice_default(sym);
+
+	if (def_sym == NULL)
+		/* no choice? reset tristate value */
+		sym->curr.tri = no;
+
+	return def_sym;
 }
 
 void sym_calc_value(struct symbol *sym)
@@ -661,6 +677,80 @@ bool sym_set_string_value(struct symbol * sym, const char *newval)
     sym_clear_all_valid();
 
     return true;
+}
+
+/*
+ * Find the default value associated to a symbol.
+ * For tristate symbol handle the modules=n case
+ * in which case "m" becomes "y".
+ * If the symbol does not have any default then fallback
+ * to the fixed default values.
+ */
+const char *sym_get_string_default(struct symbol *sym)
+{
+	struct property *prop;
+	struct symbol *ds;
+	const char *str;
+	tristate val;
+
+	sym_calc_visibility(sym);
+	sym_calc_value(modules_sym);
+	val = symbol_no.curr.tri;
+	str = symbol_empty.curr.val;
+
+	/* If symbol has a default value look it up */
+	prop = sym_get_default_prop(sym);
+	if (prop != NULL) {
+		switch (sym->type) {
+		case S_BOOLEAN:
+		case S_TRISTATE:
+			/* The visibility imay limit the value from yes => mod */
+			val = EXPR_AND(expr_calc_value(prop->expr), prop->visible.tri);
+			break;
+		default:
+			/*
+			 * The following fails to handle the situation
+			 * where a default value is further limited by
+			 * the valid range.
+			 */
+			ds = prop_get_symbol(prop);
+			if (ds != NULL) {
+				sym_calc_value(ds);
+				str = (const char *)ds->curr.val;
+			}
+		}
+	}
+
+	/* Handle select statements */
+	val = EXPR_OR(val, sym->rev_dep.tri);
+
+	/* transpose mod to yes if modules are not enabled */
+	if (val == mod)
+		if (!sym_is_choice_value(sym) && modules_sym->curr.tri == no)
+			val = yes;
+
+	/* transpose mod to yes if type is bool */
+	if (sym->type == S_BOOLEAN && val == mod)
+		val = yes;
+
+	switch (sym->type) {
+	case S_BOOLEAN:
+	case S_TRISTATE:
+		switch (val) {
+		case no: return "n";
+		case mod: return "m";
+		case yes: return "y";
+		}
+	case S_INT:
+	case S_HEX:
+		return str;
+	case S_STRING:
+		return str;
+	case S_OTHER:
+	case S_UNKNOWN:
+		break;
+	}
+	return "";
 }
 
 const char *sym_get_string_value(struct symbol *sym)
