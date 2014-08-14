@@ -9,6 +9,7 @@ ASFLAGS += \
 else
 CPPFLAGS += \
 	-DCONFIG_SAMA5D3_XPLAINED \
+	-mcpu=cortex-a5 \
 	-mtune=cortex-a5
 
 ASFLAGS += \
