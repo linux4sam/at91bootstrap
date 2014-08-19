@@ -354,6 +354,20 @@ static int sama5d4ek_act8865_set_reg_voltage(void)
 }
 #endif
 
+static void at91_disable_smd_clock(void)
+{
+	/*
+	 * set pin DIBP to pull-up and DIBN to pull-down
+	 * to save power on VDDIOP0
+	 */
+	pmc_enable_system_clock(AT91C_PMC_SMDCK);
+	pmc_set_smd_clock_divider(AT91C_PMC_SMDDIV);
+	pmc_enable_periph_clock(AT91C_ID_SMD);
+	writel(0xF, (0x0C + AT91C_BASE_SMD));
+	pmc_disable_periph_clock(AT91C_ID_SMD);
+	pmc_disable_system_clock(AT91C_PMC_SMDCK);
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -385,6 +399,9 @@ void hw_init(void)
 	/* Set GMAC & EMAC pins to output low */
 	at91_special_pio_output_low();
 #endif
+
+	/* Disable the software modem clock */
+	at91_disable_smd_clock();
 
 	/* Init timer */
 	timer_init();
