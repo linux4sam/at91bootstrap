@@ -382,9 +382,6 @@ void hw_init(void)
 	/* Switch PCK/MCK on PLLA output */
 	pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
 
-	/* Enable External Reset */
-	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
-
 	/* Set GMAC & EMAC pins to output low */
 	at91_special_pio_output_low();
 
