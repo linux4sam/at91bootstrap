@@ -46,6 +46,8 @@
 #include "arch/at91_ddrsdrc.h"
 #include "sama5d3_xplained.h"
 #include "macb.h"
+#include "twi.h"
+#include "act8865.h"
 
 static void at91_dbgu_hw_init(void)
 {
@@ -297,6 +299,61 @@ static int phys_enter_power_down(void)
 #endif	/* #if defined(CONFIG_MACB) */
 #endif	/* #if defined(CONFIG_PM_EXTERNAL_DEVICES) */
 
+#ifdef CONFIG_TWI
+
+#define TWI_CLOCK	400000
+
+static void at91_twi1_hw_init(void)
+{
+	const struct pio_desc twi0_pins[] = {
+		{"TWD", AT91C_PIN_PC(26), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"TWCK", AT91C_PIN_PC(27), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(twi0_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
+
+	pmc_enable_periph_clock(AT91C_ID_TWI1);
+}
+
+static void twi_init(void)
+{
+	unsigned int bus_clock = MASTER_CLOCK;
+
+	at91_twi_base = AT91C_BASE_TWI1;
+
+	at91_twi1_hw_init();
+
+	twi_configure_master_mode(bus_clock, TWI_CLOCK);
+}
+#endif /* #ifdef CONFIG_TWI */
+
+#ifdef CONFIG_ACT8865
+static int sama5d4ek_act8865_set_reg_voltage(void)
+{
+	unsigned char reg, value;
+	int ret;
+
+	/* Check ACT8865 I2C interface */
+	if (act8865_check_i2c_disabled())
+		return 0;
+
+	/* Enable REG5 output 3.3V */
+	reg = REG5_0;
+	value = ACT8865_3V3;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_info("ACT8865: Failed to make REG5 output 3300mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG5 output 3300mV\n");
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -342,6 +399,20 @@ void hw_init(void)
 #ifdef CONFIG_DDR2
 	/* Initialize MPDDR Controller */
 	ddramc_init();
+#endif
+
+#ifdef CONFIG_TWI
+	twi_init();
+#endif
+
+#ifdef CONFIG_ACT8865
+	/* Set ACT8865 output voltage */
+	sama5d4ek_act8865_set_reg_voltage();
+
+	/* Dsiable ACT8865 I2C interface */
+	if (act8865_workaround_disable_i2c())
+		while (1)
+			;
 #endif
 
 #ifdef CONFIG_PM_EXTERNAL_DEVICES
