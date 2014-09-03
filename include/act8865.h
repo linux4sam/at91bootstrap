@@ -62,6 +62,10 @@
 /*
  * Field Definitions
  */
+#define REG_MODE_BIT		(0x01 << 5)
+#define	REG_MODE_POWER_SAVING		(0x00 << 5)
+#define	REG_MODE_FIX_FREQ		(0x01 << 5)
+
 #define REG_ENABLE_BIT		(0x01 << 7)
 
 /*
@@ -70,8 +74,18 @@
 #define ACT8865_1V8	0x24
 #define ACT8865_3V3	0x39
 
+/*
+ * Definitions
+ */
+#define	ACT8865_MODE_FIX_FREQ		0x01
+#define	ACT8865_MODE_POWER_SAVING	0x02
+
+/*
+ * Function Declarations
+ */
 extern int act8865_set_reg_voltage(unsigned char volt_reg, unsigned char value);
 extern int act8865_check_i2c_disabled(void);
 extern int act8865_workaround_disable_i2c(void);
+extern int act8865_set_power_saving_mode(void);
 
 #endif

@@ -109,6 +109,49 @@ int act8865_set_reg_voltage(unsigned char volt_reg, unsigned char value)
 	return 0;
 }
 
+static int act8865_set_reg_mode(unsigned char mode_reg, unsigned mode)
+{
+	unsigned char value;
+	int ret;
+
+	value = 0;
+	ret = act8865_read(mode_reg, &value);
+	if (ret)
+		return -1;
+
+	value &= ~REG_MODE_BIT;
+	value |= (mode == ACT8865_MODE_FIX_FREQ) ? REG_MODE_FIX_FREQ : 0;
+
+	ret = act8865_write(mode_reg, value);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+int act8865_set_power_saving_mode(void)
+{
+	unsigned char mode = ACT8865_MODE_POWER_SAVING;
+	unsigned char reg_list[] = {REG1_2, REG2_2, REG3_2};
+	unsigned char reg;
+	unsigned i;
+	int ret;
+
+	if (act8865_check_i2c_disabled())
+		return 0;
+
+	for (i = 0; i < ARRAY_SIZE(reg_list); i++) {
+		reg = reg_list[i];
+		ret = act8865_set_reg_mode(reg, mode);
+		if (ret)
+			dbg_info("ACT8865: Failed to set power saving mode\n");
+	}
+
+	dbg_info("ACT8865: Set REG1/REG2/REG3 power saving mode\n");
+
+	return 0;
+}
+
 /*--------------------- ACT8865 Workaround -----------------------*/
 
 /*
