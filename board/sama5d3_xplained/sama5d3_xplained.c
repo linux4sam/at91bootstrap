@@ -419,6 +419,9 @@ void hw_init(void)
 #endif
 
 #ifdef CONFIG_ACT8865
+	/* Set ACT8865 REG power saving mode */
+	act8865_set_power_saving_mode();
+
 	/* Set ACT8865 output voltage */
 	sama5d4ek_act8865_set_reg_voltage();
 
