@@ -316,6 +316,13 @@ config CONFIG_SCLK
 	help
 	  Use external 32KHZ oscillator as source of slow clock
 
+config CONFIG_SCLK_BYPASS
+	depends on CONFIG_SCLK
+	bool "Use external 32kHz clock as source of slow clock"
+	default n
+	help
+	  Use external 32kHz clock as source of slow clock
+
 config CONFIG_DISABLE_WATCHDOG
 	bool "Disable Watchdog"
 	default y
