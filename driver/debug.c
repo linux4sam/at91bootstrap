@@ -27,7 +27,6 @@
  */
 #include "usart.h"
 #include "debug.h"
-#include <stdio.h>
 #include <stdarg.h>
 
 #define MAX_BUFFER	128

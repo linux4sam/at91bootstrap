@@ -206,7 +206,9 @@ OBJS:= $(SOBJS-y) $(COBJS-y)
 INCL=board/$(BOARDNAME)
 GC_SECTIONS=--gc-sections
 
-CPPFLAGS=-ffunction-sections -g -Os -Wall \
+NOSTDINC_FLAGS=-nostdinc -isystem $(shell $(CC) -print-file-name=include)
+
+CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-fno-stack-protector \
 	-I$(INCL) -Iinclude -Ifs/include \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
@@ -274,6 +276,7 @@ $(AT91BOOTSTRAP): $(OBJS)
 	@$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
 	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $@
+	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
 
 %.o : %.c .config
 	@echo "  CC        "$<
