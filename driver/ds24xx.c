@@ -646,6 +646,8 @@ static int get_board_info(unsigned char *buffer,
 
 	boardname = board_list[i].board_name;
 
+	dbg_loud("board: #%d: boardname: %s\n", bd_sn, boardname);
+
 	memset(tmp, 0, sizeof(tmp));
 	for (i = 0; i < VENDOR_NAME_LEN; i++) {
 		if (p->vendor_name[i] == 0x20)
@@ -666,6 +668,8 @@ static int get_board_info(unsigned char *buffer,
 	}
 
 	vendorname = vendor_list[i].vendor_name;
+
+	dbg_loud("board: #%d: vendorname: %s\n", bd_sn, vendorname);
 
 	dbg_info("  #%d", bd_sn);
 	if (p->revision_mapping == 'B') {
