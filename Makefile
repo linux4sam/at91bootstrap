@@ -28,6 +28,15 @@ VERSION := 3.6.2
 REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
+ifeq ($(SCMINFO),)
+-include $(TOPDIR)/scminfo.mk
+SCMINFO=$(RECORD_SCMINFO)
+endif
+
+TARBALL_NAME=AT91Bootstrap-$(VERSION)$(REV)$(SCMINFO).tar.gz
+TARBALL_DIR=../tarball_dir
+TARBALL_PREFIX=at91bootstrap-$(VERSION)$(REV)/
+
 # Use 'make V=1' for the verbose mode
 ifneq ("$(origin V)", "command line")
 Q=@
@@ -381,24 +390,17 @@ mrproper: distclean
 
 PHONY+=distrib config-clean clean distclean mrproper
 
-tarball: distrib
-	$(Q)rm -fr ../source/at91bootstrap-$(VERSION)
-	$(Q)rm -fr ../source/at91bootstrap-$(VERSION).tar*
-	$(Q)mkdir -p ../source
-	$(Q)find . -depth -print0 | cpio --null -pd ../source/at91bootstrap-$(VERSION)
-	$(Q)rm -fr ../source/at91bootstrap-$(VERSION)/.git
-	$(Q)tar -C ../source -cf ../source/at91bootstrap-$(VERSION).tar at91bootstrap-$(VERSION)
-	$(Q)bzip2  ../source/at91bootstrap-$(VERSION).tar
-	cp ../source/at91bootstrap-$(VERSION).tar.bz2 /usr/local/install/downloads
+tarball:
+	@echo "Tar the source code to ${TARBALL_NAME}"
+	$(Q)mkdir -p ${TARBALL_DIR}
+	$(Q)git archive --prefix=${TARBALL_PREFIX} HEAD | gzip > ${TARBALL_DIR}/${TARBALL_NAME}
+	$(Q)echo "RECORD_SCMINFO=${SCMINFO}" > ${TARBALL_DIR}/scminfo.mk
+	$(Q)cd ${TARBALL_DIR}; tar -xzf ${TARBALL_NAME}
+	$(Q)cd ${TARBALL_DIR}; cp scminfo.mk ${TARBALL_PREFIX}
+	$(Q)cd ${TARBALL_DIR}; tar czf ${TARBALL_NAME} ${TARBALL_PREFIX}
+	$(Q)cp ${TARBALL_DIR}/${TARBALL_NAME} .
+	$(Q)rm -rf ${TARBALL_DIR}
 
-tarballx: clean
-	$(Q)F=`basename $(CURDIR)` ; cd .. ; \
-	$(Q)T=`basename $(CURDIR)`-$(VERSION).tar ;  \
-	$(Q)tar --force-local -cf $$T $$F > /dev/null; \
-	$(Q)rm -f $$T.bz2 ; \
-	$(Q)bzip2 $$T ; \
-	cp -f $$T.bz2 /usr/local/install/downloads
-
-PHONY+=tarball tarballx
+PHONY+=tarball
 
 .PHONY: $(PHONY)
