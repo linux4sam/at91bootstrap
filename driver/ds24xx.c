@@ -191,6 +191,7 @@ static struct ek_vendors	vendor_list[] = {
 	{"COGENT",	VENDOR_COGENT},
 	{"PDA INC",	VENDOR_PDA},
 	{"PDA",		VENDOR_PDA},
+	{"ATMEL-RFO",	VENDOR_ATMEL_RFO},
 	{0,		0},
 };
 

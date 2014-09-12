@@ -53,6 +53,7 @@
 #define VENDOR_RONETIX		3
 #define VENDOR_COGENT		4
 #define VENDOR_PDA		5
+#define VENDOR_ATMEL_RFO	6
 
 extern unsigned int get_cm_sn(void);
 extern char get_cm_rev(void);
