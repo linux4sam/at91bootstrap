@@ -163,7 +163,7 @@ static int macb_mdio_read(struct mii_bus *bus,
 	} while ((--timeout) && (!(reg & MACB_NSR_IDLE)));
 
 	if (!timeout) {
-		dbg_info("MDIO: Timeout to read\n");
+		dbg_loud("MDIO: Timeout to read\n");
 		return -1;
 	}
 
@@ -193,7 +193,7 @@ static int macb_mdio_write(struct mii_bus *bus,
 	} while ((--timeout) && (!(reg & MACB_NSR_IDLE)));
 
 	if (!timeout) {
-		dbg_info("MDIO: Timeout to write\n");
+		dbg_loud("MDIO: Timeout to write\n");
 		return -1;
 	}
 
@@ -218,7 +218,7 @@ static unsigned int macb_findphy(struct mii_bus *bus)
 	unsigned int rc = 0xff;
 
 	if (macb_mdio_read(bus, MII_PHYSID1, &value)) {
-		dbg_info("MACB: Failed to read MII_PHYID1\n");
+		dbg_loud("MACB: Failed to read MII_PHYID1\n");
 		return rc;
 	}
 
@@ -229,7 +229,7 @@ static unsigned int macb_findphy(struct mii_bus *bus)
 			phy_address = (phy_address + 1) & 0x1f;
 			bus->phy_addr = phy_address;
 			if (macb_mdio_read(bus, MII_PHYSID1, &value))
-				dbg_info("MACB: Failed to read MII_PHYID1\n");
+				dbg_loud("MACB: Failed to read MII_PHYID1\n");
 			if (value == PHY_ID_NUMBER) {
 				rc = phy_address;
 				break;
@@ -313,13 +313,13 @@ static int phy_software_reset(struct mii_bus *bus)
 
 	value = BMCR_RESET;
 	if (macb_mdio_write(bus, MII_BMCR, value)) {
-		dbg_info("MACB: Failed to write MII_BMCR\n");
+		dbg_loud("MACB: Failed to write MII_BMCR\n");
 		return -1;
 	}
 
 	do {
 		if (macb_mdio_read(bus, MII_BMCR, &value)) {
-			dbg_info("MACB: Failed to read MII_BMCR\n");
+			dbg_loud("MACB: Failed to read MII_BMCR\n");
 			return -1;
 		}
 	} while ((--timeout) && (value & BMCR_RESET));
@@ -332,12 +332,12 @@ static int phy_power_down(struct mii_bus *bus)
 	unsigned int value;
 
 	if (macb_mdio_read(bus, MII_BMCR, &value)) {
-		dbg_info("MACB: Failed to read MII_BMCR\n");
+		dbg_loud("MACB: Failed to read MII_BMCR\n");
 		return -1;
 	}
 
 	if (macb_mdio_write(bus, MII_BMCR, (value | BMCR_PDOWN))) {
-		dbg_info("MACB: Failed to write MII_BMCR\n");
+		dbg_loud("MACB: Failed to write MII_BMCR\n");
 		return -1;
 	}
 
@@ -356,7 +356,7 @@ int phy_power_down_mode(struct mii_bus *bus)
 	phy_addr = macb_findphy(bus);
 	if (phy_addr == 0xff) {
 		ret = -1;
-		dbg_info("PHY: Failed to find PHY\n");
+		dbg_loud("PHY: Failed to find PHY\n");
 		goto error;
 	}
 
@@ -364,13 +364,13 @@ int phy_power_down_mode(struct mii_bus *bus)
 
 	if (phy_software_reset(bus)) {
 		ret = -1;
-		dbg_info("PHY: Failed to reset PHY\n");
+		dbg_loud("PHY: Failed to reset PHY\n");
 		goto error;
 	}
 
 	if (phy_power_down(bus)) {
 		ret = -1;
-		dbg_info("PHY: Failed to enter power down mode\n");
+		dbg_loud("PHY: Failed to enter power down mode\n");
 		goto error;
 	}
 

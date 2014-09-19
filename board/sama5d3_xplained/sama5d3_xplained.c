@@ -275,7 +275,7 @@ static int phys_enter_power_down(void)
 	macb_mii_bus.phy_addr = 1;
 
 	if (phy_power_down_mode(&macb_mii_bus)) {
-		dbg_info("%s: Failed to enter power down mode\n",
+		dbg_loud("%s: Failed to enter power down mode\n",
 						macb_mii_bus.name);
 	}
 
@@ -288,7 +288,7 @@ static int phys_enter_power_down(void)
 	pmc_enable_periph_clock(AT91C_ID_EMAC);
 
 	if (phy_power_down_mode(&macb_mii_bus)) {
-		dbg_info("%s: Failed to enter power down mode\n",
+		dbg_loud("%s: Failed to enter power down mode\n",
 						macb_mii_bus.name);
 	}
 
