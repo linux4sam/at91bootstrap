@@ -212,6 +212,14 @@ ifeq ($(CONFIG_MACB), y)
 CPPFLAGS += -DCONFIG_MACB
 endif
 
+ifeq ($(CONFIG_MAC0_PHY), y)
+CPPFLAGS += -DCONFIG_MAC0_PHY
+endif
+
+ifeq ($(CONFIG_MAC1_PHY), y)
+CPPFLAGS += -DCONFIG_MAC1_PHY
+endif
+
 ifeq ($(CONFIG_HDMI), y)
 CPPFLAGS += -DCONFIG_HDMI
 endif
