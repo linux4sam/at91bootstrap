@@ -339,6 +339,17 @@ static int sama5d4ek_act8865_set_reg_voltage(void)
 	if (act8865_check_i2c_disabled())
 		return 0;
 
+	/* Enable REG2 output 1.25V */
+	reg = REG2_0;
+	value = ACT8865_1V25;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_info("ACT8865: Failed to make REG2 output 1250mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG2 output 1250mV\n");
+
 	/* Enable REG5 output 3.3V */
 	reg = REG5_0;
 	value = ACT8865_3V3;
