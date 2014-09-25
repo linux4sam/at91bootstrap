@@ -426,3 +426,14 @@ config CONFIG_ACT8865
 	  which affects the other chip which stands on the same I2C bus, such as MXT touchscreen.
 
 endmenu
+
+menu "Board Hardware Information Options"
+	depends on CONFIG_HAS_HW_INFO
+
+config CONFIG_LOAD_ONE_WIRE
+	bool "Load Information from 1-Wire"
+	default n
+	help
+	  This interface allow you to select hardware information from 1-Wire chips.
+
+endmenu

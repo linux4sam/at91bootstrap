@@ -13,6 +13,6 @@ config	CONFIG_AT91SAM9X5EK
 	select ALLOW_NANDFLASH_RECOVERY
 	select ALLOW_PIO3
 	select CPU_HAS_PMECC
-	select CONFIG_LOAD_ONE_WIRE
+	select CONFIG_HAS_HW_INFO
 	help
 	    Use the AT91SAM9X5EK Development board
