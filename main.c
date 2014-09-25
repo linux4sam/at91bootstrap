@@ -36,7 +36,7 @@
 #include "sdcard.h"
 #include "flash.h"
 #include "string.h"
-#include "onewire_info.h"
+#include "board_hw_info.h"
 #include "tz_utils.h"
 
 extern int load_kernel(struct image_info *img_info);
@@ -135,8 +135,8 @@ int main(void)
 	display_banner();
 
 #ifdef CONFIG_LOAD_ONE_WIRE
-	/* Load one wire informaion */
-	load_1wire_info();
+	/* Load board hw informaion */
+	load_board_hw_info();
 #endif
 	init_loadfunction();
 

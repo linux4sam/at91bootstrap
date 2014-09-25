@@ -34,7 +34,7 @@
 #include "nandflash.h"
 #include "sdcard.h"
 #include "fdt.h"
-#include "onewire_info.h"
+#include "board_hw_info.h"
 #include "mon.h"
 #include "tz_utils.h"
 
