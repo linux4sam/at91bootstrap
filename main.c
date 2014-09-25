@@ -134,7 +134,7 @@ int main(void)
 
 	display_banner();
 
-#ifdef CONFIG_LOAD_ONE_WIRE
+#ifdef CONFIG_LOAD_HW_INFO
 	/* Load board hw informaion */
 	load_board_hw_info();
 #endif

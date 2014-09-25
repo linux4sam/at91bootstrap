@@ -433,6 +433,7 @@ menu "Board Hardware Information Options"
 config CONFIG_LOAD_ONE_WIRE
 	bool "Load Information from 1-Wire"
 	default n
+	select CONFIG_LOAD_HW_INFO
 	help
 	  This interface allow you to select hardware information from 1-Wire chips.
 

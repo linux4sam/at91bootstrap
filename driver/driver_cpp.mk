@@ -227,3 +227,7 @@ endif
 ifeq ($(CONFIG_WM8904), y)
 CPPFLAGS += -DCONFIG_WM8904
 endif
+
+ifeq ($(CONFIG_LOAD_HW_INFO), y)
+CPPFLAGS += -DCONFIG_LOAD_HW_INFO
+endif
