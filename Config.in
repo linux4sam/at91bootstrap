@@ -437,4 +437,12 @@ config CONFIG_LOAD_ONE_WIRE
 	help
 	  This interface allow you to select hardware information from 1-Wire chips.
 
+config CONFIG_LOAD_EEPROM
+	bool "Load Information from EEPROM"
+	select CONFIG_TWI
+	select CONFIG_LOAD_HW_INFO
+	default n
+	help
+	  This interface allow you to select hardware information from EEPROM chips.
+
 endmenu

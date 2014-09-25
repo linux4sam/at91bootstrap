@@ -29,6 +29,7 @@
 #include "string.h"
 #include "board_hw_info.h"
 #include "ds24xx.h"
+#include "at24xx.h"
 #include "debug.h"
 
 /* Board Type */
@@ -533,6 +534,33 @@ static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
 }
 #endif /* #if defined(CONFIG_LOAD_ONE_WIRE) */
 
+#if defined(CONFIG_LOAD_EEPROM)
+static int load_eeprom_info(unsigned char *buff, unsigned int size, unsigned int boardsn,
+				unsigned int *psn, unsigned int *prev,
+				unsigned int *missing)
+{
+	board_info_t board_info;
+	board_info_t *bd_info = &board_info;
+
+	memset(bd_info, 0, sizeof(*bd_info));
+
+	dbg_info("EEPROM: Loading AT24xx information ...\n");
+
+	dbg_info("EEPROM: BoardName | [Revid] | VendorName\n");
+
+	if (load_ek_at24xx(buff, size))
+		return -1;
+
+	if (get_board_hw_info(buff, boardsn, bd_info))
+		return -1;
+
+	if (construct_sn_rev(bd_info, psn, prev, missing))
+		return -1;
+
+	return 0;
+}
+#endif /* #if defined(CONFIG_LOAD_EEPROM) */
+
 void load_board_hw_info(void)
 {
 	unsigned int size = HW_INFO_TOTAL_SIZE;
@@ -547,6 +575,11 @@ void load_board_hw_info(void)
 #if defined(CONFIG_LOAD_ONE_WIRE)
 	count = load_1wire_info(buffer, size, &sn, &rev, &missing);
 	if (!count)
+		failed = 1;
+#endif
+#if defined(CONFIG_LOAD_EEPROM)
+	failed = 0;
+	if (load_eeprom_info(buffer, size, count, &sn, &rev, &missing))
 		failed = 1;
 #endif
 	if (failed)
