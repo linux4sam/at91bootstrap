@@ -585,6 +585,7 @@ static void SiI9022_hw_reset(void)
 
 #if defined(CONFIG_PM_EXTERNAL_DEVICES)
 #if defined(CONFIG_MACB)
+#if defined(CONFIG_MAC0_PHY)
 static void gmac0_hw_init(void)
 {
 	const struct pio_desc macb_pins[] = {
@@ -596,7 +597,9 @@ static void gmac0_hw_init(void)
 	pio_configure(macb_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOB);
 }
+#endif
 
+#if defined(CONFIG_MAC1_PHY)
 static void gmac1_hw_init(void)
 {
 	const struct pio_desc macb_pins[] = {
@@ -608,19 +611,20 @@ static void gmac1_hw_init(void)
 	pio_configure(macb_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOA);
 }
+#endif
 
 static int phys_enter_power_down(void)
 {
 	struct mii_bus macb_mii_bus;
 
+#if defined(CONFIG_MAC0_PHY)
 	gmac0_hw_init();
-	gmac1_hw_init();
-
-	pmc_enable_periph_clock(AT91C_ID_GMAC);
 
 	macb_mii_bus.name = "GMAC0 KSZ8081RNB";
 	macb_mii_bus.reg_base = (void *)AT91C_BASE_GMAC;
 	macb_mii_bus.phy_addr = 1;
+
+	pmc_enable_periph_clock(AT91C_ID_GMAC);
 
 	if (phy_power_down_mode(&macb_mii_bus)) {
 		dbg_loud("%s: Failed to enter power down mode\n",
@@ -628,6 +632,10 @@ static int phys_enter_power_down(void)
 	}
 
 	pmc_disable_periph_clock(AT91C_ID_GMAC);
+#endif
+
+#if defined(CONFIG_MAC1_PHY)
+	gmac1_hw_init();
 
 	macb_mii_bus.name = "GMAC1 KSZ8081RNB";
 	macb_mii_bus.reg_base = (void *)AT91C_BASE_GMAC1;
@@ -641,6 +649,7 @@ static int phys_enter_power_down(void)
 	}
 
 	pmc_disable_periph_clock(AT91C_ID_GMAC1);
+#endif
 
 	return 0;
 }
