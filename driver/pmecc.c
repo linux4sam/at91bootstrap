@@ -303,10 +303,10 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 				PMECC_INDEX_TABLE_SIZE_1024;
 		pmecc_gf = (short *)PMECC_GF_TABLE_ADDR_IN_DDR;
 		build_gf(pmecc_params->mm,
-			pmecc_gf,				/* index table */
-			pmecc_gf + (size * sizeof(short)));	/* alpha table */
+			pmecc_gf,		/* index table */
+			pmecc_gf + size);	/* alpha table */
 		pmecc_params->index_of = pmecc_gf;
-		pmecc_params->alpha_to = pmecc_gf + (size * sizeof(short));
+		pmecc_params->alpha_to = pmecc_gf + size;
 #else
 
 		if (sector_size == 512) {
