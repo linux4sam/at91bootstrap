@@ -498,29 +498,33 @@ static int matrix_init(void)
 
 #define TWI_CLOCK	400000
 
+#if defined(CONFIG_TWI0)
 static void at91_twi0_hw_init(void)
 {
-	const struct pio_desc twi0_pins[] = {
+	const struct pio_desc twi_pins[] = {
 		{"TWD0", AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"TWCK0", AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	pio_configure(twi0_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOA);
+	pio_configure(twi_pins);
 
 	pmc_enable_periph_clock(AT91C_ID_TWI0);
 }
+#endif
 
-static void twi0_init(void)
+static void twi_init(void)
 {
 	unsigned int bus_clock = MASTER_CLOCK / 2;
 
-	at91_twi_base = AT91C_BASE_TWI0;
-
+#if defined(CONFIG_TWI0)
+	at91_twi0_base = AT91C_BASE_TWI0;
 	at91_twi0_hw_init();
-
-	twi_configure_master_mode(bus_clock, TWI_CLOCK);
+	twi_configure_master_mode(0, bus_clock, TWI_CLOCK);
+#else
+#error "No proper TWI bus defined"
+#endif
 }
 #endif /* #ifdef CONFIG_TWI */
 
@@ -722,7 +726,7 @@ void hw_init(void)
 	at91_disable_smd_clock();
 
 #ifdef CONFIG_TWI
-	twi0_init();
+	twi_init();
 #endif
 
 #ifdef CONFIG_ACT8865
