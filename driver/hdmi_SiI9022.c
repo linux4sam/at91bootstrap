@@ -58,13 +58,34 @@
 
 #define SiI9022_DEVICE_ID		(0xB0)
 
+static unsigned int SiI9022_get_twi_bus(void)
+{
+	unsigned int bus = 0;
+
+#if defined(CONFIG_HDMI_ON_TWI0)
+	bus = 0;
+#elif defined(CONFIG_HDMI_ON_TWI1)
+	bus = 1;
+#elif defined(CONFIG_HDMI_ON_TWI2)
+	bus = 2;
+#elif defined(CONFIG_HDMI_ON_TWI3)
+	bus = 3;
+#endif
+
+	return bus;
+}
+
 static int SiI9022_read(unsigned char reg_addr, unsigned char *data)
 {
+	unsigned int bus;
 	int ret;
 
-	ret = twi_read(SiI9022_ADDR, reg_addr, 1, (unsigned char *)data, 1);
+	bus = SiI9022_get_twi_bus();
+
+	ret = twi_read(bus, SiI9022_ADDR,
+				reg_addr, 1, (unsigned char *)data, 1);
 	if (ret) {
-		dbg_info("SiI9022: Failed to read\n");
+		dbg_info("SiI9022: Failed to read on TWI #%d\n", bus);
 		return -1;
 	}
 
@@ -73,11 +94,14 @@ static int SiI9022_read(unsigned char reg_addr, unsigned char *data)
 
 static int SiI9022_write(unsigned char reg_addr, unsigned char data)
 {
+	unsigned int bus;
 	int ret;
 
-	ret = twi_write(SiI9022_ADDR, reg_addr, 1, &data, 1);
+	bus = SiI9022_get_twi_bus();
+
+	ret = twi_write(bus, SiI9022_ADDR, reg_addr, 1, &data, 1);
 	if (ret) {
-		dbg_info("SiI9022: Failed to write\n\r");
+		dbg_info("SiI9022: Failed to write on TWI #%d\n", bus);
 		return -1;
 	}
 
