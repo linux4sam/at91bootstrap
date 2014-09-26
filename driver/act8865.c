@@ -36,11 +36,31 @@
  */
 #define ACT8865_ADDR	0x5B
 
+static unsigned int act8865_get_twi_bus(void)
+{
+	unsigned int bus = 0;
+
+#if defined(CONFIG_PMIC_ON_TWI0)
+	bus = 0;
+#elif defined(CONFIG_PMIC_ON_TWI1)
+	bus = 1;
+#elif defined(CONFIG_PMIC_ON_TWI2)
+	bus = 2;
+#elif defined(CONFIG_PMIC_ON_TWI3)
+	bus = 3;
+#endif
+
+	return bus;
+}
+
 static int act8865_read(unsigned char reg_addr, unsigned char *data)
 {
+	unsigned int bus;
 	int ret;
 
-	ret = twi_read(ACT8865_ADDR, reg_addr, 1, data, 1);
+	bus = act8865_get_twi_bus();
+
+	ret = twi_read(bus, ACT8865_ADDR, reg_addr, 1, data, 1);
 	if (ret)
 		return -1;
 
@@ -49,9 +69,12 @@ static int act8865_read(unsigned char reg_addr, unsigned char *data)
 
 static int act8865_write(unsigned char reg_addr, unsigned char data)
 {
+	unsigned int bus;
 	int ret;
 
-	ret = twi_write(ACT8865_ADDR, reg_addr, 1, &data, 1);
+	bus = act8865_get_twi_bus();
+
+	ret = twi_write(bus, ACT8865_ADDR, reg_addr, 1, &data, 1);
 	if (ret)
 		return -1;
 
