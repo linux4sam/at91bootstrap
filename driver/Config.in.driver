@@ -23,6 +23,22 @@ config CONFIG_TWI
 	bool
 	default n
 
+config CONFIG_TWI0
+	bool
+	default n
+
+config CONFIG_TWI1
+	bool
+	default n
+
+config CONFIG_TWI2
+	bool
+	default n
+
+config CONFIG_TWI3
+	bool
+	default n
+
 config CONFIG_MACB
 	bool
 	default n

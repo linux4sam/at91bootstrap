@@ -403,6 +403,31 @@ config CONFIG_HDMI
 	  This interface allow you to select the HDMI chip on the board
 	  which will be put into the Power-Down mode.
 
+choice
+	prompt "HDMI on TWI Select"
+	depends on CONFIG_HDMI
+	default CONFIG_HDMI_ON_TWI0
+	help
+	  This interface allow you select which TWI bus for the HDMI to wire on.
+
+config	CONFIG_HDMI_ON_TWI0
+	bool "On TWI0"
+	select CONFIG_TWI0
+
+config	CONFIG_HDMI_ON_TWI1
+	bool "On TWI1"
+	select CONFIG_TWI1
+
+config	CONFIG_HDMI_ON_TWI2
+	bool "On TWI2"
+	select CONFIG_TWI2
+
+config	CONFIG_HDMI_ON_TWI3
+	bool "On TWI3"
+	select CONFIG_TWI3
+
+endchoice
+
 config CONFIG_WM8904
 	bool "CODEC (wm8904)"
 	select CONFIG_TWI
@@ -410,6 +435,31 @@ config CONFIG_WM8904
 	help
 	  This interface allow you to select the CODEC chip on the board
 	  which will be put into the Power-Down mode.
+
+choice
+	prompt "CODEC on TWI Select"
+	depends on CONFIG_WM8904
+	default CONFIG_CODEC_ON_TWI0
+	help
+	  This interface allow you select which TWI bus for the CODEC to wire on.
+
+config	CONFIG_CODEC_ON_TWI0
+	bool "On TWI0"
+	select CONFIG_TWI0
+
+config	CONFIG_CODEC_ON_TWI1
+	bool "On TWI1"
+	select CONFIG_TWI1
+
+config	CONFIG_CODEC_ON_TWI2
+	bool "On TWI2"
+	select CONFIG_TWI2
+
+config	CONFIG_CODEC_ON_TWI3
+	bool "On TWI3"
+	select CONFIG_TWI3
+
+endchoice
 
 endmenu
 
@@ -424,6 +474,31 @@ config CONFIG_ACT8865
 	  This interface let you to disable the ACT8865's I2C interface.
 	  There are some issue about active-semi ACT8865's I2C interface,
 	  which affects the other chip which stands on the same I2C bus, such as MXT touchscreen.
+
+choice
+	prompt "PMIC on TWI Select"
+	depends on CONFIG_ACT8865
+	default CONFIG_PMIC_ON_TWI0
+	help
+	  This interface allow you select which TWI bus for the PMIC to wire on.
+
+config	CONFIG_PMIC_ON_TWI0
+	bool "On TWI0"
+	select CONFIG_TWI0
+
+config	CONFIG_PMIC_ON_TWI1
+	bool "On TWI1"
+	select CONFIG_TWI1
+
+config	CONFIG_PMIC_ON_TWI2
+	bool "On TWI2"
+	select CONFIG_TWI2
+
+config	CONFIG_PMIC_ON_TWI3
+	bool "On TWI3"
+	select CONFIG_TWI3
+
+endchoice
 
 endmenu
 
