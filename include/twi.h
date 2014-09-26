@@ -28,21 +28,20 @@
 #ifndef __TWI_H__
 #define __TWI_H__
 
-extern unsigned int at91_twi_base;
+extern unsigned int at91_twi0_base;
+extern unsigned int at91_twi1_base;
+extern unsigned int at91_twi2_base;
+extern unsigned int at91_twi3_base;
 
-extern int twi_configure_master_mode(unsigned int bus_clock,
-					unsigned int twi_clock);
+extern int twi_configure_master_mode(unsigned int twi_no,
+				unsigned int bus_clock, unsigned int twi_clock);
 
-extern int twi_read(unsigned char device_addr,
-		unsigned int internal_addr,
-		unsigned char iaddr_size,
-		unsigned char *data,
-		unsigned int bytes);
+extern int twi_read(unsigned int twi_no, unsigned char device_addr,
+		unsigned int internal_addr, unsigned char iaddr_size,
+		unsigned char *data, unsigned int bytes);
 
-extern int twi_write(unsigned char device_addr,
-		unsigned int internal_addr,
-		unsigned char iaddr_size,
-		unsigned char *data,
-		unsigned int bytes);
+extern int twi_write(unsigned int twi_no, unsigned char device_addr,
+		unsigned int internal_addr, unsigned char iaddr_size,
+		unsigned char *data, unsigned int bytes);
 
 #endif

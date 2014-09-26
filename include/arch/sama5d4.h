@@ -224,11 +224,11 @@
 #define AT91C_SYS_SCKCR		AT91C_BASE_SCKCR
 
 #define AT91C_NUM_PIO		5
+#define	AT91C_NUM_TWI		4
 
 /*
  * SoC specific defines
  */
 #define AT91C_CPU_NAME		"SAMA5D4"
-
 
 #endif /* #ifndef __SAMA5D4_H__ */

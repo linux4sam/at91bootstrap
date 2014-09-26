@@ -183,6 +183,7 @@
 #define AT91C_SYS_SCKCR		AT91C_BASE_SCKCR
 
 #define AT91C_NUM_PIO		5
+#define	AT91C_NUM_TWI		3
 
 /*
  * SoC specific defines
