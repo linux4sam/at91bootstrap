@@ -514,6 +514,22 @@ static void at91_twi0_hw_init(void)
 }
 #endif
 
+#if defined(CONFIG_TWI3)
+static void at91_twi3_hw_init(void)
+{
+	const struct pio_desc twi_pins[] = {
+		{"TWD3", AT91C_PIN_PC(25), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"TWCK3", AT91C_PIN_PC(26), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
+	pio_configure(twi_pins);
+
+	pmc_enable_periph_clock(AT91C_ID_TWI3);
+}
+#endif
+
 static void twi_init(void)
 {
 	unsigned int bus_clock = MASTER_CLOCK / 2;
@@ -522,7 +538,15 @@ static void twi_init(void)
 	at91_twi0_base = AT91C_BASE_TWI0;
 	at91_twi0_hw_init();
 	twi_configure_master_mode(0, bus_clock, TWI_CLOCK);
-#else
+#endif
+
+#if defined(CONFIG_TWI3)
+	at91_twi3_base = AT91C_BASE_TWI3;
+	at91_twi3_hw_init();
+	twi_configure_master_mode(3, bus_clock, TWI_CLOCK);
+#endif
+
+#if !defined(CONFIG_TWI0) && !defined(CONFIG_TWI3)
 #error "No proper TWI bus defined"
 #endif
 }
