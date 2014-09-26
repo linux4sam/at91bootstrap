@@ -58,13 +58,33 @@
  */
 #define WM8904_ADDR		(0x1a)
 
+static unsigned int wm8904_get_twi_bus(void)
+{
+	unsigned int bus = 0;
+
+#if defined(CONFIG_CODEC_ON_TWI0)
+	bus = 0;
+#elif defined(CONFIG_CODEC_ON_TWI1)
+	bus = 1;
+#elif defined(CONFIG_CODEC_ON_TWI2)
+	bus = 2;
+#elif defined(CONFIG_CODEC_ON_TWI3)
+	bus = 3;
+#endif
+
+	return bus;
+}
+
 static int wm8904_read(unsigned char reg_addr, unsigned short *data)
 {
+	unsigned int bus;
 	int ret;
 
-	ret = twi_read(WM8904_ADDR, reg_addr, 1, (unsigned char *)data, 2);
+	bus = wm8904_get_twi_bus();
+
+	ret = twi_read(bus, WM8904_ADDR, reg_addr, 1, (unsigned char *)data, 2);
 	if (ret) {
-		dbg_info("WM8904: Failed to read\n");
+		dbg_info("WM8904: Failed to read on TWI #%d\n", bus);
 		return -1;
 	}
 
@@ -73,11 +93,15 @@ static int wm8904_read(unsigned char reg_addr, unsigned short *data)
 
 static int wm8904_write(unsigned char reg_addr, unsigned short data)
 {
+	unsigned int bus;
 	int ret;
 
-	ret = twi_write(WM8904_ADDR, reg_addr, 1, (unsigned char *)&data, 2);
+	bus = wm8904_get_twi_bus();
+
+	ret = twi_write(bus, WM8904_ADDR,
+				reg_addr, 1, (unsigned char *)&data, 2);
 	if (ret) {
-		dbg_info("WM8904: Failed to write\n");
+		dbg_info("WM8904: Failed to write on TWI #%d\n", bus);
 		return -1;
 	}
 
