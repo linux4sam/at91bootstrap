@@ -342,7 +342,7 @@ static void twi_init(void)
 #endif /* #ifdef CONFIG_TWI */
 
 #ifdef CONFIG_ACT8865
-static int sama5d4ek_act8865_set_reg_voltage(void)
+static int sama5d3ek_act8865_set_reg_voltage(void)
 {
 	unsigned char reg, value;
 	int ret;
@@ -446,7 +446,7 @@ void hw_init(void)
 	act8865_set_power_saving_mode();
 
 	/* Set ACT8865 output voltage */
-	sama5d4ek_act8865_set_reg_voltage();
+	sama5d3ek_act8865_set_reg_voltage();
 
 	/* Dsiable ACT8865 I2C interface */
 	if (act8865_workaround_disable_i2c())
