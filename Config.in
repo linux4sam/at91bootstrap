@@ -464,6 +464,7 @@ endchoice
 endmenu
 
 menu "Board's Workaround Options"
+	depends on CONFIG_HAS_PMIC_ACT8865
 
 config CONFIG_ACT8865
 	bool "Disable the ACT8865 I2C interface"
