@@ -308,14 +308,22 @@ PHONY+= boot bootstrap
 rebuild: clean all
 
 ChkFileSize: $(AT91BOOTSTRAP)
-	@( fsize=`stat -c%s $(BINDIR)/$(BOOT_NAME).bin`; \
+	@( fsize=`./scripts/get_sram_size.sh $(BINDIR)/$(BOOT_NAME).map`; \
+	  if [ $$? -ne 0 ] ; then \
+		rm $(BINDIR)/$(BOOT_NAME).bin ;\
+		rm ${BINDIR}/${SYMLINK}; \
+		exit 3; \
+	  fi ; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
 		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
-		rm -rf $(BINDIR); \
+		rm $(BINDIR)/$(BOOT_NAME).bin ;\
+		rm ${BINDIR}/${SYMLINK}; \
 		exit 2;\
 	  else \
 	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
+		stack_space=`expr $(BOOTSTRAP_MAXSIZE) - $$fsize`; \
+		echo "[Attention] The space left for stack is $$stack_space bytes"; \
 	  fi )
 endif  # HAVE_DOT_CONFIG
 
