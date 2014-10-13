@@ -521,4 +521,29 @@ config CONFIG_LOAD_EEPROM
 	help
 	  This interface allow you to select hardware information from EEPROM chips.
 
+choice
+	prompt "EEPROM on TWI Select"
+	depends on CONFIG_LOAD_EEPROM
+	default CONFIG_EEPROM_ON_TWI0
+	help
+	  This interface allow you select which TWI bus for the EEPROM to wire on.
+
+config	CONFIG_EEPROM_ON_TWI0
+	bool "On TWI0"
+	select CONFIG_TWI0
+
+config	CONFIG_EEPROM_ON_TWI1
+	bool "On TWI1"
+	select CONFIG_TWI1
+
+config	CONFIG_EEPROM_ON_TWI2
+	bool "On TWI2"
+	select CONFIG_TWI2
+
+config	CONFIG_EEPROM_ON_TWI3
+	bool "On TWI3"
+	select CONFIG_TWI3
+
+endchoice
+
 endmenu

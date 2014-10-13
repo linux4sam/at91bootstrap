@@ -34,13 +34,32 @@
 #define	MAX_AT24XX_BYTES	256
 #define EK_INFO_OFFSET		(MAX_AT24XX_BYTES - HW_INFO_TOTAL_SIZE)
 
+static unsigned int at24_get_twi_bus(void)
+{
+	unsigned int bus = 0;
+
+#if defined(CONFIG_EEPROM_ON_TWI0)
+	bus = 0;
+#elif defined(CONFIG_EEPROM_ON_TWI1)
+	bus = 1;
+#elif defined(CONFIG_EEPROM_ON_TWI2)
+	bus = 2;
+#elif defined(CONFIG_EEPROM_ON_TWI3)
+	bus = 3;
+#endif
+
+	return bus;
+}
 static int at24_read(unsigned char device_addr, unsigned char internal_addr,
 			unsigned char *buff, unsigned int length)
 {
 	unsigned char iaddr_size = 1;
+	unsigned int bus;
 	int ret = 0;
 
-	ret = twi_read(device_addr, internal_addr, iaddr_size, buff, length);
+	bus = at24_get_twi_bus();
+
+	ret = twi_read(bus, device_addr, internal_addr, iaddr_size, buff, length);
 	if (ret)
 		dbg_loud("EEPROM: Failed to read\n");
 
