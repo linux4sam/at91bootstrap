@@ -64,6 +64,35 @@
 
 #define MASTER_CLOCK		132000000
 
+#elif defined(CONFIG_CPU_CLK_444MHZ)
+
+/* PCK: 444M, MCK: 148M */
+#define BOARD_PLLA_MULA		73
+
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * (BOARD_PLLA_MULA + 1)) / 2))
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * (BOARD_PLLA_MULA + 1)) / 2 / 3))
+
+#define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
+#define BOARD_PLLACOUNT		(0x3F << 8)
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (BOARD_PLLA_MULA << 18))
+#define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
+
+/* Master Clock Register */
+#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_MAIN_CLK)
+
+#define BOARD_PRESCALER_PLLA		(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_PLLA_CLK)
+
+#define BOARD_H32MX			(AT91C_PMC_H32MXDIV_H32MXDIV2 \
+					| AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_PLLA_CLK)
+
+#define MASTER_CLOCK		148000000
+
 #elif defined(CONFIG_CPU_CLK_510MHZ)
 /* PCK: 510M, MCK: 170M */
 #define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * 85) / 2))
