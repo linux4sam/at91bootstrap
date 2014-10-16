@@ -120,6 +120,31 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_TXARDS_(7)	/* 7 clock cycles */
 			| AT91C_DDRC2_TXARD_(8));	/* MR12 = 1 : slow exit power down */
 
+#elif defined(CONFIG_BUS_SPEED_148MHZ)
+
+	ddramc_config->rtr = 0x486;     /* Refresh timer: 7.8125us */
+
+	/* One clock cycle @ 148 MHz = 6.7 ns */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(7)
+			| AT91C_DDRC2_TRCD_(3)
+			| AT91C_DDRC2_TWR_(3)
+			| AT91C_DDRC2_TRC_(9)
+			| AT91C_DDRC2_TRP_(3)
+			| AT91C_DDRC2_TRRD_(2)
+			| AT91C_DDRC2_TWTR_(2)
+			| AT91C_DDRC2_TMRD_(2));
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
+			| AT91C_DDRC2_TXSRD_(200)
+			| AT91C_DDRC2_TXSNR_(31)
+			| AT91C_DDRC2_TRFC_(30));
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)
+			| AT91C_DDRC2_TRTP_(2)
+			| AT91C_DDRC2_TRPA_(3)
+			| AT91C_DDRC2_TXARDS_(8)
+			| AT91C_DDRC2_TXARD_(8));
+
 #elif defined(CONFIG_BUS_SPEED_166MHZ)
 	/*
 	 * The DDR2-SDRAM device requires a refresh of all rows every 64ms.

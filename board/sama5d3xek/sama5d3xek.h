@@ -109,6 +109,27 @@
 #error "No cpu clock provided!"
 #endif /* #if defined(CONFIG_CPU_CLK_528MHZ) */
 
+#elif defined(CONFIG_BUS_SPEED_148MHZ)
+
+#if defined(CONFIG_CPU_CLK_444MHZ)
+
+#define MASTER_CLOCK		148000000
+
+#define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
+#define BOARD_PLLACOUNT		(0x3F << 8)
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (36 << 18)) /* PLLA Multiplier */
+#define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
+
+/* Master Clock Register */
+#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_MAIN_CLK)
+
+#define BOARD_PRESCALER_PLLA		(AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_PLLA_CLK)
+#else
+#error "No cpu clock provided!"
+#endif /* #if defined(CONFIG_CPU_CLK_444MHZ) */
+
 #elif defined(CONFIG_BUS_SPEED_166MHZ)
 
 #if defined(CONFIG_CPU_CLK_498MHZ)
