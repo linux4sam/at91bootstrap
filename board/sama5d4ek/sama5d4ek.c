@@ -99,8 +99,6 @@ static void initialize_dbgu(void)
 #ifdef CONFIG_DDR2
 static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 {
-#if defined(CONFIG_BUS_SPEED_133MHZ)
-
 	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
 				| AT91C_DDRC2_MD_DDR2_SDRAM);
 
@@ -112,6 +110,9 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_NB_BANKS_8
 				| AT91C_DDRC2_DECOD_INTERLEAVED
 				| AT91C_DDRC2_UNAL_SUPPORTED);
+
+
+#if defined(CONFIG_BUS_SPEED_133MHZ)
 
 	ddramc_config->rtr = 0x208;
 
@@ -138,18 +139,6 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 #elif defined(CONFIG_BUS_SPEED_170MHZ)
 
-	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
-				| AT91C_DDRC2_MD_DDR2_SDRAM);
-
-	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
-				| AT91C_DDRC2_NR_14
-				| AT91C_DDRC2_CAS_3
-				| AT91C_DDRC2_DLL_RESET_DISABLED
-				| AT91C_DDRC2_DIS_DLL_DISABLED
-				| AT91C_DDRC2_NB_BANKS_8
-				| AT91C_DDRC2_DECOD_INTERLEAVED
-				| AT91C_DDRC2_UNAL_SUPPORTED);
-
 	ddramc_config->rtr = 0x229;
 
 	/* One clock cycle @ 170 MHz = 5.9 ns */
@@ -174,18 +163,6 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_TXARD_(8));
 
 #elif defined(CONFIG_BUS_SPEED_176MHZ)
-
-	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
-				| AT91C_DDRC2_MD_DDR2_SDRAM);
-
-	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
-				| AT91C_DDRC2_NR_14
-				| AT91C_DDRC2_CAS_3
-				| AT91C_DDRC2_DLL_RESET_DISABLED
-				| AT91C_DDRC2_DIS_DLL_DISABLED
-				| AT91C_DDRC2_NB_BANKS_8
-				| AT91C_DDRC2_DECOD_INTERLEAVED
-				| AT91C_DDRC2_UNAL_SUPPORTED);
 
 	ddramc_config->rtr = 0x2b0;
 
