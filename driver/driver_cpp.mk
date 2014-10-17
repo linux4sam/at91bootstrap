@@ -72,6 +72,7 @@ endif
 
 ifeq ($(CONFIG_FLASH),y)
 CPPFLAGS += -DCONFIG_FLASH
+ASFLAGS += -DCONFIG_FLASH
 endif
 
 ifeq ($(CONFIG_LOAD_LINUX),y)
