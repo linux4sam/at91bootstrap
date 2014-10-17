@@ -54,6 +54,8 @@ static int init_loadfunction(void)
 #else
 #if defined (CONFIG_DATAFLASH)
 	load_image = &load_dataflash;
+#elif defined(CONFIG_FLASH)
+	load_image = &load_norflash;
 #elif defined(CONFIG_NANDFLASH)
 	load_image = &load_nandflash;
 #elif defined(CONFIG_SDCARD)
@@ -95,6 +97,17 @@ int main(void)
 #ifdef CONFIG_OF_LIBFDT
 	image.of = 1;
 	image.of_dest = (unsigned char *)OF_ADDRESS;
+#endif
+
+#ifdef CONFIG_FLASH
+	media_str = "FLASH: ";
+	image.offset = IMG_ADDRESS;
+#if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
+	image.length = IMG_SIZE;
+#endif
+#ifdef CONFIG_OF_LIBFDT
+	image.of_offset = OF_OFFSET;
+#endif
 #endif
 
 #ifdef CONFIG_NANDFLASH
