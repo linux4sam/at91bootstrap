@@ -110,7 +110,7 @@ source "board/sama5d4ek/Config.in.linux_arg"
 source "board/sama5d4_xplained/Config.in.linux_arg"
 
 config CONFIG_IMG_ADDRESS
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	string "Flash Offset for Linux Kernel Image"
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00042000" if CONFIG_DATAFLASH
@@ -131,7 +131,7 @@ config CONFIG_OF_LIBFDT
 
 config CONFIG_OF_OFFSET
 	string "The Offset of Flash Device Tree Blob "
-	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
+	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH)
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00180000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
@@ -171,7 +171,7 @@ source "board/sama5d4ek/Config.in.android_arg"
 source "board/sama5d4_xplained/Config.in.android_arg"
 
 config CONFIG_IMG_ADDRESS
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	string "Flash Offset for Linux Kernel Image"
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00042000" if CONFIG_DATAFLASH
@@ -192,7 +192,7 @@ config CONFIG_OF_LIBFDT
 
 config CONFIG_OF_OFFSET
 	string "The Offset of Flash Device Tree Blob "
-	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
+	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH)
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00180000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
@@ -214,7 +214,7 @@ menu "U-Boot Image Storage Setup"
 
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for U-Boot"
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH
@@ -223,7 +223,7 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_IMG_SIZE
 	string "U-Boot Image Size"
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	default	"0x00080000"
 	help
 	  at91bootstrap will copy this size of U-Boot image
@@ -247,14 +247,14 @@ menu "Demo Application Image Storage Setup"
 
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for Demo-App"
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
 
 config CONFIG_IMG_SIZE
 	string "Demo-App Image Size"
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	default	"0x00010000"	if CONFIG_LOAD_64KB
 	default	"0x00100000"	if CONFIG_LOAD_1MB
 	default	"0x00400000"	if CONFIG_LOAD_4MB
