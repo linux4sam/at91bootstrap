@@ -3,6 +3,7 @@ config CONFIG_SAMA5D3XEK
 	select SAMA5D3X
 	select CONFIG_DDRC
 	select ALLOW_DATAFLASH
+	select ALLOW_FLASH
 	select ALLOW_NANDFLASH
 	select ALLOW_SDCARD
 	select ALLOW_HSMCI
