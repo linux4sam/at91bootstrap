@@ -44,7 +44,6 @@
 
 void norflash_hw_init(void);
 
-int load_norflash(unsigned int img_addr, unsigned int img_size,
-                  unsigned int img_dest);
+int load_norflash(struct image_info *image);
 
 #endif	/* #ifndef __NORFLASH_H__ */
