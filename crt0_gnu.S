@@ -109,7 +109,6 @@ _relocate_to_sram:
 	ldrcc   r2, [r1], #4
 	strcc   r2, [r3], #4
 	bcc     1b
-	ldr	pc, =_setup_clocks
 #endif /* CONFIG_FLASH */
 
 	ldr     r4, = lowlevel_clock_init
