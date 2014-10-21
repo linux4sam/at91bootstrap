@@ -599,7 +599,7 @@ void load_board_hw_info(void)
 	goto save_info;
 
 set_default:
-	dbg_info("\n1-Wire: Using defalt information\n");
+	dbg_info("\n1-Wire: Using default information\n");
 
 	sn = set_default_sn();
 	rev = set_default_rev();
