@@ -1,0 +1,2 @@
+config CONFIG_BOARDNAME
+	default "sama5d4_xplained" if CONFIG_SAMA5D4_XPLAINED

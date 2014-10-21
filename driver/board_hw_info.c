@@ -372,7 +372,7 @@ static unsigned int set_default_sn(void)
 	vendor_cm = VENDOR_EMBEST;
 	vendor_dm = VENDOR_FLEX;
 	vendor_ek = VENDOR_FLEX;
-#elif defined(CONFIG_SAMA5D4EK)
+#elif defined(CONFIG_SAMA5D4EK) || defined(CONFIG_SAMA5D4_XPLAINED)
 	/*
 	 * SAMA5D4-EK
 	 * Display Module: SAMA5D3x-DM, FLEX
@@ -429,7 +429,7 @@ static unsigned int set_default_rev(void)
 	rev_id_cm = '4';
 	rev_id_dm = '2';
 	rev_id_ek = '3';
-#elif defined(CONFIG_SAMA5D4EK)
+#elif defined(CONFIG_SAMA5D4EK) || defined(CONFIG_SAMA5D4_XPLAINED)
 	/*
 	 * SAMA5D4-EK
 	 * Display Module: 'B', '2'
@@ -566,7 +566,7 @@ static int load_eeprom_info(unsigned char *buff, unsigned int size, unsigned int
 void load_board_hw_info(void)
 {
 	unsigned int size = HW_INFO_TOTAL_SIZE;
-#if defined(CONFIG_SAMA5D4EK)
+#if defined(CONFIG_SAMA5D4EK) || defined(CONFIG_SAMA5D4_XPLAINED)
 	unsigned int missing = BOARD_TYPE_EK_MASK;
 #else
 	unsigned int missing = BOARD_TYPE_MASK;

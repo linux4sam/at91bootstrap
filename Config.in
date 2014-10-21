@@ -107,6 +107,7 @@ source "board/at91sam9n12ek/Config.in.linux_arg"
 source "board/sama5d3xek/Config.in.linux_arg"
 source "board/sama5d3_xplained/Config.in.linux_arg"
 source "board/sama5d4ek/Config.in.linux_arg"
+source "board/sama5d4_xplained/Config.in.linux_arg"
 
 config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
@@ -167,6 +168,7 @@ config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "android kernel command line"
 source "board/sama5d3xek/Config.in.android_arg"
 source "board/sama5d4ek/Config.in.android_arg"
+source "board/sama5d4_xplained/Config.in.android_arg"
 
 config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH

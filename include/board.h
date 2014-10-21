@@ -80,4 +80,8 @@
 #include "sama5d4ek.h"
 #endif
 
+#ifdef CONFIG_SAMA5D4_XPLAINED
+#include "sama5d4_xplained.h"
+#endif
+
 #endif /* #ifndef __BOARD_H__ */
