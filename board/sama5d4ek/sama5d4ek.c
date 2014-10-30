@@ -882,19 +882,4 @@ void nandflash_hw_init(void)
 		| AT91C_SMC_MODE_TDF_CYCLES(1),
 		(ATMEL_BASE_SMC + SMC_MODE3));
 }
-
-void nandflash_config_buswidth(unsigned char buswidth)
-{
-	unsigned int mode;
-
-	mode = readl(ATMEL_BASE_SMC + SMC_MODE3);
-
-	mode &= ~AT91C_SMC_MODE_DBW;
-	if (buswidth == 0)	/* 8 bits bus */
-		mode |= AT91C_SMC_MODE_DBW_8;
-	else
-		mode |= AT91C_SMC_MODE_DBW_16;
-
-	writel(mode, (ATMEL_BASE_SMC + SMC_MODE3));
-}
 #endif /* #ifdef CONFIG_NANDFLASH */
