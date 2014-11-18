@@ -147,6 +147,13 @@ ifeq ($(CONFIG_WITH_CACHE),y)
 REVISION :=$(REVISION)-CACHE
 endif
 
+ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
+REVISION :=$(REVISION)-DBG_3RD
+endif
+
+ifeq ($(CONFIG_CHECK_APPLICATION_LOAD),y)
+REVISION :=$(REVISION)-CHECKED_APPLI
+endif
 
 #Add RAM type in name, TODO : to be refactored : set it in boards' directories.
 ifeq ($(CONFIG_ONLY_INTERNAL_RAM),y)

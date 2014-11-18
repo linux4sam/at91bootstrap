@@ -56,7 +56,7 @@
 static const char* const BOOT_MSG_SUCCESS = "Init Done\n";
 static const char* const BOOT_MSG_FAILED =  "Init Failure\n";
 static const char* const BOOT_MSG_RECOVERY = "SHOULD NEVER HAPPENS\n";
-
+static const char* const BOOT_MSG_INVALID = BOOT_MSG_RECOVERY;
 int load_nothing (struct image_info* unused)
 {
   //NOTHING TO DO
@@ -69,6 +69,7 @@ int load_nothing (struct image_info* unused)
 static const char* const BOOT_MSG_SUCCESS = "Done to load image\n";
 static const char* const BOOT_MSG_FAILED =  "Failed to load image\n";
 static const char* const BOOT_MSG_RECOVERY = "Success to recovery\n";
+static const char* const BOOT_MSG_INVALID = "Invalid image loaded\n";
 
 
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
@@ -101,7 +102,22 @@ extern int load_kernel(struct image_info *img_info);
 //typedef int (*load_function)(struct image_info *img_info);
 
 void (*sdcard_set_of_name)(char *) = NULL;
-
+//****************************************************************************
+/**
+ * This function will check the loaded application with the expected value at the known address : dest+4
+ */
+#ifdef CONFIG_CHECK_APPLICATION_LOAD
+int check_loaded_application( struct image_info const* const image, unsigned int addr_offset, unsigned int expected_value)
+{
+  const unsigned int value = *(unsigned int*)(image->dest+addr_offset);
+  return value == expected_value ? 0 : -3;
+}
+//*** Signal the application invalid load. TO BE DEFINED per board.
+void signal_invalid_application(void);
+#else 
+#define signal_invalid_application()
+#endif /*CONFIG_CHECK_APPLICATION_LOAD*/
+//****************************************************************************
 static void display_banner (void)
 {
 #if defined(CONFIG_UPLOAD_3RD_STAGE)
@@ -130,7 +146,7 @@ static void display_banner (void)
 	usart_puts(clocks_msg);
 	usart_puts("\n\n");
 }
-
+//**************************************************************************
 int main(void)
 {
 	struct image_info image;
@@ -262,6 +278,10 @@ for(;;)
 #endif
 	
 	ret = load_image(&image);
+  
+#ifdef CONFIG_CHECK_APPLICATION_LOAD
+  ret = check_loaded_application(&image, CONFIG_CHECK_APPLICATION_VAL_ADDR_OFFSET, CONFIG_CHECK_APPLICATION_VALUE);
+#endif
 
 	if (media_str)
 		dbg_log(DEBUG_INFO,media_str);
@@ -277,6 +297,10 @@ for(;;)
 		dbg_log(DEBUG_INFO,BOOT_MSG_RECOVERY);
 		while (1);
 	}
+	if (ret == -3) {
+    dbg_log(DEBUG_INFO,BOOT_MSG_INVALID);
+    while (1) signal_invalid_application();
+  }
 
 #ifdef CONFIG_SCLK
 	slowclk_switch_osc32();

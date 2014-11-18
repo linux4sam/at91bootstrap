@@ -44,7 +44,7 @@ endchoice
 
 config CONFIG_DEBUG_3RD_STAGE
   bool "Third Stage (APPLICATION/KERNEL) DEBUG"
-  depends on CONFIG_UPLOAD_3RD_STAGE
+  # TEST depends on CONFIG_UPLOAD_3RD_STAGE
   default n
   help
     The bootstrap will wait for a debugger being attached to the board for third stage debug purpose (uploaded with debug probe or read from ROM memroy). Then the Program Counter should be manualy set to the application's load address.
@@ -321,8 +321,36 @@ config CONFIG_IMAGE_NAME
 	default "zImage" if CONFIG_LINUX_ZIMAGE
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
 	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
+	
+#
+# Application checked load support
+#
+menu "Application checked load support"
+ depends on CONFIG_SAMA5D31_BEEAVE && (CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB)
+ 
+config CONFIG_CHECK_APPLICATION_LOAD
+  bool "Validate application load"
+  default false
+  help
+    The Application load will be validate with a special value existing at its starting point + 0x4 address. the value is defined in the application's startup code and must defined here too.
 
-	  
+config CONFIG_CHECK_APPLICATION_VALUE
+  hex "Validation value (CHECK in application startup code !)"
+  depends on CONFIG_CHECK_APPLICATION_LOAD
+  default 0xECDEB1EF
+  help
+    The value used to validate the firmware load. Must be kep in sync in the Application software !!
+
+config CONFIG_CHECK_APPLICATION_VAL_ADDR_OFFSET
+  int "Check value address offset"
+  depends on CONFIG_CHECK_APPLICATION_LOAD
+  default 4
+  help
+    This is the address offset of the validation value.
+    
+endmenu
+
+
 config CONFIG_NO_CONSOLE_OUTPUT
   bool "NO DBGU console output"
   default n

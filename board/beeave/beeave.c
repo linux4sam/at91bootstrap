@@ -336,4 +336,14 @@ void nandflash_config_buswidth(unsigned char buswidth)
     writel(mode, (ATMEL_BASE_SMC + SMC_MODE3));
   }
 #endif /* #ifdef CONFIG_NANDFLASH */
-
+//***********************************************
+void signal_invalid_application(void)
+{
+  volatile unsigned int loopCounter = 1000000;
+      pio_set_value(AT91C_PIN_PD(5),0);
+      while (loopCounter--);
+      
+      loopCounter = 10000;
+      pio_set_value(AT91C_PIN_PD(5),1);
+      while (loopCounter--);
+}
