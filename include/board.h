@@ -107,6 +107,8 @@ extern void at91_sdhc_hw_init(void);
 
 extern void norflash_hw_init(void);
 
+extern char *board_override_cmd_line(void);
+
 /* PM Support */
 extern unsigned int at91_twi0_hw_init(void);
 extern unsigned int at91_twi1_hw_init(void);

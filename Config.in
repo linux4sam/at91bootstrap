@@ -71,9 +71,15 @@ config CONFIG_LINUX_IMAGE
 menu "Kernel Image Storage Setup"
 	depends on CONFIG_LINUX_IMAGE
 
+config CONFIG_OVERRIDE_CMDLINE
+	bool "Override the config kernel command-line"
+	default n
+	help
+	  The board will override the kernel command-line which specified through the config.
+
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	depends on CONFIG_LOAD_LINUX
-	string "Linux kernel parameters"
+	string "Linux kernel command-line"
 source "board/at91sam9261ek/Config.in.linux_arg"
 source "board/at91sam9263ek/Config.in.linux_arg"
 source "board/at91sam9g10ek/Config.in.linux_arg"
@@ -92,7 +98,7 @@ source "board/sama5d2_xplained/Config.in.linux_arg"
 
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	depends on CONFIG_LOAD_ANDROID
-	string "android kernel command line"
+	string "Android kernel command-line"
 source "board/sama5d3xek/Config.in.android_arg"
 
 config CONFIG_MEM_BANK
