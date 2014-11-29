@@ -40,20 +40,10 @@
 
 #include "debug.h"
 
-#ifdef CONFIG_LOAD_ANDROID
-#ifdef CONFIG_SAMA5D3XEK
-static char *cmd_line_android_pda = LINUX_KERNEL_ARG_STRING \
-		" androidboot.hardware=sama5d3x-pda";
-
-static char *cmd_line_android = LINUX_KERNEL_ARG_STRING \
-		" androidboot.hardware=sama5d3x-ek";
-#endif /* #ifdef CONFIG_SAMA5D3XEK */
-#endif /* #ifdef CONFIG_LOAD_ANDROID */
-
 #ifdef CONFIG_OF_LIBFDT
 static int setup_dt_blob(void *blob)
 {
-	char *bootargs = LINUX_KERNEL_ARG_STRING;
+	char *bootargs = NULL;
 	char *p;
 	unsigned int mem_bank = MEM_BANK;
 	unsigned int mem_size = MEM_SIZE;
@@ -69,21 +59,25 @@ static int setup_dt_blob(void *blob)
 
 #if defined(CONFIG_LOAD_ANDROID) && defined(CONFIG_SAMA5D3XEK)
 	if (get_dm_sn() == BOARD_ID_PDA_DM)
-		bootargs = cmd_line_android_pda;
+		bootargs = CMDLINE " androidboot.hardware=sama5d3x-pda";
 	else
-		bootargs = cmd_line_android;
+		bootargs = CMDLINE " androidboot.hardware=sama5d3x-ek";
+#elif defined(CMDLINE)
+	bootargs = CMDLINE;
 #endif
 
-	/* set "/chosen" node */
-	for (p = bootargs; *p == ' '; p++)
-		;
+	if (bootargs) {
+		/* set "/chosen" node */
+		for (p = bootargs; *p == ' '; p++)
+			;
 
-	if (*p == '\0')
-		return -1;
+		if (*p == '\0')
+			return -1;
 
-	ret = fixup_chosen_node(blob, p);
-	if (ret)
-		return ret;
+		ret = fixup_chosen_node(blob, p);
+		if (ret)
+			return ret;
+	}
 
 	ret = fixup_memory_node(blob, &mem_bank, &mem_size);
 	if (ret)
@@ -187,7 +181,7 @@ static void setup_boot_params(void)
 	params = (unsigned int *)params + TAG_SIZE_MEM32;
 
 	struct tag_cmdline *cmdparam = (struct tag_cmdline *)params;
-	setup_commandline_tag(cmdparam, LINUX_KERNEL_ARG_STRING);
+	setup_commandline_tag(cmdparam, CMDLINE);
 
 	params = (unsigned int *)params + cmdparam->header.size;
 
