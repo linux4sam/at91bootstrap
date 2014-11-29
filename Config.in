@@ -35,9 +35,9 @@ config CONFIG_LOAD_LINUX
 
 config CONFIG_LOAD_ANDROID
 	select CONFIG_LINUX_IMAGE
-	bool "Support loading android directly"
+	bool "Support loading Android directly"
 	help
-	   Load android image directly from storage media
+	   Load Android image directly from storage media
 
 config CONFIG_LOAD_1MB
 	bool "Load 1 MB into start of SDRAM"
@@ -66,25 +66,13 @@ config CONFIG_LINUX_IMAGE
 	  Select to load linux uImage or zImage to boot
 
 #
-# Linux Image Storage Setup
+# Kernel Image Storage Setup
 #
-menu "Linux Image Storage Setup"
+menu "Kernel Image Storage Setup"
 	depends on CONFIG_LOAD_LINUX
 
-config CONFIG_MEM_BANK
-	string "Extern Memory Bank Base Address"
-	default "0x70000000" if AT91SAM9G45
-	default "0x20000000"
-	
-config CONFIG_MEM_SIZE
-	string "Extern Memory Bank Size"
-	default "0x2000000" if CONFIG_RAM_32MB
-	default "0x4000000" if CONFIG_RAM_64MB
-	default "0x8000000" if CONFIG_RAM_128MB
-	default "0x10000000" if CONFIG_RAM_256MB
-	default "0x20000000" if CONFIG_RAM_512MB
-	
 config CONFIG_LINUX_KERNEL_ARG_STRING
+	depends on CONFIG_LOAD_LINUX
 	string "Linux kernel parameters"
 source "board/at91sam9261ek/Config.in.linux_arg"
 source "board/at91sam9263ek/Config.in.linux_arg"
@@ -101,47 +89,10 @@ source "board/sama5d3x_cmp/Config.in.linux_arg"
 source "board/sama5d4ek/Config.in.linux_arg"
 source "board/sama5d4_xplained/Config.in.linux_arg"
 
-config CONFIG_IMG_ADDRESS
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
-	string "Flash Offset for Linux Kernel Image"
-	default "0x00008000" if CONFIG_FLASH
-	default "0x00042000" if CONFIG_DATAFLASH
-	default "0x00200000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
-	help
-
-config CONFIG_JUMP_ADDR
-	string "The External Ram Address to Load Kernel Image"
-	default "0x72000000" if AT91SAM9G45
-	default "0x22000000"
-	help
-	  The entry point to which the bootstrap will pass control.
-
-config CONFIG_OF_LIBFDT
-	bool "Flattened Device Tree Support"
-	default y
-
-config CONFIG_OF_OFFSET
-	string "The Offset of Flash Device Tree Blob "
-	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH)
-	default "0x00008400" if CONFIG_DATAFLASH
-	default "0x00180000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
-
-config CONFIG_OF_ADDRESS
-	string "The External Ram Address to Load Device Tree Blob"
-	depends on CONFIG_OF_LIBFDT
-	default "0x71000000" if AT91SAM9G45
-	default "0x21000000"
-	help
-
-endmenu
-
-#
-# Android Image Storage Setup
-#
-menu "Android Image Storage Setup"
+config CONFIG_LINUX_KERNEL_ARG_STRING
 	depends on CONFIG_LOAD_ANDROID
+	string "android kernel command line"
+source "board/sama5d3xek/Config.in.android_arg"
 
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
@@ -155,10 +106,6 @@ config CONFIG_MEM_SIZE
 	default "0x8000000" if CONFIG_RAM_128MB
 	default "0x10000000" if CONFIG_RAM_256MB
 	default "0x20000000" if CONFIG_RAM_512MB
-
-config CONFIG_LINUX_KERNEL_ARG_STRING
-	string "android kernel command line"
-source "board/sama5d3xek/Config.in.android_arg"
 
 config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
