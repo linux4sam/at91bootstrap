@@ -25,7 +25,7 @@
  */
 
 #include "common.h"
-#include "flash.h"
+#include "board.h"
 #include "string.h"
 #include "debug.h"
 
