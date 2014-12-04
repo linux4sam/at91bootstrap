@@ -106,8 +106,12 @@ config	CONFIG_DATAFLASH
 	depends on ALLOW_DATAFLASH
 
 config	CONFIG_FLASH
-	bool "Parallel NOR flash"
+	bool "Parallel NOR flash(supported from ROM Code v2.1)"
 	depends on ALLOW_FLASH
+	help
+	  Before you select it, please check the ROM Code if it supports
+	  to boot from the NOR flash.  Beacause booting from the external
+	  NOR memory is supported in ROM Code v2.1 for SAMA5D3x.
 
 config	CONFIG_NANDFLASH
 	bool "NAND flash"
