@@ -139,7 +139,22 @@ $ make tarball
 If the command is successful, the .tar.gz tar package can be found under
 the project top directory.
 
-4 Contributing
+4. Others
+================================================================================
+4.1 About booting from NOR flash.
+4.1.1 ROM Code version
+    Booting from the external NOR flash is supported in ROM code v2.1
+    for SAMA5D3x.  ROM Code loads the binary image from the NOR flash
+    to the internal SRAM and jumps to run, instead of directly excute on it.
+
+4.1.2. SAM-BA
+    Using SAM-BA to program the binary to the NOR flash has a little different
+    from other booting mode. there is no 'Send Boot File' command for NOR flash.
+
+    You should use 'Send File' command to send the binary file as same as
+    the normal file, with 'Address' selected to 0.
+
+5 Contributing
 ================================================================================
 
 To contribute to AT91Bootstrap you should submit the patches for review to:
