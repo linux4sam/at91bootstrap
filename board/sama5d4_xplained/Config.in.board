@@ -20,5 +20,6 @@ config CONFIG_SAMA5D4_XPLAINED
 	select CONFIG_TRUSTZONE
 	select CONFIG_HAS_PMIC_ACT8865
 	select CONFIG_PM
+	select SUPPORT_BUS_SPEED_176MHZ
 	help
 	  Use the SAMA5D4_Xplained Development board

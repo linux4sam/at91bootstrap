@@ -14,5 +14,6 @@ config	CONFIG_AT91SAM9X5EK
 	select ALLOW_PIO3
 	select CPU_HAS_PMECC
 	select CONFIG_HAS_HW_INFO
+	select SUPPORT_BUS_SPEED_133MHZ
 	help
 	    Use the AT91SAM9X5EK Development board

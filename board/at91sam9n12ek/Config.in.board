@@ -13,5 +13,6 @@ config	CONFIG_AT91SAM9N12EK
 	select ALLOW_NANDFLASH_RECOVERY
 	select ALLOW_PIO3
 	select CPU_HAS_PMECC
+	select SUPPORT_BUS_SPEED_133MHZ
 	help
 	    Use the AT91SAM9N12EK Development board
