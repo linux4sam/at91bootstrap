@@ -238,24 +238,24 @@ static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->rtr = 0x202;
 	ddramc_config->tim_calr = 12;
 
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6
-			| AT91C_DDRC2_TRCD_2
-			| AT91C_DDRC2_TWR_3
-			| AT91C_DDRC2_TRC_8
-			| AT91C_DDRC2_TRP_2
-			| AT91C_DDRC2_TRRD_2
-			| AT91C_DDRC2_TWTR_2
-			| AT91C_DDRC2_TMRD_3);
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
+			| AT91C_DDRC2_TRCD_(2)
+			| AT91C_DDRC2_TWR_(3)
+			| AT91C_DDRC2_TRC_(8)
+			| AT91C_DDRC2_TRP_(2)
+			| AT91C_DDRC2_TRRD_(2)
+			| AT91C_DDRC2_TWTR_(2)
+			| AT91C_DDRC2_TMRD_(3));
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2
-			| AT91C_DDRC2_TXSNR_18
-			| AT91C_DDRC2_TRFC_17);
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
+			| AT91C_DDRC2_TXSNR_(18)
+			| AT91C_DDRC2_TRFC_(17));
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_8
-			| AT91C_DDRC2_TRTP_2
-			| AT91C_DDRC2_TRPA_3
-			| AT91C_DDRC2_TXARDS_1
-			| AT91C_DDRC2_TXARD_1);
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(8)
+			| AT91C_DDRC2_TRTP_(2)
+			| AT91C_DDRC2_TRPA_(3)
+			| AT91C_DDRC2_TXARDS_(1)
+			| AT91C_DDRC2_TXARD_(1));
 }
 
 static void lpddr2_init(void)
