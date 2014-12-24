@@ -8,9 +8,10 @@ ASFLAGS += \
 else
 CPPFLAGS += \
 	-DCONFIG_SAMA5D3XEK \
+	-mcpu=cortex-a5 \
 	-mtune=cortex-a5
 
 ASFLAGS += \
-	-DCONFIG_SAMA5D3XEK
+	-DCONFIG_SAMA5D3XEK \
 	-mcpu=cortex-a5
 endif
