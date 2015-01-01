@@ -27,6 +27,7 @@
  */
 #include "hamming.h"
 
+#ifdef CONFIG_AT91SAM9260EK
 static unsigned char CountBitsInByte(unsigned char byte)
 {
 	unsigned char count = 0;
@@ -40,8 +41,21 @@ static unsigned char CountBitsInByte(unsigned char byte)
 
 	return count;
 }
+#else
+static const unsigned char BitsSetTable256[256] = {
+	#define B2(n) n,     n+1,     n+1,     n+2
+	#define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
+	#define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
+	B6(0), B6(1), B6(1), B6(2)
+};
 
-static unsigned char CountBitsInCode256(unsigned char *code)
+static inline unsigned char CountBitsInByte(unsigned char byte)
+{
+	return BitsSetTable256[byte];
+}
+#endif
+
+static inline unsigned char CountBitsInCode256(unsigned char *code)
 {
 	return CountBitsInByte(code[0])
 		+ CountBitsInByte(code[1])
