@@ -27,25 +27,25 @@
  */
 #include "hamming.h"
 
-static unsigned char CountBitsInByte(unsigned char byte)
+
+static const unsigned char BitsSetTable256[256] =
 {
-	unsigned char count = 0;
+	#define B2(n) n,     n+1,     n+1,     n+2
+	#define B4(n) B2(n), B2(n+1), B2(n+1), B2(n+2)
+	#define B6(n) B4(n), B4(n+1), B4(n+1), B4(n+2)
+	B6(0), B6(1), B6(1), B6(2)
+};
 
-	while (byte > 0) {
-		if (byte & 1)
-			count++;
-
-		byte >>= 1;
-	}
-
-	return count;
+static inline unsigned char CountBitsInByte(unsigned char byte)
+{
+	return BitsSetTable256[byte];
 }
 
-static unsigned char CountBitsInCode256(unsigned char *code)
+static inline unsigned char CountBitsInCode256(unsigned char *code)
 {
-	return CountBitsInByte(code[0])
-		+ CountBitsInByte(code[1])
-		+ CountBitsInByte(code[2]);
+	return CountBitsInByte[code[0]]
+		+ CountBitsInByte[code[1]]
+		+ CountBitsInByte[code[2]];
 }
 
 static void Compute256(const unsigned char *data, unsigned char *code)
