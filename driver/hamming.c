@@ -43,9 +43,9 @@ static inline unsigned char CountBitsInByte(unsigned char byte)
 
 static inline unsigned char CountBitsInCode256(unsigned char *code)
 {
-	return CountBitsInByte[code[0]]
-		+ CountBitsInByte[code[1]]
-		+ CountBitsInByte[code[2]];
+	return BitsSetTable256[code[0]]
+		+ BitsSetTable256[code[1]]
+		+ BitsSetTable256[code[2]];
 }
 
 static void Compute256(const unsigned char *data, unsigned char *code)
