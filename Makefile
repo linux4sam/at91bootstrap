@@ -43,7 +43,8 @@ Q=@
 export Q
 endif
 
-noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig
+noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig \
+		   allnoconfig allyesconfig allmodconfig alldefconfig randconfig
 
 # Check first if we want to configure at91bootstrap
 #
@@ -108,6 +109,12 @@ savedefconfig: $(CONFIG)/conf
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
 		$(CONFIG)/conf --savedefconfig=defconfig $(CONFIG_CONFIG_IN)
+
+allnoconfig allyesconfig allmodconfig alldefconfig randconfig: $(CONFIG)/conf
+	@mkdir -p $(CONFIG)/at91bootstrap-config
+	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
+		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
+		$(CONFIG)/conf --$@ $(CONFIG_CONFIG_IN)
 
 else #  Have DOT Config
 
