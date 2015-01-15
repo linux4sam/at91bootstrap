@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "common.h"
+#include "hardware.h"
 #include "string.h"
 #include "board_hw_info.h"
 #include "ds24xx.h"
