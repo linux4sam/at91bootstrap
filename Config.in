@@ -167,8 +167,6 @@ config CONFIG_MEM_SIZE
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "android kernel command line"
 source "board/sama5d3xek/Config.in.android_arg"
-source "board/sama5d4ek/Config.in.android_arg"
-source "board/sama5d4_xplained/Config.in.android_arg"
 
 config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
