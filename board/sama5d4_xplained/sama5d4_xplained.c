@@ -111,32 +111,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_UNAL_SUPPORTED);
 
 
-#if defined(CONFIG_BUS_SPEED_133MHZ)
-
-	ddramc_config->rtr = 0x208;
-
-	/* One clock cycle @ 133 MHz = 7.5 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
-			| AT91C_DDRC2_TRCD_(2)
-			| AT91C_DDRC2_TWR_(2)
-			| AT91C_DDRC2_TRC_(8)
-			| AT91C_DDRC2_TRP_(2)
-			| AT91C_DDRC2_TRRD_(2)
-			| AT91C_DDRC2_TWTR_(2)
-			| AT91C_DDRC2_TMRD_(2));
-
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
-			| AT91C_DDRC2_TXSRD_(200)
-			| AT91C_DDRC2_TXSNR_(19)
-			| AT91C_DDRC2_TRFC_(17));
-
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(5)
-			| AT91C_DDRC2_TRTP_(2)
-			| AT91C_DDRC2_TRPA_(2)
-			| AT91C_DDRC2_TXARDS_(2)
-			| AT91C_DDRC2_TXARD_(8));
-
-#elif defined(CONFIG_BUS_SPEED_148MHZ)
+#if defined(CONFIG_BUS_SPEED_148MHZ)
 
 	ddramc_config->rtr = 0x243;
 
@@ -227,7 +202,7 @@ static void ddramc_init(void)
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* configure Shift Sampling Point of Data */
-#if defined(CONFIG_BUS_SPEED_133MHZ) || defined(CONFIG_BUS_SPEED_148MHZ)
+#if defined(CONFIG_BUS_SPEED_148MHZ)
 	reg = AT91C_MPDDRC_RD_DATA_PATH_NO_SHIFT;
 #else
 	reg = AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES;
@@ -241,7 +216,7 @@ static void ddramc_init(void)
 	reg &= ~AT91C_MPDDRC_CALCODEP;
 	reg &= ~AT91C_MPDDRC_CALCODEN;
 	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
-#if defined(CONFIG_BUS_SPEED_133MHZ) || defined(CONFIG_BUS_SPEED_148MHZ)
+#if defined(CONFIG_BUS_SPEED_148MHZ)
 	reg |= AT91C_MPDDRC_TZQIO_4;	/* @ 133 & 148 MHz */
 #else
 	reg |= AT91C_MPDDRC_TZQIO_5;	/* @ 170 & 176 MHz */
