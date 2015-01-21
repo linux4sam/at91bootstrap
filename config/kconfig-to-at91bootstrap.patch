@@ -733,7 +733,7 @@ diff -urN kconfig-0rig//README.at91bootstrap kconfig/README.at91bootstrap
 diff -urN kconfig-0rig//util.c kconfig/util.c
 --- kconfig-0rig//util.c	2010-01-01 14:37:32.000000000 +0100
 +++ kconfig/util.c	2010-01-01 14:37:59.000000000 +0100
-@@ -26,6 +26,109 @@
+@@ -26,6 +26,108 @@
  	return file;
  }
  
@@ -834,7 +834,6 @@ diff -urN kconfig-0rig//util.c kconfig/util.c
 +	rename(name_tmp, name);
 +	printf(_("#\n"
 +		 "# make dependencies written to %s\n"
-+		 "# ATTENTION at91bootstrap devels!\n"
 +		 "# See top of this file before playing with this auto-preprequisites!\n"
 +		 "#\n"), name);
 +	return 0;
