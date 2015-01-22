@@ -27,26 +27,22 @@ source "board/sama5d4_xplained/Config.in.board"
 endchoice
 
 config CONFIG_BOARDNAME
-	string "Board Name"
-	help
-	    Name of the board, A Board Support package
-	    (BSP) must be available.
-
-source "board/at91sam9260ek/Config.in.boardname"
-source "board/at91sam9261ek/Config.in.boardname"
-source "board/at91sam9263ek/Config.in.boardname"
-source "board/at91sam9rlek/Config.in.boardname"
-source "board/at91sam9xeek/Config.in.boardname"
-source "board/at91sam9g10ek/Config.in.boardname"
-source "board/at91sam9g20ek/Config.in.boardname"
-source "board/at91sam9m10g45ek/Config.in.boardname"
-source "board/at91sam9n12ek/Config.in.boardname"
-source "board/at91sam9x5ek/Config.in.boardname"
-source "board/sama5d3xek/Config.in.boardname"
-source "board/sama5d3_xplained/Config.in.boardname"
-source "board/sama5d3x_cmp/Config.in.boardname"
-source "board/sama5d4ek/Config.in.boardname"
-source "board/sama5d4_xplained/Config.in.boardname"
+	string
+	default "at91sam9rlek"	if CONFIG_AT91SAM9RLEK
+	default "at91sam9260ek"	if CONFIG_AT91SAM9260EK
+	default "at91sam9261ek"	if CONFIG_AT91SAM9261EK
+	default "at91sam9263ek"	if CONFIG_AT91SAM9263EK
+	default "at91sam9xeek"	if CONFIG_AT91SAM9XEEK
+	default "at91sam9g10ek"	if CONFIG_AT91SAM9G10EK
+	default "at91sam9g20ek"	if CONFIG_AT91SAM9G20EK
+	default "at91sam9m10g45ek" if CONFIG_AT91SAM9M10G45EK
+	default "at91sam9n12ek"	if CONFIG_AT91SAM9N12EK
+	default "at91sam9x5ek"	if CONFIG_AT91SAM9X5EK
+	default "sama5d3_xplained" if CONFIG_SAMA5D3_XPLAINED
+	default "sama5d3xek" if CONFIG_SAMA5D3XEK
+	default "sama5d3x_cmp" if CONFIG_SAMA5D3X_CMP
+	default "sama5d4_xplained" if CONFIG_SAMA5D4_XPLAINED
+	default "sama5d4ek" if CONFIG_SAMA5D4EK
 
 config AT91SAM9260
 	select CPU_HAS_TWI0

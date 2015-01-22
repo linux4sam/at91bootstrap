@@ -1,2 +1,0 @@
-config CONFIG_BOARDNAME
-	default "sama5d3x_cmp" if CONFIG_SAMA5D3X_CMP
