@@ -323,7 +323,7 @@ static int of_blob_move_dt_string(void *blob, int newlen)
 	memmove(dest, point, len);
 
 	of_set_dt_strings_len(blob, stringslen);
-	of_set_dt_total_size(blob, of_get_dt_total_size(blob) + len);
+	of_set_dt_total_size(blob, of_get_dt_total_size(blob) + newlen);
 
 	return 0;
 }
