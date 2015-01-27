@@ -106,6 +106,7 @@ source "board/at91sam9x5ek/Config.in.linux_arg"
 source "board/at91sam9n12ek/Config.in.linux_arg"
 source "board/sama5d3xek/Config.in.linux_arg"
 source "board/sama5d3_xplained/Config.in.linux_arg"
+source "board/sama5d3x_cmp/Config.in.linux_arg"
 source "board/sama5d4ek/Config.in.linux_arg"
 source "board/sama5d4_xplained/Config.in.linux_arg"
 

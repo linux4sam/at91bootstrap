@@ -360,7 +360,7 @@ static unsigned int set_default_sn(void)
 	vendor_dm = VENDOR_FLEX;
 	vendor_ek = VENDOR_FLEX;
 
-#elif defined(CONFIG_SAMA5D3XEK)
+#elif defined(CONFIG_SAMA5D3XEK) || defined(CONFIG_SAMA5D3X_CMP)
 
 	/* sama5d3xek
 	 * CPU Module: SAMA5D31-CM, EMBEST
@@ -417,7 +417,7 @@ static unsigned int set_default_rev(void)
 	rev_id_dm = '0';
 	rev_id_ek = '0';
 
-#elif defined(CONFIG_SAMA5D3XEK)
+#elif defined(CONFIG_SAMA5D3XEK) || defined(CONFIG_SAMA5D3X_CMP)
 
 	/* sama5d3xek
 	 * CPU Module: 'D', '4'
