@@ -64,6 +64,8 @@ extern unsigned int get_cm_vendor(void);
 extern unsigned int get_dm_sn(void);
 extern unsigned int get_sys_sn(void);
 extern unsigned int get_sys_rev(void);
+extern char get_ek_rev(void);
+extern unsigned int get_ek_sn(void);
 
 extern void load_board_hw_info(void);
 

@@ -484,6 +484,16 @@ unsigned int get_dm_sn(void)
 	return (sn >> DM_SN_OFFSET) & SN_MASK;
 }
 
+char get_ek_rev(void)
+{
+	return 'A' + ((rev >> EK_REV_OFFSET) & REV_MASK);
+}
+
+unsigned int get_ek_sn(void)
+{
+	return (sn  >> EK_SN_OFFSET) & SN_MASK;
+}
+
 #if defined(CONFIG_LOAD_ONE_WIRE)
 static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
 				unsigned int *psn, unsigned int *prev,
