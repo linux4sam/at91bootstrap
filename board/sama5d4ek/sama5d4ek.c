@@ -49,6 +49,7 @@
 #include "tz_utils.h"
 #include "matrix.h"
 #include "act8865.h"
+#include "twi.h"
 
 #if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
 static void redirect_interrupts_to_aic(void)
@@ -518,6 +519,15 @@ unsigned int at91_twi3_hw_init(void)
 	pmc_enable_periph_clock(AT91C_ID_TWI3);
 
 	return base_addr;
+}
+#endif
+
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+void at91_board_config_twi_bus(void)
+{
+	hdmi_twi_bus	= 0;
+	wm8904_twi_bus	= 0;
+	act8865_twi_bus	= 0;
 }
 #endif
 

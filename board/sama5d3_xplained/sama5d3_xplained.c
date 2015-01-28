@@ -45,6 +45,7 @@
 #include "arch/at91_ddrsdrc.h"
 #include "sama5d3_xplained.h"
 #include "act8865.h"
+#include "twi.h"
 
 static void at91_dbgu_hw_init(void)
 {
@@ -315,6 +316,13 @@ unsigned int at91_twi1_hw_init(void)
 unsigned int at91_twi2_hw_init(void)
 {
 	return 0;
+}
+#endif
+
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+void at91_board_config_twi_bus(void)
+{
+	act8865_twi_bus	= 1;
 }
 #endif
 

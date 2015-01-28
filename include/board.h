@@ -102,6 +102,7 @@ extern unsigned int at91_twi0_hw_init(void);
 extern unsigned int at91_twi1_hw_init(void);
 extern unsigned int at91_twi2_hw_init(void);
 extern unsigned int at91_twi3_hw_init(void);
+extern void at91_board_config_twi_bus(void);
 
 extern unsigned int at91_eth0_hw_init(void);
 extern unsigned int at91_eth1_hw_init(void);

@@ -62,15 +62,19 @@ static unsigned int SiI9022_get_twi_bus(void)
 {
 	unsigned int bus = 0;
 
+	if (hdmi_twi_bus != 0xff) {
+		bus = hdmi_twi_bus;
+	} else {
 #if defined(CONFIG_HDMI_ON_TWI0)
-	bus = 0;
+		bus = 0;
 #elif defined(CONFIG_HDMI_ON_TWI1)
-	bus = 1;
+		bus = 1;
 #elif defined(CONFIG_HDMI_ON_TWI2)
-	bus = 2;
+		bus = 2;
 #elif defined(CONFIG_HDMI_ON_TWI3)
-	bus = 3;
+		bus = 3;
 #endif
+	}
 
 	return bus;
 }

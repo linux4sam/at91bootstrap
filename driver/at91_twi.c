@@ -35,6 +35,11 @@
 
 unsigned int twi_init_done;
 
+unsigned char hdmi_twi_bus;
+unsigned char wm8904_twi_bus;
+unsigned char act8865_twi_bus;
+unsigned char at24xx_twi_bus;
+
 #if defined(CONFIG_TWI0)
 static unsigned int at91_twi0_base;
 #endif
@@ -294,6 +299,17 @@ void twi_init(void)
 	at91_twi3_base = at91_twi3_hw_init();
 	if (at91_twi3_base)
 		twi_configure_master_mode(3, bus_clock, TWI_CLOCK);
+#endif
+
+	hdmi_twi_bus	= 0xff;
+	wm8904_twi_bus	= 0xff;
+	act8865_twi_bus	= 0xff;
+	at24xx_twi_bus	= 0xff;
+
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+	dbg_info("Auto-Config the TWI Bus by the board\n");
+
+	at91_board_config_twi_bus();
 #endif
 
 	twi_init_done = 1;

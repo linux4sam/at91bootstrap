@@ -28,6 +28,11 @@
 #ifndef __TWI_H__
 #define __TWI_H__
 
+extern unsigned char hdmi_twi_bus;
+extern unsigned char wm8904_twi_bus;
+extern unsigned char act8865_twi_bus;
+extern unsigned char at24xx_twi_bus;
+
 extern unsigned int twi_init_done;
 
 extern int twi_read(unsigned int twi_no, unsigned char device_addr,
