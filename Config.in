@@ -508,16 +508,18 @@ menu "Board Hardware Information Options"
 
 config CONFIG_LOAD_ONE_WIRE
 	bool "Load Information from 1-Wire"
-	default n
+	depends on CONFIG_HAS_ONE_WIRE
 	select CONFIG_LOAD_HW_INFO
+	default y
 	help
 	  This interface allow you to select hardware information from 1-Wire chips.
 
 config CONFIG_LOAD_EEPROM
 	bool "Load Information from EEPROM"
+	depends on CONFIG_HAS_EEPROM
 	select CONFIG_TWI
 	select CONFIG_LOAD_HW_INFO
-	default n
+	default y
 	help
 	  This interface allow you to select hardware information from EEPROM chips.
 

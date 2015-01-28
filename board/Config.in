@@ -349,3 +349,11 @@ config CONFIG_HAS_PMIC_ACT8865
 config CONFIG_PM
 	bool
 	default n
+
+config CONFIG_HAS_ONE_WIRE
+	bool
+	default n
+
+config CONFIG_HAS_EEPROM
+	bool
+	default n
