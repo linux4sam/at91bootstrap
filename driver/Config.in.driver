@@ -47,4 +47,20 @@ config CONFIG_LOAD_HW_INFO
 	bool
 	default n
 
+config CPU_HAS_TWI0
+	bool
+	default n
+
+config CPU_HAS_TWI1
+	bool
+	default n
+
+config CPU_HAS_TWI2
+	bool
+	default n
+
+config CPU_HAS_TWI3
+	bool
+	default n
+
 source "driver/Config.in.memory"

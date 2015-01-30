@@ -412,18 +412,22 @@ choice
 
 config	CONFIG_HDMI_ON_TWI0
 	bool "On TWI0"
+	depends on CPU_HAS_TWI0
 	select CONFIG_TWI0
 
 config	CONFIG_HDMI_ON_TWI1
 	bool "On TWI1"
+	depends on CPU_HAS_TWI1
 	select CONFIG_TWI1
 
 config	CONFIG_HDMI_ON_TWI2
 	bool "On TWI2"
+	depends on CPU_HAS_TWI2
 	select CONFIG_TWI2
 
 config	CONFIG_HDMI_ON_TWI3
 	bool "On TWI3"
+	depends on CPU_HAS_TWI3
 	select CONFIG_TWI3
 
 endchoice
@@ -445,18 +449,22 @@ choice
 
 config	CONFIG_CODEC_ON_TWI0
 	bool "On TWI0"
+	depends on CPU_HAS_TWI0
 	select CONFIG_TWI0
 
 config	CONFIG_CODEC_ON_TWI1
 	bool "On TWI1"
+	depends on CPU_HAS_TWI1
 	select CONFIG_TWI1
 
 config	CONFIG_CODEC_ON_TWI2
 	bool "On TWI2"
+	depends on CPU_HAS_TWI2
 	select CONFIG_TWI2
 
 config	CONFIG_CODEC_ON_TWI3
 	bool "On TWI3"
+	depends on CPU_HAS_TWI3
 	select CONFIG_TWI3
 
 endchoice
@@ -485,18 +493,22 @@ choice
 
 config	CONFIG_PMIC_ON_TWI0
 	bool "On TWI0"
+	depends on CPU_HAS_TWI0
 	select CONFIG_TWI0
 
 config	CONFIG_PMIC_ON_TWI1
 	bool "On TWI1"
+	depends on CPU_HAS_TWI1
 	select CONFIG_TWI1
 
 config	CONFIG_PMIC_ON_TWI2
 	bool "On TWI2"
+	depends on CPU_HAS_TWI2
 	select CONFIG_TWI2
 
 config	CONFIG_PMIC_ON_TWI3
 	bool "On TWI3"
+	depends on CPU_HAS_TWI2
 	select CONFIG_TWI3
 
 endchoice
@@ -532,18 +544,22 @@ choice
 
 config	CONFIG_EEPROM_ON_TWI0
 	bool "On TWI0"
+	depends on CPU_HAS_TWI0
 	select CONFIG_TWI0
 
 config	CONFIG_EEPROM_ON_TWI1
 	bool "On TWI1"
+	depends on CPU_HAS_TWI1
 	select CONFIG_TWI1
 
 config	CONFIG_EEPROM_ON_TWI2
 	bool "On TWI2"
+	depends on CPU_HAS_TWI2
 	select CONFIG_TWI2
 
 config	CONFIG_EEPROM_ON_TWI3
 	bool "On TWI3"
+	depends on CPU_HAS_TWI3
 	select CONFIG_TWI3
 
 endchoice
