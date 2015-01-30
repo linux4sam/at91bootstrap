@@ -473,6 +473,15 @@ config	CONFIG_CODEC_ON_TWI3
 
 endchoice
 
+config CONFIG_PM_PMIC
+	bool "PMIC (ACT8865)"
+	depends on CONFIG_HAS_PMIC_ACT8865
+	select CONFIG_ACT8865
+	default y
+	help
+	  This interface allow you to select the PMIC(ACT8865) chip on the board
+	  which will be set the Power-Saving mode.
+
 endmenu
 
 menu "Board's Workaround Options"

@@ -312,3 +312,7 @@ endif
 ifeq ($(CONFIG_EEPROM_ON_TWI3), y)
 CPPFLAGS += -DCONFIG_EEPROM_ON_TWI3
 endif
+
+ifeq ($(CONFIG_PM_PMIC), y)
+CPPFLAGS += -DCONFIG_PM_PMIC
+endif

@@ -132,6 +132,7 @@ int act8865_set_reg_voltage(unsigned char volt_reg, unsigned char value)
 	return 0;
 }
 
+#ifdef CONFIG_PM_PMIC
 static int act8865_set_reg_mode(unsigned char mode_reg, unsigned mode)
 {
 	unsigned char value;
@@ -174,6 +175,7 @@ int act8865_set_power_saving_mode(void)
 
 	return 0;
 }
+#endif
 
 /*--------------------- ACT8865 Workaround -----------------------*/
 

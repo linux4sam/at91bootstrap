@@ -30,6 +30,7 @@
 #include "wm8904.h"
 #include "hdmi_SiI9022.h"
 #include "macb.h"
+#include "act8865.h"
 
 void at91_board_pm(void)
 {
@@ -48,5 +49,8 @@ void at91_board_pm(void)
 #endif
 #ifdef CONFIG_MACB
 	phys_enter_power_down();
+#endif
+#ifdef CONFIG_PM_PMIC
+	act8865_set_power_saving_mode();
 #endif
 }
