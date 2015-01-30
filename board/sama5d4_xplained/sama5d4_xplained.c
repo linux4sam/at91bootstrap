@@ -49,7 +49,6 @@
 #include "matrix.h"
 #include "twi.h"
 #include "act8865.h"
-#include "macb.h"
 
 #if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
 static void redirect_interrupts_to_aic(void)
@@ -572,8 +571,10 @@ static void SiI9022_hw_reset(void)
 }
 
 #if defined(CONFIG_MAC0_PHY)
-static void gmac0_hw_init(void)
+unsigned int at91_eth0_hw_init(void)
 {
+	unsigned int base_addr = AT91C_BASE_GMAC;
+
 	const struct pio_desc macb_pins[] = {
 		{"G0_MDC",	AT91C_PIN_PB(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"G0_MDIO",	AT91C_PIN_PB(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -582,32 +583,19 @@ static void gmac0_hw_init(void)
 
 	pio_configure(macb_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOB);
-}
-#endif
-
-#ifdef CONFIG_MACB
-int phys_enter_power_down(void)
-{
-	struct mii_bus macb_mii_bus;
-
-#if defined(CONFIG_MAC0_PHY)
-	gmac0_hw_init();
-
-	macb_mii_bus.name = "GMAC0 KSZ8081RNB";
-	macb_mii_bus.reg_base = (void *)AT91C_BASE_GMAC;
-	macb_mii_bus.phy_addr = 1;
 
 	pmc_enable_periph_clock(AT91C_ID_GMAC);
 
-	if (phy_power_down_mode(&macb_mii_bus)) {
-		dbg_loud("%s: Failed to enter power down mode\n",
-						macb_mii_bus.name);
-	}
-
-	pmc_disable_periph_clock(AT91C_ID_GMAC);
+	return base_addr;
+}
 #endif
 
-	return 0;
+#if defined(CONFIG_MACB)
+void at91_disable_mac_clock(void)
+{
+#if defined(CONFIG_MAC0_PHY)
+	pmc_disable_periph_clock(AT91C_ID_GMAC);
+#endif
 }
 #endif
 

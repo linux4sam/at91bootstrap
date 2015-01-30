@@ -44,7 +44,6 @@
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
 #include "sama5d3_xplained.h"
-#include "macb.h"
 #include "twi.h"
 #include "act8865.h"
 
@@ -235,8 +234,10 @@ static void at91_special_pio_output_low(void)
 #endif
 
 #if defined(CONFIG_MAC0_PHY)
-static void gmac_hw_init(void)
+unsigned int at91_eth0_hw_init(void)
 {
+	unsigned int base_addr = AT91C_BASE_GMAC;
+
 	const struct pio_desc macb_pins[] = {
 		{"GMDC",	AT91C_PIN_PB(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"GMDIO",	AT91C_PIN_PB(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -245,12 +246,18 @@ static void gmac_hw_init(void)
 
 	pio_configure(macb_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOB);
+
+	pmc_enable_periph_clock(AT91C_ID_GMAC);
+
+	return base_addr;
 }
 #endif
 
 #if defined(CONFIG_MAC1_PHY)
-static void emac_hw_init(void)
+unsigned int at91_eth1_hw_init(void)
 {
+	unsigned int base_addr = AT91C_BASE_EMAC;
+
 	const struct pio_desc macb_pins[] = {
 		{"EMDC",	AT91C_PIN_PC(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"EMDIO",	AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -259,49 +266,22 @@ static void emac_hw_init(void)
 
 	pio_configure(macb_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOC);
-}
-#endif
-
-#ifdef CONFIG_MACB
-int phys_enter_power_down(void)
-{
-	struct mii_bus macb_mii_bus;
-
-#if defined(CONFIG_MAC0_PHY)
-	gmac_hw_init();
-
-	macb_mii_bus.name = "GMAC KSZ9011RNI";
-	macb_mii_bus.reg_base = (void *)AT91C_BASE_GMAC;
-	macb_mii_bus.phy_addr = 1;
-
-	pmc_enable_periph_clock(AT91C_ID_GMAC);
-
-	if (phy_power_down_mode(&macb_mii_bus)) {
-		dbg_loud("%s: Failed to enter power down mode\n",
-						macb_mii_bus.name);
-	}
-
-	pmc_disable_periph_clock(AT91C_ID_GMAC);
-#endif
-
-#if defined(CONFIG_MAC1_PHY)
-	emac_hw_init();
-
-	macb_mii_bus.name = "EMAC KSZ8081RNB";
-	macb_mii_bus.reg_base = (void *)AT91C_BASE_EMAC;
-	macb_mii_bus.phy_addr = 1;
 
 	pmc_enable_periph_clock(AT91C_ID_EMAC);
 
-	if (phy_power_down_mode(&macb_mii_bus)) {
-		dbg_loud("%s: Failed to enter power down mode\n",
-						macb_mii_bus.name);
-	}
-
-	pmc_disable_periph_clock(AT91C_ID_EMAC);
+	return base_addr;
+}
 #endif
 
-	return 0;
+#if defined(CONFIG_MACB)
+void at91_disable_mac_clock(void)
+{
+#if defined(CONFIG_MAC0_PHY)
+	pmc_disable_periph_clock(AT91C_ID_GMAC);
+#endif
+#if defined(CONFIG_MAC1_PHY)
+	pmc_disable_periph_clock(AT91C_ID_EMAC);
+#endif
 }
 #endif
 

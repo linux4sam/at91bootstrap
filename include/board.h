@@ -103,7 +103,10 @@ extern unsigned int at91_twi1_hw_init(void);
 extern unsigned int at91_twi2_hw_init(void);
 extern unsigned int at91_twi3_hw_init(void);
 
-extern int phys_enter_power_down(void);
+extern unsigned int at91_eth0_hw_init(void);
+extern unsigned int at91_eth1_hw_init(void);
+extern void at91_disable_mac_clock(void);
+
 extern void at91_disable_smd_clock(void);
 
 #endif /* #ifndef __BOARD_H__ */

@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2014, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,16 +25,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #ifndef __MACB_H__
 #define __MACB_H__
 
-struct mii_bus {
-	const char *name;
-	void *reg_base;
-	unsigned int phy_addr;
-};
-
-extern int phy_power_down_mode(struct mii_bus *bus);
+extern int phys_enter_power_down(void);
 
 #endif /* #ifndef __MACB_H__ */

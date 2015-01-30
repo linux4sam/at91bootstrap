@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2014, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -131,6 +131,12 @@
 #define BMCR_RESET		(0x01 << 15)	/* Software Reset */
 
 #define PHY_ID_NUMBER		(0x0022)
+
+struct mii_bus {
+	const char *name;
+	void *reg_base;
+	unsigned int phy_addr;
+};
 
 static inline unsigned int macb_read(void *base, unsigned int offset)
 {
@@ -344,7 +350,7 @@ static int phy_power_down(struct mii_bus *bus)
 	return 0;
 }
 
-int phy_power_down_mode(struct mii_bus *bus)
+static int phy_power_down_mode(struct mii_bus *bus)
 {
 	unsigned int phy_addr;
 	int ret = 0;
@@ -379,4 +385,40 @@ int phy_power_down_mode(struct mii_bus *bus)
 error:
 	macb_enable_managementport(bus, 0);
 	return ret;
+}
+
+int phys_enter_power_down(void)
+{
+	struct mii_bus macb_mii_bus;
+	unsigned int base_addr;
+
+#if defined(CONFIG_MAC0_PHY)
+	base_addr = at91_eth0_hw_init();
+
+	macb_mii_bus.name = "ETH0 PHY";
+	macb_mii_bus.reg_base = (void *)base_addr;
+	macb_mii_bus.phy_addr = 1;
+
+	if (phy_power_down_mode(&macb_mii_bus)) {
+		dbg_loud("%s: Failed to enter power down mode\n",
+						macb_mii_bus.name);
+	}
+#endif
+
+#if defined(CONFIG_MAC1_PHY)
+	base_addr = at91_eth1_hw_init();
+
+	macb_mii_bus.name = "ETH1 PHY";
+	macb_mii_bus.reg_base = (void *)base_addr;
+	macb_mii_bus.phy_addr = 1;
+
+	if (phy_power_down_mode(&macb_mii_bus)) {
+		dbg_loud("%s: Failed to enter power down mode\n",
+						macb_mii_bus.name);
+	}
+#endif
+
+	at91_disable_mac_clock();
+
+	return 0;
 }
