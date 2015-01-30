@@ -380,3 +380,11 @@ config CONFIG_HAS_ONE_WIRE
 config CONFIG_HAS_EEPROM
 	bool
 	default n
+
+config CONFIG_HAS_EHT0_PHY
+	bool
+	default n
+
+config CONFIG_HAS_EHT1_PHY
+	bool
+	default n

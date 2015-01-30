@@ -381,16 +381,18 @@ menu "Select the Devices to enter the Power-Down mode"
 
 config CONFIG_MAC0_PHY
 	bool "MAC0 PHYs"
+	depends on CONFIG_HAS_EHT0_PHY
 	select CONFIG_MACB
-	default n
+	default y
 	help
 	  This interface allow you to select the MAC0 PHY on the board
 	  which will be put into the Power-Down mode.
 
 config CONFIG_MAC1_PHY
 	bool "MAC1 PHYs"
+	depends on CONFIG_HAS_EHT1_PHY
 	select CONFIG_MACB
-	default n
+	default y
 	help
 	  This interface allow you to select the MAC1 PHY on the board
 	  which will be put into the Power-Down mode.
