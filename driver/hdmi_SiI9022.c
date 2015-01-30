@@ -89,7 +89,7 @@ static int SiI9022_read(unsigned char reg_addr, unsigned char *data)
 	ret = twi_read(bus, SiI9022_ADDR,
 				reg_addr, 1, (unsigned char *)data, 1);
 	if (ret) {
-		dbg_info("SiI9022: Failed to read on TWI #%d\n", bus);
+		dbg_loud("SiI9022: Failed to read on TWI bus: %d\n", bus);
 		return -1;
 	}
 
@@ -105,7 +105,7 @@ static int SiI9022_write(unsigned char reg_addr, unsigned char data)
 
 	ret = twi_write(bus, SiI9022_ADDR, reg_addr, 1, &data, 1);
 	if (ret) {
-		dbg_info("SiI9022: Failed to write on TWI #%d\n", bus);
+		dbg_loud("SiI9022: Failed to write on TWI bus: %d\n", bus);
 		return -1;
 	}
 
@@ -144,13 +144,13 @@ int SiI9022_enter_power_state_D3_Cold(void)
 	/* 1. Clear any pending interrupts via TPI 0x3D */
 	ret = SiI9022_write(TPI_INTERRUPT_STATUS_REG, 0xFF);
 	if (ret) {
-		dbg_info("SiI9022: Failed to clear any pending interrupts\n");
+		dbg_loud("SiI9022: Failed to clear any pending interrupts\n");
 		return -1;
 	}
 	/* 2. Reset SiI9022A Tx via HW */
 	ret = SiI9022_TxHW_Reset();
 	if (ret) {
-		dbg_info("SiI9022: Failed to reset\n");
+		dbg_loud("SiI9022: Failed to reset\n");
 		return -1;
 	}
 
@@ -158,7 +158,7 @@ int SiI9022_enter_power_state_D3_Cold(void)
 		/* 3. Write device register 0xC7 = 0x00 to enter TPI mode */
 		ret = SiI9022_write(TPI_ENABLE, 0x00);
 		if (ret)
-			dbg_info("SiI9022: Failed to enter TPI mode\n");
+			dbg_loud("SiI9022: Failed to enter TPI mode\n");
 
 		mdelay(100);
 
@@ -166,31 +166,31 @@ int SiI9022_enter_power_state_D3_Cold(void)
 		ret = SiI9022_write(TPI_DEVICE_POWER_STATE_CTRL_REG,
 								power_state);
 		if (ret) {
-			dbg_info("SiI9022: Failed to write TPI 0x1E\n");
+			dbg_loud("SiI9022: Failed to write TPI 0x1E\n");
 			return -1;
 		}
 
 		ret = SiI9022_read(TPI_DEVICE_ID, &device_id);
 		if (ret)
-			dbg_info("SiI9022: Failed to 0x1b\n");
+			dbg_loud("SiI9022: Failed to 0x1b\n");
 	} while ((--timeout) && (device_id == 0x0));
 
 	if (device_id != SiI9022_DEVICE_ID) {
-		dbg_info("SiI9022: Not found\n");
+		dbg_loud("SiI9022: Not found\n");
 		return -1;
 	}
 
 	/* 4. Set INT# source to Hotplug via TPI 0x3C[0] = 1b */
 	ret = SiI9022_write(TPI_INTERRUPT_ENABLE_REG, HOT_PLUG_EVENT | 0x08);
 	if (ret) {
-		dbg_info("SiI9022: Failed to Set INT# source to Hotplug\n");
+		dbg_loud("SiI9022: Failed to Set INT# source to Hotplug\n");
 		return -1;
 	}
 
 	/* 5. Clear any pending interrupts via TPI 0x3D*/
 	ret = SiI9022_write(TPI_INTERRUPT_STATUS_REG, 0xFF);
 	if (ret) {
-		dbg_info("SiI9022: Failed to clear any pending interrupts\n");
+		dbg_loud("SiI9022: Failed to clear any pending interrupts\n");
 		return -1;
 	}
 
@@ -198,7 +198,7 @@ int SiI9022_enter_power_state_D3_Cold(void)
 	power_state = 0x04;
 	ret = SiI9022_write(TPI_DEVICE_POWER_STATE_CTRL_REG, power_state);
 	if (ret) {
-		dbg_info("SiI9022: Failed to write TPI 0x1E\n");
+		dbg_loud("SiI9022: Failed to write TPI 0x1E\n");
 		return -1;
 	}
 
@@ -206,7 +206,7 @@ int SiI9022_enter_power_state_D3_Cold(void)
 	power_state |= TX_POWER_STATE_D3;
 	ret = SiI9022_write(TPI_DEVICE_POWER_STATE_CTRL_REG, power_state);
 	if (ret) {
-		dbg_info("SiI9022: Failed to write TPI 0x1E\n");
+		dbg_loud("SiI9022: Failed to write TPI 0x1E\n");
 		return -1;
 	}
 
