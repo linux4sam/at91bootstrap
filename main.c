@@ -39,6 +39,7 @@
 #include "board_hw_info.h"
 #include "tz_utils.h"
 #include "pm.h"
+#include "act8865.h"
 
 extern int load_kernel(struct image_info *img_info);
 
@@ -155,6 +156,10 @@ int main(void)
 
 #ifdef CONFIG_PM
 	at91_board_pm();
+#endif
+
+#ifdef CONFIG_DISABLE_ACT8865_I2C
+	act8865_workaround();
 #endif
 
 	init_loadfunction();

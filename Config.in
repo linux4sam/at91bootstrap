@@ -487,18 +487,26 @@ endmenu
 menu "Board's Workaround Options"
 	depends on CONFIG_HAS_PMIC_ACT8865
 
-config CONFIG_ACT8865
+config CONFIG_DISABLE_ACT8865_I2C
 	bool "Disable the ACT8865 I2C interface"
 	depends on CONFIG_HAS_PMIC_ACT8865
-	select CONFIG_TWI
-	default n
+	select CONFIG_ACT8865
+	default y
 	help
 	  This interface let you to disable the ACT8865's I2C interface.
 	  There are some issue about active-semi ACT8865's I2C interface,
 	  which affects the other chip which stands on the same I2C bus, such as MXT touchscreen.
 
+endmenu
+
+config CONFIG_ACT8865
+	bool "PMIC (ACT8865) Support"
+	depends on CONFIG_HAS_PMIC_ACT8865
+	select CONFIG_TWI
+	default n
+
 choice
-	prompt "PMIC on TWI Select"
+	prompt "PMIC (ACT8865) on TWI Select"
 	depends on CONFIG_ACT8865
 	default CONFIG_PMIC_ON_TWI0
 	help
@@ -525,8 +533,6 @@ config	CONFIG_PMIC_ON_TWI3
 	select CONFIG_TWI3
 
 endchoice
-
-endmenu
 
 menu "Board Hardware Information Options"
 	depends on CONFIG_HAS_HW_INFO

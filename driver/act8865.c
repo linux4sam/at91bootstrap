@@ -27,6 +27,7 @@
  */
 #include "common.h"
 #include "hardware.h"
+#include "board.h"
 #include "twi.h"
 #include "act8865.h"
 #include "debug.h"
@@ -132,6 +133,13 @@ int act8865_set_reg_voltage(unsigned char volt_reg, unsigned char value)
 	return 0;
 }
 
+int act8865_check_i2c_disabled(void)
+{
+	unsigned char data = 0;
+
+	return act8865_read(SYS_0, &data);
+}
+
 #ifdef CONFIG_PM_PMIC
 static int act8865_set_reg_mode(unsigned char mode_reg, unsigned mode)
 {
@@ -179,6 +187,7 @@ int act8865_set_power_saving_mode(void)
 
 /*--------------------- ACT8865 Workaround -----------------------*/
 
+#if defined(CONFIG_DISABLE_ACT8865_I2C)
 /*
  * Special Registers
  */
@@ -224,17 +233,9 @@ static int act8865_disable_i2c_sequence(unsigned char data)
 		return -1;
 
 	return 0;
-
 }
 
-int act8865_check_i2c_disabled(void)
-{
-	unsigned char data = 0;
-
-	return act8865_read(SYS_0, &data);
-}
-
-int act8865_workaround_disable_i2c(void)
+static int act8865_workaround_disable_i2c(void)
 {
 	unsigned char value;
 	unsigned char i;
@@ -260,3 +261,20 @@ int act8865_workaround_disable_i2c(void)
 
 	return 0;
 }
+
+void act8865_workaround(void)
+{
+	if (!twi_init_done)
+		twi_init();
+
+	/* Set ACT8865 REG output voltage */
+	at91_board_act8865_set_reg_voltage();
+
+	/* Disable ACT8865 I2C interface, if failed, don't go on */
+	if (act8865_workaround_disable_i2c()) {
+		dbg_info("ACT8865: Failed to disable I2C interface\n");
+		while (1)
+			;
+	}
+}
+#endif

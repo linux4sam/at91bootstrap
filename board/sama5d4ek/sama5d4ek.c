@@ -48,7 +48,6 @@
 #include "sama5d4ek.h"
 #include "tz_utils.h"
 #include "matrix.h"
-#include "twi.h"
 #include "act8865.h"
 
 #if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
@@ -522,8 +521,8 @@ unsigned int at91_twi3_hw_init(void)
 }
 #endif
 
-#ifdef CONFIG_ACT8865
-static int sama5d4ek_act8865_set_reg_voltage(void)
+#if defined(CONFIG_DISABLE_ACT8865_I2C)
+int at91_board_act8865_set_reg_voltage(void)
 {
 	unsigned char reg, value;
 	int ret;
@@ -696,20 +695,6 @@ void hw_init(void)
 
 	/* Reset HDMI SiI9022 */
 	SiI9022_hw_reset();
-
-#ifdef CONFIG_TWI
-	twi_init();
-#endif
-
-#ifdef CONFIG_ACT8865
-	/* Set ACT8865 output voltage */
-	sama5d4ek_act8865_set_reg_voltage();
-
-	/* Dsiable ACT8865 I2C interface */
-	if (act8865_workaround_disable_i2c())
-		while (1)
-			;
-#endif
 
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();

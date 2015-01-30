@@ -88,7 +88,8 @@
  */
 extern int act8865_set_reg_voltage(unsigned char volt_reg, unsigned char value);
 extern int act8865_check_i2c_disabled(void);
-extern int act8865_workaround_disable_i2c(void);
+
 extern int act8865_set_power_saving_mode(void);
+extern void act8865_workaround(void);
 
 #endif
