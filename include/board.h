@@ -97,4 +97,10 @@ extern void at91_mci0_hw_init(void);
 
 extern void norflash_hw_init(void);
 
+/* PM Support */
+extern unsigned int at91_twi0_hw_init(void);
+extern unsigned int at91_twi1_hw_init(void);
+extern unsigned int at91_twi2_hw_init(void);
+extern unsigned int at91_twi3_hw_init(void);
+
 #endif /* #ifndef __BOARD_H__ */

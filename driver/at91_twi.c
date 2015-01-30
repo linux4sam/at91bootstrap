@@ -31,10 +31,22 @@
 #include "div.h"
 #include "debug.h"
 
-unsigned int at91_twi0_base;
-unsigned int at91_twi1_base;
-unsigned int at91_twi2_base;
-unsigned int at91_twi3_base;
+#define TWI_CLOCK	400000
+
+unsigned int twi_init_done;
+
+#if defined(CONFIG_TWI0)
+static unsigned int at91_twi0_base;
+#endif
+#if defined(CONFIG_TWI1)
+static unsigned int at91_twi1_base;
+#endif
+#if defined(CONFIG_TWI2)
+static unsigned int at91_twi2_base;
+#endif
+#if defined(CONFIG_TWI3)
+static unsigned int at91_twi3_base;
+#endif
 
 static inline unsigned int twi_reg_read(unsigned int twi_base,
 					unsigned int offset)
@@ -84,7 +96,7 @@ static unsigned int get_twi_base(unsigned int bus)
 	return twi_base;
 }
 
-int twi_configure_master_mode(unsigned int bus,
+static int twi_configure_master_mode(unsigned int bus,
 			unsigned int bus_clock, unsigned int twi_clock)
 {
 	unsigned int loop = 1;
@@ -257,4 +269,32 @@ int twi_write(unsigned int bus, unsigned char device_addr,
 	}
 
 	return 0;
+}
+
+void twi_init(void)
+{
+	unsigned int bus_clock = MASTER_CLOCK;
+
+#if defined(CONFIG_TWI0)
+	at91_twi0_base = at91_twi0_hw_init();
+	if (at91_twi0_base)
+		twi_configure_master_mode(0, bus_clock, TWI_CLOCK);
+#endif
+#if defined(CONFIG_TWI1)
+	at91_twi1_base = at91_twi1_hw_init();
+	if (at91_twi1_base)
+		twi_configure_master_mode(1, bus_clock, TWI_CLOCK);
+#endif
+#if defined(CONFIG_TWI2)
+	at91_twi2_base = at91_twi2_hw_init();
+	if (at91_twi2_base)
+		twi_configure_master_mode(2, bus_clock, TWI_CLOCK);
+#endif
+#if defined(CONFIG_TWI3)
+	at91_twi3_base = at91_twi3_hw_init();
+	if (at91_twi3_base)
+		twi_configure_master_mode(3, bus_clock, TWI_CLOCK);
+#endif
+
+	twi_init_done = 1;
 }

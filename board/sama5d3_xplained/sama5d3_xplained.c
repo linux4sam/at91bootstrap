@@ -307,13 +307,18 @@ static int phys_enter_power_down(void)
 #endif	/* #if defined(CONFIG_MACB) */
 #endif	/* #if defined(CONFIG_PM_EXTERNAL_DEVICES) */
 
-#ifdef CONFIG_TWI
-
-#define TWI_CLOCK	400000
+#if defined(CONFIG_TWI0)
+unsigned int at91_twi0_hw_init(void)
+{
+	return 0;
+}
+#endif
 
 #if defined(CONFIG_TWI1)
-static void at91_twi1_hw_init(void)
+unsigned int at91_twi1_hw_init(void)
 {
+	unsigned int base_addr = AT91C_BASE_TWI1;
+
 	const struct pio_desc twi_pins[] = {
 		{"TWD", AT91C_PIN_PC(26), 0, PIO_DEFAULT, PIO_PERIPH_B},
 		{"TWCK", AT91C_PIN_PC(27), 0, PIO_DEFAULT, PIO_PERIPH_B},
@@ -324,22 +329,17 @@ static void at91_twi1_hw_init(void)
 	pmc_enable_periph_clock(AT91C_ID_PIOC);
 
 	pmc_enable_periph_clock(AT91C_ID_TWI1);
+
+	return base_addr;
 }
 #endif
 
-static void twi_init(void)
+#if defined(CONFIG_TWI2)
+unsigned int at91_twi2_hw_init(void)
 {
-	unsigned int bus_clock = MASTER_CLOCK;
-
-#if defined(CONFIG_TWI1)
-	at91_twi1_base = AT91C_BASE_TWI1;
-	at91_twi1_hw_init();
-	twi_configure_master_mode(1, bus_clock, TWI_CLOCK);
-#else
-#error "No proper TWI bus defined"
-#endif
+	return 0;
 }
-#endif /* #ifdef CONFIG_TWI */
+#endif
 
 #ifdef CONFIG_ACT8865
 static int sama5d3ek_act8865_set_reg_voltage(void)
