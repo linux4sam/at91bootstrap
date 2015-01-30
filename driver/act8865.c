@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2013, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -180,10 +180,10 @@ int act8865_set_power_saving_mode(void)
 		reg = reg_list[i];
 		ret = act8865_set_reg_mode(reg, mode);
 		if (ret)
-			dbg_info("ACT8865: Failed to set power saving mode\n");
+			dbg_loud("ACT8865: Failed to set Power-saving mode\n");
 	}
 
-	dbg_info("ACT8865: Set REG1/REG2/REG3 power saving mode\n");
+	dbg_info("ACT8865: Set REG1/REG2/REG3 Power-saving mode\n");
 
 	return 0;
 }
@@ -257,7 +257,7 @@ static int act8865_workaround_disable_i2c(void)
 	}
 
 	if (i >= ARRAY_SIZE(version_array)) {
-		dbg_info("ACT8865: Failed to disable I2C interface\n");
+		dbg_loud("ACT8865: Failed to disable I2C interface\n");
 		return -1;
 	}
 
