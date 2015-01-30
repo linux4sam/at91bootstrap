@@ -435,9 +435,10 @@ config	CONFIG_HDMI_ON_TWI3
 endchoice
 
 config CONFIG_WM8904
-	bool "CODEC (wm8904)"
+	bool "Audio CODEC (wm8904)"
+	depends on CONFIG_HAS_AUDIO_CODEC
 	select CONFIG_TWI
-	default n
+	default y
 	help
 	  This interface allow you to select the CODEC chip on the board
 	  which will be put into the Power-Down mode.

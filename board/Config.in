@@ -388,3 +388,7 @@ config CONFIG_HAS_EHT0_PHY
 config CONFIG_HAS_EHT1_PHY
 	bool
 	default n
+
+config CONFIG_HAS_AUDIO_CODEC
+	bool
+	default n
