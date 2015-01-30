@@ -392,3 +392,7 @@ config CONFIG_HAS_EHT1_PHY
 config CONFIG_HAS_AUDIO_CODEC
 	bool
 	default n
+
+config CONFIG_HAS_HDMI
+	bool
+	default n

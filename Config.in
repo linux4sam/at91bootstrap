@@ -399,8 +399,9 @@ config CONFIG_MAC1_PHY
 
 config CONFIG_HDMI
 	bool "HDMI (SiI9022)"
+	depends on CONFIG_HAS_HDMI
 	select CONFIG_TWI
-	default n
+	default y
 	help
 	  This interface allow you to select the HDMI chip on the board
 	  which will be put into the Power-Down mode.
