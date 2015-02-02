@@ -28,6 +28,7 @@
 #include "hardware.h"
 #include "timer.h"
 #include "arch/at91_pmc.h"
+#include "rstc.h"
 
 static inline void write_pmc(unsigned int offset, const unsigned int value)
 {
@@ -43,6 +44,14 @@ void lowlevel_clock_init()
 {
 	unsigned long tmp;
 	unsigned int times;
+
+#if defined(CONFIG_SAMA5D3X_CMP)
+	/*
+	 * On the sama5d3x_cmp board, a phy is not in the proper reset state
+	 * after power-up, additional reset
+	 */
+	rstc_external_reset();
+#endif
 
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || defined(SAMA5D4)
 	/*

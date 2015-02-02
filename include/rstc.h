@@ -30,4 +30,6 @@
 
 extern void cpu_reset(void);
 
+extern void rstc_external_reset(void);
+
 #endif	/* #ifndef __RSTC_H__ */
