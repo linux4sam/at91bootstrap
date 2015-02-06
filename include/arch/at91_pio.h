@@ -59,7 +59,7 @@
 /* 0x006c */
 #ifndef CONFIG_HAS_PIO3
 #define PIO_ASR		0x0070	/* Peripheral Select Register 1 */
-#define PIO_BSR		0x007c	/* Peripheral Select Register 2 */
+#define PIO_BSR		0x0074	/* Peripheral Select Register 2 */
 #define PIO_ABSR	0x0078	/* AB Select Status Register */
 /* 0x007c ~ 0x009c */
 #else
