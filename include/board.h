@@ -84,4 +84,17 @@
 #include "sama5d4_xplained.h"
 #endif
 
+/*
+ * Functions Prototype
+ */
+extern void hw_init(void);
+
+extern void nandflash_hw_init(void);
+
+extern void at91_spi0_hw_init(void);
+
+extern void at91_mci0_hw_init(void);
+
+extern void norflash_hw_init(void);
+
 #endif /* #ifndef __BOARD_H__ */

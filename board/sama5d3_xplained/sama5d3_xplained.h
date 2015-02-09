@@ -213,13 +213,4 @@
  */
 #define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0
 
-/* function */
-extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
-
-extern void at91_spi0_hw_init(void);
-
-extern void at91_mci0_hw_init(void);
-
 #endif /* __SAMA5D3_XPLAINED_H__ */

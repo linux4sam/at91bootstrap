@@ -181,13 +181,4 @@
  */
 #define CONFIG_SYS_HDMI_RESET_PIN	AT91C_PIN_PB(15)
 
-/* function */
-extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
-
-extern void at91_spi0_hw_init(void);
-
-extern void at91_mci0_hw_init(void);
-
 #endif

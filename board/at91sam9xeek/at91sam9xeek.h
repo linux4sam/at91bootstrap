@@ -74,11 +74,4 @@
 
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91C_PIN_PC(14)
 
-/* export function */
-extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
-
-extern void at91_spi0_hw_init(void);
-
 #endif	/* #ifndef __AT91SAM9XEEK_H__ */

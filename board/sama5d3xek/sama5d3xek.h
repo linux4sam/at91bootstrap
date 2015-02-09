@@ -245,15 +245,4 @@
  */
 #define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PE(25)
 
-/* function */
-extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
-
-extern void at91_spi0_hw_init(void);
-
-extern void at91_mci0_hw_init(void);
-
-extern void norflash_hw_init(void);
-
 #endif /* #ifndef __SAMA5EK_H__ */
