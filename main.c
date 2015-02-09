@@ -38,6 +38,7 @@
 #include "string.h"
 #include "board_hw_info.h"
 #include "tz_utils.h"
+#include "pm.h"
 
 extern int load_kernel(struct image_info *img_info);
 
@@ -151,6 +152,11 @@ int main(void)
 	/* Load board hw informaion */
 	load_board_hw_info();
 #endif
+
+#ifdef CONFIG_PM
+	at91_board_pm();
+#endif
+
 	init_loadfunction();
 
 	ret = (*load_image)(&image);

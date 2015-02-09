@@ -50,8 +50,6 @@
 #include "matrix.h"
 #include "twi.h"
 #include "act8865.h"
-#include "hdmi_SiI9022.h"
-#include "wm8904.h"
 #include "macb.h"
 
 #if defined(CONFIG_REDIRECT_ALL_INTS_AIC)
@@ -561,7 +559,8 @@ static int sama5d4ek_act8865_set_reg_voltage(void)
 }
 #endif
 
-static void at91_disable_smd_clock(void)
+#if defined(CONFIG_PM)
+void at91_disable_smd_clock(void)
 {
 	/*
 	 * set pin DIBP to pull-up and DIBN to pull-down
@@ -574,6 +573,7 @@ static void at91_disable_smd_clock(void)
 	pmc_disable_periph_clock(AT91C_ID_SMD);
 	pmc_disable_system_clock(AT91C_PMC_SMDCK);
 }
+#endif
 
 static void SiI9022_hw_reset(void)
 {
@@ -583,8 +583,6 @@ static void SiI9022_hw_reset(void)
 	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 1);
 }
 
-#if defined(CONFIG_PM_EXTERNAL_DEVICES)
-#if defined(CONFIG_MACB)
 #if defined(CONFIG_MAC0_PHY)
 static void gmac0_hw_init(void)
 {
@@ -613,7 +611,8 @@ static void gmac1_hw_init(void)
 }
 #endif
 
-static int phys_enter_power_down(void)
+#ifdef CONFIG_MACB
+int phys_enter_power_down(void)
 {
 	struct mii_bus macb_mii_bus;
 
@@ -653,8 +652,7 @@ static int phys_enter_power_down(void)
 
 	return 0;
 }
-#endif	/* #if defined(CONFIG_MACB) */
-#endif	/* #if defined(CONFIG_PM_EXTERNAL_DEVICES) */
+#endif
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
@@ -719,9 +717,6 @@ void hw_init(void)
 	/* Reset HDMI SiI9022 */
 	SiI9022_hw_reset();
 
-	/* Disable software modem device's clock */
-	at91_disable_smd_clock();
-
 #ifdef CONFIG_TWI
 	twi_init();
 #endif
@@ -738,19 +733,6 @@ void hw_init(void)
 		while (1)
 			;
 #endif
-
-#ifdef CONFIG_PM_EXTERNAL_DEVICES
-#ifdef CONFIG_HDMI
-	SiI9022_enter_power_state_D3_Cold();
-#endif
-#ifdef CONFIG_WM8904
-	wm8904_enter_low_power();
-#endif
-#ifdef CONFIG_MACB
-	/* Make PHYs to power down mode */
-	phys_enter_power_down();
-#endif
-#endif	/* #ifdef CONFIG_PM_EXTERNAL_DEVICES */
 
 #ifdef CONFIG_USER_HW_INIT
 	hw_init_hook();
