@@ -43,6 +43,10 @@ config CONFIG_MACB
 	bool
 	default n
 
+config CONFIG_AES
+	bool
+	default n
+
 config CONFIG_LOAD_HW_INFO
 	bool
 	default n
