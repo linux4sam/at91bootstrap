@@ -98,6 +98,7 @@ config SAMA5D3X
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	select CPU_HAS_TWI2
+	select CPU_HAS_AES
 	bool
 
 config SAMA5D4
@@ -105,6 +106,7 @@ config SAMA5D4
 	select CPU_HAS_TWI1
 	select CPU_HAS_TWI2
 	select CPU_HAS_TWI3
+	select CPU_HAS_AES
 	bool
 
 config CONFIG_MACH_TYPE

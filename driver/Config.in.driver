@@ -67,4 +67,8 @@ config CPU_HAS_TWI3
 	bool
 	default n
 
+config CPU_HAS_AES
+	bool
+	default n
+
 source "driver/Config.in.memory"
