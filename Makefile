@@ -215,7 +215,7 @@ NOSTDINC_FLAGS=-nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
 CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-fno-stack-protector -fno-common \
-	-I$(INCL) -Iinclude -Ifs/include \
+	-I$(INCL) -Iinclude -Ifs/include -I$(TOPDIR)/config/at91bootstrap-config \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
 
 ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
