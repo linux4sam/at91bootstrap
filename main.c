@@ -40,6 +40,7 @@
 #include "tz_utils.h"
 #include "pm.h"
 #include "act8865.h"
+#include "secure.h"
 
 extern int load_kernel(struct image_info *img_info);
 
@@ -164,7 +165,17 @@ int main(void)
 
 	init_loadfunction();
 
+#if defined(CONFIG_SECURE)
+	image.dest -= sizeof(at91_secure_header_t);
+#endif
+
 	ret = (*load_image)(&image);
+
+#if defined(CONFIG_SECURE)
+	if (!ret)
+		ret = secure_check(image.dest);
+	image.dest += sizeof(at91_secure_header_t);
+#endif
 
 	if (media_str)
 		usart_puts(media_str);

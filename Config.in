@@ -296,6 +296,8 @@ config CONFIG_DEBUG_VERY_LOUD
 
 endchoice
 
+source "Config.in.secure"
+
 config CONFIG_THUMB
 	depends on !(SAMA5D3X || SAMA5D4)
 	bool "Build in thumb mode"
