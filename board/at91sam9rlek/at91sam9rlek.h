@@ -48,18 +48,6 @@
 
 #endif /* #ifdef CONFIG_CPU_CLK_200MHZ */
 
-#ifdef CONFIG_CPU_CLK_266MHZ
-
-#define MCK_133
-
-/* 133 MHz Bus clock */
-#define MASTER_CLOCK		(133000000)
-#define PLL_LOCK_TIMEOUT	1000000
-
-#define PLL_SETTINGS		0x2109BF0C
-
-#endif /* #ifdef CONFIG_CPU_CLK_266MHZ */
-
 /* Switch MCK on PLLA output PCK = PLLA = 2 * MCK */
 #define MCKR_SETTINGS		(AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_2)
 #define MCKR_CSS_SETTINGS	(AT91C_PMC_CSS_PLLA_CLK | MCKR_SETTINGS)
