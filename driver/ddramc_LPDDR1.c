@@ -50,7 +50,6 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 
 //*****************************************************************
 #if defined (CONFIG_LPDDR1)
-#warning TEST in progress
 int ddram_initialize(unsigned int base_address,
 			unsigned int ram_address,
       unsigned int bank_offset,
