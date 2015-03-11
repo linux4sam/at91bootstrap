@@ -155,9 +155,13 @@ config CONFIG_LONG_FILENAME
 
 endmenu
 
-source "driver/Config.in.dataflash"
+if CONFIG_DATAFLASH
+	source "driver/Config.in.dataflash"
+endif
 
-source "driver/Config.in.nandflash"
+if CONFIG_NANDFLASH
+	source "driver/Config.in.nandflash"
+endif
 
 config CONFIG_BOOTSTRAP_MAXSIZE
 	string

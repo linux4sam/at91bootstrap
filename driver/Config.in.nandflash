@@ -1,5 +1,4 @@
 menu  "NAND flash configuration"
-	depends on CONFIG_NANDFLASH
 
 choice
 	prompt "ECC Configuration"
@@ -81,7 +80,6 @@ config CONFIG_NANDFLASH_SMALL_BLOCKS
 config CONFIG_NANDFLASH_RECOVERY
 	bool "Support NAND flash recovery by pressing a button"
 	default y
-	depends on CONFIG_NANDFLASH
 	depends on ALLOW_NANDFLASH_RECOVERY
 	help
 	  Let bootstrap disassemble the first 7 double words

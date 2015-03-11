@@ -1,9 +1,7 @@
 menu  "SPI configuration"
-	depends on CONFIG_DATAFLASH
 
 config	CONFIG_SPI_CLK
 	int "SPI clock speed"
-	depends on CONFIG_DATAFLASH
 	default 33000000
 	help
 	  Which speed (in Hz) should the SPI run at.
@@ -11,7 +9,6 @@ config	CONFIG_SPI_CLK
 config CONFIG_SMALL_DATAFLASH
 	bool "Support < 32 Mbit dataflashes"
 	default	y
-	depends on CONFIG_DATAFLASH
 	help
 	  Deselect this to save some bytes of memory
 	  at the expense of flexibility in selecting memory sizes.
@@ -19,7 +16,6 @@ config CONFIG_SMALL_DATAFLASH
 config CONFIG_DATAFLASH_RECOVERY
 	bool "Support Dataflash recovery by pressing a button"
 	default y
-	depends on CONFIG_DATAFLASH
 	depends on ALLOW_DATAFLASH_RECOVERY
 	help
 	  Let bootstrap disassemble the first 7 double words
@@ -33,29 +29,24 @@ config ALLOW_DATAFLASH_RECOVERY
 # ------- SPI boot source -----------------------------------------------------
 choice
 	prompt "Chip Select"
-	depends on CONFIG_DATAFLASH
 	default CONFIG_SPI_CS0
 	help
 	  Determine which SPI chip select is to be used
 
 config	CONFIG_SPI_BOOT_CS0
 	bool	"Boot from chip select 0"
-	depends on CONFIG_DATAFLASH
 	depends on ALLOW_BOOT_FROM_DATAFLASH_CS0
 
 config	CONFIG_SPI_BOOT_CS1
 	bool	"Boot from chip select 1"
-	depends on CONFIG_DATAFLASH
 	depends on ALLOW_BOOT_FROM_DATAFLASH_CS1
 
 config	CONFIG_SPI_BOOT_CS2
 	bool	"Boot from chip select 2"
-	depends on CONFIG_DATAFLASH
 	depends on ALLOW_BOOT_FROM_DATAFLASH_CS2
 
 config	CONFIG_SPI_BOOT_CS3
 	bool	"Boot from chip select 3"
-	depends on CONFIG_DATAFLASH
 	depends on ALLOW_BOOT_FROM_DATAFLASH_CS3
 
 endchoice
