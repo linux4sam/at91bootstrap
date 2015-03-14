@@ -906,7 +906,6 @@ static int nand_loadimage(struct nand_info *nand,
 }
 
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-
 static int update_image_length(struct nand_info *nand,
 				unsigned int offset,
 				unsigned char *dest,
