@@ -93,6 +93,7 @@ int dbg_printf(const char *fmt_str, ...)
 		} else {
 			fmt_str++;	/* skip % */
 			switch (*fmt_str) {
+			case 'p':
 			case 'd':
 			case 'i':
 			case 'u':
