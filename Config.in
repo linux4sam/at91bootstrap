@@ -68,155 +68,17 @@ config CONFIG_LINUX_IMAGE
 #
 # Kernel Image Storage Setup
 #
-menu "Kernel Image Storage Setup"
-	depends on CONFIG_LINUX_IMAGE
-
-config CONFIG_OVERRIDE_CMDLINE
-	bool "Override the config kernel command-line"
-	default n
-	help
-	  The board will override the kernel command-line which specified through the config.
-
-config CONFIG_LINUX_KERNEL_ARG_STRING
-	depends on CONFIG_LOAD_LINUX
-	string "Linux kernel command-line"
-source "board/at91sam9261ek/Config.in.linux_arg"
-source "board/at91sam9263ek/Config.in.linux_arg"
-source "board/at91sam9g10ek/Config.in.linux_arg"
-source "board/at91sam9g20ek/Config.in.linux_arg"
-source "board/at91sam9rlek/Config.in.linux_arg"
-source "board/at91sam9xeek/Config.in.linux_arg"
-source "board/at91sam9m10g45ek/Config.in.linux_arg"
-source "board/at91sam9x5ek/Config.in.linux_arg"
-source "board/at91sam9n12ek/Config.in.linux_arg"
-source "board/sama5d3xek/Config.in.linux_arg"
-source "board/sama5d3_xplained/Config.in.linux_arg"
-source "board/sama5d3x_cmp/Config.in.linux_arg"
-source "board/sama5d4ek/Config.in.linux_arg"
-source "board/sama5d4_xplained/Config.in.linux_arg"
-source "board/sama5d2_xplained/Config.in.linux_arg"
-
-config CONFIG_LINUX_KERNEL_ARG_STRING
-	depends on CONFIG_LOAD_ANDROID
-	string "Android kernel command-line"
-source "board/sama5d3xek/Config.in.android_arg"
-
-config CONFIG_MEM_BANK
-	string "Extern Memory Bank Base Address"
-	default "0x70000000" if AT91SAM9G45
-	default "0x20000000"
-
-config CONFIG_MEM_SIZE
-	string "Extern Memory Bank Size"
-	default "0x2000000" if CONFIG_RAM_32MB
-	default "0x4000000" if CONFIG_RAM_64MB
-	default "0x8000000" if CONFIG_RAM_128MB
-	default "0x10000000" if CONFIG_RAM_256MB
-	default "0x20000000" if CONFIG_RAM_512MB
-
-config CONFIG_IMG_ADDRESS
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
-	string "Flash Offset for Linux Kernel Image"
-	default "0x00008000" if CONFIG_FLASH
-	default "0x00040000" if CONFIG_DATAFLASH
-	default "0x00200000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
-	help
-
-config CONFIG_JUMP_ADDR
-	string "The External Ram Address to Load Kernel Image"
-	default "0x72000000" if AT91SAM9G45
-	default "0x22000000"
-	help
-	  The entry point to which the bootstrap will pass control.
-
-menu "Flattened Device Tree"
-
-config CONFIG_OF_LIBFDT
-	bool "Flattened Device Tree Support"
-	default y
-
-config CONFIG_OF_OFFSET
-	string "The Offset of Flash Device Tree Blob "
-	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH)
-	default "0x00008400" if CONFIG_DATAFLASH
-	default "0x00180000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
-
-config CONFIG_OF_ADDRESS
-	string "The External Ram Address to Load Device Tree Blob"
-	depends on CONFIG_OF_LIBFDT
-	default "0x71000000" if AT91SAM9G45
-	default "0x21000000"
-	help
-
-endmenu
-
-endmenu
+source "Config.in.kernel"
 
 #
 # U-Boot Image Storage Setup
 #
-menu "U-Boot Image Storage Setup"
-	depends on CONFIG_LOAD_UBOOT
-
-config CONFIG_IMG_ADDRESS
-	string "Flash Offset for U-Boot"
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
-	default "0x00008000" if CONFIG_FLASH
-	default "0x00008000" if CONFIG_DATAFLASH
-	default "0x00040000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
-	help
-
-config CONFIG_IMG_SIZE
-	string "U-Boot Image Size"
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
-	default	"0x00080000"
-	help
-	  at91bootstrap will copy this size of U-Boot image
-
-config CONFIG_JUMP_ADDR
-	string "The External Ram Address to Load U-Boot Image"
-	default "0x73F00000" if AT91SAM9G45
-	default "0x26F00000" if AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X  || SAMA5D4 || SAMA5D2
-	default "0x21F00000" if AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || AT91SAM9G20 || AT91SAM9RL
-	default "0x23F00000"
-	help
-	  The entry point to which the bootstrap will pass control.
-
-endmenu
+source "Config.in.u-boot"
 
 #
 # Demo App Image Storage Setup
 #
-menu "Demo Application Image Storage Setup"
-	depends on CONFIG_LOAD_64KB || CONFIG_LOAD_1MB || CONFIG_LOAD_4MB
-
-config CONFIG_IMG_ADDRESS
-	string "Flash Offset for Demo-App"
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
-	default "0x00008400" if CONFIG_DATAFLASH
-	default "0x00040000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
-
-config CONFIG_IMG_SIZE
-	string "Demo-App Image Size"
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
-	default	"0x00010000"	if CONFIG_LOAD_64KB
-	default	"0x00100000"	if CONFIG_LOAD_1MB
-	default	"0x00400000"	if CONFIG_LOAD_4MB
-	help
-	  at91bootstrap will copy this size of Demo-App image
-
-config CONFIG_JUMP_ADDR
-	string "The External Ram Address to Load Demo-App Image"
-	default "0x70000000" if AT91SAM9G45
-	default "0x20000000"
-	help
-	  The entry point to which the bootstrap will pass control.
-
-endmenu
+source "Config.in.app-image"
 
 config CONFIG_IMAGE_NAME
 	string
