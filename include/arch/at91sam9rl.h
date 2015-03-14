@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  */
 #ifndef __AT91SAM9RL_H__
 #define __AT91SAM9RL_H__
+
 /*
  * Peripheral ID Definitions
  */
