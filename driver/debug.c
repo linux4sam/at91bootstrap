@@ -46,6 +46,9 @@ static inline short fill_string(char *buf, char *p)
 {
 	short num = 0;
 
+	if (!p)
+		p = "(null)";
+
 	while (*p != 0) {
 		*buf++ = *p++;
 		num++;
