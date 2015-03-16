@@ -56,36 +56,6 @@ static void pmecclor_writel(unsigned int value, unsigned reg)
 	writel(value, (AT91C_BASE_PMERRLOC + reg));
 }
 
-/*
- * Return 1 means valid pmecc error bits & sector size. otherwise return 0;
- */
-static int is_valid_pmecc_params(unsigned int sector_size,
-		unsigned int ecc_bits)
-{
-	int ret = 1;
-	switch (ecc_bits) {
-	case 2:
-	case 4:
-	case 8:
-	case 12:
-	case 24:
-	case 32:
-		break;
-	default:
-		dbg_info("Invalid Pmecc error bits: %d. Should " \
-			"be 2, 4, 8, 12, 24 or 32.\n", ecc_bits);
-		ret = 0;
-	}
-
-	if (sector_size != 512 && sector_size != 1024) {
-		dbg_info("Invalid Pmecc sector size: %d. Should " \
-				"be 512 or 1024.\n", sector_size);
-		ret = 0;
-	}
-
-	return ret;
-}
-
 int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip)
 {
 	unsigned int onfi_ecc_bits;
@@ -432,10 +402,6 @@ int init_pmecc(struct nand_info *nand)
 {
 	unsigned int sector_size = nand->ecc_sector_size;
 	unsigned int ecc_bits = nand->ecc_err_bits;
-
-	/* sanity check for the pmecc sector size and error bits */
-	if (!is_valid_pmecc_params(sector_size, ecc_bits))
-		return -1;
 
 	if (init_pmecc_descripter(&PMECC_paramDesc, nand) != 0)
 		return -1;
