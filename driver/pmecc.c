@@ -123,6 +123,23 @@ int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip)
 	if (!nand->ecc_err_bits)
 		nand->ecc_err_bits = onfi_ecc_bits;
 
+	/* check ONFI or defined parameters is compatible with PMECC? */
+	if (nand->ecc_err_bits <= 2) {
+		nand->ecc_err_bits = 2;
+	} else if (nand->ecc_err_bits <= 4) {
+		nand->ecc_err_bits = 4;
+	} else if (nand->ecc_err_bits <= 8) {
+		nand->ecc_err_bits = 8;
+	} else if (nand->ecc_err_bits <= 12) {
+		nand->ecc_err_bits = 12;
+	} else if (nand->ecc_err_bits <= 24) {
+		nand->ecc_err_bits = 24;
+	} else {
+		dbg_info("ERROR: PMECC not support %d-bit/%d-byte ECC.\n",
+				nand->ecc_err_bits, nand->ecc_sector_size);
+		return -1;
+	}
+
 	if (nand->ecc_sector_size != onfi_sector_size ||
 			nand->ecc_err_bits < onfi_ecc_bits)
 		dbg_info("WARNING: ONFI requires %d-bit/%d-byte ECC, but we use %d-bit/%d-byte ECC.\n",
