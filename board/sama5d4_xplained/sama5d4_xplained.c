@@ -32,7 +32,6 @@
 #include "debug.h"
 #include "ddramc.h"
 #include "gpio.h"
-#include "slowclk.h"
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"

@@ -148,6 +148,12 @@ int main(void)
 	hw_init();
 #endif
 
+#if defined(CONFIG_SCLK)
+#if !defined(CONFIG_SAMA5D4)
+	slowclk_enable_osc32();
+#endif
+#endif
+
 	display_banner();
 
 #ifdef CONFIG_LOAD_HW_INFO

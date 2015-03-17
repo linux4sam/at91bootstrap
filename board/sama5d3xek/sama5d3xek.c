@@ -33,7 +33,6 @@
 #include "ddramc.h"
 #include "spi.h"
 #include "gpio.h"
-#include "slowclk.h"
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
@@ -412,10 +411,6 @@ void hw_init(void)
 
 	/* Init timer */
 	timer_init();
-
-#ifdef CONFIG_SCLK
-	slowclk_enable_osc32();
-#endif
 
 	/* initialize the dbgu */
 	initialize_dbgu();
