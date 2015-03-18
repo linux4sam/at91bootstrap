@@ -36,7 +36,6 @@
  * PLL initialization is done later in the hw_init() function
  */
 #define MASTER_CLOCK		(132096000)
-#define PLL_LOCK_TIMEOUT	10000
 
 #define BOARD_MAINOSC		16000000
 #define BOARD_MCK		133000000

@@ -193,8 +193,6 @@
 				| BOARD_MULA \
 				| BOARD_DIVA)
 
-#define PLL_LOCK_TIMEOUT	10000
-
 /*
 * DataFlash Settings
 */

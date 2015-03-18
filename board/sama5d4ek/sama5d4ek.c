@@ -654,17 +654,17 @@ void hw_init(void)
 	 */
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
-	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
+	pmc_cfg_plla(PLLA_SETTINGS);
 
 	/* Initialize PLLA charge pump */
 	/* not needed for SAMA5D4 */
 	pmc_init_pll(0);
 
 	/* Switch MCK on PLLA output */
-	pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
+	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
 
 	/* Setup AHB 32-bit Matrix Divisor */
-	pmc_cfg_h32mxdiv(BOARD_H32MX, PLL_LOCK_TIMEOUT);
+	pmc_cfg_h32mxdiv(BOARD_H32MX);
 
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN,

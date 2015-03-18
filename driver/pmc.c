@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,6 @@ static inline unsigned int read_pmc(unsigned int offset)
 void lowlevel_clock_init()
 {
 	unsigned long tmp;
-	unsigned int times;
 
 #if defined(CONFIG_SAMA5D3X_CMP)
 	/*
@@ -67,8 +66,7 @@ void lowlevel_clock_init()
 	tmp |= AT91C_CKGR_PASSWD;
 	write_pmc(PMC_MOR, tmp);
 
-	times = 1000;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
 		;
 
 	/* Switch from internal 12MHz RC to the 12MHz oscillator */
@@ -84,8 +82,7 @@ void lowlevel_clock_init()
 	tmp |= AT91C_CKGR_PASSWD;
 	write_pmc(PMC_MOR, tmp);
 
-	times = 1000;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCSELS)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCSELS))
 		;
 
 #if !defined(SAMA5D4)
@@ -109,8 +106,7 @@ void lowlevel_clock_init()
 	tmp |= AT91_CKGR_MOSCXTST_SET(8);
 	write_pmc(PMC_MOR, tmp);
 
-	times = 1000;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
 		;
 #endif
 
@@ -121,16 +117,14 @@ void lowlevel_clock_init()
 		tmp |= AT91C_PMC_CSS_MAIN_CLK;
 		write_pmc(PMC_MCKR, tmp);
 
-		times = 1000;
-		while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 			;
 
 		tmp &= ~AT91C_PMC_PRES;
 		tmp |= AT91C_PMC_PRES_CLK;
 		write_pmc(PMC_MCKR, tmp);
 
-		times = 1000;
-		while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 			;
 	}
 
@@ -142,18 +136,19 @@ void pmc_init_pll(unsigned int pmc_pllicpr)
 	write_pmc(PMC_PLLICPR, pmc_pllicpr);
 }
 
-int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout)
+int pmc_cfg_plla(unsigned int pmc_pllar)
 {
 	write_pmc((unsigned int)PMC_PLLAR, pmc_pllar);
 
-	while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKA)) ;
-	return (timeout) ? 0 : (-1);
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_LOCKA))
+		;
+
+	return 0;
 }
 
-int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
+int pmc_cfg_mck(unsigned int pmc_mckr)
 {
 	unsigned int tmp;
-	unsigned int times;
 
 #if defined(SAMA5D4)
 	tmp = read_pmc(PMC_MCKR);
@@ -161,8 +156,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	tmp |= (pmc_mckr & AT91C_PMC_CSS);
 	write_pmc(PMC_MCKR, tmp);
 
-	times = timeout;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	tmp = read_pmc(PMC_MCKR);
@@ -170,8 +164,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	tmp |= (pmc_mckr & AT91C_PMC_MDIV);
 	write_pmc(PMC_MCKR, tmp);
 
-	times = timeout;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	tmp = read_pmc(PMC_MCKR);
@@ -179,8 +172,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
 	write_pmc(PMC_MCKR, tmp);
 
-	times = timeout;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	tmp = read_pmc(PMC_MCKR);
@@ -188,8 +180,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	tmp |= (pmc_mckr & AT91C_PMC_PRES);
 	write_pmc(PMC_MCKR, tmp);
 
-	times = timeout;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 #else
@@ -207,8 +198,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 #endif
 	write_pmc(PMC_MCKR, tmp);
 
-	times = timeout;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	/*
@@ -220,8 +210,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	tmp |= (pmc_mckr & AT91C_PMC_MDIV);
 	write_pmc(PMC_MCKR, tmp);
 
-	times = timeout;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	/*
@@ -233,8 +222,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
 	write_pmc(PMC_MCKR, tmp);
 
-	times = timeout;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	/*
@@ -246,25 +234,23 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	tmp |= (pmc_mckr & AT91C_PMC_CSS);
 	write_pmc(PMC_MCKR, tmp);
 
-	times = timeout;
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 #endif
 	return 0;
 }
 
-int pmc_cfg_h32mxdiv(unsigned int pmc_mckr, unsigned int timeout)
+int pmc_cfg_h32mxdiv(unsigned int pmc_mckr)
 {
 	unsigned int tmp;
-	unsigned int times = timeout;
 
 	tmp = read_pmc(PMC_MCKR);
 	tmp &= (~AT91C_PMC_H32MXDIV);
 	tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
 	write_pmc(PMC_MCKR, tmp);
 
-	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
 	return 0;
