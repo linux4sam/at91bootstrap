@@ -28,6 +28,7 @@
 #ifndef __L2CC_H__
 #define __L2CC_H__
 
-void l2cache_init(void);
+void l2cache_prepare(void);
+void l2cache_enable(void);
 
 #endif
