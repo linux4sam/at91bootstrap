@@ -666,9 +666,6 @@ void hw_init(void)
 	/* Switch MCK on PLLA output */
 	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
 
-	/* Setup AHB 32-bit Matrix Divisor */
-	pmc_cfg_h32mxdiv(BOARD_H32MX);
-
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN,
 					AT91C_BASE_RSTC + RSTC_RMR);
