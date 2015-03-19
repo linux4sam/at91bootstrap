@@ -218,21 +218,6 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 	return 0;
 }
 
-int pmc_cfg_h32mxdiv(unsigned int pmc_mckr)
-{
-	unsigned int tmp;
-
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_H32MXDIV);
-	tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
-	write_pmc(PMC_MCKR, tmp);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
-
-	return 0;
-}
-
 int pmc_cfg_pck(unsigned char x, unsigned int clk_sel, unsigned int prescaler)
 {
 	write_pmc(PMC_PCKR + x * 4, clk_sel | prescaler);
