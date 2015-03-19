@@ -619,6 +619,9 @@ void hw_init(void)
 	 * to be enabled PCK = MCK = MOSC
 	 */
 
+	/* Switch PCK/MCK on Main clock output */
+	pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK);
+
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	pmc_cfg_plla(PLLA_SETTINGS);
 
