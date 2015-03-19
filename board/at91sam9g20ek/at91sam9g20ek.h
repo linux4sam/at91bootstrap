@@ -39,7 +39,6 @@
 #define PLL_LOCK_TIMEOUT	1000000
 
 #define PLLA_SETTINGS		0x202A3F01
-#define PLLB_SETTINGS		0x10193F05
 
 /* Switch MCK on PLLA output PCK = PLLA/2 = 3 * MCK */
 #define MCKR_SETTINGS		0x1300

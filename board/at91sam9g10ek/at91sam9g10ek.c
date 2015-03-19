@@ -167,9 +167,6 @@ void hw_init(void)
 	/* Switch MCK on PLLA output */
 	pmc_cfg_mck(MCKR_CSS_SETTINGS, PLL_LOCK_TIMEOUT);
 
-	/* Configure PLLB */
-	//pmc_cfg_pllb(PLLB_SETTINGS, PLL_LOCK_TIMEOUT);
-
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
 

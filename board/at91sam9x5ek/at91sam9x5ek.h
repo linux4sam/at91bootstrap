@@ -65,9 +65,6 @@
 			| BOARD_MULA \
 			| BOARD_DIVA)
 
-#define PLLUTMI
-#define PLLUTMI_SETTINGS        0x10193F05
-
 /*
  * DataFlash Settings
  */

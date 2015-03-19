@@ -40,7 +40,6 @@
 #define PLL_LOCK_TIMEOUT	1000000
 
 #define PLLA_SETTINGS		0x2060BF09
-#define PLLB_SETTINGS		0x10483F0E
 
 /* Switch MCK on PLLA output PCK = PLLA = 2 * MCK */
 #define MCKR_SETTINGS		((0 << 2) | AT91C_PMC_MDIV_2)

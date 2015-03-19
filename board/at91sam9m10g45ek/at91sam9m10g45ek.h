@@ -56,9 +56,6 @@
 				| BOARD_MULA \
 				| BOARD_DIVA)
 
-#define PLLUTMI
-#define PLLUTMI_SETTINGS	0x10193F05
-
 /* Switch MCK on PLLA output PCK = PLLA/2 = 3 * MCK */
 #define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
 					| AT91C_PMC_MDIV_3 \

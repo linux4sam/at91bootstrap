@@ -150,21 +150,6 @@ int pmc_cfg_plla(unsigned int pmc_pllar, unsigned int timeout)
 	return (timeout) ? 0 : (-1);
 }
 
-#ifndef PLLUTMI
-int pmc_cfg_pllb(unsigned int pmc_pllbr, unsigned int timeout)
-{
-	write_pmc(PMC_PLLBR, pmc_pllbr);
-	while ((timeout--) && !(read_pmc(PMC_SR) & AT91C_PMC_LOCKB)) ;
-
-	return (timeout) ? 0 : (-1);
-}
-#else
-int pmc_cfg_pllutmi(unsigned int pmc_pllutmi, unsigned int timeout)
-{
-	return 0;
-}
-#endif
-
 int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 {
 	unsigned int tmp;

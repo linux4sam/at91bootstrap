@@ -42,7 +42,6 @@
 #define PLL_LOCK_TIMEOUT	1000000
 
 #define PLLA_SETTINGS		0x2060BF09
-#define PLLB_SETTINGS		0x10483F0E
 
 #endif /* #if defined(CONFIG_CPU_CLK_200MHZ) */
 
@@ -52,7 +51,6 @@
 #define PLL_LOCK_TIMEOUT	1000000
 
 #define PLLA_SETTINGS		0x20D8BF10
-#define PLLB_SETTINGS		0x10483F0E
 
 #endif /* #if defined(CONFIG_CPU_CLK_250MHZ) */
 
