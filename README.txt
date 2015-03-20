@@ -23,6 +23,7 @@ ARM Toolchain:
 - gcc version 4.7.2 (Sourcery CodeBench Lite 2012.09-64)
 - gcc version 4.7.3 (Sourcery CodeBench Lite 2013.05-24)
 - gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
+- gcc version 4.9.3 [ARM/embedded-4_9-branch revision 218278]
 
 2 Compile AT91Bootstrap
 ================================================================================
@@ -154,6 +155,11 @@ the project top directory.
     You should use 'Send File' command to send the binary file as same as
     the normal file, with 'Address' selected to 0.
 
+4.1.3. Automatic default configuration build script
+    All the default configurations can be compiled with the script build_defconfig.sh.
+    It takes some time, but if any configuration failed, it ca be re-started at this point
+    simply by giving the configuration name (restart point).
+    
 5 Contributing
 ================================================================================
 
