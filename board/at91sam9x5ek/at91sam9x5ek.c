@@ -43,8 +43,7 @@
 #include "watchdog.h"
 #include "string.h"
 #include "at91sam9x5ek.h"
-
-#include "onewire_info.h"
+#include "board_hw_info.h"
 
 #ifdef CONFIG_USER_HW_INIT
 extern void hw_init_hook(void);
@@ -108,25 +107,25 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->rtr = 0x411;     /* Refresh timer: 7.8125us */
 
 	/* One clock cycle @ 133 MHz = 7.5 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6       /* 6 * 7.5 = 45 ns */
-			| AT91C_DDRC2_TRCD_2            /* 2 * 7.5 = 22.5 ns */
-			| AT91C_DDRC2_TWR_2             /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TRC_8             /* 8 * 7.5 = 75   ns */
-			| AT91C_DDRC2_TRP_2             /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TRRD_2            /* 2 * 7.5 = 15   ns */
-			| AT91C_DDRC2_TWTR_2            /* 2 clock cycles min */
-			| AT91C_DDRC2_TMRD_2);          /* 2 clock cycles */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)	/* 6 * 7.5 = 45 ns */
+			| AT91C_DDRC2_TRCD_(2)		/* 2 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TWR_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRC_(8)		/* 8 * 7.5 = 75   ns */
+			| AT91C_DDRC2_TRP_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRRD_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TWTR_(2)		/* 2 clock cycles min */
+			| AT91C_DDRC2_TMRD_(2));	/* 2 clock cycles */
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2        /*  2 clock cycles */
-			| AT91C_DDRC2_TXSRD_200         /* 200 clock cycles */
-			| AT91C_DDRC2_TXSNR_19          /* 19 * 7.5 = 142.5 ns*/
-			| AT91C_DDRC2_TRFC_18);         /* 18 * 7.5 = 135 ns */
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)	/*  2 clock cycles */
+			| AT91C_DDRC2_TXSRD_(200)	/* 200 clock cycles */
+			| AT91C_DDRC2_TXSNR_(19)	/* 19 * 7.5 = 142.5 ns*/
+			| AT91C_DDRC2_TRFC_(18));	/* 18 * 7.5 = 135 ns */
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_7       /* 7 * 7.5 = 52.5 ns */
-			| AT91C_DDRC2_TRTP_2            /* 2 clock cycles min */
-			| AT91C_DDRC2_TRPA_3            /* 3 * 7.5 = 22.5 ns */
-			| AT91C_DDRC2_TXARDS_7          /* 7 clock cycles */
-			| AT91C_DDRC2_TXARD_2);         /* 2 clock cycles */
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)	/* 7 * 7.5 = 52.5 ns */
+			| AT91C_DDRC2_TRTP_(2)		/* 2 clock cycles min */
+			| AT91C_DDRC2_TRPA_(3)		/* 3 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TXARDS_(7)	/* 7 clock cycles */
+			| AT91C_DDRC2_TXARD_(2));	/* 2 clock cycles */
 }
 
 static void ddramc_init(void)
@@ -352,19 +351,5 @@ void nandflash_hw_init(void)
 		pio_configure(nand_pins_hi);
 
 	pmc_enable_periph_clock(AT91C_ID_PIOC_D);
-}
-
-void nandflash_config_buswidth(unsigned char busw)
-{
-	unsigned long csa;
-
-	csa = readl(AT91C_BASE_SMC + SMC_CTRL3);
-
-	if (busw == 0)
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
-	else
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
-
-	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */

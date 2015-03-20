@@ -31,6 +31,7 @@
 extern int timer_init(void);
 
 extern void udelay(unsigned int usec);
+extern void mdelay(unsigned int msec);
 
 extern int start_interval_timer(void);
 extern int wait_interval_timer(unsigned int usec);

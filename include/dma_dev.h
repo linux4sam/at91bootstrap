@@ -31,15 +31,14 @@
 #define SPI_FLASH_DMA_H_
 
 #include <stdbool.h>
-#include <stdint.h>
 #include "dmad.h"
 
 //*********************** Types **********************
 typedef struct _DMA_DEV_IOStream
 {
-  uint32_t spi_ctrlr_base_addr; //!< BAse addresse of the SPI Controller.
-  uint32_t RxChannel; //!< RX channel of the stream.
-  uint32_t TxChannel; //!< TX channel of the stream.
+  unsigned int spi_ctrlr_base_addr; //!< BAse addresse of the SPI Controller.
+  unsigned int RxChannel; //!< RX channel of the stream.
+  unsigned int TxChannel; //!< TX channel of the stream.
 } DMA_DEV_IOStream_t;
 /**
  * Initialize the DMA for the given SPI ctrlr : Open the IOStream.
@@ -50,9 +49,9 @@ typedef struct _DMA_DEV_IOStream
  *  - 0 : OK
  *  - 1 : Stream allocation error.
  */
-uint32_t
+unsigned int
 DMA_DEV_OpenSPIIOStream(DMA_DEV_IOStream_t* const stream,
-    const uint32_t spi_ctrlr_base_addr, const uint32_t spi_id);
+    const unsigned int spi_ctrlr_base_addr, const unsigned int spi_id);
 
 /**
  * This function will FORCE close the given SPI stream
@@ -70,9 +69,9 @@ DMA_DEV_CloseSPIIOStream(DMA_DEV_IOStream_t* const stream);
  * @param recvLength Length in bytes of the received bytes
  * @return Error code translated from eDmadStatus in dmad.h
  */
-uint32_t
+unsigned int
 DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
-    const uint32_t sendLength, void* toRecv, const uint32_t recvLength);
+    const unsigned int sendLength, void* toRecv, const unsigned int recvLength);
 /**
  * This function check if a transfer is in progress.
  * @param stream [IN] The stream on which a transfer status will be check (I/O transfer).

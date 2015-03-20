@@ -5,7 +5,8 @@ ENTRY(reset)
 SECTIONS
 {
    
-	.text : ALIGN(4) { 
+	. = ALIGN(4);
+  .text : { 
 		_stext = .;
 		*(.text)
 		*(.rodata)                 /* read-only data (constants) */
@@ -41,8 +42,9 @@ SECTIONS
 		_ebss = .;
 	}
 }
-end = .;  /* define a global symbol marking the end of application (W/O STACK !!) */
-
+_romsize = _edata - _stext;
+_sramsize = _ebss - _stext;
+end = .;  /* define a global symbol marking the end of application */
 /* Set the Memory translation table (16kB) at the top of the SRAM1 memory.*/
 PROVIDE(MEMORY_TRANSLATION_TABLE_BASE = 0x320000 - 0x4000);
 

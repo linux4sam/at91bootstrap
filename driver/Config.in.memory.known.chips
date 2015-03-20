@@ -1,0 +1,29 @@
+choice
+  prompt "LP-DDR1 Installed Memory Chip"
+  depends on CONFIG_LPDDR1
+  default CONFIG_RAM_CHIP_W948D2 if CONFIG_SAMA5D31_BEEAVE
+  
+config CONFIG_RAM_CHIP_IS43LR32400
+  depends on !SAMA5D3X
+  bool "ISSI IS43LR32400 (128Mb LP-DDR1) chip [NOT TESTED & NOT SUPPORTED by SAMAD3]"
+  select CONFIG_RAM_16MB
+  
+config CONFIG_RAM_CHIP_IS43LR32800
+  bool "ISSI IS43LR32800 (256Mb LP-DDR1) chip"
+  select CONFIG_RAM_32MB
+
+config CONFIG_RAM_CHIP_W948D2
+  bool "Winbond W948D2 (256Mb LP-DDR1) chip"
+  select CONFIG_RAM_32MB
+endchoice
+
+choice 
+prompt "DDR2 Installed Memory Chip"
+  depends on CONFIG_DDR2
+  default CONFIG_RAM_CHIP_2X_MT47H128M16RT if CONFIG_SAMA5D3XEK
+  
+config CONFIG_RAM_CHIP_2X_MT47H128M16RT
+  bool "Dual Micron MT47H128M16RT (2Gb DDR2) chips"
+  select CONFIG_RAM_512MB
+  
+endchoice

@@ -34,36 +34,19 @@
 #include "nandflash.h"
 #include "sdcard.h"
 #include "fdt.h"
-#include "onewire_info.h"
+#include "board_hw_info.h"
+#include "mon.h"
+#include "tz_utils.h"
 
 #include "debug.h"
 
 #ifdef CONFIG_LOAD_ANDROID
 #ifdef CONFIG_SAMA5D3XEK
-#ifdef CONFIG_NANDFLASH
-static char *cmd_line_android_pda = "console=ttyS0,115200 " \
-		"mtdparts=atmel_nand:8M(bootstrap/kernel),125M(system)," \
-		"-(userdata) " \
-		"ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs "\
-		"init=/init "\
-		"androidboot.hardware=sama5d3x-pda androidboot.console=ttyS0";
+static char *cmd_line_android_pda = LINUX_KERNEL_ARG_STRING \
+		" androidboot.hardware=sama5d3x-pda";
 
-static char *cmd_line_android = "console=ttyS0,115200 " \
-		"mtdparts=atmel_nand:8M(bootstrap/kernel),125M(system)," \
-		"-(userdata) " \
-		"ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs " \
-		"init=/init " \
-		"androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0";
-#endif
-#ifdef CONFIG_SDCARD
-static char *cmd_line_android_pda = "console=ttyS0,115200 " \
-		"root=/dev/mmcblk0p2 rw rootwait init=/init " \
-		"androidboot.hardware=sama5d3x-pda androidboot.console=ttyS0";
-
-static char *cmd_line_android = "console=ttyS0,115200 " \
-		"root=/dev/mmcblk0p2 rw rootwait init=/init " \
-		"androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0";
-#endif
+static char *cmd_line_android = LINUX_KERNEL_ARG_STRING \
+		" androidboot.hardware=sama5d3x-ek";
 #endif /* #ifdef CONFIG_SAMA5D3XEK */
 #endif /* #ifdef CONFIG_LOAD_ANDROID */
 
@@ -408,8 +391,18 @@ int load_kernel(struct image_info *image)
 
 	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",
 							mach_type);
+#if defined(CONFIG_ENTER_NWD)
+	monitor_init();
 
+	init_loadkernel_args(0, mach_type, r2, (unsigned int)kernel_entry);
+
+	dbg_info("Enter Normal World, Run Kernel at %d\n",
+					(unsigned int)kernel_entry);
+
+	enter_normal_world();
+#else
 	kernel_entry(0, mach_type, r2);
+#endif
 
 	return 0;
 }

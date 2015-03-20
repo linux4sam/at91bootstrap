@@ -48,18 +48,6 @@
 
 #endif /* #ifdef CONFIG_CPU_CLK_200MHZ */
 
-#ifdef CONFIG_CPU_CLK_266MHZ
-
-#define MCK_133
-
-/* 133 MHz Bus clock */
-#define MASTER_CLOCK		(133000000)
-#define PLL_LOCK_TIMEOUT	1000000
-
-#define PLL_SETTINGS		0x2109BF0C
-
-#endif /* #ifdef CONFIG_CPU_CLK_266MHZ */
-
 /* Switch MCK on PLLA output PCK = PLLA = 2 * MCK */
 #define MCKR_SETTINGS		(AT91C_PMC_PRES_CLK | AT91C_PMC_MDIV_2)
 #define MCKR_CSS_SETTINGS	(AT91C_PMC_CSS_PLLA_CLK | MCKR_SETTINGS)
@@ -94,13 +82,4 @@
 #define CONFIG_SYS_RECOVERY_BUTTON_PIN	AT91C_PIN_PB(0)
 #define RECOVERY_BUTTON_NAME	"BP2"
 
-/* extern function */
-extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
-extern void nandflash_config_buswidth(unsigned char busw);
-
-extern void at91_spi0_hw_init(void);
-
-extern void at91_mci0_hw_init(void);
 #endif /* #ifndef __AT91SAM9RLEK_H__ */

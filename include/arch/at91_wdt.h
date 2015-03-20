@@ -35,7 +35,7 @@
 
 /*-------- WDTC_CR : (WDTC Offset: 0x0) Periodic Interval Image Register --------*/
 #define AT91C_WDTC_WDRSTT	(0x1UL << 0)
-#define AT91C_WDTC_KEY		(0xFFUL << 24)
+#define AT91C_WDTC_KEY		(0xA5 << 24)
 
 /*-------- WDTC_WDMR : (WDTC Offset: 0x4) Watchdog Mode Register --------*/
 #define AT91C_WDTC_WDV		(0xFFFUL << 0)

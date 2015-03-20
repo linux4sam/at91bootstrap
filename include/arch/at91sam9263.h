@@ -138,6 +138,8 @@
 #define AT91C_BASE_EBI1_CS1	0x80000000	/* EBI1 SDRAMC */
 #define AT91C_BASE_EBI1_CS2	0x90000000	/* EBI1 NANDFlash */
 
+#define AT91C_NUM_PIO		5
+
 /*
  * SoC specific defines
  */

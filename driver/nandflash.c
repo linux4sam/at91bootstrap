@@ -58,14 +58,16 @@ static struct nand_chip nand_ids[] = {
 	{0x2cda, 0x800, 0x20000, 0x800, 0x40, 0x0},
 	/* Micron MT29F2G08ABD 256MB */
 	{0x2caa, 0x800, 0x20000, 0x800, 0x40, 0x0},
+	/* Mircon MT29H8G08ACAH1 1GB */
+	{0x2c38, 0x800, 0x80000, 0x1000, 0xe0, 0x0},
+#ifndef CONFIG_AT91SAM9260EK
 	/* Hynix HY27UF082G2A 256MB */
 	{0xadda, 0x800, 0x20000, 0x800, 0x40, 0x0},
 	/* Hynix HY27UF162G2A 256MB */
 	{0xadca, 0x800, 0x20000, 0x800, 0x40, 0x1},
-	/* Mircon MT29H8G08ACAH1 1GB */
-	{0x2c38, 0x800, 0x80000, 0x1000, 0xe0, 0x0},
 	/* EON EN27LN1G08 128MB */
 	{0x92f1, 0x400, 0x20000, 0x800, 0x40, 0x0},
+#endif
 	{0,}
 };
 #endif
@@ -148,6 +150,7 @@ static void nand_cs_disable(void)
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static void config_nand_ooblayout(struct nand_ooblayout *layout,
+				struct nand_info *nand,
 				struct nand_chip *chip)
 {
 	layout->badblockpos = 5;
@@ -173,6 +176,7 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 }
 #else
 static void config_nand_ooblayout(struct nand_ooblayout *layout,
+				struct nand_info *nand,
 				struct nand_chip *chip)
 {
 	unsigned int i;
@@ -180,8 +184,8 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 	layout->badblockpos = 0;
 
 #ifdef CONFIG_USE_PMECC
-	layout->eccbytes = chip->pagesize / PMECC_SECTOR_SIZE
-		* get_pmecc_bytes();
+	layout->eccbytes = div(chip->pagesize, nand->ecc_sector_size)
+		* get_pmecc_bytes(nand->ecc_sector_size, nand->ecc_err_bits);
 #else	/* Use Software ECC */
 	switch (chip->pagesize) {
 	case 2048:	/* oobsize is 64. */
@@ -385,6 +389,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	chip->oobsize	= *(unsigned short *)(p + PARAMS_OFFSET_OOBSIZE);
 	chip->buswidth	= (*(unsigned char *)(p + PARAMS_OFFSET_BUSWIDTH))
 								& 0x01;
+	chip->eccbits	= *(unsigned char *)(p + PARAMS_OFFSET_ECC_BITS);
 
 	manf_id = *(unsigned char *)(p + PARAMS_OFFSET_JEDEC_ID);
 	dev_id = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);
@@ -453,8 +458,11 @@ static void nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	nand->oobsize = chip->oobsize;
 	/* Total number of bytes in a sector */
 	nand->sectorsize = nand->pagesize + nand->oobsize;
+#ifdef CONFIG_USE_PMECC
+	choose_pmecc_info(nand, chip);
+#endif
 	/* the layout of the spare area */
-	config_nand_ooblayout(&nand_oob_layout, chip);
+	config_nand_ooblayout(&nand_oob_layout, nand, chip);
 	nand->ecclayout = &nand_oob_layout;
 	/* data bus width (8/16 bits) */
 	nand->buswidth = chip->buswidth;
@@ -510,8 +518,6 @@ static int nandflash_get_type(struct nand_info *nand)
 
 	nand_info_init(nand, chip);
 	
-	nandflash_config_buswidth(nand->buswidth != 0);
-
 	return 0;
 }
 

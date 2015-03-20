@@ -72,9 +72,52 @@
 #include "sama5d3xek.h"
 #endif
 
-#ifdef CONFIG_SAMA5D31_BEEAVE
-#include "beeave.h"
+#ifdef CONFIG_SAMA5D3_XPLAINED
+#include "sama5d3_xplained.h"
 #endif
 
+#ifdef CONFIG_SAMA5D31_BEEAVE
+#include "sama5d31_beeave.h"
+#endif
+
+#ifdef CONFIG_SAMA5D3X_CMP
+#include "sama5d3x_cmp.h"
+#endif
+
+#ifdef CONFIG_SAMA5D4EK
+#include "sama5d4ek.h"
+#endif
+
+#ifdef CONFIG_SAMA5D4_XPLAINED
+#include "sama5d4_xplained.h"
+#endif
+
+/*
+ * Functions Prototype
+ */
+extern void hw_init(void);
+
+extern void nandflash_hw_init(void);
+
+extern void at91_spi0_hw_init(void);
+
+extern void at91_mci0_hw_init(void);
+
+extern void norflash_hw_init(void);
+
+/* PM Support */
+extern unsigned int at91_twi0_hw_init(void);
+extern unsigned int at91_twi1_hw_init(void);
+extern unsigned int at91_twi2_hw_init(void);
+extern unsigned int at91_twi3_hw_init(void);
+extern void at91_board_config_twi_bus(void);
+
+extern unsigned int at91_eth0_hw_init(void);
+extern unsigned int at91_eth1_hw_init(void);
+extern void at91_disable_mac_clock(void);
+
+extern void at91_disable_smd_clock(void);
+
+extern int at91_board_act8865_set_reg_voltage(void);
 
 #endif /* #ifndef __BOARD_H__ */

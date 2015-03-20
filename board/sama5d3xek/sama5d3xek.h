@@ -28,7 +28,6 @@
 #ifndef __SAMA5D3XEK_H__
 #define __SAMA5D3XEK_H__
 
-#include <stdint.h>
 #include "arch/sama5d3x.h"
 /**
  * This structure give the size of each of the external memories EBIi and DDRCS
@@ -36,11 +35,11 @@
  */
 struct ExtMemDescriptor
 {
-  uint32_t EBICS0Size;
-  uint32_t EBICS1Size;
-  uint32_t EBICS2Size;
-  uint32_t EBICS3Size;
-  uint32_t DDRCSSize;
+  unsigned int EBICS0Size;
+  unsigned int EBICS1Size;
+  unsigned int EBICS2Size;
+  unsigned int EBICS3Size;
+  unsigned int DDRCSSize;
 };
 
 /*
@@ -85,7 +84,7 @@ struct ExtMemDescriptor
 						(PLLA_MULA + 1)) / 2 / 3))
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
-#define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT && (0x3F << 8))
+#define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT & (0x3F << 8))
 #define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (PLLA_MULA << 18))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
 
@@ -124,6 +123,27 @@ struct ExtMemDescriptor
 #error "No cpu clock provided!"
 #endif /* #if defined(CONFIG_CPU_CLK_528MHZ) */
 
+#elif defined(CONFIG_BUS_SPEED_148MHZ)
+
+#if defined(CONFIG_CPU_CLK_444MHZ)
+
+#define MASTER_CLOCK		148000000
+
+#define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
+#define BOARD_PLLACOUNT		(0x3F << 8)
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (36 << 18)) /* PLLA Multiplier */
+#define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
+
+/* Master Clock Register */
+#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_MAIN_CLK)
+
+#define BOARD_PRESCALER_PLLA		(AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_PLLA_CLK)
+#else
+#error "No cpu clock provided!"
+#endif /* #if defined(CONFIG_CPU_CLK_444MHZ) */
+
 #elif defined(CONFIG_BUS_SPEED_166MHZ)
 
 #if defined(CONFIG_CPU_CLK_498MHZ)
@@ -137,7 +157,7 @@ struct ExtMemDescriptor
 #define MASTER_CLOCK		166000000
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
-#define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT && (0x3F << 8))
+#define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT & (0x3F << 8))
 #define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (PLLA_MULA << 18))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
 
@@ -161,7 +181,7 @@ struct ExtMemDescriptor
 #define MASTER_CLOCK		165000000
 
 #define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
-#define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT && (0x3F << 8))
+#define BOARD_PLLACOUNT		(AT91C_CKGR_PLLACOUNT & (0x3F << 8))
 #define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (PLLA_MULA << 18))
 #define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
 
@@ -238,16 +258,6 @@ struct ExtMemDescriptor
  * One wire pin
  */
 #define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PE(25)
-
-/* function */
-extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
-extern void nandflash_config_buswidth(unsigned char busw);
-
-extern void at91_spi0_hw_init(void);
-
-extern void at91_mci0_hw_init(void);
 
 
 #endif /* #ifndef __SAMA5EK_H__ */

@@ -53,6 +53,9 @@
 /* JEDEC Code */
 #define MANUFACTURER_ID_ATMEL		0x1f
 
+/* AT45 and T25/AT26 MAX freq for Slow read array command (Hz)*/
+#define ATMEL_DF_SPI_MAX_FREQ_SLOW_READ 33000000
+
 
 /* Family Code */
 #define DF_FAMILY_AT26F			0x00
@@ -78,19 +81,19 @@
 #define STATUS_PAGE_SIZE_AT45		(1 << 0)
 #define STATUS_READY_AT45		(1 << 7)
 
-//! Maximum BASE speed for any SPI Flash device now (50MHz)
-#define SPI_MAX_BASE_SPEED 50000000
+//! Maximum BASE speed for any SPI Flash device now (10MHz)
+#define SPI_MAX_BASE_SPEED 10000000
 
 struct dataflash_descriptor;
 
 struct dataflash_descriptor
 {
-  unsigned char family;
-
   unsigned int pages; /* page number */
   unsigned int page_size; /* page size */
   unsigned int page_offset; /* page offset in command */
+  unsigned int max_spi_freq_slow_read; /* The MAX SPI freq SPI for the SLOW READ (0x03) command.*/
   unsigned char is_power_2; /* = 1: power of 2, = 0: not*/
+  unsigned char family;
 };
 
 static int
@@ -156,15 +159,27 @@ dataflash_read_array_DMA(struct dataflash_descriptor *df_desc,
   unsigned int byte_addr = 0;
   unsigned int page_shift;
   unsigned int page_size;
-  static const uint32_t DMA_CHUNK_MAX_LENGTH = 0xFFFF;
-  static const uint32_t DBG_DUMP_LENGTH = 32;
-  uint32_t round_length = DMA_CHUNK_MAX_LENGTH;
+  static const unsigned int DMA_CHUNK_MAX_LENGTH = 0xFFFF;
+  static const unsigned int DBG_DUMP_LENGTH = 32;
+  unsigned int round_length = DMA_CHUNK_MAX_LENGTH;
   DMA_DEV_IOStream_t readArrayStream;
   int ret = 0;
 
-  cmd[0] = CMD_READ_ARRAY_FAST;
-  //Handle dummy dummy byte in fast read : skip it.
-  cmd_len = (cmd[0] == CMD_READ_ARRAY_SLOW) ? 4 : 5; //In slow read : cmd_len = 4, cmd_len=5 in FAST read
+  dbg_log(DEBUG_INFO,"Dataflash DMA read\n");
+  //Handle the SLOW/FAST read command selection according to the configured SPI bus clock
+  if (df_desc->max_spi_freq_slow_read < CONFIG_SYS_SPI_CLOCK)
+  {
+    dbg_log(DEBUG_INFO,"Dataflash FAST READ activated\n");
+    //FAST READ condition
+    cmd[0] = CMD_READ_ARRAY_FAST;
+    cmd_len = 5;//Handle the dummy byte directly in the command phase.
+  }
+  else
+  {
+    dbg_log(DEBUG_INFO,"Dataflash SLOW READ activated\n");
+    cmd[0] = CMD_READ_ARRAY_SLOW;
+    cmd_len = 4;
+  }
 
   ret = DMA_DEV_OpenSPIIOStream(&readArrayStream, AT91C_BASE_SPI0,
       AT91C_ID_SPI0);
@@ -212,9 +227,10 @@ dataflash_read_array_DMA(struct dataflash_descriptor *df_desc,
   DMA_DEV_CloseSPIIOStream(&readArrayStream);
   return 0;
 }
-#endif
+//Function replacment
+#define dataflash_read_array dataflash_read_array_DMA
+#else /*CONFIG_DATAFLASH_LOAD_WITH_DMA*/
 //*******************************************************************
-#ifndef CONFIG_DATAFLASH_LOAD_WITH_DMA
 static int dataflash_read_array_PIO(struct dataflash_descriptor *df_desc,
     unsigned int offset,
     unsigned int len,
@@ -227,7 +243,7 @@ static int dataflash_read_array_PIO(struct dataflash_descriptor *df_desc,
     unsigned int byte_addr = 0;
     unsigned int page_shift;
     unsigned int page_size;
-    int ret;
+    int ret;    
 
     if (!df_desc->is_power_2)
       {
@@ -240,8 +256,23 @@ static int dataflash_read_array_PIO(struct dataflash_descriptor *df_desc,
       }
     else
     address = offset;
+    dbg_log(DEBUG_INFO,"Dataflash PIO read\n");
+    
+    //Handle the SLOW/FAST read command selection according to the configured SPI bus clock
+    if (df_desc->max_spi_freq_slow_read < CONFIG_SYS_SPI_CLOCK)
+    {
+      dbg_log(DEBUG_INFO,"Dataflash FAST READ activated\n");
+      //FAST READ condition
+      cmd[0] = CMD_READ_ARRAY_FAST;
+      cmd_len = 5;//Handle the dummy byte directly in the command phase.
+    }
+    else
+    {
+      dbg_log(DEBUG_INFO,"Dataflash SLOW READ activated\n");
+      cmd[0] = CMD_READ_ARRAY_SLOW;
+      cmd_len = 4;
+    }
 
-    cmd[0] = CMD_READ_ARRAY_SLOW;
     if (df_desc->pages > 16384)
       {
         cmd[1] = (unsigned char)(address >> 24);
@@ -258,7 +289,6 @@ static int dataflash_read_array_PIO(struct dataflash_descriptor *df_desc,
         cmd[4] = 0x00;
       }
 
-    cmd_len = 5;
     ret = df_send_command(cmd, cmd_len, buf, len);
     if (ret)
       {
@@ -267,6 +297,8 @@ static int dataflash_read_array_PIO(struct dataflash_descriptor *df_desc,
       }
     return 0;
   }
+//Function replacment
+#define dataflash_read_array dataflash_read_array_PIO
 #endif
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 static int update_image_length(struct dataflash_descriptor *df_desc,
@@ -619,7 +651,7 @@ df_at45_desc_init(struct dataflash_descriptor *df_desc)
   default:
     return -1;
     }
-
+  df_desc->max_spi_freq_slow_read = ATMEL_DF_SPI_MAX_FREQ_SLOW_READ;
   return 0;
 }
 
@@ -632,6 +664,7 @@ df_at25_desc_init(struct dataflash_descriptor *df_desc)
   df_desc->pages = 16384;
   df_desc->page_size = 256;
   df_desc->page_offset = 0;
+  df_desc->max_spi_freq_slow_read = ATMEL_DF_SPI_MAX_FREQ_SLOW_READ;
 
   return 0;
 }
@@ -700,6 +733,7 @@ dataflash_probe_chip(struct dataflash_descriptor *df_desc)
    df_desc->page_size = CONFIG_SPI_FLASH_PARAMS_PAGE_SIZE;
    df_desc->pages = CONFIG_SPI_FLASH_PARAMS_PAGES;
    df_desc->is_power_2 = CONFIG_SPI_FLASH_PARAMS_PAGE_SIZE_IS_POWER2;
+   df_desc->max_spi_freq_slow_read = CONFIG_SPI_MAX_FREQ_SLOW_READ;
 
 #endif
   if (ret)
@@ -714,13 +748,15 @@ load_dataflash(struct image_info *image)
   struct dataflash_descriptor df_descriptor;
   struct dataflash_descriptor *df_desc = &df_descriptor;
   int ret = 0;
-
+  const unsigned int SPI_CLOCK = (CONFIG_SYS_SPI_CLOCK > SPI_MAX_BASE_SPEED) ?
+          SPI_MAX_BASE_SPEED : CONFIG_SYS_SPI_CLOCK;
+          
+  dbg_log(2,"SPI bus @ %d kHz\n",SPI_CLOCK/1000);
+  
   at91_spi0_hw_init();
 
   //If SPI clock if above 50MHz, Id read will fail (See DS).
-  ret = at91_spi_init(AT91C_SPI_PCS_DATAFLASH,
-      (CONFIG_SYS_SPI_CLOCK > SPI_MAX_BASE_SPEED) ?
-          SPI_MAX_BASE_SPEED : CONFIG_SYS_SPI_CLOCK, CONFIG_SYS_SPI_MODE);
+  ret = at91_spi_init(AT91C_SPI_PCS_DATAFLASH, SPI_CLOCK, CONFIG_SYS_SPI_MODE);
   if (ret)
     {
       dbg_info("SF: Fail to initialize spi\n");
@@ -770,13 +806,8 @@ load_dataflash(struct image_info *image)
 
 	dbg_info("SF: Copy %d bytes from %d to %d\n",
       image->length, image->offset, image->dest);
-#ifdef CONFIG_DATAFLASH_LOAD_WITH_DMA
-  ret = dataflash_read_array_DMA(df_desc, image->offset, image->length,
+  ret = dataflash_read_array(df_desc, image->offset, image->length,
       image->dest);
-#else
-  ret = dataflash_read_array_PIO(df_desc,
-      image->offset, image->length, image->dest);
-#endif
   if (ret) {
       dbg_info("** SF: Serial flash read error**\n");
       ret = -1;
@@ -797,13 +828,8 @@ load_dataflash(struct image_info *image)
 		dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
           image->of_length, image->of_offset, image->of_dest);
 
-#ifdef CONFIG_DATAFLASH_LOAD_WITH_DMA
-      ret = dataflash_read_array_DMA(df_desc, image->of_offset,
+    ret = dataflash_read_array(df_desc, image->of_offset,
           image->of_length, image->of_dest);
-#else
-      ret = dataflash_read_array_PIO(df_desc,
-          image->of_offset, image->of_length, image->of_dest);
-#endif
     if (ret) {	
         dbg_info("** SF: DT: Serial flash read error**\n");
 

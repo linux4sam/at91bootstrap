@@ -1,5 +1,4 @@
 menu  "NAND flash configuration"
-	depends on CONFIG_NANDFLASH
 
 choice
 	prompt "ECC Configuration"
@@ -24,8 +23,16 @@ endchoice
 menu "PMECC Configuration"
 	depends on CONFIG_USE_PMECC
 
+config CONFIG_PMECC_AUTO_DETECT
+	bool "Auto-detect ONFI minimum error requirement"
+	default y
+	help
+	  Detect the ONFI parameters and use the minimum error
+	  requirement
+
 choice
 	prompt "PMECC Error Correction Bits"
+	depends on !CONFIG_PMECC_AUTO_DETECT
 	default CONFIG_PMECC_CORRECT_BITS_2
 	help
 		Select the PMECC correction bits
@@ -49,6 +56,7 @@ endchoice
 
 choice
 	prompt "PMECC Sector Size"
+	depends on !CONFIG_PMECC_AUTO_DETECT
 	default CONFIG_PMECC_SECTOR_SIZE_512
 	help
 		Select the PMECC sector size
@@ -72,7 +80,6 @@ config CONFIG_NANDFLASH_SMALL_BLOCKS
 config CONFIG_NANDFLASH_RECOVERY
 	bool "Support NAND flash recovery by pressing a button"
 	default y
-	depends on CONFIG_NANDFLASH
 	depends on ALLOW_NANDFLASH_RECOVERY
 	help
 	  Let bootstrap disassemble the first 7 double words

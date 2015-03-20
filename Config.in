@@ -47,12 +47,7 @@ config CONFIG_DEBUG_3RD_STAGE
   # TEST depends on CONFIG_UPLOAD_3RD_STAGE
   default n
   help
-    The bootstrap will wait for a debugger being attached to the board for third stage debug purpose (uploaded with debug probe or read from ROM memroy). Then the Program Counter should be manualy set to the application's load address.
-
-choice
-	prompt "Image Loading Strategy"
-	default CONFIG_LOAD_UBOOT
-	depends on !CONFIG_ONLY_INTERNAL_RAM
+    The bootstrap will wait for a debugger being attached to the board for third stage debug purpose (uploaded with debug probe or read from ROM memory). Then the Program Counter should be manualy set to the application's load address.
 
 config CONFIG_UPLOAD_3RD_STAGE
   bool "Third stage image is uploaded"
@@ -63,19 +58,27 @@ config CONFIG_UPLOAD_3RD_STAGE
     This option will skip the third stage (App, Android or Linux kernel) load operation 
     and go straight to waiting for the debug probe connection.
 
+choice
+	prompt "Image Loading Strategy"
+	default CONFIG_LOAD_UBOOT 
+	depends on !(CONFIG_ONLY_INTERNAL_RAM || CONFIG_UPLOAD_3RD_STAGE)
+
 config CONFIG_LOAD_UBOOT
 	bool "Load U-Boot into last MBYTE of SDRAM"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	help
 	  Use this mode to load an second level boot monitor
 	  like U-boot into the last MB of SDRAM.
 
 config CONFIG_LOAD_LINUX
 	bool "Support loading Linux directly"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	---help---
 	   Load Linux kernel directly from storage media
 
 config CONFIG_LOAD_ANDROID
 	bool "Support loading android directly"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	help
 	   Load android image directly from storage media
 
@@ -87,12 +90,14 @@ config CONFIG_LOAD_1MB
 
 config CONFIG_LOAD_4MB
 	bool "Load 4 MB into start of SDRAM"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	help
 	  Use this mode to load an embedded application
 	  which can have a size of up to 4 MByte
 
 config CONFIG_LOAD_64KB
 	bool "Load 64 kB into the start of SDRAM"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	help
 	  Use this mode to load an embedded application
 	  which can have max 64 kB Size
@@ -124,41 +129,36 @@ menu "Linux Image Storage Setup"
 
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
-	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x70000000" if AT91SAM9G45
 	default "0x20000000"
 	
 config CONFIG_MEM_SIZE
-	string "Extern Memory Bank Size"
-	default "0x20000000" if CONFIG_SAMA5D3XEK
-	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
-	default "0x4000000"
+	string "Extern Memory Bank Size (if enabled)"
+	default "0x2000000" if CONFIG_RAM_32MB
+	default "0x4000000" if CONFIG_RAM_64MB
+	default "0x8000000" if CONFIG_RAM_128MB
+	default "0x10000000" if CONFIG_RAM_256MB
+	default "0x20000000" if CONFIG_RAM_512MB
 	
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "Linux kernel parameters"
-	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9260EK && !CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9261EK && !CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9263EK && !CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9RLEK && !CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9XEEK && !CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9G10EK && !CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9G20EK && !CONFIG_SDCARD
-	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_AT91SAM9X5EK && !CONFIG_SDCARD
-	default "mem=128M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_AT91SAM9N12EK && !CONFIG_SDCARD
-	default "mem=512M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs) rw rootfstype=ubifs ubi.mtd=1 root=ubi0:rootfs" if CONFIG_SAMA5D3XEK && !CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 mtdparts=atmel_nand:8M(bootstrap/kernel),60M(rootfs),-(spare) root=/dev/mtdblock1 rw rootfstype=jffs2" if CONFIG_AT91SAM9M10G45EK && !CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9RLEK && CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9G10EK && CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9261EK && CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9G20EK && CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9263EK && CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9XEEK && CONFIG_SDCARD
-	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9X5EK && CONFIG_SDCARD
-	default "mem=128M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9N12EK && CONFIG_SDCARD
-	default "mem=512M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_SAMA5D3XEK && CONFIG_SDCARD
-	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rootdelay=2" if CONFIG_AT91SAM9M10G45EK && CONFIG_SDCARD
+source "board/at91sam9261ek/Config.in.linux_arg"
+source "board/at91sam9263ek/Config.in.linux_arg"
+source "board/at91sam9g10ek/Config.in.linux_arg"
+source "board/at91sam9g20ek/Config.in.linux_arg"
+source "board/at91sam9rlek/Config.in.linux_arg"
+source "board/at91sam9xeek/Config.in.linux_arg"
+source "board/at91sam9m10g45ek/Config.in.linux_arg"
+source "board/at91sam9x5ek/Config.in.linux_arg"
+source "board/at91sam9n12ek/Config.in.linux_arg"
+source "board/sama5d3xek/Config.in.linux_arg"
+source "board/sama5d3_xplained/Config.in.linux_arg"
+source "board/sama5d3x_cmp/Config.in.linux_arg"
+source "board/sama5d4ek/Config.in.linux_arg"
+source "board/sama5d4_xplained/Config.in.linux_arg"
 
 config CONFIG_IMG_ADDRESS
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	string "Flash Offset for Linux Kernel Image"
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00042000" if CONFIG_DATAFLASH
@@ -168,7 +168,7 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
-	default "0x72000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x72000000" if AT91SAM9G45
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -179,7 +179,7 @@ config CONFIG_OF_LIBFDT
 
 config CONFIG_OF_OFFSET
 	string "The Offset of Flash Device Tree Blob "
-	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
+	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH)
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00180000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
@@ -187,7 +187,7 @@ config CONFIG_OF_OFFSET
 config CONFIG_OF_ADDRESS
 	string "The External Ram Address to Load Device Tree Blob"
 	depends on CONFIG_OF_LIBFDT
-	default "0x71000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x71000000" if AT91SAM9G45
 	default "0x21000000"
 	help
 
@@ -201,22 +201,23 @@ menu "Android Image Storage Setup"
 
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
-	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x70000000" if AT91SAM9G45
 	default "0x20000000"
 
 config CONFIG_MEM_SIZE
 	string "Extern Memory Bank Size"
-	default "0x20000000" if CONFIG_SAMA5D3XEK
-	default "0x8000000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK
-	default "0x4000000"
+	default "0x2000000" if CONFIG_RAM_32MB
+	default "0x4000000" if CONFIG_RAM_64MB
+	default "0x8000000" if CONFIG_RAM_128MB
+	default "0x10000000" if CONFIG_RAM_256MB
+	default "0x20000000" if CONFIG_RAM_512MB
 
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	string "android kernel command line"
-	default "console=ttyS0,115200 mtdparts=atmel_nand:5M(Bootstrap),125M(system),-(userdata) ubi.mtd=1 ubi.mtd=2 rw root=ubi0:system rootfstype=ubifs init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_SAMA5D3XEK && !CONFIG_SDCARD
-	default "console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait init=/init androidboot.hardware=sama5d3x-ek androidboot.console=ttyS0" if CONFIG_SAMA5D3XEK && CONFIG_SDCARD
+source "board/sama5d3xek/Config.in.android_arg"
 
 config CONFIG_IMG_ADDRESS
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	string "Flash Offset for Linux Kernel Image"
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00042000" if CONFIG_DATAFLASH
@@ -226,7 +227,7 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
-	default "0x72000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x72000000" if AT91SAM9G45
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -237,7 +238,7 @@ config CONFIG_OF_LIBFDT
 
 config CONFIG_OF_OFFSET
 	string "The Offset of Flash Device Tree Blob "
-	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_NANDFLASH)
+	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH)
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00180000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
@@ -245,7 +246,7 @@ config CONFIG_OF_OFFSET
 config CONFIG_OF_ADDRESS
 	string "The External Ram Address to Load Device Tree Blob"
 	depends on CONFIG_OF_LIBFDT
-	default "0x71000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x71000000" if AT91SAM9G45
 	default "0x21000000"
 	help
 
@@ -259,7 +260,7 @@ menu "U-Boot Image Storage Setup"
 
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for U-Boot"
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	default "0x00008000" if CONFIG_FLASH
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH
@@ -268,16 +269,16 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_IMG_SIZE
 	string "U-Boot Image Size"
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	default	"0x00080000"
 	help
 	  at91bootstrap will copy this size of U-Boot image
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load U-Boot Image"
-	default "0x73F00000" if CONFIG_AT91SAM9M10G45EK
-	default "0x26F00000" if CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK || CONFIG_SAMA5D3XEK
-	default "0x21F00000" if CONFIG_AT91SAM9260EK || CONFIG_AT91SAM9261EK || CONFIG_AT91SAM9263EK || CONFIG_AT91SAM9G10EK || CONFIG_AT91SAM9G20EK || CONFIG_AT91SAM9RLEK
+	default "0x73F00000" if AT91SAM9G45
+	default "0x26F00000" if AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X  || SAMA5D4
+	default "0x21F00000" if AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || AT91SAM9G20 || AT91SAM9RL
 	default "0x23F00000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -292,14 +293,14 @@ menu "Demo Application Image Storage Setup"
 
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for Demo-App"
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
+	default	"0x00000000" if CONFIG_SDCARD || CONFIG_SAMA5D31_BEEAVE
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
 
 config CONFIG_IMG_SIZE
 	string "Demo-App Image Size"
-	depends on CONFIG_DATAFLASH || CONFIG_NANDFLASH
+	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	default	"0x00010000"	if CONFIG_LOAD_64KB
 	default	"0x00100000"	if CONFIG_LOAD_1MB
 	default	"0x00400000"	if CONFIG_LOAD_4MB
@@ -308,7 +309,7 @@ config CONFIG_IMG_SIZE
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Demo-App Image"
-	default "0x70000000" if CONFIG_AT91SAM9M10G45EK
+	default "0x70000000" if AT91SAM9G45
 	default "0x20000000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -321,15 +322,17 @@ config CONFIG_IMAGE_NAME
 	default "zImage" if CONFIG_LINUX_ZIMAGE
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
 	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
-	
+	help
+    the file loaded from the SDCARD as the third level bootloader.
 #
 # Application checked load support
 #
 menu "Application checked load support"
- depends on CONFIG_SAMA5D31_BEEAVE && (CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB)
+ depends on CONFIG_SAMA5D31_BEEAVE
  
 config CONFIG_CHECK_APPLICATION_LOAD
   bool "Validate application load"
+  depends on !CONFIG_UPLOAD_3RD_STAGE
   default false
   help
     The Application load will be validate with a special value existing at its starting point + 0x4 address. the value is defined in the application's startup code and must defined here too.
@@ -350,13 +353,11 @@ config CONFIG_CHECK_APPLICATION_VAL_ADDR_OFFSET
     
 endmenu
 
-
 config CONFIG_NO_CONSOLE_OUTPUT
   bool "NO DBGU console output"
   default n
   help
     "No log will be done to the DBGU console"
-
 config CONFIG_DEBUG
 	bool "Debug Support"
 	default n
@@ -381,6 +382,8 @@ config CONFIG_DEBUG_VERY_LOUD
 
 endchoice
 
+menu "LED debugging ..."
+depends on CONFIG_SAMA5D31_BEEAVE
 config CONFIG_BEEAVE_WITH_DEBUG_LEDS
   bool "DEBUG Leds are presents"
   depends on CONFIG_SAMA5D31_BEEAVE
@@ -399,6 +402,24 @@ config CONFIG_BEEAVE_DEBUG_LEDS_ON
   bool "ON (Green - Red - Green)"
 
 endchoice
+endmenu
+
+source "Config.in.secure"
+
+config CONFIG_THUMB
+	depends on !( SAMA5D3X || SAMA5D4)
+	bool "Build in thumb mode"
+  default n
+	help
+	  Build code in thumb mode
+
+config CONFIG_DISABLE_WATCHDOG
+	bool "Disable Watchdog"
+	default y
+	help
+	  Disable the watchdog in the boostrap
+
+menu "Hardware Initialization Options"
 
 config CONFIG_HW_INIT
 	bool "Call Hardware Initialization"
@@ -411,20 +432,280 @@ config CONFIG_USER_HW_INIT
 	help
 	  Initialize Hardware
 
-config CONFIG_THUMB
-	depends on !CONFIG_SAMA5D3XEK
-	bool "Build in thumb mode"
-	help
-	  Build code in thumb mode
+endmenu
 
-config CONFIG_SCLK	  
-	depends on CONFIG_AT91SAM9RLEK || CONFIG_AT91SAM9M10G45EK || CONFIG_AT91SAM9X5EK || CONFIG_AT91SAM9N12EK || CONFIG_SAMA5D3XEK
+menu "Slow Clock Configuration Options"
+	depends on AT91SAM9RL || AT91SAM9G45 || AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X || SAMA5D4
+
+config CONFIG_SCLK
 	bool "Use external 32KHZ oscillator as source of slow clock"
 	help
 	  Use external 32KHZ oscillator as source of slow clock
 
-config CONFIG_DISABLE_WATCHDOG
-	bool "Disable Watchdog"
+config CONFIG_SCLK_BYPASS
+	depends on CONFIG_SCLK
+	bool "Use external 32kHz clock as source of slow clock"
+	default n
+	help
+	  Use external 32kHz clock as source of slow clock
+
+endmenu
+
+menu "ARM TurstZone Options"
+	depends on CONFIG_TRUSTZONE
+
+config CONFIG_MATRIX
+	bool "Enable Configure the Matrix"
 	default y
 	help
-	  Disable the watchdog in the boostrap
+	  This interface let you to configure the MATRIX0(H64MX) and
+	  MATRIX1(H32MX) slave security  and to select the APB slave security startup.
+
+config CONFIG_ENTER_NWD
+	select CONFIG_MATRIX
+	bool "Enable Enter the Normal World before Jumping"
+	default y
+	help
+	  This interface let you to make the system to enter from the Secure World
+	  to the Non-Secure World before the jumping.
+
+config CONFIG_REDIRECT_ALL_INTS_AIC
+	bool "Redirect All Peripherals Interrupts to AIC"
+	default y
+	help
+	  This interface let you to redirect all peripherals interrupts to AIC,
+	  otherwise, the secure peripherals interrupts direct to SAIC, others to AIC.
+
+endmenu
+
+config CONFIG_PM
+	bool "Power Management Options"
+	depends on CONFIG_SUPPORT_PM
+	default y
+	help
+	  This interface let you select the external devices on the board to
+	  enter the power down mode at startup, such as Audio Codec(wm8904), HDMI(SiI9022ACUN)
+	  and ethernet PHY(KSZ8081RNB). Its purpose is to make sure the external devices
+	  which will not be touched in the kernel are set the proper power state.
+
+menu "Select the Devices to the Low-power mode"
+	depends on CONFIG_PM
+
+config CONFIG_MAC0_PHY
+	bool "MAC0 PHYs"
+	depends on CONFIG_HAS_EHT0_PHY
+	select CONFIG_MACB
+	default y
+	help
+	  This interface allow you to select the MAC0 PHY on the board
+	  which will be put into the Power-Down mode.
+
+config CONFIG_MAC1_PHY
+	bool "MAC1 PHYs"
+	depends on CONFIG_HAS_EHT1_PHY
+	select CONFIG_MACB
+	default y
+	help
+	  This interface allow you to select the MAC1 PHY on the board
+	  which will be put into the Power-Down mode.
+
+config CONFIG_HDMI
+	bool "HDMI (SiI9022)"
+	depends on CONFIG_HAS_HDMI
+	select CONFIG_TWI
+	default y
+	help
+	  This interface allow you to select the HDMI chip on the board
+	  which will be put into the Power-Down mode.
+
+choice
+	prompt "HDMI on TWI Select"
+	depends on CONFIG_HDMI && !CONFIG_AUTOCONFIG_TWI_BUS
+	default CONFIG_HDMI_ON_TWI0
+	help
+	  This interface allow you select which TWI bus for the HDMI to wire on.
+
+config	CONFIG_HDMI_ON_TWI0
+	bool "On TWI0"
+	depends on CPU_HAS_TWI0
+	select CONFIG_TWI0
+
+config	CONFIG_HDMI_ON_TWI1
+	bool "On TWI1"
+	depends on CPU_HAS_TWI1
+	select CONFIG_TWI1
+
+config	CONFIG_HDMI_ON_TWI2
+	bool "On TWI2"
+	depends on CPU_HAS_TWI2
+	select CONFIG_TWI2
+
+config	CONFIG_HDMI_ON_TWI3
+	bool "On TWI3"
+	depends on CPU_HAS_TWI3
+	select CONFIG_TWI3
+
+endchoice
+
+config CONFIG_WM8904
+	bool "Audio CODEC (wm8904)"
+	depends on CONFIG_HAS_AUDIO_CODEC
+	select CONFIG_TWI
+	default y
+	help
+	  This interface allow you to select the CODEC chip on the board
+	  which will be put into the Power-Down mode.
+
+choice
+	prompt "CODEC on TWI Select"
+	depends on CONFIG_WM8904 && !CONFIG_AUTOCONFIG_TWI_BUS
+	default CONFIG_CODEC_ON_TWI0
+	help
+	  This interface allow you select which TWI bus for the CODEC to wire on.
+
+config	CONFIG_CODEC_ON_TWI0
+	bool "On TWI0"
+	depends on CPU_HAS_TWI0
+	select CONFIG_TWI0
+
+config	CONFIG_CODEC_ON_TWI1
+	bool "On TWI1"
+	depends on CPU_HAS_TWI1
+	select CONFIG_TWI1
+
+config	CONFIG_CODEC_ON_TWI2
+	bool "On TWI2"
+	depends on CPU_HAS_TWI2
+	select CONFIG_TWI2
+
+config	CONFIG_CODEC_ON_TWI3
+	bool "On TWI3"
+	depends on CPU_HAS_TWI3
+	select CONFIG_TWI3
+
+endchoice
+
+config CONFIG_PM_PMIC
+	bool "PMIC (ACT8865)"
+	depends on CONFIG_HAS_PMIC_ACT8865
+	select CONFIG_ACT8865
+	default y
+	help
+	  This interface allow you to select the PMIC(ACT8865) chip on the board
+	  which will be set the Power-Saving mode.
+
+endmenu
+
+menu "Board's Workaround Options"
+	depends on CONFIG_HAS_PMIC_ACT8865
+
+config CONFIG_DISABLE_ACT8865_I2C
+	bool "Disable the ACT8865 I2C interface"
+	depends on CONFIG_HAS_PMIC_ACT8865
+	select CONFIG_ACT8865
+	default y
+	help
+	  This interface let you to disable the ACT8865's I2C interface.
+	  There are some issue about active-semi ACT8865's I2C interface,
+	  which affects the other chip which stands on the same I2C bus, such as MXT touchscreen.
+
+endmenu
+
+config CONFIG_ACT8865
+	bool "PMIC (ACT8865) Support"
+	depends on CONFIG_HAS_PMIC_ACT8865
+	select CONFIG_TWI
+	default n
+
+choice
+	prompt "PMIC (ACT8865) on TWI Select"
+	depends on CONFIG_ACT8865 && !CONFIG_AUTOCONFIG_TWI_BUS
+	default CONFIG_PMIC_ON_TWI0
+	help
+	  This interface allow you select which TWI bus for the PMIC to wire on.
+
+config	CONFIG_PMIC_ON_TWI0
+	bool "On TWI0"
+	depends on CPU_HAS_TWI0
+	select CONFIG_TWI0
+
+config	CONFIG_PMIC_ON_TWI1
+	bool "On TWI1"
+	depends on CPU_HAS_TWI1
+	select CONFIG_TWI1
+
+config	CONFIG_PMIC_ON_TWI2
+	bool "On TWI2"
+	depends on CPU_HAS_TWI2
+	select CONFIG_TWI2
+
+config	CONFIG_PMIC_ON_TWI3
+	bool "On TWI3"
+	depends on CPU_HAS_TWI2
+	select CONFIG_TWI3
+
+endchoice
+
+menu "Board Hardware Information Options"
+	depends on CONFIG_HAS_HW_INFO
+
+config CONFIG_LOAD_ONE_WIRE
+	bool "Load Information from 1-Wire"
+	depends on CONFIG_HAS_ONE_WIRE
+	select CONFIG_LOAD_HW_INFO
+	default y
+	help
+	  This interface allow you to select hardware information from 1-Wire chips.
+
+config CONFIG_LOAD_EEPROM
+	bool "Load Information from EEPROM"
+	depends on CONFIG_HAS_EEPROM
+	select CONFIG_TWI
+	select CONFIG_LOAD_HW_INFO
+	default y
+	help
+	  This interface allow you to select hardware information from EEPROM chips.
+
+choice
+	prompt "EEPROM on TWI Select"
+	depends on CONFIG_LOAD_EEPROM && !CONFIG_AUTOCONFIG_TWI_BUS
+	default CONFIG_EEPROM_ON_TWI0
+	help
+	  This interface allow you select which TWI bus for the EEPROM to wire on.
+
+config	CONFIG_EEPROM_ON_TWI0
+	bool "On TWI0"
+	depends on CPU_HAS_TWI0
+	select CONFIG_TWI0
+
+config	CONFIG_EEPROM_ON_TWI1
+	bool "On TWI1"
+	depends on CPU_HAS_TWI1
+	select CONFIG_TWI1
+
+config	CONFIG_EEPROM_ON_TWI2
+	bool "On TWI2"
+	depends on CPU_HAS_TWI2
+	select CONFIG_TWI2
+
+config	CONFIG_EEPROM_ON_TWI3
+	bool "On TWI3"
+	depends on CPU_HAS_TWI3
+	select CONFIG_TWI3
+
+endchoice
+
+endmenu
+
+config CONFIG_AUTOCONFIG_TWI_BUS
+	bool "Auto Configure TWI Bus by Board"
+	depends on CONFIG_TWI
+	select CONFIG_TWI0 if CPU_HAS_TWI0
+	select CONFIG_TWI1 if CPU_HAS_TWI1
+	select CONFIG_TWI2 if CPU_HAS_TWI2
+	select CONFIG_TWI3 if CPU_HAS_TWI3
+	default y
+	help
+	  This interface allow the board determines  which TWI bus that
+	  the HDMI, Audio CODEC(wm8904), PMIC(ACT8865) is wired on,
+	  select automatically, no menuconfig selecting to need.

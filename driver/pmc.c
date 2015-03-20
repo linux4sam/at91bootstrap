@@ -26,7 +26,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
+#include "timer.h"
 #include "arch/at91_pmc.h"
+#include "rstc.h"
 
 static inline void write_pmc(unsigned int offset, const unsigned int value)
 {
@@ -43,7 +45,15 @@ void lowlevel_clock_init()
 	unsigned long tmp;
 	unsigned int times;
 
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X)
+#if defined(CONFIG_SAMA5D3X_CMP)
+	/*
+	 * On the sama5d3x_cmp board, a phy is not in the proper reset state
+	 * after power-up, additional reset
+	 */
+	rstc_external_reset();
+#endif
+
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || defined(SAMA5D4)
 	/*
 	 * Enable the 12MHz oscillator
 	 * tST_max = 2ms
@@ -78,12 +88,14 @@ void lowlevel_clock_init()
 	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCSELS)))
 		;
 
+#if !defined(SAMA5D4)
 	/* Disable the 12MHz RC oscillator */
 	tmp = read_pmc(PMC_MOR);
 	tmp &= (~AT91C_CKGR_MOSCRCEN);
 	tmp &= (~AT91C_CKGR_KEY);
 	tmp |= AT91C_CKGR_PASSWD;
 	write_pmc(PMC_MOR, tmp);
+#endif
 
 #else
 	/*
@@ -158,6 +170,44 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	unsigned int tmp;
 	unsigned int times;
 
+#if defined(SAMA5D4)
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_CSS);
+	tmp |= (pmc_mckr & AT91C_PMC_CSS);
+	write_pmc(PMC_MCKR, tmp);
+
+	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_MDIV);
+	tmp |= (pmc_mckr & AT91C_PMC_MDIV);
+	write_pmc(PMC_MCKR, tmp);
+
+	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_PLLADIV2);
+	tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
+	write_pmc(PMC_MCKR, tmp);
+
+	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_PRES);
+	tmp |= (pmc_mckr & AT91C_PMC_PRES);
+	write_pmc(PMC_MCKR, tmp);
+
+	times = timeout;
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
+#else
 	/*
 	 * Program the PRES field in the PMC_MCKR register,
 	 * wait for MCKRDY bit to be set in the PMC_SR register
@@ -215,6 +265,23 @@ int pmc_cfg_mck(unsigned int pmc_mckr, unsigned int timeout)
 	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
 		;
 
+#endif
+	return 0;
+}
+
+int pmc_cfg_h32mxdiv(unsigned int pmc_mckr, unsigned int timeout)
+{
+	unsigned int tmp;
+	unsigned int times = timeout;
+
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_H32MXDIV);
+	tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
+	write_pmc(PMC_MCKR, tmp);
+
+	while ((times--) && (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)))
+		;
+
 	return 0;
 }
 
@@ -247,6 +314,20 @@ int pmc_enable_periph_clock(unsigned int periph_id)
 	return 0;
 }
 
+int pmc_disable_periph_clock(unsigned int periph_id)
+{
+	unsigned int mask = 0x01 << (periph_id % 32);
+
+	if ((periph_id / 32) == 1)
+		write_pmc(PMC_PCDR1, mask);
+	else if ((periph_id / 32) == 0)
+		write_pmc(PMC_PCDR, mask);
+	else
+		return -1;
+
+	return 0;
+}
+
 void pmc_enable_system_clock(unsigned int clock_id)
 {
 	 write_pmc(PMC_SCER, clock_id);
@@ -256,5 +337,134 @@ void pmc_enable_system_clock(unsigned int clock_id)
 void pmc_disable_system_clock(unsigned int clock_id)
 {
 	 write_pmc(PMC_SCDR, clock_id);
-   while ((read_pmc(PMC_SCSR) & clock_id) == 1);
+};
+
+void pmc_set_smd_clock_divider(unsigned int divider)
+{
+	unsigned int tmp = read_pmc(PMC_SMD);
+
+	tmp &= ~AT91C_PMC_SMDDIV;
+	tmp |= AT91C_PMC_SMDDIV_(divider);
+
+	write_pmc(PMC_SMD, tmp);
 }
+
+#if defined(CONFIG_ENTER_NWD)
+unsigned int pmc_read_reg(unsigned int reg_offset)
+{
+	if (reg_offset <= PMC_OCR)
+		return read_pmc(reg_offset);
+	else
+		return 0xffffffff;
+}
+
+void pmc_enable_clock(unsigned int per_id)
+{
+	unsigned long regval;
+
+	regval = AT91C_PMC_CMD | AT91C_PMC_EN;
+	regval |= (per_id & AT91C_PMC_PID);
+
+	/* No need to use Peripheral Divisor value
+	 * peripherals are supposed to work @ 90MHz
+	 */
+	write_pmc(PMC_PCR, regval);
+}
+
+void pmc_disable_clock(unsigned int per_id)
+{
+	unsigned long regval;
+
+	regval = AT91C_PMC_CMD;
+	regval |= (per_id & AT91C_PMC_PID);
+	write_pmc(PMC_PCR, regval);
+}
+
+int pmc_periph_clk(unsigned int periph_id, unsigned int is_on)
+{
+	if ((periph_id > AT91C_ID_FIQ) && (periph_id < AT91C_ID_COUNTS)) {
+		if (is_on)
+			pmc_enable_clock(periph_id);
+		else
+			pmc_disable_clock(periph_id);
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
+unsigned int sys_mask_to_per_id(unsigned int sys_mask)
+{
+	switch (sys_mask) {
+	case AT91C_PMC_LCDCK:
+		return AT91C_ID_LCDC;
+	case AT91C_PMC_SMDCK:
+		return AT91C_ID_SMD;
+	case AT91C_PMC_UHP:
+		return AT91C_ID_UHPHS;
+	case AT91C_PMC_UDP:
+		return AT91C_ID_UDPHS;
+	}
+
+	return 0xffffffff;
+}
+
+int pmc_sys_clk(unsigned int sys_clock_mask, unsigned int is_on)
+{
+	if (sys_clock_mask & AVAILABLE_SYS_CLK) {
+		if (is_on)
+			write_pmc(PMC_SCER, sys_clock_mask);
+		else
+			write_pmc(PMC_SCDR, sys_clock_mask);
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
+void pmc_pck_setup(unsigned int reg_offset, unsigned int reg_value)
+{
+	write_pmc(reg_offset, reg_value);
+}
+
+int pmc_uckr_clk(unsigned int is_on)
+{
+	unsigned int uckr = read_pmc(PMC_UCKR);
+	unsigned int sr;
+
+	if (is_on) {
+		uckr |= (AT91C_CKGR_UPLLCOUNT_DEFAULT | AT91C_CKGR_UPLLEN_ENABLED);
+		sr = AT91C_PMC_LOCKU;
+	} else {
+		uckr &= ~AT91C_CKGR_UPLLEN_ENABLED;
+		sr = 0;
+	}
+
+	write_pmc(PMC_UCKR, uckr);
+
+	do {
+		udelay(1);
+	} while ((read_pmc(PMC_SR) & AT91C_PMC_LOCKU) != sr);
+
+	return 0;
+}
+
+unsigned int pmc_usb_setup(void)
+{
+	unsigned int usbr = AT91C_PMC_USBS_USB_UPLL;
+
+	/* Setup divider by 10 to reach 48 MHz */
+	usbr |= ((10 - 1) << 8) & AT91C_PMC_USBDIV;
+
+	write_pmc(PMC_USB, usbr);
+
+	return usbr;
+}
+
+void pmc_smd_setup(unsigned int val)
+{
+	val &= (AT91C_PMC_SMDS | AT91C_PMC_SMDDIV);
+
+	write_pmc(PMC_SMD, val);
+}
+#endif	/* #if defined(CONFIG_ENTER_NWD) */

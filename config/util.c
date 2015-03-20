@@ -136,7 +136,6 @@ static int write_make_deps(const char *name)
     rename(name_tmp, name);
     printf(_("#\n"
              "# make dependencies written to %s\n"
-             "# ATTENTION at91bootstrap devels!\n"
              "# See top of this file before playing with this auto-preprequisites!\n"
              "#\n"), name);
     return 0;

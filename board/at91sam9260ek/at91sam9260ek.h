@@ -80,12 +80,4 @@
 #define CONFIG_SYS_RECOVERY_BUTTON_PIN  AT91C_PIN_PA(31)
 #define RECOVERY_BUTTON_NAME            "BP4"
 
-/* function */
-extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
-extern void nandflash_config_buswidth(unsigned char busw);
-
-extern void at91_spi0_hw_init(void);
-
 #endif /* __AT91SAM9260EK_H__ */

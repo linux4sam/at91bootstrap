@@ -1,0 +1,34 @@
+menu "External RAM test"
+
+choice
+  prompt "Test run :"
+  
+  config CONFIG_EXTERNAL_RAM_TEST_SINGLE
+  bool "Single Pass"
+  help
+    Do a single pass at startup
+    
+  config CONFIG_EXTERNAL_RAM_TEST_INFINITE
+  bool "Test Loop and NOTHING ELSE"
+  help
+    keep testing ...
+    
+endchoice
+
+choice 
+  prompt "Memory access type on test"
+  default CONFIG_EXTERNAL_RAM_TEST_WITH_BURST
+  
+config CONFIG_EXTERNAL_RAM_TEST_WITH_BURST
+  bool "Burst access"
+  depends on CONFIG_WITH_CACHE && CONFIG_WITH_MMU
+  help
+    Use memory burst access (needs he MMU/CACHE)
+
+config CONFIG_EXTERNAL_RAM_TEST_WITHOUT_BURST
+  bool "Slow access"
+  help
+    Use memory slow access (Do not need the MMU/CACHE).
+endchoice
+
+endmenu

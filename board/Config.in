@@ -2,296 +2,154 @@ config	HAVE_DOT_CONFIG
 	bool
 	default y
 
-config CONFIG_BOARDNAME
-	string "Board Name"
-	default "at91sam9260ek"
-	help
-	  Name of the target
-
 choice
 	prompt "Board Type"
 	default	CONFIG_AT91SAM9260EK
 	help
 	  Select which board you want to build for
 
-config	CONFIG_AT91SAM9260EK
-	bool "at91sam9260ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select DATAFLASHCARD_ON_CS0
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS1
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9260EK Development board
-
-config	CONFIG_AT91SAM9261EK
-	bool "at91sam9261ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CPU_CLK_266MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS3
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9261EK Development board
-
-config	CONFIG_AT91SAM9263EK
-	bool "at91sam9263ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD	
-	select ALLOW_PSRAM
-	select ALLOW_SDRAM_16BIT
-	select DATAFLASHCARD_ON_CS0
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CPU_CLK_240MHZ
-	select ALLOW_CRYSTAL_16_36766MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9263EK Development board
-
-config	CONFIG_AT91SAM9RLEK
-	bool "at91sam9rlek"
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select CONFIG_SDRAM
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CPU_CLK_266MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9RLEK Development board
-
-config	CONFIG_AT91SAM9XEEK
-	bool "at91sam9xeek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select DATAFLASHCARD_ON_CS0
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS1
-	help
-	  Use the AT91SAM9XEEK Development board
-
-config	CONFIG_AT91SAM9G10EK
-	bool "at91sam9g10ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_CPU_CLK_200MHZ
-	select ALLOW_CPU_CLK_266MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS3
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9G10EK Development board
-
-config	CONFIG_AT91SAM9G20EK
-	bool "at91sam9g20ek"
-	select CONFIG_SDRAM
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_CPU_CLK_400MHZ
-	select ALLOW_CRYSTAL_18_432MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_BOOT_FROM_DATAFLASH_CS1
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9G20EK Development board
-
-config	CONFIG_AT91SAM9M10G45EK
-	bool "at91sam9m10g45ek"
-	select CONFIG_DDR2
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_HSMCI
-	select ALLOW_CPU_CLK_400MHZ
-	select ALLOW_CRYSTAL_12_000MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	help
-	  Use the AT91SAM9M10G45EK Development board
-	  Can also be used for AT91SAM9G45/AT91SAM9M10 family
-
-config	CONFIG_AT91SAM9X5EK
-	bool "at91sam9x5ek"
-	select CONFIG_DDR2
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_HSMCI
-	select ALLOW_CPU_CLK_400MHZ
-	select ALLOW_CRYSTAL_12_000MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	select ALLOW_PIO3
-	select CPU_HAS_PMECC
-	select CONFIG_LOAD_ONE_WIRE
-	help
-	  Use the AT91SAM9X5EK Development board
-
-config	CONFIG_AT91SAM9N12EK
-	bool "at91sam9n12ek"
-	select CONFIG_DDR2
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_HSMCI
-	select ALLOW_CPU_CLK_400MHZ
-	select ALLOW_CRYSTAL_12_000MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_DATAFLASH_RECOVERY
-	select ALLOW_NANDFLASH_RECOVERY
-	select ALLOW_PIO3
-	select CPU_HAS_PMECC
-	help
-	  Use the AT91SAM9N12EK Development board
-
-config CONFIG_SAMA5D3XEK
-	bool "sama5d3xek"
-	select CONFIG_DDR2
-	select ALLOW_DATAFLASH
-	select ALLOW_NANDFLASH
-	select ALLOW_SDCARD
-	select ALLOW_HSMCI
-	select ALLOW_CPU_CLK_266MHZ
-	select ALLOW_CPU_CLK_332MHZ
-	select ALLOW_CPU_CLK_396MHZ
-	select ALLOW_CPU_CLK_498MHZ
-	select ALLOW_CPU_CLK_528MHZ
-	select ALLOW_CRYSTAL_12_000MHZ
-	select ALLOW_BOOT_FROM_DATAFLASH_CS0
-	select ALLOW_PIO3
-	select CPU_HAS_PMECC
-	select CONFIG_LOAD_ONE_WIRE
-	select CONFIG_MMC_SUPPORT
-	select ALLOW_WITH_MMU
-	select ALLOW_WITH_CACHE
-	help
-	  Use the SAMA5D3EK Development board
-	  
-config CONFIG_SAMA5D31_BEEAVE
-  bool "BeeAVE Board"
-  select ALLOW_LPDDR1
-  select ALLOW_DATAFLASH
-  select ALLOW_CPU_CLK_498MHZ
-  select ALLOW_CRYSTAL_12_000MHZ
-  select ALLOW_BOOT_FROM_DATAFLASH_CS0
-  select ALLOW_PIO3
-  select CPU_HAS_PMECC
-  select ALLOW_WITH_MMU
-  select ALLOW_WITH_CACHE
-  select CONFIG_HW_INIT
-  select CONFIG_USER_HW_INIT
-  help
-    Use the BEE-AVE module board
-
-
+source "board/at91sam9260ek/Config.in.board"
+source "board/at91sam9261ek/Config.in.board"
+source "board/at91sam9263ek/Config.in.board"
+source "board/at91sam9rlek/Config.in.board"
+source "board/at91sam9xeek/Config.in.board"
+source "board/at91sam9g10ek/Config.in.board"
+source "board/at91sam9g20ek/Config.in.board"
+source "board/at91sam9m10g45ek/Config.in.board"
+source "board/at91sam9x5ek/Config.in.board"
+source "board/at91sam9n12ek/Config.in.board"
+source "board/sama5d3xek/Config.in.board"
+source "board/sama5d3_xplained/Config.in.board"
+source "board/sama5d3x_cmp/Config.in.board"
+source "board/sama5d4ek/Config.in.board"
+source "board/sama5d4_xplained/Config.in.board"
+source "board/sama5d31_beeave/Config.in.board"
 endchoice
 
-config CONFIG_CHIP
+config CONFIG_BOARDNAME
 	string
-	default "AT91SAM9260"	if CONFIG_AT91SAM9260EK
-	default "AT91SAM9261"	if CONFIG_AT91SAM9261EK
-	default "AT91SAM9263"	if CONFIG_AT91SAM9263EK
-	default "AT91SAM9RL"	if CONFIG_AT91SAM9RLEK
-	default "AT91SAM9XE"	if CONFIG_AT91SAM9XEEK
-	default "AT91SAM9G10"	if CONFIG_AT91SAM9G10EK
-	default "AT91SAM9G20"	if CONFIG_AT91SAM9G20EK
-	default "AT91SAM9G45"	if CONFIG_AT91SAM9M10G45EK
-	default "AT91SAM9X5"	if CONFIG_AT91SAM9X5EK
-	default "AT91SAM9N12"	if CONFIG_AT91SAM9N12EK
-	default "SAMA5D3X"	if CONFIG_SAMA5D3XEK || CONFIG_SAMA5D31_BEEAVE
-	help
-	  Name of the chip , The chip must be available.
-
-config CONFIG_BOARD
-	string
+	default "at91sam9rlek"	if CONFIG_AT91SAM9RLEK
 	default "at91sam9260ek"	if CONFIG_AT91SAM9260EK
 	default "at91sam9261ek"	if CONFIG_AT91SAM9261EK
 	default "at91sam9263ek"	if CONFIG_AT91SAM9263EK
-	default "at91sam9rlek"	if CONFIG_AT91SAM9RLEK
 	default "at91sam9xeek"	if CONFIG_AT91SAM9XEEK
 	default "at91sam9g10ek"	if CONFIG_AT91SAM9G10EK
 	default "at91sam9g20ek"	if CONFIG_AT91SAM9G20EK
-	default "at91sam9x5ek"	if CONFIG_AT91SAM9X5EK
+	default "at91sam9m10g45ek" if CONFIG_AT91SAM9M10G45EK
 	default "at91sam9n12ek"	if CONFIG_AT91SAM9N12EK
-	default "at91sam9m10g45ek"	if CONFIG_AT91SAM9M10G45EK
-	default "sama5d3xek"	if CONFIG_SAMA5D3XEK
-	default "beeave" if CONFIG_SAMA5D31_BEEAVE
-	help
-	  Name of the board, A Board Support package
-	  (BSP) must be available.
+	default "at91sam9x5ek"	if CONFIG_AT91SAM9X5EK
+	default "sama5d3_xplained" if CONFIG_SAMA5D3_XPLAINED
+	default "sama5d3xek" if CONFIG_SAMA5D3XEK
+	default "sama5d3x_cmp" if CONFIG_SAMA5D3X_CMP
+	default "sama5d4_xplained" if CONFIG_SAMA5D4_XPLAINED
+	default "sama5d4ek" if CONFIG_SAMA5D4EK
+	default "sama5d31_beeave" if CONFIG_SAMA5D31_BEEAVE
+
+config AT91SAM9260
+	select CPU_HAS_TWI0
+	bool
+
+config AT91SAM9261
+	select CPU_HAS_TWI0
+	bool
+
+config AT91SAM9263
+	select CPU_HAS_TWI0
+	bool
+
+config AT91SAM9RL
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	bool
+
+config AT91SAM9XE
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	bool
+
+config AT91SAM9G10
+	select CPU_HAS_TWI0
+	bool
+
+config AT91SAM9G20
+	select CPU_HAS_TWI0
+	bool
+
+config AT91SAM9G45
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	bool
+	  
+config AT91SAM9X5
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_TWI2
+	bool
+
+config AT91SAM9N12
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	bool
+
+config SAMA5D3X
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_TWI2
+	select CPU_HAS_AES
+	bool
+
+config SAMA5D4
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_TWI2
+	select CPU_HAS_TWI3
+	select CPU_HAS_AES
+	bool
 
 config CONFIG_MACH_TYPE
 	string
-	default "1099"	if CONFIG_AT91SAM9260EK
-	default "0x350"	if CONFIG_AT91SAM9261EK
-	default "0x4B2"	if CONFIG_AT91SAM9263EK	
-	default "1326"	if CONFIG_AT91SAM9RLEK
-	default "0x44B"	if CONFIG_AT91SAM9XEEK
-	default "0x86F"	if CONFIG_AT91SAM9G10EK		
-	default "0x658"	if CONFIG_AT91SAM9G20EK
-	default "1830"	if CONFIG_AT91SAM9M10G45EK	# 1830
-	default "3373"	if CONFIG_AT91SAM9X5EK		# 3373
-	default "9999"	if CONFIG_AT91SAM9N12EK
-	default "9999"	if CONFIG_SAMA5D3XEK || CONFIG_SAMA5D31_BEEAVE
+	default "1099"	if AT91SAM9260
+	default "0x350"	if AT91SAM9261
+	default "0x4B2"	if AT91SAM9263
+	default "1326"	if AT91SAM9RL
+	default "0x44B"	if AT91SAM9XE
+	default "0x86F"	if AT91SAM9G10
+	default "0x658"	if AT91SAM9G20
+	default "1830"	if AT91SAM9G45
+	default "3373"	if AT91SAM9X5
+	default "9999"	if AT91SAM9N12
+	default "9999"	if SAMA5D3X
+	default "9999"	if SAMA5D4
 	help
-	 Machine type value (only for uBoot -> Linux/Android) run.
 
 config CONFIG_LINK_ADDR
 	string
-	default "0x000000" if CONFIG_BUILD_RELEASE
-	default "0x200000" if CONFIG_BUILD_DEBUG && (CONFIG_AT91SAM9260EK || CONFIG_AT91SAM9G20EK)
-	default "0x300000" if CONFIG_BUILD_DEBUG && (!(CONFIG_AT91SAM9260EK && CONFIG_AT91SAM9G20EK))
+  default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4
+  default "0x300000" if !(AT91SAM9260 && AT91SAM9G20)
 	help
     This set the link address accordingly with the way the software is set in RAM.
     
 config CONFIG_DATA_SECTION_ADDR
 	string
-	default "0x304000" if CONFIG_AT91SAM9XEEK
+	default "0x304000" if AT91SAM9XE
 	help
 
 config CONFIG_TOP_OF_MEMORY
-       string
-	default "0x301000"	if CONFIG_AT91SAM9260EK
-	default "0x328000"	if CONFIG_AT91SAM9261EK
-	default "0x314000"	if CONFIG_AT91SAM9263EK	
-	default "0x310000"	if CONFIG_AT91SAM9RLEK
-	default "0x306000"	if CONFIG_AT91SAM9XEEK
-	default "0x304000"	if CONFIG_AT91SAM9G10EK
-	default "0x304000"	if CONFIG_AT91SAM9G20EK
-	default "0x30A000"	if CONFIG_AT91SAM9M10G45EK
-	default "0x308000"	if CONFIG_AT91SAM9X5EK
-	default "0x308000"	if CONFIG_AT91SAM9N12EK
-	default "0x310000"	if CONFIG_SAMA5D3XEK || CONFIG_SAMA5D31_BEEAVE
+	string
+	default "0x301000"	if AT91SAM9260
+	default "0x328000"	if AT91SAM9261
+	default "0x314000"	if AT91SAM9263
+	default "0x310000"	if AT91SAM9RL
+	default "0x306000"	if AT91SAM9XE
+	default "0x304000"	if AT91SAM9G10
+	default "0x304000"	if AT91SAM9G20
+	default "0x30A000"	if AT91SAM9G45
+	default "0x308000"	if AT91SAM9X5
+	default "0x308000"	if AT91SAM9N12
+	default "0x310000"	if SAMA5D3X
+	default "0x210000"	if SAMA5D4
 	help
+	    The top address of internal SRAM
 
 choice
 	prompt "Crystal Frequency"
@@ -304,7 +162,7 @@ config CONFIG_CRYSTAL_12_000MHZ
 	depends on ALLOW_CRYSTAL_12_000MHZ
 
 config CONFIG_CRYSTAL_16_000MHZ
-	bool "Build for use of an 16.000 MHz crystal (not yet supported)"
+	bool "Build for use of an 16.000 MHz crystal"
 	depends on ALLOW_CRYSTAL_16_000MHZ
 
 config CONFIG_CRYSTAL_16_36766MHZ
@@ -378,9 +236,17 @@ config	CONFIG_CPU_CLK_400MHZ
 	bool "400 MHz"
 	depends on ALLOW_CPU_CLK_400MHZ
 
+config	CONFIG_CPU_CLK_444MHZ
+	bool "444 MHz"
+	depends on ALLOW_CPU_CLK_444MHZ
+
 config CONFIG_CPU_CLK_498MHZ
 	bool "498 MHz"
 	depends on ALLOW_CPU_CLK_498MHZ
+
+config CONFIG_CPU_CLK_510MHZ
+	bool "510 MHz"
+	depends on ALLOW_CPU_CLK_510MHZ
 
 config CONFIG_CPU_CLK_528MHZ
 	bool "528 MHz"
@@ -412,7 +278,13 @@ config	ALLOW_CPU_CLK_396MHZ
 config	ALLOW_CPU_CLK_400MHZ
 	bool
 
+config	ALLOW_CPU_CLK_444MHZ
+	bool
+
 config  ALLOW_CPU_CLK_498MHZ
+	bool
+
+config  ALLOW_CPU_CLK_510MHZ
 	bool
 
 config  ALLOW_CPU_CLK_528MHZ
@@ -432,22 +304,98 @@ choice
 
 config CONFIG_BUS_SPEED_83MHZ
 	bool "83 MHz"
-	depends on CONFIG_CPU_CLK_166MHZ
+	depends on SUPPORT_BUS_SPEED_83MHZ && CONFIG_CPU_CLK_166MHZ
 
 config CONFIG_BUS_SPEED_90MHZ
 	bool "90 MHz"
-	depends on ALLOW_CPU_CLK_180MHZ
+	depends on SUPPORT_BUS_SPEED_90MHZ && CONFIG_CPU_CLK_180MHZ
 
 config CONFIG_BUS_SPEED_100MHZ
 	bool "100 MHz"
-	depends on CONFIG_CPU_CLK_200MHZ || CONFIG_CPU_CLK_400MHZ
+	depends on SUPPORT_BUS_SPEED_100MHZ && (CONFIG_CPU_CLK_200MHZ || CONFIG_CPU_CLK_400MHZ)
 
 config CONFIG_BUS_SPEED_133MHZ
 	bool "133 MHz"
-	depends on CONFIG_CPU_CLK_528MHZ || CONFIG_CPU_CLK_400MHZ || CONFIG_CPU_CLK_396MHZ || CONFIG_CPU_CLK_266MHZ
+	depends on SUPPORT_BUS_SPEED_133MHZ && (CONFIG_CPU_CLK_528MHZ || CONFIG_CPU_CLK_400MHZ || CONFIG_CPU_CLK_396MHZ || CONFIG_CPU_CLK_266MHZ)
+
+config CONFIG_BUS_SPEED_148MHZ
+	bool "148 MHz"
+	depends on SUPPORT_BUS_SPEED_148MHZ && CONFIG_CPU_CLK_444MHZ
 
 config CONFIG_BUS_SPEED_166MHZ
 	bool "166 MHz"
-	depends on CONFIG_CPU_CLK_498MHZ || CONFIG_CPU_CLK_332MHZ
+	depends on SUPPORT_BUS_SPEED_166MHZ && (CONFIG_CPU_CLK_498MHZ || CONFIG_CPU_CLK_332MHZ)
+
+config CONFIG_BUS_SPEED_170MHZ
+	bool "170 MHz"
+	depends on SUPPORT_BUS_SPEED_170MHZ && CONFIG_CPU_CLK_510MHZ
+
+config CONFIG_BUS_SPEED_176MHZ
+	bool "176 MHz"
+	depends on SUPPORT_BUS_SPEED_176MHZ && CONFIG_CPU_CLK_528MHZ
 
 endchoice
+
+config SUPPORT_BUS_SPEED_83MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_90MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_100MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_133MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_148MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_166MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_170MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_176MHZ
+	bool
+
+config CONFIG_TRUSTZONE
+	bool
+	default n
+
+config CONFIG_CPU_V7
+	bool
+	default n
+
+config CONFIG_HAS_PMIC_ACT8865
+	bool
+	default n
+
+config CONFIG_SUPPORT_PM
+	bool
+	default n
+
+config CONFIG_HAS_ONE_WIRE
+	bool
+	default n
+
+config CONFIG_HAS_EEPROM
+	bool
+	default n
+
+config CONFIG_HAS_EHT0_PHY
+	bool
+	default n
+
+config CONFIG_HAS_EHT1_PHY
+	bool
+	default n
+
+config CONFIG_HAS_AUDIO_CODEC
+	bool
+	default n
+
+config CONFIG_HAS_HDMI
+	bool
+	default n

@@ -36,9 +36,6 @@ int division(unsigned int dividend,
 	unsigned int factor = 0;
 	unsigned char end_flag = 0;
 
-	if (dividend & 0x80000000)
-		return 0xffffffff;
-
 	if (!divisor)
 		return 0xffffffff;
 

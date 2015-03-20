@@ -42,17 +42,17 @@
 
 /** DMA hardware interface */
 typedef struct _DmaHardwareInterface {
-    uint8_t bDmac;                  /**< DMA Controller number */
-    uint32_t bPeriphID;             /**< Peripheral ID */
-    uint8_t bTransfer;              /**< Transfer type 0: Tx, 1 :Rx*/
-    uint8_t bIfID;                  /**< DMA Interface ID */
+    unsigned char bDmac;                  /**< DMA Controller number */
+    unsigned int bPeriphID;             /**< Peripheral ID */
+    unsigned char bTransfer;              /**< Transfer type 0: Tx, 1 :Rx*/
+    unsigned char bIfID;                  /**< DMA Interface ID */
 } DmaHardwareInterface;
 
 /*----------------------------------------------------------------------------
  *        Exported functions
  *----------------------------------------------------------------------------*/
 
-extern uint8_t DMAIF_IsValidatedPeripherOnDma( uint8_t bDmac, uint8_t bPeriphID);
-extern uint8_t DMAIF_Get_ChannelNumber (uint8_t bDmac, uint8_t bPeriphID, uint8_t bTransfer);
+extern unsigned char DMAIF_IsValidatedPeripherOnDma( unsigned char bDmac, unsigned char bPeriphID);
+extern unsigned char DMAIF_Get_ChannelNumber (unsigned char bDmac, unsigned char bPeriphID, unsigned char bTransfer);
 
 #endif //#ifndef _DMAD_IF_H

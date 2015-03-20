@@ -92,24 +92,24 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->rtr = 0x411;	/* Refresh timer: 7.8125us */
 
 	/* One clock cycle @ 133 MHz = 7.5 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6 	//  6 * 7.5 = 45   ns
-				| AT91C_DDRC2_TRCD_2 	//  2 * 7.5 = 22.5 ns
-				| AT91C_DDRC2_TWR_2 	//  2 * 7.5 = 15   ns
-				| AT91C_DDRC2_TRC_8 	//  8 * 7.5 = 75   ns
-				| AT91C_DDRC2_TRP_2 	//  2 * 7.5 = 15   ns
-				| AT91C_DDRC2_TRRD_2 	//  2 * 7.5 = 15   ns (x16 memory)
-				| AT91C_DDRC2_TWTR_2 	//  2 clock cycles min
-				| AT91C_DDRC2_TMRD_2);	//  2 clock cycles
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
+				| AT91C_DDRC2_TRCD_(2)
+				| AT91C_DDRC2_TWR_(2)
+				| AT91C_DDRC2_TRC_(8)
+				| AT91C_DDRC2_TRP_(2)
+				| AT91C_DDRC2_TRRD_(2)
+				| AT91C_DDRC2_TWTR_(2)
+				| AT91C_DDRC2_TMRD_(2));
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_2 //  2 clock cycles
-				| 200 << 16 	//  200 clock cycles
-				| 19 << 8 	//  19 * 7.5 = 142.5 ns ( > 128 + 10 ns)
-				| AT91C_DDRC2_TRFC_18);	//  18 * 7.5 = 135   ns (must be 128 ns for 1Gb DDR)
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
+				| AT91C_DDRC2_TXSRD_(200)
+				| AT91C_DDRC2_TXSNR_(19)
+				| AT91C_DDRC2_TRFC_(18));
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TRTP_2	//  2 clock cycles min
-				| AT91C_DDRC2_TRPA_3	//  3 * 7.5 = 22.5 ns
-				| AT91C_DDRC2_TXARDS_7 	//  7 clock cycles
-				| AT91C_DDRC2_TXARD_2);	//  2 clock cycles
+	ddramc_config->t2pr = (AT91C_DDRC2_TRTP_(2)
+				| AT91C_DDRC2_TRPA_(3)
+				| AT91C_DDRC2_TXARDS_(7)
+				| AT91C_DDRC2_TXARD_(2));
 }
 
 static void ddramc_init(void)
@@ -298,19 +298,5 @@ void nandflash_hw_init(void)
 	/* Configure the nand controller pins*/
 	pmc_enable_periph_clock(AT91C_ID_PIOC_D);
 	pio_configure(nand_pins_lo);
-}
-
-void nandflash_config_buswidth(unsigned char busw)
-{
-	unsigned long csa;
-
-	csa = readl(AT91C_BASE_SMC + SMC_CTRL3);
-
-	if (busw == 0)
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_8;
-	else
-		csa |= AT91C_SMC_DBW_WIDTH_BITS_16;
-
-	writel(csa, AT91C_BASE_SMC + SMC_CTRL3);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */

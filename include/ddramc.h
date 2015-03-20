@@ -34,10 +34,11 @@ struct ddramc_register {
 	unsigned int rtr;
 	unsigned int t0pr;
 	unsigned int t1pr;
-#ifdef CONFIG_DDR2  
+#if defined(CONFIG_DDR2) || defined (CONFIG_LPDDR2)
 	unsigned int t2pr;
-#endif
-#ifdef CONFIG_LPDDR1
+	unsigned int lpddr2_lpr;
+	unsigned int tim_calr;
+#elif defined(CONFIG_LPDDR1)
   unsigned int lpr;
 #endif
 };
@@ -50,10 +51,15 @@ extern int ddram_initialize(unsigned int base_address,
       unsigned int bank_offset,
       struct ddramc_register *ddramc_config);
 #else
-
 extern int ddram_initialize(unsigned int base_address,
 		unsigned int ram_address,
 		struct ddramc_register *ddramc_config);
+
+extern int lpddr2_sdram_initialize(unsigned int base_address,
+				unsigned int ram_address,
+				struct ddramc_register *ddramc_config);
+
+extern void ddramc_print_config_regs(unsigned int base_address);
 #endif /*CONFIG_LPDDR1*/
 
 #endif /* #ifndef __DDRAMC_H__ */

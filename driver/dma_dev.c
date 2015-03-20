@@ -71,13 +71,13 @@ volatile bool recvDone0 = false;
 #ifdef DMA_DEV_WITH_DMA_IRQ
 //************* ISR DEBUG SUPPORT *****
 /* The ISR debug pin through PortA pin 0*/
-static const uint32_t isrPinId = 0;
+static const unsigned int isrPinId = 0;
 
 /* The rx ISR debug pin through PortA pin 2*/
-static const uint32_t rxIsrPinId = 2;
+static const unsigned int rxIsrPinId = 2;
 
 /* The tx ISR debug pin through PortA pin 2*/
-static const uint32_t txIsrPinId = 4;
+static const unsigned int txIsrPinId = 4;
 //***********************************************************
 /**
  * ISR for DMA interrupt
@@ -94,11 +94,11 @@ static void ISR_DMA(void)
 /**
  *  \brief Callback function for DMA0 receiving.
  */
-static void _DmaRxCallback0( uint32_t dmaStatus, void* arg )
+static void _DmaRxCallback0( unsigned int dmaStatus, void* arg )
   {
 #if defined (CONFIG_WITH_CACHE)
     //Force a cache re-load
-    CP15_invalidate_dcache_for_dma((uint32_t)RES_BUFFER, ((uint32_t)RES_BUFFER) + RAM_BUFFER_SIZE);
+    CP15_invalidate_dcache_for_dma((unsigned int)RES_BUFFER, ((unsigned int)RES_BUFFER) + RAM_BUFFER_SIZE);
 #endif
     sRxLastStatus = dmaStatus;
     //Set the PIN according to status
@@ -109,11 +109,11 @@ static void _DmaRxCallback0( uint32_t dmaStatus, void* arg )
     recvDone0 = true;
   }
 //***********************************************************
-static void _DmaTxCallback0( uint32_t dmaStatus, void* arg )
+static void _DmaTxCallback0( unsigned int dmaStatus, void* arg )
   {
 #if defined (CONFIG_WITH_CACHE)
     //Force a cache re-load
-    CP15_invalidate_dcache_for_dma((uint32_t)CMD_BUFFER, ((uint32_t)(CMD_BUFFER)) + RAM_BUFFER_SIZE);
+    CP15_invalidate_dcache_for_dma((unsigned int)CMD_BUFFER, ((unsigned int)(CMD_BUFFER)) + RAM_BUFFER_SIZE);
 #endif
     sTxLastStatus = dmaStatus;
     //Set the PIN according to status
@@ -125,11 +125,11 @@ static void _DmaTxCallback0( uint32_t dmaStatus, void* arg )
 //***********************************************************
 #endif /*DMA_DEV_WITH_DMA_IRQ*/
 
-uint32_t
-DMA_DEV_OpenSPIIOStream(DMA_DEV_IOStream_t* const stream, const uint32_t spi_ctrlr_base_addr, const uint32_t spi_id)
+unsigned int
+DMA_DEV_OpenSPIIOStream(DMA_DEV_IOStream_t* const stream, const unsigned int spi_ctrlr_base_addr, const unsigned int spi_id)
 {
-  uint32_t dwCfg;
-  uint8_t iController/*, iChannel*/;
+  unsigned int dwCfg;
+  unsigned char iController/*, iChannel*/;
   /* Driver initialization if needed*/
   if (!IsDriverInitDone)
     {
@@ -199,9 +199,9 @@ DMA_DEV_CloseSPIIOStream(DMA_DEV_IOStream_t* const stream)
   DMAD_FreeChannel(&dmad, stream->TxChannel);
 }
 //*******************************************************************
-uint32_t
-DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend, const uint32_t sendLength, void* toRecv,
-    const uint32_t recvLength)
+unsigned int
+DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend, const unsigned int sendLength, void* toRecv,
+    const unsigned int recvLength)
 {
   /** Dual transfer descriptors : an array with
    * - [0] : Command phase
@@ -211,7 +211,7 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
   sDmaTransferDescriptor tdSendStream[2];
   sDmaTransferDescriptor tdReceiveStream[2];
 
-  uint8_t junkByte = 0; //Used to handle the unused send/received byte in inactive phase of each transfer.
+  unsigned char junkByte = 0; //Used to handle the unused send/received byte in inactive phase of each transfer.
 
 #ifdef DMA_DEV_WITH_DMA_IRQ
   recvDone0 = 0;
@@ -230,24 +230,24 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
 
   dbg_log(DEBUG_LOUD,"============= SEND Command ==============\n");
   //First phase : send the command
-  tdSendStream[0].dwSrcAddr = (uint32_t) toSend;
+  tdSendStream[0].dwSrcAddr = (unsigned int) toSend;
   tdSendStream[0].dwDstAddr = stream->spi_ctrlr_base_addr + SPI_TDR;
   tdSendStream[0].dwCtrlA = (sendLength & 0xFFFF) | DMAC_CTRLA_SRC_WIDTH_BYTE | DMAC_CTRLA_DST_WIDTH_BYTE;
   tdSendStream[0].dwCtrlB = DMAC_CTRLB_SIF_AHB_IF0 | DMAC_CTRLB_DIF_AHB_IF2 | DMAC_CTRLB_FC_MEM2PER_DMA_FC
       | DMAC_CTRLB_SRC_INCR_INCREMENTING | DMAC_CTRLB_DST_INCR_FIXED;
-  tdSendStream[0].dwDscAddr = (uint32_t) &tdSendStream[1];
+  tdSendStream[0].dwDscAddr = (unsigned int) &tdSendStream[1];
 
   //First phase : just dump the received byte
   tdReceiveStream[0].dwSrcAddr = stream->spi_ctrlr_base_addr + SPI_RDR;
-  tdReceiveStream[0].dwDstAddr = (uint32_t) &junkByte;
+  tdReceiveStream[0].dwDstAddr = (unsigned int) &junkByte;
   tdReceiveStream[0].dwCtrlA = (sendLength & 0xFFFF) | DMAC_CTRLA_SRC_WIDTH_BYTE | DMAC_CTRLA_DST_WIDTH_BYTE;
   tdReceiveStream[0].dwCtrlB = DMAC_CTRLB_SIF_AHB_IF2 | DMAC_CTRLB_DIF_AHB_IF0 | DMAC_CTRLB_FC_PER2MEM_DMA_FC
       | DMAC_CTRLB_SRC_INCR_FIXED | DMAC_CTRLB_DST_INCR_FIXED;
-  tdReceiveStream[0].dwDscAddr = (uint32_t) &tdReceiveStream[1];
+  tdReceiveStream[0].dwDscAddr = (unsigned int) &tdReceiveStream[1];
 
   dbg_log(DEBUG_LOUD,"============= RECEIVE Response ==============\n");
   //Second phase : just drive the bus to get the response.
-  tdSendStream[1].dwSrcAddr = (uint32_t) &junkByte;
+  tdSendStream[1].dwSrcAddr = (unsigned int) &junkByte;
   tdSendStream[1].dwDstAddr = stream->spi_ctrlr_base_addr + SPI_TDR;
   tdSendStream[1].dwCtrlA = (recvLength & 0xFFFF) | DMAC_CTRLA_SRC_WIDTH_BYTE | DMAC_CTRLA_DST_WIDTH_BYTE;
   tdSendStream[1].dwCtrlB = DMAC_CTRLB_SIF_AHB_IF0 | DMAC_CTRLB_DIF_AHB_IF2 | DMAC_CTRLB_FC_MEM2PER_DMA_FC
@@ -256,7 +256,7 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
 
   //Second Phase : Actually receive the data
   tdReceiveStream[1].dwSrcAddr = stream->spi_ctrlr_base_addr + SPI_RDR;
-  tdReceiveStream[1].dwDstAddr = (uint32_t) toRecv;
+  tdReceiveStream[1].dwDstAddr = (unsigned int) toRecv;
   tdReceiveStream[1].dwCtrlA = (recvLength & 0xFFFF) | DMAC_CTRLA_SRC_WIDTH_BYTE | DMAC_CTRLA_DST_WIDTH_BYTE;
   tdReceiveStream[1].dwCtrlB = DMAC_CTRLB_SIF_AHB_IF2 | DMAC_CTRLB_DIF_AHB_IF0 | DMAC_CTRLB_FC_PER2MEM_DMA_FC
       | DMAC_CTRLB_SRC_INCR_FIXED | DMAC_CTRLB_DST_INCR_INCREMENTING;
@@ -280,10 +280,10 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
   //Start !!
 #if defined (CONFIG_WITH_CACHE)
 //Flush (clean and invalidate) the cached DMA parameters into the memory for the DMA controller.
-  CP15_flush_dcache_for_dma((uint32_t)tdReceiveStream, (uint32_t)tdReceiveStream + 2*sizeof(sDmaTransferDescriptor));
-  CP15_flush_dcache_for_dma((uint32_t)tdSendStream, (uint32_t)tdSendStream + 2*sizeof(sDmaTransferDescriptor));
-  CP15_flush_dcache_for_dma((uint32_t)toSend, ((uint32_t)(toSend + sendLength)));
-  CP15_flush_dcache_for_dma((uint32_t)toRecv, ((uint32_t)(toRecv + recvLength)));
+  CP15_flush_dcache_for_dma((unsigned int)tdReceiveStream, (unsigned int)tdReceiveStream + 2*sizeof(sDmaTransferDescriptor));
+  CP15_flush_dcache_for_dma((unsigned int)tdSendStream, (unsigned int)tdSendStream + 2*sizeof(sDmaTransferDescriptor));
+  CP15_flush_dcache_for_dma((unsigned int)toSend, ((unsigned int)(toSend + sendLength)));
+  CP15_flush_dcache_for_dma((unsigned int)toRecv, ((unsigned int)(toRecv + recvLength)));
 #endif
 
   driverReturnStatus = DMAD_StartTransfer(&dmad, stream->RxChannel);
@@ -306,10 +306,10 @@ DMA_DEV_SPICommandResponse(const DMA_DEV_IOStream_t* const stream, void* toSend,
 
 #if defined (CONFIG_WITH_CACHE)
 //Force a fresh copy of the transfered AREA into the cache. note : not actually needed as a flush is done before.
-  CP15_invalidate_dcache_for_dma((uint32_t)&tdReceiveStream, (uint32_t)&tdReceiveStream + 2*sizeof(sDmaTransferDescriptor));
-  CP15_invalidate_dcache_for_dma((uint32_t)&tdSendStream, (uint32_t)&tdSendStream + 2*sizeof(sDmaTransferDescriptor));
-  CP15_invalidate_dcache_for_dma((uint32_t)toSend, ((uint32_t)(toSend + sendLength)));
-  CP15_invalidate_dcache_for_dma((uint32_t)toRecv, ((uint32_t)(toRecv + recvLength)));
+  CP15_invalidate_dcache_for_dma((unsigned int)&tdReceiveStream, (unsigned int)&tdReceiveStream + 2*sizeof(sDmaTransferDescriptor));
+  CP15_invalidate_dcache_for_dma((unsigned int)&tdSendStream, (unsigned int)&tdSendStream + 2*sizeof(sDmaTransferDescriptor));
+  CP15_invalidate_dcache_for_dma((unsigned int)toSend, ((unsigned int)(toSend + sendLength)));
+  CP15_invalidate_dcache_for_dma((unsigned int)toRecv, ((unsigned int)(toRecv + recvLength)));
 #endif
 
   EXIT_POINT: at91_spi_oisync(0);

@@ -31,15 +31,14 @@
 
 #if !( defined(__ASSEMBLY__) || defined(__IAR_SYSTEMS_ASM__) )
 
-#include <stdint.h>
 
 #ifndef __cplusplus
-typedef volatile const uint32_t RoReg; /**< Read only 32-bit register (volatile const unsigned int) */
+typedef volatile const unsigned int RoReg; /**< Read only 32-bit register (volatile const unsigned int) */
 #else
-typedef volatile       uint32_t RoReg; /**< Read only 32-bit register (volatile const unsigned int) */
+typedef volatile       unsigned int RoReg; /**< Read only 32-bit register (volatile const unsigned int) */
 #endif
-typedef volatile       uint32_t WoReg; /**< Write only 32-bit register (volatile unsigned int) */
-typedef volatile       uint32_t RwReg; /**< Read-Write 32-bit register (volatile unsigned int) */
+typedef volatile       unsigned int WoReg; /**< Write only 32-bit register (volatile unsigned int) */
+typedef volatile       unsigned int RwReg; /**< Read-Write 32-bit register (volatile unsigned int) */
 #endif
 
 

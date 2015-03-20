@@ -39,7 +39,8 @@
 #define AT91C_RSTC_ICERST	(0x1UL << 1)
 #define AT91C_RSTC_PERRST	(0x1UL << 2)
 #define AT91C_RSTC_EXTRST	(0x1UL << 3)
-#define AT91C_RSTC_KEY		(0xFFUL << 24)
+#define AT91C_RSTC_RCRKEY_MASK	(0xFFUL << 24)
+#define 	AT91C_RSTC_RCRKEY	(0xA5UL << 24)
 
 /* -------- RSTC_RSR : (RSTC Offset: 0x4) Reset Status Register --------*/ 
 #define AT91C_RSTC_URSTS	(0x1UL << 0)
@@ -55,8 +56,9 @@
 /* -------- RSTC_RMR : (RSTC Offset: 0x8) Reset Mode Register --------*/ 
 #define AT91C_RSTC_URSTEN	(0x1UL << 0)
 #define AT91C_RSTC_URSTIEN	(0x1UL << 4)
-#define AT91C_RSTC_ERSTL	(0xFUL << 8)
-#define AT91C_RSTC_RMRKEY	(0xFFUL <<24)
-#define AT91C_RSTC_KEY_UNLOCK	(0xA5UL <<24)
+#define AT91C_RSTC_ERSTL_MASK	(0xFUL << 8)
+#define AT91C_RSTC_ERSTL(x)	((x) & AT91C_RSTC_ERSTL_MASK << 8)
+#define AT91C_RSTC_RMRKEY_MASK	(0xFFUL << 24)
+#define		AT91C_RSTC_KEY_UNLOCK		(0xA5UL << 24)
 
 #endif /* #ifndef __AT91_RSTC_H__ */

@@ -13,6 +13,7 @@ COBJS-y				+= $(DRIVERS_SRC)/pmc.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_pit.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_wdt.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_usart.o
+COBJS-y				+= $(DRIVERS_SRC)/at91_rstc.o
 
 #Provide a stub implementation. otherwise : done in each board directory.
 ifeq ($(CONFIG_USER_HW_INIT),)
@@ -24,6 +25,7 @@ ifeq ($(CONFIG_ONLY_INTERNAL_RAM),)
 COBJS-$(CONFIG_SDRAM)		+= $(DRIVERS_SRC)/sdramc.o
 COBJS-$(CONFIG_SDDRC)		+= $(DRIVERS_SRC)/sddrc.o
 COBJS-$(CONFIG_DDR2)		+= $(DRIVERS_SRC)/ddramc_DDR2.o
+COBJS-$(CONFIG_LPDDR2)		+= $(DRIVERS_SRC)/ddramc_DDR2.o
 COBJS-$(CONFIG_LPDDR1)		+= $(DRIVERS_SRC)/ddramc_LPDDR1.o
 COBJS-$(CONFIG_EXTERNAL_RAM_TEST) += $(DRIVERS_SRC)/ddram_utils.o
 endif
@@ -46,7 +48,28 @@ COBJS-$(CONFIG_LOAD_LINUX)	+= $(DRIVERS_SRC)/load_kernel.o
 COBJS-$(CONFIG_LOAD_ANDROID)	+= $(DRIVERS_SRC)/load_kernel.o
 
 COBJS-$(CONFIG_LOAD_ONE_WIRE)	+= $(DRIVERS_SRC)/ds24xx.o
+COBJS-$(CONFIG_LOAD_EEPROM)	+= $(DRIVERS_SRC)/at24xx.o
+COBJS-$(CONFIG_LOAD_HW_INFO)	+= $(DRIVERS_SRC)/board_hw_info.o
 
 COBJS-$(CONFIG_DATAFLASH_LOAD_WITH_DMA) += $(DRIVERS_SRC)/dma_dev.o
 COBJS-$(CONFIG_DATAFLASH_LOAD_WITH_DMA) += $(DRIVERS_SRC)/dmad.o
 COBJS-$(CONFIG_DATAFLASH_LOAD_WITH_DMA) += $(DRIVERS_SRC)/at91_dma.o
+
+COBJS-$(CONFIG_MATRIX)		+= $(DRIVERS_SRC)/matrix.o
+COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/tz_utils.o
+COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/svc_handler.o
+COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/svc_mgr.o
+COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/lp310_l2cc.o
+COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/monitor/mon_init.o
+COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/monitor/mon_switch.o
+COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/monitor/mon_vectors.o
+
+COBJS-$(CONFIG_PM)	+= $(DRIVERS_SRC)/pm.o
+COBJS-$(CONFIG_TWI)	+= $(DRIVERS_SRC)/at91_twi.o
+COBJS-$(CONFIG_ACT8865)	+= $(DRIVERS_SRC)/act8865.o
+COBJS-$(CONFIG_MACB)	+= $(DRIVERS_SRC)/macb.o
+COBJS-$(CONFIG_HDMI)	+= $(DRIVERS_SRC)/hdmi_SiI9022.o
+COBJS-$(CONFIG_WM8904)	+= $(DRIVERS_SRC)/wm8904.o
+
+COBJS-$(CONFIG_AES)		+= $(DRIVERS_SRC)/at91_aes.o
+COBJS-$(CONFIG_SECURE)		+= $(DRIVERS_SRC)/secure.o

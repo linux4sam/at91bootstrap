@@ -37,7 +37,7 @@
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
-#include "onewire_info.h"
+#include "board_hw_info.h"
 
 #include "arch/at91_pmc.h"
 #include "arch/at91_rstc.h"
@@ -60,7 +60,7 @@ extern void hw_init_hook(void);
  * @brief This function will set the given translation Table into the MMU.
  * @param pTB [IN] The translation table pointer. (short descriptor). No actual Translation.
  */
-static void MMU_Set (uint32_t* pTB);
+static void MMU_Set (unsigned int* pTB);
 
 /**
  * \brief Initializes a MMU memory mapping, no translation activated according to the size of each external memories areas (EBI, DDRAM)
@@ -68,17 +68,17 @@ static void MMU_Set (uint32_t* pTB);
  * \param pTB  [IN,OUT] : Address of the translation table.
  * @todo The external memories sizes should be checked !!
  */
-static void MMU_TB_Initialize(struct ExtMemDescriptor* pDesc, uint32_t *pTB);
+static void MMU_TB_Initialize(struct ExtMemDescriptor* pDesc, unsigned int *pTB);
 
 /**
  * \brief Initializes the memory translation table & set the MMU with it.
  * \param pTB  Address of the translation table.
  * @deprecated use MMU_TB_Initialize() and MMU_Set() instead
  */
-static void MMU_Initialize(uint32_t *pTB);
+static void MMU_Initialize(unsigned int *pTB);
 
 //! The Memory descriptor table is defined in the linker script (last of the SRAM area minus the table size (16kB))
-extern uint32_t MEMORY_DESCRIPTOR_TABLE_ENTRY;
+extern unsigned int MEMORY_DESCRIPTOR_TABLE_ENTRY;
 #endif
 
 static void
@@ -130,25 +130,50 @@ ddramc_reg_config(struct ddramc_register *ddramc_config)
   ddramc_config->rtr = 0x411; /* Refresh timer: 7.8125us */
 
   /* One clock cycle @ 133 MHz = 7.5 ns */
-  ddramc_config->t0pr = (AT91C_DDRC2_TRAS_6 /* 6 * 7.5 = 45 ns */
-  | AT91C_DDRC2_TRCD_2 /* 2 * 7.5 = 22.5 ns */
-  | AT91C_DDRC2_TWR_2 /* 2 * 7.5 = 15   ns */
-  | AT91C_DDRC2_TRC_8 /* 8 * 7.5 = 75   ns */
-  | AT91C_DDRC2_TRP_2 /* 2 * 7.5 = 15   ns */
-  | AT91C_DDRC2_TRRD_2 /* 2 * 7.5 = 15   ns */
-  | AT91C_DDRC2_TWTR_2 /* 2 clock cycles min */
-  | AT91C_DDRC2_TMRD_2); /* 2 clock cycles */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)	/* 6 * 7.5 = 45 ns */
+			| AT91C_DDRC2_TRCD_(2)		/* 2 * 7.5 = 22.5 ns */
+			| AT91C_DDRC2_TWR_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRC_(8)		/* 8 * 7.5 = 75   ns */
+			| AT91C_DDRC2_TRP_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TRRD_(2)		/* 2 * 7.5 = 15   ns */
+			| AT91C_DDRC2_TWTR_(2)		/* 2 clock cycles min */
+			| AT91C_DDRC2_TMRD_(2));	/* 2 clock cycles */
 
-  ddramc_config->t1pr = (AT91C_DDRC2_TXP_2 /*  2 clock cycles */
-  | AT91C_DDRC2_TXSRD_200 /* 200 clock cycles */
-  | AT91C_DDRC2_TXSNR_28 /* 195 + 10 = 205ns ==> 28 * 7.5 = 210 ns*/
-  | AT91C_DDRC2_TRFC_26); /* 26 * 7.5 = 195 ns */
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)	/*  2 clock cycles */
+			| AT91C_DDRC2_TXSRD_(200)	/* 200 clock cycles */
+			| AT91C_DDRC2_TXSNR_(28)	/* 195 + 10 = 205ns ==> 28 * 7.5 = 210 ns*/
+			| AT91C_DDRC2_TRFC_(26));	/* 26 * 7.5 = 195 ns */
 
-  ddramc_config->t2pr = (AT91C_DDRC2_TFAW_7 /* 7 * 7.5 = 52.5 ns */
-  | AT91C_DDRC2_TRTP_2 /* 2 clock cycles min */
-  | AT91C_DDRC2_TRPA_2 /* 2 * 7.5 = 15 ns */
-  | AT91C_DDRC2_TXARDS_7 /* 7 clock cycles */
-  | AT91C_DDRC2_TXARD_8); /* MR12 = 1 : slow exit power down */
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)	/* 7 * 7.5 = 52.5 ns */
+			| AT91C_DDRC2_TRTP_(2)		/* 2 clock cycles min */
+			| AT91C_DDRC2_TRPA_(2)		/* 2 * 7.5 = 15 ns */
+			| AT91C_DDRC2_TXARDS_(7)	/* 7 clock cycles */
+			| AT91C_DDRC2_TXARD_(8));	/* MR12 = 1 : slow exit power down */
+
+#elif defined(CONFIG_BUS_SPEED_148MHZ)
+
+	ddramc_config->rtr = 0x486;     /* Refresh timer: 7.8125us */
+
+	/* One clock cycle @ 148 MHz = 6.7 ns */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(7)
+			| AT91C_DDRC2_TRCD_(3)
+			| AT91C_DDRC2_TWR_(3)
+			| AT91C_DDRC2_TRC_(9)
+			| AT91C_DDRC2_TRP_(3)
+			| AT91C_DDRC2_TRRD_(2)
+			| AT91C_DDRC2_TWTR_(2)
+			| AT91C_DDRC2_TMRD_(2));
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
+			| AT91C_DDRC2_TXSRD_(200)
+			| AT91C_DDRC2_TXSNR_(31)
+			| AT91C_DDRC2_TRFC_(30));
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)
+			| AT91C_DDRC2_TRTP_(2)
+			| AT91C_DDRC2_TRPA_(3)
+			| AT91C_DDRC2_TXARDS_(8)
+			| AT91C_DDRC2_TXARD_(8));
 
 #elif defined(CONFIG_BUS_SPEED_166MHZ)
 	/*
@@ -158,25 +183,25 @@ ddramc_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->rtr = 0x500;
 
 	/* One clock cycle @ 166 MHz = 6.0 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_8	/* 8 * 6 = 48 ns */
-			| AT91C_DDRC2_TRCD_3		/* 3 * 6 = 18 ns */
-			| AT91C_DDRC2_TWR_3		/* 3 * 6 = 18 ns */
-			| AT91C_DDRC2_TRC_10		/* 10 * 6 = 60 ns */
-			| AT91C_DDRC2_TRP_3		/* 3 * 6 = 18 ns */
-			| AT91C_DDRC2_TRRD_2		/* 2 * 6 = 12 ns */
-			| AT91C_DDRC2_TWTR_2		/* 2 clock cycles*/
-			| AT91C_DDRC2_TMRD_2);		/* 2 clock cycles at least */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)	/* 8 * 6 = 48 ns */
+			| AT91C_DDRC2_TRCD_(3)		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TWR_(3)		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TRC_(10)		/* 10 * 6 = 60 ns */
+			| AT91C_DDRC2_TRP_(3)		/* 3 * 6 = 18 ns */
+			| AT91C_DDRC2_TRRD_(2)		/* 2 * 6 = 12 ns */
+			| AT91C_DDRC2_TWTR_(2)		/* 2 clock cycles*/
+			| AT91C_DDRC2_TMRD_(2));	/* 2 clock cycles at least */
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_3	/* 3 * 6 = 18ns, 2 clock cycles a least */
-			| AT91C_DDRC2_TXSRD_202		/* 202 clock cycles: Exit self refresh delay to Read command */
-			| AT91C_DDRC2_TXSNR_35		/* 35 * 6 = 210 ns*/
-			| AT91C_DDRC2_TRFC_31);		/* 31 * 6 = 186 ns */
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(3)	/* 3 * 6 = 18ns, 2 clock cycles a least */
+			| AT91C_DDRC2_TXSRD_(202)	/* 202 clock cycles: Exit self refresh delay to Read command */
+			| AT91C_DDRC2_TXSNR_(35)	/* 35 * 6 = 210 ns*/
+			| AT91C_DDRC2_TRFC_(31));	/* 31 * 6 = 186 ns */
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_8	/* 45 ns for 16bit * 8 bank */
-			| AT91C_DDRC2_TRTP_2		/* 2 * 6 = 15ns clock cycles min */
-			| AT91C_DDRC2_TRPA_3		/* 15 ns */
-			| AT91C_DDRC2_TXARDS_10		/* 7 ~ 10 clock cycles */
-			| AT91C_DDRC2_TXARD_3);		/* 2 ~ 3 clock cycles */
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(8)	/* 45 ns for 16bit * 8 bank */
+			| AT91C_DDRC2_TRTP_(2)		/* 2 * 6 = 15ns clock cycles min */
+			| AT91C_DDRC2_TRPA_(3)		/* 15 ns */
+			| AT91C_DDRC2_TXARDS_(10)	/* 7 ~ 10 clock cycles */
+			| AT91C_DDRC2_TXARD_(3));	/* 2 ~ 3 clock cycles */
 
 #else
 #error "No bus clock provided!"
@@ -215,6 +240,93 @@ ddramc_init(void)
   /* DDRAM2 Controller initialize */
   ddram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
 }
+
+#elif defined(CONFIG_LPDDR2)
+
+static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
+{
+	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
+				| AT91C_DDRC2_MD_LPDDR2_SDRAM);
+
+	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
+				| AT91C_DDRC2_NR_14
+				| AT91C_DDRC2_CAS_3
+				| AT91C_DDRC2_ZQ_SHORT
+				| AT91C_DDRC2_NB_BANKS_8
+				| AT91C_DDRC2_UNAL_SUPPORTED);
+
+	ddramc_config->lpddr2_lpr = AT91C_LPDDRC2_DS(0x03);
+
+	/*
+	 * The MT42128M32 refresh window: 32ms
+	 * Required number of REFRESH commands(MIN): 8192
+	 * (32ms / 8192) * 132MHz = 514 i.e. 0x202
+	 */
+	ddramc_config->rtr = 0x202;
+	ddramc_config->tim_calr = 12;
+
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
+			| AT91C_DDRC2_TRCD_(2)
+			| AT91C_DDRC2_TWR_(3)
+			| AT91C_DDRC2_TRC_(8)
+			| AT91C_DDRC2_TRP_(2)
+			| AT91C_DDRC2_TRRD_(2)
+			| AT91C_DDRC2_TWTR_(2)
+			| AT91C_DDRC2_TMRD_(3));
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
+			| AT91C_DDRC2_TXSNR_(18)
+			| AT91C_DDRC2_TRFC_(17));
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(8)
+			| AT91C_DDRC2_TRTP_(2)
+			| AT91C_DDRC2_TRPA_(3)
+			| AT91C_DDRC2_TXARDS_(1)
+			| AT91C_DDRC2_TXARD_(1));
+}
+
+static void lpddr2_init(void)
+{
+	struct ddramc_register ddramc_reg;
+	unsigned int reg;
+
+	lpddr2_reg_config(&ddramc_reg);
+
+	/* enable ddr2 clock */
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
+
+	/* Init the special register for sama5d3x */
+	/* MPDDRC DLL Slave Offset Register: DDR2 configuration */
+	reg = AT91C_MPDDRC_S0OFF(0x04)
+		| AT91C_MPDDRC_S1OFF(0x03)
+		| AT91C_MPDDRC_S2OFF(0x04)
+		| AT91C_MPDDRC_S3OFF(0x04);
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_SOR));
+
+	/* MPDDRC DLL Master Offset Register */
+	/* write master + clk90 offset */
+	reg = AT91C_MPDDRC_MOFF(7)
+		| AT91C_MPDDRC_CLK90OFF(0x1F)
+		| AT91C_MPDDRC_SELOFF_ENABLED | AT91C_MPDDRC_KEY;
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_MOR));
+
+	/* MPDDRC I/O Calibration Register */
+	/* DDR2 RZQ = 50 Ohm */
+	/* TZQIO = 4 */
+	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
+	reg &= ~AT91C_MPDDRC_RDIV;
+	reg &= ~AT91C_MPDDRC_TZQIO;
+	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
+	reg |= AT91C_MPDDRC_TZQIO_3;
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
+
+	/* DDRAM2 Controller initialize */
+	lpddr2_sdram_initialize(AT91C_BASE_MPDDRC,
+				AT91C_BASE_DDRCS, &ddramc_reg);
+}
+#else
+#error "No right DDR-SDRAM device type provided"
 #endif /* #ifdef CONFIG_DDR2 */
 
 static void
@@ -336,9 +448,6 @@ hw_init(void)
 	/* Switch PCK/MCK on PLLA output */
   pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
 
-  /* Enable External Reset */
-  writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
-
 	/* Set GMAC & EMAC pins to output low */
 	at91_special_pio_output_low();
 
@@ -352,9 +461,11 @@ hw_init(void)
   /* initialize the dbgu */
   initialize_dbgu();
 
-#ifdef CONFIG_DDR2
   /* Initialize MPDDR Controller */
+#ifdef CONFIG_DDR2
   ddramc_init();
+#elif defined(CONFIG_LPDDR2)
+	lpddr2_init();
 #endif
   /* load one wire information */
   one_wire_hw_init();
@@ -491,6 +602,78 @@ void at91_mci0_hw_init(void)
   }
 #endif /* #ifdef CONFIG_SDCARD */
 
+#ifdef CONFIG_FLASH
+void norflash_hw_init(void)
+{
+	const struct pio_desc flash_pins[] = {
+		{"FLASH_A1",  AT91C_PIN_PE(1),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A2",  AT91C_PIN_PE(2),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A3",  AT91C_PIN_PE(3),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A4",  AT91C_PIN_PE(4),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A5",  AT91C_PIN_PE(5),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A6",  AT91C_PIN_PE(6),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A7",  AT91C_PIN_PE(7),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A8",  AT91C_PIN_PE(8),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A9",  AT91C_PIN_PE(9),  0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A10", AT91C_PIN_PE(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A11", AT91C_PIN_PE(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A12", AT91C_PIN_PE(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A13", AT91C_PIN_PE(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A14", AT91C_PIN_PE(14), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A15", AT91C_PIN_PE(15), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A16", AT91C_PIN_PE(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A17", AT91C_PIN_PE(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A18", AT91C_PIN_PE(18), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A19", AT91C_PIN_PE(19), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A20", AT91C_PIN_PE(20), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A21", AT91C_PIN_PE(21), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A22", AT91C_PIN_PE(22), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_A23", AT91C_PIN_PE(23), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLASH_CS0", AT91C_PIN_PE(26), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	/* Enable the clock */
+	pmc_enable_periph_clock(AT91C_ID_SMC);
+
+	/* Configure SMC CS0 for NOR flash */
+	writel(AT91C_SMC_SETUP_NWE(1)
+		| AT91C_SMC_SETUP_NCS_WR(0)
+		| AT91C_SMC_SETUP_NRD(2)
+		| AT91C_SMC_SETUP_NCS_RD(0),
+		(ATMEL_BASE_SMC + SMC_SETUP0));
+
+	writel(AT91C_SMC_PULSE_NWE(10)
+		| AT91C_SMC_PULSE_NCS_WR(11)
+		| AT91C_SMC_PULSE_NRD(10)
+		| AT91C_SMC_PULSE_NCS_RD(11),
+		(ATMEL_BASE_SMC + SMC_PULSE0));
+
+	writel(AT91C_SMC_CYCLE_NWE(11)
+		| AT91C_SMC_CYCLE_NRD(14),
+		(ATMEL_BASE_SMC + SMC_CYCLE0));
+
+	writel(AT91C_SMC_TIMINGS_TCLR(0)
+		| AT91C_SMC_TIMINGS_TADL(0)
+		| AT91C_SMC_TIMINGS_TAR(0)
+		| AT91C_SMC_TIMINGS_TRR(0)
+		| AT91C_SMC_TIMINGS_TWB(0)
+		| AT91C_SMC_TIMINGS_RBNSEL(0)
+		| AT91C_SMC_TIMINGS_NFSEL,
+		(ATMEL_BASE_SMC + SMC_TIMINGS0));
+
+	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL
+		| AT91C_SMC_MODE_WRITEMODE_NWE_CTRL
+		| AT91C_SMC_MODE_EXNWMODE_DISABLED
+		| AT91C_SMC_MODE_DBW_16
+		| AT91C_SMC_MODE_TDF_CYCLES(1),
+		(ATMEL_BASE_SMC + SMC_MODE0));
+
+	/* Configure the PIO controller. */
+	pio_configure(flash_pins);
+}
+#endif /* #ifdef CONFIG_FLASH */
+
 #ifdef CONFIG_NANDFLASH
 void nandflash_hw_init(void)
   {
@@ -542,26 +725,11 @@ void nandflash_hw_init(void)
         | AT91C_SMC_MODE_TDF_CYCLES(1),
         (ATMEL_BASE_SMC + SMC_MODE3));
   }
-
-void nandflash_config_buswidth(unsigned char buswidth)
-  {
-    unsigned int mode;
-
-    mode = readl(ATMEL_BASE_SMC + SMC_MODE3);
-
-    mode &= ~AT91C_SMC_MODE_DBW;
-    if (buswidth == 0) /* 8 bits bus */
-    mode |= AT91C_SMC_MODE_DBW_8;
-    else
-    mode |= AT91C_SMC_MODE_DBW_16;
-
-    writel(mode, (ATMEL_BASE_SMC + SMC_MODE3));
-  }
 #endif /* #ifdef CONFIG_NANDFLASH */
 
 //***************************************************
 #if defined(CONFIG_WITH_MMU)
-static void MMU_Initialize(uint32_t *pTB)
+static void MMU_Initialize(unsigned int *pTB)
   {
     struct ExtMemDescriptor desc =
       { 255, 255, 255, 255, 511};
@@ -571,7 +739,7 @@ static void MMU_Initialize(uint32_t *pTB)
 #endif
 //****************************************************
 #if defined(CONFIG_WITH_MMU)
-static void MMU_TB_Initialize(struct ExtMemDescriptor* pDesc, uint32_t *pTB)
+static void MMU_TB_Initialize(struct ExtMemDescriptor* pDesc, unsigned int *pTB)
   {
     unsigned int index;
     unsigned int addr;
@@ -734,7 +902,7 @@ static void MMU_TB_Initialize(struct ExtMemDescriptor* pDesc, uint32_t *pTB)
 #endif
 //****************************************************************
 #if defined(CONFIG_WITH_MMU)
-static void MMU_Set (uint32_t* pTB)
+static void MMU_Set (unsigned int* pTB)
   {
     CP15_WriteTTB((unsigned int)pTB);
     /* Program the domain access register */

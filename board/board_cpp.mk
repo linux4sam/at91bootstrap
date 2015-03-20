@@ -1,18 +1,22 @@
 CPPFLAGS += \
-	-D$(CHIP) 				\
-	-D$(BOARD)				\
+	-D$(BOARDNAME)				\
 	-DMACH_TYPE=$(MACH_TYPE) 		\
 	-DTOP_OF_MEMORY=$(TOP_OF_MEMORY)	\
 	-D$(CRYSTAL)
 
 ASFLAGS += \
-	-D$(CHIP)				\
-	-D$(BOARD)				\
+	-D$(BOARDNAME)				\
 	-DMACH_TYPE=$(MACH_TYPE) 		\
 	-DTOP_OF_MEMORY=$(TOP_OF_MEMORY)	\
 	-D$(CRYSTAL)
 
-include	board/$(BOARD)/board.mk
+include board/chips.mk
+
+ifeq (board/$(BOARDNAME)/board.mk, $(wildcard board/$(BOARDNAME)/board.mk))
+include	board/$(BOARDNAME)/board.mk
+else
+$(warning WARNING: *** file: board/$(BOARDNAME)/board.mk are not found!)
+endif
 
 ifeq ($(CONFIG_THUMB),y)
 CPPFLAGS += -DCONFIG_THUMB -mthumb -mthumb-interwork
@@ -21,6 +25,10 @@ endif
 
 ifeq ($(CONFIG_SCLK),y)
 CPPFLAGS += -DCONFIG_SCLK
+endif
+
+ifeq ($(CONFIG_SCLK_BYPASS),y)
+CPPFLAGS += -DCONFIG_SCLK_BYPASS
 endif
 
 # Crystal frequency
@@ -75,8 +83,16 @@ ifeq ($(CONFIG_CPU_CLK_400MHZ),y)
 CPPFLAGS += -DCONFIG_CPU_CLK_400MHZ
 endif
 
+ifeq ($(CONFIG_CPU_CLK_444MHZ),y)
+CPPFLAGS += -DCONFIG_CPU_CLK_444MHZ
+endif
+
 ifeq ($(CONFIG_CPU_CLK_498MHZ),y)
 CPPFLAGS += -DCONFIG_CPU_CLK_498MHZ
+endif
+
+ifeq ($(CONFIG_CPU_CLK_510MHZ),y)
+CPPFLAGS += -DCONFIG_CPU_CLK_510MHZ
 endif
 
 ifeq ($(CONFIG_CPU_CLK_528MHZ),y)
@@ -101,8 +117,20 @@ ifeq ($(CONFIG_BUS_SPEED_133MHZ),y)
 CPPFLAGS += -DCONFIG_BUS_SPEED_133MHZ
 endif
 
+ifeq ($(CONFIG_BUS_SPEED_148MHZ),y)
+CPPFLAGS += -DCONFIG_BUS_SPEED_148MHZ
+endif
+
 ifeq ($(CONFIG_BUS_SPEED_166MHZ),y)
 CPPFLAGS += -DCONFIG_BUS_SPEED_166MHZ
+endif
+
+ifeq ($(CONFIG_BUS_SPEED_170MHZ),y)
+CPPFLAGS += -DCONFIG_BUS_SPEED_170MHZ
+endif
+
+ifeq ($(CONFIG_BUS_SPEED_176MHZ),y)
+CPPFLAGS += -DCONFIG_BUS_SPEED_176MHZ
 endif
 
 # other
@@ -119,6 +147,10 @@ ifeq ($(CONFIG_LOAD_ONE_WIRE), y)
 CPPFLAGS += -DCONFIG_LOAD_ONE_WIRE
 endif
 
+ifeq ($(CONFIG_LOAD_EEPROM), y)
+CPPFLAGS += -DCONFIG_LOAD_EEPROM
+endif
+
 ifeq ($(CONFIG_MMC_SUPPORT), y)
 CPPFLAGS += -DCONFIG_MMC_SUPPORT
 endif
@@ -129,4 +161,22 @@ endif
 
 ifeq ($(CONFIG_WITH_CACHE),y)
 CPPFLAGS += -DCONFIG_WITH_CACHE
+endif
+
+ifeq ($(CONFIG_CPU_V7), y)
+CPPFLAGS += -DCONFIG_CPU_V7
+ASFLAGS += -DCONFIG_CPU_V7
+endif
+
+ifeq ($(CONFIG_MATRIX), y)
+CPPFLAGS += -DCONFIG_MATRIX
+endif
+
+ifeq ($(CONFIG_ENTER_NWD), y)
+CPPFLAGS += -DCONFIG_ENTER_NWD
+ASFLAGS += -DCONFIG_ENTER_NWD
+endif
+
+ifeq ($(CONFIG_REDIRECT_ALL_INTS_AIC), y)
+CPPFLAGS += -DCONFIG_REDIRECT_ALL_INTS_AIC
 endif

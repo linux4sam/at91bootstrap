@@ -4,6 +4,12 @@
 # Then, `make menuconfig' if needed
 #
 
+# Do not:
+# o  use make's built-in rules and variables
+#    (this increases performance and avoids hard-to-debug behaviour);
+# o  print "Entering directory ...";
+MAKEFLAGS += -rR --no-print-directory
+
 TOPDIR=$(shell pwd)
 
 CONFIG_CONFIG_IN=Config.in
@@ -18,13 +24,27 @@ endif
 BINDIR:=$(TOPDIR)/binaries
 
 
-DATE := $(shell date)
-VERSION := 3.6.0
+DATE := $(shell date --rfc-3339=seconds)
+VERSION := 3.7.1
 REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
+ifeq ($(SCMINFO),)
+-include $(TOPDIR)/scminfo.mk
+SCMINFO=$(RECORD_SCMINFO)
+endif
 
-noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig
+TARBALL_NAME=AT91Bootstrap-$(VERSION)$(REV)$(SCMINFO).tar.gz
+TARBALL_DIR=../tarball_dir
+TARBALL_PREFIX=at91bootstrap-$(VERSION)$(REV)/
+
+# Use 'make V=1' for the verbose mode
+ifneq ("$(origin V)", "command line")
+Q=@
+export Q
+endif
+
+noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig
 
 # Check first if we want to configure at91bootstrap
 #
@@ -46,14 +66,14 @@ export HOSTCFLAGS
 
 $(CONFIG)/conf:
 	@mkdir -p $(CONFIG)/at91bootstrap-config
-	$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf
+	@$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
 
 $(CONFIG)/mconf:
 	@mkdir -p $(CONFIG)/at91bootstrap-config
-	$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
+	@$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
@@ -76,14 +96,19 @@ oldconfig: $(CONFIG)/conf
 	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
-		$(CONFIG)/conf -o $(CONFIG_CONFIG_IN)
+		$(CONFIG)/conf --oldconfig $(CONFIG_CONFIG_IN)
 
 defconfig: $(CONFIG)/conf
 	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
-		$(CONFIG)/conf -d $(CONFIG_CONFIG_IN)
+		$(CONFIG)/conf --defconfig=.config $(CONFIG_CONFIG_IN)
 
+savedefconfig: $(CONFIG)/conf
+	@mkdir -p $(CONFIG)/at91bootstrap-config
+	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
+		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
+		$(CONFIG)/conf --savedefconfig=defconfig $(CONFIG_CONFIG_IN)
 
 else #  Have DOT Config
 
@@ -112,11 +137,8 @@ MEM_SIZE := $(strip $(subst ",,$(CONFIG_MEM_SIZE)))
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
 
 # Board definitions
-BOARDNAME=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
+BOARDNAME:=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
 
-# CHIP is UNUSED
-CHIP:=$(strip $(subst ",,$(CONFIG_CHIP)))
-BOARD:=$(strip $(subst ",,$(CONFIG_BOARD)))
 MACH_TYPE:=$(strip $(subst ",,$(CONFIG_MACH_TYPE)))
 LINK_ADDR:=$(strip $(subst ",,$(CONFIG_LINK_ADDR)))
 DATA_SECTION_ADDR:=$(strip $(subst ",,$(CONFIG_DATA_SECTION_ADDR)))
@@ -164,6 +186,9 @@ ifeq ($(CONFIG_DDR2),y)
 REVISION :=$(REVISION)-DDR2
 endif
 
+#LP-DDR1 : only known chips
+ifeq ($(CONFIG_LPDDR1),y)
+
 ifeq ($(CONFIG_RAM_CHIP_IS43LR32400),y)
 REVISION :=$(REVISION)-IS43LR32400
 endif
@@ -176,9 +201,16 @@ ifeq ($(CONFIG_RAM_CHIP_W948D2),y)
 REVISION :=$(REVISION)-WD948D2
 endif
 
-ifeq ($(CONFIG_EXTERNAL_RAM_TEST),y)
+endif
 
+ifeq ($(CONFIG_LPDDR2),y)
+REVISION :=$(REVISION)-LPDDR2
+endif
+
+
+ifeq ($(CONFIG_EXTERNAL_RAM_TEST),y)
 REVISION := $(REVISION)-CHECK
+
 ifeq ($(CONFIG_EXTERNAL_RAM_TEST_INFINITE),y)
 REVISION := $(REVISION)-INFINITE
 endif
@@ -225,8 +257,6 @@ ifeq ($(CONFIG_LOAD_4MB), y)
 TARGET_NAME:=$(basename $(IMAGE_NAME))
 endif
 
-obj=build/$(BOARDNAME)/
-
 BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
@@ -236,14 +266,13 @@ endif
 
 ifeq ($(SYMLINK),)
 SYMLINK=at91bootstrap.bin
+ELF_SYMLINK=at91bootstrap.elf
 endif
 
-
-COBJS-y := $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARD).o
+COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARDNAME).o
 SOBJS-y := $(TOPDIR)/crt0_gnu.o
 
 
-DIRS:=$(TOPDIR) $(TOPDIR)/board/$(BOARDNAME) $(TOPDIR)/lib $(TOPDIR)/driver
 
 include	lib/libc.mk
 include	driver/driver.mk
@@ -251,13 +280,14 @@ include	fs/src/fat.mk
 
 #$(SOBJS-y:.o=.S)
 
-INCL=board/$(BOARD)
+INCL=board/$(BOARDNAME)
 GC_SECTIONS=--gc-sections
 
-# Compiler Flags
-CPPFLAGS = -ffunction-sections -Wall \
-	-fno-stack-protector \
-	-I$(INCL) -Iinclude -Ifs/include \
+NOSTDINC_FLAGS=-nostdinc -isystem $(shell $(CC) -print-file-name=include)
+
+CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -Wall \
+	-fno-stack-protector -fno-common \
+	-I$(INCL) -Iinclude -Ifs/include -I$(TOPDIR)/config/at91bootstrap-config \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\" -DCOMPILE_TIME="\"$(DATE)\"" \
 	-DBOARD_NAME=\"$(BOARDNAME)\"
 
@@ -269,8 +299,8 @@ ifeq ($(CONFIG_BUILD_RELEASE),y)
 CPPFLAGS += -Os
 ASFLAGS += -Os
 #Fake RELEASE => DEBUG from startup.
-# CPPFLAGS += -g -g3 -O0
-# ASFLAGS += -g -O0 
+#CPPFLAGS += -g -Os
+#ASFLAGS += -g -Os
 else
 CPPFLAGS += -g -g3 -O0
 ASFLAGS += -g -O0
@@ -284,6 +314,12 @@ include	driver/driver_cpp.mk
 SRCS:= $(COBJS-y:.o=.c)
 OBJS:= $(SOBJS-y) $(COBJS-y)
 
+ifeq ($(CONFIG_ENTER_NWD), y)
+link_script:=elf32-littlearm-tz.lds
+else
+link_script:=elf32-littlearm.lds
+endif
+
 # Linker flags.
 #  -Wl,...:     tell GCC to pass this to linker.
 #    -Map:      create map file
@@ -291,7 +327,7 @@ OBJS:= $(SOBJS-y) $(COBJS-y)
 #  -lc 	   : 	tells the linker to tie in newlib
 #  -lgcc   : 	tells the linker to tie in newlib
 LDFLAGS+=-nostartfiles -Map=$(BINDIR)/$(BOOT_NAME).map --cref -static
-LDFLAGS+=-T elf32-littlearm.lds $(GC_SECTIONS) -Ttext $(LINK_ADDR)
+LDFLAGS+=-T $(link_script) $(GC_SECTIONS) -Ttext $(LINK_ADDR)
 
 ifneq ($(DATA_SECTION_ADDR),)
 LDFLAGS+=-Tdata $(DATA_SECTION_ADDR)
@@ -303,11 +339,11 @@ ifdef YYY   # For other utils
 ifeq ($(CC),gcc) 
 TARGETS=no-cross-compiler
 else
-TARGETS=$(obj) $(AT91BOOTSTRAP) host-utilities .config filesize
+TARGETS=$(AT91BOOTSTRAP) host-utilities .config filesize
 endif
 endif
 
-TARGETS=$(obj) $(AT91BOOTSTRAP)
+TARGETS=$(AT91BOOTSTRAP)
 
 PHONY:=all
 
@@ -315,7 +351,7 @@ all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize
 
 CheckCrossCompile:
 	@( if [ "$(HOSTARCH)" != "arm" ]; then \
-		if [ "x$(CROSS_COMPILE)" == "x" ]; then \
+		if [ "x$(CROSS_COMPILE)" = "x" ]; then \
 			echo "error: Environment variable "CROSS_COMPILE" must be defined!"; \
 			exit 2; \
 		fi \
@@ -358,6 +394,8 @@ $(AT91BOOTSTRAP): $(OBJS)
 	@$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
 	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $@
+	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
+	@ln -sf $(BOOT_NAME).elf ${BINDIR}/${ELF_SYMLINK}
 
 %.o : %.c .config
 	@echo "  CC        "$<
@@ -367,38 +405,44 @@ $(AT91BOOTSTRAP): $(OBJS)
 	@echo "  AS        "$<
 	@$(AS) $(ASFLAGS)  -c -o $@  $<
 
-
-$(AT91BOOTSTRAP).fixboot: $(AT91BOOTSTRAP)
-	./scripts/fixboot.py $(AT91BOOTSTRAP)
-
-boot: $(AT91BOOTSTRAP).fixboot
-
-PHONY+= boot bootstrap
+PHONY+= bootstrap
 
 rebuild: clean all
 
 ChkFileSize: $(AT91BOOTSTRAP)
-	
-	@( fsize=`stat -c%s $(BINDIR)/$(BOOT_NAME).bin`; \
+	@( fsize=`./scripts/get_sram_size.sh $(BINDIR)/$(BOOT_NAME).map`; \
+	  if [ $$? -ne 0 ] ; then \
+		rm $(BINDIR)/$(BOOT_NAME).bin ;\
+		rm ${BINDIR}/${SYMLINK}; \
+		exit 3; \
+	  fi ; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
 		echo "[Failed***] It's too big to fit into SRAM area. the support maximum size is $(BOOTSTRAP_MAXSIZE)"; \
-		rm -rf $(BINDIR); \
+		rm $(BINDIR)/$(BOOT_NAME).bin ;\
+		rm ${BINDIR}/${SYMLINK}; \
 		exit 2;\
 	  else \
 	  	echo "[Succeeded] It's OK to fit into SRAM area ($(BOOTSTRAP_MAXSIZE) bytes)"; \
+		stack_space=`expr $(BOOTSTRAP_MAXSIZE) - $$fsize`; \
+		echo "[Attention] The space left for stack is $$stack_space bytes"; \
 	  fi )
 endif  # HAVE_DOT_CONFIG
 
 PHONY+= rebuild
 
 %_defconfig:
-	echo $(shell find ./board/ -name $@)
-	cp $(shell find ./board/ -name $@) .config
-	@$(MAKE) oldconfig
+	@(conf_file=`find ./board -name $@`; \
+	if [ "$$conf_file"x != "x" ]; then \
+		cp $$conf_file .config; \
+	else \
+		echo "Error: *** Cannot find file: $@"; \
+		exit 2; \
+	fi )
+	@$(MAKE) defconfig
 
 update:
-	cp .config board/$(BOARD)/$(BOARDNAME)_defconfig
+	cp .config board/$(BOARDNAME)/$(BOARDNAME)_defconfig
 
 no-cross-compiler:
 	@echo
@@ -415,8 +459,8 @@ debug:
 
 PHONY+=update no-cross-compiler debug
 
-distrib: config-clean
-	find . -type f \( -name .depend \
+distrib: mrproper
+	$(Q)find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.elf' \
 		-o -name '*.map' \
@@ -424,68 +468,54 @@ distrib: config-clean
 		-o -name '*~' \) \
 		-print0 \
 		| xargs -0 rm -f
-	rm -fr result
-	rm -fr build
-	rm -fr log
-	rm -fr .auto.deps
-	rm -fr ..make.deps.tmp
-	rm -fr .config.cmd .config.old
-	make -C config clean
-	rm -fr config/at91bootstrap-config
-	rm -fr config/conf
-	rm -f  config/.depend
-	rm -fr $(BINDIR)
-	rm -f .installed
-	rm -f .configured
+	$(Q)rm -fr result
+	$(Q)rm -fr build
+	$(Q)rm -fr ..make.deps.tmp
+	$(Q)rm -fr config/conf
 
 config-clean:
-	make -C config distclean
-	rm -fr config/at91bootstrap-config
-	rm -f  config/.depend
+	@echo "  CLEAN        "configuration files!
+	$(Q)make -C config distclean
+	$(Q)rm -fr config/at91bootstrap-config
+	$(Q)rm -f  config/.depend
 
 clean:
-	find . -type f \( -name .depend \
+	@echo "  CLEAN        "obj and misc files!
+	$(Q)find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.o' \
 		-o -name '*~' \
 		-o -name '*.S.txt' \) \
 		-print0 \
 		| xargs -0 rm -f
-	rm -fr $(obj)
 
 distclean: clean config-clean
 #	rm -fr $(BINDIR)
-	rm -fr .config .config.cmd .config.old
-	rm -fr .auto.deps
-	rm -f .installed
-	rm -f ..*.tmp
-	rm -f .configured
+	$(Q)rm -fr .config .config.cmd .config.old
+	$(Q)rm -fr .auto.deps
+	$(Q)rm -f .installed
+	$(Q)rm -f ..*.tmp
+	$(Q)rm -f .configured
 
 mrproper: distclean
-	rm -fr $(BINDIR)
-	rm -fr log
+	@echo "  CLEAN        "binary files!
+	$(Q)rm -fr $(BINDIR)
+	$(Q)rm -fr log
 
 PHONY+=distrib config-clean clean distclean mrproper
 
-tarball: distrib
-	rm -fr ../source/at91bootstrap-$(VERSION)
-	rm -fr ../source/at91bootstrap-$(VERSION).tar*
-	mkdir -p ../source
-	find . -depth -print0 | cpio --null -pvd ../source/at91bootstrap-$(VERSION)
-	rm -fr ../source/at91bootstrap-$(VERSION)/.git
-	tar -C ../source -cvf ../source/at91bootstrap-$(VERSION).tar at91bootstrap-$(VERSION)
-	bzip2  ../source/at91bootstrap-$(VERSION).tar
-	cp ../source/at91bootstrap-$(VERSION).tar.bz2 /usr/local/install/downloads
+tarball:
+	@echo "Tar the source code to ${TARBALL_NAME}"
+	$(Q)mkdir -p ${TARBALL_DIR}
+	$(Q)git archive --prefix=${TARBALL_PREFIX} HEAD | gzip > ${TARBALL_DIR}/${TARBALL_NAME}
+	$(Q)echo "RECORD_SCMINFO=${SCMINFO}" > ${TARBALL_DIR}/scminfo.mk
+	$(Q)cd ${TARBALL_DIR}; tar -xzf ${TARBALL_NAME}
+	$(Q)cd ${TARBALL_DIR}; cp scminfo.mk ${TARBALL_PREFIX}
+	$(Q)cd ${TARBALL_DIR}; tar czf ${TARBALL_NAME} ${TARBALL_PREFIX}
+	$(Q)cp ${TARBALL_DIR}/${TARBALL_NAME} .
+	$(Q)rm -rf ${TARBALL_DIR}
 
-tarballx: clean
-	F=`basename $(CURDIR)` ; cd .. ; \
-	T=`basename $(CURDIR)`-$(VERSION).tar ;  \
-	tar --force-local -cvf $$T $$F; \
-	rm -f $$T.bz2 ; \
-	bzip2 $$T ; \
-	cp -f $$T.bz2 /usr/local/install/downloads
-
-PHONY+=tarball tarballx
+PHONY+=tarball
 
 disassembly: all
 	$(OBJDUMP) -DS $(BINDIR)/$(BOOT_NAME).elf > $(BINDIR)/$(BOOT_NAME).S.txt

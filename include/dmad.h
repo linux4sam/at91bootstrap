@@ -80,22 +80,22 @@ typedef enum _DmadState {
 } eDmadState;
 
 /** DMA transfer callback */
-typedef void (*DmadTransferCallback)(uint32_t status, void* pArg);
+typedef void (*DmadTransferCallback)(unsigned int status, void* pArg);
 
 /** DMA driver channel */
 typedef struct _DmadChannel {
     DmadTransferCallback fCallback; /**< Callback */
     void* pArg;                     /**< Callback argument */
 
-    uint8_t bIrqOwner;              /**< Uses DMA handler or external one */
-    uint8_t bSrcPeriphID;           /**< HW ID for source */
-    uint8_t bDstPeriphID;           /**< HW ID for destination */
-    uint8_t bSrcTxIfID;             /**< DMA Tx Interface ID for source */
-    uint8_t bSrcRxIfID;             /**< DMA Rx Interface ID for source */
-    uint8_t bDstTxIfID;             /**< DMA Tx Interface ID for destination */
-    uint8_t bDstRxIfID;             /**< DMA Rx Interface ID for destination */
+    unsigned char bIrqOwner;              /**< Uses DMA handler or external one */
+    unsigned char bSrcPeriphID;           /**< HW ID for source */
+    unsigned char bDstPeriphID;           /**< HW ID for destination */
+    unsigned char bSrcTxIfID;             /**< DMA Tx Interface ID for source */
+    unsigned char bSrcRxIfID;             /**< DMA Rx Interface ID for source */
+    unsigned char bDstTxIfID;             /**< DMA Tx Interface ID for destination */
+    unsigned char bDstRxIfID;             /**< DMA Rx Interface ID for destination */
 
-    volatile uint8_t state;         /**< DMA channel state */
+    volatile unsigned char state;         /**< DMA channel state */
 } sDmadChannel;
 
 #if 0
@@ -103,11 +103,11 @@ typedef struct _DmadChannel {
 typedef struct _DmadController {
     Dmac *pHw;                  /**< Pointer to controler HW base */
     sDmadChannel* dmadChannels; /**< Pointer to driver channels list */
-    uint8_t* dmadIfUsage;       /**< AHB Interface usage counting */
-    uint8_t  bHwID;             /**< ID for DMAC */
-    uint8_t  bNumChannels;      /**< Number of channels for this controller */
-    uint8_t  bNumAHBIf;         /**< Number of AHB Interface */
-    uint8_t  reserved;
+    unsigned char* dmadIfUsage;       /**< AHB Interface usage counting */
+    unsigned char  bHwID;             /**< ID for DMAC */
+    unsigned char  bNumChannels;      /**< Number of channels for this controller */
+    unsigned char  bNumAHBIf;         /**< Number of AHB Interface */
+    unsigned char  reserved;
 } sDmadController;
 #endif
 
@@ -115,16 +115,16 @@ typedef struct _DmadController {
 typedef struct _Dmad {
     Dmac *pDmacs[2];
     sDmadChannel dmaChannels[2][8];
-    uint8_t  numControllers;
-    uint8_t  numChannels;
-    uint8_t  pollingMode;
-    uint8_t  pollingTimeout;
+    unsigned char  numControllers;
+    unsigned char  numChannels;
+    unsigned char  pollingMode;
+    unsigned char  pollingTimeout;
 } sDmad;
 
 /** DMA driver channel ID */
 typedef struct _DmadChannelID {
-    uint8_t bDmac;      /**< DMA Controller number */
-    uint8_t bChannel;   /**< Channel number */
+    unsigned char bDmac;      /**< DMA Controller number */
+    unsigned char bChannel;   /**< Channel number */
 } sDmadChannelID;
 
 /**     @}*/
@@ -135,35 +135,35 @@ typedef struct _DmadChannelID {
 /** \addtogroup dmad_functions DMA Driver Functionos
         @{*/
 extern void DMAD_Initialize( sDmad *pDmad,
-                             uint8_t bPollingMode );
+                             unsigned char bPollingMode );
 
 extern void DMAD_Handler( sDmad *pDmad );
 
-extern uint32_t DMAD_AllocateChannel( sDmad *pDmad,
-                                      uint8_t bSrcID, uint8_t bDstID);
-extern eDmadRC DMAD_FreeChannel( sDmad *pDmad, uint32_t dwChannel );
+extern unsigned int DMAD_AllocateChannel( sDmad *pDmad,
+                                      unsigned char bSrcID, unsigned char bDstID);
+extern eDmadRC DMAD_FreeChannel( sDmad *pDmad, unsigned int dwChannel );
 
-extern eDmadRC DMAD_SetCallback( sDmad *pDmad, uint32_t dwChannel,
+extern eDmadRC DMAD_SetCallback( sDmad *pDmad, unsigned int dwChannel,
                                   DmadTransferCallback fCallback, void* pArg );
 
-extern eDmadRC DMAD_ConfigurePIP( sDmad *pDmad, uint32_t dwChannel,
-                                  uint32_t dwSrcPIP, uint32_t dwDstPIP );
+extern eDmadRC DMAD_ConfigurePIP( sDmad *pDmad, unsigned int dwChannel,
+                                  unsigned int dwSrcPIP, unsigned int dwDstPIP );
 
-extern eDmadRC DMAD_PrepareChannel( sDmad *pDmad, uint32_t dwChannel,
-                                   uint32_t dwCfg );
+extern eDmadRC DMAD_PrepareChannel( sDmad *pDmad, unsigned int dwChannel,
+                                   unsigned int dwCfg );
 
-extern eDmadRC DMAD_IsTransferDone( sDmad *pDmad, uint32_t dwChannel );
+extern eDmadRC DMAD_IsTransferDone( sDmad *pDmad, unsigned int dwChannel );
 
-extern eDmadRC DMAD_StartTransfer( sDmad *pDmad, uint32_t dwChannel );
+extern eDmadRC DMAD_StartTransfer( sDmad *pDmad, unsigned int dwChannel );
 extern eDmadRC DMAD_StartTransfers( sDmad *pDmad,
-                                    uint8_t bDmac, uint32_t bmChannels );
+                                    unsigned char bDmac, unsigned int bmChannels );
 
-extern eDmadRC DMAD_StopTransfer( sDmad *pDmad, uint32_t dwChannel );
-extern void DMAD_ClearAuto( sDmad *pDmad, uint32_t _dwChannel );
-extern eDmadRC DMAD_PrepareSingleTransfer( sDmad *pDmad, uint32_t dwChannel,
+extern eDmadRC DMAD_StopTransfer( sDmad *pDmad, unsigned int dwChannel );
+extern void DMAD_ClearAuto( sDmad *pDmad, unsigned int _dwChannel );
+extern eDmadRC DMAD_PrepareSingleTransfer( sDmad *pDmad, unsigned int dwChannel,
                                            sDmaTransferDescriptor *pXfrDesc );
 
-extern eDmadRC DMAD_PrepareMultiTransfer( sDmad *pDmad, uint32_t dwChannel,
+extern eDmadRC DMAD_PrepareMultiTransfer( sDmad *pDmad, unsigned int dwChannel,
                                           sDmaTransferDescriptor *pXfrDesc );
 /**     @}*/
 /**@}*/

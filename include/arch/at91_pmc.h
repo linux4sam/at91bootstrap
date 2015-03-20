@@ -47,6 +47,7 @@
 #define PMC_SMD		0x3C	/* SMD clock register */
 #define PMC_PCKR	0x40	/* Programmable Clock 0 Register */
 #define PMC_PCKR1	0x44	/* Programmable Clock 1 Register */
+#define PMC_PCKR2	0x48	/* Programmable Clock 2 Register */
 /* 0x48 ~ 0x5C */
 #define PMC_IER		0x60	/* Interrupt Enable Register */
 #define PMC_IDR		0x64	/* Interrupt Disable Register */
@@ -70,17 +71,28 @@
 
 /* -------- PMC_SCER : (PMC Offset: 0x0) System Clock Enable Register --------*/ 
 #define AT91C_PMC_DDR		(0x1UL <<  2)
+#define AT91C_PMC_LCDCK		(0x1UL <<  3)
+#define AT91C_PMC_SMDCK		(0x1UL <<  4)
 #define AT91C_PMC_UHP		(0x1UL <<  6)
 #define AT91C_PMC_UDP		(0x1UL <<  7)
 #define AT91C_PMC_PCK0		(0x1UL <<  8)
 #define AT91C_PMC_PCK1		(0x1UL <<  9)
-#define AT91C_PMC_PCK2		(0x1UL <<  10)
+#define AT91C_PMC_PCK2		(0x1UL << 10)
+
+#define AVAILABLE_SYS_CLK (AT91C_PMC_DDR \
+			 | AT91C_PMC_LCDCK \
+			 | AT91C_PMC_SMDCK \
+			 | AT91C_PMC_UHP \
+			 | AT91C_PMC_UDP \
+			 | AT91C_PMC_PCK0 \
+			 | AT91C_PMC_PCK1 \
+			 | AT91C_PMC_PCK2)
 
 /* -------- PMC_SCDR : (PMC Offset: 0x4) System Clock Disable Register --------*/ 
 /* -------- PMC_SCSR : (PMC Offset: 0x8) System Clock Status Register ---------*/
 #define AT91C_PMC_PCK		(0x1UL <<  0)
 
-/* -------- CKGR_UCKR : (PMC Offset: 0x1c) UTMI Clock Configuration Register --------*/ 
+/*-- PMC_UCKR : (PMC Offset: 0x1c) UTMI Clock Configuration Register ------*/
 #define AT91C_CKGR_UOSCEN	(0x1UL <<  0)
 #define AT91C_CKGR_OSCBYPASS	(0x1UL <<  1)
 #define AT91C_CKGR_OSCOUNT	(0xFFUL << 8)
@@ -88,6 +100,7 @@
 #define 	AT91C_CKGR_UPLLEN_DISABLED	(0x0UL << 16)
 #define 	AT91C_CKGR_UPLLEN_ENABLED	(0x1UL << 16)
 #define AT91C_CKGR_UPLLCOUNT	(0xFUL << 20)
+#define		AT91C_CKGR_UPLLCOUNT_DEFAULT	(0x1UL << 20)
 #define AT91C_CKGR_BIASEN	(0x1UL << 24)
 #define 	AT91C_CKGR_BIASEN_DISABLED	(0x0UL << 24)
 #define 	AT91C_CKGR_BIASEN_ENABLED	(0x1UL << 24)
@@ -168,6 +181,9 @@
 #define AT91C_PMC_PLLADIV2	(0x1UL << 12)
 #define 	AT91C_PMC_PLLADIV2_1		(0x0UL << 12)
 #define 	AT91C_PMC_PLLADIV2_2		(0x1UL << 12)
+#define AT91C_PMC_H32MXDIV	(0x1UL << 24)
+#define		AT91C_PMC_H32MXDIV_H32MXDIV1	(0x00UL << 24)
+#define		AT91C_PMC_H32MXDIV_H32MXDIV2	(0x01UL << 24)
 
 /* -------- PMC_USB : (PMC Offset: 0x38) USB Clock Register --------*/ 
 #define AT91C_PMC_USBS		(0x1UL <<  0)
@@ -180,6 +196,7 @@
 #define 	AT91C_PMC_SMDS_SMD_PLLA		(0x0UL)
 #define 	AT91C_PMC_SMDS_SMD_PLLB		(0x1UL)
 #define AT91C_PMC_SMDDIV	(0x1FUL <<  8)
+#define AT91C_PMC_SMDDIV_(x)	((x & 0x1F) << 8)
 
 /* -------- PMC_PCKR : (PMC Offset: 0x40) Programmable Clock Register --------*/ 
 #define AT91C_PMC_SLCKMCK	(0x1UL <<  8)

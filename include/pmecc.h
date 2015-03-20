@@ -41,6 +41,7 @@ struct _PMECC_paramDesc_struct {
 	unsigned int eccSizeByte;
 	unsigned int eccStartAddress;
 	unsigned int eccEndAddress;
+	unsigned int version;
 
 	unsigned int nandWR;
 	unsigned int spareEna;
@@ -63,9 +64,10 @@ struct _PMECC_paramDesc_struct {
 	/* polynom order */
 	short lmu[TT_MAX + 1];
 
-} PMECC_paramDesc;
+};
 
-extern int get_pmecc_bytes();
+extern int get_pmecc_bytes(unsigned int sector_size, unsigned int ecc_bits);
+extern int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip);
 extern int init_pmecc(struct nand_info *nand);
 extern void pmecc_enable(void);
 extern void pmecc_start_data_phase(void);

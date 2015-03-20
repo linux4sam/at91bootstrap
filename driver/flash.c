@@ -22,19 +22,21 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-#include "../include/part.h"
-#include "../include/main.h"
-#include "../include/flash.h"
-#include <stdlib.h>
+ */
 
+#include "common.h"
+#include "board.h"
+#include "string.h"
+#include "debug.h"
 
-int load_norflash(unsigned int img_addr,
-		unsigned int img_size,
-		unsigned int img_dest)
+int load_norflash(struct image_info *image)
 {
-    norflash_hw_init();
+	norflash_hw_init();
 
-    memcpy((char *)img_dest, (char *)(AT91_NORFLASH_BASE + img_addr), img_size);
-    return 0;
+	dbg_info("FLASH: copy %d bytes from %x to %x\n",
+		 image->length, image->offset, image->dest);
+
+	memcpy(image->dest, (const char *)image->offset, image->length);
+
+	return 0;
 }

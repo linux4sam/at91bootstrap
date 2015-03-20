@@ -28,7 +28,11 @@
 #ifndef __NAND_H__
 #define __NAND_H__
 
+#ifdef CONFIG_AT91SAM9260EK
+#define MAX_ECC_BYTES		48  /* maximum bytes of ecc */
+#else
 #define MAX_ECC_BYTES		512 /* maximum bytes of ecc */
+#endif
 
 struct nand_ooblayout {
 	unsigned short	badblockpos;
@@ -43,6 +47,7 @@ struct nand_chip {
 	unsigned short	pagesize;
 	unsigned short	oobsize;
 	unsigned char	buswidth;
+	unsigned char	eccbits;
 };
 
 struct nand_info {
@@ -61,6 +66,9 @@ struct nand_info {
 	void (*address)(unsigned char addr);
 
 	struct nand_ooblayout	*ecclayout;
+	/* Used by PMECC */
+	int			ecc_sector_size;
+	int			ecc_err_bits;
 };
 
 #define ZONE_DATA			0x01    /* Sector data zone */

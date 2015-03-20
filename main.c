@@ -25,7 +25,6 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <stdint.h>
 
 #include "common.h"
 #include "hardware.h"
@@ -38,7 +37,11 @@
 #include "sdcard.h"
 #include "flash.h"
 #include "string.h"
-#include "onewire_info.h"
+#include "board_hw_info.h"
+#include "tz_utils.h"
+#include "pm.h"
+#include "act8865.h"
+#include "secure.h"
 
 #ifdef CONFIG_EXTERNAL_RAM_TEST
 #include "ddram_utils.h"
@@ -56,7 +59,8 @@
 static const char* const BOOT_MSG_SUCCESS = "Init Done\n";
 static const char* const BOOT_MSG_FAILED =  "Init Failure\n";
 static const char* const BOOT_MSG_RECOVERY = "SHOULD NEVER HAPPENS\n";
-static const char* const BOOT_MSG_INVALID = BOOT_MSG_RECOVERY;
+static const char* const BOOT_MSG_INVALID = "SHOULD NEVER HAPPENS\n";
+
 int load_nothing (struct image_info* unused)
 {
   //NOTHING TO DO
@@ -79,15 +83,14 @@ extern int load_kernel(struct image_info *img_info);
 
 #if defined (CONFIG_DATAFLASH)
 #define load_image load_dataflash
-#endif
-
-#if defined(CONFIG_NANDFLASH)
+#elif defined(CONFIG_FLASH)
+#define load_image load_norflash
+#elif defined(CONFIG_NANDFLASH)
 #define load_image load_nandflash
-#endif
-
-#if defined(CONFIG_SDCARD)
+#elif defined(CONFIG_SDCARD)
 #define load_image load_sdcard
 #endif
+
 
 #endif /*defined(CONFIG_ONLY_INTERNAL_RAM) || defined(CONFIG_UPLOAD_3RD_STAGE)*/
 
@@ -97,9 +100,6 @@ extern int load_kernel(struct image_info *img_info);
 #error "No loader defined : must choose one or no external memory !"
 #endif
 
-
-
-//typedef int (*load_function)(struct image_info *img_info);
 
 void (*sdcard_set_of_name)(char *) = NULL;
 //****************************************************************************
@@ -137,8 +137,7 @@ static void display_banner (void)
 #elif defined (CONFIG_CPU_CLK_528MHZ)
 	static const char* const clocks_msg = " CLOCKS : Core:528MHz, Bus:133MHz\n";
 #else
-#error NO Clock defined !!
-	static const char* const clocks_msg = "UNKNOWN";
+	static const char* const clocks_msg = "CLOCKS : UNKNOWN";
 #endif
 	usart_puts("\n\n");
 	usart_puts(version);
@@ -153,6 +152,11 @@ int main(void)
 	char *media_str = NULL;
 	int ret;
   
+#ifdef CONFIG_HW_INIT
+  hw_init();
+#endif
+
+  display_banner();
 
 #if !(defined(CONFIG_ONLY_INTERNAL_RAM) || defined(CONFIG_UPLOAD_3RD_STAGE))
 	char filename[FILENAME_BUF_LEN];
@@ -168,6 +172,16 @@ int main(void)
 	image.of_dest = (unsigned char *)OF_ADDRESS;
 #endif
 
+#ifdef CONFIG_FLASH
+	media_str = "FLASH: ";
+	image.offset = IMG_ADDRESS;
+#if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
+	image.length = IMG_SIZE;
+#endif
+#ifdef CONFIG_OF_LIBFDT
+	image.of_offset = OF_OFFSET;
+#endif
+#endif
 
 #ifdef CONFIG_NANDFLASH
 	media_str = "NAND: ";
@@ -202,13 +216,11 @@ int main(void)
  
 #endif  /* defined(CONFIG_ONLY_INTERNAL_RAM) || defined(CONFIG_UPLOAD_3RD_STAGE)*/
   
-#ifdef CONFIG_HW_INIT
-	hw_init();
-#endif
-
-	display_banner();
   
-
+#ifdef CONFIG_LOAD_HW_INFO
+	/* Load board hw informaion */
+	load_board_hw_info();
+#endif
 //===================================================
 #ifdef CONFIG_EXTERNAL_RAM_TEST
 #warning RAM TEST
@@ -272,16 +284,31 @@ for(;;)
 #endif /*CONFIG_EXTERNAL_RAM_TEST*/
 //===================================================
  
-#ifdef CONFIG_LOAD_ONE_WIRE
-	/* Load one wire information */
-	load_1wire_info();
+#ifdef CONFIG_PM
+	at91_board_pm();
 #endif
+
+#ifdef CONFIG_DISABLE_ACT8865_I2C
+	act8865_workaround();
+#endif
+
 	
+#if defined(CONFIG_SECURE)
+	image.dest -= sizeof(at91_secure_header_t);
+#endif
+
 	ret = load_image(&image);
   
-#ifdef CONFIG_CHECK_APPLICATION_LOAD
+#if !defined(CONFIG_UPLOAD_3RD_STAGE)
+  
+#if defined(CONFIG_SECURE)
+	if (!ret)
+		ret = secure_check(image.dest);
+	image.dest += sizeof(at91_secure_header_t);
+#elif defined (CONFIG_CHECK_APPLICATION_LOAD)
   ret = check_loaded_application(&image, CONFIG_CHECK_APPLICATION_VAL_ADDR_OFFSET, CONFIG_CHECK_APPLICATION_VALUE);
 #endif
+#endif /*CONFIG_UPLOAD_3RD_STAGE*/
 
 	if (media_str)
 		dbg_log(DEBUG_INFO,media_str);
@@ -304,6 +331,12 @@ for(;;)
 
 #ifdef CONFIG_SCLK
 	slowclk_switch_osc32();
+#endif
+
+#if defined(CONFIG_ENTER_NWD)
+	switch_normal_world();
+
+	/* point never reached with TZ support */
 #endif
   
 return JUMP_ADDR;
@@ -328,7 +361,7 @@ static const char* ROLLING_PROMPT[] = {"|\r","/\r","-\r","\\\r"};
 //! This function is called from the startup code if nothing is loaded.
 void displayRollingPromptStep()
 {
-  static uint32_t loopIdx = 0;
+  static unsigned int loopIdx = 0;
   usart_puts(ROLLING_PROMPT[loopIdx++&0x3]);
 }
 //****************************************************
