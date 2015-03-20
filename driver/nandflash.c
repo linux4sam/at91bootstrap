@@ -318,7 +318,17 @@ static unsigned short onfi_crc16(unsigned short crc,
 
 #define ONFI_PARAMS_SIZE		256
 
-#define PARAMS_OFFSET_BUSWIDTH		6
+#define PARAMS_OFFSET_REVISION		4
+#define		PARAMS_REVISION_1_0	(0x1 << 1)
+#define		PARAMS_REVISION_2_0	(0x1 << 2)
+#define		PARAMS_REVISION_2_1	(0x1 << 3)
+
+#define PARAMS_OFFSET_FEATURES		6
+#define		PARAMS_FEATURE_BUSWIDTH		(0x1 << 0)
+#define		PARAMS_FEATURE_EXTENDED_PARAM	(0x1 << 7)
+
+#define PARAMS_OFFSET_EXT_PARAM_PAGE_LEN	12
+#define PARAMS_OFFSET_PARAMETER_PAGE		14
 #define PARAMS_OFFSET_MODEL		49
 #define PARAMS_OFFSET_JEDEC_ID		64
 #define PARAMS_OFFSET_PAGESIZE		80
@@ -330,6 +340,59 @@ static unsigned short onfi_crc16(unsigned short crc,
 
 #define ONFI_CRC_BASE			0x4F4E
 
+#define ONFI_MAX_SECTIONS		8
+
+#define ONFI_SECTION_TYPE_0		0
+#define ONFI_SECTION_TYPE_1		1
+#define ONFI_SECTION_TYPE_2		2
+
+static int get_ext_onfi_param(unsigned char *eccbits,
+			      unsigned int *eccwordsize,
+			      unsigned int len)
+{
+	unsigned char ext_params[ONFI_PARAMS_SIZE];
+	unsigned char *param = ext_params;
+	unsigned char *p = ext_params;
+	unsigned char *section, *table;
+	unsigned short crc;
+	unsigned int i;
+
+	for (i = 0; i < len; i++)
+		*p++ = read_byte();
+
+	crc = *(unsigned short *)(param);
+	if (onfi_crc16(ONFI_CRC_BASE,
+		       (unsigned char *)(param + 2), len - 2) != crc) {
+		dbg_info("NAND: Failed in the integrity CRC\n");
+		return -1;
+	}
+
+	if ((param[2] != 'E') || (param[3] != 'P') ||
+	    (param[4] != 'P') || (param[5] != 'S')) {
+		dbg_info("NAND: No Extended Parameter Page\n");
+		return -1;
+	}
+
+	section = param + 16;
+	table =  param + 32;
+	for (i = 0; i < ONFI_MAX_SECTIONS; i++) {
+		if ((*section) == ONFI_SECTION_TYPE_2)
+			break;
+		table += *(section + 1) * 16;
+		section += 2;
+	}
+
+	if (i == ONFI_MAX_SECTIONS) {
+		dbg_info("NAND: Not find the ECC section\n");
+		return -1;
+	}
+
+	*eccbits = *table;
+	*eccwordsize = 0x01 << *(table + 1);
+
+	return 0;
+}
+
 static int nandflash_detect_onfi(struct nand_chip *chip)
 {
 	unsigned char onfi_ind[4];
@@ -339,6 +402,8 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	int i, j;
 	unsigned short crc;
 	unsigned char manf_id, dev_id;
+	unsigned short features, revision, ext_page_len;
+	unsigned char num_param_page;
 
 	nand_cs_enable();
 	nand_command(CMD_READID);
@@ -379,21 +444,44 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 			break;
 	}
 
-	nand_cs_disable();
-
 	if (i == 3) {
 		dbg_info("NAND: ONFI para CRC error!\n");
+		nand_cs_disable();
 		return -1;
 	}
+
+	revision = *(unsigned short *)(p + PARAMS_OFFSET_REVISION);
+	features = *(unsigned short *)(p + PARAMS_OFFSET_FEATURES);
+	ext_page_len = *(unsigned short *)(p +
+					   PARAMS_OFFSET_EXT_PARAM_PAGE_LEN);
+	num_param_page = *(unsigned char *)(p + PARAMS_OFFSET_PARAMETER_PAGE);
 
 	chip->numblocks = *(unsigned short *)(p + PARAMS_OFFSET_NBBLOCKS);
 	chip->pagesize	= *(unsigned short *)(p + PARAMS_OFFSET_PAGESIZE);
 	chip->blocksize = *(unsigned int  *)(p + PARAMS_OFFSET_BLOCKSIZE)
 							* chip->pagesize;
 	chip->oobsize	= *(unsigned short *)(p + PARAMS_OFFSET_OOBSIZE);
-	chip->buswidth	= (*(unsigned char *)(p + PARAMS_OFFSET_BUSWIDTH))
-								& 0x01;
+	chip->buswidth	= features & PARAMS_FEATURE_BUSWIDTH;
 	chip->eccbits	= *(unsigned char *)(p + PARAMS_OFFSET_ECC_BITS);
+	chip->eccwordsize = 512;
+
+	if ((chip->eccbits == 0xff) &&
+	    (revision & PARAMS_REVISION_2_1) &&
+	    (features & PARAMS_FEATURE_EXTENDED_PARAM)) {
+		/* read the redundent parameter pages */
+		for (; i < (num_param_page - 1) * ONFI_PARAMS_SIZE; i++)
+			read_byte();
+
+		/* read extended parameter pages */
+		if (get_ext_onfi_param(&chip->eccbits,
+				       &chip->eccwordsize,
+				       ext_page_len * 16)) {
+			dbg_info("NAND: Failed to get extended parameter table\n");
+			return -1;
+		}
+	}
+
+	nand_cs_disable();
 
 	manf_id = *(unsigned char *)(p + PARAMS_OFFSET_JEDEC_ID);
 	dev_id = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);

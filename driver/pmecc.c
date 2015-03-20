@@ -83,7 +83,7 @@ int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip)
 		onfi_sector_size = 512;
 	} else {
 		onfi_ecc_bits = chip->eccbits;
-		onfi_sector_size = 512;
+		onfi_sector_size = chip->eccwordsize;
 	}
 
 	/* If PMECC_SECTOR_SIZE/PMECC_ERROR_CORR_BITS no defined, use ONFI */
