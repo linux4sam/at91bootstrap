@@ -237,10 +237,10 @@ void at91_mci0_hw_init(void)
 	*/
 
 	/* configure mci0 pins */
-	writel(((0x01 < 0) | (0x01 << 1) | (0x01 << 2) | (0x01 < 4)
-			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_BSR);
-	writel(((0x01 < 0) | (0x01 << 1) | (0x01 << 2) | (0x01 < 4)
-			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_PDR);
+	writel(((0x01 << 0) | (0x01 << 1) | (0x01 << 2) | (0x01 << 4)
+		| (0x01 << 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_BSR);
+	writel(((0x01 << 0) | (0x01 << 1) | (0x01 << 2) | (0x01 << 4)
+		| (0x01 << 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_PDR);
 
 	pmc_enable_periph_clock(AT91C_ID_PIOA);
 
