@@ -671,10 +671,6 @@ void hw_init(void)
 
 	/* Prepare L2 cache setup */
 	l2cache_prepare();
-
-#ifdef CONFIG_USER_HW_INIT
-	hw_init_hook();
-#endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 

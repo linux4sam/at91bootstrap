@@ -44,10 +44,6 @@
 #include "watchdog.h"
 #include "at91sam9rlek.h"
 
-#ifdef CONFIG_USER_HW_INIT
-extern void hw_init_hook(void);
-#endif
-
 static void at91_dbgu_hw_init(void)
 {
 	/* Configure DBGU pin */
@@ -219,10 +215,6 @@ void hw_init(void)
 #ifdef CONFIG_SDRAM
 	/* Configure SDRAM Controller */
 	sdramc_init();
-#endif
-
-#ifdef CONFIG_USER_HW_INIT
-	hw_init_hook();
 #endif
 
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
