@@ -211,7 +211,7 @@ endif
 COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARDNAME).o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 
-include	lib/libc.mk
+include	lib/lib.mk
 include	driver/driver.mk
 include	fs/src/fat.mk
 
