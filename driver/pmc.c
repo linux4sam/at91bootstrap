@@ -150,46 +150,12 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 {
 	unsigned int tmp;
 
-#if defined(SAMA5D4)
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_CSS);
-	tmp |= (pmc_mckr & AT91C_PMC_CSS);
-	write_pmc(PMC_MCKR, tmp);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
-
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_MDIV);
-	tmp |= (pmc_mckr & AT91C_PMC_MDIV);
-	write_pmc(PMC_MCKR, tmp);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
-
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_PLLADIV2);
-	tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
-	write_pmc(PMC_MCKR, tmp);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
-
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_ALT_PRES);
-	tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
-	write_pmc(PMC_MCKR, tmp);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
-
-#else
 	/*
 	 * Program the PRES field in the PMC_MCKR register,
 	 * wait for MCKRDY bit to be set in the PMC_SR register
 	 */
 	tmp = read_pmc(PMC_MCKR);
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || defined(SAMA5D4)
 	tmp &= (~AT91C_PMC_ALT_PRES);
 	tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
 #else
@@ -237,7 +203,6 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 		;
 
-#endif
 	return 0;
 }
 
