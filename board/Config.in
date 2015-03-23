@@ -354,6 +354,10 @@ config CONFIG_CPU_CLK_528MHZ
 	bool "528 MHz"
 	depends on ALLOW_CPU_CLK_528MHZ
 
+config CONFIG_CPU_CLK_600MHZ
+	bool "600 MHz"
+	depends on ALLOW_CPU_CLK_600MHZ
+
 endchoice
 
 config	ALLOW_CPU_CLK_166MHZ
@@ -390,6 +394,9 @@ config  ALLOW_CPU_CLK_510MHZ
 	bool
 
 config  ALLOW_CPU_CLK_528MHZ
+	bool
+
+config  ALLOW_CPU_CLK_600MHZ
 	bool
 
 config	DISABLE_CPU_CLK_240MHZ
@@ -439,6 +446,10 @@ config CONFIG_BUS_SPEED_176MHZ
 	bool "176 MHz"
 	depends on SUPPORT_BUS_SPEED_176MHZ && CONFIG_CPU_CLK_528MHZ
 
+config CONFIG_BUS_SPEED_200MHZ
+	bool "200 MHz"
+	depends on SUPPORT_BUS_SPEED_200MHZ && CONFIG_CPU_CLK_600MHZ
+
 endchoice
 
 config SUPPORT_BUS_SPEED_83MHZ
@@ -466,6 +477,9 @@ config SUPPORT_BUS_SPEED_170MHZ
 	bool
 
 config SUPPORT_BUS_SPEED_176MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_200MHZ
 	bool
 
 config CPU_HAS_TRUSTZONE
