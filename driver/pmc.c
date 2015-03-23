@@ -192,6 +192,18 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 		;
 
 	/*
+	 * Program the H32MXDIV field in the PMC_MCKR register,
+	 * wait for MCKRDY bit to be set in the PMC_SR register
+	 */
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_H32MXDIV);
+	tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
+	write_pmc(PMC_MCKR, tmp);
+
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+
+	/*
 	 * Program the CSS field in the PMC_MCKR register,
 	 * wait for MCKRDY bit to be set in the PMC_SR register
 	 */
