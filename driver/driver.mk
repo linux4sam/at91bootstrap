@@ -15,6 +15,7 @@ COBJS-y				+= $(DRIVERS_SRC)/at91_wdt.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_usart.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_rstc.o
 
+COBJS-$(CPU_HAS_L2CC)		+= $(DRIVERS_SRC)/lp310_l2cc.o
 
 #Only if external RAM used.
 ifeq ($(CONFIG_ONLY_INTERNAL_RAM),)
@@ -55,7 +56,6 @@ COBJS-$(CONFIG_MATRIX)		+= $(DRIVERS_SRC)/matrix.o
 COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/tz_utils.o
 COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/svc_handler.o
 COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/svc_mgr.o
-COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/lp310_l2cc.o
 COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/monitor/mon_init.o
 COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/monitor/mon_switch.o
 COBJS-$(CONFIG_ENTER_NWD)	+= $(DRIVERS_SRC)/monitor/mon_vectors.o
