@@ -117,7 +117,7 @@ int svc_mgr_main(struct smc_args_t const *args)
 		break;
 
 	case 0x42:
-		l2cache_init();
+		l2cache_enable();
 		break;
 	case 0x50:
 		pmc_smd_setup(args->r1);

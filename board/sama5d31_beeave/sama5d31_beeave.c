@@ -50,10 +50,69 @@
 #include "mmu.h"
 #endif
 
-#ifdef CONFIG_USER_HW_INIT
-extern void hw_init_hook(void);
-#endif
 
+#if defined(CONFIG_BEEAVE_WITH_DEBUG_LEDS)
+//! This function will initialize the DEBUG LEDS of the BeeAve module : set them GREEN:RED:GREEN to see Bootstrap running.
+void debug_leds_init(void)
+{
+#ifdef CONFIG_BEEAVE_DEBUG_LEDS_ON
+  const struct pio_desc debug_led_pio[] =
+    {
+      { "GREEN_LED_1", AT91C_PIN_PD(17), 0, PIO_DEFAULT, PIO_OUTPUT },
+      { "RED_LED_1", AT91C_PIN_PD(18), 0, PIO_DEFAULT, PIO_INPUT },
+      { "GREEN_LED_2", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_OUTPUT },
+      { "RED_LED_2", AT91C_PIN_PD(22), 0, PIO_DEFAULT, PIO_OUTPUT },
+      { "GREEN_LED_3", AT91C_PIN_PD(19), 0, PIO_DEFAULT, PIO_OUTPUT },
+      { "RED_LED_3", AT91C_PIN_PD(20), 0, PIO_DEFAULT, PIO_INPUT },
+      PIO_DESCRIPTION_END };
+#endif /*CONFIG_BEEAVE_DEBUG_LEDS_ON*/
+
+#ifdef CONFIG_BEEAVE_DEBUG_LEDS_OFF
+#warning DEBUG LED OFF.
+const struct pio_desc debug_led_pio[] =
+    {
+      { "GREEN_LED_1", AT91C_PIN_PD(17), 0, PIO_DEFAULT, PIO_INPUT },
+      { "RED_LED_1", AT91C_PIN_PD(18), 0, PIO_DEFAULT, PIO_INPUT },
+      { "GREEN_LED_2", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_INPUT },
+      { "RED_LED_2", AT91C_PIN_PD(22), 0, PIO_DEFAULT, PIO_INPUT },
+      { "GREEN_LED_3", AT91C_PIN_PD(19), 0, PIO_DEFAULT, PIO_INPUT },
+      { "RED_LED_3", AT91C_PIN_PD(20), 0, PIO_DEFAULT, PIO_INPUT },
+      PIO_DESCRIPTION_END };
+#endif /*CONFIG_BEEAVE_DEBUG_LEDS_OFF*/
+
+  pmc_enable_periph_clock(AT91C_ID_PIOD);
+  pio_configure(debug_led_pio);
+}
+#endif/*CONFIG_BEEAVE_WITH_DEBUG_LEDS*/
+
+//*********************************************************
+//! This function will init the LIGHTING LED (WHITE) of the BeeAve module : leave it OFF.
+void lighting_led_init(void)
+{
+  const struct pio_desc lighting_led_pio[] =
+    {
+      { "SAMA5D3_LED_CMD", AT91C_PIN_PD(5), 0, PIO_DEFAULT, PIO_OUTPUT },
+      { "ISI_SFIN", AT91C_PIN_PD(4), 0, PIO_DEFAULT, PIO_INPUT },
+      { "LED_SYNC_SEL", AT91C_PIN_PD(8), 0, PIO_DEFAULT, PIO_OUTPUT },
+      PIO_DESCRIPTION_END };
+
+  pmc_enable_periph_clock(AT91C_ID_PIOD);
+  pio_configure(lighting_led_pio);
+}
+//*********************************************************
+//!This function activates the ISI_MCK output (PCK2 clock) @ 20MHz when MCK@166MHz.
+void test_activate_isi_mck(void)
+{
+  const struct pio_desc isi_mck_io[] =
+    {
+      { "ISI_MCK", AT91C_PIN_PC(15), 0, PIO_DEFAULT, PIO_PERIPH_B },
+        PIO_DESCRIPTION_END 
+    };
+    pio_configure(isi_mck_io);
+    pmc_disable_system_clock(AT91C_PMC_PCK2);
+    //pmc_cfg_pck(2, AT91C_PMC_CSS_SYS_CLK , AT91C_PMC_PRES_CLK_8);
+    pmc_cfg_pck(2, AT91C_PMC_CSS_SYS_CLK, AT91C_PMC_PRES_CLK);
+}
 
 //*************** MEMORY functions initialization prototypes ******
 
@@ -142,9 +201,15 @@ hw_init(void)
 #endif
 
 
-#ifdef CONFIG_USER_HW_INIT
-  hw_init_hook();
-#endif
+
+//   FOR tests
+//   test_activate_isi_mck();
+//LED init
+lighting_led_init();
+#if defined(CONFIG_BEEAVE_WITH_DEBUG_LEDS)
+  debug_leds_init();
+#endif /*CONFIG_BEEAVE_WITH_DEBUG_LEDS*/
+
 
 #if defined(CONFIG_WITH_MMU)
 #warning MMU activated

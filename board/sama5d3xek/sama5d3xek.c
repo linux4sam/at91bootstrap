@@ -33,7 +33,6 @@
 #include "ddramc.h"
 #include "spi.h"
 #include "gpio.h"
-#include "slowclk.h"
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
@@ -48,10 +47,6 @@
 
 #if defined(CONFIG_DATAFLASH_LOAD_WITH_DMA)
 #include "CP15.h"
-#endif
-
-#ifdef CONFIG_USER_HW_INIT
-extern void hw_init_hook(void);
 #endif
 
 //*************** LOCAL functions declarations **************
@@ -454,10 +449,6 @@ hw_init(void)
   /* Init timer */
   timer_init();
 
-#ifdef CONFIG_SCLK
-  slowclk_enable_osc32();
-#endif
-
   /* initialize the dbgu */
   initialize_dbgu();
 
@@ -470,9 +461,6 @@ hw_init(void)
   /* load one wire information */
   one_wire_hw_init();
 
-#ifdef CONFIG_USER_HW_INIT
-  hw_init_hook();
-#endif
   HDMI_Qt1070_workaround();
 
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)

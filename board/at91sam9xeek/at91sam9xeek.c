@@ -44,10 +44,6 @@
 #include "watchdog.h"
 #include "at91sam9xeek.h"
 
-#ifdef CONFIG_USER_HW_INIT
-extern void hw_init_hook(void);
-#endif
-
 #ifdef CONFIG_DEBUG
 static void at91_dbgu_hw_init(void)
 {
@@ -167,10 +163,6 @@ void hw_init(void)
 #ifdef CONFIG_SDRAM
 	/* Configure SDRAM Controller */
 	sdramc_init();
-#endif
-
-#ifdef CONFIG_USER_HW_INIT
-	hw_init_hook();
 #endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */

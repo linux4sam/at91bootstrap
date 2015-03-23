@@ -7,6 +7,10 @@ config	CONFIG_HAS_PIO3
 	depends on ALLOW_PIO3
 	default y
 
+config CPU_HAS_L2CC
+	bool
+	default n
+
 config CPU_HAS_PMECC
 	bool
 	default n

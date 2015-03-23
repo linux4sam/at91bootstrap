@@ -38,7 +38,7 @@ static inline unsigned int read_l2cc(unsigned int offset)
 	return readl(offset + AT91C_BASE_L2CC);
 }
 
-void l2cache_init(void)
+void l2cache_prepare(void)
 {
 	unsigned int cfg;
 
@@ -89,9 +89,6 @@ void l2cache_init(void)
 	write_l2cc(L2CC_IMR, 0);
 	write_l2cc(L2CC_ICR, 0x01ff);
 
-	/* enable cache, now! */
-	write_l2cc(L2CC_CR, 1);
-
 /*
 	1.  Write to the Auxiliary, Tag RAM Latency, Data RAM Latency,
 		Prefetch, and Power Control registers using a read-modify-write
@@ -109,4 +106,10 @@ void l2cache_init(void)
 	5. Write to the Interrupt Mask Register if you want to enable interrupts.
 	6. Write to Control Register 1 with the LSB set to 1 to enable the cache.
 */
+}
+
+void l2cache_enable(void)
+{
+	/* enable cache, now! */
+	write_l2cc(L2CC_CR, 1);
 }

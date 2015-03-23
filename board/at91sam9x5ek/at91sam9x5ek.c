@@ -38,16 +38,11 @@
 #include "usart.h"
 #include "debug.h"
 #include "ddramc.h"
-#include "slowclk.h"
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
 #include "at91sam9x5ek.h"
 #include "board_hw_info.h"
-
-#ifdef CONFIG_USER_HW_INIT
-extern void hw_init_hook(void);
-#endif
 
 static void at91_dbgu_hw_init(void)
 {
@@ -190,10 +185,6 @@ void hw_init(void)
 	/* Init timer */
 	timer_init();
 
-#ifdef CONFIG_SCLK
-	slowclk_enable_osc32();
-#endif
-
 	/* Initialize dbgu */
 	initialize_dbgu();
 
@@ -203,10 +194,6 @@ void hw_init(void)
 #endif
 	/* one wire pin init */
 	one_wire_hw_init();
-
-#ifdef CONFIG_USER_HW_INIT
-	hw_init_hook();
-#endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 

@@ -30,8 +30,6 @@ endif
 #Add DMA support file
 COBJS-$(CONFIG_DATAFLASH_LOAD_WITH_DMA) += $(TOPDIR)/board/$(BOARDNAME)/dma_hardware_interface.o
 
-#Add user supplied HW init code in driver/hw_init_hook.c
-COBJS-$(CONFIG_USER_HW_INIT) += $(TOPDIR)/board/$(BOARDNAME)/driver/hw_init_hook.o
 
 #Add the memory lowlevel init code according to the actual type : only LP-DDR1 !
 COBJS-$(CONFIG_LPDDR1) += $(TOPDIR)/board/$(BOARDNAME)/lpddr1.o

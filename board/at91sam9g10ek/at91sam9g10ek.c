@@ -44,10 +44,6 @@
 #include "watchdog.h"
 #include "at91sam9g10ek.h"
 
-#ifdef CONFIG_USER_HW_INIT
-extern void hw_init_hook(void);
-#endif
-
 static inline void matrix_writel(const unsigned int value, unsigned int reg)
 {
 	writel(value, reg + AT91C_BASE_MATRIX);
@@ -191,10 +187,6 @@ void hw_init(void)
 	sdramc_init();
 #endif
 
-#ifdef CONFIG_USER_HW_INIT
-	hw_init_hook();
-#endif
-
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 	/* Init the recovery buttons pins */
 	recovery_buttons_hw_init();
@@ -237,10 +229,10 @@ void at91_mci0_hw_init(void)
 	*/
 
 	/* configure mci0 pins */
-	writel(((0x01 < 0) | (0x01 << 1) | (0x01 << 2) | (0x01 < 4)
-			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_BSR);
-	writel(((0x01 < 0) | (0x01 << 1) | (0x01 << 2) | (0x01 < 4)
-			| (0x01 < 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_PDR);
+	writel(((0x01 << 0) | (0x01 << 1) | (0x01 << 2) | (0x01 << 4)
+		| (0x01 << 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_BSR);
+	writel(((0x01 << 0) | (0x01 << 1) | (0x01 << 2) | (0x01 << 4)
+		| (0x01 << 5) | (0x01 << 6)), AT91C_BASE_PIOA + PIO_PDR);
 
 	pmc_enable_periph_clock(AT91C_ID_PIOA);
 

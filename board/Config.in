@@ -104,6 +104,7 @@ config SAMA5D4
 	select CPU_HAS_TWI2
 	select CPU_HAS_TWI3
 	select CPU_HAS_AES
+	select CPU_HAS_L2CC
 	bool
 
 config CONFIG_MACH_TYPE

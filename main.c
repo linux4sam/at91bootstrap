@@ -216,6 +216,12 @@ int main(void)
  
 #endif  /* defined(CONFIG_ONLY_INTERNAL_RAM) || defined(CONFIG_UPLOAD_3RD_STAGE)*/
   
+#if defined(CONFIG_SCLK)
+#if !defined(CONFIG_SAMA5D4)
+	slowclk_enable_osc32();
+#endif
+#endif
+
   
 #ifdef CONFIG_LOAD_HW_INFO
 	/* Load board hw informaion */

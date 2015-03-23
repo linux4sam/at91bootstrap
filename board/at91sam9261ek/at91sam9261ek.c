@@ -44,10 +44,6 @@
 #include "watchdog.h"
 #include "at91sam9261ek.h"
 
-#ifdef CONFIG_USER_HW_INIT
-extern void hw_init_hook(void);
-#endif
-
 static inline void matrix_writel(const unsigned int value, unsigned int reg)
 {
 	writel(value, reg + AT91C_BASE_MATRIX);
@@ -216,10 +212,6 @@ void hw_init(void)
 #ifdef CONFIG_SDRAM
 	/* Initlialize sdram controller */
 	sdramc_init();
-#endif
-
-#ifdef CONFIG_USER_HW_INIT
-	hw_init_hook();
 #endif
 
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)

@@ -77,4 +77,3 @@ CONFIG_DISABLE_WATCHDOG=y
 # Hardware Initialization Options
 #
 CONFIG_HW_INIT=y
-CONFIG_USER_HW_INIT=y

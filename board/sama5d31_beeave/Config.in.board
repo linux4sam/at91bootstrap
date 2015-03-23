@@ -15,6 +15,5 @@ config CONFIG_SAMA5D31_BEEAVE
   select ALLOW_WITH_CACHE
   select ALLOW_WITH_DMA
   select CONFIG_HW_INIT
-  select CONFIG_USER_HW_INIT
   help
     Use the BEE-AVE (based on a SAMA5D31) module board

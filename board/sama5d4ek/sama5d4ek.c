@@ -33,7 +33,6 @@
 #include "ddramc.h"
 #include "spi.h"
 #include "gpio.h"
-#include "slowclk.h"
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
@@ -47,6 +46,7 @@
 #include "arch/tz_matrix.h"
 #include "sama5d4ek.h"
 #include "tz_utils.h"
+#include "l2cc.h"
 #include "matrix.h"
 #include "act8865.h"
 #include "twi.h"
@@ -706,9 +706,8 @@ void hw_init(void)
 	/* Reset HDMI SiI9022 */
 	SiI9022_hw_reset();
 
-#ifdef CONFIG_USER_HW_INIT
-	hw_init_hook();
-#endif
+	/* Prepare L2 cache setup */
+	l2cache_prepare();
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 

@@ -387,7 +387,6 @@ depends on CONFIG_SAMA5D31_BEEAVE
 config CONFIG_BEEAVE_WITH_DEBUG_LEDS
   bool "DEBUG Leds are presents"
   depends on CONFIG_SAMA5D31_BEEAVE
-  select CONFIG_USER_HW_INIT
   help
     DEBUG Red/Green leds are on the board
 
@@ -424,11 +423,6 @@ menu "Hardware Initialization Options"
 config CONFIG_HW_INIT
 	bool "Call Hardware Initialization"
 	default y
-	help
-	  Initialize Hardware
-
-config CONFIG_USER_HW_INIT
-	bool "Call User specific Hardware Initialization"
 	help
 	  Initialize Hardware
 
