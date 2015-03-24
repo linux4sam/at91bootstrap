@@ -176,8 +176,8 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 		;
 
 	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_PRES);
-	tmp |= (pmc_mckr & AT91C_PMC_PRES);
+	tmp &= (~AT91C_PMC_ALT_PRES);
+	tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
 	write_pmc(PMC_MCKR, tmp);
 
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
