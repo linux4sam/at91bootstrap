@@ -457,6 +457,17 @@ int at91_board_act8865_set_reg_voltage(void)
 
 	dbg_info("ACT8865: REG2: Output 1250mV\n");
 
+	/* Enable REG4(VDDANA) output 3.3V */
+	reg = REG4_0;
+	value = ACT8865_3V3;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_info("ACT8865: Failed to make REG4 output 3300mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG4 output 3300mV\n");
+
 	return 0;
 }
 #endif
