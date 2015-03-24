@@ -46,7 +46,7 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 	return readl(address + offset);
 }
 
-#ifdef CONFIG_DDR2
+#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
 {
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
@@ -56,7 +56,7 @@ static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
 #endif
 	return 1;
 }
-
+#if defined (CONFIG_DDR2)
 int ddram_initialize(unsigned int base_address,
 			unsigned int ram_address,
 			struct ddramc_register *ddramc_config)
@@ -283,7 +283,6 @@ int ddram_initialize(unsigned int base_address,
 }
 
 #elif defined(CONFIG_LPDDR2)
-
 int lpddr2_sdram_initialize(unsigned int base_address,
 			unsigned int ram_address,
 			struct ddramc_register *ddramc_config)
@@ -458,3 +457,6 @@ void ddramc_print_config_regs(unsigned int base_address)
 	dbg_very_loud("MPDDRC_CR: %d\n",
 				read_ddramc(base_address, HDDRSDRC2_CR));
 }
+#else
+#error Wrong memory type, here for DDR2.
+#endif

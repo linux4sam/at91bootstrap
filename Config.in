@@ -6,34 +6,79 @@ config HAVE_DOT_CONFIG
 	help
 	  Indicate that have an included file.
 
+    
 source "board/Config.in"
 
 source "driver/Config.in.driver"
 
 config CONFIG_PROJECT
 	string
-	default "dataflash"	if CONFIG_DATAFLASH
-	default "flash"		if CONFIG_FLASH
-	default "nandflash"	if CONFIG_NANDFLASH
-	default "sdcard"	if CONFIG_SDCARD
+	default "dataflash"	if CONFIG_DATAFLASH && !CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "flash"		if CONFIG_FLASH && !CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "nandflash"	if CONFIG_NANDFLASH && !CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "sdcard"	if CONFIG_SDCARD && !CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "Upld3rdStage" if CONFIG_UPLOAD_3RD_STAGE && !CONFIG_ONLY_INTERNAL_RAM
+	default "internalRAM" if CONFIG_ONLY_INTERNAL_RAM
+  
+
+choice 
+  prompt "Build Type"
+  default CONFIG_BUILD_RELEASE
+  
+config CONFIG_BUILD_RELEASE
+  bool "RELEASE BUILD (BOOTABLE)"
+  help
+    The build binary will be used 
+    only once flashed on to the board.
+    This set the LINK address to 0x000000
+
+config CONFIG_BUILD_DEBUG
+  bool "DEBUG BUILD (NOT BOOTABLE !!)"
+  help
+    The build binary will be used once 
+    downloaded through a JTAG probe and then debugged.
+    This set the LINK address to 0x300000. Do not use it to boot : bootstrap size is invalid in the signature when starting from 0x00000000.
+
+endchoice
+
+
+config CONFIG_DEBUG_3RD_STAGE
+  bool "Third Stage (APPLICATION/KERNEL) DEBUG"
+  # TEST depends on CONFIG_UPLOAD_3RD_STAGE
+  default n
+  help
+    The bootstrap will wait for a debugger being attached to the board for third stage debug purpose (uploaded with debug probe or read from ROM memory). Then the Program Counter should be manualy set to the application's load address.
+
+config CONFIG_UPLOAD_3RD_STAGE
+  bool "Third stage image is uploaded"
+  default n
+  select CONFIG_DEBUG_3RD_STAGE
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+  help
+    This option will skip the third stage (App, Android or Linux kernel) load operation 
+    and go straight to waiting for the debug probe connection.
 
 choice
 	prompt "Image Loading Strategy"
-	default CONFIG_LOAD_UBOOT
+	default CONFIG_LOAD_UBOOT 
+	depends on !(CONFIG_ONLY_INTERNAL_RAM || CONFIG_UPLOAD_3RD_STAGE)
 
 config CONFIG_LOAD_UBOOT
 	bool "Load U-Boot into last MBYTE of SDRAM"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	help
 	  Use this mode to load an second level boot monitor
 	  like U-boot into the last MB of SDRAM.
 
 config CONFIG_LOAD_LINUX
 	bool "Support loading Linux directly"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	---help---
 	   Load Linux kernel directly from storage media
 
 config CONFIG_LOAD_ANDROID
 	bool "Support loading android directly"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	help
 	   Load android image directly from storage media
 
@@ -45,12 +90,14 @@ config CONFIG_LOAD_1MB
 
 config CONFIG_LOAD_4MB
 	bool "Load 4 MB into start of SDRAM"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	help
 	  Use this mode to load an embedded application
 	  which can have a size of up to 4 MByte
 
 config CONFIG_LOAD_64KB
 	bool "Load 64 kB into the start of SDRAM"
+  depends on !CONFIG_SAMA5D31_BEEAVE
 	help
 	  Use this mode to load an embedded application
 	  which can have max 64 kB Size
@@ -86,7 +133,7 @@ config CONFIG_MEM_BANK
 	default "0x20000000"
 	
 config CONFIG_MEM_SIZE
-	string "Extern Memory Bank Size"
+	string "Extern Memory Bank Size (if enabled)"
 	default "0x2000000" if CONFIG_RAM_32MB
 	default "0x4000000" if CONFIG_RAM_64MB
 	default "0x8000000" if CONFIG_RAM_128MB
@@ -247,9 +294,9 @@ menu "Demo Application Image Storage Setup"
 config CONFIG_IMG_ADDRESS
 	string "Flash Offset for Demo-App"
 	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
+	default	"0x00000000" if CONFIG_SDCARD || CONFIG_SAMA5D31_BEEAVE
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
 
 config CONFIG_IMG_SIZE
 	string "Demo-App Image Size"
@@ -275,16 +322,55 @@ config CONFIG_IMAGE_NAME
 	default "zImage" if CONFIG_LINUX_ZIMAGE
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
 	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
-	  
+	help
+    the file loaded from the SDCARD as the third level bootloader.
+#
+# Application checked load support
+#
+menu "Application checked load support"
+ depends on CONFIG_SAMA5D31_BEEAVE
+ 
+config CONFIG_CHECK_APPLICATION_LOAD
+  bool "Validate application load"
+  depends on !CONFIG_UPLOAD_3RD_STAGE
+  default false
+  help
+    The Application load will be validate with a special value existing at its starting point + 0x4 address. the value is defined in the application's startup code and must defined here too.
+
+config CONFIG_CHECK_APPLICATION_VALUE
+  hex "Validation value (CHECK in application startup code !)"
+  depends on CONFIG_CHECK_APPLICATION_LOAD
+  default 0xECDEB1EF
+  help
+    The value used to validate the firmware load. Must be kep in sync in the Application software !!
+
+config CONFIG_CHECK_APPLICATION_VAL_ADDR_OFFSET
+  int "Check value address offset"
+  depends on CONFIG_CHECK_APPLICATION_LOAD
+  default 4
+  help
+    This is the address offset of the validation value.
+    
+endmenu
+
+config CONFIG_NO_CONSOLE_OUTPUT
+  bool "NO DBGU console output"
+  default n
+  help
+    "No log will be done to the DBGU console"
 config CONFIG_DEBUG
 	bool "Debug Support"
 	default n
 	help
 	  Output Debug messages
+	  
 choice
 	prompt "Debug Level"
 	depends on CONFIG_DEBUG
-
+	
+config CONFIG_DEBUG_ERROR
+  bool "Error information only"
+	
 config CONFIG_DEBUG_INFO
 	bool "General debug information"
 
@@ -296,11 +382,33 @@ config CONFIG_DEBUG_VERY_LOUD
 
 endchoice
 
+menu "LED debugging ..."
+depends on CONFIG_SAMA5D31_BEEAVE
+config CONFIG_BEEAVE_WITH_DEBUG_LEDS
+  bool "DEBUG Leds are presents"
+  depends on CONFIG_SAMA5D31_BEEAVE
+  help
+    DEBUG Red/Green leds are on the board
+
+choice 
+ prompt "DEBUG led init status"
+ depends on CONFIG_BEEAVE_WITH_DEBUG_LEDS
+ 
+config CONFIG_BEEAVE_DEBUG_LEDS_OFF
+  bool "OFF"
+  
+config CONFIG_BEEAVE_DEBUG_LEDS_ON
+  bool "ON (Green - Red - Green)"
+
+endchoice
+endmenu
+
 source "Config.in.secure"
 
 config CONFIG_THUMB
-	depends on !(SAMA5D3X || SAMA5D4)
+	depends on !( SAMA5D3X || SAMA5D4)
 	bool "Build in thumb mode"
+  default n
 	help
 	  Build code in thumb mode
 
@@ -315,11 +423,6 @@ menu "Hardware Initialization Options"
 config CONFIG_HW_INIT
 	bool "Call Hardware Initialization"
 	default y
-	help
-	  Initialize Hardware
-
-config CONFIG_USER_HW_INIT
-	bool "Call User specific Hardware Initialization"
 	help
 	  Initialize Hardware
 

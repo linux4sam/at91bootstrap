@@ -135,6 +135,10 @@ endif
 
 # other
 
+ifeq ($(CONFIG_ONLY_INTERNAL_RAM),y)
+CPPFLAGS += -DCONFIG_ONLY_INTERNAL_RAM
+endif
+
 ifeq ($(CONFIG_HAS_PIO3),y)
 CPPFLAGS += -DCONFIG_HAS_PIO3
 endif
@@ -149,6 +153,14 @@ endif
 
 ifeq ($(CONFIG_MMC_SUPPORT), y)
 CPPFLAGS += -DCONFIG_MMC_SUPPORT
+endif
+
+ifeq ($(CONFIG_WITH_MMU),y)
+CPPFLAGS += -DCONFIG_WITH_MMU
+endif
+
+ifeq ($(CONFIG_WITH_CACHE),y)
+CPPFLAGS += -DCONFIG_WITH_CACHE
 endif
 
 ifeq ($(CONFIG_CPU_V7), y)

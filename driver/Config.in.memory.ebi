@@ -1,0 +1,48 @@
+menu  "External Bus Interface memory"
+  depends on ALLOW_ROM_EBI
+  
+  config CONFIG_EBI_0_USED
+  bool "EBI 0 is used"
+  default n
+
+  config CONFIG_EBI_0_SIZE
+  int "EBI0 size (in Mega Bytes)"
+  default 0
+  depends on CONFIG_EBI_0_USED
+  help
+    "Size in Mega Bytes of the attached to the EBI0 memory interface."
+  
+  config CONFIG_EBI_1_USED
+  bool "EBI 1 is used"
+  default n
+  
+  config CONFIG_EBI_1_SIZE
+  int "EBI1 size (in Mega Bytes)"
+  default 0
+  depends on CONFIG_EBI_1_USED
+  help
+    "Size in bytes of the attached to the EBI1 memory interface."
+  
+  config CONFIG_EBI_2_USED
+  bool "EBI 2 is used"
+  default n
+  
+  config CONFIG_EBI_2_SIZE
+  int "EBI2 size (in Mega Bytes)"
+  default 0
+  depends on CONFIG_EBI_2_USED
+  help
+    "Size in bytes of the attached to the EBI2 memory interface."
+
+  config CONFIG_EBI_3_USED
+  bool "EBI 3 is used"
+  default n
+  
+  config CONFIG_EBI_3_SIZE
+  int "EBI3 size (in Mega Bytes)"
+  default 0
+  depends on CONFIG_EBI_3_USED
+  help
+    "Size in bytes of the attached to the EBI3 memory interface."
+
+endmenu

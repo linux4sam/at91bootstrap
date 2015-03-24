@@ -28,6 +28,20 @@
 #ifndef __SAMA5D3XEK_H__
 #define __SAMA5D3XEK_H__
 
+#include "arch/sama5d3x.h"
+/**
+ * This structure give the size of each of the external memories EBIi and DDRCS
+ * @note all the sizes are in MEGA BYTES !!!
+ */
+struct ExtMemDescriptor
+{
+  unsigned int EBICS0Size;
+  unsigned int EBICS1Size;
+  unsigned int EBICS2Size;
+  unsigned int EBICS3Size;
+  unsigned int DDRCSSize;
+};
+
 /*
  * PMC Setting
  * 
@@ -244,5 +258,6 @@
  * One wire pin
  */
 #define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PE(25)
+
 
 #endif /* #ifndef __SAMA5EK_H__ */

@@ -53,6 +53,9 @@ struct pio_desc {
 	enum pio_type	type;
 };
 
+//! This define the last item in a pio description array
+#define PIO_DESCRIPTION_END { (char *) 0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A }
+
 extern int pio_set_value(unsigned pin, int value);
 extern int pio_get_value(unsigned pin);
 

@@ -76,6 +76,10 @@
 #include "sama5d3_xplained.h"
 #endif
 
+#ifdef CONFIG_SAMA5D31_BEEAVE
+#include "sama5d31_beeave.h"
+#endif
+
 #ifdef CONFIG_SAMA5D3X_CMP
 #include "sama5d3x_cmp.h"
 #endif

@@ -45,56 +45,86 @@
 #include "arch/at91_ddrsdrc.h"
 #include "sama5d3xek.h"
 
-static void at91_dbgu_hw_init(void)
+#if defined(CONFIG_DATAFLASH_LOAD_WITH_DMA)
+#include "CP15.h"
+#endif
+
+//*************** LOCAL functions declarations **************
+#if defined(CONFIG_WITH_MMU)
+/**
+ * @brief This function will set the given translation Table into the MMU.
+ * @param pTB [IN] The translation table pointer. (short descriptor). No actual Translation.
+ */
+static void MMU_Set (unsigned int* pTB);
+
+/**
+ * \brief Initializes a MMU memory mapping, no translation activated according to the size of each external memories areas (EBI, DDRAM)
+ * @param pDesc [IN] : eternal memory descriptor
+ * \param pTB  [IN,OUT] : Address of the translation table.
+ * @todo The external memories sizes should be checked !!
+ */
+static void MMU_TB_Initialize(struct ExtMemDescriptor* pDesc, unsigned int *pTB);
+
+/**
+ * \brief Initializes the memory translation table & set the MMU with it.
+ * \param pTB  Address of the translation table.
+ * @deprecated use MMU_TB_Initialize() and MMU_Set() instead
+ */
+static void MMU_Initialize(unsigned int *pTB);
+
+//! The Memory descriptor table is defined in the linker script (last of the SRAM area minus the table size (16kB))
+extern unsigned int MEMORY_DESCRIPTOR_TABLE_ENTRY;
+#endif
+
+static void
+at91_dbgu_hw_init(void)
 {
-	/* Configure DBGU pin */
-	const struct pio_desc dbgu_pins[] = {
-		{"RXD", AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"TXD", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
+  /* Configure DBGU pin */
+  const struct pio_desc dbgu_pins[] =
+    {
+      { "RXD", AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A },
+      { "TXD", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_A },
+      { (char *) 0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A }, };
 
-	/*  Configure the dbgu pins */
+  /*  Configure the dbgu pins */
 	pmc_enable_periph_clock(AT91C_ID_PIOB);
-	pio_configure(dbgu_pins);
+  pio_configure(dbgu_pins);
 
-	/* Enable clock */
+  /* Enable clock */
 	pmc_enable_periph_clock(AT91C_ID_DBGU);
 }
 
-static void initialize_dbgu(void)
+static void
+initialize_dbgu(void)
 {
-	at91_dbgu_hw_init();
+  at91_dbgu_hw_init();
 	usart_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
 
 #ifdef CONFIG_DDR2
-static void ddramc_reg_config(struct ddramc_register *ddramc_config)
+static void
+ddramc_reg_config(struct ddramc_register *ddramc_config)
 {
-	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
-				| AT91C_DDRC2_MD_DDR2_SDRAM);
+  ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS | AT91C_DDRC2_MD_DDR2_SDRAM);
 
-	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
-				| AT91C_DDRC2_NR_14
-				| AT91C_DDRC2_CAS_3
-				| AT91C_DDRC2_DLL_RESET_DISABLED /* DLL not reset */
-				| AT91C_DDRC2_DIS_DLL_DISABLED   /* DLL not disabled */
-				| AT91C_DDRC2_ENRDM_ENABLE       /* Phase error correction is enabled */
-				| AT91C_DDRC2_NB_BANKS_8
-				| AT91C_DDRC2_NDQS_DISABLED      /* NDQS disabled (check on schematics) */
-				| AT91C_DDRC2_DECOD_INTERLEAVED  /* Interleaved decoding */
-				| AT91C_DDRC2_UNAL_SUPPORTED);   /* Unaligned access is supported */
+  ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9 | AT91C_DDRC2_NR_14
+      | AT91C_DDRC2_CAS_3 | AT91C_DDRC2_DLL_RESET_DISABLED /* DLL not reset */
+      | AT91C_DDRC2_DIS_DLL_DISABLED /* DLL not disabled */
+      | AT91C_DDRC2_ENRDM_ENABLE /* Phase error correction is enabled */
+      | AT91C_DDRC2_NB_BANKS_8 | AT91C_DDRC2_NDQS_DISABLED /* NDQS disabled (check on schematics) */
+      | AT91C_DDRC2_DECOD_INTERLEAVED /* Interleaved decoding */
+      | AT91C_DDRC2_UNAL_SUPPORTED); /* Unaligned access is supported */
 
 #if defined(CONFIG_BUS_SPEED_133MHZ)
-	/*
-	 * The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
-	 * With a 133 MHz frequency, the refresh timer count register must to be
-	 * set with (15.625 x 133 MHz) ~ 2084 i.e. 0x824
-	 * or (7.81 x 133 MHz) ~ 1040 i.e. 0x410.
-	 */
-	ddramc_config->rtr = 0x411;     /* Refresh timer: 7.8125us */
+  /*
+   * The DDR2-SDRAM device requires a refresh every 15.625 us or 7.81 us.
+   * With a 133 MHz frequency, the refresh timer count register must to be
+   * set with (15.625 x 133 MHz) ~ 2084 i.e. 0x824
+   * or (7.81 x 133 MHz) ~ 1040 i.e. 0x410.
+   */
+  ddramc_config->rtr = 0x411; /* Refresh timer: 7.8125us */
 
-	/* One clock cycle @ 133 MHz = 7.5 ns */
+  /* One clock cycle @ 133 MHz = 7.5 ns */
 	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)	/* 6 * 7.5 = 45 ns */
 			| AT91C_DDRC2_TRCD_(2)		/* 2 * 7.5 = 22.5 ns */
 			| AT91C_DDRC2_TWR_(2)		/* 2 * 7.5 = 15   ns */
@@ -173,40 +203,37 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 #endif
 }
 
-static void ddramc_init(void)
+static void
+ddramc_init(void)
 {
-	struct ddramc_register ddramc_reg;
-	unsigned int reg;
+  struct ddramc_register ddramc_reg;
+  unsigned int reg;
 
-	ddramc_reg_config(&ddramc_reg);
+  ddramc_reg_config(&ddramc_reg);
 
-	/* enable ddr2 clock */
+  /* enable ddr2 clock */
 	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
-	/* Init the special register for sama5d3x */
-	/* MPDDRC DLL Slave Offset Register: DDR2 configuration */
-	reg = AT91C_MPDDRC_S0OFF_1
-		| AT91C_MPDDRC_S2OFF_1
-		| AT91C_MPDDRC_S3OFF_1;
-	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_SOR));
+  /* Init the special register for sama5d3x */
+  /* MPDDRC DLL Slave Offset Register: DDR2 configuration */
+  reg = AT91C_MPDDRC_S0OFF_1 | AT91C_MPDDRC_S2OFF_1 | AT91C_MPDDRC_S3OFF_1;
+  writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_SOR));
 
-	/* MPDDRC DLL Master Offset Register */
-	/* write master + clk90 offset */
-	reg = AT91C_MPDDRC_MOFF_7
-		| AT91C_MPDDRC_CLK90OFF_31
-		| AT91C_MPDDRC_SELOFF_ENABLED | AT91C_MPDDRC_KEY;
-	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_MOR));
+  /* MPDDRC DLL Master Offset Register */
+  /* write master + clk90 offset */
+  reg = AT91C_MPDDRC_MOFF_7 | AT91C_MPDDRC_CLK90OFF_31
+      | AT91C_MPDDRC_SELOFF_ENABLED | AT91C_MPDDRC_KEY;
+  writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_DLL_MOR));
 
-	/* MPDDRC I/O Calibration Register */
-	/* DDR2 RZQ = 50 Ohm */
-	/* TZQIO = 4 */
-	reg = AT91C_MPDDRC_RDIV_DDR2_RZQ_50
-		| AT91C_MPDDRC_TZQIO_4;
-	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
+  /* MPDDRC I/O Calibration Register */
+  /* DDR2 RZQ = 50 Ohm */
+  /* TZQIO = 4 */
+  reg = AT91C_MPDDRC_RDIV_DDR2_RZQ_50 | AT91C_MPDDRC_TZQIO_4;
+  writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
 
-	/* DDRAM2 Controller initialize */
-	ddram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
+  /* DDRAM2 Controller initialize */
+  ddram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
 }
 
 #elif defined(CONFIG_LPDDR2)
@@ -297,29 +324,31 @@ static void lpddr2_init(void)
 #error "No right DDR-SDRAM device type provided"
 #endif /* #ifdef CONFIG_DDR2 */
 
-static void one_wire_hw_init(void)
+static void
+one_wire_hw_init(void)
 {
-	const struct pio_desc one_wire_pio[] = {
-		{"1-Wire", AT91C_PIN_PE(25), 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
+  const struct pio_desc one_wire_pio[] =
+    {
+      { "1-Wire", AT91C_PIN_PE(25), 1, PIO_DEFAULT, PIO_OUTPUT },
+      { (char *) 0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A }, };
 
 	pmc_enable_periph_clock(AT91C_ID_PIOE);
-	pio_configure(one_wire_pio);
+  pio_configure(one_wire_pio);
 }
 
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 static void recovery_buttons_hw_init(void)
-{
-	/* Configure recovery button PINs */
-	const struct pio_desc recovery_button_pins[] = {
-		{"RECOVERY_BUTTON", CONFIG_SYS_RECOVERY_BUTTON_PIN, 0, PIO_PULLUP, PIO_INPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
+  {
+    /* Configure recovery button PINs */
+    const struct pio_desc recovery_button_pins[] =
+      {
+          { "RECOVERY_BUTTON", CONFIG_SYS_RECOVERY_BUTTON_PIN, 0, PIO_PULLUP, PIO_INPUT},
+          { (char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+      };
 
 	pmc_enable_periph_clock(AT91C_ID_PIOE);
-	pio_configure(recovery_button_pins);
-}
+    pio_configure(recovery_button_pins);
+  }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
 
 /*
@@ -366,153 +395,199 @@ static void at91_special_pio_output_low(void)
 	writel(value, base + PIO_REG_CODR);	/* PIO_CODR */
 }
 
-static void HDMI_Qt1070_workaround(void)
+static void
+HDMI_Qt1070_workaround(void)
 {
-	/* For the HDMI and QT1070 shar the irq line
-	 * if the HDMI does not initialize, the irq line is pulled down by HDMI,
-	 * so, the irq line can not used by QT1070
-	 */
-	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
-	udelay(33000);
-	pio_set_gpio_output(AT91C_PIN_PC(31), 0);
-	udelay(33000);
-	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
+  /* For the HDMI and QT1070 shar the irq line
+   * if the HDMI does not initialize, the irq line is pulled down by HDMI,
+   * so, the irq line can not used by QT1070
+   */
+  pio_set_gpio_output(AT91C_PIN_PC(31), 1);
+  udelay(33000);
+  pio_set_gpio_output(AT91C_PIN_PC(31), 0);
+  udelay(33000);
+  pio_set_gpio_output(AT91C_PIN_PC(31), 1);
 }
 
 #ifdef CONFIG_HW_INIT
-void hw_init(void)
+void
+hw_init(void)
 {
-	/* Disable watchdog */
-	at91_disable_wdt();
+#if defined(CONFIG_WITH_MMU)
+  struct ExtMemDescriptor memDescriptor =
+    {
+      CONFIG_EBI_0_SIZE,
+      CONFIG_EBI_1_SIZE,
+      CONFIG_EBI_2_SIZE,
+      CONFIG_EBI_3_SIZE,
+      CONFIG_RAM_SIZE};
+#endif
+
+  /* Disable watchdog */
+  at91_disable_wdt();
 
 	/*
 	 * At this stage the main oscillator
 	 * is supposed to be enabled PCK = MCK = MOSC
 	 */
 
-	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
-	pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
+  /* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
+  pmc_cfg_plla(PLLA_SETTINGS, PLL_LOCK_TIMEOUT);
 
-	/* Initialize PLLA charge pump */
-	pmc_init_pll(AT91C_PMC_IPLLA_3);
+  /* Initialize PLLA charge pump */
+  pmc_init_pll(AT91C_PMC_IPLLA_3);
 
 	/* Switch PCK/MCK on Main clock output */
-	pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK, PLL_LOCK_TIMEOUT);
+  pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK, PLL_LOCK_TIMEOUT);
 
 	/* Switch PCK/MCK on PLLA output */
-	pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
+  pmc_cfg_mck(BOARD_PRESCALER_PLLA, PLL_LOCK_TIMEOUT);
 
 	/* Set GMAC & EMAC pins to output low */
 	at91_special_pio_output_low();
 
-	/* Init timer */
-	timer_init();
+  /* Init timer */
+  timer_init();
 
-	/* initialize the dbgu */
-	initialize_dbgu();
+  /* initialize the dbgu */
+  initialize_dbgu();
 
-	/* Initialize MPDDR Controller */
+  /* Initialize MPDDR Controller */
 #ifdef CONFIG_DDR2
-	ddramc_init();
+  ddramc_init();
 #elif defined(CONFIG_LPDDR2)
 	lpddr2_init();
 #endif
-	/* load one wire information */
-	one_wire_hw_init();
+  /* load one wire information */
+  one_wire_hw_init();
 
-	HDMI_Qt1070_workaround();
+  HDMI_Qt1070_workaround();
 
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
-	/* Init the recovery buttons pins */
-	recovery_buttons_hw_init();
+  /* Init the recovery buttons pins */
+  recovery_buttons_hw_init();
 #endif
+
+#if defined(CONFIG_WITH_MMU)
+#warning MMU activated
+  MMU_TB_Initialize(&memDescriptor, &MEMORY_DESCRIPTOR_TABLE_ENTRY);
+  MMU_Set(&MEMORY_DESCRIPTOR_TABLE_ENTRY);
+  CP15_EnableMMU();
+#if defined(CONFIG_WITH_CACHE)
+#warning CACHE activated
+  CP15_EnableDcache();
+  CP15_EnableIcache();
+#endif /*CONFIG_CACHE_ENABLED*/
+#endif
+
+#if defined(CONFIG_WITH_MMU)
+//Check MMU & Cache status
+  if (CP15_IsMMUEnabled())
+    usart_puts("MMU ENabled\n");
+  else
+    usart_puts("MMU DISabled\n");
+
+  if (CP15_IsDcacheEnabled())
+    usart_puts("D Cache ENabled\n");
+  else
+    usart_puts("D Cache DISabled\n");
+
+  if (CP15_IsIcacheEnabled())
+    usart_puts("I Cache ENabled\n");
+  else
+    usart_puts("I Cache DISabled\n");
+#endif
+
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
 #ifdef CONFIG_DATAFLASH
-void at91_spi0_hw_init(void)
+void
+at91_spi0_hw_init(void)
 {
-	/* Configure PIN for SPI0 */
-	const struct pio_desc spi0_pins[] = {
-		{"MISO",	AT91C_PIN_PD(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MOSI",	AT91C_PIN_PD(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SPCK",	AT91C_PIN_PD(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
+  /* Configure PIN for SPI0 */
+  const struct pio_desc spi0_pins[] =
+    {
+      { "MISO", AT91C_PIN_PD(10), 0, PIO_DEFAULT, PIO_PERIPH_A },
+      { "MOSI", AT91C_PIN_PD(11), 0, PIO_DEFAULT, PIO_PERIPH_A },
+      { "SPCK", AT91C_PIN_PD(12), 0, PIO_DEFAULT, PIO_PERIPH_A },
+      { "NPCS", CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT },
+      { (char *) 0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A }, };
 
-	/* Configure the PIO controller */
+  /* Configure the PIO controller */
 	pmc_enable_periph_clock(AT91C_ID_PIOD);
-	pio_configure(spi0_pins);
+  pio_configure(spi0_pins);
 
-	/* Enable the clock */
+  /* Enable the clock */
 	pmc_enable_periph_clock(AT91C_ID_SPI0);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
 static void sdcard_set_of_name_board(char *of_name)
-{
-	/* CPU TYPE*/
-	switch (get_cm_sn()) {
-	case BOARD_ID_SAMA5D31_CM:
-		strcpy(of_name, "sama5d31ek");
-		break;
+  {
+    /* CPU TYPE*/
+    switch (get_cm_sn())
+      {
+        case BOARD_ID_SAMA5D31_CM:
+        strcpy(of_name, "sama5d31ek");
+        break;
 
-	case BOARD_ID_SAMA5D33_CM:
-		strcpy(of_name, "sama5d33ek");
-		break;
+        case BOARD_ID_SAMA5D33_CM:
+        strcpy(of_name, "sama5d33ek");
+        break;
 
-	case BOARD_ID_SAMA5D34_CM:
-		strcpy(of_name, "sama5d34ek");
-		break;
+        case BOARD_ID_SAMA5D34_CM:
+        strcpy(of_name, "sama5d34ek");
+        break;
 
-	case BOARD_ID_SAMA5D35_CM:
-		strcpy(of_name, "sama5d35ek");
-		break;
+        case BOARD_ID_SAMA5D35_CM:
+        strcpy(of_name, "sama5d35ek");
+        break;
 
-	case BOARD_ID_SAMA5D36_CM:
-		strcpy(of_name, "sama5d36ek");
-		break;
+        case BOARD_ID_SAMA5D36_CM:
+        strcpy(of_name, "sama5d36ek");
+        break;
 
-	default:
+        default:
 		dbg_info("WARNING: Not correct CPU board ID\n");
-		break;
-	}
+        break;
+      }
 
-	if (get_dm_sn() == BOARD_ID_PDA_DM)
-		strcat(of_name, "_pda");
+    if (get_dm_sn() == BOARD_ID_PDA_DM)
+    strcat(of_name, "_pda");
 
-	strcat(of_name, ".dtb");
-}
+    strcat(of_name, ".dtb");
+  }
 
 void at91_mci0_hw_init(void)
-{
-	const struct pio_desc mci_pins[] = {
-		{"MCCK", AT91C_PIN_PD(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MCCDA", AT91C_PIN_PD(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+  {
+    const struct pio_desc mci_pins[] =
+      {
+          { "MCCK", AT91C_PIN_PD(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { "MCCDA", AT91C_PIN_PD(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
 
-		{"MCDA0", AT91C_PIN_PD(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MCDA1", AT91C_PIN_PD(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MCDA2", AT91C_PIN_PD(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MCDA3", AT91C_PIN_PD(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MCDA4", AT91C_PIN_PD(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MCDA5", AT91C_PIN_PD(6), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MCDA6", AT91C_PIN_PD(7), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"MCDA7", AT91C_PIN_PD(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
+          { "MCDA0", AT91C_PIN_PD(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { "MCDA1", AT91C_PIN_PD(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { "MCDA2", AT91C_PIN_PD(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { "MCDA3", AT91C_PIN_PD(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { "MCDA4", AT91C_PIN_PD(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { "MCDA5", AT91C_PIN_PD(6), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { "MCDA6", AT91C_PIN_PD(7), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { "MCDA7", AT91C_PIN_PD(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
+          { (char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+      };
 
-	/* Configure the PIO controller */
+    /* Configure the PIO controller */
 	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
-	pio_configure(mci_pins);
+    pio_configure(mci_pins);
 
-	/* Enable the clock */
+    /* Enable the clock */
 	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
 
-	/* Set of name function pointer */
-	sdcard_set_of_name = &sdcard_set_of_name_board;
-}
+    /* Set of name function pointer */
+    sdcard_set_of_name = &sdcard_set_of_name_board;
+  }
 #endif /* #ifdef CONFIG_SDCARD */
 
 #ifdef CONFIG_FLASH
@@ -589,52 +664,237 @@ void norflash_hw_init(void)
 
 #ifdef CONFIG_NANDFLASH
 void nandflash_hw_init(void)
-{
-	/* Configure nand pins */
-	const struct pio_desc nand_pins[] = {
-		{"NANDALE", AT91C_PIN_PE(21), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCLE", AT91C_PIN_PE(22), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
+  {
+    /* Configure nand pins */
+    const struct pio_desc nand_pins[] =
+      {
+          { "NANDALE", AT91C_PIN_PE(21), 0, PIO_PULLUP, PIO_PERIPH_A},
+          { "NANDCLE", AT91C_PIN_PE(22), 0, PIO_PULLUP, PIO_PERIPH_A},
+          { (char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+      };
 
-	/* Configure the nand controller pins*/
+    /* Configure the nand controller pins*/
 	pmc_enable_periph_clock(AT91C_ID_PIOE);
-	pio_configure(nand_pins);
+    pio_configure(nand_pins);
 
-	/* Enable the clock */
+    /* Enable the clock */
 	pmc_enable_periph_clock(AT91C_ID_SMC);
 
-	/* Configure SMC CS3 for NAND/SmartMedia */
-	writel(AT91C_SMC_SETUP_NWE(1)
-		| AT91C_SMC_SETUP_NCS_WR(1) 
-		| AT91C_SMC_SETUP_NRD(2) 
-		| AT91C_SMC_SETUP_NCS_RD(1), 
-		(ATMEL_BASE_SMC + SMC_SETUP3));
+    /* Configure SMC CS3 for NAND/SmartMedia */
+    writel(AT91C_SMC_SETUP_NWE(1)
+        | AT91C_SMC_SETUP_NCS_WR(1)
+        | AT91C_SMC_SETUP_NRD(2)
+        | AT91C_SMC_SETUP_NCS_RD(1),
+        (ATMEL_BASE_SMC + SMC_SETUP3));
 
-	writel(AT91C_SMC_PULSE_NWE(5)
-		| AT91C_SMC_PULSE_NCS_WR(7)
-		| AT91C_SMC_PULSE_NRD(5)
-		| AT91C_SMC_PULSE_NCS_RD(7), 
-	 	(ATMEL_BASE_SMC + SMC_PULSE3));
+    writel(AT91C_SMC_PULSE_NWE(5)
+        | AT91C_SMC_PULSE_NCS_WR(7)
+        | AT91C_SMC_PULSE_NRD(5)
+        | AT91C_SMC_PULSE_NCS_RD(7),
+        (ATMEL_BASE_SMC + SMC_PULSE3));
 
-	writel(AT91C_SMC_CYCLE_NWE(8)
-		| AT91C_SMC_CYCLE_NRD(9), 
-		(ATMEL_BASE_SMC + SMC_CYCLE3));
+    writel(AT91C_SMC_CYCLE_NWE(8)
+        | AT91C_SMC_CYCLE_NRD(9),
+        (ATMEL_BASE_SMC + SMC_CYCLE3));
 
-	writel(AT91C_SMC_TIMINGS_TCLR(3)
-		| AT91C_SMC_TIMINGS_TADL(10)
-		| AT91C_SMC_TIMINGS_TAR(3)
-		| AT91C_SMC_TIMINGS_TRR(4)
-		| AT91C_SMC_TIMINGS_TWB(5)
-		| AT91C_SMC_TIMINGS_RBNSEL(3)
-		| AT91C_SMC_TIMINGS_NFSEL,
-		(ATMEL_BASE_SMC + SMC_TIMINGS3));
+    writel(AT91C_SMC_TIMINGS_TCLR(3)
+        | AT91C_SMC_TIMINGS_TADL(10)
+        | AT91C_SMC_TIMINGS_TAR(3)
+        | AT91C_SMC_TIMINGS_TRR(4)
+        | AT91C_SMC_TIMINGS_TWB(5)
+        | AT91C_SMC_TIMINGS_RBNSEL(3)
+        | AT91C_SMC_TIMINGS_NFSEL,
+        (ATMEL_BASE_SMC + SMC_TIMINGS3));
 
-	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL
-		| AT91C_SMC_MODE_WRITEMODE_NWE_CTRL
-		| AT91C_SMC_MODE_EXNWMODE_DISABLED
-		| AT91C_SMC_MODE_DBW_8
-		| AT91C_SMC_MODE_TDF_CYCLES(1),
-		(ATMEL_BASE_SMC + SMC_MODE3));
-}
+    writel(AT91C_SMC_MODE_READMODE_NRD_CTRL
+        | AT91C_SMC_MODE_WRITEMODE_NWE_CTRL
+        | AT91C_SMC_MODE_EXNWMODE_DISABLED
+        | AT91C_SMC_MODE_DBW_8
+        | AT91C_SMC_MODE_TDF_CYCLES(1),
+        (ATMEL_BASE_SMC + SMC_MODE3));
+  }
 #endif /* #ifdef CONFIG_NANDFLASH */
+
+//***************************************************
+#if defined(CONFIG_WITH_MMU)
+static void MMU_Initialize(unsigned int *pTB)
+  {
+    struct ExtMemDescriptor desc =
+      { 255, 255, 255, 255, 511};
+    MMU_TB_Initialize (&desc, pTB);
+    MMU_Set(pTB);
+  }
+#endif
+//****************************************************
+#if defined(CONFIG_WITH_MMU)
+static void MMU_TB_Initialize(struct ExtMemDescriptor* pDesc, unsigned int *pTB)
+  {
+    unsigned int index;
+    unsigned int addr;
+
+    //TODO : check pDesc sizes : EBICSi < 256 , DDRCSSize < 512 !!
+
+    /* Reset table entries */
+    for (index = 0; index < 4096; index++)
+    pTB[index] = 0;
+
+    /* section Boot (code + data)*/
+    /* ROM address (after remap) 0x0000_0000*/
+    pTB[0x000] = (0x000 << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 1 << 2)|// B bit : write-back => YES
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section ROM (code + data) */
+    /* ROM address (after remap) 0x0010_0000 */
+    pTB[0x001] = (0x001 << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 1 << 2)|// B bit : write-back => YES
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section NFC SRAM  */
+    /* SRAM address 0x0020_0000 */
+    pTB[0x002] = (0x002 << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 1 << 2)|// B bit : write-back => YES
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section RAM 0 */
+    /* SRAM address (after remap) 0x0030_0000 */
+    pTB[0x003] = (0x003 << 20)| // Physical Address
+    ( 1 << 12)|// TEX[0]
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 1 << 3)|// C bit : cachable => YES
+    ( 1 << 2)|// B bit : write-back => YES
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section NFC SRAM  */
+    /* SRAM address 0x0040_0000 */
+    for(addr = 0x4; addr < 0xB; addr++)
+    pTB[addr] = (addr << 20)|   // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 1 << 2)|// B bit : write-back => YES
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section PERIPH */
+    /* periph address 0xF000_0000 */
+    pTB[0xF00] = (0xF00ul << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 0 << 2)|// B bit : write-back => NO
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section PERIPH */
+    /* periph address 0xF800_0000 */
+    pTB[0xF80] = (0xF80ul << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 0 << 2)|// B bit : write-back => NO
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section PERIPH */
+    /* periph address 0xFFF0_0000 */
+    pTB[0xFFF] = (0xFFFul << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 0 << 2)|// B bit : write-back => NO
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section NFC */
+    /* periph address 0x7000_0000 */
+    for(addr = 0x700; addr < 0x800; addr++)
+    pTB[addr] = (addr << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 0 << 2)|// B bit : write-back => NO
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section EBI CS0 */
+    /* periph address 0x1000_0000 */
+    for(addr = 0x100; addr < (0x100 + pDesc->EBICS0Size); addr++)
+    pTB[addr] = (addr << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 0 << 2)|// B bit : write-back => NO
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section EBI CS1 */
+    /* periph address 0x4000_0000 */
+    for(addr = 0x400; addr < (0x400 + pDesc->EBICS1Size); addr++)
+    pTB[addr] = (addr << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 0 << 2)|// B bit : write-back => NO
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section EBI CS2 */
+    /* periph address 0x5000_0000 */
+    for(addr = 0x500; addr < (0x500 + pDesc->EBICS2Size); addr++)
+    pTB[addr] = (addr << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 0 << 2)|// B bit : write-back => NO
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section EBI CS3 */
+    /* periph address 0x6000_0000 */
+    for(addr = 0x600; addr < (0x600 + pDesc->EBICS3Size); addr++)
+    pTB[addr] = (addr << 20)| // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 0 << 3)|// C bit : cachable => NO
+    ( 0 << 2)|// B bit : write-back => NO
+    ( 2 << 0);// Set as 1 Mbyte section
+
+    /* section SDRAM/DDRAM */
+    /* address 0x2000_0000 */
+    for(addr = 0x200; addr < (0x200 + pDesc->DDRCSSize); addr++)
+    pTB[addr] = (addr << 20)|   // Physical Address
+    ( 3 << 10)|// Access in supervisor mode (AP)
+    ( 1 << 12)|// TEX[0]
+    ( 0xF << 5)|// Domain 0xF
+    ( 1 << 4)|// (XN)
+    ( 1 << 3)|// C bit : cachable => YES
+    ( 1 << 2)|// B bit : write-back => YES
+    ( 2 << 0);// Set as 1 Mbyte section
+  }
+#endif
+//****************************************************************
+#if defined(CONFIG_WITH_MMU)
+static void MMU_Set (unsigned int* pTB)
+  {
+    CP15_WriteTTB((unsigned int)pTB);
+    /* Program the domain access register */
+    CP15_WriteDomainAccessControl(0xC0000000); // only domain 15: access are not checked
+  }
+#endif
+//****************************************************************

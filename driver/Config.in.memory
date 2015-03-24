@@ -1,157 +1,213 @@
 menu "Memory selection"
 
 config CONFIG_SDRAM
-	bool
-	default n
-	help
-	  Initialize SDRAM controller before copying
+  bool
+  default n
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+  help
+    Initialize SDRAM controller before copying
 
 config CONFIG_SDDRC
-	bool
-	default n
-	help
-	  Initialize DDR SDRAM controller before copying
+  bool
+  default n
+  help
+    Initialize DDR SDRAM controller before copying
 
 config CONFIG_DDRC
-	bool
-	default n
-	help
-	  Initialize DDR-2 SDRAM controller before copying
+  bool
+  default n
+  help
+    Initialize DDR-2/-1 SDRAM controller before copying
 
-config	ALLOW_DATAFLASH
-	bool
-	default n
 
-config	ALLOW_FLASH
-	bool
-	default n
+config  ALLOW_DATAFLASH
+  bool
+  default n
 
-config	ALLOW_NANDFLASH
-	bool
-	default n
+config  ALLOW_FLASH
+  bool
+  default n
 
-config	ALLOW_SDCARD
-	bool
-	default n
+config  ALLOW_NANDFLASH
+  bool
+  default n
 
-config	ALLOW_HSMCI
-	bool
-	default n
-	
-config	ALLOW_PSRAM
-	bool
-	default n
+config  ALLOW_SDCARD
+  bool
+  default n
 
-config	ALLOW_SDRAM_16BIT
-	bool
-	default n
+config  ALLOW_HSMCI
+  bool
+  default n
+  
+config  ALLOW_PSRAM
+  bool
+  default n
+
+config  ALLOW_SDRAM_16BIT
+  bool
+  default n
+
+config ALLOW_WITH_MMU
+  bool
+  default n
+
+config ALLOW_WITH_CACHE
+  bool
+  default n
+
+config ALLOW_WITH_DMA
+  bool
+  default n
+
+ config ALLOW_KNOWN_RAM_CHIP_DEFINITION
+ bool
+ default n
 
 menu "RAM Configuration"
 
-choice
-	prompt "RAM size"
-	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDRC
-	default CONFIG_RAM_64MB
 
-config	CONFIG_RAM_32MB
-	bool "32 MB"
 
-config	CONFIG_RAM_64MB
-	bool "64 MB"
-
-config	CONFIG_RAM_128MB
-	bool "128 MB"
-
-config	CONFIG_RAM_256MB
-	bool "256 MB"
-
-config	CONFIG_RAM_512MB
-	bool "512 MB"
-
-endchoice
+  config CONFIG_ONLY_INTERNAL_RAM
+  bool "SRAM ONLY"
+  depends on CONFIG_SAMA5D31_BEEAVE
+  help
+    Only the SRAM will be used(no SDRAM controller init, USED for test|Start-up bootstrap release)
 
 choice
-	prompt "DDR-SDRAM device type"
-	depends on CONFIG_DDRC
-	default CONFIG_DDR2
+  prompt "DDR-SDRAM device type"
+  depends on CONFIG_DDRC && !CONFIG_ONLY_INTERNAL_RAM
+  default CONFIG_DDR2 if !CONFIG_SAMA5D31_BEEAVE
+  default CONFIG_LPDDR1 if CONFIG_SAMA5D31_BEEAVE
 
 config CONFIG_LPDDR2
-	bool "Low-power DDR2-SDRAM"
+  depends on !CONFIG_SAMA5D31_BEEAVE
+  bool "Low-power DDR2-SDRAM"
 
 config CONFIG_DDR2
-	bool "DDR2-SDRAM"
+  depends on !CONFIG_SAMA5D31_BEEAVE
+  bool "DDR2-SDRAM"
+
+config CONFIG_LPDDR1
+  depends on CONFIG_SAMA5D31_BEEAVE
+  bool "Low-power DDR1-SDRAM"
 
 endchoice
+
+
+config  CONFIG_SDRAM_16BIT
+  bool "Use 16 bit SDRAM"
+  depends on ALLOW_SDRAM_16BIT
+  help
+
+choice
+  prompt "RAM Definition"
+  default RAM_GENERIC_DEFINITION if !CONFIG_SAMA5D31_BEEAVE
+  default CONFIG_KNOWN_RAM_CHIP_DEFINITION if CONFIG_SAMA5D31_BEEAVE
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+
+config RAM_GENERIC_DEFINITION
+  bool "RAM Generic Definition (done by hand)"
+  depends on !CONFIG_SAMA5D31_BEEAVE
+  
+config CONFIG_KNOWN_RAM_CHIP_DEFINITION
+  depends on ALLOW_KNOWN_RAM_CHIP_DEFINITION
+  bool "Known RAM Chips"
+  
+endchoice
+
+if CONFIG_KNOWN_RAM_CHIP_DEFINITION
+  source "driver/Config.in.memory.known.chips"
+endif
 
 endmenu
 
-config	CONFIG_SDRAM_16BIT
-	bool "Use 16 bit SDRAM"
-	depends on ALLOW_SDRAM_16BIT
-	help
-	  
-config	CONFIG_PSRAM
-	bool "Enable PSRAM on EBI1"
-	depends on ALLOW_PSRAM
-	help
-	  
 choice
-	prompt "Flash Memory Technology"
-	default CONFIG_DATAFLASH
-	help
-	  Select memory for at91bootstrap
+  prompt "RAM size"
+  depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDRC && !CONFIG_KNOWN_RAM_CHIP_DEFINITION
+  default CONFIG_RAM_64MB
 
-config	CONFIG_DATAFLASH
-	bool "Dataflash"
-	depends on ALLOW_DATAFLASH
+config  CONFIG_RAM_32MB
+  bool "32 MB"
 
-config	CONFIG_FLASH
+config  CONFIG_RAM_64MB
+  bool "64 MB"
+
+config  CONFIG_RAM_128MB
+  bool "128 MB"
+
+config  CONFIG_RAM_256MB
+  bool "256 MB"
+
+config  CONFIG_RAM_512MB
+  bool "512 MB"
+
+endchoice
+
+menu "NAND/Flash selection"
+  depends on !CONFIG_UPLOAD_3RD_STAGE
+config  CONFIG_PSRAM
+  bool "Enable PSRAM on EBI1"
+  depends on ALLOW_PSRAM
+  help
+    
+choice
+  prompt "Flash Memory Technology"
+  default CONFIG_DATAFLASH
+  help
+    Select memory for at91bootstrap
+
+config  CONFIG_DATAFLASH
+  bool "Dataflash & Serial NOR flash"
+  depends on ALLOW_DATAFLASH
+
+config  CONFIG_FLASH
 	bool "Parallel NOR flash(supported from ROM Code v2.1)"
-	depends on ALLOW_FLASH
+  depends on ALLOW_FLASH
 	help
 	  Before you select it, please check the ROM Code if it supports
 	  to boot from the NOR flash.  Beacause booting from the external
 	  NOR memory is supported in ROM Code v2.1 for SAMA5D3x.
 
-config	CONFIG_NANDFLASH
-	bool "NAND flash"
-	depends on ALLOW_NANDFLASH
+config  CONFIG_NANDFLASH
+  bool "NAND flash"
+  depends on ALLOW_NANDFLASH
 
-config	CONFIG_SDCARD
-	bool "SD card"
-	depends on ALLOW_SDCARD
+config  CONFIG_SDCARD
+  bool "SD card"
+  depends on ALLOW_SDCARD
 
 endchoice
 
 config CONFIG_MEMORY
-	string
-	default "dataflash"	if CONFIG_DATAFLASH
-	default "flash"		if CONFIG_FLASH
-	default "nandflash"	if CONFIG_NANDFLASH
-	default "sdcard"	if CONFIG_SDCARD
+  string
+  default "dataflash" if CONFIG_DATAFLASH
+  default "flash"   if CONFIG_FLASH
+  default "nandflash" if CONFIG_NANDFLASH
+  default "sdcard"  if CONFIG_SDCARD
 
 menu  "SD Card Configuration"
-	depends on CONFIG_SDCARD
+  depends on CONFIG_SDCARD
 
 config CONFIG_SDCARD_HS
-	bool
+  bool
 	default y if AT91SAM9G45
 	default y if AT91SAM9X5
 	default y if AT91SAM9N12
 	default y if SAMA5D3X || SAMA5D4
-	default n
+  default n
 
 config CONFIG_FATFS
-	bool
-	depends on CONFIG_SDCARD
-	default y if CONFIG_SDCARD
+  bool
+  depends on CONFIG_SDCARD
+  default y if CONFIG_SDCARD
 
 config CONFIG_LONG_FILENAME
-	bool "Support Long FileName(LFN)"
-	depends on CONFIG_FATFS
+  bool "Support Long FileName(LFN)"
+  depends on CONFIG_FATFS
 	default y if !AT91SAM9G10
-	help
-	  Configure support to FatFS Long FileName(LFN)
+  help
+    Configure support to FatFS Long FileName(LFN)
 
 endmenu
 
@@ -162,13 +218,50 @@ endif
 if CONFIG_NANDFLASH
 	source "driver/Config.in.nandflash"
 endif
+endmenu
+
+config ALLOW_ROM_EBI
+  bool
+  default y if CONFIG_AT91SAMA5D3XEK
+  default n if !CONFIG_AT91SAMA5D3XEK
+  default n if CONFIG_SAMA5D31_BEEAVE
+
+if ALLOW_ROM_EBI
+  source "driver/Config.in.memory.ebi"
+endif
+
+
+config CONFIG_WITH_MMU
+  bool "Activate MMU"
+  depends on ALLOW_WITH_MMU
+  default n
+  help
+    "Use the MMU"
+
+config CONFIG_WITH_CACHE
+  bool "Activate the cache management"
+  depends on ALLOW_WITH_CACHE && CONFIG_WITH_MMU
+  default n
+  help
+    "Cache activated, requires the MMU activation."
+
+config CONFIG_EXTERNAL_RAM_TEST
+  depends on !CONFIG_ONLY_INTERNAL_RAM
+  bool "Perform an external RAM test at startup"
+  default n
+  help
+
+if CONFIG_EXTERNAL_RAM_TEST
+  source "driver/Config.in.memory.test"
+endif
 
 config CONFIG_BOOTSTRAP_MAXSIZE
-	string
-	default "4096" if AT91SAM9260
-	default "8192" if AT91SAM9G10 && CONFIG_SDCARD
-	default "12288" if AT91SAM9G10 && !CONFIG_SDCARD
-	default "65536"	if SAMA5D3X || SAMA5D4
-	default "23000"
+  string
+   default "4096" if AT91SAM9260
+   default "8192" if AT91SAM9G10 && CONFIG_SDCARD
+   default "12288" if AT91SAM9G10 && !CONFIG_SDCARD
+   default "65536"  if SAMA5D3X || SAMA5D4
+   default "23000"
+
 
 endmenu

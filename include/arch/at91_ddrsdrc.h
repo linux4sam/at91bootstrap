@@ -56,6 +56,7 @@
 #define	MPDDRC_DLL_S0SR		0x80	/* MPDDRC DLL Slave 0 Status Register */
 #define	MPDDRC_DLL_S1SR		0x84	/* MPDDRC DLL Slave 1 Status Register */
 
+#define MPDDRC_LPR        0x1C  /* MPDDRC LP-DDR1 Low Power Mode Register */
 #define MPDDRC_RD_DATA_PATH	0x5C	/* MPDDRC Read Data Path */
 
 /* 0x94 ~ 0xE0 Reserved */
@@ -153,6 +154,9 @@
 #define		AT91C_DDRC2_TRFC_(x)		(x & 0x7f)
 #define	AT91C_DDRC2_TXSNR	(0xFFUL << 8)
 #define		AT91C_DDRC2_TXSNR_(x)		((x & 0xff) << 8)
+
+#define AT91C_DDRC2_TXSR(val) (((val)&0x0FF)<<8)
+
 #define AT91C_DDRC2_TXSRD	(0xFFUL << 16)
 #define		AT91C_DDRC2_TXSRD_(x)		((x & 0xff) << 16)
 #define	AT91C_DDRC2_TXP		(0xFUL << 24)
@@ -241,6 +245,28 @@
 #define		AT91C_MPDDRC_TZQIO_4	(0x4UL << 8)
 #define		AT91C_MPDDRC_TZQIO_5	(0x5UL << 8)
 #define		AT91C_MPDDRC_TZQIO_31	(0x1FUL << 8)
+
+/* -------- MPDDRC_LPR : (MPDDRC Offset: 0x1C) Low-power Register --------*/
+
+#define AT91C_MPDDRC_LPR_LPCB_NOLOWPOWER (0x0)
+#define AT91C_MPDDRC_LPR_LPCB_SELFREFRESH (0x1)
+#define AT91C_MPDDRC_LPR_LPCB_POWERDOWN (0x2)
+#define AT91C_MPDDRC_LPR_LPCB_DEEPPOWERDOWN (0x3)
+
+#define AT91C_MPDDRC_LPR_PASR(val) (((val) & 7) << 4)
+#define AT91C_MPDDRC_LPR_DS(val) (((val) & 7) << 8)
+
+#define AT91C_MPDDRC_LPR_CLK_FR_ENABLE (1 << 2)
+#define AT91C_MPDDRC_LPR_CLK_FR_DISABLE (0 << 2)
+
+#define AT91C_MPDDRC_LPR_TIMEOUT_NONE (0 << 12)
+#define AT91C_MPDDRC_LPR_TIMEOUT_64CK (1 << 12)
+#define AT91C_MPDDRC_LPR_TIMEOUT_128CK (2 << 12)
+
+#define AT91C_MPDDRC_LPR_UPD_MR_NO_UPDATE (0 << 20)
+#define AT91C_MPDDRC_LPR_UPD_MR_UPDATE_SHAREDBUS (1 << 20)
+#define AT91C_MPDDRC_LPR_UPD_MR_UPDATE_NOSHAREDBUS (2 << 20)
+
 
 #define	AT91C_MPDDRC_CALCODEP	(0xFUL << 16)
 #define		AT91C_MPDDRC_CALCODEP_(x)	((x) << 16)

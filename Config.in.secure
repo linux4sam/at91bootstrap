@@ -1,7 +1,7 @@
 config CONFIG_SECURE
 	bool "Secure Mode support"
 	default n
-	depends on CPU_HAS_AES && !CONFIG_LOAD_LINUX && !CONFIG_LOAD_ANDROID
+	depends on CPU_HAS_AES && !CONFIG_LOAD_LINUX && !CONFIG_LOAD_ANDROID && !CONFIG_SAMA5D31_BEEAVE
 	select CONFIG_AES
 	help
 	  Decrypt and check the signature of the application file

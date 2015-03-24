@@ -49,6 +49,17 @@ extern void at91_spi_disable(void);
 extern int at91_spi_init(unsigned int pcs,
 			unsigned int clock,
 			unsigned int mode);
+
+/**
+ * This function drives the the SPI controller with the Wait Data Read Before Transfer mode.
+ * If active, this will synchronize the Output with the Input, see SPI controller datasheet.
+ * @note this is mandatory for DMA multi-buffers transfers, otherwise data loss can occur at high speeds (above 30MHz).
+ * @param isActive [IN] boolean
+ *  - 0 : disable the  Wait Data Read Before Transfer mode.
+ *  - other : enable the Wait Data Read Before Transfer mode.
+ */
+extern int at91_spi_oisync (int isActive);
+
 extern void at91_spi_write_data(unsigned short data);
 extern unsigned int at91_spi_read_spi(void);
 extern unsigned int at91_spi_read_sr(void);

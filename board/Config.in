@@ -23,7 +23,7 @@ source "board/sama5d3_xplained/Config.in.board"
 source "board/sama5d3x_cmp/Config.in.board"
 source "board/sama5d4ek/Config.in.board"
 source "board/sama5d4_xplained/Config.in.board"
-
+source "board/sama5d31_beeave/Config.in.board"
 endchoice
 
 config CONFIG_BOARDNAME
@@ -43,6 +43,7 @@ config CONFIG_BOARDNAME
 	default "sama5d3x_cmp" if CONFIG_SAMA5D3X_CMP
 	default "sama5d4_xplained" if CONFIG_SAMA5D4_XPLAINED
 	default "sama5d4ek" if CONFIG_SAMA5D4EK
+	default "sama5d31_beeave" if CONFIG_SAMA5D31_BEEAVE
 
 config AT91SAM9260
 	select CPU_HAS_TWI0
@@ -78,7 +79,7 @@ config AT91SAM9G45
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	bool
-
+	  
 config AT91SAM9X5
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
@@ -124,10 +125,11 @@ config CONFIG_MACH_TYPE
 
 config CONFIG_LINK_ADDR
 	string
-	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4
-	default "0x300000" if !(AT91SAM9260 && AT91SAM9G20)
+  default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4
+  default "0x300000" if !(AT91SAM9260 && AT91SAM9G20)
 	help
-
+    This set the link address accordingly with the way the software is set in RAM.
+    
 config CONFIG_DATA_SECTION_ADDR
 	string
 	default "0x304000" if AT91SAM9XE
@@ -293,6 +295,7 @@ config	DISABLE_CPU_CLK_240MHZ
 	bool
 	default y if CONFIG_AT91SAM9263EK && CONFIG_CRYSTAL_16_36766MHZ
 	default n
+
 
 choice
 	prompt "Bus Speed"

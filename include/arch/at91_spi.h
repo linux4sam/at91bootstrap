@@ -53,6 +53,7 @@
 #define AT91C_SPI_PCSDEC	(0x1UL <<  2)
 #define AT91C_SPI_FDIV		(0x1UL <<  3)
 #define AT91C_SPI_MODFDIS	(0x1UL <<  4)
+#define AT91C_SPI_WDRBT		(0x1UL <<  5)
 #define AT91C_SPI_LLB		(0x1UL <<  7)
 #define AT91C_SPI_PCS(x)	(x << 16)
 #define AT91C_SPI_DLYBCS(x)	(x << 24)

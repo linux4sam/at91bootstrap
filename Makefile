@@ -23,7 +23,8 @@ endif
 
 BINDIR:=$(TOPDIR)/binaries
 
-DATE := $(shell date)
+
+DATE := $(shell date --rfc-3339=seconds)
 VERSION := 3.7.1
 REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
@@ -150,6 +151,73 @@ CRYSTAL:=$(strip $(subst ",,$(CONFIG_CRYSTAL)))
 SPI_CLK:=$(strip $(subst ",,$(CONFIG_SPI_CLK)))
 SPI_BOOT:=$(strip $(subst ",,$(CONFIG_SPI_BOOT)))
 
+#Add name decoration according to the BUILD destination.
+
+ifeq ($(CONFIG_DATAFLASH_LOAD_WITH_DMA),y)
+REVISION :=$(REVISION)-FASTLOAD
+endif
+
+ifeq ($(CONFIG_BUILD_RELEASE),)
+REVISION :=$(REVISION)-DEBUG
+endif
+
+ifeq ($(CONFIG_WITH_MMU),y)
+REVISION :=$(REVISION)-MMU
+endif
+
+ifeq ($(CONFIG_WITH_CACHE),y)
+REVISION :=$(REVISION)-CACHE
+endif
+
+ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
+REVISION :=$(REVISION)-DBG_3RD
+endif
+
+ifeq ($(CONFIG_CHECK_APPLICATION_LOAD),y)
+REVISION :=$(REVISION)-CHECKED_APPLI
+endif
+
+#Add RAM type in name, TODO : to be refactored : set it in boards' directories.
+ifeq ($(CONFIG_ONLY_INTERNAL_RAM),y)
+REVISION :=$(REVISION)-SRAM
+endif
+
+ifeq ($(CONFIG_DDR2),y)
+REVISION :=$(REVISION)-DDR2
+endif
+
+#LP-DDR1 : only known chips
+ifeq ($(CONFIG_LPDDR1),y)
+
+ifeq ($(CONFIG_RAM_CHIP_IS43LR32400),y)
+REVISION :=$(REVISION)-IS43LR32400
+endif
+
+ifeq ($(CONFIG_RAM_CHIP_IS43LR32800),y)
+REVISION :=$(REVISION)-IS43LR32800
+endif
+
+ifeq ($(CONFIG_RAM_CHIP_W948D2),y)
+REVISION :=$(REVISION)-WD948D2
+endif
+
+endif
+
+ifeq ($(CONFIG_LPDDR2),y)
+REVISION :=$(REVISION)-LPDDR2
+endif
+
+
+ifeq ($(CONFIG_EXTERNAL_RAM_TEST),y)
+REVISION := $(REVISION)-CHECK
+
+ifeq ($(CONFIG_EXTERNAL_RAM_TEST_INFINITE),y)
+REVISION := $(REVISION)-INFINITE
+endif
+
+endif
+
+
 ifeq ($(REVISION),)
 REV:=
 else
@@ -161,6 +229,9 @@ BLOB:=-dt
 else
 BLOB:=
 endif
+
+#Default value
+TARGET_NAME := spinning
 
 ifeq ($(CONFIG_LOAD_LINUX), y)
 TARGET_NAME:=linux-$(subst I,i,$(IMAGE_NAME))
@@ -195,10 +266,13 @@ endif
 
 ifeq ($(SYMLINK),)
 SYMLINK=at91bootstrap.bin
+ELF_SYMLINK=at91bootstrap.elf
 endif
 
 COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARDNAME).o
-SOBJS-y:= $(TOPDIR)/crt0_gnu.o
+SOBJS-y := $(TOPDIR)/crt0_gnu.o
+
+
 
 include	lib/libc.mk
 include	driver/driver.mk
@@ -206,23 +280,39 @@ include	fs/src/fat.mk
 
 #$(SOBJS-y:.o=.S)
 
-SRCS:= $(COBJS-y:.o=.c)
-OBJS:= $(SOBJS-y) $(COBJS-y)
 INCL=board/$(BOARDNAME)
 GC_SECTIONS=--gc-sections
 
 NOSTDINC_FLAGS=-nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
-CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
+CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -Wall \
 	-fno-stack-protector -fno-common \
 	-I$(INCL) -Iinclude -Ifs/include -I$(TOPDIR)/config/at91bootstrap-config \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)\" -DCOMPILE_TIME="\"$(DATE)\"" \
+	-DBOARD_NAME=\"$(BOARDNAME)\"
 
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
+ASFLAGS=-Wall -I$(INCL) -Iinclude
+
+## Release BUILD
+ifeq ($(CONFIG_BUILD_RELEASE),y)
+## debug Release
+CPPFLAGS += -Os
+ASFLAGS += -Os
+#Fake RELEASE => DEBUG from startup.
+#CPPFLAGS += -g -Os
+#ASFLAGS += -g -Os
+else
+CPPFLAGS += -g -g3 -O0
+ASFLAGS += -g -O0
+endif
 
 include	toplevel_cpp.mk
 include	board/board_cpp.mk
 include	driver/driver_cpp.mk
+
+#Must be defined once all include hase been done as new source files can be added in included MAKE rules file.
+SRCS:= $(COBJS-y:.o=.c)
+OBJS:= $(SOBJS-y) $(COBJS-y)
 
 ifeq ($(CONFIG_ENTER_NWD), y)
 link_script:=elf32-littlearm-tz.lds
@@ -268,6 +358,18 @@ CheckCrossCompile:
 	fi )
 
 PrintFlags:
+ifeq ($(CONFIG_BUILD_RELEASE),y)
+	@echo " !! --- RELEASE BUILD --- !! " && echo
+else
+	@echo " !! --- DEBUG BUILD --- !! " && echo
+endif
+ifeq ($(CONFIG_DEBUG_3RD_STAGE),y)
+	@echo " !! --- WAIT FOR DEBUGGER ONCE THIRD STAGE LOADED --- !!"
+endif
+	@echo Driver config
+	@echo ========
+	@echo SPI_CLCK : $(SPI_CLK)
+	@echo SPI_BOOT : $(SPI_BOOT) && echo
 	@echo CC
 	@echo ========
 	@echo $(CC) $(gccversion)&& echo
@@ -280,7 +382,12 @@ PrintFlags:
 	@echo ld FLAGS
 	@echo ========
 	@echo $(LDFLAGS) && echo
-
+	@echo ======
+	@echo Sources : $(SRCS) && echo
+	@echo Objets : $(OBJS) && echo
+	@echo ======
+	@echo Boot name : $(BOOT_NAME)
+	
 $(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
 	@echo "  LD        "$(BOOT_NAME).elf
@@ -288,6 +395,7 @@ $(AT91BOOTSTRAP): $(OBJS)
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
 	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
+	@ln -sf $(BOOT_NAME).elf ${BINDIR}/${ELF_SYMLINK}
 
 %.o : %.c .config
 	@echo "  CC        "$<
@@ -310,12 +418,12 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	  fi ; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
-		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
+		echo "[Failed***] It's too big to fit into SRAM area. the support maximum size is $(BOOTSTRAP_MAXSIZE)"; \
 		rm $(BINDIR)/$(BOOT_NAME).bin ;\
 		rm ${BINDIR}/${SYMLINK}; \
 		exit 2;\
 	  else \
-	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
+	  	echo "[Succeeded] It's OK to fit into SRAM area ($(BOOTSTRAP_MAXSIZE) bytes)"; \
 		stack_space=`expr $(BOOTSTRAP_MAXSIZE) - $$fsize`; \
 		echo "[Attention] The space left for stack is $$stack_space bytes"; \
 	  fi )
@@ -376,7 +484,8 @@ clean:
 	$(Q)find . -type f \( -name .depend \
 		-o -name '*.srec' \
 		-o -name '*.o' \
-		-o -name '*~' \) \
+		-o -name '*~' \
+		-o -name '*.S.txt' \) \
 		-print0 \
 		| xargs -0 rm -f
 
@@ -407,5 +516,10 @@ tarball:
 	$(Q)rm -rf ${TARBALL_DIR}
 
 PHONY+=tarball
+
+disassembly: all
+	$(OBJDUMP) -DS $(BINDIR)/$(BOOT_NAME).elf > $(BINDIR)/$(BOOT_NAME).S.txt
+
+PHONY += disassembly
 
 .PHONY: $(PHONY)
