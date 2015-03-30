@@ -88,6 +88,10 @@
 #include "sama5d4_xplained.h"
 #endif
 
+#ifdef CONFIG_SAMA5D2_XPLAINED
+#include "sama5d2_xplained.h"
+#endif
+
 /*
  * Functions Prototype
  */

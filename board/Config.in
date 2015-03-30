@@ -23,6 +23,7 @@ source "board/sama5d3_xplained/Config.in.board"
 source "board/sama5d3x_cmp/Config.in.board"
 source "board/sama5d4ek/Config.in.board"
 source "board/sama5d4_xplained/Config.in.board"
+source "board/sama5d2_xplained/Config.in.board"
 
 endchoice
 
@@ -43,6 +44,7 @@ config CONFIG_BOARDNAME
 	default "sama5d3x_cmp" if CONFIG_SAMA5D3X_CMP
 	default "sama5d4_xplained" if CONFIG_SAMA5D4_XPLAINED
 	default "sama5d4ek" if CONFIG_SAMA5D4EK
+	default "sama5d2_xplained" if CONFIG_SAMA5D2_XPLAINED
 
 config AT91SAM9260
 	select CORE_ARM926EJS
@@ -343,6 +345,10 @@ config CONFIG_BUS_SPEED_100MHZ
 	bool "100 MHz"
 	depends on SUPPORT_BUS_SPEED_100MHZ && (CONFIG_CPU_CLK_200MHZ || CONFIG_CPU_CLK_400MHZ)
 
+config CONFIG_BUS_SPEED_124MHZ
+	bool "124 MHz"
+	depends on SUPPORT_BUS_SPEED_124MHZ && CONFIG_CPU_CLK_498MHZ
+
 config CONFIG_BUS_SPEED_133MHZ
 	bool "133 MHz"
 	depends on SUPPORT_BUS_SPEED_133MHZ && (CONFIG_CPU_CLK_528MHZ || CONFIG_CPU_CLK_400MHZ || CONFIG_CPU_CLK_396MHZ || CONFIG_CPU_CLK_266MHZ)
@@ -372,6 +378,9 @@ config SUPPORT_BUS_SPEED_90MHZ
 	bool
 
 config SUPPORT_BUS_SPEED_100MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_124MHZ
 	bool
 
 config SUPPORT_BUS_SPEED_133MHZ
