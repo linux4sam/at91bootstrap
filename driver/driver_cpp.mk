@@ -319,3 +319,7 @@ endif
 ifeq ($(CONFIG_SECURE), y)
 CPPFLAGS += -DCONFIG_SECURE
 endif
+
+ifeq ($(CPU_HAS_PIO4), y)
+CPPFLAGS += -DCPU_HAS_PIO4
+endif
