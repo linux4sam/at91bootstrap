@@ -42,6 +42,9 @@ extern void pmc_enable_system_clock(unsigned int clock_id);
 extern void pmc_disable_system_clock(unsigned int clock_id);
 extern void pmc_set_smd_clock_divider(unsigned int divider);
 
+extern int pmc_sam9x5_enable_periph_clk(unsigned int periph_id);
+extern void pmc_sam9x5_disable_periph_clk(unsigned int periph_id);
+
 extern unsigned int pmc_read_reg(unsigned int reg_offset);
 extern int pmc_periph_clk(unsigned int periph_id, unsigned int is_on);
 extern unsigned int sys_mask_to_per_id(unsigned int sys_mask);

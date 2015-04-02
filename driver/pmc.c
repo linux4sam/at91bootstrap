@@ -278,6 +278,25 @@ void pmc_disable_system_clock(unsigned int clock_id)
 	 write_pmc(PMC_SCDR, clock_id);
 };
 
+int pmc_sam9x5_enable_periph_clk(unsigned int periph_id)
+{
+	unsigned int div_value;
+
+	write_pmc(PMC_PCR, periph_id);
+	div_value = read_pmc(PMC_PCR) & AT91C_PMC_DIV;
+
+	write_pmc(PMC_PCR, (periph_id | div_value
+				| AT91C_PMC_CMD
+				| AT91C_PMC_EN));
+
+	return 0;
+}
+
+void pmc_sam9x5_disable_periph_clk(unsigned int periph_id)
+{
+	write_pmc(PMC_PCR, ((periph_id & AT91C_PMC_PID) | AT91C_PMC_CMD));
+}
+
 void pmc_set_smd_clock_divider(unsigned int divider)
 {
 	unsigned int tmp = read_pmc(PMC_SMD);
