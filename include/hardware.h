@@ -76,6 +76,10 @@
 #include "arch/sama5d4.h"
 #endif
 
+#ifdef SAMA5D2
+#include "arch/sama5d2.h"
+#endif
+
 /* I/O Function Macro */
 #define writel(value, addr) \
 	(*(volatile unsigned int *)(addr)) = (value)

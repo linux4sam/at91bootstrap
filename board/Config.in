@@ -124,6 +124,17 @@ config SAMA5D4
 	select CPU_HAS_SCKC
 	bool
 
+config SAMA5D2
+	select CORE_CORTEX_A5
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_TWI2
+	select CPU_HAS_TWI3
+	select CPU_HAS_AES
+	select CPU_HAS_L2CC
+	select CPU_HAS_SCKC
+	bool
+
 config CONFIG_MACH_TYPE
 	string
 	default "1099"	if AT91SAM9260
@@ -138,11 +149,12 @@ config CONFIG_MACH_TYPE
 	default "9999"	if AT91SAM9N12
 	default "9999"	if SAMA5D3X
 	default "9999"	if SAMA5D4
+	default "9999"	if SAMA5D2
 	help
 
 config CONFIG_LINK_ADDR
 	string
-	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4
+	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4  || SAMA5D2
 	default "0x300000" if !(AT91SAM9260 && AT91SAM9G20)
 	help
 
@@ -165,6 +177,7 @@ config CONFIG_TOP_OF_MEMORY
 	default "0x308000"	if AT91SAM9N12
 	default "0x310000"	if SAMA5D3X
 	default "0x210000"	if SAMA5D4
+	default "0x210000"	if SAMA5D2
 	help
 	    The top address of internal SRAM
 
