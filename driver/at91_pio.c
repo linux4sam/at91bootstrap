@@ -226,7 +226,9 @@ int pio_set_gpio_output(unsigned pin, int value)
 	return 0;
 }
 
-static int pio_set_multi_drive(unsigned pin, int is_on)
+static int pio_config_gpio_output(unsigned int pin,
+				unsigned int config,
+				int value)
 {
 	unsigned pio = pin_to_controller(pin);
 	unsigned mask = pin_to_mask(pin);
@@ -234,7 +236,9 @@ static int pio_set_multi_drive(unsigned pin, int is_on)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-	write_pio(pio, (is_on ? PIO_MDER : PIO_MDDR), mask);
+	write_pio(pio, ((config & PIO_OPENDRAIN) ? PIO_MDER : PIO_MDDR), mask);
+
+	pio_set_gpio_output(pin, value);
 
 	return 0;
 }
@@ -303,10 +307,9 @@ int pio_configure(const struct pio_desc *pio_desc)
 					(pio_desc->attribute
 						& (PIO_PULLUP | PIO_PULLDOWN | PIO_DEGLITCH)));
 		} else if (pio_desc->type == PIO_OUTPUT) {
-			pio_set_multi_drive(pio_desc->pin_num,
-				(pio_desc->attribute & PIO_OPENDRAIN) ? 1 : 0);
-			pio_set_gpio_output(pio_desc->pin_num,
-				pio_desc->default_value);
+			pio_config_gpio_output(pio_desc->pin_num,
+					(pio_desc->attribute & PIO_OPENDRAIN),
+					pio_desc->default_value);
 		} else {
 			return 0;
 		}
