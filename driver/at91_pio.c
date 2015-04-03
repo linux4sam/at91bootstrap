@@ -196,6 +196,8 @@ int pio_set_gpio_input(unsigned pin, int config)
 	if (config & PIO_PULLUP && config & PIO_PULLDOWN)
 		return -1;
 
+	write_pio(pio, ((config & PIO_DEGLITCH) ? PIO_IFER : PIO_IFDR), mask);
+
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config & PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 #ifdef CONFIG_HAS_PIO3
@@ -220,19 +222,6 @@ int pio_set_gpio_output(unsigned pin, int value)
 	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
 	write_pio(pio, PIO_OER, mask);
 	write_pio(pio, PIO_PER, mask);
-
-	return 0;
-}
-
-static int pio_set_deglitch(unsigned pin, int is_on)
-{
-	unsigned pio = pin_to_controller(pin);
-	unsigned mask = pin_to_mask(pin);
-
-	if (pio >= AT91C_NUM_PIO)
-		return -1;
-
-	write_pio(pio, (is_on ? PIO_IFER : PIO_IFDR), mask);
 
 	return 0;
 }
@@ -310,11 +299,9 @@ int pio_configure(const struct pio_desc *pio_desc)
 						& (PIO_PULLUP | PIO_PULLDOWN)));
 #endif
 		} else if (pio_desc->type == PIO_INPUT) {
-			pio_set_deglitch(pio_desc->pin_num,
-				(pio_desc->attribute & PIO_DEGLITCH) ? 1 : 0);
 			pio_set_gpio_input(pio_desc->pin_num,
 					(pio_desc->attribute
-						& (PIO_PULLUP | PIO_PULLDOWN)));
+						& (PIO_PULLUP | PIO_PULLDOWN | PIO_DEGLITCH)));
 		} else if (pio_desc->type == PIO_OUTPUT) {
 			pio_set_multi_drive(pio_desc->pin_num,
 				(pio_desc->attribute & PIO_OPENDRAIN) ? 1 : 0);
