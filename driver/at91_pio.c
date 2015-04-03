@@ -141,7 +141,6 @@ static int pio_set_b_periph(unsigned pin, int config)
 	return 0;
 }
 
-#ifdef CONFIG_HAS_PIO3
 static int pio_set_c_periph(unsigned pin, int config)
 {
 	unsigned pio = pin_to_controller(pin);
@@ -153,12 +152,14 @@ static int pio_set_c_periph(unsigned pin, int config)
 	if (config & PIO_PULLUP && config & PIO_PULLDOWN)
 		return -1;
 
+#ifdef CONFIG_HAS_PIO3
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config && PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) | mask);
 	write_pio(pio, PIO_PDR, mask);
+#endif
 
 	return 0;
 }
@@ -174,16 +175,17 @@ static int pio_set_d_periph(unsigned pin, int config)
 	if (config & PIO_PULLUP && config & PIO_PULLDOWN)
 		return -1;
 
+#ifdef CONFIG_HAS_PIO3
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config && PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) | mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) | mask);
 	write_pio(pio, PIO_PDR, mask);
+#endif
 
 	return 0;
 }
-#endif
 
 int pio_set_gpio_input(unsigned pin, int config)
 {
@@ -292,7 +294,6 @@ int pio_configure(const struct pio_desc *pio_desc)
 			pio_set_b_periph(pio_desc->pin_num,
 					(pio_desc->attribute
 						& (PIO_PULLUP | PIO_PULLDOWN)));
-#ifdef CONFIG_HAS_PIO3
 		} else if (pio_desc->type == PIO_PERIPH_C) {
 			pio_set_c_periph(pio_desc->pin_num,
 					(pio_desc->attribute
@@ -301,7 +302,6 @@ int pio_configure(const struct pio_desc *pio_desc)
 			pio_set_d_periph(pio_desc->pin_num,
 					(pio_desc->attribute
 						& (PIO_PULLUP | PIO_PULLDOWN)));
-#endif
 		} else if (pio_desc->type == PIO_INPUT) {
 			pio_set_gpio_input(pio_desc->pin_num,
 					(pio_desc->attribute
