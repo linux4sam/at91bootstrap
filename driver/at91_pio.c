@@ -288,28 +288,23 @@ int pio_configure(const struct pio_desc *pio_desc)
 			return 0;
 		} else if (pio_desc->type == PIO_PERIPH_A) {
 			pio_set_a_periph(pio_desc->pin_num,
-					(pio_desc->attribute
-						& (PIO_PULLUP | PIO_PULLDOWN)));
+						pio_desc->attribute);
 		} else if (pio_desc->type == PIO_PERIPH_B) {
 			pio_set_b_periph(pio_desc->pin_num,
-					(pio_desc->attribute
-						& (PIO_PULLUP | PIO_PULLDOWN)));
+						pio_desc->attribute);
 		} else if (pio_desc->type == PIO_PERIPH_C) {
 			pio_set_c_periph(pio_desc->pin_num,
-					(pio_desc->attribute
-						& (PIO_PULLUP | PIO_PULLDOWN)));
+						pio_desc->attribute);
 		} else if (pio_desc->type == PIO_PERIPH_D) {
 			pio_set_d_periph(pio_desc->pin_num,
-					(pio_desc->attribute
-						& (PIO_PULLUP | PIO_PULLDOWN)));
+						pio_desc->attribute);
 		} else if (pio_desc->type == PIO_INPUT) {
 			pio_set_gpio_input(pio_desc->pin_num,
-					(pio_desc->attribute
-						& (PIO_PULLUP | PIO_PULLDOWN | PIO_DEGLITCH)));
+						pio_desc->attribute);
 		} else if (pio_desc->type == PIO_OUTPUT) {
 			pio_config_gpio_output(pio_desc->pin_num,
-					(pio_desc->attribute & PIO_OPENDRAIN),
-					pio_desc->default_value);
+						pio_desc->attribute,
+						pio_desc->default_value);
 		} else {
 			return 0;
 		}
