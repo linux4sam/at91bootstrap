@@ -52,7 +52,8 @@ void lowlevel_clock_init()
 	rstc_external_reset();
 #endif
 
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || defined(SAMA5D4)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
+	|| defined(SAMA5D4) || defined(SAMA5D2)
 	/*
 	 * Enable the 12MHz oscillator
 	 * tST_max = 2ms
@@ -155,7 +156,8 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 	 * wait for MCKRDY bit to be set in the PMC_SR register
 	 */
 	tmp = read_pmc(PMC_MCKR);
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || defined(SAMA5D4)
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
+	|| defined(SAMA5D4) || defined(SAMA5D2)
 	tmp &= (~AT91C_PMC_ALT_PRES);
 	tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
 #else
