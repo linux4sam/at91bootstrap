@@ -434,6 +434,150 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 
 	return 0;
 }
+
+#elif defined(CONFIG_DDR3)
+
+int ddr3_sdram_initialize(unsigned int base_address,
+			unsigned int ram_address,
+			struct ddramc_register *ddramc_config)
+{
+	unsigned int ba_offset;
+	unsigned int cr = 0;
+
+	/* Compute BA[] offset according to CR configuration */
+	ba_offset = (ddramc_config->cr & AT91C_DDRC2_NC) + 9;
+	if (!(ddramc_config->cr & AT91C_DDRC2_DECOD_INTERLEAVED))
+		ba_offset += ((ddramc_config->cr & AT91C_DDRC2_NR) >> 2) + 11;
+
+	ba_offset += (ddramc_config->mdr & AT91C_DDRC2_DBW) ? 1 : 2;
+
+	dbg_very_loud(" ba_offset = %x ...\n", ba_offset);
+
+	/*
+	 * Step 1: Program the memory device type in the MPDDRC Memory Device Register
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MDR, ddramc_config->mdr);
+
+	/*
+	 * Step 2: Program features of the DDR3-SDRAM device in the MPDDRC
+	 * Configuration Register and in the MPDDRC Timing Parameter 0 Register
+	 * /MPDDRC Timing Parameter 1 Register
+	 */
+	write_ddramc(base_address, HDDRSDRC2_CR, ddramc_config->cr);
+
+	write_ddramc(base_address, HDDRSDRC2_T0PR, ddramc_config->t0pr);
+	write_ddramc(base_address, HDDRSDRC2_T1PR, ddramc_config->t1pr);
+	write_ddramc(base_address, HDDRSDRC2_T2PR, ddramc_config->t2pr);
+
+
+	/*
+	 * Step 3: A NOP command is issued to the DDR3-SRAM.
+	 * Program the NOP command in the MPDDRC Mode Register (MPDDRC_MR).
+	 * The application must write a one to the MODE field in the MPDDRC_MR
+	 * Perform a write access to any DDR3-SDRAM address to acknowledge this command.
+	 * The clock which drive the DDR3-SDRAM device are now enabled.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 4: A pause of at least 500us must be observed before a single toggle.
+	 */
+	 udelay(500);
+
+	/*
+	 * Step 5: A NOP command is issued to the DDR3-SDRAM
+	 * Program the NOP command in the MPDDRC_MR.
+	 * The application must write a one to the MODE field in the MPDDRC_MR.
+	 * Perform a write access to any DDR3-SDRAM address to acknowledge this command.
+	 * CKE is now driven high.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 6: An Extended Mode Register Set (EMRS2) cycle is issued to choose
+	 * between commercial or high temperature operations. The application must
+	 * write a five to the MODE field in the MPDDRC_MR and perform a write
+	 * access to the DDR3-SDRAM to acknowledge this command.
+	 * The write address must be chosen so that signal BA[2] is set to 0,
+	 * BA[1] is set to 1 and signal BA[0] is set to 0.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
+	*((unsigned int *)(ram_address + (0x2 << ba_offset))) = 0;
+
+	/*
+	 * Step 7: An Extended Mode Register Set (EMRS3) cycle is issued to set
+	 * the Extended Mode Register to 0. The application must write a five
+	 * to the MODE field in the MPDDRC_MR and perform a write access to the
+	 * DDR3-SDRAM to acknowledge this command. The write address must be
+	 * chosen so that signal BA[2] is set to 0, BA[1] is set to 1 and signal
+	 * BA[0] is set to 1.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
+	*((unsigned int *)(ram_address + (0x3 << ba_offset))) = 0;
+
+	/*
+	 * Step 8: An Extended Mode Register Set (EMRS1) cycle is issued to
+	 * disable and to program O.D.S. (Output Driver Strength).
+	 * The application must write a five to the MODE field in the MPDDRC_MR
+	 * and perform a write access to the DDR3-SDRAM to acknowledge this command.
+	 * The write address must be chosen so that signal BA[2:1] is set to 0
+	 * and signal BA[0] is set to 1.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
+	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
+
+	/*
+	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
+	 * Configuration Register (MPDDRC_CR)
+	 */
+	cr = read_ddramc(base_address, HDDRSDRC2_CR);
+	write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_DLL_RESET_ENABLED);
+
+	/*
+	 * Step 10: A Mode Register Set (MRS) cycle is issued to reset DLL.
+	 * The application must write a three to the MODE field in the MPDDRC_MR
+	 * and perform a write access to the DDR3-SDRAM to acknowledge this command.
+	 * The write address must be chosen so that signals BA[2:0] are set to 0
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_LMR_CMD);
+	*((unsigned int *)ram_address) = 0;
+
+	/*
+	 * Step 11: A Calibration command (MRS) is issued to calibrate RTT and
+	 * RON values for the Process Voltage Temperature (PVT).
+	 * The application must write a six to the MODE field in the MPDDRC_MR
+	 * and perform a write access to the DDR3-SDRAM to acknowledge this command.
+	 * The write address must be chosen so that signals BA[2:0] are set to 0.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_DEEP_CMD);
+	*((unsigned int *)ram_address) = 0;
+
+	/*
+	 * Step 12: A Normal Mode command is provided.
+	 * Program the Normal mode in the MPDDRC_MR and perform a write access
+	 * to any DDR3-SDRAM address to acknowledge this command.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
+	*((unsigned int *)ram_address) = 0;
+
+	/*
+	 * Step 13: Perform a write access to any DDR3-SDRAM address.
+	 */
+	*((unsigned int *)ram_address) = 0;
+
+	/*
+	 * Step 14: Write the refresh rate into the COUNT field in the MPDDRC
+	 * Refresh Timer Register (MPDDRC_RTR):
+	 * refresh rate = delay between refresh cycles.
+	 * The DDR3-SDRAM device requires a refresh every 7.81 us.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
+
+	return 0;
+}
+
 #else
 #error "No right DDR-SDRAM device driver provided!"
 #endif /* #ifndef CONFIG_PDDR2 */

@@ -81,6 +81,9 @@ config CONFIG_LPDDR2
 config CONFIG_DDR2
 	bool "DDR2-SDRAM"
 
+config CONFIG_DDR3
+	bool "DDR3-SDRAM"
+
 endchoice
 
 endmenu
