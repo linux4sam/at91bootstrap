@@ -481,7 +481,9 @@ static void sdcard_set_of_name_board(char *of_name)
 	}
 
 	if (get_dm_sn() == BOARD_ID_PDA_DM)
-		strcat(of_name, "_pda");
+		strcat(of_name, "_pda4");
+	else if (get_dm_sn() == BOARD_ID_PDA7_DM)
+		strcat(of_name, "_pda7");
 
 	strcat(of_name, ".dtb");
 }
