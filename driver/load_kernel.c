@@ -273,61 +273,53 @@ int kernel_size(unsigned char *addr)
 
 	return (int)size;
 }
-#endif
 
-#if defined(CONFIG_LINUX_UIMAGE)
-static int boot_uimage_setup(unsigned char *addr, unsigned int *entry)
+static int boot_image_setup(unsigned char *addr, unsigned int *entry)
 {
-	struct linux_uimage_header *image_header
+	struct linux_zimage_header *zimage_header
+			= (struct linux_zimage_header *)addr;
+
+	struct linux_uimage_header *uimage_header
 			= (struct linux_uimage_header *)addr;
 	unsigned int src, dest;
 	unsigned int size;
 	unsigned int magic;
 
-	dbg_info("\nBooting uImage ......\n");
-	magic = swap_uint32(image_header->magic);
-	dbg_info("uImage magic: %d is found\n", magic);
-	if (magic != LINUX_UIMAGE_MAGIC) {
-		dbg_info("** Bad uImage magic found: %d\n", magic);
-		return -1;
+	dbg_loud("try zImage magic: %d is found\n", zimage_header->magic);
+	if (zimage_header->magic == LINUX_ZIMAGE_MAGIC) {
+		dbg_info("\nBooting zImage ......\n");
+		*entry = ((unsigned int)addr + zimage_header->start);
+		return 0;
 	}
 
-	if (image_header->comp_type != 0) {
-		dbg_info("The uImage compress type not supported\n");
-		return -1;
+	magic = swap_uint32(uimage_header->magic);
+	dbg_loud("try uImage magic: %d is found\n", magic);
+	if (magic == LINUX_UIMAGE_MAGIC) {
+		dbg_info("\nBooting uImage ......\n");
+
+		if (uimage_header->comp_type != 0) {
+			dbg_info("The uImage compress type not supported\n");
+			return -1;
+		}
+
+		size = swap_uint32(uimage_header->size);
+		dest = swap_uint32(uimage_header->load);
+		src = (unsigned int)addr + sizeof(struct linux_uimage_header);
+
+		dbg_info("Relocating kernel image, dest: %d, src: %d\n",
+				dest, src);
+
+		memcpy((void *)dest, (void *)src, size);
+
+		dbg_info(" ...... %d bytes data transferred\n", size);
+
+		*entry = swap_uint32(uimage_header->entry_point);
+		return 0;
 	}
 
-	size = swap_uint32(image_header->size);
-	dest = swap_uint32(image_header->load);
-	src = (unsigned int)addr + sizeof(struct linux_uimage_header);
-
-	dbg_info("Relocating kernel image, dest: %d, src: %d\n", dest, src);
-
-	memcpy((void *)dest, (void *)src, size);
-
-	dbg_info(" ...... %d bytes data transferred\n", size);
-
-	*entry = swap_uint32(image_header->entry_point);
-
-	return 0;
-}
-#elif defined(CONFIG_LINUX_ZIMAGE)
-static int boot_zimage_setup(unsigned char *addr, unsigned int *entry)
-{
-	struct linux_zimage_header *image_header
-			= (struct linux_zimage_header *)addr;
-
-	dbg_info("\nBooting zImage ......\n");
-	dbg_info("zImage magic: %d is found\n", image_header->magic);
-	if (image_header->magic != LINUX_ZIMAGE_MAGIC) {
-		dbg_info("** Bad zImage magic found: %d\n",
-					image_header->magic);
-		return -1;
-	}
-
-	*entry = ((unsigned int)addr + image_header->start);
-
-	return 0;
+	dbg_info("** Bad uImage magic: %d, zImage magic: %d\n",
+			magic, zimage_header->magic);
+	return -1;
 }
 #endif
 
@@ -366,12 +358,8 @@ int load_kernel(struct image_info *image)
 	slowclk_switch_osc32();
 #endif
 
-#if defined(CONFIG_LINUX_UIMAGE)
-	ret = boot_uimage_setup(addr, &entry_point);
-#elif defined(CONFIG_LINUX_ZIMAGE)
-	ret = boot_zimage_setup(addr, &entry_point);
-#else
-#error "No Linux image type provided!"
+#if defined(CONFIG_LINUX_UIMAGE) || defined(CONFIG_LINUX_ZIMAGE)
+	ret = boot_image_setup(addr, &entry_point);
 #endif
 	if (ret)
 		return -1;
