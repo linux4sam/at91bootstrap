@@ -224,7 +224,7 @@ static void setup_boot_params(void)
 }
 #endif /* #ifdef CONFIG_OF_LIBFDT */
 
-#if defined(CONFIG_LINUX_UIMAGE) || defined(CONFIG_LINUX_ZIMAGE)
+#if defined(CONFIG_LINUX_IMAGE)
 /* Linux uImage Header */
 #define LINUX_UIMAGE_MAGIC	0x27051956
 struct linux_uimage_header {
@@ -358,7 +358,7 @@ int load_kernel(struct image_info *image)
 	slowclk_switch_osc32();
 #endif
 
-#if defined(CONFIG_LINUX_UIMAGE) || defined(CONFIG_LINUX_ZIMAGE)
+#if defined(CONFIG_LINUX_IMAGE)
 	ret = boot_image_setup(addr, &entry_point);
 #endif
 	if (ret)

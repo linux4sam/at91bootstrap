@@ -28,11 +28,13 @@ config CONFIG_LOAD_UBOOT
 	  like U-boot into the last MB of SDRAM.
 
 config CONFIG_LOAD_LINUX
+	select CONFIG_LINUX_IMAGE
 	bool "Support loading Linux directly"
 	---help---
 	   Load Linux kernel directly from storage media
 
 config CONFIG_LOAD_ANDROID
+	select CONFIG_LINUX_IMAGE
 	bool "Support loading android directly"
 	help
 	   Load android image directly from storage media
@@ -57,22 +59,11 @@ config CONFIG_LOAD_64KB
 
 endchoice
 
-choice
-	prompt "Linux Image Type Select"
+config CONFIG_LINUX_IMAGE
 	depends on CONFIG_LOAD_LINUX || CONFIG_LOAD_ANDROID
-	default CONFIG_LINUX_UIMAGE
-
-config CONFIG_LINUX_UIMAGE
-	bool "Load Linux uImage"
+	bool
 	help
-	  Select to load linux uImage to boot
-
-config CONFIG_LINUX_ZIMAGE
-	bool "Load Linux zImage"
-	help
-	  Select to load linux zImage to boot
-
-endchoice
+	  Select to load linux uImage or zImage to boot
 
 #
 # Linux Image Storage Setup
@@ -271,8 +262,7 @@ endmenu
 
 config CONFIG_IMAGE_NAME
 	string
-	default "uImage" if CONFIG_LINUX_UIMAGE
-	default "zImage" if CONFIG_LINUX_ZIMAGE
+	default "Image" if CONFIG_LINUX_IMAGE
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
 	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
 	  
