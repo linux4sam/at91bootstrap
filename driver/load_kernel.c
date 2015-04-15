@@ -251,24 +251,27 @@ struct linux_zimage_header {
 	unsigned int	end;
 };
 
-unsigned int kernel_size(unsigned char *addr)
+int kernel_size(unsigned char *addr)
 {
 	struct linux_uimage_header *uimage_header
 			= (struct linux_uimage_header *)addr;
 
 	struct linux_zimage_header *zimage_header
 			= (struct linux_zimage_header *)addr;
-
+	unsigned int size = -1;
 	unsigned int magic = swap_uint32(uimage_header->magic);
 
 	if (magic == LINUX_UIMAGE_MAGIC)
-		return swap_uint32(uimage_header->size)
+		size = swap_uint32(uimage_header->size)
 			+ sizeof(struct linux_uimage_header);
 
 	if (zimage_header->magic == LINUX_ZIMAGE_MAGIC)
-		return zimage_header->end - zimage_header->start;
+		size = zimage_header->end - zimage_header->start;
 
-	return -1;
+	if ((int)size < 0)
+		return -1;
+
+	return (int)size;
 }
 #endif
 

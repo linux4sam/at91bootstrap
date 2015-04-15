@@ -61,7 +61,7 @@ struct image_info
 
 extern void (*sdcard_set_of_name)(char *);
 
-extern unsigned int kernel_size(unsigned char *addr);
+extern int kernel_size(unsigned char *addr);
 
 static inline unsigned int swap_uint32(unsigned int data)
 {
