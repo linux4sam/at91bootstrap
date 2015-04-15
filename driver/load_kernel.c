@@ -224,10 +224,9 @@ static void setup_boot_params(void)
 }
 #endif /* #ifdef CONFIG_OF_LIBFDT */
 
-#if defined(CONFIG_LINUX_UIMAGE)
+#if defined(CONFIG_LINUX_UIMAGE) || defined(CONFIG_LINUX_ZIMAGE)
 /* Linux uImage Header */
 #define LINUX_UIMAGE_MAGIC	0x27051956
-
 struct linux_uimage_header {
 	unsigned int	magic;
 	unsigned int	header_crc;
@@ -243,6 +242,37 @@ struct linux_uimage_header {
 	unsigned char	name[32];
 };
 
+/* Linux zImage Header */
+#define	LINUX_ZIMAGE_MAGIC	0x016f2818
+struct linux_zimage_header {
+	unsigned int	code[9];
+	unsigned int	magic;
+	unsigned int	start;
+	unsigned int	end;
+};
+
+unsigned int kernel_size(unsigned char *addr)
+{
+	struct linux_uimage_header *uimage_header
+			= (struct linux_uimage_header *)addr;
+
+	struct linux_zimage_header *zimage_header
+			= (struct linux_zimage_header *)addr;
+
+	unsigned int magic = swap_uint32(uimage_header->magic);
+
+	if (magic == LINUX_UIMAGE_MAGIC)
+		return swap_uint32(uimage_header->size)
+			+ sizeof(struct linux_uimage_header);
+
+	if (zimage_header->magic == LINUX_ZIMAGE_MAGIC)
+		return zimage_header->end - zimage_header->start;
+
+	return -1;
+}
+#endif
+
+#if defined(CONFIG_LINUX_UIMAGE)
 static int boot_uimage_setup(unsigned char *addr, unsigned int *entry)
 {
 	struct linux_uimage_header *image_header
@@ -278,27 +308,7 @@ static int boot_uimage_setup(unsigned char *addr, unsigned int *entry)
 
 	return 0;
 }
-
-unsigned int kernel_size(unsigned char *addr)
-{
-	struct linux_uimage_header *image_header
-		= (struct linux_uimage_header *)addr;
-
-	return swap_uint32(image_header->size)
-			+ sizeof(struct linux_uimage_header);
-}
-
 #elif defined(CONFIG_LINUX_ZIMAGE)
-
-#define	LINUX_ZIMAGE_MAGIC	0x016f2818
-
-struct linux_zimage_header {
-	unsigned int	code[9];
-	unsigned int	magic;
-	unsigned int	start;
-	unsigned int	end;
-};
-
 static int boot_zimage_setup(unsigned char *addr, unsigned int *entry)
 {
 	struct linux_zimage_header *image_header
@@ -316,16 +326,6 @@ static int boot_zimage_setup(unsigned char *addr, unsigned int *entry)
 
 	return 0;
 }
-
-unsigned int kernel_size(unsigned char *addr)
-{
-	struct linux_zimage_header *image_header
-		= (struct linux_zimage_header *)addr;
-
-	return image_header->end - image_header->start;
-}
-#else
-#error "No Linux image type provided!"
 #endif
 
 static int load_kernel_image(struct image_info *image)
