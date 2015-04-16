@@ -45,52 +45,63 @@ config CONFIG_BOARDNAME
 	default "sama5d4ek" if CONFIG_SAMA5D4EK
 
 config AT91SAM9260
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	bool
 
 config AT91SAM9261
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	bool
 
 config AT91SAM9263
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	bool
 
 config AT91SAM9RL
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	bool
 
 config AT91SAM9XE
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	bool
 
 config AT91SAM9G10
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	bool
 
 config AT91SAM9G20
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	bool
 
 config AT91SAM9G45
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	bool
 
 config AT91SAM9X5
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	select CPU_HAS_TWI2
 	bool
 
 config AT91SAM9N12
+	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	bool
 
 config SAMA5D3X
+	select CORE_CORTEX_A5
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	select CPU_HAS_TWI2
@@ -98,6 +109,7 @@ config SAMA5D3X
 	bool
 
 config SAMA5D4
+	select CORE_CORTEX_A5
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	select CPU_HAS_TWI2
@@ -395,5 +407,13 @@ config CONFIG_HAS_AUDIO_CODEC
 	default n
 
 config CONFIG_HAS_HDMI
+	bool
+	default n
+
+config CORE_ARM926EJS
+	bool
+	default n
+
+config CORE_CORTEX_A5
 	bool
 	default n
