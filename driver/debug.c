@@ -28,7 +28,9 @@
 #include "usart.h"
 #include "debug.h"
 #include <stdarg.h>
+#include <string.h>
 
+#define ROW_SIZE	0x10
 #define MAX_BUFFER	128
 
 static char dbg_buf[MAX_BUFFER];
@@ -43,6 +45,9 @@ static inline short fill_char(char *buf, char val)
 static inline short fill_string(char *buf, char *p)
 {
 	short num = 0;
+
+	if (!p)
+		p = "(null)";
 
 	while (*p != 0) {
 		*buf++ = *p++;
@@ -88,6 +93,7 @@ int dbg_printf(const char *fmt_str, ...)
 		} else {
 			fmt_str++;	/* skip % */
 			switch (*fmt_str) {
+			case 'p':
 			case 'd':
 			case 'i':
 			case 'u':
@@ -123,4 +129,50 @@ int dbg_printf(const char *fmt_str, ...)
 	usart_puts(dbg_buf);
 
 	return 0;
+}
+
+void dbg_hexdump_line(const unsigned char *buf, unsigned int size)
+{
+	unsigned int j;
+	unsigned char b[ROW_SIZE];
+	memcpy(b, buf, size);
+	memset(&b[size], 0x00, (ROW_SIZE - size));
+
+	for (j = 0; j < ROW_SIZE; j++) {
+		dbg_printf(" %x", buf[j]);
+	}
+
+	dbg_printf("\t");
+
+	for (j = 0; j < ROW_SIZE; j++) {
+		if ((buf[j] < 0x20) || (buf[j] >= 0x7F))
+			dbg_printf(".");
+		else
+			dbg_printf("%c", (char) buf[j]);
+	}
+
+	dbg_printf("\n");
+}
+
+void dbg_hexdump(unsigned int address,
+		 const unsigned char *buf,
+		 unsigned int size)
+{
+	unsigned int r, row;
+
+	row = size / ROW_SIZE;
+	if (size % ROW_SIZE)
+		row++;
+
+	dbg_printf("%s:", "@address");
+	for (r = 0; r < ROW_SIZE; r ++)
+		dbg_printf(" %x", r);
+	dbg_printf("\n");
+
+	for (r = 0; r < row; r++) {
+		dbg_printf("%x:", address + (r * ROW_SIZE));
+		dbg_hexdump_line(buf, ROW_SIZE);
+		buf += ROW_SIZE;
+	}
+	dbg_printf("%x\n", address + size);
 }
