@@ -255,6 +255,19 @@ int pmc_disable_periph_clock(unsigned int periph_id)
 	return 0;
 }
 
+int pmc_periph_clock_enabled(unsigned int periph_id)
+{
+	unsigned int mask = 0x01 << (periph_id % 32);
+	int enabled = 0;
+
+	if ((periph_id / 32) == 1)
+		enabled = !!(read_pmc(PMC_PCSR1) & mask);
+	else if ((periph_id / 32) == 0)
+		enabled = !!(read_pmc(PMC_PCSR) & mask);
+
+	return enabled;
+}
+
 void pmc_enable_system_clock(unsigned int clock_id)
 {
 	 write_pmc(PMC_SCER, clock_id);
