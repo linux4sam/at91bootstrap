@@ -63,6 +63,7 @@ config AT91SAM9RL
 	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
+	select CPU_HAS_SCKC
 	bool
 
 config AT91SAM9XE
@@ -85,6 +86,7 @@ config AT91SAM9G45
 	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
+	select CPU_HAS_SCKC
 	bool
 
 config AT91SAM9X5
@@ -92,12 +94,14 @@ config AT91SAM9X5
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	select CPU_HAS_TWI2
+	select CPU_HAS_SCKC
 	bool
 
 config AT91SAM9N12
 	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
+	select CPU_HAS_SCKC
 	bool
 
 config SAMA5D3X
@@ -106,6 +110,7 @@ config SAMA5D3X
 	select CPU_HAS_TWI1
 	select CPU_HAS_TWI2
 	select CPU_HAS_AES
+	select CPU_HAS_SCKC
 	bool
 
 config SAMA5D4
@@ -116,6 +121,7 @@ config SAMA5D4
 	select CPU_HAS_TWI3
 	select CPU_HAS_AES
 	select CPU_HAS_L2CC
+	select CPU_HAS_SCKC
 	bool
 
 config CONFIG_MACH_TYPE
@@ -415,5 +421,9 @@ config CORE_ARM926EJS
 	default n
 
 config CORE_CORTEX_A5
+	bool
+	default n
+
+config CPU_HAS_SCKC
 	bool
 	default n

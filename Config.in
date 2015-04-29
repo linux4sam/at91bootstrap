@@ -329,7 +329,7 @@ config CONFIG_USER_HW_INIT
 endmenu
 
 menu "Slow Clock Configuration Options"
-	depends on AT91SAM9RL || AT91SAM9G45 || AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X || SAMA5D4
+	depends on CPU_HAS_SCKC
 
 config CONFIG_SCLK
 	bool "Use external 32KHZ oscillator as source of slow clock"
