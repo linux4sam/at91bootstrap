@@ -442,7 +442,6 @@ int ddr3_sdram_initialize(unsigned int base_address,
 			struct ddramc_register *ddramc_config)
 {
 	unsigned int ba_offset;
-	unsigned int cr = 0;
 
 	/* Compute BA[] offset according to CR configuration */
 	ba_offset = (ddramc_config->cr & AT91C_DDRC2_NC) + 9;
@@ -469,7 +468,6 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_T1PR, ddramc_config->t1pr);
 	write_ddramc(base_address, HDDRSDRC2_T2PR, ddramc_config->t2pr);
 
-
 	/*
 	 * Step 3: A NOP command is issued to the DDR3-SRAM.
 	 * Program the NOP command in the MPDDRC Mode Register (MPDDRC_MR).
@@ -495,6 +493,8 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
 	*((unsigned volatile int *)ram_address) = 0;
 
+	udelay(10);
+
 	/*
 	 * Step 6: An Extended Mode Register Set (EMRS2) cycle is issued to choose
 	 * between commercial or high temperature operations. The application must
@@ -505,6 +505,8 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
 	*((unsigned int *)(ram_address + (0x2 << ba_offset))) = 0;
+
+	udelay(10);
 
 	/*
 	 * Step 7: An Extended Mode Register Set (EMRS3) cycle is issued to set
@@ -517,6 +519,8 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
 	*((unsigned int *)(ram_address + (0x3 << ba_offset))) = 0;
 
+	udelay(10);
+
 	/*
 	 * Step 8: An Extended Mode Register Set (EMRS1) cycle is issued to
 	 * disable and to program O.D.S. (Output Driver Strength).
@@ -528,12 +532,16 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
 	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
 
+	udelay(10);
+
 	/*
 	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
 	 * Configuration Register (MPDDRC_CR)
 	 */
+#if 0
 	cr = read_ddramc(base_address, HDDRSDRC2_CR);
 	write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_DLL_RESET_ENABLED);
+#endif
 
 	/*
 	 * Step 10: A Mode Register Set (MRS) cycle is issued to reset DLL.
@@ -544,6 +552,8 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_LMR_CMD);
 	*((unsigned int *)ram_address) = 0;
 
+	udelay(50);
+
 	/*
 	 * Step 11: A Calibration command (MRS) is issued to calibrate RTT and
 	 * RON values for the Process Voltage Temperature (PVT).
@@ -553,6 +563,8 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_DEEP_CMD);
 	*((unsigned int *)ram_address) = 0;
+
+	udelay(10);
 
 	/*
 	 * Step 12: A Normal Mode command is provided.
