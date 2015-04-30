@@ -226,6 +226,9 @@
 #define AT91C_NUM_PIO		5
 #define	AT91C_NUM_TWI		4
 
+/* AICREDIR Unlock Key */
+#define	AICREDIR_KEY		0x5F67B102
+
 /*
  * SoC specific defines
  */

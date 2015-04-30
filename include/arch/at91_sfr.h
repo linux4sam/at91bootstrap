@@ -65,7 +65,4 @@
 #define		AT91C_EBICFG_BMS_ROM		(0x00 << 16)
 #define		AT91C_EBICFG_BMS_EBI		(0x01 << 16)
 
-/*--- SFR_AICREDIR: (offset: 0x54)----*/
-#define	AICREDIR_KEY	0x5F67B102
-
 #endif /* #ifndef __AT91_SFR_H__ */
