@@ -47,16 +47,25 @@ enum {
 /* structure definition */
 struct image_info
 {
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
 	unsigned int offset;
 	unsigned int length;
+#endif
+#ifdef CONFIG_SDCARD
 	char *filename;
+#endif
 	unsigned char *dest;
 
-	unsigned char of;
+#ifdef CONFIG_OF_LIBFDT
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
 	unsigned int of_offset;
 	unsigned int of_length;
+#endif
+#ifdef CONFIG_SDCARD
 	char *of_filename;
+#endif
 	unsigned char *of_dest;
+#endif
 };
 
 typedef int (*load_function)(struct image_info *image);

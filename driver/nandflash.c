@@ -969,24 +969,22 @@ int load_nandflash(struct image_info *image)
 	if (ret)
 		return ret;
 
-	if (image->of) {
-#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-		length = update_image_length(&nand,
-				image->of_offset, image->of_dest, DT_BLOB);
-		if (length == -1)
-			return -1;
+#ifdef CONFIG_OF_LIBFDT
+	length = update_image_length(&nand,
+			image->of_offset, image->of_dest, DT_BLOB);
+	if (length == -1)
+		return -1;
 
-		image->of_length = length;
+	image->of_length = length;
+
+	dbg_info("NAND: dt blob: Copy %d bytes from %d to %d\n",
+		image->of_length, image->of_offset, image->of_dest);
+
+	ret = nand_loadimage(&nand, image->of_offset,
+				image->of_length, image->of_dest);
+	if (ret)
+		return ret;
 #endif
-
-		dbg_info("NAND: dt blob: Copy %d bytes from %d to %d\n",
-			image->of_length, image->of_offset, image->of_dest);
-
-		ret = nand_loadimage(&nand, image->of_offset,
-					image->of_length, image->of_dest);
-		if (ret)
-			return ret;
-	}
 
 	return 0;
  }

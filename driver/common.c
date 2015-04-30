@@ -54,7 +54,6 @@ void init_load_image(struct image_info *image)
 
 	image->dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
-	image->of = 1;
 	image->of_dest = (unsigned char *)OF_ADDRESS;
 #endif
 
