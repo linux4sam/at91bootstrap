@@ -41,6 +41,7 @@
 #include "pm.h"
 #include "act8865.h"
 #include "secure.h"
+#include "sfr_aicredir.h"
 
 extern int load_kernel(struct image_info *img_info);
 
@@ -155,6 +156,10 @@ int main(void)
 
 #ifdef CONFIG_HW_DISPLAY_BANNER
 	display_banner();
+#endif
+
+#ifdef CONFIG_REDIRECT_ALL_INTS_AIC
+	redirect_interrupts_to_nsaic();
 #endif
 
 #ifdef CONFIG_LOAD_HW_INFO
