@@ -51,7 +51,6 @@ static char *cmd_line_android = LINUX_KERNEL_ARG_STRING \
 #endif /* #ifdef CONFIG_LOAD_ANDROID */
 
 #ifdef CONFIG_OF_LIBFDT
-
 static int setup_dt_blob(void *blob)
 {
 	char *bootargs = LINUX_KERNEL_ARG_STRING;
@@ -92,15 +91,7 @@ static int setup_dt_blob(void *blob)
 
 	return 0;
 }
-
-static void setup_boot_params(void) {}
-
 #else
-static int setup_dt_blob(void *blob)
-{
-	return 0;
-}
-
 #define TAG_FLAG_NONE		0x00000000
 #define TAG_FLAG_CORE		0x54410001
 #define TAG_FLAG_MEM		0x54410002
@@ -366,19 +357,19 @@ int load_kernel(struct image_info *image)
 
 	kernel_entry = (void (*)(int, int, unsigned int))entry_point;
 
-	if (image->of) {
-		ret = setup_dt_blob((char *)image->of_dest);
-		if (ret)
-			return ret;
+#ifdef CONFIG_OF_LIBFDT
+	ret = setup_dt_blob((char *)image->of_dest);
+	if (ret)
+		return ret;
 
-		mach_type = 0xffffffff;
-		r2 = (unsigned int)image->of_dest;
-	} else {
-		setup_boot_params();
+	mach_type = 0xffffffff;
+	r2 = (unsigned int)image->of_dest;
+#else
+	setup_boot_params();
 
-		mach_type = MACH_TYPE;
-		r2 = (unsigned int)(MEM_BANK + 0x100);
-	}
+	mach_type = MACH_TYPE;
+	r2 = (unsigned int)(MEM_BANK + 0x100);
+#endif
 
 	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",
 							mach_type);

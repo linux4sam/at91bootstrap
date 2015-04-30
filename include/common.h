@@ -47,21 +47,34 @@ enum {
 /* structure definition */
 struct image_info
 {
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH)
 	unsigned int offset;
 	unsigned int length;
+#endif
+#ifdef CONFIG_SDCARD
 	char *filename;
+#endif
 	unsigned char *dest;
 
-	unsigned char of;
+#ifdef CONFIG_OF_LIBFDT
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH)
 	unsigned int of_offset;
 	unsigned int of_length;
+#endif
+#ifdef CONFIG_SDCARD
 	char *of_filename;
+#endif
 	unsigned char *of_dest;
+#endif
 };
 
+#ifdef CONFIG_SDCARD
 extern void (*sdcard_set_of_name)(char *);
+#endif
 
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 extern int kernel_size(unsigned char *addr);
+#endif
 
 static inline unsigned int swap_uint32(unsigned int data)
 {

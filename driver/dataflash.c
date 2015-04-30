@@ -632,28 +632,27 @@ int load_dataflash(struct image_info *image)
 		goto err_exit;
 	}
 
-	if (image->of) {
-
+#ifdef CONFIG_OF_LIBFDT
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-		length = update_image_length(df_desc,
-				image->of_offset, image->of_dest, DT_BLOB);
-		if (length == -1)
-			return -1;
+	length = update_image_length(df_desc,
+			image->of_offset, image->of_dest, DT_BLOB);
+	if (length == -1)
+		return -1;
 
-		image->of_length = length;
+	image->of_length = length;
 #endif
 
-		dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
-			image->of_length, image->of_offset, image->of_dest);
+	dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
+		image->of_length, image->of_offset, image->of_dest);
 
-		ret = dataflash_read_array(df_desc,
-			image->of_offset, image->of_length, image->of_dest);
-		if (ret) {
-			dbg_info("** SF: DT: Serial flash read error**\n");
-			ret = -1;
-			goto err_exit;
-		}
+	ret = dataflash_read_array(df_desc,
+		image->of_offset, image->of_length, image->of_dest);
+	if (ret) {
+		dbg_info("** SF: DT: Serial flash read error**\n");
+		ret = -1;
+		goto err_exit;
 	}
+#endif
 
 err_exit:
 	at91_spi_disable();
