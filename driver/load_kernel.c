@@ -321,6 +321,8 @@ static int load_kernel_image(struct image_info *image)
 	ret = load_nandflash(image);
 #elif defined(CONFIG_SDCARD)
 	ret = load_sdcard(image);
+#else
+#error "No booting media specified!"
 #endif
 	if (ret)
 		return ret;
