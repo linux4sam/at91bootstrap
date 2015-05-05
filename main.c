@@ -83,19 +83,16 @@ int main(void)
 	char *media_str = NULL;
 	int ret;
 
+#ifdef CONFIG_SDCARD
 	char filename[FILENAME_BUF_LEN];
-
 #ifdef CONFIG_OF_LIBFDT
 	char of_filename[FILENAME_BUF_LEN];
+	memset(of_filename, 0, FILENAME_BUF_LEN);
+#endif
+	memset(filename, 0, FILENAME_BUF_LEN);
 #endif
 
 	memset(&image, 0, sizeof(image));
-	memset(filename, 0, FILENAME_BUF_LEN);
-
-#ifdef CONFIG_OF_LIBFDT
-	memset(of_filename, 0, FILENAME_BUF_LEN);
-#endif
-
 	image.dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
 	image.of_dest = (unsigned char *)OF_ADDRESS;
