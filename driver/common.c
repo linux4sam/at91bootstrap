@@ -35,14 +35,22 @@
 
 load_function load_image;
 
+#ifdef CONFIG_SDCARD
 char filename[FILENAME_BUF_LEN];
+#ifdef CONFIG_OF_LIBFDT
 char of_filename[FILENAME_BUF_LEN];
+#endif
+#endif
 
 void init_load_image(struct image_info *image)
 {
 	memset(image,		0, sizeof(*image));
+#ifdef CONFIG_SDCARD
 	memset(filename,	0, FILENAME_BUF_LEN);
+#ifdef CONFIG_OF_LIBFDT
 	memset(of_filename,	0, FILENAME_BUF_LEN);
+#endif
+#endif
 
 	image->dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
