@@ -70,18 +70,12 @@ static int init_loadfunction(void)
 	return 0;
 }
 
+#ifdef CONFIG_HW_DISPLAY_BANNER
 static void display_banner (void)
 {
-	char *version = "AT91Bootstrap";
-	char *ver_num = " "AT91BOOTSTRAP_VERSION" ("COMPILE_TIME")";
-
-	usart_puts("\n");
-	usart_puts("\n");
-	usart_puts(version);
-	usart_puts(ver_num);
-	usart_puts("\n");
-	usart_puts("\n");
+	usart_puts(BANNER);
 }
+#endif
 
 int main(void)
 {
@@ -154,7 +148,9 @@ int main(void)
 #endif
 #endif
 
+#ifdef CONFIG_HW_DISPLAY_BANNER
 	display_banner();
+#endif
 
 #ifdef CONFIG_LOAD_HW_INFO
 	/* Load board hw informaion */
