@@ -238,4 +238,34 @@
 /* AICREDIR Unlock Key */
 #define	AICREDIR_KEY		0xB6D81C4D
 
+/*
+ * Matrix Slaves ID
+ */
+/* MATRIX0(H64MX) Matrix Slaves */
+/* Bridge from H64MX to AXIMX (Internal ROM, Cryto Library, PKCC RAM) */
+#define	H64MX_SLAVE_BRIDGE_TO_AXIMX	0
+#define	H64MX_SLAVE_PERI_BRIDGE		1	/* H64MX Peripheral Bridge */
+#define	H64MX_SLAVE_DDR2_PORT_0		2	/* DDR2 Port0-AESOTF */
+#define	H64MX_SLAVE_DDR2_PORT_1		3	/* DDR2 Port1 */
+#define	H64MX_SLAVE_DDR2_PORT_2		4	/* DDR2 Port2 */
+#define	H64MX_SLAVE_DDR2_PORT_3		5	/* DDR2 Port3 */
+#define	H64MX_SLAVE_DDR2_PORT_4		6	/* DDR2 Port4 */
+#define	H64MX_SLAVE_DDR2_PORT_5		7	/* DDR2 Port5 */
+#define	H64MX_SLAVE_DDR2_PORT_6		8	/* DDR2 Port6 */
+#define	H64MX_SLAVE_DDR2_PORT_7		9	/* DDR2 Port7 */
+#define	H64MX_SLAVE_INTERNAL_SRAM	10	/* Internal SRAM 128K */
+#define	H64MX_SLAVE_CACHE_L2		11	/* Internal SRAM 128K (Cache L2) */
+#define	H64MX_SLAVE_QSPI0		12	/* QSPI0 */
+#define	H64MX_SLAVE_QSPI1		13	/* QSPI1 */
+#define	H64MX_SLAVE_AESB		14	/* AESB */
+
+/* MATRIX1(H32MX) Matrix Slaves */
+#define	H32MX_BRIDGE_TO_H64MX		0	/* Bridge from H32MX to H64MX */
+#define	H32MX_PERI_BRIDGE_0		1	/* H32MX Peripheral Bridge 0 */
+#define	H32MX_PERI_BRIDGE_1		2	/* H32MX Peripheral Bridge 1 */
+#define	H32MX_EXTERNAL_EBI		3	/* External Bus Interface */
+#define	H32MX_NFC_CMD_REG		3	/* NFC command Register */
+#define	H32MX_NFC_SRAM			4	/* NFC SRAM */
+#define	H32MX_USB			5
+
 #endif /* #ifndef __SAMA5D2_H__ */
