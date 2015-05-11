@@ -97,6 +97,10 @@ extern void (*sdcard_set_of_name)(char *);
 extern int kernel_size(unsigned char *addr);
 #endif
 
+#ifdef CMDLINE
+extern char *bootargs;
+#endif
+
 static inline unsigned int swap_uint32(unsigned int data)
 {
 	volatile unsigned int a, b, c, d;

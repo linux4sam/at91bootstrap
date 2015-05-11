@@ -426,6 +426,14 @@ void hw_init(void)
 	/* Init the recovery buttons pins */
 	recovery_buttons_hw_init();
 #endif
+
+#if defined(CONFIG_LOAD_ANDROID) && defined(CMDLINE)
+	/* Setup Android command-line */
+	if (get_dm_sn() == BOARD_ID_PDA_DM)
+		bootargs = CMDLINE " androidboot.hardware=sama5d3x-pda";
+	else
+		bootargs = CMDLINE " androidboot.hardware=sama5d3x-ek";
+#endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
