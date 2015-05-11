@@ -333,6 +333,7 @@ menu "Slow Clock Configuration Options"
 
 config CONFIG_SCLK
 	bool "Use external 32KHZ oscillator as source of slow clock"
+	default y
 	help
 	  Use external 32KHZ oscillator as source of slow clock
 
