@@ -69,7 +69,7 @@ config CONFIG_LINUX_IMAGE
 # Kernel Image Storage Setup
 #
 menu "Kernel Image Storage Setup"
-	depends on CONFIG_LOAD_LINUX
+	depends on CONFIG_LINUX_IMAGE
 
 config CONFIG_KERNEL_CMDLINE
 	bool "Overwrite the kernel command-line"
