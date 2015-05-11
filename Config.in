@@ -74,7 +74,7 @@ menu "Kernel Image Storage Setup"
 config CONFIG_KERNEL_CMDLINE
 	bool "Overwrite the kernel command-line"
 	depends on CONFIG_OF_LIBFDT
-	default n
+	default y
 	help
 	  Overwrite the kernel command-line
 
