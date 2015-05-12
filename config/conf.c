@@ -24,7 +24,10 @@ enum input_mode {
 	oldaskconfig,
 	silentoldconfig,
 	oldconfig,
+	allnoconfig,
+	allyesconfig,
 	allmodconfig,
+	alldefconfig,
 	randconfig,
 	defconfig,
 	savedefconfig,
@@ -455,7 +458,10 @@ static struct option long_opts[] = {
 	{"silentoldconfig", no_argument,       NULL, silentoldconfig},
 	{"defconfig",       optional_argument, NULL, defconfig},
 	{"savedefconfig",       required_argument, NULL, savedefconfig},
+	{"allnoconfig",     no_argument,       NULL, allnoconfig},
+	{"allyesconfig",    no_argument,       NULL, allyesconfig},
 	{"allmodconfig",    no_argument,       NULL, allmodconfig},
+	{"alldefconfig",    no_argument,       NULL, alldefconfig},
 	{"randconfig",      no_argument,       NULL, randconfig},
 	{"nonint_oldconfig",       no_argument, NULL, nonint_oldconfig},
 	{"loose_nonint_oldconfig", no_argument, NULL, loose_nonint_oldconfig},
@@ -546,7 +552,10 @@ int main(int ac, char **av)
     case oldconfig:
         conf_read(NULL);
         break;
+    case allnoconfig:
+    case allyesconfig:
     case allmodconfig:
+    case alldefconfig:
     case randconfig:
         name = getenv("KCONFIG_ALLCONFIG");
         if (name && !stat(name, &tmpstat)) {
@@ -554,7 +563,10 @@ int main(int ac, char **av)
             break;
         }
         switch (input_mode) {
+		case allnoconfig:	name = "allno.config"; break;
+		case allyesconfig:	name = "allyes.config"; break;
 		case allmodconfig:	name = "allmod.config"; break;
+		case alldefconfig:	name = "alldef.config"; break;
 		case randconfig:	name = "allrandom.config"; break;
         default:
             break;
@@ -582,8 +594,17 @@ int main(int ac, char **av)
     }
 
     switch (input_mode) {
+    case allnoconfig:
+        conf_set_all_new_symbols(def_no);
+        break;
+    case allyesconfig:
+        conf_set_all_new_symbols(def_yes);
+        break;
     case allmodconfig:
         conf_set_all_new_symbols(def_mod);
+        break;
+    case alldefconfig:
+        conf_set_all_new_symbols(def_default);
         break;
     case randconfig:
         conf_set_all_new_symbols(def_random);

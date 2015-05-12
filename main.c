@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2006, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -83,19 +83,16 @@ int main(void)
 	char *media_str = NULL;
 	int ret;
 
+#ifdef CONFIG_SDCARD
 	char filename[FILENAME_BUF_LEN];
-
 #ifdef CONFIG_OF_LIBFDT
 	char of_filename[FILENAME_BUF_LEN];
+	memset(of_filename, 0, FILENAME_BUF_LEN);
+#endif
+	memset(filename, 0, FILENAME_BUF_LEN);
 #endif
 
 	memset(&image, 0, sizeof(image));
-	memset(filename, 0, FILENAME_BUF_LEN);
-
-#ifdef CONFIG_OF_LIBFDT
-	memset(of_filename, 0, FILENAME_BUF_LEN);
-#endif
-
 	image.dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
 	image.of_dest = (unsigned char *)OF_ADDRESS;
@@ -113,13 +110,29 @@ int main(void)
 #endif
 
 #ifdef CONFIG_NANDFLASH
+#ifdef CONFIG_UBI
+	media_str = "UBI: ";
+	image.offset = UBI_OFFSET;
+	image.volname = UBI_KERNEL_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image.spare_volname = UBI_KERNEL_SPARE_VOLNAME;
+#endif
+#else
 	media_str = "NAND: ";
 	image.offset = IMG_ADDRESS;
 #if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
 	image.length = IMG_SIZE;
 #endif
+#endif
 #ifdef CONFIG_OF_LIBFDT
+#ifdef CONFIG_UBI
+	image.of_volname = UBI_DTB_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image.of_spare_volname = UBI_DTB_SPARE_VOLNAME;
+#endif
+#else
 	image.of_offset = OF_OFFSET;
+#endif
 #endif
 #endif
 

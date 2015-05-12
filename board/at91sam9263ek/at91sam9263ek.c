@@ -2,6 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2009, Atmel Corporation
+ *
  * All rights reserved.
  * PSRAM,16 bit SDRAM support courtesy of Epsilon Group
  * Redistribution and use in source and binary forms, with or without

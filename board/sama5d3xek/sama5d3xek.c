@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2012, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -425,6 +425,14 @@ void hw_init(void)
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 	/* Init the recovery buttons pins */
 	recovery_buttons_hw_init();
+#endif
+
+#if defined(CONFIG_LOAD_ANDROID) && defined(CMDLINE)
+	/* Setup Android command-line */
+	if (get_dm_sn() == BOARD_ID_PDA_DM)
+		bootargs = CMDLINE " androidboot.hardware=sama5d3x-pda";
+	else
+		bootargs = CMDLINE " androidboot.hardware=sama5d3x-ek";
 #endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */

@@ -43,7 +43,8 @@ Q=@
 export Q
 endif
 
-noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig
+noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig \
+		   allnoconfig allyesconfig allmodconfig alldefconfig randconfig
 
 # Check first if we want to configure at91bootstrap
 #
@@ -109,6 +110,12 @@ savedefconfig: $(CONFIG)/conf
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
 		$(CONFIG)/conf --savedefconfig=defconfig $(CONFIG_CONFIG_IN)
 
+allnoconfig allyesconfig allmodconfig alldefconfig randconfig: $(CONFIG)/conf
+	@mkdir -p $(CONFIG)/at91bootstrap-config
+	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
+		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
+		$(CONFIG)/conf --$@ $(CONFIG_CONFIG_IN)
+
 else #  Have DOT Config
 
 HOSTARCH := $(shell uname -m | sed -e s/arm.*/arm/)
@@ -162,6 +169,10 @@ else
 BLOB:=
 endif
 
+ifeq ($(CONFIG_UBI), y)
+BLOB:=$(BLOB)-ubi
+endif
+
 ifeq ($(CONFIG_LOAD_LINUX), y)
 TARGET_NAME:=linux-$(subst I,i,$(IMAGE_NAME))
 endif
@@ -200,7 +211,7 @@ endif
 COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARDNAME).o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 
-include	lib/libc.mk
+include	lib/lib.mk
 include	driver/driver.mk
 include	fs/src/fat.mk
 

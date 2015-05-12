@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2012, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,18 @@
 #ifndef __NANDFLASH_H__
 #define __NANDFLASH_H__
 
+#include <nand.h>
+
 extern int load_nandflash(struct image_info *image);
+
+extern int nand_read_page(struct nand_info *nand,
+				unsigned int block,
+				unsigned int page,
+				unsigned int zone_flag,
+				unsigned char *buffer);
+
+extern int nand_check_badblock(struct nand_info *nand,
+				unsigned int block,
+				unsigned char *buffer);
 
 #endif /* #ifndef __NANDFLASH_H__ */

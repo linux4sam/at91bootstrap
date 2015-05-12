@@ -2,7 +2,7 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2012, Atmel Corporation
-
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,15 @@
 #define ALIGN(size, align)	(((size) + (align) - 1) & (~((align) - 1)))
 #define OF_ALIGN(size)		ALIGN(size, 4)
 
+#define MAX(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+#define MIN(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+
 #ifndef NULL
 #define	NULL	0
 #endif
@@ -50,6 +59,12 @@ struct image_info
 #if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
 	unsigned int offset;
 	unsigned int length;
+#ifdef CONFIG_UBI
+	const char *volname;
+#ifdef CONFIG_UBI_SPARE
+	const char *spare_volname;
+#endif
+#endif
 #endif
 #ifdef CONFIG_SDCARD
 	char *filename;
@@ -60,6 +75,12 @@ struct image_info
 #if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
 	unsigned int of_offset;
 	unsigned int of_length;
+#ifdef CONFIG_UBI
+	const char *of_volname;
+#ifdef CONFIG_UBI_SPARE
+	const char *of_spare_volname;
+#endif
+#endif
 #endif
 #ifdef CONFIG_SDCARD
 	char *of_filename;
@@ -76,6 +97,10 @@ extern void (*sdcard_set_of_name)(char *);
 extern int kernel_size(unsigned char *addr);
 #endif
 
+#ifdef CMDLINE
+extern char *bootargs;
+#endif
+
 static inline unsigned int swap_uint32(unsigned int data)
 {
 	volatile unsigned int a, b, c, d;
@@ -88,5 +113,20 @@ static inline unsigned int swap_uint32(unsigned int data)
 	return a | b | c | d;
 }
 
+static inline unsigned long long int swap_uint64(unsigned long long int data)
+{
+	volatile unsigned long long int a, b, c, d, e, f, g, h;
+
+	a = ((data) & 0xff00000000000000) >> 56;
+	b = ((data) & 0x00ff000000000000) >> 40;
+	c = ((data) & 0x0000ff0000000000) >> 24;
+	d = ((data) & 0x000000ff00000000) >> 8;
+	e = ((data) & 0x00000000ff000000) << 8;
+	f = ((data) & 0x0000000000ff0000) << 24;
+	g = ((data) & 0x000000000000ff00) << 40;
+	h = ((data) & 0x00000000000000ff) << 56;
+
+	return a | b | c | d | e | f | g | h;
+}
 
 #endif /* #ifdef __COMMON_H__ */
