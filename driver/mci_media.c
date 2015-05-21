@@ -30,6 +30,7 @@
 #include "mci_media.h"
 #include "timer.h"
 #include "atmel_mci.h"
+#include "sdhc.h"
 #include "debug.h"
 
 #define DEFAULT_SD_BLOCK_LEN		512
@@ -1012,6 +1013,10 @@ int sdcard_initialize(void)
 
 #ifdef CONFIG_AT91_MCI
 	sdcard_register_at91_mci(sdcard);
+#endif
+
+#ifdef CONFIG_SDHC
+	sdcard_register_sdhc(sdcard);
 #endif
 
 	host = sdcard->host;

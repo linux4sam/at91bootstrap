@@ -81,6 +81,10 @@ int load_sdcard(struct image_info *image)
 	at91_mci0_hw_init();
 #endif
 
+#ifdef CONFIG_SDHC
+	at91_sdhc_hw_init();
+#endif
+
 	/* mount fs */
 	fret = f_mount(0, &fs);
 	if (fret != FR_OK) {
