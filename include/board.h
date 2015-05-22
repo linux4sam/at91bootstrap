@@ -103,6 +103,8 @@ extern void at91_spi0_hw_init(void);
 
 extern void at91_mci0_hw_init(void);
 
+extern void at91_sdhc_hw_init(void);
+
 extern void norflash_hw_init(void);
 
 /* PM Support */

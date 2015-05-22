@@ -91,9 +91,17 @@
 #define	NO_GALOIS_TABLE_IN_ROM
 
 /*
- * MCI Settings
+ * SDHC Settings
  */
-#define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI1
+#ifdef CONFIG_SDHC0
+#define CONFIG_SYS_BASE_SDHC	AT91C_BASE_SDHC0
+#define CONFIG_SYS_ID_SDHC	AT91C_ID_SDMMC0
+#endif
+
+#ifdef CONFIG_SDHC1
+#define CONFIG_SYS_BASE_SDHC	AT91C_BASE_SDHC1
+#define CONFIG_SYS_ID_SDHC	AT91C_ID_SDMMC1
+#endif
 
 /*
  * Recovery function

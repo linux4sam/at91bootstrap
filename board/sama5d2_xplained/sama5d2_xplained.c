@@ -422,24 +422,49 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_SDCARD
 static void sdcard_set_of_name_board(char *of_name)
 {
-	strcpy(of_name, "sama5d4ek.dtb");
+	strcpy(of_name, "at91-sama5d2_xplained.dtb");
 }
 
-void at91_mci0_hw_init(void)
+void at91_sdhc_hw_init(void)
 {
-	const struct pio_desc mci_pins[] = {
-		{"MCI1_CK", AT91C_PIN_PA(22), 0, PIO_DEFAULT, PIO_PERIPH_E},
-		{"MCI1_CDA", AT91C_PIN_PA(28), 0, PIO_DEFAULT, PIO_PERIPH_E},
+#ifdef CONFIG_SDHC0
+	const struct pio_desc sdmmc_pins[] = {
+		{"SDMMC0_CK",   AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_CMD",  AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT0", AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT1", AT91C_PIN_PA(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT2", AT91C_PIN_PA(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT3", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT4", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT5", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT6", AT91C_PIN_PA(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT7", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_RSTN", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_VDDSEL", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_WP",   AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_CD",   AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+};
+#endif
 
-		{"MCI1_DA0", AT91C_PIN_PA(18), 0, PIO_DEFAULT, PIO_PERIPH_E},
-		{"MCI1_DA1", AT91C_PIN_PE(19), 0, PIO_DEFAULT, PIO_PERIPH_E},
-		{"MCI1_DA2", AT91C_PIN_PE(20), 0, PIO_DEFAULT, PIO_PERIPH_E},
-		{"MCI1_DA3", AT91C_PIN_PE(21), 0, PIO_DEFAULT, PIO_PERIPH_E},
+#ifdef CONFIG_SDHC1
+	const struct pio_desc sdmmc_pins[] = {
+		{"SDMMC1_CD",	AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_CMD",	AT91C_PIN_PA(28), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_CK",	AT91C_PIN_PA(22), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_DAT0",	AT91C_PIN_PA(18), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_DAT1",	AT91C_PIN_PA(19), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_DAT2",	AT91C_PIN_PA(20), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_DAT3",	AT91C_PIN_PA(21), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_WP",	AT91C_PIN_PA(29), 0, PIO_DEFAULT, PIO_PERIPH_E},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#endif
 
-	pio_configure(mci_pins);
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_SDMMC0_TIMER);
+	pio_configure(sdmmc_pins);
+
+	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC);
 
 	sdcard_set_of_name = &sdcard_set_of_name_board;
 }
