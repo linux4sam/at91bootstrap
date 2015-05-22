@@ -30,6 +30,8 @@
 #include "timer.h"
 #include "arch/at91_pmc.h"
 #include "rstc.h"
+#include "debug.h"
+#include "div.h"
 
 static inline void write_pmc(unsigned int offset, const unsigned int value)
 {
@@ -295,6 +297,24 @@ int pmc_sam9x5_enable_periph_clk(unsigned int periph_id)
 	return 0;
 }
 
+void pmc_enable_periph_generated_clk(unsigned int periph_id)
+{
+	unsigned int regval;
+
+	write_pmc(PMC_PCR, periph_id);
+	regval = read_pmc(PMC_PCR);
+	regval &= ~AT91C_PMC_GCKCSS;
+	regval &= ~AT91C_PMC_GCKDIV;
+	regval |= (AT91C_PMC_GCKCSS_PLLA_CLK
+			| AT91C_PMC_CMD
+			| AT91C_PMC_GCKDIV_(1)
+			| AT91C_PMC_GCKEN);
+
+	write_pmc(PMC_PCR, regval);
+
+	write_pmc(PMC_PCR, periph_id);
+}
+
 void pmc_sam9x5_disable_periph_clk(unsigned int periph_id)
 {
 	write_pmc(PMC_PCR, ((periph_id & AT91C_PMC_PID) | AT91C_PMC_CMD));
@@ -325,6 +345,55 @@ unsigned int at91_get_ahb_clock(void)
 		return MASTER_CLOCK / 2;
 
 	return MASTER_CLOCK;
+}
+
+static unsigned int pmc_get_plla_freq(void)
+{
+	unsigned int tmp;
+	unsigned int divider, multiplier;
+	unsigned int main_clock;
+	unsigned int freq;
+
+	main_clock = BOARD_MAINOSC;
+
+	tmp = read_pmc(PMC_PLLAR);
+	divider = tmp & AT91C_CKGR_DIVA_MSK;
+	multiplier = (tmp >> AT91C_CKGR_ALT_MULA_OFFSET)
+					& AT91C_CKGR_ALT_MULA_MSK;
+	if (divider && multiplier) {
+		freq = div(main_clock, divider);
+		freq *= multiplier + 1;
+
+		if (read_pmc(PMC_MCKR) & AT91C_PMC_PLLADIV2)
+			freq /= 2;
+	} else {
+		freq = 0;
+	}
+
+	return freq;
+}
+
+unsigned int pmc_get_generated_clock(unsigned int periph_id)
+{
+	unsigned int tmp;
+	unsigned int clock_source, divider;
+	unsigned int freq = 0;
+
+	write_pmc(PMC_PCR, periph_id);
+	tmp = read_pmc(PMC_PCR);
+
+	divider = (tmp >> AT91C_PMC_GCKDIV_OFFSET) & AT91C_PMC_GCKDIV_MSK;
+	divider += 1;
+
+	clock_source = tmp & AT91C_PMC_GCKCSS;
+	if (clock_source == AT91C_PMC_GCKCSS_MAIN_CLK)
+		freq = BOARD_MAINOSC;
+	 else if (clock_source == AT91C_PMC_GCKCSS_PLLA_CLK)
+		freq = pmc_get_plla_freq();
+
+	freq = div(freq, divider);
+
+	return freq;
 }
 
 #if defined(CONFIG_ENTER_NWD)

@@ -123,16 +123,21 @@
 #define AT91C_CKGR_MAINRDY	(0x1UL << 16)
 
 /* -------- CKGR_PLLAR : (PMC Offset: 0x28) PLL A Register --------*/ 
-#define AT91C_CKGR_DIVA		(0xFFUL <<  0)
-#define 	AT91C_CKGR_DIVA_0		(0x0UL)
-#define		AT91C_CKGR_DIVA_BYPASS		(0x1UL)
+#define AT91C_CKGR_DIVA		(0xff << 0)
+#define		AT91C_CKGR_DIVA_MSK		0xff
+#define		AT91C_CKGR_DIVA_OFFSET		0
+#define		AT91C_CKGR_DIVA_0		0x0
+#define		AT91C_CKGR_DIVA_BYPASS		0x1
 #define AT91C_CKGR_PLLACOUNT	(0x3FUL <<  8)
 #define AT91C_CKGR_OUTA		(0x3UL << 14)
 #define 	AT91C_CKGR_OUTA_0		(0x0UL << 14)
 #define 	AT91C_CKGR_OUTA_1		(0x1UL << 14)
 #define 	AT91C_CKGR_OUTA_2		(0x2UL << 14)
 #define 	AT91C_CKGR_OUTA_3		(0x3UL << 14)
-#define AT91C_CKGR_MULA		(0x7FFUL << 16)
+#define AT91C_CKGR_MULA		(0xff << 16)
+#define	AT91C_CKGR_ALT_MULA	(0x7f << 18)
+#define		AT91C_CKGR_ALT_MULA_MSK		0x7f
+#define		AT91C_CKGR_ALT_MULA_OFFSET	18
 #define AT91C_CKGR_SRCA		(0x1UL << 29)
 
 /* -------- CKGR_PLLBR : (PMC Offset: 0x2c) PLL B Register --------*/
@@ -304,9 +309,21 @@
 #define 	AT91C_PMC_MFN_1		(0x1UL << 16)
 
 /* -------- PMC_PCR : (PMC Offset: 0x10c) Peripheral Control Register --------*/ 
-#define AT91C_PMC_PID		(0x3FUL << 0)
-#define AT91C_PMC_CMD		(0x1UL << 12)
-#define AT91C_PMC_DIV		(0x3UL << 16)
-#define AT91C_PMC_EN		(0x1UL << 28)
+#define	AT91C_PMC_PID		(0x3f << 0)
+#define	AT91C_PMC_GCKCSS	(0x7 << 8)
+#define		AT91C_PMC_GCKCSS_SLOW_CLK	(0x0 << 8)
+#define		AT91C_PMC_GCKCSS_MAIN_CLK	(0x1 << 8)
+#define		AT91C_PMC_GCKCSS_PLLA_CLK	(0x2 << 8)
+#define		AT91C_PMC_GCKCSS_UPLL_CLK	(0x3 << 8)
+#define		AT91C_PMC_GCKCSS_MCK_CLK	(0x4 << 8)
+#define		AT91C_PMC_GCKCSS_AUDIO_CLK	(0x5 << 8)
+#define	AT91C_PMC_CMD		(0x1 << 12)
+#define	AT91C_PMC_DIV		(0x3 << 16)
+#define	AT91C_PMC_GCKDIV	(0xff << 20)
+#define		AT91C_PMC_GCKDIV_MSK		0xff
+#define		AT91C_PMC_GCKDIV_OFFSET		20
+#define		AT91C_PMC_GCKDIV_(x)		(((x) & AT91C_PMC_GCKDIV_MSK) << AT91C_PMC_GCKDIV_OFFSET)
+#define	AT91C_PMC_EN		(0x1 << 28)
+#define	AT91C_PMC_GCKEN		(0x1 << 29)
 
 #endif /* #ifndef __AT91_PMC_H__ */
