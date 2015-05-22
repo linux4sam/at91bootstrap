@@ -46,6 +46,8 @@
 #include "l2cc.h"
 #include "act8865.h"
 #include "twi.h"
+#include "arch/tz_matrix.h"
+#include "matrix.h"
 
 static void at91_dbgu_hw_init(void)
 {
@@ -66,6 +68,187 @@ static void initialize_dbgu(void)
 	at91_dbgu_hw_init();
 	usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
 }
+
+#if defined(CONFIG_MATRIX)
+static int matrix_configure_slave(void)
+{
+	unsigned int ddr_port;
+	unsigned int ssr_setting, sasplit_setting, srtop_setting;
+
+	/*
+	 * Matrix 0 (H64MX)
+	 */
+
+	/*
+	 * 0: Bridge from H64MX to AXIMX
+	 * (Internal ROM, Crypto Library, PKCC RAM): Always Secured
+	 */
+
+	/* 1: H64MX Peripheral Bridge */
+
+	/* 2 ~ 9 DDR2 Port1 ~ 7: Non-Secure */
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_128M);
+	sasplit_setting = (MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(1, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(2, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(3, MATRIX_SASPLIT_VALUE_128M));
+	ssr_setting = (MATRIX_LANSECH_NS(0)
+			| MATRIX_LANSECH_NS(1)
+			| MATRIX_LANSECH_NS(2)
+			| MATRIX_LANSECH_NS(3)
+			| MATRIX_RDNSECH_NS(0)
+			| MATRIX_RDNSECH_NS(1)
+			| MATRIX_RDNSECH_NS(2)
+			| MATRIX_RDNSECH_NS(3)
+			| MATRIX_WRNSECH_NS(0)
+			| MATRIX_WRNSECH_NS(1)
+			| MATRIX_WRNSECH_NS(2)
+			| MATRIX_WRNSECH_NS(3));
+	/* DDR port 0 not used from NWd */
+	for (ddr_port = 1; ddr_port < 8; ddr_port++) {
+		matrix_configure_slave_security(AT91C_BASE_MATRIX64,
+					(H64MX_SLAVE_DDR2_PORT_0 + ddr_port),
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+	}
+
+	/*
+	 * 10: Internal SRAM 128K
+	 * TOP0 is set to 128K
+	 * SPLIT0 is set to 64K
+	 * LANSECH0 is set to 0, the low area of region 0 is the Securable one
+	 * RDNSECH0 is set to 0, region 0 Securable area is secured for reads.
+	 * WRNSECH0 is set to 0, region 0 Securable area is secured for writes
+	 */
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_128K);
+	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_64K);
+	ssr_setting = (MATRIX_LANSECH_S(0)
+			| MATRIX_RDNSECH_S(0)
+			| MATRIX_WRNSECH_S(0));
+	matrix_configure_slave_security(AT91C_BASE_MATRIX64,
+					H64MX_SLAVE_INTERNAL_SRAM,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 11:  Internal SRAM 128K (Cache L2) */
+	/* 12:  QSPI0 */
+	/* 13:  QSPI1 */
+	/* 14:  AESB */
+
+	/*
+	 * Matrix 1 (H32MX)
+	 */
+
+	/* 0: Bridge from H32MX to H64MX: Not Secured */
+
+	/* 1: H32MX Peripheral Bridge 0: Not Secured */
+
+	/* 2: H32MX Peripheral Bridge 1: Not Secured */
+
+	/*
+	 * 3: External Bus Interface
+	 * EBI CS0 Memory(256M) ----> Slave Region 0, 1
+	 * EBI CS1 Memory(256M) ----> Slave Region 2, 3
+	 * EBI CS2 Memory(256M) ----> Slave Region 4, 5
+	 * EBI CS3 Memory(128M) ----> Slave Region 6
+	 * NFC Command Registers(128M) -->Slave Region 7
+	 *
+	 * NANDFlash(EBI CS3) --> Slave Region 6: Non-Secure
+	 */
+	srtop_setting =	MATRIX_SRTOP(6, MATRIX_SRTOP_VALUE_128M);
+	srtop_setting |= MATRIX_SRTOP(7, MATRIX_SRTOP_VALUE_128M);
+	sasplit_setting = MATRIX_SASPLIT(6, MATRIX_SASPLIT_VALUE_128M);
+	sasplit_setting |= MATRIX_SASPLIT(7, MATRIX_SASPLIT_VALUE_128M);
+	ssr_setting = (MATRIX_LANSECH_NS(6)
+			| MATRIX_RDNSECH_NS(6)
+			| MATRIX_WRNSECH_NS(6));
+	ssr_setting |= (MATRIX_LANSECH_NS(7)
+			| MATRIX_RDNSECH_NS(7)
+			| MATRIX_WRNSECH_NS(7));
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_EXTERNAL_EBI,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 4: NFC SRAM (4K): Non-Secure */
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_8K);
+	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_8K);
+	ssr_setting = (MATRIX_LANSECH_NS(0)
+			| MATRIX_RDNSECH_NS(0)
+			| MATRIX_WRNSECH_NS(0));
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_NFC_SRAM,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	/* 5:
+	 * USB Device High Speed Dual Port RAM (DPR): 1M
+	 * USB Host OHCI registers: 1M
+	 * USB Host EHCI registers: 1M
+	 */
+	srtop_setting = (MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_1M)
+			| MATRIX_SRTOP(1, MATRIX_SRTOP_VALUE_1M)
+			| MATRIX_SRTOP(2, MATRIX_SRTOP_VALUE_1M));
+	sasplit_setting = (MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_1M)
+			| MATRIX_SASPLIT(1, MATRIX_SASPLIT_VALUE_1M)
+			| MATRIX_SASPLIT(2, MATRIX_SASPLIT_VALUE_1M));
+	ssr_setting = (MATRIX_LANSECH_NS(0)
+			| MATRIX_LANSECH_NS(1)
+			| MATRIX_LANSECH_NS(2)
+			| MATRIX_RDNSECH_NS(0)
+			| MATRIX_RDNSECH_NS(1)
+			| MATRIX_RDNSECH_NS(2)
+			| MATRIX_WRNSECH_NS(0)
+			| MATRIX_WRNSECH_NS(1)
+			| MATRIX_WRNSECH_NS(2));
+	matrix_configure_slave_security(AT91C_BASE_MATRIX32,
+					H32MX_USB,
+					srtop_setting,
+					sasplit_setting,
+					ssr_setting);
+
+	return 0;
+}
+
+static unsigned int security_ps_peri_id[] = {
+	0,
+};
+
+static int matrix_config_periheral(void)
+{
+	unsigned int *peri_id = security_ps_peri_id;
+	unsigned int array_size = sizeof(security_ps_peri_id) / sizeof(unsigned int);
+	int ret;
+
+	ret = matrix_configure_peri_security(peri_id, array_size);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+static int matrix_init(void)
+{
+	int ret;
+
+	matrix_write_disable(AT91C_BASE_MATRIX64);
+	matrix_write_disable(AT91C_BASE_MATRIX32);
+
+	ret = matrix_configure_slave();
+	if (ret)
+		return -1;
+
+	ret = matrix_config_periheral();
+	if (ret)
+		return -1;
+
+	return 0;
+}
+#endif	/* #if defined(CONFIG_MATRIX) */
 
 #ifdef CONFIG_DDR3
 static void ddramc_reg_config(struct ddramc_register *ddramc_config)
@@ -161,6 +344,10 @@ void hw_init(void)
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN,
 					AT91C_BASE_RSTC + RSTC_RMR);
 
+#if defined(CONFIG_MATRIX)
+	/* Initialize the matrix */
+	matrix_init();
+#endif
 	/* initialize the dbgu */
 	initialize_dbgu();
 
