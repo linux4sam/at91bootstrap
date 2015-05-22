@@ -76,37 +76,35 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9
 				| AT91C_DDRC2_NR_14
 				| AT91C_DDRC2_CAS_5
-				| AT91C_DDRC2_DLL_RESET_DISABLED
-				| AT91C_DDRC2_WEAK_STRENGTH_RZQ7 /*REVIST*/
 				| AT91C_DDRC2_DIS_DLL_DISABLED
 				| AT91C_DDRC2_NB_BANKS_8
-				| AT91C_DDRC2_DECOD_INTERLEAVED	/*REVIST*/
-				| AT91C_DDRC2_UNAL_SUPPORTED); /*REVIST*/
+				| AT91C_DDRC2_DECOD_INTERLEAVED
+				| AT91C_DDRC2_UNAL_SUPPORTED);
 
-	ddramc_config->rtr = 0x410;
+	/* Refresh Timer is (7.81us * 125MHz = 977 for 125MHz) */
+	ddramc_config->rtr = 0x3d1;
 
-	/* Assume timings for 7.5ns min clock period */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
-			| AT91C_DDRC2_TRCD_(3)
-			| AT91C_DDRC2_TWR_(3)
-			| AT91C_DDRC2_TRC_(10)
-			| AT91C_DDRC2_TRP_(3)
-			| AT91C_DDRC2_TRRD_(4)
-			| AT91C_DDRC2_TWTR_(4)
+	/* Assume timings for 8ns min clock period */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)
+			| AT91C_DDRC2_TRCD_(2)
+			| AT91C_DDRC2_TWR_(2)
+			| AT91C_DDRC2_TRC_(6)
+			| AT91C_DDRC2_TRP_(2)
+			| AT91C_DDRC2_TRRD_(1)
+			| AT91C_DDRC2_TWTR_(1)
 			| AT91C_DDRC2_TMRD_(4));
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(27)
-			| AT91C_DDRC2_TXSNR_(24)
-			| AT91C_DDRC2_TXSRD_(24)
-			| AT91C_DDRC2_TXP_(3));
+	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(20)
+			| AT91C_DDRC2_TXSNR_(22)
+			| AT91C_DDRC2_TXSRD_(0)
+			| AT91C_DDRC2_TXP_(2));
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(2)
-			| AT91C_DDRC2_TXARDS_(7)
-			| AT91C_DDRC2_TRPA_(4)
-			| AT91C_DDRC2_TRTP_(4)
-			| AT91C_DDRC2_TFAW_(7));
+	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(0)
+			| AT91C_DDRC2_TXARDS_(0)
+			| AT91C_DDRC2_TRPA_(0)
+			| AT91C_DDRC2_TRTP_(1)
+			| AT91C_DDRC2_TFAW_(5));
 
-	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
 }
 
 static void ddramc_init(void)
@@ -119,14 +117,13 @@ static void ddramc_init(void)
 	pmc_sam9x5_enable_periph_clk(AT91C_ID_MPDDRC);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
-	writel(AT91C_MPDDRC_RD_DATA_PATH_THREE_CYCLES,
-			(AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
-
 	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
-	reg &= ~AT91C_MPDDRC_TZQIO;
-	reg |= AT91C_MPDDRC_TZQIO_(80);
-	reg |= AT91C_MPDDRC_EN_CALIB;
+	reg &= ~AT91C_MPDDRC_RDIV;
+	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
 	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
+
+	writel(AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES,
+			(AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
 
 	ddr3_sdram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
 
