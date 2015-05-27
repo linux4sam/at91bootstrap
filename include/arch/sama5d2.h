@@ -174,6 +174,9 @@
 #define	AT91C_BASE_CAN1		0xfc050000
 #define	AT91C_BASE_CHIPID	0xfc069000
 
+#define	AT91C_BASE_BSCR		0xf8048054
+#define	AT91C_BASE_GPBR		0xf8045400
+
 /*
  * Address Memory Space
  */
