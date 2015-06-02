@@ -60,8 +60,8 @@
 #define	AT91C_ID_UART2		26	/* UART2 */
 #define	AT91C_ID_UART3		27	/* UART3 */
 #define	AT91C_ID_UART4		28	/* UART4 */
-#define	AT91C_ID_TWIHS0		29	/* Two-wire Interface 0 */
-#define	AT91C_ID_TWIHS1		30	/* Two-wire Interface 1 */
+#define	AT91C_ID_TWI0		29	/* Two-wire Interface 0 */
+#define	AT91C_ID_TWI1		30	/* Two-wire Interface 1 */
 #define	AT91C_ID_SDMMC0		31	/* Secure Data Memory Card Controller 0 */
 #define	AT91C_ID_SDMMC1		32	/* Secure Data Memory Card Controller 1 */
 #define	AT91C_ID_SPI0		33	/* Serial Peripheral Interface 0 */
