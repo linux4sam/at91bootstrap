@@ -106,7 +106,7 @@ config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	string "Flash Offset for Linux Kernel Image"
 	default "0x00008000" if CONFIG_FLASH
-	default "0x00042000" if CONFIG_DATAFLASH
+	default "0x00040000" if CONFIG_DATAFLASH
 	default "0x00200000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
 	help
@@ -165,7 +165,7 @@ config CONFIG_IMG_ADDRESS
 	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	string "Flash Offset for Linux Kernel Image"
 	default "0x00008000" if CONFIG_FLASH
-	default "0x00042000" if CONFIG_DATAFLASH
+	default "0x00040000" if CONFIG_DATAFLASH
 	default "0x00200000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
 	help
@@ -207,7 +207,7 @@ config CONFIG_IMG_ADDRESS
 	string "Flash Offset for U-Boot"
 	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
 	default "0x00008000" if CONFIG_FLASH
-	default "0x00008400" if CONFIG_DATAFLASH
+	default "0x00008000" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
 	help
