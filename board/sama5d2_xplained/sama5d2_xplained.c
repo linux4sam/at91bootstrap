@@ -536,3 +536,94 @@ void nandflash_hw_init(void)
 		(ATMEL_BASE_SMC + SMC_MODE3));
 }
 #endif
+
+#if defined(CONFIG_TWI0)
+unsigned int at91_twi0_hw_init(void)
+{
+	unsigned int base_addr = AT91C_BASE_TWI0;
+
+	const struct pio_desc twi_pins[] = {
+		{"TWD0", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"TWCK0", AT91C_PIN_PD(22), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(twi_pins);
+
+	pmc_sam9x5_enable_periph_clk(AT91C_ID_TWI0);
+
+	return base_addr;
+}
+#endif
+
+#if defined(CONFIG_TWI1)
+unsigned int at91_twi1_hw_init(void)
+{
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+void at91_board_config_twi_bus(void)
+{
+	act8865_twi_bus = 0;
+}
+#endif
+
+#if defined(CONFIG_DISABLE_ACT8865_I2C)
+int at91_board_act8865_set_reg_voltage(void)
+{
+	unsigned char reg, value;
+	int ret;
+
+	/* Check ACT8865 I2C interface */
+	if (act8865_check_i2c_disabled())
+		return 0;
+
+	/* Enable REG4 output 2.5V */
+	reg = REG4_0;
+	value = ACT8865_2V5;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_loud("ACT8865: Failed to make REG4 output 2500mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG4 output 2500mV\n");
+
+	/* Enable REG5 output 3.3V */
+	reg = REG5_0;
+	value = ACT8865_3V3;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_loud("ACT8865: Failed to make REG5 output 3300mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG5 output 3300mV\n");
+
+	/* Enable REG6 output 2.5V */
+	reg = REG6_0;
+	value = ACT8865_2V5;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_loud("ACT8865: Failed to make REG6 output 2500mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG6 output 2500mV\n");
+
+	/* Enable REG7 output 1.8V */
+	reg = REG7_0;
+	value = ACT8865_1V8;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret) {
+		dbg_loud("ACT8865: Failed to make REG7 output 1800mV\n");
+		return -1;
+	}
+
+	dbg_info("ACT8865: The REG6 output 1800mV\n");
+
+	return 0;
+}
+#endif
