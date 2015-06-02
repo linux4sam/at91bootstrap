@@ -66,7 +66,11 @@ static void initialize_dbgu(void)
 	unsigned int baudrate = 57600;
 
 	at91_dbgu_hw_init();
-	usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
+
+	if (pmc_check_mck_h32mxdiv())
+		usart_init(BAUDRATE(MASTER_CLOCK / 2, baudrate));
+	else
+		usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
 }
 
 #if defined(CONFIG_MATRIX)
