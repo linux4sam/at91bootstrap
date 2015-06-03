@@ -80,8 +80,6 @@ struct dataflash_descriptor {
 	unsigned char	is_power_2;	/* = 1: power of 2, = 0: not*/
 };
 
-static struct dataflash_descriptor	df_descriptor;
-
 static int df_send_command(unsigned char *cmd,
 				unsigned char cmd_len,
 				unsigned char *data,
@@ -585,6 +583,7 @@ static int dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
 
 int load_dataflash(struct image_info *image)
 {
+	struct dataflash_descriptor	df_descriptor;
 	struct dataflash_descriptor	*df_desc = &df_descriptor;
 	int ret = 0;
 
@@ -633,27 +632,28 @@ int load_dataflash(struct image_info *image)
 		goto err_exit;
 	}
 
-#ifdef CONFIG_OF_LIBFDT
+	if (image->of) {
+
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-	length = update_image_length(df_desc,
-			image->of_offset, image->of_dest, DT_BLOB);
-	if (length == -1)
-		return -1;
+		length = update_image_length(df_desc,
+				image->of_offset, image->of_dest, DT_BLOB);
+		if (length == -1)
+			return -1;
 
-	image->of_length = length;
+		image->of_length = length;
 #endif
 
-	dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
-		image->of_length, image->of_offset, image->of_dest);
+		dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
+			image->of_length, image->of_offset, image->of_dest);
 
-	ret = dataflash_read_array(df_desc,
-		image->of_offset, image->of_length, image->of_dest);
-	if (ret) {
-		dbg_info("** SF: DT: Serial flash read error**\n");
-		ret = -1;
-		goto err_exit;
+		ret = dataflash_read_array(df_desc,
+			image->of_offset, image->of_length, image->of_dest);
+		if (ret) {
+			dbg_info("** SF: DT: Serial flash read error**\n");
+			ret = -1;
+			goto err_exit;
+		}
 	}
-#endif
 
 err_exit:
 	at91_spi_disable();

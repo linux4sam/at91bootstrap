@@ -85,20 +85,15 @@ int main(void)
 	int ret;
 
 	char filename[FILENAME_BUF_LEN];
-
-#ifdef CONFIG_OF_LIBFDT
 	char of_filename[FILENAME_BUF_LEN];
-#endif
 
 	memset(&image, 0, sizeof(image));
 	memset(filename, 0, FILENAME_BUF_LEN);
-
-#ifdef CONFIG_OF_LIBFDT
 	memset(of_filename, 0, FILENAME_BUF_LEN);
-#endif
 
 	image.dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
+	image.of = 1;
 	image.of_dest = (unsigned char *)OF_ADDRESS;
 #endif
 
