@@ -88,7 +88,10 @@ void udelay(unsigned int usec)
 	 * but it is acceptable.
 	 * ((MASTER_CLOCK / 1024) * usec) / (16 * 1024)
 	 */
-	delay = ((MASTER_CLOCK >> 10) * usec) >> 14;
+	if (pmc_check_mck_h32mxdiv())
+		delay = (((MASTER_CLOCK / 2) >> 10) * usec) >> 14;
+	else
+		delay = ((MASTER_CLOCK >> 10) * usec) >> 14;
 
 	do {
 		current = at91_get_pit_value();
@@ -99,8 +102,13 @@ void udelay(unsigned int usec)
 void mdelay(unsigned int msec)
 {
 	unsigned int base = at91_get_pit_value();
-	unsigned int delay = ((MASTER_CLOCK / 1000) * msec) / 16;
+	unsigned int delay;
 	unsigned int current;
+
+	if (pmc_check_mck_h32mxdiv())
+		delay = (((MASTER_CLOCK / 2) / 1000) * msec) / 16;
+	else
+		delay = ((MASTER_CLOCK / 1000) * msec) / 16;
 
 	do {
 		current = at91_get_pit_value();
@@ -127,8 +135,13 @@ int start_interval_timer(void)
  */
 int wait_interval_timer(unsigned int msec)
 {
-	unsigned int delay = ((MASTER_CLOCK / 1000) * msec) / 16;
+	unsigned int delay;
 	unsigned int current;
+
+	if (pmc_check_mck_h32mxdiv())
+		delay = (((MASTER_CLOCK / 2) / 1000) * msec) / 16;
+	else
+		delay = ((MASTER_CLOCK / 1000) * msec) / 16;
 
 	do {
 		current = at91_get_pit_value();

@@ -31,6 +31,7 @@
 #include "arch/at91_mci.h"
 #include "div.h"
 #include "debug.h"
+#include "pmc.h"
 
 inline unsigned int mci_readl(unsigned int reg)
 {
@@ -48,7 +49,7 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 	unsigned int clkdiv;
 	unsigned int reg;
 
-	clkdiv = div((MASTER_CLOCK + clock), clock);
+	clkdiv = div((at91_get_ahb_clock() + clock), clock);
 
 	blklen &= 0xfffc;
 

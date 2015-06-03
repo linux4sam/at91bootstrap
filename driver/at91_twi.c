@@ -30,6 +30,7 @@
 #include "arch/at91_twi.h"
 #include "div.h"
 #include "debug.h"
+#include "pmc.h"
 
 #define TWI_CLOCK	400000
 
@@ -278,7 +279,7 @@ int twi_write(unsigned int bus, unsigned char device_addr,
 
 void twi_init(void)
 {
-	unsigned int bus_clock = MASTER_CLOCK;
+	unsigned int bus_clock = at91_get_ahb_clock();
 
 #if defined(CONFIG_TWI0)
 	at91_twi0_base = at91_twi0_hw_init();

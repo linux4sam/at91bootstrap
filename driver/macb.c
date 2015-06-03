@@ -26,9 +26,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
-#include "board.h"
 #include "debug.h"
 #include "macb.h"
+#include "pmc.h"
 
 /*
  * EMAC & GMAC Register
@@ -256,7 +256,7 @@ static int macb_is_gem(struct mii_bus *bus)
 static unsigned int gem_mdc_clk_div(void)
 {
 	unsigned int clk_div;
-	unsigned int mck = MASTER_CLOCK;
+	unsigned int mck = at91_get_ahb_clock();
 
 	if (mck < 20000000)
 		clk_div = GMAC_NCFGR_CLK_MCK_8;
@@ -277,7 +277,7 @@ static unsigned int gem_mdc_clk_div(void)
 static unsigned int macb_mdc_clk_div(void)
 {
 	unsigned int clk_div;
-	unsigned int mck = MASTER_CLOCK;
+	unsigned int mck = at91_get_ahb_clock();
 
 	if (mck < 20000000)
 		clk_div = EMAC_NCFGR_CLK_MCK_8;
