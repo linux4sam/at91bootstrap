@@ -124,6 +124,7 @@ config SAMA5D4
 	select CPU_HAS_AES
 	select CPU_HAS_L2CC
 	select CPU_HAS_SCKC
+	select CPU_HAS_H32MXDIV
 	bool
 
 config SAMA5D2
@@ -135,6 +136,7 @@ config SAMA5D2
 	select CPU_HAS_AES
 	select CPU_HAS_L2CC
 	select CPU_HAS_SCKC
+	select CPU_HAS_H32MXDIV
 	bool
 
 config CONFIG_MACH_TYPE
@@ -447,5 +449,9 @@ config CORE_CORTEX_A5
 	default n
 
 config CPU_HAS_SCKC
+	bool
+	default n
+
+config CPU_HAS_H32MXDIV
 	bool
 	default n

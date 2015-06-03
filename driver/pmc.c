@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
+#include "board.h"
 #include "timer.h"
 #include "arch/at91_pmc.h"
 #include "rstc.h"
@@ -307,6 +308,23 @@ void pmc_set_smd_clock_divider(unsigned int divider)
 	tmp |= AT91C_PMC_SMDDIV_(divider);
 
 	write_pmc(PMC_SMD, tmp);
+}
+
+int pmc_check_mck_h32mxdiv(void)
+{
+#ifdef CPU_HAS_H32MXDIV
+	return read_pmc(PMC_MCKR) & AT91C_PMC_H32MXDIV;
+#else
+	return 0;
+#endif
+}
+
+unsigned int at91_get_ahb_clock(void)
+{
+	if (pmc_check_mck_h32mxdiv())
+		return MASTER_CLOCK / 2;
+
+	return MASTER_CLOCK;
 }
 
 #if defined(CONFIG_ENTER_NWD)
