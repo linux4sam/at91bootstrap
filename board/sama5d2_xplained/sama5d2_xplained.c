@@ -268,7 +268,39 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_DECOD_INTERLEAVED
 				| AT91C_DDRC2_UNAL_SUPPORTED);
 
-	/* Refresh Timer is (7.81us * 125MHz = 977 for 125MHz) */
+	/*
+	 * According to MT41K128M16 datasheet
+	 * Maximum fresh period: 64ms, refresh count: 8k
+	 */
+#ifdef CONFIG_BUS_SPEED_166MHZ
+	/* Refresh Timer is (64ms / 8k) * 166MHz = 1297(0x511) */
+	ddramc_config->rtr = 0x511;
+
+	/* Assume timings for 8ns min clock period */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
+			| AT91C_DDRC2_TRCD_(3)
+			| AT91C_DDRC2_TWR_(3)
+			| AT91C_DDRC2_TRC_(9)
+			| AT91C_DDRC2_TRP_(3)
+			| AT91C_DDRC2_TRRD_(1)
+			| AT91C_DDRC2_TWTR_(2)
+			| AT91C_DDRC2_TMRD_(3));
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(27)
+			| AT91C_DDRC2_TXSNR_(29)
+			| AT91C_DDRC2_TXSRD_(0)
+			| AT91C_DDRC2_TXP_(3));
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(8)
+			| AT91C_DDRC2_TXARDS_(2)
+			| AT91C_DDRC2_TRPA_(3)
+			| AT91C_DDRC2_TRTP_(2)
+			| AT91C_DDRC2_TFAW_(7));
+#endif
+
+
+#ifdef CONFIG_BUS_SPEED_124MHZ
+	/* Refresh Timer is (64ms / 8k) * 125MHz = 977(0x3d1) */
 	ddramc_config->rtr = 0x3d1;
 
 	/* Assume timings for 8ns min clock period */
@@ -291,7 +323,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_TRPA_(0)
 			| AT91C_DDRC2_TRTP_(1)
 			| AT91C_DDRC2_TFAW_(5));
-
+#endif
 }
 
 static void ddramc_init(void)
