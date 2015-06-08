@@ -30,23 +30,23 @@
 
 /* Register offset in AT91S_PIO structure */
 #ifdef CPU_HAS_PIO4
-#define	S_PIO_MSKR	0x0000	/* Secure PIO Mask Register */
-#define	S_PIO_CFGR	0x0004	/* Secure PIO Configuration Register */
-#define	S_PIO_PDSR	0x0008	/* Secure PIO Pin Data Status Register */
-#define	S_PIO_LOCKSR	0x000c	/* Secure PIO Lock Status Register */
-#define	S_PIO_SODR	0x0010	/* Secure PIO Set Output Data Register */
-#define	S_PIO_CODR	0x0014	/* Secure PIO Clear Output Data Register */
-#define	S_PIO_ODSR	0x0018	/* Secure PIO Output Data Status Register */
+#define	PIO_MSKR	0x0000	/* PIO Mask Register */
+#define	PIO_CFGR	0x0004	/* PIO Configuration Register */
+#define	PIO_PDSR	0x0008	/* PIO Pin Data Status Register */
+#define	PIO_LOCKSR	0x000c	/* PIO Lock Status Register */
+#define	PIO_SODR	0x0010	/* PIO Set Output Data Register */
+#define	PIO_CODR	0x0014	/* PIO Clear Output Data Register */
+#define	PIO_ODSR	0x0018	/* PIO Output Data Status Register */
 /* 0x001c Reserved */
-#define	S_PIO_IER	0x0020	/* Secure PIO Interrupt Enable Register */
-#define	S_PIO_IDR	0x0024	/* Secure PIO Interrupt Disable Register */
-#define	S_PIO_IMR	0x0028	/* Secure PIO Interrupt Mask Register */
-#define	S_PIO_ISR	0x002c	/* Secure PIO Interrupt Status Register */
-#define	S_PIO_SIONR	0x0030	/* Secure PIO Set I/O Non-Secure Register */
-#define	S_PIO_SIOSR	0x0034	/* Secure PIO Set I/O Secure Register */
-#define	S_PIO_IOSSR	0x0038	/* Secure PIO I/O Secure Status Register */
-#define	S_PIO_IOFR	0x003c	/* Secure PIO I/O Freeze Register */
-#define	S_PIO_DELAYR	0x0040	/* Secure PIO I/O Delay Register */
+#define	PIO_IER		0x0020	/* PIO Interrupt Enable Register */
+#define	PIO_IDR		0x0024	/* PIO Interrupt Disable Register */
+#define	PIO_IMR		0x0028	/* PIO Interrupt Mask Register */
+#define	PIO_ISR		0x002c	/* PIO Interrupt Status Register */
+#define	PIO_SIONR	0x0030	/* PIO Set I/O Non-Secure Register */
+#define	PIO_SIOSR	0x0034	/* PIO Set I/O Secure Register */
+#define	PIO_IOSSR	0x0038	/* PIO I/O Secure Status Register */
+#define	PIO_IOFR	0x003c	/* PIO I/O Freeze Register */
+#define	PIO_DELAYR	0x0040	/* PIO I/O Delay Register */
 
 #define	S_PIO_SCDR	0x1500	/* Secure PIO Slow Clock Divider Debouncing Register */
 #define	S_PIO_TPFR	0x15D0	/* Secure PIO Tamper Freeze Register */

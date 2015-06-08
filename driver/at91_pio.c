@@ -95,14 +95,12 @@ static void pio4_set_periph(unsigned pio, unsigned mask,
 {
 	unsigned int value = func;
 
-	write_pio(pio, S_PIO_SIOSR, mask);
-
-	write_pio(pio, S_PIO_MSKR, mask);
+	write_pio(pio, PIO_MSKR, mask);
 
 	value |= (config & PIO_PULLUP) ? AT91C_PIO_CFGR_PUEN : 0;
 	value |= (config & PIO_PULLDOWN) ? AT91C_PIO_CFGR_PDEN : 0;
 
-	write_pio(pio, S_PIO_CFGR, value);
+	write_pio(pio, PIO_CFGR, value);
 }
 #endif
 
@@ -203,9 +201,6 @@ static int pio_set_d_periph(unsigned pin, int config)
 		return -1;
 
 #if defined CPU_HAS_PIO4
-	if (read_pio(pio, S_PIO_IOSSR) & mask)
-		return -1;
-
 	pio4_set_periph(pio, mask, config, AT91C_PIO_CFGR_FUNC_PERIPH_D);
 #elif defined CONFIG_HAS_PIO3
 	write_pio(pio, PIO_IDR, mask);
@@ -285,16 +280,14 @@ int pio_set_gpio_input(unsigned pin, int config)
 		return -1;
 
 #if defined CPU_HAS_PIO4
-	write_pio(pio, S_PIO_SIOSR, mask);
-
-	write_pio(pio, S_PIO_MSKR, mask);
+	write_pio(pio, PIO_MSKR, mask);
 
 	mask = AT91C_PIO_CFGR_FUNC_GPIO;
 	mask |= (config & PIO_DEGLITCH) ? AT91C_PIO_CFGR_IFEN : 0;
 	mask |= (config & PIO_PULLUP) ? AT91C_PIO_CFGR_PUEN : 0;
 	mask |= (config & PIO_PULLDOWN) ? AT91C_PIO_CFGR_PDEN : 0;
 
-	write_pio(pio, S_PIO_CFGR, mask);
+	write_pio(pio, PIO_CFGR, mask);
 #else
 	write_pio(pio, ((config & PIO_DEGLITCH) ? PIO_IFER : PIO_IFDR), mask);
 
@@ -319,13 +312,11 @@ int pio_set_gpio_output(unsigned pin, int value)
 		return -1;
 
 #if defined CPU_HAS_PIO4
-	write_pio(pio, S_PIO_SIOSR, mask);
+	write_pio(pio, PIO_MSKR, mask);
 
-	write_pio(pio, S_PIO_MSKR, mask);
-
-	write_pio(pio, S_PIO_CFGR,
+	write_pio(pio, PIO_CFGR,
 			(AT91C_PIO_CFGR_FUNC_GPIO | AT91C_PIO_CFGR_DIR));
-	write_pio(pio, (value ? S_PIO_SODR : S_PIO_CODR), mask);
+	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
 #else
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, PIO_PPUDR, mask);
@@ -350,14 +341,12 @@ static int pio_config_gpio_output(unsigned int pin,
 #if defined CPU_HAS_PIO4
 	unsigned reg_value;
 
-	write_pio(pio, S_PIO_SIOSR, mask);
-
-	write_pio(pio, S_PIO_MSKR, mask);
+	write_pio(pio, PIO_MSKR, mask);
 
 	reg_value = AT91C_PIO_CFGR_FUNC_GPIO | AT91C_PIO_CFGR_DIR;
 	reg_value |= (config & PIO_OPENDRAIN) ? AT91C_PIO_CFGR_OPD : 0;
-	write_pio(pio, S_PIO_CFGR, reg_value);
-	write_pio(pio, (value ? S_PIO_SODR : S_PIO_CODR), mask);
+	write_pio(pio, PIO_CFGR, reg_value);
+	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
 #else
 	write_pio(pio, ((config & PIO_OPENDRAIN) ? PIO_MDER : PIO_MDDR), mask);
 
@@ -375,13 +364,7 @@ int pio_set_value(unsigned pin, int value)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-#if defined CPU_HAS_PIO4
-	write_pio(pio, S_PIO_SIOSR, mask);
-
-	write_pio(pio, (value ? S_PIO_SODR : S_PIO_CODR), mask);
-#else
 	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
-#endif
 
 	return 0;
 }
@@ -395,13 +378,7 @@ int pio_get_value(unsigned pin)
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
-#if defined CPU_HAS_PIO4
-	write_pio(pio, S_PIO_SIOSR, mask);
-
-	pdsr = read_pio(pio, S_PIO_PDSR);
-#else
 	pdsr = read_pio(pio, PIO_PDSR);
-#endif
 
 	return ((pdsr & mask) != 0);
 }
