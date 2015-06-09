@@ -29,16 +29,20 @@
 #include "hardware.h"
 #include "board.h"
 #include "arch/at91_mci.h"
+#include "mci_media.h"
 #include "div.h"
 #include "debug.h"
 #include "pmc.h"
 
-inline unsigned int mci_readl(unsigned int reg)
+#define DEFAULT_SD_BLOCK_LEN		512
+#define CONFIG_SYS_DEFAULT_CLK		400000
+
+static inline unsigned int mci_readl(unsigned int reg)
 {
 	return readl((void *)CONFIG_SYS_BASE_MCI + reg);
 }
 
-inline void mci_writel(unsigned int reg, unsigned int value)
+static inline void mci_writel(unsigned int reg, unsigned int value)
 {
 	writel((value), (void *)CONFIG_SYS_BASE_MCI + reg);
 }
@@ -83,8 +87,10 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 	return 0;
 }
 
-int at91_mci_init(unsigned int clock, unsigned int blklen)
+static int at91_mci_init(struct sd_card *sdcard)
 {
+	unsigned int clock = CONFIG_SYS_DEFAULT_CLK;
+	unsigned int blklen = DEFAULT_SD_BLOCK_LEN;
 	int ret;
 
 	/* software reset */
@@ -117,7 +123,7 @@ int at91_mci_init(unsigned int clock, unsigned int blklen)
 	return 0;
 }
 
-int at91_mci_set_clock(unsigned int clock)
+static int at91_mci_set_clock(struct sd_card *sdcard, unsigned int clock)
 {
 	unsigned int blklen;
 	int ret;
@@ -131,12 +137,7 @@ int at91_mci_set_clock(unsigned int clock)
 	return 0;
 }
 
-void at91_mci_set_blkr(unsigned int blkcnt, unsigned int blklen)
-{
-	mci_writel(MCI_BLKR, (blklen << 16) | blkcnt);
-}
-
-int at91_mci_set_bus_width(unsigned int buswidth)
+static int at91_mci_set_bus_width(struct sd_card *sdcard, unsigned int buswidth)
 {
 	unsigned int reg;
 
@@ -195,10 +196,12 @@ static int at91_mci_read_data(unsigned int *data)
 	return 0;
 }
 
-int at91_mci_read_block_data(unsigned int *data,
+static int at91_mci_read_block_data(unsigned int *data,
+			unsigned int blocks,
 			unsigned int bytes_to_read,
 			unsigned int block_len)
 {
+	unsigned int block;
 	unsigned int count;
 	unsigned int words_to_read = bytes_to_read >> 2;
 	unsigned int words_of_block = block_len >> 2;
@@ -206,44 +209,16 @@ int at91_mci_read_block_data(unsigned int *data,
 	int timeout = 10000;
 	int ret;
 
-	/* Read the valid data of the block */
-	for (count = 0; count < words_to_read; count++, data++) {
-		ret = at91_mci_read_data(data);
-		if (ret)
-			return ret;
-	}
-
-	/* Read the no useful data the block */
-	for (; count < words_of_block; count++) {
-		ret = at91_mci_read_data(&tmp);
-		if (ret)
-			return ret;
-	}
-
-	while ((mci_readl(MCI_SR) & AT91C_MCI_DTIP) && (--timeout))
-		;
-
-	if (!timeout) {
-		dbg_info("Data Transfer in Progress.\n");
-		return -1;
-	}
-
-	return 0;
-}
-
-int at91_mci_read_blocks(unsigned int *data,
-			unsigned int blocks,
-			unsigned int block_len)
-{
-	unsigned int block;
-	unsigned int count;
-	unsigned int words_of_block = block_len >> 2;
-	int timeout = 10000;
-	int ret;
-
 	for (block = 0; block < blocks; block++) {
-		for (count = 0; count < words_of_block; count++, data++) {
-			ret = at91_mci_read_data(data);
+		for (count = 0; count < words_to_read; count++, data++) {
+			ret = at91_mci_read_data((unsigned int *)data);
+			if (ret)
+				return ret;
+		}
+
+		/* Read the no useful data the block */
+		for (; count < words_of_block; count++) {
+			ret = at91_mci_read_data(&tmp);
 			if (ret)
 				return ret;
 		}
@@ -277,10 +252,12 @@ static int at91_mci_write_data(unsigned int *data)
 	return 0;
 }
 
-int at91_mci_write_block_data(unsigned int *data,
+static int at91_mci_write_block_data(unsigned int *data,
+			unsigned int blocks,
 			unsigned int bytes_to_write,
 			unsigned int block_len)
 {
+	unsigned int block;
 	unsigned int count;
 	unsigned int words_to_write = bytes_to_write >> 2;
 	unsigned int words_of_block = block_len >> 2;
@@ -289,17 +266,19 @@ int at91_mci_write_block_data(unsigned int *data,
 	int ret;
 
 	/* write the valid data of the block */
-	for (count = 0; count < words_to_write; count++, data++) {
-		ret = at91_mci_write_data(data);
-		if (ret)
-			return ret;
-	}
+	for (block = 0; block < blocks; block++) {
+		for (count = 0; count < words_to_write; count++, data++) {
+			ret = at91_mci_write_data((unsigned int *)data);
+			if (ret)
+				return ret;
+		}
 
-	/* write the no useful data the block */
-	for (; count < words_of_block; count++) {
-		ret = at91_mci_write_data(&tmp);
-		if (ret)
-			return ret;
+		/* write the no useful data the block */
+		for (; count < words_of_block; count++) {
+			ret = at91_mci_write_data(&tmp);
+			if (ret)
+				return ret;
+		}
 	}
 
 	while ((mci_readl(MCI_SR) & AT91C_MCI_DTIP) && (--timeout))
@@ -309,6 +288,117 @@ int at91_mci_write_block_data(unsigned int *data,
 		dbg_info("Data Transfer in Progress.\n");
 		return -1;
 	}
+
+	return 0;
+}
+
+static int at91_mci_send_command(struct sd_command *command, struct sd_data *data)
+{
+	unsigned int cmdreg;
+	unsigned int error_check, status;
+	unsigned int block_len = DEFAULT_SD_BLOCK_LEN;
+	int ret = 0;
+
+	error_check = AT91C_MCI_RINDE | AT91C_MCI_RDIRE | AT91C_MCI_RENDE
+					| AT91C_MCI_RTOE | AT91C_MCI_DTOE;
+
+	cmdreg = AT91C_MCI_CMDNB(command->cmd);
+
+	cmdreg |= AT91C_MCI_MAXLAT_64;
+
+	if ((command->resp_type == SD_RESP_TYPE_R1)
+		|| (command->resp_type == SD_RESP_TYPE_R5)
+		|| (command->resp_type == SD_RESP_TYPE_R6)
+		|| (command->resp_type == SD_RESP_TYPE_R7)) {
+		cmdreg |= AT91C_MCI_RSPTYP_48;
+		error_check |= AT91C_MCI_RCRCE;
+	} else if (command->resp_type == SD_RESP_TYPE_R1B) {
+		cmdreg |= AT91C_MCI_RSPTYP_R1B;
+		error_check |= AT91C_MCI_RCRCE;
+	} else if (command->resp_type == SD_RESP_TYPE_R2) {
+		cmdreg |= AT91C_MCI_RSPTYP_136;
+		error_check |= AT91C_MCI_RCRCE;
+	} else if ((command->resp_type == SD_RESP_TYPE_R3)
+		|| (command->resp_type == SD_RESP_TYPE_R4)) {
+		cmdreg |= AT91C_MCI_RSPTYP_48;
+	} else {
+		cmdreg |= AT91C_MCI_RSPTYP_NO;
+	}
+
+	if (data) {
+		cmdreg |= AT91C_MCI_TRCMD_START;
+		cmdreg |= (data->direction == SD_DATA_DIR_RD) ? AT91C_MCI_TRDIR_READ : 0;
+		cmdreg |= (data->blocks > 1) ? AT91C_MCI_TRTYP_MULTIPLE : 0;
+	}
+
+	if (command->cmd == SD_CMD_READ_MULTIPLE_BLOCK) {
+		mci_writel(MCI_BLKR, AT91C_MCI_BLKLEN(data->blocksize)
+					| AT91C_MCI_BCNT(data->blocks));
+	};
+
+	/* Set the Command Argument Register */
+	mci_writel(MCI_ARGR, command->argu);
+	/* Set the Command Register */
+	mci_writel(MCI_CMDR, cmdreg);
+
+	/* Wait for the command ready status */
+	do {
+		status = mci_readl(MCI_SR);
+	} while (!(status & AT91C_MCI_CMDRDY));
+
+	/* Check error bits in the status */
+	if (status & AT91C_MCI_RTOE) {
+		dbg_info("Cmd: %d Response Time-out\n", command->cmd);
+		return ERROR_TIMEOUT;
+	}
+
+	if (status & error_check) {
+		dbg_info("Cmd: %d, error check, status: %d\n", command->cmd, status);
+		return ERROR_COMM;
+	}
+
+	if (command->resp_type == SD_RESP_TYPE_R2) {
+		*command->resp++ = mci_readl(MCI_RSPR);
+		*command->resp++ = mci_readl(MCI_RSPR1);
+		*command->resp++ = mci_readl(MCI_RSPR2);
+		*command->resp++ = mci_readl(MCI_RSPR3);
+	} else {
+		*command->resp = mci_readl(MCI_RSPR);
+	}
+
+	if (data) {
+		if (data->direction == SD_DATA_DIR_RD)
+			ret = at91_mci_read_block_data((unsigned int *)data->buff, data->blocks,
+						data->blocksize, block_len);
+		else
+			ret = at91_mci_write_block_data((unsigned int *)data->buff, data->blocks,
+						data->blocksize, block_len);
+	}
+
+	return ret;
+}
+
+static struct sd_host at91_mci_host;
+
+static struct host_ops at91_mci_ops = {
+	.init = at91_mci_init,
+	.send_command = at91_mci_send_command,
+	.set_clock = at91_mci_set_clock,
+	.set_bus_width = at91_mci_set_bus_width,
+};
+
+int sdcard_register_at91_mci(struct sd_card *sdcard)
+{
+	sdcard->host = &at91_mci_host;
+	sdcard->host->ops = &at91_mci_ops;
+
+	sdcard->host->caps_voltages = SD_OCR_VDD_32_33 | SD_OCR_VDD_33_34;
+	sdcard->host->caps_bus_width = BUS_WIDTH_1_BIT | BUS_WIDTH_4_BIT;
+
+#ifdef CPU_HAS_HSMCI0
+	sdcard->host->caps_high_speed = 1;
+	sdcard->host->caps_bus_width |= BUS_WIDTH_8_BIT;
+#endif
 
 	return 0;
 }

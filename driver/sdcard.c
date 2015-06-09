@@ -77,7 +77,9 @@ int load_sdcard(struct image_info *image)
 	FRESULT	fret;
 	int	ret;
 
+#ifdef CONFIG_AT91_MCI
 	at91_mci0_hw_init();
+#endif
 
 	/* mount fs */
 	fret = f_mount(0, &fs);

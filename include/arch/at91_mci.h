@@ -106,7 +106,7 @@
 #define 	AT91C_MCI_SCDBUS_8BIT		(0x3UL << 6)
 
 /*-------- MCI_CMDR : (MCI Offset: 0x14) MCI Command Register --------*/
-#define AT91C_MCI_CMDNB(x)	(x << 0		/* Command Number */
+#define AT91C_MCI_CMDNB(x)	(x << 0)	/* Command Number */
 #define AT91C_MCI_RSPTYP	(0x3UL << 6)	/* Response Type */
 #define 	AT91C_MCI_RSPTYP_NO		(0x0UL << 6)
 #define 	AT91C_MCI_RSPTYP_48		(0x1UL << 6)
