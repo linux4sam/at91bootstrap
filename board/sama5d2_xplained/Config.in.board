@@ -18,4 +18,4 @@ config CONFIG_SAMA5D2_XPLAINED
 	select SUPPORT_BUS_SPEED_124MHZ
 	select SUPPORT_BUS_SPEED_166MHZ
 	help
-	  Use the SAMA5D4EK Development board
+	  Use the SAMA5D2_Xplained Development board
