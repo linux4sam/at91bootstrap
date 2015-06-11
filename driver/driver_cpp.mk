@@ -339,3 +339,15 @@ endif
 ifeq ($(CONFIG_AT91_MCI1), y)
 CPPFLAGS += -DCONFIG_AT91_MCI1
 endif
+
+ifeq ($(CONFIG_SDHC), y)
+CPPFLAGS += -DCONFIG_SDHC
+endif
+
+ifeq ($(CONFIG_SDHC0), y)
+CPPFLAGS += -DCONFIG_SDHC0
+endif
+
+ifeq ($(CONFIG_SDHC1), y)
+CPPFLAGS += -DCONFIG_SDHC1
+endif

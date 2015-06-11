@@ -166,6 +166,8 @@ config SAMA5D2
 	select CPU_HAS_PIO4
 	select CPU_HAS_PMECC
 	select CPU_HAS_TRUSTZONE
+	select CPU_HAS_SDHC0
+	select CPU_HAS_SDHC1
 	bool
 
 config CONFIG_MACH_TYPE
@@ -502,5 +504,13 @@ config CPU_HAS_MCI0
 	default n
 
 config CPU_HAS_MCI1
+	bool
+	default n
+
+config CPU_HAS_SDHC0
+	bool
+	default n
+
+config CPU_HAS_SDHC1
 	bool
 	default n

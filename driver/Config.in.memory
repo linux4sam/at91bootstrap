@@ -158,6 +158,28 @@ config CONFIG_AT91_MCI2
 
 endchoice
 
+config CONFIG_SDHC
+	bool
+	depends on CPU_HAS_SDHC0 || CPU_HAS_SDHC1
+	default y
+
+choice
+	prompt "SD Host Controller Select"
+	depends on CONFIG_SDHC
+	default CONFIG_SDHC0
+	help
+	  This interface allow you select which SD Host Controller for the SD Card.
+
+config CONFIG_SDHC0
+	bool "On SDHC0"
+	depends on CPU_HAS_SDHC0
+
+config CONFIG_SDHC1
+	bool "On SDHC1"
+	depends on CPU_HAS_SDHC1
+
+endchoice
+
 config CONFIG_FATFS
 	bool
 	depends on CONFIG_SDCARD
