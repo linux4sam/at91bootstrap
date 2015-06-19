@@ -348,7 +348,7 @@ config CONFIG_SCLK_BYPASS
 endmenu
 
 menu "ARM TurstZone Options"
-	depends on CONFIG_TRUSTZONE
+	depends on CPU_HAS_TRUSTZONE
 
 config CONFIG_MATRIX
 	bool "Enable Configure the Matrix"

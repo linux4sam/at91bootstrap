@@ -133,6 +133,7 @@ config SAMA5D4
 	select CPU_HAS_H32MXDIV
 	select CPU_HAS_PIO3
 	select CPU_HAS_PMECC
+	select CPU_HAS_TRUSTZONE
 	bool
 
 config SAMA5D2
@@ -147,6 +148,7 @@ config SAMA5D2
 	select CPU_HAS_H32MXDIV
 	select CPU_HAS_PIO4
 	select CPU_HAS_PMECC
+	select CPU_HAS_TRUSTZONE
 	bool
 
 config CONFIG_MACH_TYPE
@@ -410,7 +412,7 @@ config SUPPORT_BUS_SPEED_170MHZ
 config SUPPORT_BUS_SPEED_176MHZ
 	bool
 
-config CONFIG_TRUSTZONE
+config CPU_HAS_TRUSTZONE
 	bool
 	default n
 
