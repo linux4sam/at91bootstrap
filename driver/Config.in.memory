@@ -34,10 +34,6 @@ config	ALLOW_SDCARD
 	bool
 	default n
 
-config	ALLOW_HSMCI
-	bool
-	default n
-	
 config	ALLOW_PSRAM
 	bool
 	default n
