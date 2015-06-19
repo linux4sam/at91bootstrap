@@ -132,6 +132,32 @@ config CONFIG_MEMORY
 menu  "SD Card Configuration"
 	depends on CONFIG_SDCARD
 
+config CONFIG_AT91_MCI
+	bool
+	depends on CPU_HAS_HSMCI0 || CPU_HAS_HSMCI1 || CPU_HAS_HSMCI2 || CPU_HAS_MCI0 || CPU_HAS_MCI1
+	default y
+
+choice
+	prompt "MultiMedia Card Interface Select"
+	depends on CONFIG_AT91_MCI
+	default CONFIG_AT91_MCI0
+	help
+	  This interface allow you select which MultiMedia Card Interface is used for the SD Card.
+
+config CONFIG_AT91_MCI0
+	bool "On Atmel MCI 0"
+	depends on CPU_HAS_HSMCI0 || CPU_HAS_MCI0
+
+config CONFIG_AT91_MCI1
+	bool "On Atmel MCI 1"
+	depends on CPU_HAS_HSMCI1 || CPU_HAS_MCI1
+
+config CONFIG_AT91_MCI2
+	bool "On Atmel MCI 2"
+	depends on CPU_HAS_HSMCI2
+
+endchoice
+
 config CONFIG_SDCARD_HS
 	bool
 	default y if AT91SAM9G45

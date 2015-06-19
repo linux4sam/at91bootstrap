@@ -327,3 +327,19 @@ endif
 ifeq ($(CPU_HAS_PIO4), y)
 CPPFLAGS += -DCPU_HAS_PIO4
 endif
+
+ifeq ($(CPU_HAS_HSMCI0), y)
+CPPFLAGS += -DCPU_HAS_HSMCI0
+endif
+
+ifeq ($(CONFIG_AT91_MCI), y)
+CPPFLAGS += -DCONFIG_AT91_MCI
+endif
+
+ifeq ($(CONFIG_AT91_MCI0), y)
+CPPFLAGS += -DCONFIG_AT91_MCI0
+endif
+
+ifeq ($(CONFIG_AT91_MCI1), y)
+CPPFLAGS += -DCONFIG_AT91_MCI1
+endif
