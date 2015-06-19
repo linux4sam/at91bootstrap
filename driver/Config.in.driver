@@ -1,11 +1,6 @@
-config	ALLOW_PIO3
+config CPU_HAS_PIO3
 	bool
 	default n
-
-config	CONFIG_HAS_PIO3
-	bool
-	depends on ALLOW_PIO3
-	default y
 
 config CPU_HAS_L2CC
 	bool

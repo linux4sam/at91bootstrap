@@ -139,8 +139,8 @@ endif
 
 # other
 
-ifeq ($(CONFIG_HAS_PIO3),y)
-CPPFLAGS += -DCONFIG_HAS_PIO3
+ifeq ($(CPU_HAS_PIO3),y)
+CPPFLAGS += -DCPU_HAS_PIO3
 endif
 
 ifeq ($(CONFIG_LOAD_ONE_WIRE), y)

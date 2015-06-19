@@ -120,7 +120,7 @@ static int pio_set_a_periph(unsigned pin, int config)
 #else
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config & PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
-#ifdef CONFIG_HAS_PIO3
+#ifdef CPU_HAS_PIO3
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
@@ -150,7 +150,7 @@ static int pio_set_b_periph(unsigned pin, int config)
 #else
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config & PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
-#ifdef CONFIG_HAS_PIO3
+#ifdef CPU_HAS_PIO3
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) | mask);
@@ -177,7 +177,7 @@ static int pio_set_c_periph(unsigned pin, int config)
 
 #if defined CPU_HAS_PIO4
 	pio4_set_periph(pio, mask, config, AT91C_PIO_CFGR_FUNC_PERIPH_C);
-#elif defined CONFIG_HAS_PIO3
+#elif defined CPU_HAS_PIO3
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config && PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
@@ -202,7 +202,7 @@ static int pio_set_d_periph(unsigned pin, int config)
 
 #if defined CPU_HAS_PIO4
 	pio4_set_periph(pio, mask, config, AT91C_PIO_CFGR_FUNC_PERIPH_D);
-#elif defined CONFIG_HAS_PIO3
+#elif defined CPU_HAS_PIO3
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config && PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
@@ -293,7 +293,7 @@ int pio_set_gpio_input(unsigned pin, int config)
 
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config & PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
-#ifdef CONFIG_HAS_PIO3
+#ifdef CPU_HAS_PIO3
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 #endif
 	write_pio(pio, PIO_ODR, mask);

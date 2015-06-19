@@ -84,7 +84,7 @@
 #define PIO_PPUER	0x0064	/* Pull-up Enable Register */
 #define PIO_PPUSR	0x0068	/* Pull-up Status Register */
 /* 0x006c */
-#ifndef CONFIG_HAS_PIO3
+#ifndef CPU_HAS_PIO3
 #define PIO_ASR		0x0070	/* Peripheral Select Register 1 */
 #define PIO_BSR		0x0074	/* Peripheral Select Register 2 */
 #define PIO_ABSR	0x0078	/* AB Select Status Register */
@@ -98,7 +98,7 @@
 #define PIO_PPDER	0x0094	/* Pull-down Enable Register */
 #define PIO_PPDSR	0x0098	/* Pull-down Status Register */
 /* 0x009c */
-#endif	/* #ifndef CONFIG_HAS_PIO3 */
+#endif	/* #ifndef CPU_HAS_PIO3 */
 #define PIO_OWER	0x00a0	/* Output Write Enable Register */
 #define PIO_OWDR	0x00a4	/* Output Write Disable Register */
 #define PIO_OWSR	0x00a8	/* Output Write Status Register */
