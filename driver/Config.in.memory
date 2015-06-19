@@ -158,14 +158,6 @@ config CONFIG_AT91_MCI2
 
 endchoice
 
-config CONFIG_SDCARD_HS
-	bool
-	default y if AT91SAM9G45
-	default y if AT91SAM9X5
-	default y if AT91SAM9N12
-	default y if SAMA5D3X || SAMA5D4 || SAMA5D2
-	default n
-
 config CONFIG_FATFS
 	bool
 	depends on CONFIG_SDCARD
