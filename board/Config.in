@@ -137,6 +137,7 @@ config SAMA5D2
 	select CPU_HAS_L2CC
 	select CPU_HAS_SCKC
 	select CPU_HAS_H32MXDIV
+	select CPU_HAS_PIO4
 	bool
 
 config CONFIG_MACH_TYPE
