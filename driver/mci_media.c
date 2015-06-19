@@ -488,8 +488,6 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 }
 
 /*-----------------------------------------------------------------*/
-#ifdef CONFIG_MMC_SUPPORT
-
 #define OCR_VOLTAGE_WIN_27_36	0x00FF8000
 #define OCR_ACCESS_MODE		0x60000000
 
@@ -770,7 +768,6 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 	return 0;
 
 }
-#endif /* #ifdef CONFIG_MMC_SUPPORT */
 
 /*-----------------------------------------------------------------*/
 
@@ -791,13 +788,11 @@ static int sdcard_identification(struct sd_card *sdcard)
 
 	udelay(2000);
 
-#ifdef CONFIG_MMC_SUPPORT
 	ret = mmc_verify_operating_condition(sdcard);
 	if (ret == 0) {
 		sdcard->card_type = CARD_TYPE_MMC;
 
 	} else if (ret == ERROR_TIMEOUT) {
-#endif
 		ret = sd_cmd_send_if_cond(sdcard);
 		if (ret == 0) {
 			/* Ver 2.00 or later SD Memory Card */
@@ -817,8 +812,6 @@ static int sdcard_identification(struct sd_card *sdcard)
 		}
 
 		sdcard->card_type = CARD_TYPE_SD;
-
-#ifdef CONFIG_MMC_SUPPORT
 	} else if (ret == ERROR_UNUSABLE_CARD) {
 		/*
 		 * Non-compatible voltage range
@@ -828,7 +821,6 @@ static int sdcard_identification(struct sd_card *sdcard)
 		return -1;
 	} else
 		return ret;
-#endif
 
 	sdcard->highcapacity_card = (sdcard->reg->ocr & OCR_HCR_CCS) ? 1 : 0;
 
@@ -934,7 +926,6 @@ static int sd_initialization(struct sd_card *sdcard)
 	return 0;
 }
 
-#ifdef CONFIG_MMC_SUPPORT
 static int mmc_initialization(struct sd_card *sdcard)
 {
 	struct sd_host *host = sdcard->host;
@@ -994,7 +985,6 @@ static int mmc_initialization(struct sd_card *sdcard)
 
 	return 0;
 }
-#endif /* #ifdef CONFIG_MMC_SUPPORT */
 
 static void init_sdcard_struct(struct sd_card *sdcard)
 {
@@ -1035,10 +1025,8 @@ int sdcard_initialize(void)
 
 	if (sdcard->card_type == CARD_TYPE_SD)
 		ret = sd_initialization(sdcard);
-#ifdef CONFIG_MMC_SUPPORT
 	else
 		ret = mmc_initialization(sdcard);
-#endif
 	if (ret)
 		return ret;
 

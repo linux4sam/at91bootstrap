@@ -14,10 +14,6 @@ config CONFIG_HAS_HW_INFO
 	bool
 	default n
 
-config CONFIG_MMC_SUPPORT
-	bool
-	default n
-
 config CONFIG_TWI
 	bool
 	default n
