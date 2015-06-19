@@ -97,6 +97,7 @@ config AT91SAM9X5
 	select CPU_HAS_TWI1
 	select CPU_HAS_TWI2
 	select CPU_HAS_SCKC
+	select ALLOW_PIO3
 	bool
 
 config AT91SAM9N12
@@ -104,6 +105,7 @@ config AT91SAM9N12
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	select CPU_HAS_SCKC
+	select ALLOW_PIO3
 	bool
 
 config SAMA5D3X
@@ -113,6 +115,7 @@ config SAMA5D3X
 	select CPU_HAS_TWI2
 	select CPU_HAS_AES
 	select CPU_HAS_SCKC
+	select ALLOW_PIO3
 	bool
 
 config SAMA5D4
@@ -125,6 +128,7 @@ config SAMA5D4
 	select CPU_HAS_L2CC
 	select CPU_HAS_SCKC
 	select CPU_HAS_H32MXDIV
+	select ALLOW_PIO3
 	bool
 
 config SAMA5D2
