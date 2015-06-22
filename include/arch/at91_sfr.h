@@ -37,6 +37,7 @@
 #define SFR_SN0		0x4C	/* Serial Number 0 Register */
 #define SFR_SN1		0x50	/* Serial Number 1 Register */
 #define SFR_AICREDIR	0x54
+#define SFR_L2CC_HRAMC	0x58
 
 /*---SFR_EBICFG: (offset: 0x40) EBI Configuration Register ----*/
 #define AT91C_EBICFG_DRIVE0	(0x03 << 0)

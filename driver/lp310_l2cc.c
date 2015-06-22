@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
+#include "arch/at91_sfr.h"
 #include "arch/lp310_l2cc.h"
 
 static inline void write_l2cc(unsigned int offset, const unsigned int value)
@@ -38,9 +39,20 @@ static inline unsigned int read_l2cc(unsigned int offset)
 	return readl(offset + AT91C_BASE_L2CC);
 }
 
+#if defined(SAMA5D2)
+static void l2cache_configure_ram(void)
+{
+	writel(0x1, SFR_L2CC_HRAMC + AT91C_BASE_SFR);
+}
+#else
+static void l2cache_configure_ram(void) {}
+#endif
+
 void l2cache_prepare(void)
 {
 	unsigned int cfg;
+
+	l2cache_configure_ram();
 
 	/* disable cache if it hasn't been done yet */
 	write_l2cc(L2CC_CR, 0x00);
