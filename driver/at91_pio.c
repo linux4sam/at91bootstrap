@@ -169,6 +169,8 @@ static int pio_set_c_periph(unsigned pin, int config)
 	unsigned pio = pin_to_controller(pin);
 	unsigned mask = pin_to_mask(pin);
 
+	mask = mask;
+
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
@@ -193,6 +195,8 @@ static int pio_set_d_periph(unsigned pin, int config)
 {
 	unsigned pio = pin_to_controller(pin);
 	unsigned mask = pin_to_mask(pin);
+
+	mask = mask;
 
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
@@ -219,6 +223,8 @@ static int pio_set_e_periph(unsigned pin, int config)
 	unsigned pio = pin_to_controller(pin);
 	unsigned mask = pin_to_mask(pin);
 
+	mask = mask;
+
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
@@ -237,6 +243,8 @@ static int pio_set_f_periph(unsigned pin, int config)
 	unsigned pio = pin_to_controller(pin);
 	unsigned mask = pin_to_mask(pin);
 
+	mask = mask;
+
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
 
@@ -254,6 +262,8 @@ static int pio_set_g_periph(unsigned pin, int config)
 {
 	unsigned pio = pin_to_controller(pin);
 	unsigned mask = pin_to_mask(pin);
+
+	mask = mask;
 
 	if (pio >= AT91C_NUM_PIO)
 		return -1;
