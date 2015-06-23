@@ -354,7 +354,11 @@ static unsigned int pmc_get_plla_freq(void)
 	unsigned int main_clock;
 	unsigned int freq;
 
+#ifdef BOARD_MAINOSC
 	main_clock = BOARD_MAINOSC;
+#else
+	return 0;
+#endif
 
 	tmp = read_pmc(PMC_PLLAR);
 	divider = tmp & AT91C_CKGR_DIVA_MSK;
@@ -387,7 +391,11 @@ unsigned int pmc_get_generated_clock(unsigned int periph_id)
 
 	clock_source = tmp & AT91C_PMC_GCKCSS;
 	if (clock_source == AT91C_PMC_GCKCSS_MAIN_CLK)
+#ifdef BOARD_MAINOSC
 		freq = BOARD_MAINOSC;
+#else
+		freq = 0;
+#endif
 	 else if (clock_source == AT91C_PMC_GCKCSS_PLLA_CLK)
 		freq = pmc_get_plla_freq();
 
