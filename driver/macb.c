@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "hardware.h"
+#include "board.h"
 #include "debug.h"
 #include "macb.h"
 #include "pmc.h"
