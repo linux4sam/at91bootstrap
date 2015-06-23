@@ -68,6 +68,6 @@ config CPU_HAS_AES
 
 config CPU_HAS_PIO4
 	bool
-	default y
+	default n
 
 source "driver/Config.in.memory"
