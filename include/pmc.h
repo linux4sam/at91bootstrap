@@ -31,6 +31,7 @@
 extern void pmc_init_pll(unsigned int pmc_pllicpr);
 extern int pmc_cfg_plla(unsigned int pmc_pllar);
 extern int pmc_cfg_mck(unsigned int pmc_mckr);
+extern int pmc_cfg_mck_down(unsigned int pmc_mckr);
 extern int pmc_cfg_pck(unsigned char x,
 			unsigned int clk_sel,
 			unsigned int prescaler);

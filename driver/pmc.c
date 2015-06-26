@@ -209,6 +209,63 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 	return 0;
 }
 
+int pmc_cfg_mck_down(unsigned int pmc_mckr)
+{
+	unsigned int tmp;
+
+	/*
+	 * Program the CSS field in the PMC_MCKR register,
+	 * wait for MCKRDY bit to be set in the PMC_SR register
+	 */
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_CSS);
+	tmp |= (pmc_mckr & AT91C_PMC_CSS);
+	write_pmc(PMC_MCKR, tmp);
+
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+
+	/*
+	 * Program the H32MXDIV field in the PMC_MCKR register
+	 */
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_H32MXDIV);
+	tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
+	write_pmc(PMC_MCKR, tmp);
+
+	/*
+	 * Program the PLLADIV2 field in the PMC_MCKR register
+	 */
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_PLLADIV2);
+	tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
+	write_pmc(PMC_MCKR, tmp);
+
+	/*
+	 * Program the MDIV field in the PMC_MCKR register
+	 */
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_MDIV);
+	tmp |= (pmc_mckr & AT91C_PMC_MDIV);
+	write_pmc(PMC_MCKR, tmp);
+
+	/*
+	 * Program the PRES field in the PMC_MCKR register
+	 */
+	tmp = read_pmc(PMC_MCKR);
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
+	|| defined(SAMA5D4) || defined(SAMA5D2)
+	tmp &= (~AT91C_PMC_ALT_PRES);
+	tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
+#else
+	tmp &= (~AT91C_PMC_PRES);
+	tmp |= (pmc_mckr & AT91C_PMC_PRES);
+#endif
+	write_pmc(PMC_MCKR, tmp);
+
+	return 0;
+}
+
 int pmc_cfg_pck(unsigned char x, unsigned int clk_sel, unsigned int prescaler)
 {
 	write_pmc(PMC_PCKR + x * 4, clk_sel | prescaler);
