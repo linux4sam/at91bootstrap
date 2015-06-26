@@ -364,8 +364,14 @@ void hw_init(void)
 	/* Disable watchdog */
 	at91_disable_wdt();
 
+	/*
+	 * while coming from the ROM code, we run on PLLA @ 396 MHz / 132 MHz
+	 * so we need to slow down and configure MCKR accordingly.
+	 * This is why we have a special flavor of the switching function.
+	 */
+
 	/* Switch PCK/MCK on Main Clock output */
-	pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK);
+	pmc_cfg_mck_down(BOARD_PRESCALER_MAIN_CLOCK);
 
 	/* Configure PLLA */
 	pmc_cfg_plla(PLLA_SETTINGS);
