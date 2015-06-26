@@ -157,8 +157,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 	unsigned int tmp;
 
 	/*
-	 * Program the PRES field in the PMC_MCKR register,
-	 * wait for MCKRDY bit to be set in the PMC_SR register
+	 * Program the PRES field in the PMC_MCKR register
 	 */
 	tmp = read_pmc(PMC_MCKR);
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
@@ -171,44 +170,29 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 #endif
 	write_pmc(PMC_MCKR, tmp);
 
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
-
 	/*
-	 * Program the MDIV field in the PMC_MCKR register,
-	 * wait for MCKRDY bit to be set in the PMC_SR register
+	 * Program the MDIV field in the PMC_MCKR register
 	 */
 	tmp = read_pmc(PMC_MCKR);
 	tmp &= (~AT91C_PMC_MDIV);
 	tmp |= (pmc_mckr & AT91C_PMC_MDIV);
 	write_pmc(PMC_MCKR, tmp);
 
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
-
 	/*
-	 * Program the PLLADIV2 field in the PMC_MCKR register,
-	 * wait for MCKRDY bit to be set in the PMC_SR register
+	 * Program the PLLADIV2 field in the PMC_MCKR register
 	 */
 	tmp = read_pmc(PMC_MCKR);
 	tmp &= (~AT91C_PMC_PLLADIV2);
 	tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
 	write_pmc(PMC_MCKR, tmp);
 
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
-
 	/*
-	 * Program the H32MXDIV field in the PMC_MCKR register,
-	 * wait for MCKRDY bit to be set in the PMC_SR register
+	 * Program the H32MXDIV field in the PMC_MCKR register
 	 */
 	tmp = read_pmc(PMC_MCKR);
 	tmp &= (~AT91C_PMC_H32MXDIV);
 	tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
 	write_pmc(PMC_MCKR, tmp);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
 
 	/*
 	 * Program the CSS field in the PMC_MCKR register,
