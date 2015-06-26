@@ -371,7 +371,8 @@ void hw_init(void)
 	pmc_cfg_plla(PLLA_SETTINGS);
 
 	/* Initialize PLLA charge pump */
-	pmc_init_pll(0);
+	/* No need: we keep what is set in ROM code */
+	//pmc_init_pll(0x3);
 
 	/* Switch MCK on PLLA output */
 	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
