@@ -8,6 +8,7 @@ COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/debug.o
 
 COBJS-$(CONFIG_SCLK)		+= $(DRIVERS_SRC)/at91_slowclk.o
 
+COBJS-y				+= $(DRIVERS_SRC)/common.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_pio.o
 COBJS-y				+= $(DRIVERS_SRC)/pmc.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_pit.o
