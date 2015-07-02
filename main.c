@@ -26,10 +26,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "common.h"
-#include "hardware.h"
 #include "board.h"
 #include "usart.h"
-#include "debug.h"
 #include "slowclk.h"
 #include "board_hw_info.h"
 #include "tz_utils.h"
@@ -69,7 +67,6 @@ int main(void)
 #endif
 
 #ifdef CONFIG_LOAD_HW_INFO
-	/* Load board hw informaion */
 	load_board_hw_info();
 #endif
 
