@@ -38,8 +38,6 @@
 #include "secure.h"
 #include "sfr_aicredir.h"
 
-void (*sdcard_set_of_name)(char *) = NULL;
-
 #ifdef CONFIG_HW_DISPLAY_BANNER
 static void display_banner (void)
 {

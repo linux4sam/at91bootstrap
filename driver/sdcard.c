@@ -35,6 +35,8 @@
 
 #define CHUNK_SIZE	0x40000
 
+void (*sdcard_set_of_name)(char *) = NULL;
+
 static int sdcard_loadimage(char *filename, BYTE *dest)
 {
 	FIL 	file;
