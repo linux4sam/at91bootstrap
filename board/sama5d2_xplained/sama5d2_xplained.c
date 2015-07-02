@@ -31,7 +31,6 @@
 #include "usart.h"
 #include "debug.h"
 #include "ddramc.h"
-#include "spi.h"
 #include "gpio.h"
 #include "timer.h"
 #include "watchdog.h"
