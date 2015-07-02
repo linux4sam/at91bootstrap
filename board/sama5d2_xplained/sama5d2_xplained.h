@@ -88,10 +88,4 @@
 #define CONFIG_SYS_ID_SDHC	AT91C_ID_SDMMC1
 #endif
 
-/*
- * Recovery function
- */
-#define CONFIG_SYS_RECOVERY_BUTTON_PIN	AT91C_PIN_PE(13)
-#define RECOVERY_BUTTON_NAME	"BP2/PB_USER1"
-
 #endif
