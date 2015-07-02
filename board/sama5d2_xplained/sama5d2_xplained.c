@@ -348,14 +348,6 @@ static void ddramc_init(void)
 }
 #endif
 
-static void SiI9022_hw_reset(void)
-{
-	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 1);
-	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 0);
-	udelay(500);
-	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 1);
-}
-
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -399,9 +391,6 @@ void hw_init(void)
 	/* Initialize MPDDR Controller */
 	ddramc_init();
 #endif
-	/* Reset HDMI SiI9022 */
-	SiI9022_hw_reset();
-
 	/* Prepare L2 cache setup */
 	l2cache_prepare();
 }
