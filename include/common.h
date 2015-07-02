@@ -37,7 +37,7 @@
 #define	NULL	0
 #endif
 
-#define FILENAME_BUF_LEN	33
+#define FILENAME_BUF_LEN	32
 
 enum {
 	KERNEL_IMAGE,
