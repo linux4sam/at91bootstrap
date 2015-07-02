@@ -39,7 +39,6 @@
 
 #include "arch/at91_pmc.h"
 #include "arch/at91_rstc.h"
-#include "arch/sama5_smc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
 #include "sama5d2_xplained.h"
@@ -473,73 +472,6 @@ void at91_sdhc_hw_init(void)
 	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC);
 
 	sdcard_set_of_name = &sdcard_set_of_name_board;
-}
-#endif
-
-#ifdef CONFIG_NANDFLASH
-void nandflash_hw_init(void)
-{
-	const struct pio_desc nand_pins[] = {
-		{"NANDOE",	CONFIG_SYS_NAND_OE_PIN,
-					0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDWE",	CONFIG_SYS_NAND_WE_PIN,
-					0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDALE",	CONFIG_SYS_NAND_ALE_PIN,
-					0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCLE",	CONFIG_SYS_NAND_CLE_PIN,
-					0, PIO_PULLUP, PIO_PERIPH_A},
-		{"NANDCS",	CONFIG_SYS_NAND_ENABLE_PIN,
-					1, PIO_DEFAULT, PIO_OUTPUT},
-		{"D0",	AT91C_PIN_PC(5), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D1",	AT91C_PIN_PC(6), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D2",	AT91C_PIN_PC(7), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D3",	AT91C_PIN_PC(8), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D4",	AT91C_PIN_PC(9), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D5",	AT91C_PIN_PC(10), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D6",	AT91C_PIN_PC(11), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{"D7",	AT91C_PIN_PC(12), 0, PIO_PULLUP, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pio_configure(nand_pins);
-
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_HSMC);
-
-	writel((AT91C_EBICFG_DRIVE0_HIGH
-		| AT91C_EBICFG_PULL0_NONE
-		| AT91C_EBICFG_DRIVE1_HIGH
-		| AT91C_EBICFG_PULL1_NONE), SFR_EBICFG + AT91C_BASE_SFR);
-
-	writel(AT91C_SMC_SETUP_NWE(1)
-		| AT91C_SMC_SETUP_NCS_WR(1)
-		| AT91C_SMC_SETUP_NRD(1)
-		| AT91C_SMC_SETUP_NCS_RD(1),
-		(ATMEL_BASE_SMC + SMC_SETUP3));
-
-	writel(AT91C_SMC_PULSE_NWE(2)
-		| AT91C_SMC_PULSE_NCS_WR(3)
-		| AT91C_SMC_PULSE_NRD(2)
-		| AT91C_SMC_PULSE_NCS_RD(3),
-		(ATMEL_BASE_SMC + SMC_PULSE3));
-
-	writel(AT91C_SMC_CYCLE_NWE(5)
-		| AT91C_SMC_CYCLE_NRD(5),
-		(ATMEL_BASE_SMC + SMC_CYCLE3));
-
-	writel(AT91C_SMC_TIMINGS_TCLR(2)
-		| AT91C_SMC_TIMINGS_TADL(7)
-		| AT91C_SMC_TIMINGS_TAR(2)
-		| AT91C_SMC_TIMINGS_TRR(3)
-		| AT91C_SMC_TIMINGS_TWB(7)
-		| AT91C_SMC_TIMINGS_RBNSEL(2)
-		| AT91C_SMC_TIMINGS_NFSEL,
-		(ATMEL_BASE_SMC + SMC_TIMINGS3));
-
-	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL
-		| AT91C_SMC_MODE_WRITEMODE_NWE_CTRL
-		| AT91C_SMC_MODE_DBW_8
-		| AT91C_SMC_MODE_TDF_CYCLES(1),
-		(ATMEL_BASE_SMC + SMC_MODE3));
 }
 #endif
 
