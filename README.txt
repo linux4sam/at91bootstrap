@@ -144,8 +144,7 @@ the project top directory.
 4.1 About booting from NOR flash.
 4.1.1 ROM Code version
     Booting from the external NOR flash is supported in ROM code v2.1
-    for SAMA5D3x.  ROM Code loads the binary image from the NOR flash
-    to the internal SRAM and jumps to run, instead of directly excute on it.
+    for SAMA5D3x. Bootstrap relocates the binary to the internal SRAM and run.
 
 4.1.2. SAM-BA
     Using SAM-BA to program the binary to the NOR flash has a little different
