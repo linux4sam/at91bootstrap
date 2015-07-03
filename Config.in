@@ -130,7 +130,7 @@ config CONFIG_HW_DISPLAY_BANNER
 
 config CONFIG_HW_BANNER
 	string Banner
-	default "\"\\n\\nAT91Bootstrap \" AT91BOOTSTRAP_VERSION \" (\" COMPILE_TIME \")\\n\""
+	default "\"\\n\\nAT91Bootstrap \" AT91BOOTSTRAP_VERSION \" (\" COMPILE_TIME \")\\n\\n\""
 	depends on CONFIG_HW_DISPLAY_BANNER
 	help
 	  The banner displayed on serial port
