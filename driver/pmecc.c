@@ -123,7 +123,7 @@ int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip)
 		nand->ecc_err_bits = onfi_ecc_bits;
 
 	if (nand->ecc_sector_size != onfi_sector_size ||
-			nand->ecc_err_bits != onfi_ecc_bits)
+			nand->ecc_err_bits < onfi_ecc_bits)
 		dbg_info("WARNING: ONFI requires %d-bit/%d-byte ECC, but we use %d-bit/%d-byte ECC.\n",
 				onfi_ecc_bits, onfi_sector_size,
 				nand->ecc_err_bits, nand->ecc_sector_size);
