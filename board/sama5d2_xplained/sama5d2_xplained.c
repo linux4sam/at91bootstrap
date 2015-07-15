@@ -523,7 +523,7 @@ int at91_board_act8865_set_reg_voltage(void)
 		return -1;
 	}
 
-	dbg_info("ACT8865: The REG6 output 1800mV\n");
+	dbg_info("ACT8865: The REG7 output 1800mV\n");
 
 	return 0;
 }
