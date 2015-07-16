@@ -374,17 +374,63 @@ void hw_init(void)
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)
 {
-	const struct pio_desc spi0_pins[] = {
+#if defined(CONFIG_SPI_BUS0)
+#if defined(CONFIG_SPI0_IOSET_1)
+	const struct pio_desc spi_pins[] = {
 		{"SPI0_SPCK",	AT91C_PIN_PA(14), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SPI0_MOSI",	AT91C_PIN_PA(15), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SPI0_MISO",	AT91C_PIN_PA(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SPI0_NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#elif defined(CONFIG_SPI0_IOSET_2)
+	const struct pio_desc spi_pins[] = {
+		{"SPI0_SPCK",	AT91C_PIN_PB(1), 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"SPI0_MOSI",	AT91C_PIN_PB(0), 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"SPI0_MISO",	AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"SPI0_NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#else
+#error "No SPI0 IOSET defined"
+#endif
 
-	pio_configure(spi0_pins);
+#elif defined(CONFIG_SPI_BUS1)
 
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_SPI0);
+#if defined(CONFIG_SPI1_IOSET_1)
+	const struct pio_desc spi_pins[] = {
+		{"SPI1_SPCK",	AT91C_PIN_PC(1), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"SPI1_MOSI",	AT91C_PIN_PC(2), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"SPI1_MISO",	AT91C_PIN_PC(3), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"SPI1_NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#elif defined(CONFIG_SPI1_IOSET_2)
+	const struct pio_desc spi_pins[] = {
+		{"SPI1_SPCK",	AT91C_PIN_PA(22), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"SPI1_MOSI",	AT91C_PIN_PA(23), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"SPI1_MISO",	AT91C_PIN_PA(24), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"SPI1_NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#elif defined(CONFIG_SPI1_IOSET_3)
+	const struct pio_desc spi_pins[] = {
+		{"SPI1_SPCK",	AT91C_PIN_PD(25), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPI1_MOSI",	AT91C_PIN_PD(26), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPI1_MISO",	AT91C_PIN_PD(27), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SPI1_NPCS",	CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#else
+#error "No SPI1 IOSET defined"
+#endif
+#else
+#error "No SPI Bus defined"
+#endif
+
+	pio_configure(spi_pins);
+
+	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SPI);
 }
 #endif
 

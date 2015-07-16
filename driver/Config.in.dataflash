@@ -28,6 +28,66 @@ config ALLOW_DATAFLASH_RECOVERY
 
 # ------- SPI boot source -----------------------------------------------------
 choice
+	prompt "SPI Bus Select"
+	default CONFIG_SPI_BUS0
+	help
+
+config CONFIG_SPI_BUS0
+	bool "SPI Bus 0"
+	depends on CPU_HAS_SPI0
+
+config CONFIG_SPI_BUS1
+	bool "SPI Bus 1"
+	depends on CPU_HAS_SPI1
+
+config CONFIG_SPI_BUS2
+	bool "SPI Bus 2"
+	depends on CPU_HAS_SPI2
+
+endchoice
+
+menu  "SPI IOSET Select"
+	depends on CPU_HAS_PIO4
+
+choice
+	prompt "SPI0 IOSET"
+	depends on CONFIG_SPI_BUS0
+	default	CONFIG_SPI0_IOSET_1
+	help
+
+config CONFIG_SPI0_IOSET_1
+	depends on CPU_HAS_SPI0_IOSET1
+	bool "SPI0 IOSET 1"
+
+config CONFIG_SPI0_IOSET_2
+	depends on CPU_HAS_SPI0_IOSET2
+	bool "SPI0 IOSET 2"
+
+endchoice
+
+choice
+	prompt "SPI1 IOSET"
+	depends on CONFIG_SPI_BUS1
+	default	CONFIG_SPI1_IOSET_1
+	help
+
+config CONFIG_SPI1_IOSET_1
+	depends on CPU_HAS_SPI1_IOSET1
+	bool "SPI1 IOSET 1"
+
+config CONFIG_SPI1_IOSET_2
+	depends on CPU_HAS_SPI1_IOSET2
+	bool "SPI1 IOSET 2"
+
+config CONFIG_SPI1_IOSET_3
+	depends on CPU_HAS_SPI1_IOSET3
+	bool "SPI1 IOSET 3"
+
+endchoice
+
+endmenu
+
+choice
 	prompt "Chip Select"
 	default CONFIG_SPI_CS0
 	help
