@@ -95,6 +95,21 @@
 #endif
 #endif /* #if defined(CONFIG_SPI_BUS1) */
 
+#if defined(CONFIG_QSPI)
+#if defined(CONFIG_QSPI_BUS0)
+#define	CONFIG_SYS_BASE_QSPI		AT91C_BASE_QSPI0
+#define	CONFIG_SYS_BASE_QSPI_MEM	AT91C_BASE_QSPI0_MEM
+#define	CONFIG_SYS_ID_QSPI		AT91C_ID_QSPI0
+
+#elif defined(CONFIG_QSPI_BUS1)
+
+#define	CONFIG_SYS_BASE_QSPI		AT91C_BASE_QSPI1
+#define	CONFIG_SYS_BASE_QSPI_MEM	AT91C_BASE_QSPI1_MEM
+#define	CONFIG_SYS_ID_QSPI		AT91C_ID_QSPI1
+#endif
+
+#endif
+
 /*
  * SDHC Settings
  */
