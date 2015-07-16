@@ -1,4 +1,15 @@
+choice
+	prompt "SPI Interface Select"
+	default	CONFIG_SPI
+
+config CONFIG_SPI
+	bool "Standard SPI Interface"
+	depends on CPU_HAS_SPI0 || CPU_HAS_SPI1 || CPU_HAS_SPI1
+
+endchoice
+
 menu  "SPI configuration"
+	depends on CONFIG_SPI
 
 config	CONFIG_SPI_CLK
 	int "SPI clock speed"

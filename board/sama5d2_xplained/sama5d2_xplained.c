@@ -372,6 +372,7 @@ void hw_init(void)
 #endif /* #ifdef CONFIG_HW_INIT */
 
 #ifdef CONFIG_DATAFLASH
+#if defined(CONFIG_SPI)
 void at91_spi0_hw_init(void)
 {
 #if defined(CONFIG_SPI_BUS0)
@@ -432,6 +433,7 @@ void at91_spi0_hw_init(void)
 
 	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SPI);
 }
+#endif
 #endif
 
 #ifdef CONFIG_SDCARD

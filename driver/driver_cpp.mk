@@ -384,3 +384,7 @@ endif
 ifeq ($(CONFIG_SPI1_IOSET_3), y)
 CPPFLAGS += -DCONFIG_SPI1_IOSET_3
 endif
+
+ifeq ($(CONFIG_SPI), y)
+CPPFLAGS += -DCONFIG_SPI
+endif
