@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2008, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -25,24 +25,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "common.h"
-#include "spi_flash.h"
-#include "qspi_flash.h"
+#ifndef __QSPI_FLASH_H__
+#define __QSPI_FLASH_H__
 
-int load_dataflash(struct image_info *image)
-{
-	int ret = 0;
+int qspi_flash_loadimage(struct image_info *image);
 
-#ifdef CONFIG_SPI
-	ret = spi_flash_loadimage(image);
 #endif
-
-#ifdef CONFIG_QSPI
-	ret = qspi_flash_loadimage(image);
-#endif
-
-	if (ret)
-		return -1;
-
-	return 0;
-}

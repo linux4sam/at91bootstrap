@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2008, Atmel Corporation
+ * Copyright (c) 2015, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -25,24 +25,47 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include "common.h"
-#include "spi_flash.h"
-#include "qspi_flash.h"
+#ifndef	__QSPI_H__
+#define	__QSPI_H__
 
-int load_dataflash(struct image_info *image)
-{
-	int ret = 0;
+#include "spi.h"
 
-#ifdef CONFIG_SPI
-	ret = spi_flash_loadimage(image);
+typedef	enum {
+	read = 0,
+	read_memory,
+	write,
+	write_memory,
+} tansfer_type_t;
+
+typedef enum {
+	extended = 0,
+	dual,
+	quad,
+} spi_protocols_t;
+
+typedef struct qspi_frame {
+	unsigned int instruction;
+	unsigned int option;
+	unsigned int option_len;
+	unsigned int has_address;
+	unsigned int address;
+	unsigned int address_len;
+	unsigned int continue_read;
+	unsigned int dummy_cycles;
+	spi_protocols_t protocol;
+	tansfer_type_t tansfer_type;
+} qspi_frame_t;
+
+#define	DATA_DIR_READ		0x11
+#define	DATA_DIR_WRITE		0x22
+
+typedef struct qspi_data {
+	unsigned int *buffer;
+	unsigned int size;
+	unsigned int direction;
+} qspi_data_t;
+
+int qspi_init(unsigned int clock, unsigned int mode);
+int qspi_send_command(qspi_frame_t *frame, qspi_data_t *data);
+
 #endif
-
-#ifdef CONFIG_QSPI
-	ret = qspi_flash_loadimage(image);
-#endif
-
-	if (ret)
-		return -1;
-
-	return 0;
-}

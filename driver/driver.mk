@@ -34,6 +34,8 @@ COBJS-$(CONFIG_ENABLE_SW_ECC) 	+= $(DRIVERS_SRC)/hamming.o
 
 COBJS-$(CONFIG_SPI)		+= $(DRIVERS_SRC)/at91_spi.o
 COBJS-$(CONFIG_SPI)		+= $(DRIVERS_SRC)/spi_flash.o
+COBJS-$(CONFIG_QSPI)		+= $(DRIVERS_SRC)/at91_qspi.o
+COBJS-$(CONFIG_QSPI)		+= $(DRIVERS_SRC)/qspi_flash.o
 COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/dataflash.o
 
 COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o

@@ -197,6 +197,14 @@ config SAMA5D2
 	select CPU_HAS_SPI1_IOSET1
 	select CPU_HAS_SPI1_IOSET2
 	select CPU_HAS_SPI1_IOSET3
+	select CPU_HAS_QSPI0
+	select CPU_HAS_QSPI1
+	select CPU_HAS_QSPI0_IOSET1
+	select CPU_HAS_QSPI0_IOSET2
+	select CPU_HAS_QSPI0_IOSET3
+	select CPU_HAS_QSPI1_IOSET1
+	select CPU_HAS_QSPI1_IOSET2
+	select CPU_HAS_QSPI1_IOSET3
 	bool
 
 config CONFIG_MACH_TYPE
@@ -569,5 +577,37 @@ config CPU_HAS_SPI1_IOSET2
 	default n
 
 config CPU_HAS_SPI1_IOSET3
+	bool
+	default n
+
+config CPU_HAS_QSPI0
+	bool
+	default n
+
+config CPU_HAS_QSPI1
+	bool
+	default n
+
+config CPU_HAS_QSPI0_IOSET1
+	bool
+	default n
+
+config CPU_HAS_QSPI0_IOSET2
+	bool
+	default n
+
+config CPU_HAS_QSPI0_IOSET3
+	bool
+	default n
+
+config CPU_HAS_QSPI1_IOSET1
+	bool
+	default n
+
+config CPU_HAS_QSPI1_IOSET2
+	bool
+	default n
+
+config CPU_HAS_QSPI1_IOSET3
 	bool
 	default n
