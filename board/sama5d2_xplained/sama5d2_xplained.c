@@ -310,6 +310,7 @@ static void ddramc_init(void)
 	pmc_sam9x5_enable_periph_clk(AT91C_ID_MPDDRC);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
+	/* MPDDRC I/O Calibration Register */
 	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
 	reg &= ~AT91C_MPDDRC_RDIV;
 	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
