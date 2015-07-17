@@ -313,6 +313,8 @@ static void ddramc_init(void)
 	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
 	reg &= ~AT91C_MPDDRC_RDIV;
 	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
+	reg &= ~AT91C_MPDDRC_TZQIO;
+	reg |= AT91C_MPDDRC_TZQIO_(100);
 	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
 
 	writel(AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES,
