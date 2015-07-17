@@ -33,6 +33,7 @@
 #include "slowclk.h"
 #include "dataflash.h"
 #include "nandflash.h"
+#include "flash.h"
 #include "sdcard.h"
 #include "fdt.h"
 #include "board_hw_info.h"
@@ -309,6 +310,8 @@ static int load_kernel_image(struct image_info *image)
 
 #if defined(CONFIG_DATAFLASH)
 	ret = load_dataflash(image);
+#elif defined(CONFIG_FLASH)
+	ret = load_norflash(image);
 #elif defined(CONFIG_NANDFLASH)
 	ret = load_nandflash(image);
 #elif defined(CONFIG_SDCARD)

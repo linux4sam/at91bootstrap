@@ -58,12 +58,12 @@ void init_load_image(struct image_info *image)
 #endif
 
 #ifdef CONFIG_FLASH
-	image->offset = IMG_ADDRESS;
+	image->offset = IMG_ADDRESS | 0x10000000;
 #if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
 	image->length = IMG_SIZE;
 #endif
 #ifdef CONFIG_OF_LIBFDT
-	image->of_offset = OF_OFFSET;
+	image->of_offset = OF_OFFSET | 0x10000000;
 #endif
 #endif
 
