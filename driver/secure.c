@@ -130,7 +130,7 @@ int secure_check(void *data)
 	const at91_secure_header_t *header;
 	void *file;
 
-	if (secure_decrypt(data, sizeof(header), 0))
+	if (secure_decrypt(data, sizeof(*header), 0))
 		return -1;
 
 	header = (const at91_secure_header_t *)data;
