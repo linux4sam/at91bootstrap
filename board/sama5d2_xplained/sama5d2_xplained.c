@@ -278,7 +278,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	/* Assume timings for 8ns min clock period */
 	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
 			| AT91C_DDRC2_TRCD_(3)
-			| AT91C_DDRC2_TWR_(3)
+			| AT91C_DDRC2_TWR_(4)
 			| AT91C_DDRC2_TRC_(9)
 			| AT91C_DDRC2_TRP_(3)
 			| AT91C_DDRC2_TRRD_(1)
