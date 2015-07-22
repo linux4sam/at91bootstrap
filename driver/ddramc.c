@@ -493,8 +493,6 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
 	*((unsigned volatile int *)ram_address) = 0;
 
-	udelay(10);
-
 	/*
 	 * Step 6: An Extended Mode Register Set (EMRS2) cycle is issued to choose
 	 * between commercial or high temperature operations. The application must
@@ -505,8 +503,6 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
 	*((unsigned int *)(ram_address + (0x2 << ba_offset))) = 0;
-
-	udelay(10);
 
 	/*
 	 * Step 7: An Extended Mode Register Set (EMRS3) cycle is issued to set
@@ -519,8 +515,6 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
 	*((unsigned int *)(ram_address + (0x3 << ba_offset))) = 0;
 
-	udelay(10);
-
 	/*
 	 * Step 8: An Extended Mode Register Set (EMRS1) cycle is issued to
 	 * disable and to program O.D.S. (Output Driver Strength).
@@ -531,8 +525,6 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
 	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
-
-	udelay(10);
 
 	/*
 	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
@@ -563,8 +555,6 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_DEEP_CMD);
 	*((unsigned int *)ram_address) = 0;
-
-	udelay(10);
 
 	/*
 	 * Step 12: A Normal Mode command is provided.
