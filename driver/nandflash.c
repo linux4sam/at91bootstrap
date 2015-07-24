@@ -425,7 +425,7 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 
 	if (i == ARRAY_SIZE(nand_ids)) {
 		dbg_info("NAND: Not found Manufacturer ID: %d," \
-			"Chip ID: 0x%d\n", manf_id, dev_id);
+			"Chip ID: %d\n", manf_id, dev_id);
 
 		return -1;
 	}
