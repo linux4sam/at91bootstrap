@@ -34,21 +34,25 @@ static inline void wdt_write(unsigned int offset, unsigned int value)
 	writel(value, (AT91C_BASE_WDT + offset));
 }
 
+static inline int wdt_read(unsigned int offset)
+{
+	return(readl(AT91C_BASE_WDT + offset));
+}
+
 #ifdef CONFIG_DISABLE_WATCHDOG
 void at91_disable_wdt(void)
 {
-	wdt_write(WDTC_MR, AT91C_WDTC_WDDIS);
+	unsigned int reg;
+
+	reg = wdt_read(WDTC_MR);
+	reg |= AT91C_WDTC_WDDIS;
+	wdt_write(WDTC_MR, reg);
 }
 #else
 void at91_disable_wdt(void) {}
 #endif
 
 #if defined(CONFIG_ENTER_NWD)
-static inline int wdt_read(unsigned int offset)
-{
-	return(readl(AT91C_BASE_WDT + offset));
-}
-
 unsigned int at91_wdt_set_counter(unsigned int count)
 {
 	unsigned int reg;
