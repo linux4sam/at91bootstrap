@@ -65,6 +65,8 @@ static struct nand_chip nand_ids[] = {
 	{0xadda, 0x800, 0x20000, 0x800, 0x40, 0x0},
 	/* Hynix HY27UF162G2A 256MB */
 	{0xadca, 0x800, 0x20000, 0x800, 0x40, 0x1},
+	/* Hynix HY27UF162G2B 512MB */
+	{0xaddc, 0x1000, 0x20000, 0x800, 0x40, 0x0},
 	/* EON EN27LN1G08 128MB */
 	{0x92f1, 0x400, 0x20000, 0x800, 0x40, 0x0},
 #endif
@@ -425,7 +427,7 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 
 	if (i == ARRAY_SIZE(nand_ids)) {
 		dbg_info("NAND: Not found Manufacturer ID: %d," \
-			"Chip ID: 0x%d\n", manf_id, dev_id);
+			"Chip ID: %d\n", manf_id, dev_id);
 
 		return -1;
 	}
