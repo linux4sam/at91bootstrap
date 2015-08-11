@@ -136,7 +136,7 @@ struct sd_command {
 	unsigned int cmd_type;
 	unsigned int resp_type;
 	unsigned int argu;
-	unsigned int *resp;
+	unsigned int resp[4];
 };
 
 #define	SD_DATA_DIR_RD		0x11

@@ -40,8 +40,6 @@ static struct sd_command	sdcard_command;
 static struct sd_data		sdcard_data;
 static struct sd_card		atmel_sdcard;
 
-static unsigned int	response[4];
-
 static int sd_cmd_go_idle_state(struct sd_card *sdcard)
 {
 	struct sd_host *host = sdcard->host;
@@ -268,7 +266,7 @@ static int sd_cmd_send_csd(struct sd_card *sdcard)
 		return ret;
 
 	for (i = 0; i < 4; i++)
-		sdcard->reg->csd[i] = *command->resp++;
+		sdcard->reg->csd[i] = command->resp[i];
 
 	return 0;
 }
@@ -993,8 +991,6 @@ static void init_sdcard_struct(struct sd_card *sdcard)
 	memset((char *)&sdcard_register, 0, sizeof(sdcard_register));
 	memset((char *)&sdcard_command,	0, sizeof(sdcard_command));
 	memset((char *)&sdcard_data, 0, sizeof(sdcard_data));
-
-	sdcard_command.resp = response;
 
 	sdcard->reg = &sdcard_register;
 	sdcard->command = &sdcard_command;

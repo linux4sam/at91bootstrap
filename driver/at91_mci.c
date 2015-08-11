@@ -358,12 +358,12 @@ static int at91_mci_send_command(struct sd_command *command, struct sd_data *dat
 	}
 
 	if (command->resp_type == SD_RESP_TYPE_R2) {
-		*command->resp++ = mci_readl(MCI_RSPR);
-		*command->resp++ = mci_readl(MCI_RSPR1);
-		*command->resp++ = mci_readl(MCI_RSPR2);
-		*command->resp++ = mci_readl(MCI_RSPR3);
+		command->resp[0] = mci_readl(MCI_RSPR);
+		command->resp[1] = mci_readl(MCI_RSPR1);
+		command->resp[2] = mci_readl(MCI_RSPR2);
+		command->resp[3] = mci_readl(MCI_RSPR3);
 	} else {
-		*command->resp = mci_readl(MCI_RSPR);
+		command->resp[0] = mci_readl(MCI_RSPR);
 	}
 
 	if (data) {
