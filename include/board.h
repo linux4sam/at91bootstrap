@@ -107,6 +107,8 @@ extern void at91_mci0_hw_init(void);
 
 extern void at91_sdhc_hw_init(void);
 
+extern void at91_board_set_dtb_name(char *of_name);
+
 extern void norflash_hw_init(void);
 
 extern char *board_override_cmd_line(void);

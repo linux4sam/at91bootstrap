@@ -74,8 +74,6 @@ extern load_function load_image;
 extern void init_load_image(struct image_info *image);
 extern void load_image_done(int retval);
 
-extern void (*sdcard_set_of_name)(char *);
-
 extern int load_kernel(struct image_info *image);
 
 extern int kernel_size(unsigned char *addr);

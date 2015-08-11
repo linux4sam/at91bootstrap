@@ -35,8 +35,6 @@
 
 #define CHUNK_SIZE	0x40000
 
-void (*sdcard_set_of_name)(char *) = NULL;
-
 static int sdcard_loadimage(char *filename, BYTE *dest)
 {
 	FIL 	file;
@@ -109,8 +107,7 @@ int load_sdcard(struct image_info *image)
 	}
 
 #ifdef CONFIG_OF_LIBFDT
-	if (sdcard_set_of_name)
-		sdcard_set_of_name(image->of_filename);
+	at91_board_set_dtb_name(image->of_filename);
 
 	/* mount fs */
 	fret = f_mount(0, &fs);

@@ -225,10 +225,12 @@ void at91_spi0_hw_init(void)
 #endif /* #ifdef CONFIG_DATAFLASH */
 
 #ifdef CONFIG_SDCARD
-static void sdcard_set_of_name_board(char *of_name)
+#ifdef CONFIG_OF_LIBFDT
+void at91_board_set_dtb_name(char *of_name)
 {
 	strcpy(of_name, "at91sam9m10g45ek.dtb");
 }
+#endif
 
 void at91_mci0_hw_init(void)
 {
@@ -248,9 +250,6 @@ void at91_mci0_hw_init(void)
 
 	/* Enable the clock */
 	pmc_enable_periph_clock(AT91C_ID_MCI0);
-
-	/* Set of name function pointer */
-	sdcard_set_of_name = &sdcard_set_of_name_board;
 }
 #endif /* #ifdef CONFIG_SDCARD */
 

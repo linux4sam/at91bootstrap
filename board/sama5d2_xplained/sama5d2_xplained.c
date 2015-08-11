@@ -528,10 +528,12 @@ void at91_qspi_hw_init(void)
 #endif
 
 #ifdef CONFIG_SDCARD
-static void sdcard_set_of_name_board(char *of_name)
+#ifdef CONFIG_OF_LIBFDT
+void at91_board_set_dtb_name(char *of_name)
 {
 	strcpy(of_name, "at91-sama5d2_xplained.dtb");
 }
+#endif
 
 void at91_sdhc_hw_init(void)
 {
@@ -572,8 +574,6 @@ void at91_sdhc_hw_init(void)
 
 	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SDHC);
 	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC);
-
-	sdcard_set_of_name = &sdcard_set_of_name_board;
 }
 #endif
 
