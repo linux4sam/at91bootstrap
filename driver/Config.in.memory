@@ -185,13 +185,6 @@ config CONFIG_FATFS
 	depends on CONFIG_SDCARD
 	default y if CONFIG_SDCARD
 
-config CONFIG_LONG_FILENAME
-	bool "Support Long FileName(LFN)"
-	depends on CONFIG_FATFS
-	default y if !AT91SAM9G10
-	help
-	  Configure support to FatFS Long FileName(LFN)
-
 endmenu
 
 if CONFIG_DATAFLASH

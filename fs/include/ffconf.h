@@ -89,6 +89,7 @@
 /	1    - ASCII only (Valid for non LFN cfg.)
 */
 
+#define CONFIG_LONG_FILENAME
 
 #ifdef CONFIG_LONG_FILENAME
 #define	_USE_LFN	1	/* 0 to 3 */
