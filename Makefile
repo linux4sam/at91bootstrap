@@ -198,6 +198,10 @@ ifeq ($(SYMLINK),)
 SYMLINK=at91bootstrap.bin
 endif
 
+ifeq ($(SYMLINK_BOOT),)
+SYMLINK_BOOT=boot.bin
+endif
+
 COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARDNAME).o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 
@@ -289,6 +293,7 @@ $(AT91BOOTSTRAP): $(OBJS)
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
 	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
+	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK_BOOT}
 
 %.o : %.c .config
 	@echo "  CC        "$<
@@ -307,6 +312,7 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	  if [ $$? -ne 0 ] ; then \
 		rm $(BINDIR)/$(BOOT_NAME).bin ;\
 		rm ${BINDIR}/${SYMLINK}; \
+		rm ${BINDIR}/${SYMLINK_BOOT}; \
 		exit 3; \
 	  fi ; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
@@ -314,6 +320,7 @@ ChkFileSize: $(AT91BOOTSTRAP)
 		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
 		rm $(BINDIR)/$(BOOT_NAME).bin ;\
 		rm ${BINDIR}/${SYMLINK}; \
+		rm ${BINDIR}/${SYMLINK_BOOT}; \
 		exit 2;\
 	  else \
 	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
