@@ -131,16 +131,12 @@ int dbg_printf(const char *fmt_str, ...)
 	return 0;
 }
 
-void dbg_hexdump_line(const unsigned char *buf, unsigned int size)
+static void dbg_hexdump_line(const unsigned char *buf)
 {
 	unsigned int j;
-	unsigned char b[ROW_SIZE];
-	memcpy(b, buf, size);
-	memset(&b[size], 0x00, (ROW_SIZE - size));
 
-	for (j = 0; j < ROW_SIZE; j++) {
+	for (j = 0; j < ROW_SIZE; j++)
 		dbg_printf(" %x", buf[j]);
-	}
 
 	dbg_printf("\t");
 
@@ -154,25 +150,24 @@ void dbg_hexdump_line(const unsigned char *buf, unsigned int size)
 	dbg_printf("\n");
 }
 
-void dbg_hexdump(unsigned int address,
-		 const unsigned char *buf,
-		 unsigned int size)
+void dbg_hexdump(const unsigned char *buf, unsigned int size)
 {
 	unsigned int r, row;
+	unsigned int address = (unsigned int)buf;
 
 	row = size / ROW_SIZE;
 	if (size % ROW_SIZE)
 		row++;
 
 	dbg_printf("%s:", "@address");
-	for (r = 0; r < ROW_SIZE; r ++)
+	for (r = 0; r < ROW_SIZE; r++)
 		dbg_printf(" %x", r);
 	dbg_printf("\n");
 
 	for (r = 0; r < row; r++) {
-		dbg_printf("%x:", address + (r * ROW_SIZE));
-		dbg_hexdump_line(buf, ROW_SIZE);
+		dbg_printf("%x:", address);
+		dbg_hexdump_line(buf);
+		address += ROW_SIZE;
 		buf += ROW_SIZE;
 	}
-	dbg_printf("%x\n", address + size);
 }

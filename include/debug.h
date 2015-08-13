@@ -34,13 +34,11 @@
 
 #ifdef CONFIG_DEBUG
 extern int dbg_printf(const char *fmt_str, ...);
-extern void dbg_hexdump(unsigned int address,
-			const unsigned char *buf,
-			unsigned int size);
+extern void dbg_hexdump(const unsigned char *buf, unsigned int size);
 #else
 #define BOOTSTRAP_DEBUG_LEVEL 0
 static inline int dbg_printf(const char *fmt_str, ...) { return 0; }
-static inline void dbg_hexdump(unsigned int address, const unsigned char *buf, unsigned int size) { }
+static inline void dbg_hexdump(const unsigned char *buf, unsigned int size) { }
 #endif
 
 #define dbg_log(level, fmt_str, args...) \
