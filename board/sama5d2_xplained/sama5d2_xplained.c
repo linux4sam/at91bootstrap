@@ -326,7 +326,7 @@ static void ddramc_init(void)
 	writel(0x3, AT91C_BASE_MPDDRC + MPDDRC_LPDDR2_CAL_MR4);
 	writel(64, AT91C_BASE_MPDDRC + MPDDRC_LPDDR2_TIM_CAL);
 
-	ddramc_print_config_regs(AT91C_BASE_MPDDRC);
+	ddramc_dump_regs(AT91C_BASE_MPDDRC);
 }
 #endif
 

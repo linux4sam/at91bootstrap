@@ -40,11 +40,13 @@ static void write_ddramc(unsigned int address,
 	writel(value, (address + offset));
 }
 
+#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)
 /* read DDRC registers */
 static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 {
 	return readl(address + offset);
 }
+#endif
 
 #ifdef CONFIG_DDR2
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
@@ -584,23 +586,12 @@ int ddr3_sdram_initialize(unsigned int base_address,
 #error "No right DDR-SDRAM device driver provided!"
 #endif /* #ifndef CONFIG_PDDR2 */
 
-void ddramc_print_config_regs(unsigned int base_address)
+void ddramc_dump_regs(unsigned int base_address)
 {
-	dbg_very_loud("\n\nMPDDR Controller Registers configurations:\n");
-	dbg_very_loud("MPDDRC_MDR: %d\n",
-				read_ddramc(base_address, HDDRSDRC2_MDR));
-	dbg_very_loud("MPDDRC_READ_DATA_PATH: %d\n",
-				read_ddramc(base_address, MPDDRC_RD_DATA_PATH));
-	dbg_very_loud("MPDDRC_IO_CALIBR: %d\n",
-				read_ddramc(base_address, MPDDRC_IO_CALIBR));
-	dbg_very_loud("MPDDRC_TPR0: %d\n",
-				read_ddramc(base_address, HDDRSDRC2_T0PR));
-	dbg_very_loud("MPDDRC_TPR1: %d\n",
-				read_ddramc(base_address, HDDRSDRC2_T1PR));
-	dbg_very_loud("MPDDRC_TPR2: %d\n",
-				read_ddramc(base_address, HDDRSDRC2_T2PR));
-	dbg_very_loud("MPDDRC_RTR: %d\n",
-				read_ddramc(base_address, HDDRSDRC2_RTR));
-	dbg_very_loud("MPDDRC_CR: %d\n",
-				read_ddramc(base_address, HDDRSDRC2_CR));
+#if (BOOTSTRAP_DEBUG_LEVEL >= DEBUG_LOUD)
+	unsigned int size = 0x160;
+
+	dbg_info("\nDump DDRAMC Registers:\n");
+	dbg_hexdump((unsigned char *)base_address, size, DUMP_WIDTH_BIT_32);
+#endif
 }

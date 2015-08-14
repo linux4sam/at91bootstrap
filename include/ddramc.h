@@ -51,6 +51,6 @@ extern int ddr3_sdram_initialize(unsigned int base_address,
 			unsigned int ram_address,
 			struct ddramc_register *ddramc_config);
 
-extern void ddramc_print_config_regs(unsigned int base_address);
+extern void ddramc_dump_regs(unsigned int base_address);
 
 #endif /* #ifndef __DDRAMC_H__ */
