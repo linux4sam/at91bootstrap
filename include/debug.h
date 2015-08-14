@@ -28,31 +28,6 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#define	MSG_FAILURE	0
-#define	MSG_SUCCESS	1
-#define MSG_DETECTED	2
-#define MSG_NEWLINE	3
-#define MSG_SPACE	4
-#define MSG_EXCLAMATION 5
-#define MSG_DATAFLASH	6
-#define MSG_TIMEOUT	7
-#define MSG_AT45	8
-#define MSG_DB		9
-#define MSG_INVALID	10
-#define MSG_BOOT	11
-#define MSG_START	12
-#define MSG_FROM	13
-#define MSG_CODE	14
-#define MSG_COMPLETE	15
-#define MSG_BYTES	16
-#define MSG_PROMPT	17
-#define	MSG_DECOMPRESS	18
-#define	MSG_VALID	19
-#define	MSG_LINUX	20
-#define	MSG_TO		21
-#define	MSG_NANDFLASH	22
-#define	MSG_SIZE	23
-
 #define DEBUG_INFO        1
 #define DEBUG_LOUD        2
 #define DEBUG_VERY_LOUD   4
