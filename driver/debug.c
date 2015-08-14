@@ -150,23 +150,49 @@ static void dbg_hexdump_line(const unsigned char *buf)
 	dbg_printf("\n");
 }
 
-void dbg_hexdump(const unsigned char *buf, unsigned int size)
+static void dbg_int_hexdump_line(const unsigned char *buf)
 {
-	unsigned int r, row;
+	unsigned int j;
+	unsigned int *word;
+
+	word = (unsigned int *)buf;
+
+	for (j = 0; j < ROW_SIZE / 4; j++)
+		dbg_printf(" %x", word[j]);
+
+	dbg_printf("\n");
+}
+
+
+void dbg_hexdump(const unsigned char *buf,
+		 unsigned int size, unsigned int width)
+{
+	unsigned int r, row, delta;
 	unsigned int address = (unsigned int)buf;
+	void (*dump_line)(const unsigned char *buf);
 
 	row = size / ROW_SIZE;
 	if (size % ROW_SIZE)
 		row++;
 
+	if (width == DUMP_WIDTH_BIT_32) {
+		dump_line = dbg_int_hexdump_line;
+		delta = 4;
+	} else {
+		dump_line = dbg_hexdump_line;
+		delta = 1;
+	}
+
 	dbg_printf("%s:", "@address");
-	for (r = 0; r < ROW_SIZE; r++)
+	for (r = 0; r < ROW_SIZE;) {
 		dbg_printf(" %x", r);
+		r += delta;
+	}
 	dbg_printf("\n");
 
 	for (r = 0; r < row; r++) {
 		dbg_printf("%x:", address);
-		dbg_hexdump_line(buf);
+		(*dump_line)(buf);
 		address += ROW_SIZE;
 		buf += ROW_SIZE;
 	}

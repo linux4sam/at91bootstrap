@@ -32,13 +32,18 @@
 #define DEBUG_LOUD        2
 #define DEBUG_VERY_LOUD   4
 
+#define DUMP_WIDTH_BIT_8	1
+#define DUMP_WIDTH_BIT_32	2
+
 #ifdef CONFIG_DEBUG
 extern int dbg_printf(const char *fmt_str, ...);
-extern void dbg_hexdump(const unsigned char *buf, unsigned int size);
+extern void dbg_hexdump(const unsigned char *buf,
+			unsigned int size, unsigned int width);
 #else
 #define BOOTSTRAP_DEBUG_LEVEL 0
 static inline int dbg_printf(const char *fmt_str, ...) { return 0; }
-static inline void dbg_hexdump(const unsigned char *buf, unsigned int size) { }
+static inline void dbg_hexdump(const unsigned char *buf,
+			       unsigned int size, unsigned int width) { }
 #endif
 
 #define dbg_log(level, fmt_str, args...) \
