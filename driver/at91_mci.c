@@ -332,7 +332,8 @@ static int at91_mci_send_command(struct sd_command *command, struct sd_data *dat
 	}
 
 	if (command->cmd == SD_CMD_READ_MULTIPLE_BLOCK) {
-		mci_writel(MCI_BLKR, AT91C_MCI_BLKLEN(data->blocksize)
+		if (data)
+			mci_writel(MCI_BLKR, AT91C_MCI_BLKLEN(data->blocksize)
 					| AT91C_MCI_BCNT(data->blocks));
 	};
 
