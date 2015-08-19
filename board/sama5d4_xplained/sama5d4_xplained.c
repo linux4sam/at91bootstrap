@@ -208,6 +208,8 @@ static void ddramc_init(void)
 	/* configure Shift Sampling Point of Data */
 #if defined(CONFIG_BUS_SPEED_148MHZ)
 	reg = AT91C_MPDDRC_RD_DATA_PATH_NO_SHIFT;
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
+	reg = AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES;
 #else
 	reg = AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES;
 #endif
