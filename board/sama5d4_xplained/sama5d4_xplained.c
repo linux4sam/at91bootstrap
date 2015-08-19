@@ -132,7 +132,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
 			| AT91C_DDRC2_TXSRD_(200)
-			| AT91C_DDRC2_TXSNR_(24)
+			| AT91C_DDRC2_TXSNR_(35)
 			| AT91C_DDRC2_TRFC_(34));
 
 	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(6)
@@ -156,7 +156,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
 			| AT91C_DDRC2_TXSRD_(200)
-			| AT91C_DDRC2_TXSNR_(25)
+			| AT91C_DDRC2_TXSNR_(36)
 			| AT91C_DDRC2_TRFC_(35));
 
 	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(8)
@@ -180,7 +180,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
 			| AT91C_DDRC2_TXSRD_(200)
-			| AT91C_DDRC2_TXSNR_(28)
+			| AT91C_DDRC2_TXSNR_(42)
 			| AT91C_DDRC2_TRFC_(40));
 
 	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(9)
