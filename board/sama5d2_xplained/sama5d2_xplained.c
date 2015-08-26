@@ -40,6 +40,7 @@
 #include "arch/at91_rstc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
+#include "arch/at91_sfr.h"
 #include "sama5d2_xplained.h"
 #include "l2cc.h"
 #include "act8865.h"
@@ -252,7 +253,7 @@ static int matrix_init(void)
 }
 #endif	/* #if defined(CONFIG_MATRIX) */
 
-#ifdef CONFIG_DDR3
+#if defined(CONFIG_DDR3)
 static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 {
 	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS
@@ -328,6 +329,92 @@ static void ddramc_init(void)
 
 	ddramc_dump_regs(AT91C_BASE_MPDDRC);
 }
+
+#elif defined(CONFIG_LPDDR1)
+static void lpddr1_reg_config(struct ddramc_register *ddramc_config)
+{
+	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS |
+			      AT91C_DDRC2_MD_LP_DDR_SDRAM);
+
+	/* 14 Row bits, 10 Column bits */
+	ddramc_config->cr = (AT91C_DDRC2_NC_DDR11_SDR10 |
+			     AT91C_DDRC2_NR_14 |
+			     AT91C_DDRC2_CAS_3 |
+			     AT91C_DDRC2_NDQS_DISABLED |
+			     AT91C_DDRC2_UNAL_SUPPORTED);
+
+	ddramc_config->lpr = 0;
+
+	/*
+	 * According to MT46H128M16LF-5 IT datasheet
+	 * Maximum fresh period: 64ms, refresh count: 8k
+	 */
+#ifdef CONFIG_BUS_SPEED_166MHZ
+	/* Refresh Timer is (64ms / 8k) * 166MHz = 1297(0x511) */
+	ddramc_config->rtr = 0x511;
+
+	/* Assume the timings for 6ns min clock period */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(7) |
+			       AT91C_DDRC2_TRCD_(3) |
+			       AT91C_DDRC2_TWR_(3) |
+			       AT91C_DDRC2_TRC_(10) |
+			       AT91C_DDRC2_TRP_(3) |
+			       AT91C_DDRC2_TRRD_(2) |
+			       AT91C_DDRC2_TWTR_(2) |
+			       AT91C_DDRC2_TMRD_(2));
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(12)  |
+			       AT91C_DDRC2_TXSNR_(19) |
+			       AT91C_DDRC2_TXSRD_(0) |
+			       AT91C_DDRC2_TXP_(2));
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(0) |
+			       AT91C_DDRC2_TXARDS_(0) |
+			       AT91C_DDRC2_TRPA_(0) |
+			       AT91C_DDRC2_TRTP_(0) |
+			       AT91C_DDRC2_TFAW_(0));
+#else
+#error "No CLK setting defined"
+#endif
+}
+
+static void lpddr1_init(void)
+{
+	struct ddramc_register ddramc_reg;
+	unsigned int reg;
+
+	lpddr1_reg_config(&ddramc_reg);
+
+	pmc_sam9x5_enable_periph_clk(AT91C_ID_MPDDRC);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
+
+	/*
+	 * Before starting the initialization sequence, the user must force
+	 * the DDR_DQ and DDR_DQS input buffers to always on by setting
+	 * the FDQIEN and FDQSIEN bits in the SFR_DDRCFG register.
+	 */
+	pmc_sam9x5_enable_periph_clk(AT91C_ID_SFR);
+	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
+	reg |= AT91C_DDRCFG_FDQIEN;
+	reg |= AT91C_DDRCFG_FDQSIEN;
+	writel(reg, AT91C_BASE_SFR + SFR_DDRCFG);
+
+	/* MPDDRC I/O Calibration Register */
+	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
+	reg &= ~AT91C_MPDDRC_RDIV;
+	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
+	reg &= ~AT91C_MPDDRC_TZQIO;
+	reg |= AT91C_MPDDRC_TZQIO_(100);
+	writel(reg, AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
+
+	writel(AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES,
+	       AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH);
+
+	lpddr1_sdram_initialize(AT91C_BASE_MPDDRC,
+			        AT91C_BASE_DDRCS, &ddramc_reg);
+
+	ddramc_dump_regs(AT91C_BASE_MPDDRC);
+}
 #endif
 
 #ifdef CONFIG_HW_INIT
@@ -369,9 +456,11 @@ void hw_init(void)
 	/* Init timer */
 	timer_init();
 
-#ifdef CONFIG_DDR3
+#if defined(CONFIG_DDR3)
 	/* Initialize MPDDR Controller */
 	ddramc_init();
+#elif defined(CONFIG_LPDDR1)
+	lpddr1_init();
 #endif
 	/* Prepare L2 cache setup */
 	l2cache_prepare();
