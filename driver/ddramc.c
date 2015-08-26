@@ -582,9 +582,137 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	return 0;
 }
 
+#elif defined(CONFIG_LPDDR1)
+
+int lpddr1_sdram_initialize(unsigned int base_address,
+			    unsigned int ram_address,
+			    struct ddramc_register *ddramc_config)
+{
+	unsigned int ba_offset;
+
+	/* Compute BA[] offset according to CR configuration */
+	ba_offset = (ddramc_config->cr & AT91C_DDRC2_NC) + 8;
+	if (!(ddramc_config->cr & AT91C_DDRC2_DECOD_INTERLEAVED))
+		ba_offset += ((ddramc_config->cr & AT91C_DDRC2_NR) >> 2) + 11;
+
+	ba_offset += (ddramc_config->mdr & AT91C_DDRC2_DBW) ? 1 : 2;
+
+	dbg_very_loud(" ba_offset = %x ...\n", ba_offset);
+
+	/*
+	 * Step 1: Program the memory device type in the MPDDRC Memory Device Register
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MDR, ddramc_config->mdr);
+
+	/*
+	 * Step 2: Program the features of the low-power DDR1-SDRAM device
+	 * in the MPDDRC Configuration Register and in the MPDDRC Timing
+	 * Parameter 0 Register/MPDDRC Timing Parameter 1 Register.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_CR, ddramc_config->cr);
+
+	write_ddramc(base_address, HDDRSDRC2_T0PR, ddramc_config->t0pr);
+	write_ddramc(base_address, HDDRSDRC2_T1PR, ddramc_config->t1pr);
+	write_ddramc(base_address, HDDRSDRC2_T2PR, ddramc_config->t2pr);
+
+	/*
+	 * Step 3: Program Temperature Compensated Self-refresh (TCR),
+	 * Partial Array Self-refresh (PASR) and Drive Strength (DS) parameters
+	 * in the MPDDRC Low-power Register.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_LPR, ddramc_config->lpr);
+
+	/*
+	 * Step 4: A NOP command is issued to the low-power DDR1-SDRAM.
+	 * Program the NOP command in the MPDDRC Mode Register (MPDDRC_MR).
+	 * The clocks which drive the low-power DDR1-SDRAM device
+	 * are now enabled.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 5: A pause of at least 200 us must be observed before
+	 * a signal toggle.
+	 */
+	 udelay(200);
+
+	/*
+	 * Step 6: A NOP command is issued to the low-power DDR1-SDRAM.
+	 * Program the NOP command in the MPDDRC_MR. calibration request is
+	 * now made to the I/O pad.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 7: An All Banks Precharge command is issued
+	 * to the low-power DDR1-SDRAM.
+	 * Program All Banks Precharge command in the MPDDRC_MR.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_PRCGALL_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 8: Two auto-refresh (CBR) cycles are provided.
+	 * Program the Auto Refresh command (CBR) in the MPDDRC_MR.
+	 * The application must write a four to the MODE field
+	 * in the MPDDRC_MR. Perform a write access to any low-power
+	 * DDR1-SDRAM location twice to acknowledge these commands.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_RFSH_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_RFSH_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 9: An Extended Mode Register Set (EMRS) cycle is issued to
+	 * program the low-power DDR1-SDRAM parameters (TCSR, PASR, DS).
+	 * The application must write a five to the MODE field in the MPDDRC_MR
+	 * and perform a write access to the SDRAM to acknowledge this command.
+	 * The write address must be chosen so that signal BA[1] is set to 1
+	 * and BA[0] is set to 0.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
+	*((unsigned volatile int *)(ram_address + (0x2 << ba_offset))) = 0;
+
+	/*
+	 * Step 10: A Mode Register Set (MRS) cycle is issued to program
+	 * parameters of the low-power DDR1-SDRAM devices, in particular
+	 * CAS latency.
+	 * The application must write a three to the MODE field in the MPDDRC_MR
+	 * and perform a write access to the SDRAM to acknowledge this command.
+	 * The write address must be chosen so that signals BA[1:0] are set to 0.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_LMR_CMD);
+	*((unsigned volatile int *)(ram_address + (0x0 << ba_offset))) = 0;
+
+	/*
+	 * Step 11: The application must enter Normal mode, write a zero
+	 * to the MODE field in the MPDDRC_MR and perform a write access
+	 * at any location in the SDRAM to acknowledge this command.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 12: Perform a write access to any low-power DDR1-SDRAM address.
+	 */
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 14: Write the refresh rate into the COUNT field in the MPDDRC
+	 * Refresh Timer Register (MPDDRC_RTR):
+	 */
+	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
+
+	return 0;
+}
+
 #else
 #error "No right DDR-SDRAM device driver provided!"
-#endif /* #ifndef CONFIG_PDDR2 */
+#endif
 
 void ddramc_dump_regs(unsigned int base_address)
 {

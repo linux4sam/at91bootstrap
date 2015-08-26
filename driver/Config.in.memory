@@ -71,6 +71,9 @@ choice
 	depends on CONFIG_DDRC
 	default CONFIG_DDR2
 
+config CONFIG_LPDDR1
+	bool "Low-power DDR1-SDRAM"
+
 config CONFIG_LPDDR2
 	bool "Low-power DDR2-SDRAM"
 
