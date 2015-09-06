@@ -74,7 +74,7 @@ int main(void)
 	at91_board_pm();
 #endif
 
-#ifdef CONFIG_DISABLE_ACT8865_I2C
+#ifdef CONFIG_ACT8865
 	act8865_workaround();
 #endif
 

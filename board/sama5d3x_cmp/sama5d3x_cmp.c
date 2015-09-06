@@ -436,7 +436,7 @@ unsigned int at91_twi2_hw_init(void)
 }
 #endif
 
-#if defined(CONFIG_DISABLE_ACT8865_I2C)
+#if defined(CONFIG_ACT8865_SET_VOLTAGE)
 int at91_board_act8865_set_reg_voltage(void)
 {
 	unsigned char reg, value;

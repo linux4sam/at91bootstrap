@@ -265,20 +265,26 @@ static int act8865_workaround_disable_i2c(void)
 
 	return 0;
 }
+#endif
 
+#if defined(CONFIG_ACT8865)
 void act8865_workaround(void)
 {
 	if (!twi_init_done)
 		twi_init();
 
+#if defined(CONFIG_ACT8865_SET_VOLTAGE)
 	/* Set ACT8865 REG output voltage */
 	at91_board_act8865_set_reg_voltage();
+#endif
 
+#if defined(CONFIG_DISABLE_ACT8865_I2C)
 	/* Disable ACT8865 I2C interface, if failed, don't go on */
 	if (act8865_workaround_disable_i2c()) {
 		dbg_info("ACT8865: Failed to disable I2C interface\n");
 		while (1)
 			;
 	}
+#endif
 }
 #endif
