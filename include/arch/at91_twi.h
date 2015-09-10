@@ -44,6 +44,7 @@
 
 #define TWI_WPROT_MODE		0xE4	/* Protection Mode Register */
 #define TWI_WPROT_STATUS	0xE8	/* Protection Status Register */
+#define TWI_VERSION		0xFC
 
 /*-------- TWI_CR : (Offset: 0x00) Control Register --------*/
 #define TWI_CR_START		(0x1UL << 0)	/* Send a START condition */
@@ -61,6 +62,10 @@
 #define		TWI_MMR_MREAD_WR	(0x00UL << 12)
 #define		TWI_MMR_MREAD_RD	(0x01UL << 12)
 #define	TWI_MMR_DADR(addr)	(addr << 16)
+
+/*-------- TWI_CWGR : (Offset: 0x10) Clock Waveform Generator Register --*/
+#define TWI_CWGR_HOLD		(0x01 << 24)
+#define		TWI_CWGR_HOLD_(x)	((x) << 24)
 
 /*-------- TWI_SR : (Offset: 0x20) Status Register --------*/
 #define TWI_SR_TXCOMP		(0x01UL	<< 0)

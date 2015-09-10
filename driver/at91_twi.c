@@ -109,10 +109,13 @@ static int twi_configure_master_mode(unsigned int bus,
 	unsigned int clkdiv, ckdiv = 0;
 	unsigned int clock =  bus_clock;
 	unsigned int twi_base;
+	unsigned int reg, version;
 
 	twi_base = get_twi_base(bus);
 	if (!twi_base)
 		return -1;
+
+	version = twi_reg_read(twi_base, TWI_VERSION);
 
 	twi_reg_write(twi_base, TWI_CR, TWI_CR_SWRST);
 	twi_reg_read(twi_base, TWI_RHR);
@@ -129,8 +132,12 @@ static int twi_configure_master_mode(unsigned int bus,
 			ckdiv++;
 	}
 
-	twi_reg_write(twi_base, TWI_CWGR,
-				((ckdiv << 16) | (clkdiv << 8) | clkdiv));
+	reg = (ckdiv << 16) | (clkdiv << 8) | clkdiv;
+
+	if (version >= 0x704)
+		reg |= TWI_CWGR_HOLD_(2);
+
+	twi_reg_write(twi_base, TWI_CWGR, reg);
 
 	return 0;
 }
