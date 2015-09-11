@@ -135,7 +135,7 @@ static int twi_configure_master_mode(unsigned int bus,
 	reg = (ckdiv << 16) | (clkdiv << 8) | clkdiv;
 
 	if (version >= 0x704)
-		reg |= TWI_CWGR_HOLD_(2);
+		reg |= TWI_CWGR_HOLD_(25);
 
 	twi_reg_write(twi_base, TWI_CWGR, reg);
 
