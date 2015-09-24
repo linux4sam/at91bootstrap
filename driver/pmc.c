@@ -117,6 +117,7 @@ void lowlevel_clock_init()
 	/* After stablization, switch to Main Oscillator */
 	if ((read_pmc(PMC_MCKR) & AT91C_PMC_CSS) == AT91C_PMC_CSS_SLOW_CLK) {
 		tmp = read_pmc(PMC_MCKR);
+		tmp &= (~(0x1 << 13));
 		tmp &= ~AT91C_PMC_CSS;
 		tmp |= AT91C_PMC_CSS_MAIN_CLK;
 		write_pmc(PMC_MCKR, tmp);
@@ -160,6 +161,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 	 * Program the PRES field in the PMC_MCKR register
 	 */
 	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~(0x1 << 13));
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
 	|| defined(SAMA5D4) || defined(SAMA5D2)
 	tmp &= (~AT91C_PMC_ALT_PRES);
@@ -218,6 +220,7 @@ int pmc_cfg_mck_down(unsigned int pmc_mckr)
 	 * wait for MCKRDY bit to be set in the PMC_SR register
 	 */
 	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~(0x1 << 13));
 	tmp &= (~AT91C_PMC_CSS);
 	tmp |= (pmc_mckr & AT91C_PMC_CSS);
 	write_pmc(PMC_MCKR, tmp);
