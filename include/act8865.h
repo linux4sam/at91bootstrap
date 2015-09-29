@@ -73,6 +73,7 @@
  */
 #define ACT8865_1V2	0x18
 #define ACT8865_1V25	0x19
+#define ACT8865_1V3	0x1a
 #define ACT8865_1V8	0x24
 #define ACT8865_2V5	0x31
 #define ACT8865_3V3	0x39

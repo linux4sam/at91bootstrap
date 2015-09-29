@@ -94,12 +94,15 @@ int act8865_set_reg_voltage(unsigned char volt_reg, unsigned char value)
 
 	switch (volt_reg) {
 	case REG1_0:
+	case REG1_1:
 		enable_reg = REG1_2;
 		break;
 	case REG2_0:
+	case REG2_1:
 		enable_reg = REG2_2;
 		break;
 	case REG3_0:
+	case REG3_1:
 		enable_reg = REG3_2;
 		break;
 	case REG4_0:
