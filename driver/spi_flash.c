@@ -44,6 +44,7 @@
 
 /* JEDEC Code */
 #define MANUFACTURER_ID_ATMEL		0x1f
+#define MANUFACTURER_ID_WINBOND		0xef
 
 /* Family Code */
 #define DF_FAMILY_AT26F			0x00
@@ -566,9 +567,10 @@ static int dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
 	dbg_info("\n");
 #endif
 
-	if (dev_id[0] != MANUFACTURER_ID_ATMEL) {
+	if (dev_id[0] != MANUFACTURER_ID_ATMEL &&
+	    dev_id[0] != MANUFACTURER_ID_WINBOND) {
 		dbg_info("Not supported spi flash Manufactorer ID: %d\n",
-				dev_id[0]);
+			 dev_id[0]);
 		return -1;
 	}
 
