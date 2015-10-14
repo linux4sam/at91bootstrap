@@ -275,6 +275,10 @@ config CONFIG_CRYSTAL_18_432MHZ
 	bool "Build for use of an 18.432 MHz crystal"
 	depends on ALLOW_CRYSTAL_18_432MHZ
 
+config CONFIG_CRYSTAL_24_000MHZ
+	bool "Build for use of an 24.000 MHz crystal"
+	depends on ALLOW_CRYSTAL_24_000MHZ
+
 endchoice
 
 config ALLOW_CRYSTAL_12_000MHZ
@@ -289,6 +293,9 @@ config ALLOW_CRYSTAL_16_36766MHZ
 config ALLOW_CRYSTAL_18_432MHZ
 	bool
 
+config ALLOW_CRYSTAL_24_000MHZ
+	bool
+
 config CONFIG_CRYSTAL
 	string
 
@@ -299,6 +306,7 @@ config CONFIG_CRYSTAL
 	default "CRYSTAL_16_000MHZ"	if CONFIG_CRYSTAL_16_000MHZ
 	default "CRYSTAL_16_36766MHZ"	if CONFIG_CRYSTAL_16_36766MHZ
 	default "CRYSTAL_18_432MHZ"	if CONFIG_CRYSTAL_18_432MHZ
+	default "CRYSTAL_24_000MHZ"     if CONFIG_CRYSTAL_24_000MHZ
 	default "CRYSTAL_18_432MHZ"
 
 choice
