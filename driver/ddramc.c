@@ -622,6 +622,14 @@ int lpddr1_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_LPR, ddramc_config->lpr);
 
+        /* The SAMA5D3 data sheet has steps 4 & 5 in the opposite order */
+
+	/*
+	 * Step 5: A pause of at least 200 us must be observed before
+	 * a signal toggle.
+	 */
+	 udelay(200);
+
 	/*
 	 * Step 4: A NOP command is issued to the low-power DDR1-SDRAM.
 	 * Program the NOP command in the MPDDRC Mode Register (MPDDRC_MR).
@@ -630,12 +638,6 @@ int lpddr1_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
 	*((unsigned volatile int *)ram_address) = 0;
-
-	/*
-	 * Step 5: A pause of at least 200 us must be observed before
-	 * a signal toggle.
-	 */
-	 udelay(200);
 
 	/*
 	 * Step 6: A NOP command is issued to the low-power DDR1-SDRAM.

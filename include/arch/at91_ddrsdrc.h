@@ -180,7 +180,9 @@
 #define 	AT91C_DDRC2_LPCB_DEEP_PWD	(0x3UL)
 #define AT91C_DDRC2_CLK_FR	(0x1UL << 2)
 #define AT91C_DDRC2_PASR	(0x7UL << 4)
+#define 	AT91C_DDRC2_PASR_(x)		((x & 0x7) << 4)
 #define AT91C_DDRC2_DS		(0x7UL << 8)
+#define 	AT91C_DDRC2_DS_(x)		((x & 0x7) << 8)
 #define AT91C_DDRC2_TIMEOUT	(0x3UL << 12)
 #define 	AT91C_DDRC2_TIMEOUT_0		(0x0UL << 12)
 #define 	AT91C_DDRC2_TIMEOUT_64		(0x1UL << 12)
@@ -190,6 +192,10 @@
 #define 	AT91C_DDRC2_ADPE_FAST		(0x0UL << 16)
 #define 	AT91C_DDRC2_ADPE_SLOW		(0x1UL << 16)
 #define AT91C_DDRC2_UPD_MR	(0x3UL << 20)
+#define 	AT91C_DDRC2_UPD_MR_NO_UPDATE	 (0x0UL << 20)
+#define 	AT91C_DDRC2_UPD_MR_SHARED_BUS	 (0x1UL << 20)
+#define 	AT91C_DDRC2_UPD_MR_NO_SHARED_BUS (0x2UL << 20)
+#define 	AT91C_DDRC2_UPD_MR_Reserved	 (0x3UL << 20)
 
 /* -------- HDDRSDRC2_MDR : (HDDRSDRC2 Offset: 0x20) Memory Device Register -------- */
 #define AT91C_DDRC2_MD		(0x7UL << 0)

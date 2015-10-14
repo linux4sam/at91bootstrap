@@ -17,8 +17,12 @@ config CONFIG_IMG_SIZE
 	help
 	  at91bootstrap will copy this size of U-Boot image
 
+config USE_CUSTOM_JUMP_ADDR
+       bool
+
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load U-Boot Image"
+	default CUSTOM_JUMP_ADDR if USE_CUSTOM_JUMP_ADDR
 	default "0x73F00000" if AT91SAM9G45
 	default "0x26F00000" if AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X  || SAMA5D4 || SAMA5D2
 	default "0x21F00000" if AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || AT91SAM9G20 || AT91SAM9RL
