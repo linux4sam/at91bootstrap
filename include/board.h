@@ -92,6 +92,9 @@
 #include "sama5d2_xplained.h"
 #endif
 
+#ifdef CONFIG_VINCO
+#include "vinco.h"
+#endif
 /*
  * Functions Prototype
  */

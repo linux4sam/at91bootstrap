@@ -24,6 +24,7 @@ source "board/sama5d3x_cmp/Config.in.board"
 source "board/sama5d4ek/Config.in.board"
 source "board/sama5d4_xplained/Config.in.board"
 source "board/sama5d2_xplained/Config.in.board"
+source "board/vinco/Config.in.board"
 
 endchoice
 
@@ -45,6 +46,7 @@ config CONFIG_BOARDNAME
 	default "sama5d4_xplained" if CONFIG_SAMA5D4_XPLAINED
 	default "sama5d4ek" if CONFIG_SAMA5D4EK
 	default "sama5d2_xplained" if CONFIG_SAMA5D2_XPLAINED
+	default "vinco" if CONFIG_VINCO
 
 config AT91SAM9260
 	select CORE_ARM926EJS
