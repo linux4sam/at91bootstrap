@@ -229,6 +229,7 @@ static void nand_set_feature_on_die_ecc(unsigned char is_enable)
 	nand_command(CMD_SET_FEATURE);
 	nand_address(0x90);
 
+	udelay(100);
 	if (is_enable)
 		write_byte(0x08);
 	else
@@ -249,6 +250,7 @@ static unsigned char nand_get_feature_on_die_ecc(void)
 
 	nand_command(CMD_GET_FEATURE);
 	nand_address(0x90);
+	udelay(100);
 
 	for (i = 0; i < 4; i++)
 		buffer[i] = read_byte();
