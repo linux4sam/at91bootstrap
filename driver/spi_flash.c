@@ -41,15 +41,19 @@
 #define CMD_READ_DEV_ID			0x9f
 /* Continuous Array Read */
 #define CMD_READ_ARRAY_FAST		0x0b
+#define CMD_READ_ARRAY		0x03
 
 /* JEDEC Code */
 #define MANUFACTURER_ID_ATMEL		0x1f
+#define MANUFACTURER_ID_MICRON		0x20
 #define MANUFACTURER_ID_WINBOND		0xef
 
 /* Family Code */
 #define DF_FAMILY_AT26F			0x00
 #define DF_FAMILY_AT45			0x20
 #define DF_FAMILY_AT26DF		0x40	/* AT25DF and AT26DF */
+
+#define DF_FAMILY_N25Q			0xA0
 
 /* AT45 Density Code */
 #define DENSITY_AT45DB011D		0x0C
@@ -77,6 +81,7 @@ struct dataflash_descriptor {
 	unsigned int	page_size;	/* page size */
 	unsigned int	page_offset;	/* page offset in command */
 	unsigned char	is_power_2;	/* = 1: power of 2, = 0: not*/
+	unsigned char	is_spinor;	/* = 1: nor flash, = 0: dataflash */
 };
 
 static int df_send_command(unsigned char *cmd,
@@ -110,7 +115,6 @@ static int df_send_command(unsigned char *cmd,
 		at91_spi_write_data(0);
 		*data++ = at91_spi_read_spi();
 	}
-
 	at91_spi_cs_deactivate();
 
 	return 0;
@@ -163,6 +167,42 @@ static int dataflash_read_array(struct dataflash_descriptor *df_desc,
 	return 0;
 }
 
+static int spinor_read_array(struct dataflash_descriptor *df_desc,
+				unsigned int offset,
+				unsigned int len,
+				void *buf)
+{
+	unsigned char cmd[5];
+	unsigned char cmd_len;
+	unsigned int address;
+	int ret;
+
+	address = offset;
+
+	cmd[0] = CMD_READ_ARRAY_FAST;
+	cmd[1] = (unsigned char)(address >> 16);
+	cmd[2] = (unsigned char)(address >> 8);
+	cmd[3] = (unsigned char)address;
+	cmd_len = 5; /* 5th command is for dummy cycle*/
+
+	ret = df_send_command(cmd, cmd_len, buf, len);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+
+static int read_array(struct dataflash_descriptor *df_desc,
+				unsigned int offset,
+				unsigned int len,
+				void *buf)
+{
+	if (!df_desc->is_spinor)
+		return dataflash_read_array(df_desc, offset, len, buf);
+	else
+		return spinor_read_array(df_desc, offset, len, buf);
+}
+
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 static int update_image_length(struct dataflash_descriptor *df_desc,
 				unsigned int offset,
@@ -172,7 +212,7 @@ static int update_image_length(struct dataflash_descriptor *df_desc,
 	unsigned int length = df_desc->page_size;
 	int ret;
 
-	ret = dataflash_read_array(df_desc, offset, length, dest);
+	ret = read_array(df_desc, offset, length, dest);
 	if (ret)
 		return -1;
 
@@ -426,6 +466,15 @@ static int dataflash_recovery(struct dataflash_descriptor *df_desc)
 }
 #endif /* #ifdef CONFIG_DATAFLASH_RECOVERY */
 
+static int df_n25q_desc_init(struct dataflash_descriptor *df_desc)
+{
+	df_desc->pages = 16384;
+	df_desc->page_size = 256;
+	df_desc->page_offset = 0;
+	df_desc->is_spinor = 1;
+	return 0;
+}
+
 static int df_at45_desc_init(struct dataflash_descriptor *df_desc)
 {
 	unsigned char status;
@@ -538,6 +587,10 @@ static int df_desc_init(struct dataflash_descriptor *df_desc,
 		ret = df_at45_desc_init(df_desc);
 		if (ret)
 			return ret;
+	} else if (df_desc->family == DF_FAMILY_N25Q) {
+		ret = df_n25q_desc_init(df_desc);
+		if (ret)
+			return ret;
 	} else {
 		dbg_info("SF: Unsupported SerialFlash family %d\n", family);
 		return -1;
@@ -568,7 +621,8 @@ static int dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
 #endif
 
 	if (dev_id[0] != MANUFACTURER_ID_ATMEL &&
-	    dev_id[0] != MANUFACTURER_ID_WINBOND) {
+	    dev_id[0] != MANUFACTURER_ID_WINBOND &&
+	    dev_id[0] != MANUFACTURER_ID_MICRON) {
 		dbg_info("Not supported spi flash Manufactorer ID: %d\n",
 			 dev_id[0]);
 		return -1;
@@ -626,8 +680,7 @@ int spi_flash_loadimage(struct image_info *image)
 	dbg_info("SF: Copy %d bytes from %d to %d\n",
 			image->length, image->offset, image->dest);
 
-	ret = dataflash_read_array(df_desc,
-			image->offset, image->length, image->dest);
+	ret = read_array(df_desc, image->offset, image->length, image->dest);
 	if (ret) {
 		dbg_info("** SF: Serial flash read error**\n");
 		ret = -1;
@@ -645,7 +698,7 @@ int spi_flash_loadimage(struct image_info *image)
 	dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
 		image->of_length, image->of_offset, image->of_dest);
 
-	ret = dataflash_read_array(df_desc,
+	ret = read_array(df_desc,
 		image->of_offset, image->of_length, image->of_dest);
 	if (ret) {
 		dbg_info("** SF: DT: Serial flash read error**\n");
