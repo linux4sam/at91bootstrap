@@ -227,6 +227,13 @@ ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
 
 include	toplevel_cpp.mk
 include	board/board_cpp.mk
+
+ifeq (board/$(BOARDNAME)/board.mk, $(wildcard board/$(BOARDNAME)/board.mk))
+include	board/$(BOARDNAME)/board.mk
+else
+$(warning WARNING: *** file: board/$(BOARDNAME)/board.mk are not found!)
+endif
+
 include	driver/driver_cpp.mk
 
 ifeq ($(CONFIG_ENTER_NWD), y)
