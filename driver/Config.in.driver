@@ -71,3 +71,4 @@ config CPU_HAS_PIO4
 	default n
 
 source "driver/Config.in.memory"
+source "contrib/driver/Config.in.driver"

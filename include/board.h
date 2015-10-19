@@ -92,6 +92,8 @@
 #include "sama5d2_xplained.h"
 #endif
 
+#include "contrib_board.h"
+
 /*
  * Functions Prototype
  */
