@@ -81,7 +81,7 @@ source "Config.in.u-boot"
 source "Config.in.app-image"
 
 config CONFIG_IMAGE_NAME
-	string
+	string "Image Name"
 	default "Image" if CONFIG_LINUX_IMAGE
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
 	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
