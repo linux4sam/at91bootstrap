@@ -703,7 +703,7 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_SDCARD
 static void sdcard_set_of_name_board(char *of_name)
 {
-	strcpy(of_name, "vinco.dtb");
+	strcpy(of_name, "at91-vinco.dtb");
 }
 
 void at91_mci0_hw_init(void)
