@@ -153,24 +153,6 @@ the project top directory.
     You should use 'Send File' command to send the binary file as same as
     the normal file, with 'Address' selected to 0.
 
-5 Contributing
-================================================================================
-
-To contribute to AT91Bootstrap you should submit the patches for review to:
-the github pull-request facility directly or the forum. And don't forget to
-Cc the maintainers.
-
-AT91 Forum:
-http://www.at91.com/discussions/
-
-Maintainers:
-Wenyou Yang <wenyou.yang@atmel.com>
-Nicolas Ferre <nicolas.ferre@atmel.com>
-
-When creating patches insert the [at91bootstrap] tag in the subject, for example
-use something like:
-git format-patch -s --subject-prefix='at91bootstrap][PATCH' <origin>
-
 5 Contributing your own board
 ================================================================================
 
@@ -190,5 +172,23 @@ steps:
 6. Run "make <board>df_uboot_defconfig" with your new name.
 7. Type "make", and you should get the final .bin image can be found under
    the binaries/ directory.
+
+6 Contributing
+================================================================================
+
+To contribute to AT91Bootstrap you should submit the patches for review to:
+the github pull-request facility directly or the forum. And don't forget to
+Cc the maintainers.
+
+AT91 Forum:
+http://www.at91.com/discussions/
+
+Maintainers:
+Wenyou Yang <wenyou.yang@atmel.com>
+Nicolas Ferre <nicolas.ferre@atmel.com>
+
+When creating patches insert the [at91bootstrap] tag in the subject, for example
+use something like:
+git format-patch -s --subject-prefix='at91bootstrap][PATCH' <origin>
 
 -End-
