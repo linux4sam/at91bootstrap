@@ -1,0 +1,4 @@
+#
+# Config.in.board for the contributed board configuration
+#
+#source "contrib/board/<board>/Config.in.board"

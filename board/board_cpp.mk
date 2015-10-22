@@ -12,12 +12,6 @@ ASFLAGS += \
 
 include board/chips.mk
 
-ifeq (board/$(BOARDNAME)/board.mk, $(wildcard board/$(BOARDNAME)/board.mk))
-include	board/$(BOARDNAME)/board.mk
-else
-$(warning WARNING: *** file: board/$(BOARDNAME)/board.mk are not found!)
-endif
-
 ifeq ($(CONFIG_THUMB),y)
 CPPFLAGS += -DCONFIG_THUMB -mthumb -mthumb-interwork
 ASFLAGS += -DCONFIG_THUMB -mthumb-interwork
