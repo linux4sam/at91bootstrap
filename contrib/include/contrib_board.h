@@ -29,10 +29,8 @@
 #ifndef __CONTRIB_BOARD_H__
 #define __CONTRIB_BOARD_H__
 
-/*
-#ifdef CONFIG_<BOARD>
-#include "<board>.h"
+#ifdef CONFIG_VINCO
+#include "vinco.h"
 #endif
-*/
 
 #endif
