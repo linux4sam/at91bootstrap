@@ -205,13 +205,16 @@ endif
 COBJS-y:= $(TOPDIR)/main.o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 
-BOARD_LOCATE=$(shell find ./ -name $(BOARDNAME))
-ifneq ($(BOARD_LOCATE), "")
-COBJS-y += $(TOPDIR)/$(BOARD_LOCATE)/$(BOARDNAME).o
-INCL = $(BOARD_LOCATE)
-else
+BOARD_LOCATE=$(shell find $(TOPDIR)/board/ -name $(BOARDNAME) -type d)
+ifeq ("$(realpath $(BOARD_LOCATE))", "")
+BOARD_LOCATE=$(shell find $(TOPDIR)/contrib/board/ -name $(BOARDNAME) -type d)
+ifeq ("$(realpath $(BOARD_LOCATE))", "")
 $(error ERROR: *** file: $(BOARD_LOCATE) does not found!)
 endif
+endif
+
+COBJS-y += $(BOARD_LOCATE)/$(BOARDNAME).o
+INCL = $(BOARD_LOCATE)
 
 include	lib/lib.mk
 include	driver/driver.mk
