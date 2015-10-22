@@ -1,5 +1,5 @@
 config CONFIG_VINCO
-	bool "VinCo"
+	bool "L+G VInCo platform"
 	select SAMA5D4
 	select CONFIG_CPU_V7
 	select CONFIG_DDRC
@@ -14,4 +14,4 @@ config CONFIG_VINCO
 	select CONFIG_HAS_EHT1_PHY
 	select SUPPORT_BUS_SPEED_176MHZ
 	help
-	  Use the VinCo board
+	  Use the Landis+Gyr VInCo (Versatile Industrial Communication) platform
