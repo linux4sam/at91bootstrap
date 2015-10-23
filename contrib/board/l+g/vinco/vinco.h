@@ -109,6 +109,31 @@
 
 #define MASTER_CLOCK		176000000
 
+#elif defined(CONFIG_CPU_CLK_600MHZ)
+
+/* PCK: 600MHz, MCK: 200MHz */
+#define BOARD_PLLA_MULA		99
+
+#define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * (BOARD_PLLA_MULA + 1)) / 2))
+#define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * (BOARD_PLLA_MULA + 1)) / 2 / 3))
+
+#define BOARD_CKGR_PLLA		(AT91C_CKGR_SRCA | AT91C_CKGR_OUTA_0)
+#define BOARD_PLLACOUNT		(0x3F << 8)
+#define BOARD_MULA		((AT91C_CKGR_MULA << 2) & (BOARD_PLLA_MULA << 18))
+#define BOARD_DIVA		(AT91C_CKGR_DIVA & 1)
+
+/* Master Clock Register */
+#define BOARD_PRESCALER_MAIN_CLOCK	(AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_MAIN_CLK)
+
+#define BOARD_PRESCALER_PLLA		(AT91C_PMC_H32MXDIV_H32MXDIV2 \
+					| AT91C_PMC_PLLADIV2_2 \
+					| AT91C_PMC_MDIV_3 \
+					| AT91C_PMC_CSS_PLLA_CLK)
+
+#define MASTER_CLOCK		200000000
+
 #else
 #error "No CLK setting defined"
 #endif
