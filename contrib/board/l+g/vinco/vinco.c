@@ -119,7 +119,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 #elif defined(CONFIG_BUS_SPEED_200MHZ)
 
-	ddramc_config->rtr = 0x30e;
+	ddramc_config->rtr = 0x61b;
 
 	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)
 			| AT91C_DDRC2_TRCD_(3)
@@ -132,13 +132,13 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
 			| AT91C_DDRC2_TXSRD_(200)
-			| AT91C_DDRC2_TXSNR_(28)
-			| AT91C_DDRC2_TRFC_(26));
+			| AT91C_DDRC2_TXSNR_(23)
+			| AT91C_DDRC2_TRFC_(21));
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(9)
 			| AT91C_DDRC2_TRTP_(2)
 			| AT91C_DDRC2_TRPA_(3)
-			| AT91C_DDRC2_TXARDS_(2)
+			| AT91C_DDRC2_TXARDS_(8)
 			| AT91C_DDRC2_TXARD_(8));
 
 #else
