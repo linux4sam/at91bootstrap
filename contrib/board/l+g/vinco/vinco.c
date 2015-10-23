@@ -95,59 +95,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			        | AT91C_DDRC2_NDQS_DISABLED
 				| AT91C_DDRC2_UNAL_SUPPORTED);
 
-
-#if defined(CONFIG_BUS_SPEED_148MHZ)
-
-	ddramc_config->rtr = 0x484;
-
-	/* One clock cycle @ 148 MHz = 6.7 ns */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(7)
-			| AT91C_DDRC2_TRCD_(3)
-			| AT91C_DDRC2_TWR_(3)
-			| AT91C_DDRC2_TRC_(9)
-			| AT91C_DDRC2_TRP_(3)
-			| AT91C_DDRC2_TRRD_(2)
-			| AT91C_DDRC2_TWTR_(2)
-			| AT91C_DDRC2_TMRD_(2));
-
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
-			| AT91C_DDRC2_TXSRD_(200)
-			| AT91C_DDRC2_TXSNR_(31)
-			| AT91C_DDRC2_TRFC_(30));
-
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)
-			| AT91C_DDRC2_TRTP_(2)
-			| AT91C_DDRC2_TRPA_(3)
-			| AT91C_DDRC2_TXARDS_(8)
-			| AT91C_DDRC2_TXARD_(8));
-
-#elif defined(CONFIG_BUS_SPEED_170MHZ)
-
-	ddramc_config->rtr = 0x530;
-
-	/* One clock cycle @ 170 MHz = 5.9 ns */
-
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(7)
-			| AT91C_DDRC2_TRCD_(3)
-			| AT91C_DDRC2_TWR_(3)
-			| AT91C_DDRC2_TRC_(10)
-			| AT91C_DDRC2_TRP_(3)
-			| AT91C_DDRC2_TRRD_(2)
-			| AT91C_DDRC2_TWTR_(2)
-			| AT91C_DDRC2_TMRD_(2));
-
-	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
-			| AT91C_DDRC2_TXSRD_(200)
-			| AT91C_DDRC2_TXSNR_(24)
-			| AT91C_DDRC2_TRFC_(22));
-
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(6)
-			| AT91C_DDRC2_TRTP_(2)
-			| AT91C_DDRC2_TRPA_(3)
-			| AT91C_DDRC2_TXARDS_(2)
-			| AT91C_DDRC2_TXARD_(8));
-
-#elif defined(CONFIG_BUS_SPEED_176MHZ)
+#if defined(CONFIG_BUS_SPEED_176MHZ)
 
 	ddramc_config->rtr = 0x55e;
 
