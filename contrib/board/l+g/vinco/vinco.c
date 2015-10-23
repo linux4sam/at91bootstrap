@@ -95,7 +95,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 #if defined(CONFIG_BUS_SPEED_176MHZ)
 
-	ddramc_config->rtr = 0x55e;
+	ddramc_config->rtr = 0x55f;
 
 	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)
 			| AT91C_DDRC2_TRCD_(3)
