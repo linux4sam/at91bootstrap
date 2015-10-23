@@ -83,10 +83,10 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->mdr = (AT91C_DDRC2_DBW_16_BITS
 				| AT91C_DDRC2_MD_DDR2_SDRAM);
 
-	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9 /* 10 colum bit*/
+	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9 /* 10 colum bit */
 				| AT91C_DDRC2_NR_13
 				| AT91C_DDRC2_CAS_3
-			        | AT91C_DDRC2_WEAK_STRENGTH_RZQ7
+				| AT91C_DDRC2_WEAK_STRENGTH_RZQ7
 				| AT91C_DDRC2_DLL_RESET_DISABLED
 				| AT91C_DDRC2_DIS_DLL_DISABLED
 				| AT91C_DDRC2_NB_BANKS_4
