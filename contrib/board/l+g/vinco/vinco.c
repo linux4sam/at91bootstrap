@@ -117,6 +117,30 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_TXARDS_(8)
 			| AT91C_DDRC2_TXARD_(8));
 
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
+
+	ddramc_config->rtr = 0x30e;
+
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)
+			| AT91C_DDRC2_TRCD_(3)
+			| AT91C_DDRC2_TWR_(3)
+			| AT91C_DDRC2_TRC_(11)
+			| AT91C_DDRC2_TRP_(3)
+			| AT91C_DDRC2_TRRD_(2)
+			| AT91C_DDRC2_TWTR_(2)
+			| AT91C_DDRC2_TMRD_(2));
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
+			| AT91C_DDRC2_TXSRD_(200)
+			| AT91C_DDRC2_TXSNR_(28)
+			| AT91C_DDRC2_TRFC_(26));
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)
+			| AT91C_DDRC2_TRTP_(2)
+			| AT91C_DDRC2_TRPA_(3)
+			| AT91C_DDRC2_TXARDS_(2)
+			| AT91C_DDRC2_TXARD_(8));
+
 #else
 #error "No CLK setting defined"
 #endif
@@ -136,6 +160,8 @@ static void ddramc_init(void)
 	/* configure Shift Sampling Point of Data */
 #if defined(CONFIG_BUS_SPEED_148MHZ)
 	reg = AT91C_MPDDRC_RD_DATA_PATH_NO_SHIFT;
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
+	reg = AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES;
 #else
 	reg = AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES;
 #endif
