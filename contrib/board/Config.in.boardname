@@ -1,0 +1,4 @@
+#
+# Config.in.boardname for contributed board name
+#
+source "contrib/board/l+g/vinco/Config.in.boardname"

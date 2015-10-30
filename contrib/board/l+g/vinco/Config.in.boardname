@@ -1,0 +1,2 @@
+config CONFIG_BOARDNAME
+	default "vinco" if CONFIG_VINCO

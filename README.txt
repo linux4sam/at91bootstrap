@@ -153,7 +153,27 @@ the project top directory.
     You should use 'Send File' command to send the binary file as same as
     the normal file, with 'Address' selected to 0.
 
-5 Contributing
+5 Contributing your own board
+================================================================================
+
+If the system board that you have is not listed, then you will need
+to port AT91Bootstrap to your hardware platform. To do this, follow these
+steps:
+
+1. Create a new directory to hold your board specific code under
+   contrib/board/ directory. Add any files you need.
+   In your board directory, you will need at least the "board.mk",
+   a "<board>.c", "<board>.h", "Config.in.board", and "Config.in.boardname".
+2. Create the necessary default configuration files such as
+   "<board>df_uboot_defconfig" in your new board directory.
+3. Add(source) your board's "Config.in.board" in "contrib/board/Config.in.board" file.
+4. Add(source) your board's "Config.in.boardname" in the "contrib/board/Config.in.boardname" file.
+5. Add your board's "<board>.h" in the "contrib/include/contrib_board.h" file.
+6. Run "make <board>df_uboot_defconfig" with your new name.
+7. Type "make", and you should get the final .bin image can be found under
+   the binaries/ directory.
+
+6 Contributing
 ================================================================================
 
 To contribute to AT91Bootstrap you should submit the patches for review to:

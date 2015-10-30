@@ -202,31 +202,50 @@ ifeq ($(SYMLINK_BOOT),)
 SYMLINK_BOOT=boot.bin
 endif
 
-COBJS-y:= $(TOPDIR)/main.o $(TOPDIR)/board/$(BOARDNAME)/$(BOARDNAME).o
+COBJS-y:= $(TOPDIR)/main.o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
+
+BOARD_LOCATE=$(shell find $(TOPDIR)/board/ -name $(BOARDNAME) -type d)
+ifeq ("$(realpath $(BOARD_LOCATE))", "")
+BOARD_LOCATE=$(shell find $(TOPDIR)/contrib/board/ -name $(BOARDNAME) -type d)
+ifeq ("$(realpath $(BOARD_LOCATE))", "")
+$(error ERROR: *** file: $(BOARD_LOCATE) does not found!)
+endif
+endif
+
+COBJS-y += $(BOARD_LOCATE)/$(BOARDNAME).o
+INCL = $(BOARD_LOCATE)
 
 include	lib/lib.mk
 include	driver/driver.mk
+include	contrib/driver/driver.mk
 include	fs/src/fat.mk
 
 #$(SOBJS-y:.o=.S)
 
 SRCS:= $(COBJS-y:.o=.c)
 OBJS:= $(SOBJS-y) $(COBJS-y)
-INCL=board/$(BOARDNAME)
 GC_SECTIONS=--gc-sections
 
 NOSTDINC_FLAGS=-nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
 CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-fno-stack-protector -fno-common \
-	-I$(INCL) -Iinclude -Ifs/include -I$(TOPDIR)/config/at91bootstrap-config \
+	-I$(INCL) -Icontrib/include -Iinclude -Ifs/include \
+	-I$(TOPDIR)/config/at91bootstrap-config \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
 
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude
+ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude -Icontrib/include
 
 include	toplevel_cpp.mk
 include	board/board_cpp.mk
+
+ifneq ("$(wildcard $(BOARD_LOCATE)/board.mk)", "")
+include $(BOARD_LOCATE)/board.mk
+else
+$(warning WARNING: *** file: $(BOARD_LOCATE)/board.mk are not found!)
+endif
+
 include	driver/driver_cpp.mk
 
 ifeq ($(CONFIG_ENTER_NWD), y)
@@ -332,7 +351,7 @@ endif  # HAVE_DOT_CONFIG
 PHONY+= rebuild
 
 %_defconfig:
-	@(conf_file=`find ./board -name $@`; \
+	@(conf_file=`find ./ -name $@`; \
 	if [ "$$conf_file"x != "x" ]; then \
 		cp $$conf_file .config; \
 	else \
@@ -342,7 +361,7 @@ PHONY+= rebuild
 	@$(MAKE) defconfig
 
 update:
-	cp .config board/$(BOARDNAME)/$(BOARDNAME)_defconfig
+	cp .config $(BOARD_LOCATE)/$(BOARDNAME)_defconfig
 
 no-cross-compiler:
 	@echo
