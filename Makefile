@@ -281,7 +281,7 @@ TARGETS=$(AT91BOOTSTRAP)
 
 PHONY:=all
 
-all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize
+all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize ${AT91BOOTSTRAP}.pmecc
 
 CheckCrossCompile:
 	@( if [ "$(HOSTARCH)" != "arm" ]; then \
@@ -321,6 +321,13 @@ $(AT91BOOTSTRAP): $(OBJS)
 %.o : %.S .config
 	@echo "  AS        "$<
 	@$(AS) $(ASFLAGS)  -c -o $@  $<
+
+$(AT91BOOTSTRAP).pmecc: $(AT91BOOTSTRAP)
+ifeq ($(CONFIG_NANDFLASH), y)
+ifeq ($(CONFIG_USE_PMECC), y)
+	$(Q)./scripts/addpmecchead.py $(AT91BOOTSTRAP) $(AT91BOOTSTRAP).pmecc $(BOARDNAME)
+endif
+endif
 
 PHONY+= bootstrap
 
