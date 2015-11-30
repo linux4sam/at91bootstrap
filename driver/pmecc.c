@@ -69,10 +69,11 @@ static int is_valid_pmecc_params(unsigned int sector_size,
 	case 8:
 	case 12:
 	case 24:
+	case 32:
 		break;
 	default:
 		dbg_info("Invalid Pmecc error bits: %d. Should " \
-			"be 2, 4, 8, 12 or 24.\n", ecc_bits);
+			"be 2, 4, 8, 12, 24 or 32.\n", ecc_bits);
 		ret = 0;
 	}
 
@@ -143,13 +144,14 @@ int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip)
  *                8-bits                13-bytes                 14-bytes
  *               12-bits                20-bytes                 21-bytes
  *               24-bits                39-bytes                 42-bytes
+ *               32-bits                52-bytes                 56-bytes
  */
 int get_pmecc_bytes(unsigned int sector_size, unsigned int ecc_bits)
 {
 	int i;
-	int error_corr_bits[] =		{2, 4, 8,  12, 24};
-	int ecc_bytes_sec_512[] =	{4, 7, 13, 20, 39};
-	int ecc_bytes_sec_1024[] =	{4, 7, 14, 21, 42};
+	int error_corr_bits[] =		{2, 4, 8,  12, 24, 32};
+	int ecc_bytes_sec_512[] =	{4, 7, 13, 20, 39, 52};
+	int ecc_bytes_sec_1024[] =	{4, 7, 14, 21, 42, 56};
 
 	int ecc_bytes = 0;
 	for (i = 0; i < 5; i++) {
@@ -347,6 +349,9 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 			pmecc_params->errBitNbrCapability
 						= AT91C_PMECC_BCH_ERR24;
 			break;
+		case 32:
+			pmecc_params->errBitNbrCapability
+						= AT91C_PMECC_BCH_ERR32;
 		default:
 			dbg_info("PMECC: Invalid error correctable " \
 				"bits: %d\n", ecc_bits);
