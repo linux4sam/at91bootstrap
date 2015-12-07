@@ -62,7 +62,7 @@ static void at91_dbgu_hw_init(void)
 
 static void initialize_dbgu(void)
 {
-	unsigned int baudrate = 57600;
+	unsigned int baudrate = 115200;
 
 	at91_dbgu_hw_init();
 
