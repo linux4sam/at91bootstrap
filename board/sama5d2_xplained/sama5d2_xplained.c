@@ -624,6 +624,8 @@ void at91_board_set_dtb_name(char *of_name)
 }
 #endif
 
+#define ATMEL_SDHC_GCKDIV_VALUE		1
+
 void at91_sdhc_hw_init(void)
 {
 #ifdef CONFIG_SDHC0
@@ -641,7 +643,7 @@ void at91_sdhc_hw_init(void)
 		{"SDMMC0_RSTN", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC0_VDDSEL", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-};
+	};
 #endif
 
 #ifdef CONFIG_SDHC1
@@ -660,7 +662,9 @@ void at91_sdhc_hw_init(void)
 	pio_configure(sdmmc_pins);
 
 	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SDHC);
-	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC,
+					GCK_CSS_PLLA_CLK,
+					ATMEL_SDHC_GCKDIV_VALUE);
 }
 #endif
 
