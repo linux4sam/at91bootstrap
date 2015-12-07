@@ -32,6 +32,7 @@
 #include "rstc.h"
 #include "debug.h"
 #include "div.h"
+#include "pmc.h"
 
 static inline void write_pmc(unsigned int offset, const unsigned int value)
 {
@@ -343,22 +344,89 @@ int pmc_sam9x5_enable_periph_clk(unsigned int periph_id)
 	return 0;
 }
 
-void pmc_enable_periph_generated_clk(unsigned int periph_id)
+int pmc_uckr_clk(unsigned int is_on)
 {
-	unsigned int regval;
+	unsigned int uckr = read_pmc(PMC_UCKR);
+	unsigned int sr;
+
+	if (is_on) {
+		uckr |= (AT91C_CKGR_UPLLCOUNT_DEFAULT | AT91C_CKGR_UPLLEN_ENABLED);
+		sr = AT91C_PMC_LOCKU;
+	} else {
+		uckr &= ~AT91C_CKGR_UPLLEN_ENABLED;
+		sr = 0;
+	}
+
+	write_pmc(PMC_UCKR, uckr);
+
+	do {
+		udelay(1);
+	} while ((read_pmc(PMC_SR) & AT91C_PMC_LOCKU) != sr);
+
+	return 0;
+}
+
+int pmc_enable_periph_generated_clk(unsigned int periph_id,
+				    unsigned int clk_source,
+				    unsigned int div)
+{
+	unsigned int regval, status;
+	unsigned int timeout = 1000;
+
+	if (periph_id > 0x7f)
+		return -1;
+
+	if (div > 0xff)
+		return -1;
+
+	if (!(read_pmc(PMC_UCKR) & AT91C_CKGR_UPLLEN_ENABLED)) {
+		pmc_uckr_clk(1);
+	}
 
 	write_pmc(PMC_PCR, periph_id);
 	regval = read_pmc(PMC_PCR);
 	regval &= ~AT91C_PMC_GCKCSS;
 	regval &= ~AT91C_PMC_GCKDIV;
-	regval |= (AT91C_PMC_GCKCSS_PLLA_CLK
-			| AT91C_PMC_CMD
-			| AT91C_PMC_GCKDIV_(1)
-			| AT91C_PMC_GCKEN);
+
+	switch (clk_source) {
+	case GCK_CSS_SLOW_CLK:
+		regval |= AT91C_PMC_GCKCSS_SLOW_CLK;
+		break;
+	case GCK_CSS_MAIN_CLK:
+		regval |= AT91C_PMC_GCKCSS_MAIN_CLK;
+		break;
+	case GCK_CSS_PLLA_CLK:
+		regval |= AT91C_PMC_GCKCSS_PLLA_CLK;
+		break;
+	case GCK_CSS_UPLL_CLK:
+		regval |= AT91C_PMC_GCKCSS_UPLL_CLK;
+		break;
+	case GCK_CSS_MCK_CLK:
+		regval |= AT91C_PMC_GCKCSS_MCK_CLK;
+		break;
+	case GCK_CSS_AUDIO_CLK:
+		regval |= AT91C_PMC_GCKCSS_AUDIO_CLK;
+		break;
+	default:
+		dbg_info("Error GCK clock source selection!\n");
+		return -1;
+	}
+
+	regval |= AT91C_PMC_CMD |
+		  AT91C_PMC_GCKDIV_(div) |
+		  AT91C_PMC_GCKEN;
 
 	write_pmc(PMC_PCR, regval);
 
-	write_pmc(PMC_PCR, periph_id);
+	do {
+		udelay(1);
+		status = read_pmc(PMC_SR);
+	} while ((!!(--timeout)) && (!(status & AT91C_PMC_GCKRDY)));
+
+	if (!timeout)
+		dbg_info("Timeout waiting for GCK ready!\n");
+
+	return 0;
 }
 
 void pmc_sam9x5_disable_periph_clk(unsigned int periph_id)
@@ -436,14 +504,27 @@ unsigned int pmc_get_generated_clock(unsigned int periph_id)
 	divider += 1;
 
 	clock_source = tmp & AT91C_PMC_GCKCSS;
-	if (clock_source == AT91C_PMC_GCKCSS_MAIN_CLK)
+	switch (clock_source) {
+	case AT91C_PMC_GCKCSS_MAIN_CLK:
 #ifdef BOARD_MAINOSC
 		freq = BOARD_MAINOSC;
 #else
 		freq = 0;
 #endif
-	 else if (clock_source == AT91C_PMC_GCKCSS_PLLA_CLK)
+		break;
+	case AT91C_PMC_GCKCSS_PLLA_CLK:
 		freq = pmc_get_plla_freq();
+		break;
+	case AT91C_PMC_GCKCSS_UPLL_CLK:
+		freq = 480000000;
+		break;
+	case AT91C_PMC_GCKCSS_MCK_CLK:
+		freq = MASTER_CLOCK;
+		break;
+	default:
+		freq = 0;
+		break;
+	}
 
 	freq = div(freq, divider);
 
@@ -526,28 +607,6 @@ int pmc_sys_clk(unsigned int sys_clock_mask, unsigned int is_on)
 void pmc_pck_setup(unsigned int reg_offset, unsigned int reg_value)
 {
 	write_pmc(reg_offset, reg_value);
-}
-
-int pmc_uckr_clk(unsigned int is_on)
-{
-	unsigned int uckr = read_pmc(PMC_UCKR);
-	unsigned int sr;
-
-	if (is_on) {
-		uckr |= (AT91C_CKGR_UPLLCOUNT_DEFAULT | AT91C_CKGR_UPLLEN_ENABLED);
-		sr = AT91C_PMC_LOCKU;
-	} else {
-		uckr &= ~AT91C_CKGR_UPLLEN_ENABLED;
-		sr = 0;
-	}
-
-	write_pmc(PMC_UCKR, uckr);
-
-	do {
-		udelay(1);
-	} while ((read_pmc(PMC_SR) & AT91C_PMC_LOCKU) != sr);
-
-	return 0;
 }
 
 unsigned int pmc_usb_setup(void)

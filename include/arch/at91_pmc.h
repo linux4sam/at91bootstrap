@@ -219,6 +219,7 @@
 #define AT91C_PMC_MOSCSELS	(0x1UL << 16)
 #define AT91C_PMC_MOSCRCS	(0x1UL << 17)
 #define AT91C_PMC_CFDEV		(0x1UL << 18)
+#define AT91C_PMC_GCKRDY	(0x1UL << 24)
 /* -------- PMC_IDR : (PMC Offset: 0x64) PMC Interrupt Disable Register --------*/ 
 /* -------- PMC_SR : (PMC Offset: 0x68) PMC Status Register --------*/ 
 #define AT91C_PMC_CFDS		(0x1UL << 19)

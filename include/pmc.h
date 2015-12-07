@@ -28,6 +28,14 @@
 #ifndef __PMC_H__
 #define __PMC_H__
 
+/* Generated clock source selection */
+#define GCK_CSS_SLOW_CLK	0x00
+#define GCK_CSS_MAIN_CLK	0x01
+#define GCK_CSS_PLLA_CLK	0x02
+#define GCK_CSS_UPLL_CLK	0x03
+#define GCK_CSS_MCK_CLK		0x04
+#define GCK_CSS_AUDIO_CLK	0x05
+
 extern void pmc_init_pll(unsigned int pmc_pllicpr);
 extern int pmc_cfg_plla(unsigned int pmc_pllar);
 extern int pmc_cfg_mck(unsigned int pmc_mckr);
@@ -44,7 +52,9 @@ extern void pmc_disable_system_clock(unsigned int clock_id);
 extern void pmc_set_smd_clock_divider(unsigned int divider);
 
 extern int pmc_sam9x5_enable_periph_clk(unsigned int periph_id);
-extern void pmc_enable_periph_generated_clk(unsigned int periph_id);
+extern int pmc_enable_periph_generated_clk(unsigned int periph_id,
+					   unsigned int clk_source,
+					   unsigned int div);
 extern void pmc_sam9x5_disable_periph_clk(unsigned int periph_id);
 extern unsigned int pmc_get_generated_clock(unsigned int periph_id);
 
