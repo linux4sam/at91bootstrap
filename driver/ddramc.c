@@ -52,7 +52,7 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
 {
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
-	|| defined(SAMA5D4)
+	|| defined(SAMA5D4) || defined(SAMA5D2)
 	if (ddramc_cr & AT91C_DDRC2_DECOD_INTERLEAVED)
 		return 0;
 #endif
