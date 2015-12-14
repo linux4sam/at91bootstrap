@@ -486,6 +486,10 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	manf_id = *(unsigned char *)(p + PARAMS_OFFSET_JEDEC_ID);
 	dev_id = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);
 	dbg_info("NAND: Manufacturer ID: %d Chip ID: %d\n", manf_id, dev_id);
+	dbg_info("NAND: Page Bytes: %d, Spare Bytes: %d\n" \
+		 "NAND: ECC Correctability Bits: %d, ECC Sector Bytes: %d\n",
+		 chip->pagesize, chip->oobsize,
+		 chip->eccbits, chip->eccwordsize);
 
 	return 0;
 }
