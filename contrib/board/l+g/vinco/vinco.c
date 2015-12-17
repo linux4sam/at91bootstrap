@@ -120,7 +120,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->rtr = 0x61b;
 
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(9)
 			| AT91C_DDRC2_TRCD_(3)
 			| AT91C_DDRC2_TWR_(3)
 			| AT91C_DDRC2_TRC_(11)
@@ -134,11 +134,11 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_TXSNR_(23)
 			| AT91C_DDRC2_TRFC_(21));
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(9)
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(10)
 			| AT91C_DDRC2_TRTP_(2)
-			| AT91C_DDRC2_TRPA_(3)
+			| AT91C_DDRC2_TRPA_(4)
 			| AT91C_DDRC2_TXARDS_(8)
-			| AT91C_DDRC2_TXARD_(8));
+			| AT91C_DDRC2_TXARD_(2));
 
 #else
 #error "No CLK setting defined"
