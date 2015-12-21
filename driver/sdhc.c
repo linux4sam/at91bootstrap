@@ -344,9 +344,15 @@ static int sdhc_set_clock(struct sd_card *sdcard, unsigned int clock)
 	unsigned int clk_gen_sel = 0;
 	unsigned int clk_div;
 	unsigned int reg;
+	unsigned int timeout;
 
-	while (sdhc_readl(SDMMC_PSR) & (SDMMC_PSR_CMDINHC | SDMMC_PSR_CMDINHD))
+	timeout = 100000;
+	while ((--timeout) &&
+	       (sdhc_readl(SDMMC_PSR) & (SDMMC_PSR_CMDINHC | SDMMC_PSR_CMDINHD)))
 		;
+
+	if (!timeout)
+		dbg_info("SDHC: Timeout waiting for CMD and DAT Inhibit bits\n");
 
 	reg = sdhc_readw(SDMMC_CCR);
 	reg &= ~SDMMC_CCR_SDCLKEN;
@@ -384,8 +390,12 @@ static int sdhc_set_clock(struct sd_card *sdcard, unsigned int clock)
 			| (((clk_div >> 8) & SDMMC_CCR_USDCLKFSEL_MSK)
 					< SDMMC_CCR_USDCLKFSEL_OFFSET));
 
-	while (!(sdhc_readw(SDMMC_CCR) & SDMMC_CCR_INTCLKS))
+	timeout = 1000000;
+	while ((--timeout) && (!(sdhc_readw(SDMMC_CCR) & SDMMC_CCR_INTCLKS)))
 		;
+
+	if (!timeout)
+		dbg_info("SDHC: Timeout waiting for internal clock ready\n");
 
 	sdhc_writew(SDMMC_CCR, sdhc_readw(SDMMC_CCR) | SDMMC_CCR_SDCLKEN);
 
@@ -558,9 +568,15 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	unsigned int cmd_reg, mode;
 	unsigned int i;
 	int ret;
+	unsigned int timeout;
 
-	while (sdhc_readl(SDMMC_PSR) & (SDMMC_PSR_CMDINHC | SDMMC_PSR_CMDINHD))
+	timeout = 100000;
+	while ((--timeout) &&
+	       (sdhc_readl(SDMMC_PSR) & (SDMMC_PSR_CMDINHC | SDMMC_PSR_CMDINHD)))
 		;
+
+	if (!timeout)
+		dbg_info("SDHC: Timeout waiting for CMD and DAT Inhibit bits\n");
 
 	normal_status_mask =  SDMMC_NISTR_CMDC;
 
@@ -606,11 +622,16 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 
 	sdhc_writew(SDMMC_CR, cmd_reg);
 
+	timeout = 100000;
 	do {
 		normal_status = sdhc_readw(SDMMC_NISTR);
 		if (normal_status & SDMMC_NISTR_ERRINT)
 			break;
-	} while ((normal_status & normal_status_mask) != normal_status_mask);
+	} while ((--timeout) &&
+		 ((normal_status & normal_status_mask) != normal_status_mask));
+
+	if (!timeout)
+		dbg_info("SDHC: Timeout waiting for command complete\n");
 
 	sdhc_writew(SDMMC_NISTR, normal_status);
 
