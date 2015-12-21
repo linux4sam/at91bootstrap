@@ -663,7 +663,7 @@ void at91_sdhc_hw_init(void)
 
 	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SDHC);
 	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC,
-					GCK_CSS_PLLA_CLK,
+					GCK_CSS_UPLL_CLK,
 					ATMEL_SDHC_GCKDIV_VALUE);
 }
 #endif
