@@ -379,9 +379,8 @@ int pmc_enable_periph_generated_clk(unsigned int periph_id,
 	if (div > 0xff)
 		return -1;
 
-	if (!(read_pmc(PMC_UCKR) & AT91C_CKGR_UPLLEN_ENABLED)) {
+	if (!(read_pmc(PMC_UCKR) & AT91C_CKGR_UPLLEN_ENABLED))
 		pmc_uckr_clk(1);
-	}
 
 	write_pmc(PMC_PCR, periph_id);
 	regval = read_pmc(PMC_PCR);
