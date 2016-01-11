@@ -766,7 +766,7 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 		if (bytePos < sectorSize) {
 			/* If error is located in the data area(not in ECC) */
 			errByte = (unsigned char *)(sectorBaseAddress + bytePos);
-			dbg_info("Correct error bit @[#Byte %u,Bit# %u] " \
+			dbg_loud("Correct error bit @[#Byte %u,Bit# %u] " \
 				"%u -> %u\n",
 				(unsigned int)bytePos,
 				(unsigned int)bitPos,
@@ -777,7 +777,7 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
 			/* error is located in oob area */
 			errByte = (unsigned char *)(eccBaseAddress
 					+ (bytePos - sectorSize));
-			dbg_info("Correct error bit in OOB @[#Byte %u,Bit# %u]" \
+			dbg_loud("Correct error bit in OOB @[#Byte %u,Bit# %u]" \
 				" %u -> %u\n",
 				(unsigned int)bytePos - sectorSize,
 				(unsigned int)bitPos,
@@ -909,7 +909,7 @@ int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 		 * If we have 4 sectors, then that means the first
 		 * and last sector has errors.
 		 */
-		dbg_info("PMECC: sector bits = %d, bit 1 means corrupted sector, Now correcting...\n", erris);
+		dbg_loud("PMECC: sector bits = %d, bit 1 means corrupted sector, Now correcting...\n", erris);
 		result = PMECC_CorrectionAlgo(AT91C_BASE_PMECC,
 					AT91C_BASE_PMERRLOC,
 					&PMECC_paramDesc,
