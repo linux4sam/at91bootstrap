@@ -87,6 +87,14 @@
 #define	EVCR_QUAD_ENABLE		(0x1 << 7)
 
 
+/*
+ * Macronix only
+ */
+#define	CMD_READ_CONFIG_REG_MX			0x15
+
+#define	SR_QUAD_EN_MX			(0x1 << 6)
+
+
 
 static int qspi_flash_read_reg(qspi_flash_t *flash, unsigned char opcode,
 			       void *buf, unsigned int buf_len)
@@ -194,6 +202,15 @@ static inline int qspi_flash_write_status_reg(qspi_flash_t *flash,
 					      unsigned char val)
 {
 	return qspi_flash_write_reg(flash, CMD_WRITE_STATUS_REG, &val, 1);
+}
+
+static inline int qspi_flash_read_macronix_config_reg(qspi_flash_t *flash)
+{
+	unsigned char val;
+	int ret;
+
+	ret = qspi_flash_read_reg(flash, CMD_READ_CONFIG_REG_MX, &val, 1);
+	return (ret < 0) ? ret : val;
 }
 
 static inline int qspi_flash_write_status_and_config_regs(qspi_flash_t *flash,
@@ -433,10 +450,185 @@ static int qspi_flash_init_micron(qspi_flash_t *flash)
  * Macronix
  */
 
+static int macronix_quad_enable(qspi_flash_t *flash)
+{
+	int ret, val;
+
+	val = qspi_flash_read_status_reg(flash);
+	if (val < 0)
+		return val;
+
+	if (val & SR_QUAD_EN_MX)
+		return 0;
+	dbg_info("QSPI Flash: Macronix Quad mode disabled, enable it\n");
+
+	ret = qspi_flash_write_enable(flash);
+	if (ret)
+		return ret;
+
+	ret = qspi_flash_write_status_reg(flash, val | SR_QUAD_EN_MX);
+	if (ret)
+		return ret;
+
+	ret = qspi_flash_wait_ready(flash);
+	if (ret)
+		return ret;
+
+	ret = qspi_flash_read_status_reg(flash);
+	if (!(ret > 0 && (ret & SR_QUAD_EN_MX))) {
+		dbg_info("QSPI Flash: Macronix Quad bit not set\n");
+		return -1;
+	}
+
+	return 0;
+}
+
+static inline int macronix_dummy2code(unsigned char read_opcode,
+				      unsigned char num_dummy_cycles,
+				      unsigned char *dc)
+{
+	switch (read_opcode) {
+	case CMD_READ:
+		*dc = 0;
+		break;
+
+	case CMD_FAST_READ:
+	case CMD_FAST_READ_1_1_4:
+		switch (num_dummy_cycles) {
+		case 6:
+			*dc = 1;
+			break;
+		case 8:
+			*dc = 0;
+			break;
+		case 10:
+			*dc = 3;
+			break;
+		default:
+			return -1;
+		}
+		break;
+
+	case CMD_FAST_READ_1_4_4:
+		switch (num_dummy_cycles) {
+		case 4:
+			*dc = 1;
+			break;
+		case 6:
+			*dc = 0;
+			break;
+		case 8:
+			*dc = 2;
+			break;
+		case 10:
+			*dc = 3;
+		default:
+			return -1;
+		}
+		break;
+
+	default:
+		return -1;
+	}
+
+	return 0;
+}
+
+static int macronix_set_dummy_cycles(qspi_flash_t *flash,
+				     unsigned char num_dummy_cycles)
+{
+	int ret, sr, cr, mask, val;
+	unsigned char dc, sr_cr[2];
+
+	/* Convert the numver of dummy cycles into Macronix DC volatile bits. */
+	ret = macronix_dummy2code(flash->read_opcode, num_dummy_cycles, &dc);
+	if (ret)
+		return ret;
+
+	mask = 0xc0;
+	val = (dc << 6) & mask;
+
+	cr = qspi_flash_read_macronix_config_reg(flash);
+	if (cr < 0) {
+		dbg_info("QSPI Flash: error while reading CR register\n");
+		return cr;
+	}
+
+	if ((cr & mask) == val)
+		goto updated;
+
+	sr = qspi_flash_read_status_reg(flash);
+	if (sr < 0) {
+		dbg_info("QSPI Flash: error while reading SR register\n");
+		return sr;
+	}
+
+	ret = qspi_flash_write_enable(flash);
+	if (ret)
+		return ret;
+
+	cr = (cr & ~mask) | val;
+	sr_cr[0] = sr & 0xff;
+	sr_cr[1] = cr & 0xff;
+	ret = qspi_flash_write_status_and_config_regs(flash, sr_cr);
+	if (ret) {
+		dbg_info("QSPI Flash: error while writing SR and CR registers\n");
+		return ret;
+	}
+
+	ret = qspi_flash_wait_ready(flash);
+	if (ret)
+		return ret;
+
+	cr = qspi_flash_read_macronix_config_reg(flash);
+	if (cr < 0 || (cr & mask) != val) {
+		dbg_info("QSPI Flash: Macronix Dummy Cycle bits not updated\n");
+		return -1;
+	}
+
+updated:
+	if (num_dummy_cycles) {
+		flash->num_mode_cycles = 2;
+		flash->num_dummy_cycles = num_dummy_cycles - 2;
+	} else {
+		flash->num_mode_cycles = 0;
+		flash->num_dummy_cycles = 0;
+	}
+
+	/* mode cycles: bit[0:3] = ~bit[4:7]: continuous read, normal read otherwise */
+	flash->normal_mode = 0x00;
+	flash->continuous_read_mode = 0xf0;
+
+	return 0;
+}
+
 static int qspi_flash_init_macronix(qspi_flash_t *flash)
 {
-	// TODO:
-	return 0;
+	int ret;
+
+	/*
+	 * In QPI mode, only the Fast Read 1-4-4 (0xeb) op code is supported.
+	 * In SPI mode, both the Fast Read 1-1-4 (0x6b) and Fast Read 1-4-4
+	 * (0xeb) op codes are supported but we'd rather use the Fast Read 1-4-4
+	 * command as it is the only one which allows us to enter/leave the
+	 * peformance enhance (continuous read) mode required by XIP operations.
+	 */
+	flash->read_opcode = CMD_FAST_READ_1_4_4;
+
+	/*
+	 * Check whether the QPI mode is enabled: if it is then we know that
+	 * the Quad Enabled (QE) non-volatile bit is already set. Otherwise,
+	 * we MUST set the QE bit before using any Quad SPI command.
+	 */
+	if (flash->read_proto != QSPI_PROTO_4_4_4) {
+		ret = macronix_quad_enable(flash);
+		if (ret)
+			return ret;
+
+		flash->read_proto = QSPI_PROTO_1_4_4;
+	}
+
+	return macronix_set_dummy_cycles(flash, 8);
 }
 
 
