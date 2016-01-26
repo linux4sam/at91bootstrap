@@ -65,11 +65,14 @@ static int qspi_clock_init(unsigned int clock, unsigned int mode)
 {
 	unsigned int scbr;
 	unsigned int reg;
-	
-	if (clock == 0)
-		scbr = 1;
-	else
-		scbr = div(at91_get_ahb_clock(), clock);
+
+	if (clock == 0) {
+		scbr = 0;
+	} else {
+		scbr = div(MASTER_CLOCK + clock - 1, clock);
+		if (scbr >= 1)
+			scbr--;
+	}
 
 	reg = QSPI_SCR_SCBR_(scbr);
 	if (mode == SPI_MODE1)
