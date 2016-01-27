@@ -746,7 +746,7 @@ int qspi_flash_loadimage(struct image_info *image)
 
 	at91_qspi_hw_init();
 
-	qspi_init(AT91C_QSPI_CLK, SPI_MODE3);
+	qspi_init(AT91C_QSPI_CLK, SPI_MODE0);
 
 	ret = qspi_flash_probe(&flash);
 	if (ret)
