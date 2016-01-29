@@ -230,6 +230,7 @@ GC_SECTIONS=--gc-sections
 NOSTDINC_FLAGS=-nostdinc -isystem $(shell $(CC) -print-file-name=include)
 
 CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
+	-mno-unaligned-access \
 	-fno-stack-protector -fno-common \
 	-I$(INCL) -Icontrib/include -Iinclude -Ifs/include \
 	-I$(TOPDIR)/config/at91bootstrap-config \
