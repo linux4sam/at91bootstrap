@@ -30,6 +30,7 @@
 #include "qspi.h"
 #include "string.h"
 #include "debug.h"
+#include "fdt.h"
 
 /*
  * QSPI Manufacturer IDs
@@ -734,15 +735,37 @@ found:
 	return (info->init) ? info->init(flash) : 0;
 }
 
-static inline int qspi_flash_read_image(qspi_flash_t *flash, struct image_info *image)
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+static int update_image_length(qspi_flash_t *flash,
+			       unsigned int offset,
+			       unsigned char *dest,
+			       unsigned char flag)
 {
-	return qspi_flash_read(flash, image->offset, image->dest, image->length);
+	unsigned int length = 512;
+	int ret;
+
+	ret = qspi_flash_read(flash, offset, dest, length);
+	if (ret)
+		return -1;
+
+	if (flag == KERNEL_IMAGE)
+		return kernel_size(dest);
+#ifdef CONFIG_OF_LIBFDT
+	else
+		return of_get_dt_total_size((void *)dest);
+#else
+	return -1;
+#endif
 }
+#endif
 
 int qspi_flash_loadimage(struct image_info *image)
 {
 	qspi_flash_t flash;
 	int ret;
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+	int length;
+#endif
 
 	at91_qspi_hw_init();
 
@@ -752,11 +775,51 @@ int qspi_flash_loadimage(struct image_info *image)
 	if (ret)
 		return -1;
 
-	dbg_info("QSPI Flash: Copy %d bytes from %d to %d\n",
-		 image->length, image->offset, image->dest);
-	ret = qspi_flash_read_image(&flash, image);
+#if defined(CONFIG_OF_LIBFDT)
+	length = update_image_length(&flash,
+				     image->of_offset,
+				     image->of_dest,
+				     DT_BLOB);
+	if (length == -1)
+		return -1;
+
+	image->of_length = length;
+
+	dbg_info("QSPI Flash: dt blob: Copy %d bytes from %d to %d\n",
+		 image->of_length, image->of_offset, image->of_dest);
+	ret = qspi_flash_read(&flash,
+			      image->of_offset,
+			      image->of_dest,
+			      image->of_length);
 	if (ret)
 		return -1;
+#endif /* CONFIG_OF_LIBFDT */
+
+#if defined(CONFIG_QSPI_XIP)
+	image->dest = qspi_memory_base() + image->offset;
+	qspi_flash_read(&flash, 0, NULL, 0);
+#else
+
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+	length = update_image_length(&flash,
+				     image->offset,
+				     image->dest,
+				     KERNEL_IMAGE);
+	if (length == -1)
+		return -1;
+
+	image->length = length;
+#endif
+
+	dbg_info("QSPI Flash: Copy %d bytes from %d to %d\n",
+		 image->length, image->offset, image->dest);
+	ret = qspi_flash_read(&flash,
+			      image->offset,
+			      image->dest,
+			      image->length);
+	if (ret)
+		return -1;
+#endif /* !CONFIG_QSPI_XIP */
 
 	return 0;
 }

@@ -96,5 +96,6 @@ typedef struct qspi_flash {
 
 int qspi_init(unsigned int clock, unsigned int mode);
 int qspi_send_command(const qspi_command_t *cmd);
+unsigned char *qspi_memory_base(void);
 
 #endif

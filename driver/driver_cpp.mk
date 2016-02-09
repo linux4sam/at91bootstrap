@@ -433,3 +433,7 @@ endif
 ifeq ($(CONFIG_QSPI1_IOSET_3), y)
 CPPFLAGS += -DCONFIG_QSPI1_IOSET_3
 endif
+
+ifeq ($(CONFIG_QSPI_XIP), y)
+CPPFLAGS += -DCONFIG_QSPI_XIP
+endif

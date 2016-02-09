@@ -206,6 +206,21 @@ static void setup_boot_params(void)
 #endif /* #ifdef CONFIG_OF_LIBFDT */
 
 #if defined(CONFIG_LINUX_IMAGE)
+
+#if defined(CONFIG_QSPI_XIP)
+
+int kernel_size(unsigned char *add)
+{
+	return 0;
+}
+
+static int boot_image_setup(unsigned char *addr, unsigned int *entry)
+{
+	*entry = (unsigned int)addr;
+	return 0;
+}
+#else
+
 /* Linux uImage Header */
 #define LINUX_UIMAGE_MAGIC	0x27051956
 struct linux_uimage_header {
@@ -302,7 +317,8 @@ static int boot_image_setup(unsigned char *addr, unsigned int *entry)
 			magic, zimage_header->magic);
 	return -1;
 }
-#endif
+#endif /* !CONFIG_QSPI_XIP */
+#endif /* CONFIG_LINUX_IMAGE */
 
 static int load_kernel_image(struct image_info *image)
 {
@@ -327,7 +343,7 @@ static int load_kernel_image(struct image_info *image)
 
 int load_kernel(struct image_info *image)
 {
-	unsigned char *addr = image->dest;
+	unsigned char *addr;
 	unsigned int entry_point;
 	unsigned int r2;
 	unsigned int mach_type;
@@ -347,6 +363,7 @@ int load_kernel(struct image_info *image)
 	slowclk_switch_osc32();
 #endif
 
+	addr = image->dest;
 #if defined(CONFIG_LINUX_IMAGE)
 	ret = boot_image_setup(addr, &entry_point);
 #endif

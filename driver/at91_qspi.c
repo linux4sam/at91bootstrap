@@ -46,11 +46,6 @@ static unsigned int qspi_get_base(void)
 	return CONFIG_SYS_BASE_QSPI;
 }
 
-static unsigned char *qspi_memory_base(void)
-{
-	return (unsigned char *)CONFIG_SYS_BASE_QSPI_MEM;
-}
-
 static unsigned int qspi_readl(unsigned int reg)
 {
 	return readl(qspi_get_base() + reg);
@@ -236,4 +231,9 @@ no_data:
 		sr |= qspi_readl(QSPI_SR) & imr;
 
 	return 0;
+}
+
+unsigned char *qspi_memory_base(void)
+{
+	return (unsigned char *)CONFIG_SYS_BASE_QSPI_MEM;
 }

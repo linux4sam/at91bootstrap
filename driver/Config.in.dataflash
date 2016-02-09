@@ -249,4 +249,8 @@ endchoice
 
 endmenu
 
+config CONFIG_QSPI_XIP
+	bool "eXecute In Place"
+	default n
+
 endmenu
