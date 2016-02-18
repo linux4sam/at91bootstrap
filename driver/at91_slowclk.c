@@ -46,7 +46,7 @@ int slowclk_enable_osc32(void)
 	return 0;
 }
 
-#if !defined(SAMA5D4)
+#if !defined(SAMA5D4) && !defined(SAMA5D2)
 static void slowclk_wait_osc32_stable(void)
 {
 	/*
@@ -85,7 +85,7 @@ static void slowclk_bypass_osc32(void)
 	writel(reg, AT91C_BASE_SCKCR);
 }
 #endif /* #if defined(CONFIG_SCLK_BYPASS) */
-#endif /* #if !defined(SAMA5D4) */
+#endif /* #if !defined(SAMA5D4) && !defined(SAMA5D2) */
 
 static int slowclk_select_osc32(void)
 {
@@ -110,7 +110,7 @@ static int slowclk_select_osc32(void)
 
 int slowclk_switch_osc32(void)
 {
-#if defined(SAMA5D4)
+#if defined(SAMA5D4) || defined(SAMA5D2)
 	slowclk_select_osc32();
 #else
 	slowclk_wait_osc32_stable();
