@@ -500,8 +500,6 @@ int at91_board_act8865_set_reg_voltage(void)
 		return -1;
 	}
 
-	dbg_loud("ACT8865: The REG4 output 2500mV\n");
-
 	/* Enable REG5 output 3.3V */
 	reg = REG5_0;
 	value = ACT8865_3V3;
@@ -510,8 +508,6 @@ int at91_board_act8865_set_reg_voltage(void)
 		dbg_loud("ACT8865: Failed to make REG5 output 3300mV\n");
 		return -1;
 	}
-
-	dbg_loud("ACT8865: The REG5 output 3300mV\n");
 
 	/* Enable REG6 output 2.5V */
 	reg = REG6_0;
@@ -522,8 +518,6 @@ int at91_board_act8865_set_reg_voltage(void)
 		return -1;
 	}
 
-	dbg_loud("ACT8865: The REG6 output 2500mV\n");
-
 	/* Enable REG7 output 1.8V */
 	reg = REG7_0;
 	value = ACT8865_1V8;
@@ -532,8 +526,6 @@ int at91_board_act8865_set_reg_voltage(void)
 		dbg_loud("ACT8865: Failed to make REG7 output 1800mV\n");
 		return -1;
 	}
-
-	dbg_loud("ACT8865: The REG7 output 1800mV\n");
 
 	return 0;
 }
