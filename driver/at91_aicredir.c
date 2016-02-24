@@ -42,6 +42,6 @@ void redirect_interrupts_to_nsaic(void)
 						others to AIC (default) */
 
 		if ((readl(SFR_AICREDIR + AT91C_BASE_SFR) & 0x01))
-			dbg_info("All interrupts redirected to AIC\n");
+			dbg_loud("All interrupts redirected to AIC\n");
 	}
 }

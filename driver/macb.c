@@ -381,7 +381,7 @@ static int phy_power_down_mode(struct mii_bus *bus)
 		goto error;
 	}
 
-	dbg_info("PHY: %s: Enter power down mode\n", bus->name);
+	dbg_loud("PHY: %s: Enter power down mode\n", bus->name);
 
 error:
 	macb_enable_managementport(bus, 0);

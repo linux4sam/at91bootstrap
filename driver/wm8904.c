@@ -219,7 +219,7 @@ int wm8904_enter_low_power(void)
 		return -1;
 	}
 
-	dbg_info("WM8904: Enter Low-power mode\n");
+	dbg_loud("WM8904: Enter Low-power mode\n");
 
 	return 0;
 }

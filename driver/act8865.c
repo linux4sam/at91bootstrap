@@ -186,7 +186,7 @@ int act8865_set_power_saving_mode(void)
 			dbg_loud("ACT8865: Failed to set Power-saving mode\n");
 	}
 
-	dbg_info("ACT8865: Set REG1/REG2/REG3 Power-saving mode\n");
+	dbg_loud("ACT8865: Set REG1/REG2/REG3 Power-saving mode\n");
 
 	return 0;
 }
@@ -264,7 +264,7 @@ static int act8865_workaround_disable_i2c(void)
 		return -1;
 	}
 
-	dbg_info("ACT8865: Disable ACT8865's I2C interface\n");
+	dbg_loud("ACT8865: Disable ACT8865's I2C interface\n");
 
 	return 0;
 }
@@ -284,7 +284,7 @@ void act8865_workaround(void)
 #if defined(CONFIG_DISABLE_ACT8865_I2C)
 	/* Disable ACT8865 I2C interface, if failed, don't go on */
 	if (act8865_workaround_disable_i2c()) {
-		dbg_info("ACT8865: Failed to disable I2C interface\n");
+		dbg_loud("ACT8865: Failed to disable I2C interface\n");
 		while (1)
 			;
 	}

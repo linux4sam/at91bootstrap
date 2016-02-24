@@ -315,7 +315,7 @@ void twi_init(void)
 	at24xx_twi_bus	= 0xff;
 
 #if defined(CONFIG_AUTOCONFIG_TWI_BUS)
-	dbg_info("Auto-Config the TWI Bus by the board\n");
+	dbg_loud("Auto-Config the TWI Bus by the board\n");
 
 	at91_board_config_twi_bus();
 #endif
