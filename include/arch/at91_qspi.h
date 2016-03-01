@@ -113,6 +113,7 @@
 #define		QSPI_IFR_WIDTH_QUAD_IO		(0x4 << 0)
 #define		QSPI_IFR_WIDTH_DUAL_CMD		(0x5 << 0)
 #define		QSPI_IFR_WIDTH_QUAD_CMD		(0x6 << 0)
+#define QSPI_IFR_WIDTH_(x)	(((x) << 0) & QSPI_IFR_WIDTH)
 #define	QSPI_IFR_INSTEN		(0x1 << 4)	/* Instruction Enable*/
 #define	QSPI_IFR_ADDREN		(0x1 << 5)	/* Address Enable*/
 #define	QSPI_IFR_OPTEN		(0x1 << 6)	/* Option Enable*/
@@ -130,6 +131,7 @@
 #define		QSPI_IFR_TFRTYPE_READ_MEMORY	(0x1 << 12)
 #define		QSPI_IFR_TFRTYPE_WRITE		(0x2 << 12)
 #define		QSPI_IFR_TFRTYPE_WRITE_MEMORY	(0x3 << 12)
+#define QSPI_IFR_TFRTYPE_(x)	(((x) << 12) & QSPI_IFR_TFRTYPE)
 #define	QSPI_IFR_CRM		(0x1 << 14)	/* Continuous Read Mode */
 #define	QSPI_IFR_NBDUM_(x)	((x) << 16)	/* Number Of Dummy Cycles */
 

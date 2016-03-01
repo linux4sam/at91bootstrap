@@ -30,42 +30,72 @@
 
 #include "spi.h"
 
-typedef	enum {
-	read = 0,
-	read_memory,
-	write,
-	write_memory,
-} tansfer_type_t;
+/* MUST be in the very same order as QSPI_IFR_TFRTYPE_* */
+typedef enum qspi_transfer_type {
+	QSPI_TFRTYPE_READ = 0,
+	QSPI_TFRTYPE_READ_MEMORY = 1,
+	QSPI_TFRTYPE_WRITE = 2,
+	QSPI_TFRTYPE_WRITE_MEMORY = 3,
+} qspi_transfer_type_t;
 
-typedef enum {
-	extended = 0,
-	dual,
-	quad,
-} spi_protocols_t;
+/* MUST be in the very same order as QSPI_IFR_WIDTH_* */
+typedef enum qspi_protocol {
+	QSPI_PROTO_1_1_1,	/* SINGLE BIT SPI */
+	QSPI_PROTO_1_1_2,	/* DUAL OUTPUT */
+	QSPI_PROTO_1_1_4,	/* QUAD OUTPUT */
+	QSPI_PROTO_1_2_2,	/* DUAL IO */
+	QSPI_PROTO_1_4_4,	/* QUAD IO */
+	QSPI_PROTO_2_2_2,	/* DUAL CMD */
+	QSPI_PROTO_4_4_4,	/* QUAD CMD */
+} qspi_protocol_t;
 
-typedef struct qspi_frame {
-	unsigned int instruction;
-	unsigned int option;
-	unsigned int option_len;
-	unsigned int has_address;
-	unsigned int address;
-	unsigned int address_len;
-	unsigned int continue_read;
-	unsigned int dummy_cycles;
-	spi_protocols_t protocol;
-	tansfer_type_t tansfer_type;
-} qspi_frame_t;
+typedef struct qspi_command {
+	union {
+		struct {
+			unsigned int	instruction:1;
+			unsigned int	address:3;
+			unsigned int	mode:1;
+			unsigned int	dummy:1;
+			unsigned int	data:1;
+			unsigned int	reserved:25;
+		}		bits;
+		unsigned int	word;
+	}			enable;
+	unsigned char		instruction;
+	unsigned char		mode;
+	unsigned char		num_mode_cycles;
+	unsigned char		num_dummy_cycles;
+	unsigned int		address;
 
-#define	DATA_DIR_READ		0x11
-#define	DATA_DIR_WRITE		0x22
+	unsigned int		buf_len;
+	const void		*tx_buf;
+	void			*rx_buf;
 
-typedef struct qspi_data {
-	unsigned int *buffer;
-	unsigned int size;
-	unsigned int direction;
-} qspi_data_t;
+	qspi_protocol_t		protocol;
+	qspi_transfer_type_t	transfer_type;
+} qspi_command_t;
+
+typedef struct qspi_flash {
+	unsigned int		addr_width;
+	unsigned int		sector_size;
+
+	qspi_protocol_t		reg_proto;
+	qspi_protocol_t		read_proto;
+	qspi_protocol_t		program_proto;
+	qspi_protocol_t		erase_proto;
+
+	unsigned char		read_opcode;
+	unsigned char		program_opcode;
+	unsigned char		erase_opcode;
+
+	unsigned char		normal_mode;
+	unsigned char		continuous_read_mode;
+	unsigned char		num_mode_cycles;
+	unsigned char		num_dummy_cycles;
+} qspi_flash_t;
 
 int qspi_init(unsigned int clock, unsigned int mode);
-int qspi_send_command(qspi_frame_t *frame, qspi_data_t *data);
+int qspi_send_command(const qspi_command_t *cmd);
+unsigned char *qspi_memory_base(void);
 
 #endif

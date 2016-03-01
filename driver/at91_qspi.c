@@ -46,11 +46,6 @@ static unsigned int qspi_get_base(void)
 	return CONFIG_SYS_BASE_QSPI;
 }
 
-static unsigned char *qspi_memory_base(void)
-{
-	return (unsigned char *)CONFIG_SYS_BASE_QSPI_MEM;
-}
-
 static unsigned int qspi_readl(unsigned int reg)
 {
 	return readl(qspi_get_base() + reg);
@@ -65,11 +60,14 @@ static int qspi_clock_init(unsigned int clock, unsigned int mode)
 {
 	unsigned int scbr;
 	unsigned int reg;
-	
-	if (clock == 0)
-		scbr = 1;
-	else
-		scbr = div(at91_get_ahb_clock(), clock);
+
+	if (clock == 0) {
+		scbr = 0;
+	} else {
+		scbr = div(MASTER_CLOCK + clock - 1, clock);
+		if (scbr >= 1)
+			scbr--;
+	}
 
 	reg = QSPI_SCR_SCBR_(scbr);
 	if (mode == SPI_MODE1)
@@ -101,81 +99,141 @@ int qspi_init(unsigned int clock, unsigned int mode)
 	return 0;
 }
 
-int qspi_send_command(qspi_frame_t *frame, qspi_data_t *data)
+int qspi_send_command(const qspi_command_t *cmd)
 {
-	unsigned int instruction = 0;
-	unsigned int config = 0;
-	unsigned char *membuff;
+	unsigned int iar, icr, ifr;
+	unsigned int offset;
+	unsigned int sr, imr;
 
-	if (frame->protocol == extended)
-		config |= QSPI_IFR_WIDTH_SINGLE_BIT_SPI;
-	else  if (frame->protocol == dual)
-		config |= QSPI_IFR_WIDTH_DUAL_CMD;
-	else  if (frame->protocol == quad)
-		config |= QSPI_IFR_WIDTH_QUAD_CMD;
+	iar = 0;
+	icr = 0;
+	ifr = (QSPI_IFR_WIDTH_(cmd->protocol) |
+	       QSPI_IFR_TFRTYPE_(cmd->transfer_type));
 
-	if (frame->instruction) {
-		config |= QSPI_IFR_INSTEN;
-		instruction |= QSPI_ICR_INST_(frame->instruction);
+	/* Compute instruction parameters */
+	if (cmd->enable.bits.instruction) {
+		icr |= QSPI_ICR_INST_(cmd->instruction);
+		ifr |= QSPI_IFR_INSTEN;
 	}
 
-	if (frame->has_address) {
-		config |= QSPI_IFR_ADDREN;
-		if ((!data))
-			qspi_writel(QSPI_IAR, frame->address);
+	/* Compute address parameters. */
+	switch (cmd->enable.bits.address) {
+	case 4:
+		ifr |= QSPI_IFR_ADDRL_32_BIT;
+		//break; /* fall through the 24bit (3 byte) address case */
+	case 3:
+		iar = (cmd->enable.bits.data) ? 0 : cmd->address;
+		ifr |= QSPI_IFR_ADDREN;
+		offset = cmd->address;
+		break;
+	case 0:
+		offset = 0;
+		break;
+	default:
+		return -1;
 	}
 
-	if (data)
-		config |= QSPI_IFR_DATAEN;
+	/* Compute option parameters. */
+	if (cmd->enable.bits.mode && cmd->num_mode_cycles) {
+		unsigned int mode_cycle_bits, mode_bits;
 
-	if (frame->option) {
-		config |= QSPI_IFR_OPTEN;
-		instruction |= QSPI_ICR_OPT_(frame->option);
+		icr |= QSPI_ICR_OPT_(cmd->mode);
+		ifr |= QSPI_IFR_OPTEN;
+
+		switch (ifr & QSPI_IFR_WIDTH) {
+		case QSPI_IFR_WIDTH_SINGLE_BIT_SPI:
+		case QSPI_IFR_WIDTH_DUAL_OUTPUT:
+		case QSPI_IFR_WIDTH_QUAD_OUTPUT:
+			mode_cycle_bits = 1;
+			break;
+		case QSPI_IFR_WIDTH_DUAL_IO:
+		case QSPI_IFR_WIDTH_DUAL_CMD:
+			mode_cycle_bits = 2;
+			break;
+		case QSPI_IFR_WIDTH_QUAD_IO:
+		case QSPI_IFR_WIDTH_QUAD_CMD:
+			mode_cycle_bits = 4;
+			break;
+		default:
+			return -1;
+		}
+
+		mode_bits = cmd->num_mode_cycles * mode_cycle_bits;
+		switch (mode_bits) {
+		case 1:
+			ifr |= QSPI_IFR_OPTL_1BIT;
+			break;
+
+		case 2:
+			ifr |= QSPI_IFR_OPTL_2BIT;
+			break;
+
+		case 4:
+			ifr |= QSPI_IFR_OPTL_4BIT;
+			break;
+
+		case 8:
+			ifr |= QSPI_IFR_OPTL_8BIT;
+			break;
+
+		default:
+			return -1;
+		}
 	}
 
-	if (frame->option_len == 1)
-		config |= QSPI_IFR_OPTL_1BIT;
-	else if (frame->option_len == 2)
-		config |= QSPI_IFR_OPTL_2BIT;
-	else if (frame->option_len == 4)
-		config |= QSPI_IFR_OPTL_4BIT;
-	else if (frame->option_len == 8)
-		config |= QSPI_IFR_OPTL_8BIT;
+	/* Set the number of dummy cycles. */
+	if (cmd->enable.bits.dummy)
+		ifr |= QSPI_IFR_NBDUM_(cmd->num_dummy_cycles);
 
-	if (frame->address_len)
-		config |= QSPI_IFR_ADDRL_32_BIT;
+	/* Set data enable. */
+	if (cmd->enable.bits.data) {
+		ifr |= QSPI_IFR_DATAEN;
 
-	if (frame->tansfer_type == read)
-		config |= QSPI_IFR_TFRTYPE_READ;
-	else if (frame->tansfer_type == read_memory)
-		config |= QSPI_IFR_TFRTYPE_READ_MEMORY;
-	else if (frame->tansfer_type == write)
-		config |= QSPI_IFR_TFRTYPE_WRITE;
-	else if (frame->tansfer_type == write_memory)
-		config |= QSPI_IFR_TFRTYPE_WRITE_MEMORY;
-
-	if (frame->continue_read)
-		config |= QSPI_IFR_CRM;
-
-	config |= QSPI_IFR_NBDUM_(frame->dummy_cycles);
-
-	qspi_writel(QSPI_ICR, instruction);
-	qspi_writel(QSPI_IFR, config);
-
-	qspi_readl(QSPI_IFR);	/* To synchronize system bus access */
-
-	if (data) {
-		membuff = qspi_memory_base() + frame->address;
-		if (data->direction == DATA_DIR_READ)
-			memcpy((unsigned char *)data->buffer, membuff, data->size);
-		else if (data->direction == DATA_DIR_WRITE)
-			memcpy(membuff, (unsigned char *)data->buffer, data->size);
+		/* Special case for Continuous Read Mode. */
+		if (!cmd->tx_buf && !cmd->rx_buf)
+			ifr |= QSPI_IFR_CRM;
 	}
 
+	/* Clear pending interrupts. */
+	(void)qspi_readl(QSPI_SR);
+
+	/* Set QSPI Instruction Frame registers. */
+	qspi_writel(QSPI_IAR, iar);
+	qspi_writel(QSPI_ICR, icr);
+	qspi_writel(QSPI_IFR, ifr);
+
+	/* Skip to the final steps if there is no data. */
+	if (!cmd->enable.bits.data)
+		goto no_data;
+
+	/* Dummy read of QSPI_IFR to synchronize APB and AHB accesses. */
+	(void)qspi_readl(QSPI_IFR);
+
+	/* Stop here for Continuous Read. */
+	if (cmd->tx_buf)
+		/* Write data. */
+		memcpy(qspi_memory_base() + offset, cmd->tx_buf, cmd->buf_len);
+	else if (cmd->rx_buf)
+		/* Read data. */
+		memcpy(cmd->rx_buf, qspi_memory_base() + offset, cmd->buf_len);
+	else
+		/* Stop here for continuous read */
+		return 0;
+
+	/* Release the chip-select. */
 	qspi_writel(QSPI_CR, QSPI_CR_LASTXFER);
 
-	while (!(qspi_readl(QSPI_SR) & QSPI_SR_INSTRE))
-		;
+no_data:
+	/* Poll INSTruction End and Chip Select Rise flags. */
+	imr = (QSPI_SR_INSTRE | QSPI_SR_CSR);
+	sr = 0;
+	while (sr != (QSPI_SR_INSTRE | QSPI_SR_CSR))
+		sr |= qspi_readl(QSPI_SR) & imr;
 
 	return 0;
+}
+
+unsigned char *qspi_memory_base(void)
+{
+	return (unsigned char *)CONFIG_SYS_BASE_QSPI_MEM;
 }
