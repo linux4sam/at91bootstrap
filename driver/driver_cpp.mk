@@ -22,6 +22,10 @@ ifeq ($(CONFIG_LPDDR1),y)
 CPPFLAGS += -DCONFIG_LPDDR1
 endif
 
+ifeq ($(CONFIG_LPDDR3),y)
+CPPFLAGS += -DCONFIG_LPDDR3
+endif
+
 ifeq ($(CONFIG_DDR2),y)
 CPPFLAGS += -DCONFIG_DDR2
 endif

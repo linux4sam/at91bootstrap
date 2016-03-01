@@ -77,6 +77,9 @@ config CONFIG_LPDDR1
 config CONFIG_LPDDR2
 	bool "Low-power DDR2-SDRAM"
 
+config CONFIG_LPDDR3
+	bool "Low-power DDR3-SDRAM"
+
 config CONFIG_DDR2
 	bool "DDR2-SDRAM"
 

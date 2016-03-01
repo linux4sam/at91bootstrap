@@ -52,6 +52,10 @@ extern int ddr3_sdram_initialize(unsigned int base_address,
 			unsigned int ram_address,
 			struct ddramc_register *ddramc_config);
 
+extern int lpddr3_sdram_initialize(unsigned int base_address,
+				   unsigned int ram_address,
+				   struct ddramc_register *ddramc_config);
+
 extern int lpddr1_sdram_initialize(unsigned int base_address,
 				   unsigned int ram_address,
 				   struct ddramc_register *ddramc_config);
