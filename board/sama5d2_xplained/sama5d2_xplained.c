@@ -415,6 +415,76 @@ static void lpddr1_init(void)
 
 	ddramc_dump_regs(AT91C_BASE_MPDDRC);
 }
+
+#elif defined(CONFIG_LPDDR3)
+static void lpddr3_reg_config(struct ddramc_register *ddramc_config)
+{
+	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS |
+			      AT91C_DDRC2_MD_LPDDR3_SDRAM);
+
+	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9 |
+			     AT91C_DDRC2_NR_14 |
+			     AT91C_DDRC2_CAS_3 |
+			     AT91C_DDRC2_ZQ_INIT |
+			     AT91C_DDRC2_NB_BANKS_8 |
+			     AT91C_DDRC2_DECOD_SEQUENTIAL |
+			     AT91C_DDRC2_UNAL_SUPPORTED);
+
+	ddramc_config->lpddr2_lpr = AT91C_LPDDRC2_DS(0x04);
+
+#ifdef CONFIG_BUS_SPEED_166MHZ
+	/* The low-power DDR3-SDRAM device requires a refresh every 3.9 us.*/
+	ddramc_config->rtr = 0x288;
+
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(7) |
+			       AT91C_DDRC2_TRCD_(3) |
+			       AT91C_DDRC2_TWR_(3) |
+			       AT91C_DDRC2_TRC_(11) |
+			       AT91C_DDRC2_TRP_(4) |
+			       AT91C_DDRC2_TRRD_(2) |
+			       AT91C_DDRC2_TWTR_(4) |
+			       AT91C_DDRC2_TMRD_(10));
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(35) |
+			       AT91C_DDRC2_TXSNR_(37) |
+			       AT91C_DDRC2_TXSRD_(0) |
+			       AT91C_DDRC2_TXP_(2));
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(0) |
+			       AT91C_DDRC2_TXARDS_(0) |
+			       AT91C_DDRC2_TRPA_(0) |
+			       AT91C_DDRC2_TRTP_(4) |
+			       AT91C_DDRC2_TFAW_(9));
+#else
+#error "No CLK setting defined"
+#endif
+}
+
+static void lpddr3_init(void)
+{
+	struct ddramc_register ddramc_reg;
+	unsigned int reg;
+
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
+
+	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
+	reg &= ~AT91C_MPDDRC_RDIV;
+	reg &= ~AT91C_MPDDRC_TZQIO;
+	reg |= AT91C_MPDDRC_RDIV_LPDDR3_RZQ_57;
+	reg |= AT91C_MPDDRC_TZQIO_(100);
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
+
+	writel(AT91C_MPDDRC_RD_DATA_PATH_THREE_CYCLES,
+	       AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH);
+
+	lpddr3_reg_config(&ddramc_reg);
+
+	lpddr3_sdram_initialize(AT91C_BASE_MPDDRC,
+				AT91C_BASE_DDRCS, &ddramc_reg);
+}
+#else
+#error "No right DDR-SDRAM device type provided"
 #endif
 
 #ifdef CONFIG_HW_INIT
@@ -461,6 +531,8 @@ void hw_init(void)
 	ddramc_init();
 #elif defined(CONFIG_LPDDR1)
 	lpddr1_init();
+#elif defined(CONFIG_LPDDR3)
+	lpddr3_init();
 #endif
 	/* Prepare L2 cache setup */
 	l2cache_prepare();
