@@ -28,6 +28,7 @@
  */
 #include "hardware.h"
 #include "arch/at91_ddrsdrc.h"
+#include "arch/at91_sfr.h"
 #include "debug.h"
 #include "ddramc.h"
 #include "timer.h"
@@ -40,7 +41,8 @@ static void write_ddramc(unsigned int address,
 	writel(value, (address + offset));
 }
 
-#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)
+#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)  || \
+    defined(CONFIG_LPDDR3)
 /* read DDRC registers */
 static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 {
@@ -576,6 +578,189 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * Refresh Timer Register (MPDDRC_RTR):
 	 * refresh rate = delay between refresh cycles.
 	 * The DDR3-SDRAM device requires a refresh every 7.81 us.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
+
+	return 0;
+}
+
+#elif defined(CONFIG_LPDDR3)
+int lpddr3_sdram_initialize(unsigned int base_address,
+			    unsigned int ram_address,
+			    struct ddramc_register *ddramc_config)
+{
+	unsigned int reg;
+
+	write_ddramc(base_address, MPDDRC_LPDDR2_LPR,
+		     ddramc_config->lpddr2_lpr);
+
+	/*
+	 * Step 1: Program the memory device type in the MPDDRC Memory
+	 * Device Register.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MDR, ddramc_config->mdr);
+
+	/*
+	 * Step 2: Program features of the low-power DDR3-SDRAM device
+	 * in the MPDDRC Configuration Register and in the MPDDRC Timing
+	 * Parameter 0 Register/MPDDRC Timing Parameter 1 Register.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_CR, ddramc_config->cr);
+
+	write_ddramc(base_address, HDDRSDRC2_T0PR, ddramc_config->t0pr);
+	write_ddramc(base_address, HDDRSDRC2_T1PR, ddramc_config->t1pr);
+	write_ddramc(base_address, HDDRSDRC2_T2PR, ddramc_config->t2pr);
+
+	/*
+	 * Step 3: A NOP command is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 4: A pause of at least 100ns must be observed before
+	 * a single toggle.
+	 */
+	 udelay(1);
+
+	/*
+	 * Step 5: A NOP command is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 6: A pause of at least 200us must be observed before issuing
+	 * a Reset Command
+	 */
+	udelay(200);
+
+	/*
+	 * Step 7: A Reset command is issued to the Low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(63) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 8: A pause of at least tINIT5 must be observed before issuing
+	 * any commands.
+	 */
+	udelay(1);
+
+	/*
+	 * Step 9: A Calibration command is issued to the low-power DDR3-SDRAM.
+	 */
+	reg = read_ddramc(base_address, HDDRSDRC2_CR);
+	reg &= ~AT91C_DDRC2_ZQ;
+	reg |= AT91C_DDRC2_ZQ_RESET;
+	write_ddramc(base_address, HDDRSDRC2_CR, reg);
+
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(10) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	reg = read_ddramc(base_address, HDDRSDRC2_CR);
+	reg &= ~AT91C_DDRC2_ZQ;
+	reg |= AT91C_DDRC2_ZQ_SHORT;
+	write_ddramc(base_address, HDDRSDRC2_CR, reg);
+
+	/*
+	 * Step 10: A Mode Register Write command with 1 to the MRS field
+	 * is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(1) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 11: A Mode Register Write command with 2 to the MRS field
+	 * is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(2) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 12: A Mode Register Write command with 3 to the MRS field
+	 * is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(3) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 13: A Mode Register Write command with 16 to the MRS field
+	 * is issued to the low-power DDR2-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(16) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 14: In the DDR Configuration Register, open the input buffers.
+	 */
+	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
+	reg |= AT91C_DDRCFG_FDQIEN;
+	reg |= AT91C_DDRCFG_FDQSIEN;
+	writel(reg, AT91C_BASE_SFR + SFR_DDRCFG);
+
+	/*
+	 * Step 15: A NOP command is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 16: A Mode Register Read command with 5 to the MRS field
+	 * is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(5) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 17: A Mode Register Read command with 6 to the MRS field
+	 * is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(6) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 18: A Mode Register Read command with 8 to the MRS field
+	 * is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(8) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 19: A Mode Register Read command with 0 to the MRS field
+	 * is issued to the low-power DDR3-SDRAM.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR,
+		     AT91C_DDRC2_MRS(0) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/*
+	 * Step 20: A Normal Mode command is provided.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
+	*((unsigned int *)ram_address) = 0;
+
+	/*
+	 * Step 21: In the DDR Configuration Register, close the input buffers.
+	 */
+	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
+	reg &= ~AT91C_DDRCFG_FDQIEN;
+	reg &= ~AT91C_DDRCFG_FDQSIEN;
+	writel(reg, AT91C_BASE_SFR + SFR_DDRCFG);
+
+	/*
+	 * Step 22: Write the refresh rate into the COUNT field in the MPDDRC
+	 * Refresh Timer Register. The low-power DDR3-SDRAM device requires
+	 * a refresh every 3.9 us.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
 
