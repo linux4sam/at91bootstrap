@@ -249,6 +249,13 @@ endchoice
 
 endmenu
 
+config CONFIG_QSPI_4B_OPCODES
+	bool "Quad SPI NOR flash memory is >16MiB (>128Mib)"
+	default n
+	help
+	  Should be selected when the size of SPI NOR flash memory is above
+	  16MiB (128Mib).
+
 config CONFIG_QSPI_XIP
 	bool "eXecute In Place"
 	default n
