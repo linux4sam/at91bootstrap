@@ -473,6 +473,7 @@ static int sdhc_host_capability(struct sd_card *sdcard)
 static int sdhc_init(struct sd_card *sdcard)
 {
 	unsigned int normal_status_mask, error_status_mask;
+	unsigned int timeout;
 
 	sdhc_softare_reset();
 
@@ -497,6 +498,14 @@ static int sdhc_init(struct sd_card *sdcard)
 
 	sdhc_writew(SDMMC_NISIER, 0);
 	sdhc_writew(SDMMC_EISIER, 0);
+
+	timeout = 1000000;
+	while ((--timeout) && !(sdhc_readl(SDMMC_PSR) & SDMMC_PSR_CARDSS))
+		;
+
+	if (!timeout)
+		dbg_info("SDHC: Timeout to check the card state stable\n");
+
 
 	if ((sdhc_readl(SDMMC_PSR) & SDMMC_PSR_CARDINS) != SDMMC_PSR_CARDINS) {
 		dbg_info("SDHC: Error: No Card Inserted\n");
