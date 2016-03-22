@@ -75,15 +75,15 @@ int load_ek_at24xx(unsigned char *buff, unsigned int length)
 	unsigned char dev_addr = EK_AT24XX_ADDR;
 	unsigned char offset = EK_INFO_OFFSET;
 	int ret = 0;
-	unsigned int i;
-	unsigned char *tmp = buff;
 
 	ret = at24_read(dev_addr, offset, buff, length);
 
-	dbg_loud("EEPROM Buff:\n");
-	for (i = 0; i < length; i++)
-		dbg_loud("%d ", *tmp++);
-	dbg_loud("\n");
+	if (!ret) {
+		dbg_loud("EEPROM Buff:\n");
+#if (BOOTSTRAP_DEBUG_LEVEL >= DEBUG_LOUD)
+		dbg_hexdump(buff, length, DUMP_WIDTH_BIT_8);
+#endif
+	}
 
 	return ret;
 }
