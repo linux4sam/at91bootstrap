@@ -155,9 +155,8 @@ static unsigned char normalize_bom_revision(const unsigned char c)
 	return normalize_rev_id(c);
 }
 
-static int get_board_hw_info(unsigned char *buff,
-				unsigned char board_sn,
-				board_info_t *bd_info)
+static int parse_board_hw_info(unsigned char *buff,
+			       board_info_t *bd_info)
 {
 	char board_name[BOARD_NAME_LEN + 1];
 	char vendor_name[VENDOR_NAME_LEN + 1];
@@ -205,22 +204,6 @@ static int get_board_hw_info(unsigned char *buff,
 	bd_info->vendor_id = vendor_list[i].vendor_id;
 	bd_info->vendor_name = vendor_list[i].vendor_name;
 
-	dbg_info("  #%d", board_sn);
-	if (p->revision_mapping == 'B') {
-		dbg_info("  %s [%c%c%c]      %s\n",
-		bd_info->board_name,
-		bd_info->revision_code,
-		bd_info->revision_id,
-		bd_info->bom_revision,
-		bd_info->vendor_name);
-	} else {
-		dbg_info("  %s [%c%c]      %s\n",
-		bd_info->board_name,
-		bd_info->revision_code,
-		bd_info->revision_id,
-		bd_info->vendor_name);
-	}
-
 	return 0;
 
 fail_to_search_board:
@@ -240,7 +223,36 @@ fail_to_search_vendor:
 	dbg_info("Failed to parse the vendor name: %s\n", vendor_name);
 
 	return -1;
+}
 
+static int get_board_hw_info(unsigned char *buff,
+			     unsigned char board_sn,
+			     board_info_t *bd_info)
+{
+	int ret;
+	unsigned char mapping_revision = buff[30];
+
+	ret = parse_board_hw_info(buff, bd_info);
+	if (ret)
+		return ret;
+
+	dbg_info("  #%d", board_sn);
+	if (mapping_revision == 'B') {
+		dbg_info("  %s [%c%c%c]      %s\n",
+		bd_info->board_name,
+		bd_info->revision_code,
+		bd_info->revision_id,
+		bd_info->bom_revision,
+		bd_info->vendor_name);
+	} else {
+		dbg_info("  %s [%c%c]      %s\n",
+		bd_info->board_name,
+		bd_info->revision_code,
+		bd_info->revision_id,
+		bd_info->vendor_name);
+	}
+
+	return 0;
 }
 
 /*******************************************************************************
