@@ -472,7 +472,8 @@ static int sdhc_host_capability(struct sd_card *sdcard)
 
 static int sdhc_init(struct sd_card *sdcard)
 {
-	unsigned int normal_status_mask, error_status_mask;
+	unsigned int normal_status_mask, error_status_mask, card_detect_mask;
+	unsigned int timeout;
 
 	sdhc_softare_reset();
 
@@ -498,7 +499,25 @@ static int sdhc_init(struct sd_card *sdcard)
 	sdhc_writew(SDMMC_NISIER, 0);
 	sdhc_writew(SDMMC_EISIER, 0);
 
-	if ((sdhc_readl(SDMMC_PSR) & SDMMC_PSR_CARDINS) != SDMMC_PSR_CARDINS) {
+
+	/*
+	 * To be totally safe, three bits have to be checked at the same time.
+	 * CARDDPL and CARDINS must have the same value even if CARDSS is set.
+	 * The debounce can start up to 2 slow clock cycles after the card
+	 * insertion or removal. It means the card can be removed and we can
+	 * have CARDSS and CARDINS set to 1.
+	 */
+	card_detect_mask = SDMMC_PSR_CARDDPL |
+			   SDMMC_PSR_CARDSS |
+			   SDMMC_PSR_CARDINS;
+
+	timeout = 1000000;
+	while (!!(timeout--) &&
+	       !((sdhc_readl(SDMMC_PSR) &
+	       card_detect_mask) == card_detect_mask))
+		;
+
+	if (!timeout) {
 		dbg_info("SDHC: Error: No Card Inserted\n");
 		return -1;
 	}

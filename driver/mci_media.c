@@ -1016,8 +1016,11 @@ int sdcard_initialize(void)
 #endif
 
 	host = sdcard->host;
-	if (host->ops->init)
-		host->ops->init(sdcard);
+	if (host->ops->init) {
+		ret = host->ops->init(sdcard);
+		if (ret)
+			return ret;
+	}
 
 	/* Card Indentification Mode */
 	ret = sdcard_identification(sdcard);
