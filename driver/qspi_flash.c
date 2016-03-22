@@ -53,6 +53,7 @@
 #define	CMD_FAST_READ_1_4_4			0xeb
 
 #define	CMD_PAGE_PROGRAM			0x02
+#define	CMD_QUAD_PAGE_PROGRAM			0x32
 #define	CMD_SECTOR_ERASE			0xd8
 
 #define	CMD_WRITE_ENABLE			0x06
@@ -60,6 +61,21 @@
 
 #define	CMD_READ_STATUS_REG			0x05
 #define	CMD_WRITE_STATUS_REG			0x01
+
+/*
+ * 4byte address commands:
+ * MUST be named as the associated 3byte address command with the _4B suffix.
+ */
+#define	CMD_READ_4B				0x13
+#define	CMD_FAST_READ_4B			0x0c
+#define	CMD_FAST_READ_1_1_2_4B			0x3c
+#define	CMD_FAST_READ_1_1_4_4B			0x6c
+#define	CMD_FAST_READ_1_2_2_4B			0xbc
+#define	CMD_FAST_READ_1_4_4_4B			0xec
+
+#define	CMD_PAGE_PROGRAM_4B			0x12
+#define	CMD_QUAD_PAGE_PROGRAM_4B		0x34
+#define	CMD_SECTOR_ERASE_4B			0xdc
 
 
 /* Status Register Bit Definitions */
@@ -94,6 +110,9 @@
 #define	CMD_READ_CONFIG_REG_MX			0x15
 
 #define	SR_QUAD_EN_MX			(0x1 << 6)
+
+#define	CMD_QUAD_PAGE_PROGRAM_MX		0x38
+#define	CMD_QUAD_PAGE_PROGRAM_MX_4B		0x3e
 
 
 
@@ -676,6 +695,61 @@ static const flash_id_t flash_ids[] = {
 	{ QSPI_MFR_WINBOND,	qspi_flash_init_winbond },
 };
 
+#ifdef CONFIG_QSPI_4B_OPCODES
+struct address_entry {
+	unsigned char	src_opcode;
+	unsigned char	dst_opcode;
+};
+
+static unsigned char
+qspi_flash_convert_opcode(unsigned char opcode,
+			  const struct address_entry *entries,
+			  int num_entries)
+{
+	int b, e;
+
+	b = 0;
+	e = num_entries - 1;
+	while (b <= e) {
+		int m = (b + e) >> 1;
+		const struct address_entry *entry = &entries[m];
+
+		if (opcode == entry->src_opcode)
+			return entry->dst_opcode;
+
+		if (opcode < entry->src_opcode)
+			e = m - 1;
+		else
+			b = m + 1;
+	}
+
+	/* No convertion found */
+	return opcode;
+}
+
+static unsigned char qspi_flash_3to4_opcode(unsigned char opcode)
+{
+	/* MUST be sorted by 3byte opcode */
+#define ENTRY_3TO4(_opcode)	{ _opcode, _opcode##_4B }
+	static const struct address_entry qspi_flash_3to4_table[] = {
+		ENTRY_3TO4(CMD_PAGE_PROGRAM),		/* 0x02 */
+		ENTRY_3TO4(CMD_READ),			/* 0x03 */
+		ENTRY_3TO4(CMD_FAST_READ),		/* 0x0b */
+		ENTRY_3TO4(CMD_QUAD_PAGE_PROGRAM),	/* 0x32 */
+		ENTRY_3TO4(CMD_QUAD_PAGE_PROGRAM_MX),	/* 0x38 */
+		ENTRY_3TO4(CMD_FAST_READ_1_1_2),	/* 0x3b */
+		ENTRY_3TO4(CMD_FAST_READ_1_1_4),	/* 0x6b */
+		ENTRY_3TO4(CMD_FAST_READ_1_2_2),	/* 0xbb */
+		ENTRY_3TO4(CMD_SECTOR_ERASE),		/* 0xd8 */
+		ENTRY_3TO4(CMD_FAST_READ_1_4_4),	/* 0xeb */
+	};
+#undef ENTRY_3TO4
+
+	return qspi_flash_convert_opcode(opcode,
+					 qspi_flash_3to4_table,
+					 ARRAY_SIZE(qspi_flash_3to4_table));
+}
+#endif /* CONFIG_QSPI_4B_OPCODES */
 
 static int qspi_flash_probe(qspi_flash_t *flash)
 {
@@ -732,7 +806,17 @@ found:
 	flash->num_mode_cycles = 0;
 	flash->num_dummy_cycles = 8;
 
-	return (info->init) ? info->init(flash) : 0;
+	/* Init memory settings */
+	ret = (info->init) ? info->init(flash) : 0;
+
+	/* Convert opcodes to their 4byte address version for >16MiB memories */
+#ifdef CONFIG_QSPI_4B_OPCODES
+	flash->addr_width = 4;
+	flash->read_opcode = qspi_flash_3to4_opcode(flash->read_opcode);
+	flash->program_opcode = qspi_flash_3to4_opcode(flash->program_opcode);
+	flash->erase_opcode = qspi_flash_3to4_opcode(flash->program_opcode);
+#endif
+	return ret;
 }
 
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
