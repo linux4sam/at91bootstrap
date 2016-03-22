@@ -76,6 +76,9 @@ int load_ek_at24xx(unsigned char *buff, unsigned int length)
 	unsigned char offset = EK_INFO_OFFSET;
 	int ret = 0;
 
+	if (!twi_init_done)
+		twi_init();
+
 	ret = at24_read(dev_addr, offset, buff, length);
 
 	if (!ret) {
