@@ -690,7 +690,17 @@ unsigned int at91_twi0_hw_init(void)
 #if defined(CONFIG_TWI1)
 unsigned int at91_twi1_hw_init(void)
 {
-	return 0;
+	const struct pio_desc twi_pins[] = {
+		{"TWD1", AT91C_PIN_PD(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TWCK1", AT91C_PIN_PD(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(twi_pins);
+
+	pmc_sam9x5_enable_periph_clk(AT91C_ID_TWI1);
+
+	return AT91C_BASE_TWI1;
 }
 #endif
 
@@ -698,6 +708,7 @@ unsigned int at91_twi1_hw_init(void)
 void at91_board_config_twi_bus(void)
 {
 	act8865_twi_bus = 0;
+	at24xx_twi_bus = 1;
 }
 #endif
 
