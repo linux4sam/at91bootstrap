@@ -35,12 +35,8 @@
 
 /* Board Type */
 #define BOARD_TYPE_CPU		1
-#define BOARD_TYPE_CPU_MASK	1
 #define BOARD_TYPE_EK		2
-#define BOARD_TYPE_EK_MASK	2
 #define BOARD_TYPE_DM		3
-#define BOARD_TYPE_DM_MASK	4
-#define BOARD_TYPE_MASK		7
 
 /* One Wire informaion */
 #define BOARD_NAME_LEN		12
@@ -291,15 +287,13 @@ fail_to_search_vendor:
 #define EK_REV_ID_OFFSET	21
 
 static int construct_sn_rev(board_info_t *bd_info,
-				unsigned int *psn,
-				unsigned int *prev,
-				unsigned int *missing)
+			    unsigned int *psn,
+			    unsigned int *prev)
 {
 	int ret = 0;
 
 	switch (bd_info->board_type) {
 	case BOARD_TYPE_CPU:
-		*missing &= (BOARD_TYPE_MASK & ~BOARD_TYPE_CPU_MASK);
 		*psn |= (bd_info->board_id & SN_MASK);
 		*psn |= ((bd_info->vendor_id & VENDOR_MASK)
 							<< CM_VENDOR_OFFSET);
@@ -309,7 +303,6 @@ static int construct_sn_rev(board_info_t *bd_info,
 		break;
 
 	case BOARD_TYPE_DM:
-		*missing &= (BOARD_TYPE_MASK & ~BOARD_TYPE_DM_MASK);
 		*psn |= ((bd_info->board_id & SN_MASK) << DM_SN_OFFSET);
 		*psn |= ((bd_info->vendor_id & VENDOR_MASK)
 							<< DM_VENDOR_OFFSET);
@@ -320,7 +313,6 @@ static int construct_sn_rev(board_info_t *bd_info,
 		break;
 
 	case BOARD_TYPE_EK:
-		*missing &= (BOARD_TYPE_MASK & ~BOARD_TYPE_EK_MASK);
 		*psn |= ((bd_info->board_id & SN_MASK) << EK_SN_OFFSET);
 		*psn |= ((bd_info->vendor_id & VENDOR_MASK)
 							<< EK_VENDOR_OFFSET);
@@ -497,8 +489,7 @@ unsigned int get_ek_sn(void)
 
 #if defined(CONFIG_LOAD_ONE_WIRE)
 static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
-				unsigned int *psn, unsigned int *prev,
-				unsigned int *missing)
+				    unsigned int *psn, unsigned int *prev)
 {
 	board_info_t board_info;
 	board_info_t *bd_info = &board_info;
@@ -535,7 +526,7 @@ static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
 		if (get_board_hw_info(buff, i, bd_info))
 			continue;
 
-		if (construct_sn_rev(bd_info, psn, prev, missing))
+		if (construct_sn_rev(bd_info, psn, prev))
 			continue;
 
 		parsing++;
@@ -549,9 +540,9 @@ static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
 #endif /* #if defined(CONFIG_LOAD_ONE_WIRE) */
 
 #if defined(CONFIG_LOAD_EEPROM)
-static int load_eeprom_info(unsigned char *buff, unsigned int size, unsigned int boardsn,
-				unsigned int *psn, unsigned int *prev,
-				unsigned int *missing)
+static int load_eeprom_info(unsigned char *buff, unsigned int size,
+			    unsigned int boardsn, unsigned int *psn,
+			    unsigned int *prev)
 {
 	board_info_t board_info;
 	board_info_t *bd_info = &board_info;
@@ -568,7 +559,7 @@ static int load_eeprom_info(unsigned char *buff, unsigned int size, unsigned int
 	if (get_board_hw_info(buff, boardsn, bd_info))
 		return -1;
 
-	if (construct_sn_rev(bd_info, psn, prev, missing))
+	if (construct_sn_rev(bd_info, psn, prev))
 		return -1;
 
 	return 0;
@@ -578,35 +569,21 @@ static int load_eeprom_info(unsigned char *buff, unsigned int size, unsigned int
 void load_board_hw_info(void)
 {
 	unsigned int size = HW_INFO_TOTAL_SIZE;
-#if defined(CONFIG_SAMA5D4EK) || defined(CONFIG_SAMA5D4_XPLAINED)
-	unsigned int missing = BOARD_TYPE_EK_MASK;
-#else
-	unsigned int missing = BOARD_TYPE_MASK;
-#endif
 	unsigned int count = 0;
 	unsigned int failed = 0;
 
 #if defined(CONFIG_LOAD_ONE_WIRE)
-	count = load_1wire_info(buffer, size, &sn, &rev, &missing);
+	count = load_1wire_info(buffer, size, &sn, &rev);
 	if (!count)
 		failed = 1;
 #endif
 #if defined(CONFIG_LOAD_EEPROM)
 	failed = 0;
-	if (load_eeprom_info(buffer, size, count, &sn, &rev, &missing))
+	if (load_eeprom_info(buffer, size, count, &sn, &rev))
 		failed = 1;
 #endif
 	if (failed)
 		goto set_default;
-
-	if (missing & BOARD_TYPE_CPU_MASK)
-		dbg_info("1-Wire: Failed to read CM board information\n");
-
-	if (missing & BOARD_TYPE_DM_MASK)
-		dbg_info("1-Wire: Failed to read DM board information\n");
-
-	if (missing & BOARD_TYPE_EK_MASK)
-		dbg_info("1-Wire: Failed to read EK board information\n");
 
 	goto save_info;
 
