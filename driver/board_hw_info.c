@@ -495,9 +495,7 @@ static int load_1wire_info(unsigned char *buff, unsigned int size,
 	board_info_t *bd_info = &board_info;
 	unsigned int count;
 	unsigned int parsing = 0;
-	int i, j;
-
-	unsigned char *tmp = buff;
+	int i;
 
 	memset(bd_info, 0, sizeof(*bd_info));
 
@@ -518,10 +516,9 @@ static int load_1wire_info(unsigned char *buff, unsigned int size,
 		}
 
 		dbg_loud("board: #%d: ", i);
-		for (j = 0; j < size; j++)
-			dbg_loud("%d ", *tmp++);
-
-		dbg_loud("\n");
+#if (BOOTSTRAP_DEBUG_LEVEL >= DEBUG_LOUD)
+		dbg_hexdump(buff, size, DUMP_WIDTH_BIT_8);
+#endif
 
 		if (get_board_hw_info(buff, i, bd_info))
 			continue;
