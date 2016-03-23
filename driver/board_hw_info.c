@@ -579,21 +579,30 @@ void load_board_hw_info(void)
 	ret = load_eeprom_info(buffer, size, count, &sn, &rev);
 #endif
 	if (ret) {
-		dbg_info("\n1-Wire: Using default information\n");
+#if defined(CONFIG_LOAD_ONE_WIRE)
+		dbg_info("\n1-Wire: ");
+#endif
+#if defined(CONFIG_LOAD_EEPROM)
+		dbg_info("\nEEPROM: ");
+#endif
+		dbg_info("Using default information\n");
 
 		sn = set_default_sn();
 		rev = set_default_rev();
 	}
 
 #ifdef AT91C_BASE_GPBR
-	/* save to GPBR #2 and #3 */
-	dbg_info("\n1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\n", sn, rev);
-
 	writel(sn, AT91C_BASE_GPBR + 4 * 2);
 	writel(rev, AT91C_BASE_GPBR + 4 * 3);
-#else
-	dbg_info("\n1-Wire: Board sn: %d, revsion: %d\n\n", sn, rev);
 #endif
+
+#if defined(CONFIG_LOAD_ONE_WIRE)
+	dbg_info("\n1-Wire: ");
+#endif
+#if defined(CONFIG_LOAD_EEPROM)
+	dbg_info("\nEEPROM: ");
+#endif
+	dbg_info("Board sn: %x revision: %x\n\n", sn, rev);
 
 	return;
 }
