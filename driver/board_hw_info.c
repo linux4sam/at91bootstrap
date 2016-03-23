@@ -488,8 +488,8 @@ unsigned int get_ek_sn(void)
 }
 
 #if defined(CONFIG_LOAD_ONE_WIRE)
-static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
-				    unsigned int *psn, unsigned int *prev)
+static int load_1wire_info(unsigned char *buff, unsigned int size,
+			   unsigned int *psn, unsigned int *prev)
 {
 	board_info_t board_info;
 	board_info_t *bd_info = &board_info;
@@ -506,7 +506,7 @@ static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
 	count = enumerate_all_rom();
 	if (!count) {
 		dbg_info("WARNING: 1-Wire: No 1-Wire chip found\n");
-		return 0;
+		return -1;
 	}
 
 	dbg_info("1-Wire: BoardName | [Revid] | VendorName\n");
@@ -514,7 +514,7 @@ static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
 	for (i = 0; i < count; i++) {
 		if (ds24xx_read_memory(i, 0, 0, size, buff) < 0) {
 			dbg_info("WARNING: 1-Wire: Failed to read from 1-Wire chip!\n");
-			return 0;
+			return -1;
 		}
 
 		dbg_loud("board: #%d: ", i);
@@ -533,9 +533,9 @@ static unsigned int load_1wire_info(unsigned char *buff, unsigned int size,
 	}
 
 	if (!parsing)
-		return 0;
+		return -1;
 
-	return count;
+	return 0;
 }
 #endif /* #if defined(CONFIG_LOAD_ONE_WIRE) */
 
@@ -570,30 +570,21 @@ void load_board_hw_info(void)
 {
 	unsigned int size = HW_INFO_TOTAL_SIZE;
 	unsigned int count = 0;
-	unsigned int failed = 0;
+	int ret;
 
 #if defined(CONFIG_LOAD_ONE_WIRE)
-	count = load_1wire_info(buffer, size, &sn, &rev);
-	if (!count)
-		failed = 1;
+	ret = load_1wire_info(buffer, size, &sn, &rev);
 #endif
 #if defined(CONFIG_LOAD_EEPROM)
-	failed = 0;
-	if (load_eeprom_info(buffer, size, count, &sn, &rev))
-		failed = 1;
+	ret = load_eeprom_info(buffer, size, count, &sn, &rev);
 #endif
-	if (failed)
-		goto set_default;
+	if (ret) {
+		dbg_info("\n1-Wire: Using default information\n");
 
-	goto save_info;
+		sn = set_default_sn();
+		rev = set_default_rev();
+	}
 
-set_default:
-	dbg_info("\n1-Wire: Using default information\n");
-
-	sn = set_default_sn();
-	rev = set_default_rev();
-
-save_info:
 #ifdef AT91C_BASE_GPBR
 	/* save to GPBR #2 and #3 */
 	dbg_info("\n1-Wire: SYS_GPBR2: %d, SYS_GPBR3: %d\n\n", sn, rev);
