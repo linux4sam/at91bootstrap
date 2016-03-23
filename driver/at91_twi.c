@@ -208,8 +208,10 @@ int twi_read(unsigned int bus, unsigned char device_addr,
 	unsigned int twi_base;
 
 	twi_base = get_twi_base(bus);
-	if (!twi_base)
+	if (!twi_base) {
+		dbg_loud("%s: the base address is NULL\n", __func__);
 		return -1;
+	}
 
 	twi_startread(twi_base, device_addr, internal_addr, iaddr_size);
 
