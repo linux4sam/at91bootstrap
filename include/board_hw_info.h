@@ -48,6 +48,7 @@
 #define	BOARD_ID_SAMA5D4_MB	16
 #define	BOARD_ID_SAMA5D4_XULT	17
 #define	BOARD_ID_SAMA5D36_CP	18
+#define	BOARD_ID_SAMA5D2_XULT	19
 
 /* Vendor id definition */
 #define VENDOR_EMBEST		1
