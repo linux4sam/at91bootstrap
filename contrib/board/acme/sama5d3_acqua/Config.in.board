@@ -16,5 +16,6 @@ config CONFIG_SAMA5D3_ACQUA
 	select CONFIG_MMC_SUPPORT
 	select CONFIG_PM
 	select CONFIG_HAS_PMIC_ACT8865
+	select SUPPORT_BUS_SPEED_133MHZ
 	help
 	    Use the SAMA5D3 Acme Systems Acqua SoM
