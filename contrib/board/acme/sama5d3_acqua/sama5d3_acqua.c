@@ -72,6 +72,15 @@ static void initialize_dbgu(void)
 	usart_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
 
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+
+void at91_board_config_twi_bus(void)
+{
+	act8865_twi_bus	= 1;
+}
+
+#endif
+
 #ifdef CONFIG_DDR2
 static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 {
