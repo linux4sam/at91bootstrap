@@ -44,7 +44,7 @@
 #include "string.h"
 #include "at91sam9x5_aria.h"
 
-#include "onewire_info.h"
+#include "board_hw_info.h"
 
 #ifdef CONFIG_USER_HW_INIT
 extern void hw_init_hook(void);

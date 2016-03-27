@@ -37,7 +37,7 @@
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
-#include "onewire_info.h"
+#include "board_hw_info.h"
 
 #include "arch/at91_pmc.h"
 #include "arch/at91_rstc.h"
