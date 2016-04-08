@@ -670,14 +670,13 @@ static int load_eeprom_info(unsigned char *buff, unsigned int size,
 void load_board_hw_info(void)
 {
 	unsigned int size = HW_INFO_TOTAL_SIZE;
-	unsigned int count = 0;
 	int ret;
 
 #if defined(CONFIG_LOAD_ONE_WIRE)
 	ret = load_1wire_info(buffer, size, &sn, &rev);
 #endif
 #if defined(CONFIG_LOAD_EEPROM)
-	ret = load_eeprom_info(buffer, size, count, &sn, &rev);
+	ret = load_eeprom_info(buffer, size, 0, &sn, &rev);
 #endif
 	if (ret) {
 #if defined(CONFIG_LOAD_ONE_WIRE)
