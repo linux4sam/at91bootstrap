@@ -30,5 +30,6 @@
 
 extern int slowclk_enable_osc32(void);
 extern int slowclk_switch_osc32(void);
+extern int slowclk_switch_osc32_bypass(void);
 
 #endif /* #ifndef __SLOWCLK_H__ */
