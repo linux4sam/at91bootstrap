@@ -53,8 +53,10 @@ int main(void)
 #endif
 
 #if defined(CONFIG_SCLK)
+#if !defined(CONFIG_SCLK_BYPASS)
 #if !defined(CONFIG_SAMA5D4)
 	slowclk_enable_osc32();
+#endif
 #endif
 #endif
 
@@ -95,7 +97,11 @@ int main(void)
 	load_image_done(ret);
 
 #ifdef CONFIG_SCLK
+#ifdef CONFIG_SCLK_BYPASS
+	slowclk_switch_osc32_bypass();
+#else
 	slowclk_switch_osc32();
+#endif
 #endif
 
 #if defined(CONFIG_ENTER_NWD)
