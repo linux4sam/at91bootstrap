@@ -25,10 +25,10 @@ def gen_pmecc_header(page_size, oob_size, ecc_bits, sector_size):
 	# name should be same as .json struct[] array's name.
 	maps = {
 		"key" : 0xc,
-		"usePmecc" : 1,
+		"usePmecc" : (ecc_bits > 1),
 		"nbSectorPerPage" : nbSectorPerPage,
 		"spareSize" : oob_size,
-		"eccBitReq" : ecc_bits,
+		"eccBitReq" : 2 if ecc_bits < 2 else ecc_bits,
 		"sectorSize" : sector_size,
 		"eccOffset" : eccOffset,
 		}
