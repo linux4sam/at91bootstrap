@@ -28,8 +28,8 @@
 #ifndef __MATRIX_H__
 #define __MATRIX_H__
 
-extern void matrix_write_enable(unsigned int matrix_base);
-extern void matrix_write_disable(unsigned int matrix_base);
+extern void matrix_write_protect_enable(unsigned int matrix_base);
+extern void matrix_write_protect_disable(unsigned int matrix_base);
 extern void matrix_configure_slave_security(unsigned int matrix_base,
 				unsigned int slave,
 				unsigned int srtop_setting,

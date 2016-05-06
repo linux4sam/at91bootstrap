@@ -472,13 +472,13 @@ static inline unsigned int matrix_read(int base, unsigned int offset)
 	return readl(offset + base);
 }
 
-void matrix_write_enable(unsigned int matrix_base)
+void matrix_write_protect_enable(unsigned int matrix_base)
 {
 	matrix_write(matrix_base, MATRIX_WPMR,
 		(MATRIX_WPMR_WPKEY_PASSWD | MATRIX_WPMR_WPEN_ENABLE));
 }
 
-void matrix_write_disable(unsigned int matrix_base)
+void matrix_write_protect_disable(unsigned int matrix_base)
 {
 	matrix_write(matrix_base, MATRIX_WPMR, MATRIX_WPMR_WPKEY_PASSWD);
 }

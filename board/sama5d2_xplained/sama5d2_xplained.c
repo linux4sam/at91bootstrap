@@ -238,8 +238,8 @@ static int matrix_init(void)
 {
 	int ret;
 
-	matrix_write_disable(AT91C_BASE_MATRIX64);
-	matrix_write_disable(AT91C_BASE_MATRIX32);
+	matrix_write_protect_disable(AT91C_BASE_MATRIX64);
+	matrix_write_protect_disable(AT91C_BASE_MATRIX32);
 
 	ret = matrix_configure_slave();
 	if (ret)
