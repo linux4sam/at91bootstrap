@@ -27,6 +27,7 @@
  */
 #include "usart.h"
 #include "debug.h"
+#include "div.h"
 #include <stdarg.h>
 #include <string.h>
 
@@ -54,6 +55,27 @@ static inline short fill_string(char *buf, char *p)
 		num++;
 	}
 
+	return num;
+}
+
+static inline short fill_dec_int(char *buf, unsigned int data)
+{
+	unsigned char rev[16], *dst;
+	unsigned int q, r;
+	short num = 0;
+
+	dst = rev;
+	q = data;
+	do {
+		division(q, 10, &q, &r);
+		*dst++ = '0' + r;
+		if (dst >= rev + sizeof(rev))
+		  break;
+	} while (q > 0);
+
+	while (--dst >= rev)
+		buf[num++] = *dst;
+	buf[num] = '\0';
 	return num;
 }
 
@@ -93,10 +115,12 @@ int dbg_printf(const char *fmt_str, ...)
 		} else {
 			fmt_str++;	/* skip % */
 			switch (*fmt_str) {
-			case 'p':
-			case 'd':
 			case 'i':
+			case 'd':
 			case 'u':
+				num = fill_dec_int(p, va_arg(ap, unsigned int));
+				break;
+			case 'p':
 			case 'x':
 				*p++ = '0';
 				*p++ = 'x';
