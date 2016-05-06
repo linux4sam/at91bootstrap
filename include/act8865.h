@@ -28,6 +28,8 @@
 #ifndef __ACT8865_H__
 #define __ACT8865_H__
 
+#include "div.h"
+
 /*
  * ACT8865 Register Map
  */
@@ -77,6 +79,20 @@
 #define ACT8865_1V8	0x24
 #define ACT8865_2V5	0x31
 #define ACT8865_3V3	0x39
+
+#define ACT8865_INVALID_LDO_VOLTAGE(mV) ((mV) < 600 && (mV) > 3900)
+
+/* Get voltage code for voltage in range of 0.6-3.9V: */
+#define ACT8865_mV_to_vc(mV) (unsigned int)			\
+	((mV) < 1200 ? div(((mV) - 600), 25) :			\
+	 ((mV) < 2400 ? div((mV), 50) :				\
+	  div(((mV) + 2400), 100)))
+
+/* Get voltage (in millivolts) for voltage code VC): */
+#define ACT8865_vc_to_mV(vc)					\
+	(((vc) < 0x18) ? (600 + ((vc) * 25)) :			\
+	 (((vc) < 0x30) ? ((vc) * 50) :				\
+	  (((vc) - 0x18) * 100)))
 
 /*
  * Definitions
