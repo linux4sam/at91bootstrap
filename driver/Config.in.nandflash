@@ -82,9 +82,8 @@ config CONFIG_NANDFLASH_RECOVERY
 	default y
 	depends on ALLOW_NANDFLASH_RECOVERY
 	help
-	  Let bootstrap disassemble the first 7 double words
-	  and check that all, except the reserved vector
-	  contains a jump/branch
+	  Support erasing first NAND flash block by pressing a recovery
+	  button.
 
 config CONFIG_ONFI_DETECT_SUPPORT
 	bool "Support NAND flash ONFI detect function"
