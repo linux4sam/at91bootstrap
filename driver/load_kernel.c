@@ -57,7 +57,7 @@ static int setup_dt_blob(void *blob)
 		return -1;
 	}
 
-	dbg_info("\nUsing device tree in place at %d\n",
+	dbg_info("\nUsing device tree in place at %x\n",
 						(unsigned int)blob);
 
 	if (bootargs) {
@@ -281,7 +281,7 @@ static int boot_image_setup(unsigned char *addr, unsigned int *entry)
 	unsigned int size;
 	unsigned int magic;
 
-	dbg_loud("try zImage magic: %d is found\n", zimage_header->magic);
+	dbg_loud("try zImage magic: %x is found\n", zimage_header->magic);
 	if (zimage_header->magic == LINUX_ZIMAGE_MAGIC) {
 		dbg_info("\nBooting zImage ......\n");
 		*entry = ((unsigned int)addr + zimage_header->start);
@@ -386,7 +386,7 @@ int load_kernel(struct image_info *image)
 	r2 = (unsigned int)(MEM_BANK + 0x100);
 #endif
 
-	dbg_info("\nStarting linux kernel ..., machid: %d\n\n",
+	dbg_info("\nStarting linux kernel ..., machid: %x\n\n",
 							mach_type);
 #if defined(CONFIG_ENTER_NWD)
 	monitor_init();
