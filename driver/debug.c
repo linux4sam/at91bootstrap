@@ -102,6 +102,7 @@ int dbg_printf(const char *fmt_str, ...)
 	va_list ap;
 
 	char *p = dbg_buf;
+	char fmtstring;
 
 	short num = 0;
 
@@ -114,29 +115,21 @@ int dbg_printf(const char *fmt_str, ...)
 			fmt_str += 2;
 		} else {
 			fmt_str++;	/* skip % */
-			switch (*fmt_str) {
-			case 'i':
-			case 'd':
-			case 'u':
+			fmtstring = *fmt_str;
+			if ((fmtstring == 'i') ||
+			    (fmtstring == 'd') ||
+			    (fmtstring == 'u')) {
 				num = fill_dec_int(p, va_arg(ap, unsigned int));
-				break;
-			case 'p':
-			case 'x':
+			} else if ((fmtstring == 'p') ||
+				   (fmtstring == 'x')) {
 				*p++ = '0';
 				*p++ = 'x';
 				num = fill_hex_int(p, va_arg(ap, unsigned int));
-
-				break;
-			case 's':
+			} else if (fmtstring == 's') {
 				num = fill_string(p, va_arg(ap, char *));
-
-				break;
-			case 'c':
-				num =
-				    fill_char(p, (char)va_arg(ap, signed long));
-
-				break;
-			default:
+			} else if (fmtstring == 'c') {
+				num = fill_char(p, (char)va_arg(ap, signed long));
+			} else {
 				va_end(ap);
 				return -1;
 			}
