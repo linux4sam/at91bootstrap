@@ -121,6 +121,11 @@
 /* -------- CKGR_MCFR : (PMC Offset: 0x24) Main Clock Frequency Register --------*/ 
 #define AT91C_CKGR_MAINF	(0xFFFFUL <<  0)
 #define AT91C_CKGR_MAINRDY	(0x1UL << 16)
+#define AT91C_CKGR_RCMEAS	(0x1UL << 20)
+#define AT91C_CKGR_CCSS         (0x1UL << 24)
+#define		AT91C_CKGR_CCSS_RC_OSC		(0x0UL << 24)
+#define		AT91C_CKGR_CCSS_XTAL_OSC	(0x1UL << 24)
+
 
 /* -------- CKGR_PLLAR : (PMC Offset: 0x28) PLL A Register --------*/ 
 #define AT91C_CKGR_DIVA		(0xff << 0)

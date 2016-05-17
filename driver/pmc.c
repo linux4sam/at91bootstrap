@@ -74,6 +74,17 @@ void lowlevel_clock_init()
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
 		;
 
+#if defined(SAMA5D2)
+	/* Enable a measurement of the external oscillator */
+	tmp = read_pmc(PMC_MCFR);
+	tmp |= AT91C_CKGR_CCSS_XTAL_OSC;
+	tmp |= AT91C_CKGR_RCMEAS;
+	write_pmc(PMC_MCFR, tmp);
+
+	while (!(read_pmc(PMC_MCFR) & AT91C_CKGR_MAINRDY))
+		;
+#endif
+
 	/* Switch from internal 12MHz RC to the 12MHz oscillator */
 	tmp = read_pmc(PMC_MOR);
 	tmp &= (~AT91C_CKGR_MOSCXTBY);
