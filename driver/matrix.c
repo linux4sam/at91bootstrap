@@ -502,7 +502,7 @@ void matrix_read_slave_security(void)
 	dbg_very_loud("\n\nMATRIX64:\n");
 	matrix_base = AT91C_BASE_MATRIX64;
 	for (slave = 0; slave < 13; slave++) {
-		dbg_very_loud("MATRIX_SRTSR%d: %d, MATRIX_SASSR%d: %d, MATRIX_SSR%d: %d\n",
+		dbg_very_loud("MATRIX_SRTSR%d: %x, MATRIX_SASSR%d: %x, MATRIX_SSR%d: %x\n",
 			slave, matrix_read(matrix_base, MATRIX_SRTSR(slave)),
 			slave, matrix_read(matrix_base, MATRIX_SASSR(slave)),
 			slave, matrix_read(matrix_base, MATRIX_SSR(slave)));
@@ -511,7 +511,7 @@ void matrix_read_slave_security(void)
 	dbg_very_loud("\n\nMATRIX32:\n");
 	matrix_base = AT91C_BASE_MATRIX32;
 	for (slave = 0; slave < 7; slave++) {
-		dbg_very_loud("MATRIX_SRTSR%d: %d, MATRIX_SASSR%d: %d, MATRIX_SSR%d: %d\n",
+		dbg_very_loud("MATRIX_SRTSR%d: %x, MATRIX_SASSR%d: %x, MATRIX_SSR%d: %x\n",
 			slave, matrix_read(matrix_base, MATRIX_SRTSR(slave)),
 			slave, matrix_read(matrix_base, MATRIX_SASSR(slave)),
 			slave, matrix_read(matrix_base, MATRIX_SSR(slave)));
@@ -525,14 +525,14 @@ void matrix_read_periperal_security(void)
 	unsigned int matrix_base = AT91C_BASE_MATRIX32;
 	dbg_very_loud("\n\nMATRIX32\n");
 	for (i = 0; i < 3; i++) {
-		dbg_very_loud("MATRIX_SPSELR(%d): %d\n",
+		dbg_very_loud("MATRIX_SPSELR(%d): %x\n",
 				i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
 	}
 
 	matrix_base = AT91C_BASE_MATRIX64;
 	dbg_very_loud("\n\n_MATRIX64\n");
 	for (i = 0; i < 3; i++) {
-		dbg_very_loud("MATRIX_SPSELR(%d): %d\n",
+		dbg_very_loud("MATRIX_SPSELR(%d): %x\n",
 				i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
 	}
 }

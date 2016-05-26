@@ -592,7 +592,7 @@ static int df_desc_init(struct dataflash_descriptor *df_desc,
 		if (ret)
 			return ret;
 	} else {
-		dbg_info("SF: Unsupported SerialFlash family %d\n", family);
+		dbg_info("SF: Unsupported SerialFlash family %x\n", family);
 		return -1;
 	}
 
@@ -616,14 +616,14 @@ static int dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
 
 	dbg_info("SF: Got Manufacturer and Device ID:");
 	for (i = 0; i < 5; i++)
-		dbg_info("%d ", *p++);
+		dbg_info(" %x", *p++);
 	dbg_info("\n");
 #endif
 
 	if (dev_id[0] != MANUFACTURER_ID_ATMEL &&
 	    dev_id[0] != MANUFACTURER_ID_WINBOND &&
 	    dev_id[0] != MANUFACTURER_ID_MICRON) {
-		dbg_info("Not supported spi flash Manufactorer ID: %d\n",
+		dbg_info("Not supported spi flash Manufactorer ID: %x\n",
 			 dev_id[0]);
 		return -1;
 	}
@@ -677,7 +677,7 @@ int spi_flash_loadimage(struct image_info *image)
 	image->length = length;
 #endif
 
-	dbg_info("SF: Copy %d bytes from %d to %d\n",
+	dbg_info("SF: Copy %x bytes from %x to %x\n",
 			image->length, image->offset, image->dest);
 
 	ret = read_array(df_desc, image->offset, image->length, image->dest);
@@ -695,7 +695,7 @@ int spi_flash_loadimage(struct image_info *image)
 
 	image->of_length = length;
 
-	dbg_info("SF: dt blob: Copy %d bytes from %d to %d\n",
+	dbg_info("SF: dt blob: Copy %x bytes from %x to %x\n",
 		image->of_length, image->of_offset, image->of_dest);
 
 	ret = read_array(df_desc,

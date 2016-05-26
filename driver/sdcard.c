@@ -92,7 +92,7 @@ int load_sdcard(struct image_info *image)
 		return -1;
 	}
 
-	dbg_info("SD/MMC: Image: Read file %s to %d\n",
+	dbg_info("SD/MMC: Image: Read file %s to %x\n",
 					image->filename, image->dest);
 
 	ret = sdcard_loadimage(image->filename, image->dest);
@@ -116,7 +116,7 @@ int load_sdcard(struct image_info *image)
 		return -1;
 	}
 
-	dbg_info("SD/MMC: dt blob: Read file %s to %d\n",
+	dbg_info("SD/MMC: dt blob: Read file %s to %x\n",
 			image->of_filename, image->of_dest);
 
 	ret = sdcard_loadimage(image->of_filename, image->of_dest);

@@ -264,7 +264,7 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 
 	/* Get PMECC version first */
 	pmecc_params->version = pmecclor_readl(PMERRLOC_VERSION);
-	dbg_loud("PMECC: version is: %d\n", pmecc_params->version);
+	dbg_loud("PMECC: version is: %x\n", pmecc_params->version);
 
 	if ((nand->pagesize == 2048) || (nand->pagesize == 4096) ||
 			(nand->pagesize == 8192)) {

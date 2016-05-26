@@ -485,7 +485,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 
 	manf_id = *(unsigned char *)(p + PARAMS_OFFSET_JEDEC_ID);
 	dev_id = *(unsigned char *)(p + PARAMS_OFFSET_MODEL);
-	dbg_info("NAND: Manufacturer ID: %d Chip ID: %d\n", manf_id, dev_id);
+	dbg_info("NAND: Manufacturer ID: %x Chip ID: %x\n", manf_id, dev_id);
 	dbg_info("NAND: Page Bytes: %d, Spare Bytes: %d\n" \
 		 "NAND: ECC Correctability Bits: %d, ECC Sector Bytes: %d\n",
 		 chip->pagesize, chip->oobsize,
@@ -520,13 +520,13 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	}
 
 	if (i == ARRAY_SIZE(nand_ids)) {
-		dbg_info("NAND: Not found Manufacturer ID: %d," \
-			"Chip ID: %d\n", manf_id, dev_id);
+		dbg_info("NAND: Not found Manufacturer ID: %x," \
+			"Chip ID: %x\n", manf_id, dev_id);
 
 		return -1;
 	}
 
-	dbg_info("NAND: Manufacturer ID: %d Chip ID: %d\n",
+	dbg_info("NAND: Manufacturer ID: %x Chip ID: %x\n",
 						manf_id, dev_id);
 
 	chip->pagesize	= nand_ids[i].pagesize;
@@ -979,7 +979,7 @@ static int nand_loadimage(struct nand_info *nand,
 					block, buffer) != 0) {
 				block++; /* skip this block */
 				dbg_info("NAND: Bad block:" \
-					" #%d\n", block);
+					" #%x\n", block);
 			} else
 				break;
 		}
@@ -1059,7 +1059,7 @@ int load_nandflash(struct image_info *image)
 	image->length = length;
 #endif
 
-	dbg_info("NAND: Image: Copy %d bytes from %x to %x\n",
+	dbg_info("NAND: Image: Copy %x bytes from %x to %x\n",
 			image->length, image->offset, image->dest);
 
 	ret = nand_loadimage(&nand, image->offset, image->length, image->dest);
@@ -1074,7 +1074,7 @@ int load_nandflash(struct image_info *image)
 
 	image->of_length = length;
 
-	dbg_info("NAND: dt blob: Copy %d bytes from %x to %x\n",
+	dbg_info("NAND: dt blob: Copy %x bytes from %x to %x\n",
 		image->of_length, image->of_offset, image->of_dest);
 
 	ret = nand_loadimage(&nand, image->of_offset,

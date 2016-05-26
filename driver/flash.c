@@ -71,7 +71,7 @@ int load_norflash(struct image_info *image)
 	image->length = length;
 #endif
 
-	dbg_info("FLASH: copy %d bytes from %x to %x\n",
+	dbg_info("FLASH: copy %x bytes from %x to %x\n",
 		 image->length, image->offset, image->dest);
 
 	memcpy(image->dest, (const char *)image->offset, image->length);
@@ -84,7 +84,7 @@ int load_norflash(struct image_info *image)
 
 	image->of_length = length;
 
-	dbg_info("FLASH: dt blob: Copy %d bytes from %d to %d\n",
+	dbg_info("FLASH: dt blob: Copy %x bytes from %x to %x\n",
 		image->of_length, image->of_offset, image->of_dest);
 
 	memcpy(image->of_dest,

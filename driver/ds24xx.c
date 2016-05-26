@@ -376,7 +376,7 @@ int ds24xx_read_memory(int chip_index, unsigned char addrh,
 	case FAMILY_CODE_DS28EC:
 		break;
 	default:
-		dbg_info("1-Wire: family %d is not supported\n",
+		dbg_info("1-Wire: family %x is not supported\n",
 					device_id_array[chip_index][0]);
 		return -1;
 	}

@@ -289,7 +289,7 @@ static int boot_image_setup(unsigned char *addr, unsigned int *entry)
 	}
 
 	magic = swap_uint32(uimage_header->magic);
-	dbg_loud("try uImage magic: %d is found\n", magic);
+	dbg_loud("try uImage magic: %x is found\n", magic);
 	if (magic == LINUX_UIMAGE_MAGIC) {
 		dbg_info("\nBooting uImage ......\n");
 
@@ -302,18 +302,18 @@ static int boot_image_setup(unsigned char *addr, unsigned int *entry)
 		dest = swap_uint32(uimage_header->load);
 		src = (unsigned int)addr + sizeof(struct linux_uimage_header);
 
-		dbg_info("Relocating kernel image, dest: %d, src: %d\n",
+		dbg_info("Relocating kernel image, dest: %x, src: %x\n",
 				dest, src);
 
 		memcpy((void *)dest, (void *)src, size);
 
-		dbg_info(" ...... %d bytes data transferred\n", size);
+		dbg_info(" ...... %x bytes data transferred\n", size);
 
 		*entry = swap_uint32(uimage_header->entry_point);
 		return 0;
 	}
 
-	dbg_info("** Bad uImage magic: %d, zImage magic: %d\n",
+	dbg_info("** Bad uImage magic: %x, zImage magic: %x\n",
 			magic, zimage_header->magic);
 	return -1;
 }
@@ -393,7 +393,7 @@ int load_kernel(struct image_info *image)
 
 	init_loadkernel_args(0, mach_type, r2, (unsigned int)kernel_entry);
 
-	dbg_info("Enter Normal World, Run Kernel at %d\n",
+	dbg_info("Enter Normal World, Run Kernel at %x\n",
 					(unsigned int)kernel_entry);
 
 	enter_normal_world();

@@ -869,7 +869,7 @@ int qspi_flash_loadimage(struct image_info *image)
 
 	image->of_length = length;
 
-	dbg_info("QSPI Flash: dt blob: Copy %d bytes from %d to %d\n",
+	dbg_info("QSPI Flash: dt blob: Copy %x bytes from %x to %x\n",
 		 image->of_length, image->of_offset, image->of_dest);
 	ret = qspi_flash_read(&flash,
 			      image->of_offset,
@@ -895,7 +895,7 @@ int qspi_flash_loadimage(struct image_info *image)
 	image->length = length;
 #endif
 
-	dbg_info("QSPI Flash: Copy %d bytes from %d to %d\n",
+	dbg_info("QSPI Flash: Copy %x bytes from %x to %x\n",
 		 image->length, image->offset, image->dest);
 	ret = qspi_flash_read(&flash,
 			      image->offset,

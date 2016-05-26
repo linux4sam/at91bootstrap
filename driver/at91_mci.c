@@ -186,7 +186,7 @@ static int at91_mci_read_data(unsigned int *data)
 			&& (!(status & error_check))); 
 
 	if (status & error_check) {
-		dbg_loud("Error to read data, sr: %d\n", status);
+		dbg_loud("Error to read data, sr: %x\n", status);
 		return -1;
 	}
 
@@ -349,12 +349,12 @@ static int at91_mci_send_command(struct sd_command *command, struct sd_data *dat
 
 	/* Check error bits in the status */
 	if (status & AT91C_MCI_RTOE) {
-		dbg_loud("Cmd: %d Response Time-out\n", command->cmd);
+		dbg_loud("Cmd: %x Response Time-out\n", command->cmd);
 		return ERROR_TIMEOUT;
 	}
 
 	if (status & error_check) {
-		dbg_loud("Cmd: %d, error check, status: %d\n", command->cmd, status);
+		dbg_loud("Cmd: %x, error check, status: %x\n", command->cmd, status);
 		return ERROR_COMM;
 	}
 
