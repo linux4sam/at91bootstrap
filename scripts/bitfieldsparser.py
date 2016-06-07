@@ -40,7 +40,7 @@ def find_meaning(maps, bits):
 				if maps[bits["name"]] == array[1]:
 					return (int(name) << start) & mask
 
-			print "Error: not found"
+			print("Error: not found")
 		else:
 			# find the corresponding name, value in the maps, and shift as bit field.
 			return (maps[bits["name"]] << start) & mask
@@ -82,8 +82,8 @@ def parse_bitfield(fields, whole_word):
 					meaning_str = bits["meaning"][repr(value)][0]
 
 			if meaning_str == "":
-				print bits["name"], ':', value
+				print(bits["name"], ':', value)
 			else:
-				print bits["name"], ':', value, '->', meaning_str
+				print(bits["name"], ':', value, '->', meaning_str)
 		else:
-			print 'wrong type'
+			print('wrong type')
