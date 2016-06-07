@@ -33,22 +33,22 @@ def gen_pmecc_header(page_size, oob_size, ecc_bits, sector_size):
 		"eccOffset" : eccOffset,
 		}
 
-        path_list = [
-                os.getcwd(),
-                os.path.join(os.getcwd(), 'scripts'),
-            ]
-        for path in path_list:
-            fname = os.path.join(path, 'pmecc_head.json')
-            if os.path.isfile(fname):
-                json_file=open(fname)
-                data = json.load(json_file)
-                val = bitfieldsparser.convert_bitfield(data["pmecc_header"]["struct"], maps)
-                #print 'val = 0x%x' % val
-                json_file.close()
+	path_list = [
+		os.getcwd(),
+		os.path.join(os.getcwd(), 'scripts'),
+		]
+	for path in path_list:
+		fname = os.path.join(path, 'pmecc_head.json')
+		if os.path.isfile(fname):
+			json_file=open(fname)
+			data = json.load(json_file)
+			val = bitfieldsparser.convert_bitfield(data["pmecc_header"]["struct"], maps)
+			#print 'val = 0x%x' % val
+			json_file.close()
 
-                return val
+			return val
 
-        sys.exit('Cannot find pmecc_head.json!')
+	sys.exit('Cannot find pmecc_head.json!')
 
 # given
 #   1. .json file name, which descripts every bit field of a structure
@@ -58,15 +58,15 @@ def gen_pmecc_header(page_size, oob_size, ecc_bits, sector_size):
 # output
 #   human readable string description for each bit fields
 def display_pmecc_header(file_name, val):
-    name = "pmecc_header"
-    json_file=open(file_name)
-    data = json.load(json_file)
-    #pprint(data["pmecc_header"]["usePmecc"])
-    if data.has_key(name):
-	bitfieldsparser.parse_bitfield(data[name]["struct"], val)
-    else:
-	print 'Error: Cannot find the kay name: %s in the json file: %s' % (name, file_name)
-    json_file.close()
+	name = "pmecc_header"
+	json_file=open(file_name)
+	data = json.load(json_file)
+	#pprint(data["pmecc_header"]["usePmecc"])
+	if data.has_key(name):
+		bitfieldsparser.parse_bitfield(data[name]["struct"], val)
+	else:
+		print 'Error: Cannot find the kay name: %s in the json file: %s' % (name, file_name)
+	json_file.close()
 
 # Test code start here...
 # val = gen_pmecc_header(8192, 448, 8, 1024)
