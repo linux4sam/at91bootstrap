@@ -5,7 +5,7 @@ import struct, sys
 import pmecc_head
 
 # open bootstrap file
-fd = open(sys.argv[1], "r")
+fd = open(sys.argv[1], "rb")
 line = fd.read()
 fd.close()
 
@@ -23,7 +23,7 @@ else:
 vec = struct.pack("<I", pmecc_word)
 
 # generate a new file with pmecc header
-fd = open(sys.argv[2], "w")
+fd = open(sys.argv[2], "wb")
 
 for i in range(0, 52):
 	fd.write(vec)
