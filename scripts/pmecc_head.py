@@ -65,7 +65,7 @@ def display_pmecc_header(file_name, val):
 	if data.has_key(name):
 		bitfieldsparser.parse_bitfield(data[name]["struct"], val)
 	else:
-		print 'Error: Cannot find the kay name: %s in the json file: %s' % (name, file_name)
+		print('Error: Cannot find the key name: %s in the json file: %s' % (name, file_name))
 	json_file.close()
 
 # Test code start here...
