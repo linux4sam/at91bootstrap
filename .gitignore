@@ -21,3 +21,4 @@ binaries
 *.o
 tags
 *.swp
+*.pyc
