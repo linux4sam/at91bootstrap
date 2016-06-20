@@ -27,12 +27,12 @@ from pprint import pprint
 
 def find_meaning(maps, bits):
 	'''Conver value to correcpoding bits'''
-	if maps.has_key(bits["name"]):
+	if bits["name"] in maps:
 		start = bits["start"]
 		len = bits["len"]
 		mask = (2 ** len - 1) << start
 
-		if bits.has_key("meaning"):
+		if "meaning" in bits:
 			# find the corresponding name, value in the maps,
 			# then the .json's meaning part, convert it to bit field
 			for name, array in bits["meaning"].items():
