@@ -332,6 +332,14 @@ config CONFIG_DISABLE_ACT8865_I2C
 	  There are some issue about active-semi ACT8865's I2C interface,
 	  which affects the other chip which stands on the same I2C bus, such as MXT touchscreen.
 
+config CONFIG_SUSPEND_ACT8945A_CHARGER
+	bool "Suspend ACT8945A Charger"
+	select CONFIG_ACT8865
+	default n
+	help
+	  This interface let you to suspend the ACT8945A charger
+	  function after boot.
+
 endmenu
 
 config CONFIG_ACT8865

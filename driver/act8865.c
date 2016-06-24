@@ -291,3 +291,63 @@ void act8865_workaround(void)
 #endif
 }
 #endif
+
+/**
+ * ACT8945A Charger Registers Map
+ */
+/* 0x70: Reserved */
+#define ACT8945A_APCH_CFG		0x71
+#define ACT8945A_APCH_STATUS		0x78
+#define ACT8945A_APCH_CTRL		0x79
+#define ACT8945A_APCH_STATE		0x7A
+
+/* ACT8945A_APCH_CFG */
+#define APCH_CFG_OVPSET			(0x3 << 0)
+#define APCH_CFG_PRETIMO		(0x3 << 2)
+#define APCH_CFG_TOTTIMO		(0x3 << 4)
+#define APCH_CFG_SUSCHG			(0x1 << 7)
+
+/* ACT8945A_APCH_STATE */
+#define APCH_STATE_ACINSTAT		(0x1 << 1)
+#define APCH_STATE_CSTATE		(0x3 << 4)
+#define APCH_STATE_CSTATE_SHIFT		4
+#define APCH_STATE_CSTATE_DISABLED	0x00
+#define APCH_STATE_CSTATE_EOC		0x01
+#define APCH_STATE_CSTATE_FAST		0x02
+#define APCH_STATE_CSTATE_PRE		0x03
+
+#ifdef CONFIG_SUSPEND_ACT8945A_CHARGER
+int act8945a_suspend_charger(void)
+{
+	unsigned char data;
+	int ret;
+
+	if (!twi_init_done)
+		twi_init();
+
+	ret = act8865_read(ACT8945A_APCH_CFG, &data);
+	if (ret)
+		return -1;
+
+	data |= APCH_CFG_SUSCHG;
+	ret = act8865_write(ACT8945A_APCH_CFG, data);
+	if (ret)
+		return -1;
+
+	ret = act8865_read(ACT8945A_APCH_STATE, &data);
+	if (ret)
+		return -1;
+
+	if ((data & APCH_STATE_CSTATE) != APCH_STATE_CSTATE_DISABLED) {
+		dbg_loud("ACT8945A: Failed to suspend charger\n");
+		return -1;
+	}
+
+	return 0;
+}
+#else
+int act8945a_suspend_charger(void)
+{
+	return 0;
+}
+#endif

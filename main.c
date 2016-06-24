@@ -78,6 +78,8 @@ int main(void)
 
 #ifdef CONFIG_ACT8865
 	act8865_workaround();
+
+	act8945a_suspend_charger();
 #endif
 
 	init_load_image(&image);

@@ -108,5 +108,6 @@ extern int act8865_check_i2c_disabled(void);
 
 extern int act8865_set_power_saving_mode(void);
 extern void act8865_workaround(void);
+extern int act8945a_suspend_charger(void);
 
 #endif
