@@ -48,7 +48,7 @@ struct ubi_volume {
 struct ubi_peb {
 	unsigned int id;
 	unsigned int num;
-	unsigned int copy;
+	unsigned char copy;
 	unsigned int data_crc;
 	unsigned long long int seqnum;
 	struct ubi_peb *next;

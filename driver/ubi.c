@@ -331,7 +331,7 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand)
 		ubi->pebs[peb].num = swap_uint32(vid_hdr->num);
 		ubi->pebs[peb].data_crc = swap_uint32(vid_hdr->data_crc);
 		ubi->pebs[peb].seqnum = swap_uint64(vid_hdr->seqnum);
-		ubi->pebs[peb].copy = swap_uint32(vid_hdr->copy);
+		ubi->pebs[peb].copy = vid_hdr->copy;
 		ubi->pebs[peb].next = NULL;
 	}
 
