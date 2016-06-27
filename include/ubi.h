@@ -61,6 +61,7 @@ struct ubi_device {
 	struct ubi_peb *pebs;
 	struct ubi_peb *vols[UBI_MAX_VOLUMES + UBI_INT_VOL_COUNT];
 	struct ubi_volume *voltable;
+	int leb_size;
 	int leb_start;
 	int volid_header_offset;
 	unsigned char *pagebuf;

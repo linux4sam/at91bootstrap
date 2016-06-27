@@ -45,6 +45,13 @@ enum {
 	UBI_VID_STATIC  = 2
 };
 
+enum {
+	UBI_COMPAT_DELETE   = 1,
+	UBI_COMPAT_RO       = 2,
+	UBI_COMPAT_PRESERVE = 4,
+	UBI_COMPAT_REJECT   = 5
+};
+
 struct ec_header {
 	unsigned int magic;
 	unsigned char version;
@@ -158,6 +165,119 @@ bad:
 	return -1;
 }
 
+static int validate_volid_header(struct ubi_device *ubi,
+				 const struct volid_header *vid_hdr,
+				 const struct ec_header *ec_hdr) {
+	int copy = vid_hdr->copy;
+	int id = swap_uint32(vid_hdr->id);
+	int compat = vid_hdr->compat;
+	int type = vid_hdr->type;
+	int data_pad = swap_uint32(vid_hdr->data_pad);
+	int data_size = swap_uint32(vid_hdr->data_size);
+	int used_ebs = swap_uint32(vid_hdr->used_ebs);
+	int num = swap_uint32(vid_hdr->num);
+	int data_crc = swap_uint32(vid_hdr->data_crc);
+	int usable_leb_size;
+
+	if (!ubi->leb_size)
+		ubi->leb_size = ubi->nand->blocksize -
+					      swap_uint32(ec_hdr->data_offset);
+	usable_leb_size = ubi->leb_size - data_pad;
+
+	if (copy != 0 && copy != 1) {
+		dbg_info("UBI: Bad copy flag\n");
+		goto bad;
+	}
+
+	if (id < 0 || num < 0 || data_size < 0 || used_ebs < 0 ||
+	    data_pad < 0) {
+		dbg_info("UBI: Negative values\n");
+		goto bad;
+	}
+
+	if (id >= UBI_MAX_VOLUMES && id < UBI_INTERNAL_VOL_START) {
+		dbg_info("UBI: Bad ID\n");
+		goto bad;
+	}
+
+	if (id < UBI_INTERNAL_VOL_START && compat != 0) {
+		dbg_info("UBI: Bad compat\n");
+		goto bad;
+	}
+
+	if (id >= UBI_INTERNAL_VOL_START && compat != UBI_COMPAT_DELETE &&
+	    compat != UBI_COMPAT_RO && compat != UBI_COMPAT_PRESERVE &&
+	    compat != UBI_COMPAT_REJECT) {
+		dbg_info("UBI: Bad compat\n");
+		goto bad;
+	}
+
+	if (type != UBI_VID_DYNAMIC && type != UBI_VID_STATIC) {
+		dbg_info("UBI: Bad type\n");
+		goto bad;
+	}
+
+	if (data_pad >= ubi->leb_size / 2) {
+		dbg_info("UBI: Bad data_pad\n");
+		goto bad;
+	}
+
+	if (data_size > ubi->leb_size) {
+		dbg_info("UBI: Bad data_size\n");
+		goto bad;
+	}
+
+	if (type == UBI_VID_STATIC) {
+		if (used_ebs == 0) {
+			dbg_info("UBI: Zero used_ebs\n");
+			goto bad;
+		}
+		if (data_size == 0) {
+			dbg_info("UBI: Zero data_size\n");
+			goto bad;
+		}
+		if (num < used_ebs - 1) {
+			if (data_size != usable_leb_size) {
+				dbg_info("UBI: Bad data_size\n");
+				goto bad;
+			}
+		} else if (num == used_ebs - 1) {
+			if (data_size == 0) {
+				dbg_info("UBI: Bad data_size at last LEB\n");
+				goto bad;
+			}
+		} else {
+			dbg_info("UBI: Too high num\n");
+			goto bad;
+		}
+	} else {
+		if (copy == 0) {
+			if (data_crc != 0) {
+				dbg_info("UBI: Non-zero data CRC\n");
+				goto bad;
+			}
+			if (data_size != 0) {
+				dbg_info("UBI: Non-zero data_size\n");
+				goto bad;
+			}
+		} else {
+			if (data_size == 0) {
+				dbg_info("UBI: Zero data_size of copy\n");
+				goto bad;
+			}
+		}
+		if (used_ebs != 0) {
+			dbg_info("UBI: Bad used_ebs\n");
+			goto bad;
+		}
+	}
+
+	return 0;
+
+bad:
+	return -1;
+}
+
 static int read_headers(struct ubi_device *ubi,
 			unsigned int block,
 			struct ec_header **ec_header,
@@ -238,6 +358,11 @@ static int read_headers(struct ubi_device *ubi,
 		return -1;
 	}
 #endif
+
+	if (validate_volid_header(ubi, *vid_header, *ec_header)) {
+		dbg_info("UBI: Validation failed for PEB %u\n", block);
+		return -1;
+	}
 
 	return 0;
 }
@@ -381,6 +506,7 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand)
 	ubi->voltable = (struct ubi_volume *) addr;
 	addr += (sizeof(struct ubi_volume) * UBI_MAX_VOLUMES);
 
+	ubi->leb_size = 0;
 	ubi->leb_start = 0;
 	ubi->volid_header_offset = 0;
 
