@@ -32,6 +32,8 @@
 
 #include <string.h>
 
+#define UBI_VERSION            0x1U
+#define UBI_MAX_ERASECOUNTER   0x7FFFFFFFULL
 #define UBI_CRC32_INIT         0xFFFFFFFFU
 #define UBI_EC_HDR_MAGIC       0x55424923U
 #define UBI_VID_HDR_MAGIC      0x55424921U
@@ -95,6 +97,67 @@ static int read_page(struct ubi_device *ubi,
 	return 0;
 }
 
+static int validate_ec_header(struct ubi_device *ubi,
+			      const struct ec_header *ec_hdr) {
+	int volid_header_offset = swap_uint32(ec_hdr->volid_header_offset);
+	int leb_start = swap_uint32(ec_hdr->data_offset);
+	long long int ec = swap_uint64(ec_hdr->ec);
+
+	if (ec_hdr->version != UBI_VERSION) {
+		dbg_info("UBI: Node with incompatible UBI version found: this"
+			 " UBI version is %d, image version is %d\n",
+			 UBI_VERSION, (int) ec_hdr->version);
+		goto bad;
+	}
+
+	if (!ubi->volid_header_offset) {
+		ubi->volid_header_offset = volid_header_offset;
+
+		/* Check sanity */
+		if (ubi->volid_header_offset < UBI_EC_HDR_SIZE) {
+			dbg_loud("UBI: Bad Volume-ID Header offset\n");
+			ubi->volid_header_offset = 0;
+			goto bad;
+		}
+	}
+	if (volid_header_offset != ubi->volid_header_offset) {
+		dbg_info("UBI: Bad Volume-ID Header offset %d, expected %d\n",
+			 volid_header_offset, ubi->volid_header_offset);
+		goto bad;
+	}
+
+	if (!ubi->leb_start) {
+		ubi->leb_start = ubi->volid_header_offset + UBI_VID_HDR_SIZE;
+		ubi->leb_start = ALIGN(ubi->leb_start, ubi->nand->pagesize);
+
+		/* Check sanity */
+		if (ubi->leb_start < ubi->volid_header_offset +
+							    UBI_VID_HDR_SIZE ||
+		    ubi->leb_start > ubi->nand->blocksize - UBI_VID_HDR_SIZE ||
+		    ubi->leb_start & (ubi->nand->pagesize - 1)) {
+			dbg_loud("UBI: Bad data offset\n");
+			ubi->leb_start = 0;
+			ubi->volid_header_offset = 0;
+			goto bad;
+		}
+	}
+	if (leb_start != ubi->leb_start) {
+		dbg_info("UBI: Bad data offset %d, expected %d\n", leb_start,
+			 ubi->leb_start);
+		goto bad;
+	}
+
+	if (ec < 0 || ec > UBI_MAX_ERASECOUNTER) {
+		dbg_info("UBI: Bad erase counter\n");
+		goto bad;
+	}
+
+	return 0;
+
+bad:
+	return -1;
+}
+
 static int read_headers(struct ubi_device *ubi,
 			unsigned int block,
 			struct ec_header **ec_header,
@@ -131,6 +194,11 @@ static int read_headers(struct ubi_device *ubi,
 		return -1;
 	}
 #endif
+
+	if (validate_ec_header(ubi, *ec_header)) {
+		dbg_info("UBI: Validation failed for PEB %u\n", block);
+		return -1;
+	}
 
 	if (swap_uint32(ec_hdr->volid_header_offset) >= ubi->nand->pagesize) {
 		unsigned int p;
@@ -312,6 +380,9 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand)
 					(UBI_MAX_VOLUMES + UBI_INT_VOL_COUNT));
 	ubi->voltable = (struct ubi_volume *) addr;
 	addr += (sizeof(struct ubi_volume) * UBI_MAX_VOLUMES);
+
+	ubi->leb_start = 0;
+	ubi->volid_header_offset = 0;
 
 	ubi->pagebuf = (unsigned char *) addr;
 	addr += (nand->pagesize + nand->oobsize);
