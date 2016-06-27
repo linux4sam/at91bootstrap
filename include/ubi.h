@@ -26,12 +26,21 @@
 
 #include "nand.h"
 
+/* Internal UBI volumes count */
+#define UBI_INT_VOL_COUNT 1
+
+/* The maximum number of volumes per one UBI device */
+#define UBI_MAX_VOLUMES 128
+
+/* The maximum volume name length */
+#define UBI_VOL_NAME_MAX 127
+
 struct ubi_volume {
 	unsigned char __unused1[12];
 	unsigned char type;
 	unsigned char update;
 	unsigned short int namesize;
-	unsigned char name[128];
+	unsigned char name[UBI_VOL_NAME_MAX + 1];
 	unsigned char __unused2[24];
 	unsigned int crc;
 };
@@ -50,7 +59,7 @@ struct ubi_device {
 	unsigned int firstpeb;
 	unsigned int numpebs;
 	struct ubi_peb *pebs;
-	struct ubi_peb *vols[128+1];
+	struct ubi_peb *vols[UBI_MAX_VOLUMES + UBI_INT_VOL_COUNT];
 	struct ubi_volume *voltable;
 	unsigned char *pagebuf;
 	unsigned char *blockbuf;

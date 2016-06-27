@@ -32,6 +32,17 @@
 
 #include <string.h>
 
+#define UBI_CRC32_INIT         0xFFFFFFFFU
+#define UBI_EC_HDR_MAGIC       0x55424923U
+#define UBI_VID_HDR_MAGIC      0x55424921U
+#define UBI_INTERNAL_VOL_START 0x7FFFEFFFU
+#define UBI_UNUSED_PEB         0xFFFFFFFFU
+
+enum {
+	UBI_VID_DYNAMIC = 1,
+	UBI_VID_STATIC  = 2
+};
+
 struct ec_header {
 	unsigned int magic;
 	unsigned char __unused1[12];
@@ -58,6 +69,14 @@ struct volid_header {
 	unsigned char __unused4[12];
 	unsigned int hdr_crc;
 };
+
+#define UBI_EC_HDR_SIZE  sizeof(struct ec_header)
+#define UBI_VID_HDR_SIZE sizeof(struct volid_header)
+
+#ifdef CONFIG_UBI_CRC32
+#define UBI_EC_HDR_SIZE_CRC  (UBI_EC_HDR_SIZE  - sizeof(unsigned int))
+#define UBI_VID_HDR_SIZE_CRC (UBI_VID_HDR_SIZE - sizeof(unsigned int))
+#endif
 
 static int read_page(struct ubi_device *ubi,
 		     unsigned int block,
@@ -88,18 +107,18 @@ static int read_headers(struct ubi_device *ubi,
 		return -1;
 
 	ec_hdr = (struct ec_header *) ubi->pagebuf;
-	if (swap_uint32(ec_hdr->magic) != 0x55424923U) {
+	if (swap_uint32(ec_hdr->magic) != UBI_EC_HDR_MAGIC) {
 		if (swap_uint32(ec_hdr->magic) != 0xffffffffU)
 			dbg_loud("UBI: Mismatch Erase-Counter Header magic"
 				 " at PEB %u! (%x != %x)\n", block,
-				 swap_uint32(ec_hdr->magic), 0x55424923U);
+				 swap_uint32(ec_hdr->magic), UBI_EC_HDR_MAGIC);
 		return -1;
 	}
 	*ec_header = ec_hdr;
 
 #ifdef CONFIG_UBI_CRC32
-	crc = crc32(0xffffffffU, (const unsigned char *) ec_hdr,
-		    sizeof(struct ec_header) - sizeof(unsigned int));
+	crc = crc32(UBI_CRC32_INIT, (const unsigned char *) ec_hdr,
+		    UBI_EC_HDR_SIZE_CRC);
 	hdr_crc = swap_uint32(ec_hdr->hdr_crc);
 
 	if (hdr_crc != crc) {
@@ -126,18 +145,19 @@ static int read_headers(struct ubi_device *ubi,
 				     swap_uint32(ec_hdr->volid_header_offset));
 	}
 
-	if (swap_uint32(vid_hdr->magic) != 0x55424921U) {
+	if (swap_uint32(vid_hdr->magic) != UBI_VID_HDR_MAGIC) {
 		if (swap_uint32(vid_hdr->magic) != 0xffffffffU)
 			dbg_info("UBI: Mismatch Volume-ID Header magic"
 				 " at PEB %u! (%x != %x)\n", block,
-				 swap_uint32(vid_hdr->magic), 0x55424921U);
+				 swap_uint32(vid_hdr->magic),
+				 UBI_VID_HDR_MAGIC);
 		return -1;
 	}
 	*vid_header = vid_hdr;
 
 #ifdef CONFIG_UBI_CRC32
-	crc = crc32(0xffffffffU, (const unsigned char *) vid_hdr,
-		    sizeof(struct volid_header) - sizeof(unsigned int));
+	crc = crc32(UBI_CRC32_INIT, (const unsigned char *) vid_hdr,
+		    UBI_VID_HDR_SIZE_CRC);
 	hdr_crc = swap_uint32(vid_hdr->hdr_crc);
 
 	if (hdr_crc != crc) {
@@ -162,7 +182,7 @@ static int read_leb(struct ubi_device *ubi,
 	unsigned int data_crc, crc;
 #endif
 
-	if (vid_header->type == 2)
+	if (vid_header->type == UBI_VID_STATIC)
 		size = swap_uint32(vid_header->data_size);
 	else
 		size = ubi->nand->blocksize -
@@ -181,7 +201,7 @@ static int read_leb(struct ubi_device *ubi,
 	}
 
 #ifdef CONFIG_UBI_CRC32
-	crc = crc32(0xffffffffU, dest, swap_uint32(vid_header->data_size));
+	crc = crc32(UBI_CRC32_INIT, dest, swap_uint32(vid_header->data_size));
 	data_crc = swap_uint32(vid_header->data_crc);
 
 	if (data_crc != crc) {
@@ -225,7 +245,7 @@ static int read_peb(struct ubi_device *ubi,
 		d += offset;
 
 		size = swap_uint32(vid_hdr->data_size);
-		if (vid_hdr->type != 2)
+		if (vid_hdr->type != UBI_VID_STATIC)
 			size = lebsize;
 		size = MIN(size, *length);
 		*length = size;
@@ -284,9 +304,10 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand)
 	memset(ubi->pebs, 0xFF, ubi->numpebs * sizeof(struct ubi_peb));
 	addr += (ubi->numpebs * sizeof(struct ubi_peb));
 
-	memset(ubi->vols, 0x00, sizeof(struct ubi_peb *) * (128 + 1));
+	memset(ubi->vols, 0x00, sizeof(struct ubi_peb *) *
+					(UBI_MAX_VOLUMES + UBI_INT_VOL_COUNT));
 	ubi->voltable = (struct ubi_volume *) addr;
-	addr += (sizeof(struct ubi_volume) * 128);
+	addr += (sizeof(struct ubi_volume) * UBI_MAX_VOLUMES);
 
 	ubi->pagebuf = (unsigned char *) addr;
 	addr += (nand->pagesize + nand->oobsize);
@@ -320,14 +341,14 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand)
 		unsigned int p;
 
 		/* Ignore unused EB */
-		if (ubi->pebs[peb].id == 0xffffffffU)
+		if (ubi->pebs[peb].id == UBI_UNUSED_PEB)
 			continue;
 
 		/* Link PEB */
 		for (p = peb + 1; p < ubi->numpebs; p++) {
 			/* Ignore reserved UBI volumes
 			 * (excepted volume-table) */
-			if ((ubi->pebs[peb].id > 0x7fffefffU) ||
+			if ((ubi->pebs[peb].id > UBI_INTERNAL_VOL_START) ||
 			    (ubi->pebs[p].id != ubi->pebs[peb].id)) {
 				continue;
 			}
@@ -347,12 +368,12 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand)
 
 			/* At this point both PEBs refers to the same LEB... */
 			if (check_peb(ubi, peb, p) == peb) {
-				ubi->pebs[p].id = 0xffffffffU;
+				ubi->pebs[p].id = UBI_UNUSED_PEB;
 				dbg_info("UBI: New PEB for LEB %u is %u!"
 					 "Old was %u.\n",
 					 peb, ubi->pebs[peb].num, p);
 			} else {
-				ubi->pebs[peb].id = 0xffffffffU;
+				ubi->pebs[peb].id = UBI_UNUSED_PEB;
 				dbg_info("UBI: New PEB for LEB %u is %u!"
 					 "Old was %u.\n",
 					 p, ubi->pebs[p].num, peb);
@@ -363,16 +384,16 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand)
 		if (ubi->pebs[peb].num == 0) {
 			dbg_loud("UBI: First LEB for volume-id %u"
 				 " is at PEB %x!\n", ubi->pebs[peb].id, peb);
-			if (ubi->pebs[peb].id < 0x7fffefffU)
+			if (ubi->pebs[peb].id < UBI_INTERNAL_VOL_START)
 				ubi->vols[ubi->pebs[peb].id] = &ubi->pebs[peb];
-			else if (ubi->pebs[peb].id == 0x7fffefffU)
-				ubi->vols[128] = &ubi->pebs[peb];
+			else if (ubi->pebs[peb].id == UBI_INTERNAL_VOL_START)
+				ubi->vols[UBI_MAX_VOLUMES] = &ubi->pebs[peb];
 		}
 	}
 
-	a = ubi->vols[128];
+	a = ubi->vols[UBI_MAX_VOLUMES];
 	while (a) {
-		unsigned int size = sizeof(struct ubi_volume) * 128;
+		unsigned int size = sizeof(struct ubi_volume) * UBI_MAX_VOLUMES;
 
 		peb = (unsigned int) (a - ubi->pebs);
 
@@ -399,9 +420,9 @@ int ubi_init(struct ubi_device *ubi, struct nand_info *nand)
 
 const char *ubi_getvolname(struct ubi_device *ubi, unsigned int id)
 {
-	if (id < 0x7fffefffU)
+	if (id < UBI_INTERNAL_VOL_START)
 		return (const char *) ubi->voltable[id].name;
-	else if (id == 0x7fffefffU)
+	else if (id == UBI_INTERNAL_VOL_START)
 		return "volume-table";
 
 	return NULL;
@@ -411,7 +432,7 @@ unsigned int ubi_searchvolume(struct ubi_device *ubi, const char *volname)
 {
 	unsigned int i;
 
-	for (i = 0; i < 128; i++) {
+	for (i = 0; i < UBI_MAX_VOLUMES; i++) {
 		if (!ubi->voltable[i].namesize || !*ubi->voltable[i].name ||
 		    !ubi->vols[i])
 			continue;
