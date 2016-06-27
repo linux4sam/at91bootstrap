@@ -65,11 +65,12 @@ struct volid_header {
 	unsigned int num;
 	unsigned char padding1[4];
 	unsigned int data_size;
-	unsigned char __unused2[8];
+	unsigned int used_ebs;
+	unsigned int data_pad;
 	unsigned int data_crc;
-	unsigned char __unused3[4];
+	unsigned char padding2[4];
 	unsigned long long int seqnum;
-	unsigned char __unused4[12];
+	unsigned char padding3[12];
 	unsigned int hdr_crc;
 };
 
