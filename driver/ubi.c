@@ -45,10 +45,13 @@ enum {
 
 struct ec_header {
 	unsigned int magic;
-	unsigned char __unused1[12];
+	unsigned char version;
+	unsigned char padding1[3];
+	unsigned long long int ec;
 	unsigned int volid_header_offset;
 	unsigned int data_offset;
-	unsigned char __unused2[36];
+	unsigned int image_seq;
+	unsigned char padding2[32];
 	unsigned int hdr_crc;
 };
 
