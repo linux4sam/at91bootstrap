@@ -559,6 +559,20 @@ static void lpddr3_init(void)
 #error "No right DDR-SDRAM device type provided"
 #endif
 
+/**
+ * The MSBs [bits 31:16] of the CAN Message RAM for CAN0 and CAN1
+ * are configured in 0x210000, instead of the default configuration
+ * 0x200000, to avoid conflict with SRAM map for PM.
+ */
+#define CAN_MESSAGE_RAM_MSB	0x21
+
+void at91_init_can_message_ram(void)
+{
+	writel(AT91C_CAN0_MEM_ADDR_(CAN_MESSAGE_RAM_MSB) |
+	       AT91C_CAN1_MEM_ADDR_(CAN_MESSAGE_RAM_MSB),
+	       (AT91C_BASE_SFR + SFR_CAN));
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -610,6 +624,8 @@ void hw_init(void)
 #endif
 	/* Prepare L2 cache setup */
 	l2cache_prepare();
+
+	at91_init_can_message_ram();
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
