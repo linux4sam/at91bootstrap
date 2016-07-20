@@ -68,12 +68,29 @@ void init_load_image(struct image_info *image)
 #endif
 
 #ifdef CONFIG_NANDFLASH
+#ifdef CONFIG_UBI
+	image->offset = UBI_OFFSET;
+	image->length = -1;
+	image->volname = UBI_KERNEL_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image->spare_volname = UBI_KERNEL_SPARE_VOLNAME;
+#endif
+#else
 	image->offset = IMG_ADDRESS;
 #if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
 	image->length = IMG_SIZE;
 #endif
+#endif
 #ifdef CONFIG_OF_LIBFDT
+#ifdef CONFIG_UBI
+	image->of_length = -1;
+	image->of_volname = UBI_DTB_VOLNAME;
+#ifdef CONFIG_UBI_SPARE
+	image->of_spare_volname = UBI_DTB_SPARE_VOLNAME;
+#endif
+#else
 	image->of_offset = OF_OFFSET;
+#endif
 #endif
 #endif
 
