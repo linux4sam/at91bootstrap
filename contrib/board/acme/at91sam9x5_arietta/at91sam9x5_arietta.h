@@ -38,7 +38,7 @@
 #define MASTER_CLOCK		132096000
 #define PLL_LOCK_TIMEOUT	10000
 
-#define BAUD_RATE		115200
+#define BAUD_RATE			115200
 #define BOARD_MAINOSC		12000000
 
 /* PCK = 396MHz, MCK = 132MHz */
@@ -88,25 +88,6 @@
 #endif
 
 /*
- * NandFlash Settings
-  */
-#define CONFIG_SYS_NAND_BASE            AT91C_BASE_CS3
-#define CONFIG_SYS_NAND_MASK_ALE        (1 << 21)
-#define CONFIG_SYS_NAND_MASK_CLE        (1 << 22)
-
-#define CONFIG_SYS_NAND_OE_PIN		AT91C_PIN_PD(0)
-#define CONFIG_SYS_NAND_WE_PIN		AT91C_PIN_PD(1)
-#define CONFIG_SYS_NAND_ALE_PIN		AT91C_PIN_PD(2)
-#define CONFIG_SYS_NAND_CLE_PIN		AT91C_PIN_PD(3)
-#define CONFIG_SYS_NAND_ENABLE_PIN      AT91C_PIN_PD(4)
-
-#define CONFIG_LOOKUP_TABLE_ALPHA_OFFSET	0xC000
-#define CONFIG_LOOKUP_TABLE_INDEX_OFFSET	0x8000
-
-#define CONFIG_LOOKUP_TABLE_ALPHA_OFFSET_1024	0x18000
-#define CONFIG_LOOKUP_TABLE_INDEX_OFFSET_1024	0x10000
-
-/*
  * MCI Settings
  */
 #define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0
@@ -118,8 +99,6 @@
 
 /* function */
 extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
 
 extern void at91_spi0_hw_init(void);
 
