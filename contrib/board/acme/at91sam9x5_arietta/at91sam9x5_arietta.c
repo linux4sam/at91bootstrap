@@ -42,8 +42,8 @@
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
+#include "board.h"
 #include "at91sam9x5_arietta.h"
-
 #include "board_hw_info.h"
 
 #ifdef CONFIG_USER_HW_INIT
