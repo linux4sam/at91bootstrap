@@ -178,12 +178,11 @@
 * DataFlash Settings
 */
 #define CONFIG_SYS_SPI_CLOCK	AT91C_SPI_CLK
-#define CONFIG_SYS_SPI_BUS	0
 #define CONFIG_SYS_SPI_MODE	SPI_MODE3
 
-#if CONFIG_SYS_SPI_BUS == 0
+#if defined(CONFIG_SPI_BUS0)
 #define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI0
-#elif CONFIG_SYS_SPI_BUS == 1
+#elif defined(CONFIG_SPI_BUS1)
 #define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI1
 #endif
 
@@ -212,14 +211,5 @@
  * MCI Settings
  */
 #define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0
-
-/* function */
-extern void hw_init(void);
-
-extern void nandflash_hw_init(void);
-
-extern void at91_spi0_hw_init(void);
-
-extern void at91_mci0_hw_init(void);
 
 #endif /* __SAMA5D3_ACQUA_H__ */

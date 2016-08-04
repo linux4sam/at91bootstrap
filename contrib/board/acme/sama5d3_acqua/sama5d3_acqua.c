@@ -37,7 +37,7 @@
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
-#include "board_hw_info.h"
+#include "board.h"
 
 #include "arch/at91_pmc.h"
 #include "arch/at91_rstc.h"
@@ -71,15 +71,6 @@ static void initialize_dbgu(void)
 	at91_dbgu_hw_init();
 	usart_init(BAUDRATE(MASTER_CLOCK, 115200));
 }
-
-#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
-
-void at91_board_config_twi_bus(void)
-{
-	act8865_twi_bus	= 1;
-}
-
-#endif
 
 #ifdef CONFIG_DDR2
 static void ddramc_reg_config(struct ddramc_register *ddramc_config)
@@ -244,11 +235,11 @@ static void at91_special_pio_output_low(void)
 }
 #endif
 
-#if defined(CONFIG_PM_EXTERNAL_DEVICES)
-#if defined(CONFIG_MACB)
 #if defined(CONFIG_MAC0_PHY)
-static void gmac_hw_init(void)
+unsigned int at91_eth0_hw_init(void)
 {
+	unsigned int base_addr = AT91C_BASE_GMAC;
+
 	const struct pio_desc macb_pins[] = {
 		{"GMDC",	AT91C_PIN_PB(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"GMDIO",	AT91C_PIN_PB(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -257,12 +248,18 @@ static void gmac_hw_init(void)
 
 	pio_configure(macb_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOB);
+
+	pmc_enable_periph_clock(AT91C_ID_GMAC);
+
+	return base_addr;
 }
 #endif
 
 #if defined(CONFIG_MAC1_PHY)
-static void emac_hw_init(void)
+unsigned int at91_eth1_hw_init(void)
 {
+	unsigned int base_addr = AT91C_BASE_EMAC;
+
 	const struct pio_desc macb_pins[] = {
 		{"EMDC",	AT91C_PIN_PC(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"EMDIO",	AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -271,63 +268,33 @@ static void emac_hw_init(void)
 
 	pio_configure(macb_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOC);
-}
-#endif
-
-static int phys_enter_power_down(void)
-{
-	struct mii_bus macb_mii_bus;
-
-#if defined(CONFIG_MAC0_PHY)
-	gmac_hw_init();
-
-	macb_mii_bus.name = "GMAC KSZ9011RNI";
-	macb_mii_bus.reg_base = (void *)AT91C_BASE_GMAC;
-	macb_mii_bus.phy_addr = 1;
-
-	pmc_enable_periph_clock(AT91C_ID_GMAC);
-
-	if (phy_power_down_mode(&macb_mii_bus)) {
-		dbg_loud("%s: Failed to enter power down mode\n",
-						macb_mii_bus.name);
-	}
-
-	pmc_disable_periph_clock(AT91C_ID_GMAC);
-#endif
-
-#if defined(CONFIG_MAC1_PHY)
-	emac_hw_init();
-
-	macb_mii_bus.name = "EMAC KSZ8081RNB";
-	macb_mii_bus.reg_base = (void *)AT91C_BASE_EMAC;
-	macb_mii_bus.phy_addr = 1;
 
 	pmc_enable_periph_clock(AT91C_ID_EMAC);
 
-	if (phy_power_down_mode(&macb_mii_bus)) {
-		dbg_loud("%s: Failed to enter power down mode\n",
-						macb_mii_bus.name);
-	}
-
-	pmc_disable_periph_clock(AT91C_ID_EMAC);
+	return base_addr;
+}
 #endif
 
-	return 0;
+#if defined(CONFIG_MACB)
+void at91_disable_mac_clock(void)
+{
+#if defined(CONFIG_MAC0_PHY)
+	pmc_disable_periph_clock(AT91C_ID_GMAC);
+#endif
+#if defined(CONFIG_MAC1_PHY)
+	pmc_disable_periph_clock(AT91C_ID_EMAC);
+#endif
 }
-#endif	/* #if defined(CONFIG_MACB) */
-#endif	/* #if defined(CONFIG_PM_EXTERNAL_DEVICES) */
+#endif  /* #if defined(CONFIG_MACB) */
 
 #if defined(CONFIG_TWI0)
-
 unsigned int at91_twi0_hw_init(void)
 {
 	return 0;
 }
-
 #endif
 
 #if defined(CONFIG_TWI1)
-
 unsigned int at91_twi1_hw_init(void)
 {
 	unsigned int base_addr = AT91C_BASE_TWI1;
@@ -345,16 +312,20 @@ unsigned int at91_twi1_hw_init(void)
 
 	return base_addr;
 }
-
 #endif
 
 #if defined(CONFIG_TWI2)
-
 unsigned int at91_twi2_hw_init(void)
 {
 	return 0;
 }
+#endif
 
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+void at91_board_config_twi_bus(void)
+{
+	act8865_twi_bus	= 1;
+}
 #endif
 
 #if defined(CONFIG_DISABLE_ACT8865_I2C)
@@ -456,7 +427,7 @@ void hw_init(void)
 #ifdef CONFIG_MACB
 	/* Make PHYs to power down mode */
 	phys_enter_power_down();
-#endif
+#endif  /* #ifdef CONFIG_MACB */
 #endif	/* #ifdef CONFIG_PM_EXTERNAL_DEVICES */
 }
 #endif /* #ifdef CONFIG_HW_INIT */
@@ -482,13 +453,11 @@ void at91_spi0_hw_init(void)
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
-void _nandflash_hw_init(void);
 #ifdef CONFIG_SDCARD
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
 	strcat(of_name, "at91-sama5d3_acqua.dtb");
-	_nandflash_hw_init();
 }
 #endif
 
@@ -518,7 +487,8 @@ void at91_mci0_hw_init(void)
 }
 #endif /* #ifdef CONFIG_SDCARD */
 
-void _nandflash_hw_init(void)
+#ifdef CONFIG_NANDFLASH
+void nandflash_hw_init(void)
 {
 	/* Configure nand pins */
 	const struct pio_desc nand_pins[] = {
@@ -567,7 +537,4 @@ void _nandflash_hw_init(void)
 		| AT91C_SMC_MODE_TDF_CYCLES(1),
 		(ATMEL_BASE_SMC + SMC_MODE3));
 }
-
-#ifdef CONFIG_NANDFLASH
-void nandflash_hw_init(void){ _nandflash_hw_init(void); }
 #endif /* #ifdef CONFIG_NANDFLASH */
