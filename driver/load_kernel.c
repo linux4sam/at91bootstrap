@@ -267,14 +267,13 @@ static int boot_uimage_setup(unsigned char *addr, unsigned int *entry)
 	size = swap_uint32(image_header->size);
 	dest = swap_uint32(image_header->load);
 	src = (unsigned int)addr + sizeof(struct linux_uimage_header);
+	*entry = swap_uint32(image_header->entry_point);
 
 	dbg_info("Relocating kernel image, dest: %d, src: %d\n", dest, src);
 
 	memcpy((void *)dest, (void *)src, size);
 
 	dbg_info(" ...... %d bytes data transferred\n", size);
-
-	*entry = swap_uint32(image_header->entry_point);
 
 	return 0;
 }
