@@ -24,7 +24,7 @@ endif
 BINDIR:=$(TOPDIR)/binaries
 
 DATE := $(shell date)
-VERSION := 3.8.5
+VERSION := 3.8.6
 REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
