@@ -54,9 +54,7 @@ int main(void)
 
 #if defined(CONFIG_SCLK)
 #if !defined(CONFIG_SCLK_BYPASS)
-#if !defined(CONFIG_SAMA5D4) && !defined(CONFIG_SAMA5D2)
 	slowclk_enable_osc32();
-#endif
 #endif
 #endif
 
