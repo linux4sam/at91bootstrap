@@ -42,6 +42,7 @@
 #define HDDRSDRC2_HS		0x2C	/* High Speed Register */
 
 /* below items defined for sama5d3x */
+#define	MPDDRC_LPDDR2_HS	0x24	/* MPDDRC LPDDR2 High Speed Register */
 #define	MPDDRC_LPDDR2_LPR	0x28	/* MPDDRC LPDDR2 Low-power Register */
 #define	MPDDRC_LPDDR2_CAL_MR4	0x2C	/* MPDDRC LPDDR2 Calibration and MR4 Register */
 #define	MPDDRC_LPDDR2_TIM_CAL	0x30	/* MPDDRC LPDDR2 Timing Calibration Register */
