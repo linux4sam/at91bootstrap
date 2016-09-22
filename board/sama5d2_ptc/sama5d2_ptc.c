@@ -51,13 +51,13 @@
 static void at91_dbgu_hw_init(void)
 {
 	const struct pio_desc dbgu_pins[] = {
-		{"URXD0", AT91C_PIN_PB(26), 0, PIO_DEFAULT, PIO_PERIPH_C},
-		{"UTXD0", AT91C_PIN_PB(27), 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"RXD0", CONFIG_SYS_DBGU_RXD_PIN, 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"TXD0", CONFIG_SYS_DBGU_TXD_PIN, 0, PIO_DEFAULT, PIO_PERIPH_C},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
 	pio_configure(dbgu_pins);
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_UART0);
+	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_DBGU_ID);
 }
 
 static void initialize_dbgu(void)

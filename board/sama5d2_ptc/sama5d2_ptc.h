@@ -64,6 +64,9 @@
  * DBGU Settings
  */
 #define USART_BASE	AT91C_BASE_UART0
+#define CONFIG_SYS_DBGU_RXD_PIN		AT91C_PIN_PB(26)
+#define CONFIG_SYS_DBGU_TXD_PIN		AT91C_PIN_PB(27)
+#define CONFIG_SYS_DBGU_ID		AT91C_ID_UART0
 
 /*
  * DataFlash Settings
