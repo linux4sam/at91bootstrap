@@ -324,6 +324,12 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 * Step 3: A NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+
+	/*
+	 * Step 3bis: Add memory barrier then Perform a write access to
+	 * any low-power DDR2-SDRAM address to acknowledge the command.
+	 */
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -336,6 +342,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 * Step 5: A NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -349,6 +356,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(63) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -367,6 +375,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(10) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -385,6 +394,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(1) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -393,6 +403,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(2) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -401,6 +412,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(3) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -409,6 +421,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(16) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -423,6 +436,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 * Step 15: A NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -431,6 +445,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(5) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -439,6 +454,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(6) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -447,6 +463,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(8) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -455,12 +472,14 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(0) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
 	 * Step 20: A Normal Mode command is provided.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
+	asm volatile ("dmb");
 	*((unsigned int *)ram_address) = 0;
 
 	/*
@@ -512,6 +531,12 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 * Step 3: An NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+
+	/*
+	 * Step 3bis: Add memory barrier then Perform a write access to
+	 * any low-power DDR2-SDRAM address to acknowledge the command.
+	 */
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -524,6 +549,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 * Step 5: A NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -537,6 +563,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(63) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -555,6 +582,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(10) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -573,6 +601,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(1) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -581,6 +610,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(2) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -589,6 +619,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(3) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -597,6 +628,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR,
 		     AT91C_DDRC2_MRS(16) | AT91C_DDRC2_MODE_LPDDR2_CMD);
+	asm volatile ("dmb");
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
@@ -649,6 +681,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 * Step 20: A Normal Mode command is provided.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
+	asm volatile ("dmb");
 	*((unsigned int *)ram_address) = 0;
 
 	/*
