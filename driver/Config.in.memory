@@ -90,6 +90,11 @@ endchoice
 
 endmenu
 
+config CONFIG_SAMA5D2_LPDDR2
+	bool
+	default y if CONFIG_LPDDR2 && SAMA5D2
+	default n
+
 config	CONFIG_SDRAM_16BIT
 	bool "Use 16 bit SDRAM"
 	depends on ALLOW_SDRAM_16BIT
