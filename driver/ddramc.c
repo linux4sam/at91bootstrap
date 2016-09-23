@@ -82,8 +82,8 @@ int ddram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MDR, ddramc_config->mdr);
 
-	/* 
-	 * Step 2: Program the feature of DDR2-SDRAM device into 
+	/*
+	 * Step 2: Program the feature of DDR2-SDRAM device into
 	 * the Timing Register, and into the Configuration Register
 	 */
 	write_ddramc(base_address, HDDRSDRC2_CR, ddramc_config->cr);
@@ -321,25 +321,25 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_T2PR, ddramc_config->t2pr);
 
 	/*
-	 * Step 3: An NOP command is issued to the low-power DDR2-SDRAM.
+	 * Step 3: A NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
-	 * Steo 4: A pause of at least 100 ns must be observed before
+	 * Step 4: A pause of at least 100 ns must be observed before
 	 * a single toggle.
 	 */
 	udelay(1);
 
 	/*
-	 * Step 5:  An NOP command is issued to the low-power DDR2-SDRAM.
+	 * Step 5: A NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
-	 * Step6: A pause of at least 200 us must be observed before a Reset
+	 * Step 6: A pause of at least 200 us must be observed before a Reset
 	 * Command.
 	 */
 	udelay(200);
@@ -369,6 +369,11 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 		     AT91C_DDRC2_MRS(10) | AT91C_DDRC2_MODE_LPDDR2_CMD);
 	*((unsigned volatile int *)ram_address) = 0;
 
+	/*
+	 * Step 9bis: The ZQ Calibration command is now issued.
+	 * Program the type of calibration in the MPDDRC_CR: set the
+	 * ZQ field to the SHORT value.
+	 */
 	reg = read_ddramc(base_address, HDDRSDRC2_CR);
 	reg &= ~AT91C_DDRC2_ZQ;
 	reg |= AT91C_DDRC2_ZQ_SHORT;
@@ -510,19 +515,19 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
-	 * Steo 4: A pause of at least 100 ns must be observed before
+	 * Step 4: A pause of at least 100 ns must be observed before
 	 * a single toggle.
 	 */
 	udelay(1);
 
 	/*
-	 * Step 5:  An NOP command is issued to the low-power DDR2-SDRAM.
+	 * Step 5: A NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
-	 * Step6: A pause of at least 200 us must be observed before a Reset
+	 * Step 6: A pause of at least 200 us must be observed before a Reset
 	 * Command.
 	 */
 	udelay(200);
@@ -552,6 +557,11 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 		     AT91C_DDRC2_MRS(10) | AT91C_DDRC2_MODE_LPDDR2_CMD);
 	*((unsigned volatile int *)ram_address) = 0;
 
+	/*
+	 * Step 9bis: The ZQ Calibration command is now issued.
+	 * Program the type of calibration in the MPDDRC_CR: set the
+	 * ZQ field to the SHORT value.
+	 */
 	reg = read_ddramc(base_address, HDDRSDRC2_CR);
 	reg &= ~AT91C_DDRC2_ZQ;
 	reg |= AT91C_DDRC2_ZQ_SHORT;
