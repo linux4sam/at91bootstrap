@@ -278,6 +278,9 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0x3);
 
+	/* DDR3 ZQCS */
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
+
 	/* Assume timings for 8ns min clock period */
 	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
 			| AT91C_DDRC2_TRCD_(3)
@@ -325,8 +328,6 @@ static void ddramc_init(void)
 			(AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
 
 	ddr3_sdram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
-
-	writel(64, AT91C_BASE_MPDDRC + MPDDRC_LPDDR2_TIM_CAL);
 
 	ddramc_dump_regs(AT91C_BASE_MPDDRC);
 }

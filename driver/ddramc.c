@@ -693,6 +693,9 @@ int ddr3_sdram_initialize(unsigned int base_address,
 
 	dbg_very_loud(" ba_offset = %x ...\n", ba_offset);
 
+	write_ddramc(base_address,
+		     MPDDRC_LPDDR2_TIM_CAL, ddramc_config->tim_calr);
+
 	/*
 	 * Step 1: Program the memory device type in the MPDDRC Memory Device Register
 	 */
