@@ -643,68 +643,18 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
-	 * Step 14: In the DDR Configuration Register, open the input buffers.
-	 */
-	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
-	reg |= AT91C_DDRCFG_FDQIEN;
-	reg |= AT91C_DDRCFG_FDQSIEN;
-	writel(reg, AT91C_BASE_SFR + SFR_DDRCFG);
-
-	/*
-	 * Step 15: A NOP command is issued to the low-power DDR2-SDRAM.
-	 */
-	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
-	*((unsigned volatile int *)ram_address) = 0;
-
-	/*
-	 * Step 16: A Mode Register Read command with 5 to the MRS field
-	 * is issued to the low-power DDR2-SDRAM.
-	 */
-	write_ddramc(base_address, HDDRSDRC2_MR,
-		     AT91C_DDRC2_MRS(5) | AT91C_DDRC2_MODE_LPDDR2_CMD);
-	*((unsigned volatile int *)ram_address) = 0;
-
-	/*
-	 * Step 17: A Mode Register Read command with 6 to the MRS field
-	 * is issued to the low-power DDR2-SDRAM.
-	 */
-	write_ddramc(base_address, HDDRSDRC2_MR,
-		     AT91C_DDRC2_MRS(6) | AT91C_DDRC2_MODE_LPDDR2_CMD);
-	*((unsigned volatile int *)ram_address) = 0;
-
-	/*
-	 * Step 18: A Mode Register Read command with 8 to the MRS field
-	 * is issued to the low-power DDR2-SDRAM.
-	 */
-	write_ddramc(base_address, HDDRSDRC2_MR,
-		     AT91C_DDRC2_MRS(8) | AT91C_DDRC2_MODE_LPDDR2_CMD);
-	*((unsigned volatile int *)ram_address) = 0;
-
-	/*
-	 * Step 19: A Mode Register Read command with 0 to the MRS field
-	 * is issued to the low-power DDR2-SDRAM.
-	 */
-	write_ddramc(base_address, HDDRSDRC2_MR,
-		     AT91C_DDRC2_MRS(0) | AT91C_DDRC2_MODE_LPDDR2_CMD);
-	*((unsigned volatile int *)ram_address) = 0;
-
-	/*
-	 * Step 20: A Normal Mode command is provided.
+	 * Step 14: A Normal Mode command is provided.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
 	asm volatile ("dmb");
 	*((unsigned int *)ram_address) = 0;
 
 	/*
-	 * Step 21: In the DDR Configuration Register, close the input buffers.
+	 * Step 15: close the input buffers: error in documentation: no need.
 	 */
-	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
-	reg &= ~AT91C_DDRCFG_FDQIEN;
-	reg &= ~AT91C_DDRCFG_FDQSIEN;
-	writel(reg, AT91C_BASE_SFR + SFR_DDRCFG);
 
 	/*
-	 * Step 22: Write the refresh rate into the COUNT field in the MPDDRC
+	 * Step 16: Write the refresh rate into the COUNT field in the MPDDRC
 	 * Refresh Timer Register.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
