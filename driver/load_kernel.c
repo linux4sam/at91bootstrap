@@ -42,7 +42,7 @@
 
 #include "debug.h"
 
-static char *bootargs = CMDLINE;
+static char *bootargs;
 
 #ifdef CONFIG_OF_LIBFDT
 
@@ -341,6 +341,11 @@ static int load_kernel_image(struct image_info *image)
 	return 0;
 }
 
+__attribute__((weak)) char *board_override_cmd_line(void)
+{
+	return CMDLINE;
+}
+
 int load_kernel(struct image_info *image)
 {
 	unsigned char *addr;
@@ -351,9 +356,7 @@ int load_kernel(struct image_info *image)
 
 	void (*kernel_entry)(int zero, int arch, unsigned int params);
 
-#ifdef CONFIG_OVERRIDE_CMDLINE
 	bootargs = board_override_cmd_line();
-#endif
 
 	ret = load_kernel_image(image);
 	if (ret)
