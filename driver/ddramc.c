@@ -527,8 +527,19 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_T1PR, ddramc_config->t1pr);
 	write_ddramc(base_address, HDDRSDRC2_T2PR, ddramc_config->t2pr);
 
+#if 0 /* Adjust Refresh function: we don't use the feature */
 	/*
-	 * Step 3: An NOP command is issued to the low-power DDR2-SDRAM.
+	 * Step 2bis: As we don't use the Adjust Refresh function, no need
+	 * to open the input buffers.
+	 */
+	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
+	reg |= AT91C_DDRCFG_FDQIEN;
+	reg |= AT91C_DDRCFG_FDQSIEN;
+	writel(reg, AT91C_BASE_SFR + SFR_DDRCFG);
+#endif
+
+	/*
+	 * Step 3: A NOP command is issued to the low-power DDR2-SDRAM.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NOP_CMD);
 
