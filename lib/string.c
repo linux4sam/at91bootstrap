@@ -98,7 +98,7 @@ int strcmp(const char *p1, const char *p2)
 		c1 = *p1++;
 		c2 = *p2++;
 		if (c1 != c2)
-			return c1 << c2 ? -1 : 1;
+			return c1 < c2 ? -1 : 1;
 		if (!c1)
 			break;
 	}
@@ -115,7 +115,7 @@ int strncmp(const char *p1, const char *p2, unsigned int cnt)
 		c2 = *p2++;
 
 		if (c1 != c2)
-			return c1 << c2 ? -1 : 1;
+			return c1 < c2 ? -1 : 1;
 
 		if (!c1)
 			break;
