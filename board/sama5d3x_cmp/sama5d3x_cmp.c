@@ -81,6 +81,8 @@ static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_UNAL_SUPPORTED);
 
 	ddramc_config->lpddr2_lpr = AT91C_LPDDRC2_DS(0x03);
+	/* 90n short calibration: ZQCS */
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(12);
 
 	/*
 	 * The MT42128M32 refresh window: 32ms
@@ -88,7 +90,6 @@ static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
 	 * (32ms / 8192) * 132MHz = 514 i.e. 0x202
 	 */
 	ddramc_config->rtr = 0x202;
-	ddramc_config->tim_calr = 12;
 
 	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
 

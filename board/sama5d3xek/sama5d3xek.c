@@ -231,7 +231,8 @@ static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
 	 * (32ms / 8192) * 132MHz = 514 i.e. 0x202
 	 */
 	ddramc_config->rtr = 0x202;
-	ddramc_config->tim_calr = 12;
+	/* 90n short calibration: ZQCS */
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(12);
 
 	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
 			| AT91C_DDRC2_TRCD_(2)
