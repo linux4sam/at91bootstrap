@@ -38,6 +38,7 @@ struct ddramc_register {
 	unsigned int lpr;
 	unsigned int lpddr2_lpr;
 	unsigned int tim_calr;
+	unsigned int cal_mr4r;
 };
 
 extern int ddram_initialize(unsigned int base_address,
