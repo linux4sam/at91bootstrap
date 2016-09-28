@@ -90,6 +90,8 @@ static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->rtr = 0x202;
 	ddramc_config->tim_calr = 12;
 
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
+
 	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6)
 			| AT91C_DDRC2_TRCD_(2)
 			| AT91C_DDRC2_TWR_(3)
