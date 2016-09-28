@@ -276,6 +276,8 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	/* Refresh Timer is (64ms / 8k) * 166MHz = 1297(0x511) */
 	ddramc_config->rtr = 0x511;
 
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0x3);
+
 	/* Assume timings for 8ns min clock period */
 	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6) |
 			       AT91C_DDRC2_TRCD_(3) |
@@ -324,7 +326,6 @@ static void ddramc_init(void)
 
 	ddr3_sdram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
 
-	writel(0x3, AT91C_BASE_MPDDRC + MPDDRC_LPDDR2_CAL_MR4);
 	writel(64, AT91C_BASE_MPDDRC + MPDDRC_LPDDR2_TIM_CAL);
 
 	ddramc_dump_regs(AT91C_BASE_MPDDRC);
