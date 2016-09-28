@@ -496,6 +496,12 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
 
+	/*
+	 * Now configure the CAL MR4 register.
+	 */
+	write_ddramc(base_address,
+		     MPDDRC_LPDDR2_CAL_MR4, ddramc_config->cal_mr4r);
+
 	return 0;
 }
 
@@ -659,6 +665,12 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
 
+	/*
+	 * Now configure the CAL MR4 register.
+	 */
+	write_ddramc(base_address,
+		     MPDDRC_LPDDR2_CAL_MR4, ddramc_config->cal_mr4r);
+
 	return 0;
 }
 
@@ -805,6 +817,12 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * The DDR3-SDRAM device requires a refresh every 7.81 us.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
+
+	/*
+	 * Now configure the CAL MR4 register.
+	 */
+	write_ddramc(base_address,
+		     MPDDRC_LPDDR2_CAL_MR4, ddramc_config->cal_mr4r);
 
 	return 0;
 }
