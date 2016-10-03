@@ -63,7 +63,7 @@
 #define HDDRSDRC2_WPCR		0xE4	/* Write Protect Mode Register */
 #define HDDRSDRC2_WPSR		0xE8	/* Write Protect Status Register */
 
-/* -------- HDDRSDRC2_MR : (HDDRSDRC2 Offset: 0x0) Mode Register --------*/ 
+/* -------- HDDRSDRC2_MR : (HDDRSDRC2 Offset: 0x0) Mode Register --------*/
 #define AT91C_DDRC2_MODE	(0x7UL << 0)
 #define 	AT91C_DDRC2_MODE_NORMAL_CMD		(0x0UL)
 #define 	AT91C_DDRC2_MODE_NOP_CMD		(0x1UL)
@@ -78,7 +78,7 @@
 /* -------- HDDRSDRC2_RTR : (HDDRSDRC2 Offset: 0x4) Refresh Timer Register -------- */
 #define AT91C_DDRC2_COUNT	(0xFFFUL << 0)
 
-/* -------- HDDRSDRC2_CR : (HDDRSDRC2 Offset: 0x8) Configuration Register --------*/ 
+/* -------- HDDRSDRC2_CR : (HDDRSDRC2 Offset: 0x8) Configuration Register --------*/
 #define AT91C_DDRC2_NC		(0x3UL <<  0)
 #define 	AT91C_DDRC2_NC_DDR9_SDR8	(0x0UL)
 #define 	AT91C_DDRC2_NC_DDR10_SDR9	(0x1UL)
@@ -133,7 +133,7 @@
 #define 	AT91C_DDRC2_UNAL_UNSUPPORTED		(0x0UL << 23)
 #define 	AT91C_DDRC2_UNAL_SUPPORTED		(0x1UL << 23)
 
-/* -------- HDDRSDRC2_T0PR : (HDDRSDRC2 Offset: 0xc) Timing0 Register --------*/ 
+/* -------- HDDRSDRC2_T0PR : (HDDRSDRC2 Offset: 0xc) Timing0 Register --------*/
 #define AT91C_DDRC2_TRAS	(0xFUL <<  0)
 #define		AT91C_DDRC2_TRAS_(x)		(x & 0x0f)
 #define	AT91C_DDRC2_TRCD	(0xFUL <<  4)
@@ -211,7 +211,7 @@
 #define 	AT91C_DDRC2_DBW_32_BITS		(0x0UL << 4)
 #define 	AT91C_DDRC2_DBW_16_BITS		(0x1UL << 4)
 
-/* -------- HDDRSDRC2_DLL : (HDDRSDRC2 Offset: 0x24) DLL Information Register --------*/ 
+/* -------- HDDRSDRC2_DLL : (HDDRSDRC2 Offset: 0x24) DLL Information Register --------*/
 #define AT91C_DDRC2_MDINC	(0x1UL << 0)
 #define AT91C_DDRC2_MDDEC	(0x1UL << 1)
 #define AT91C_DDRC2_MDOVF	(0x1UL << 2)
@@ -222,7 +222,7 @@
 #define AT91C_LPDDRC2_SEG_MASK(value)		(value << 8)
 #define AT91C_LPDDRC2_DS(value)			(value << 24)
 
-/* -------- HDDRSDRC2_HS : (HDDRSDRC2 Offset: 0x2c) High Speed Register --------*/ 
+/* -------- HDDRSDRC2_HS : (HDDRSDRC2 Offset: 0x2c) High Speed Register --------*/
 #define AT91C_DDRC2_NO_ANT	(0x1UL << 2)
 
 /* -------- MPDDRC_LPDDR2_CAL_MR4: (MPDDRC Offset: 0x2c) Calibration and MR4 Register --------*/
@@ -299,11 +299,11 @@
 #define AT91C_MPDDRC_S2OFF(value)	(value << 16)
 #define AT91C_MPDDRC_S3OFF(value)	(value << 24)
 
-/* -------- HDDRSDRC2_WPCR : (HDDRSDRC2 Offset: 0xe4) Write Protect Control Register --------*/ 
+/* -------- HDDRSDRC2_WPCR : (HDDRSDRC2 Offset: 0xe4) Write Protect Control Register --------*/
 #define AT91C_DDRC2_WPEN	(0x1UL << 0)
 #define AT91C_DDRC2_WPKEY	(0xFFFFFFUL << 8)
 
-/* -------- HDDRSDRC2_WPSR : (HDDRSDRC2 Offset: 0xe8) Write Protect Status Register --------*/ 
+/* -------- HDDRSDRC2_WPSR : (HDDRSDRC2 Offset: 0xe8) Write Protect Status Register --------*/
 #define AT91C_DDRC2_WPVS	(0x1UL << 0)
 #define AT91C_DDRC2_WPSRC	(0xFFFFUL << 8)
 
