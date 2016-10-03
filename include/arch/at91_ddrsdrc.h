@@ -215,7 +215,7 @@
 #define AT91C_DDRC2_MDINC	(0x1UL << 0)
 #define AT91C_DDRC2_MDDEC	(0x1UL << 1)
 #define AT91C_DDRC2_MDOVF	(0x1UL << 2)
-#define AT91C_DDRC2_MDVAL	(0xFFUL << 8
+#define AT91C_DDRC2_MDVAL	(0xFFUL << 8)
 
 /* ------- MPDDRC_LPDDR2_LPR (offset: 0x28) */
 #define AT91C_LPDDRC2_BK_MASK_PASR(value)	(value << 0)
