@@ -276,7 +276,15 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	/* Refresh Timer is (64ms / 8k) * 166MHz = 1297(0x511) */
 	ddramc_config->rtr = 0x511;
 
-	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0x3);
+	/*
+	 * According to the sama5d2 datasheet and the following values:
+	 * T Sens = 0.75%/C, V Sens = 0.2%/mV, T driftrate = 1C/sec and V driftrate = 15 mV/s
+	 * Warning: note that the values T driftrate and V driftrate are dependent on
+	 * the application environment.
+	 * ZQCS period is 1.5 / ((0.75 x 1) + (0.2 x 15)) = 0.4s
+	 * If tref is 7.8us, we have: 400000 / 7.8 = 51282(0xC852)
+	 * */
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
 
 	/* DDR3 ZQCS */
 	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
