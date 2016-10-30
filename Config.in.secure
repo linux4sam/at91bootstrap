@@ -26,6 +26,8 @@ config	CONFIG_AES_KEY_SIZE_256
 
 endchoice
 
+comment "Big-endian order: Word0 is the most significant word"
+
 config CONFIG_AES_CIPHER_KEY_WORD0
 	hex "Cipher Key Word0"
 	default "0x00000000"
