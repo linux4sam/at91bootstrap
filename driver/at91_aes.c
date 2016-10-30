@@ -33,6 +33,11 @@
 #include "board.h"
 #include "string.h"
 
+#define swab32(x) (			\
+	(((x) & 0x000000ffUL) << 24) |	\
+	(((x) & 0x0000ff00UL) <<  8) |	\
+	(((x) & 0x00ff0000UL) >>  8) |	\
+	(((x) & 0xff000000UL) >> 24))
 
 static inline unsigned int aes_readl(unsigned int reg)
 {
@@ -87,8 +92,10 @@ static inline void at91_aes_set_iv(const unsigned int *iv)
 {
 	unsigned int i, reg = AES_IVR0;
 
-	for (i = 0; i < AT91_AES_IV_SIZE_WORD; ++i, reg += 4)
-		aes_writel(reg, iv[i]);
+	for (i = 0; i < AT91_AES_IV_SIZE_WORD; ++i, reg += 4) {
+		unsigned int iv_be = swab32(iv[i]);
+		aes_writel(reg, iv_be);
+	}
 }
 
 static inline int at91_aes_set_opmode(at91_aes_operation_t operation,
@@ -224,8 +231,10 @@ static inline int at91_aes_set_key(at91_aes_key_size_t key_size,
 		return -1;
 	}
 
-	for (i = 0; i < num_words; ++i, reg += 4)
-		aes_writel(reg, key[i]);
+	for (i = 0; i < num_words; ++i, reg += 4) {
+		unsigned int key_be = swab32(key[i]);
+		aes_writel(reg, key_be);
+	}
 
 	return 0;
 }
