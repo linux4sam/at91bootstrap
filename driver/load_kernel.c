@@ -39,6 +39,7 @@
 #include "board_hw_info.h"
 #include "mon.h"
 #include "tz_utils.h"
+#include "secure.h"
 
 #include "debug.h"
 
@@ -361,6 +362,13 @@ int load_kernel(struct image_info *image)
 	ret = load_kernel_image(image);
 	if (ret)
 		return ret;
+
+#if defined(CONFIG_SECURE)
+	ret = secure_check(image->dest);
+	if (ret)
+		return ret;
+	image->dest += sizeof(at91_secure_header_t);
+#endif
 
 #ifdef CONFIG_SCLK
 	slowclk_switch_osc32();
