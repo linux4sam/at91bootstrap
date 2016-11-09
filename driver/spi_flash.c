@@ -219,11 +219,13 @@ static int update_image_length(struct dataflash_descriptor *df_desc,
 	if (flag == KERNEL_IMAGE)
 		return kernel_size(dest);
 #ifdef CONFIG_OF_LIBFDT
-	else
-		return of_get_dt_total_size((void *)dest);
-#else
-	return -1;
+	else {
+		ret = check_dt_blob_valid((void *)dest);
+		if (!ret)
+			return of_get_dt_total_size((void *)dest);
+	}
 #endif
+	return -1;
 }
 #endif
 
