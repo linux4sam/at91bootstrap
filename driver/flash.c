@@ -41,6 +41,7 @@ static int update_image_length(unsigned int offset,
 			       unsigned char flag)
 {
 	unsigned int length = 512;
+	int ret;
 
 	dbg_info("FLASH: update image length from image\n");
 
