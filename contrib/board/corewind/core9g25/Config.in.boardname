@@ -1,0 +1,2 @@
+config CONFIG_BOARDNAME
+	default "core9g25"	if CONFIG_CORE9G25
