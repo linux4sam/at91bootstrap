@@ -45,4 +45,8 @@
 #include "sama5d3_acqua.h"
 #endif
 
+#ifdef CONFIG_CORE9G25
+#include "core9g25.h"
+#endif
+
 #endif
