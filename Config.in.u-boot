@@ -13,7 +13,7 @@ config CONFIG_IMG_ADDRESS
 config CONFIG_IMG_SIZE
 	string "U-Boot Image Size"
 	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
-	default	"0x00080000"
+	default	"0x000a0000"
 	help
 	  at91bootstrap will copy this size of U-Boot image
 
