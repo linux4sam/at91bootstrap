@@ -126,6 +126,10 @@ int act8865_set_reg_voltage(unsigned char volt_reg, unsigned char value)
 	if (ret)
 		return -1;
 
+	if ((enable_reg == REG1_2) || (enable_reg == REG2_2) ||
+	    (enable_reg == REG3_2))
+		return 0;
+
 	/* Enable Regulator */
 	data = 0;
 	ret = act8865_read(enable_reg, &data);
