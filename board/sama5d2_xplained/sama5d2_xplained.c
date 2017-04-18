@@ -896,51 +896,41 @@ int at91_board_act8865_set_reg_voltage(void)
 	if (act8865_check_i2c_disabled())
 		return 0;
 
-	/* Enable REG2 output 1.2V */
-	reg = REG2_1;
-	value = ACT8865_1V2;
-	ret = act8865_set_reg_voltage(reg, value);
-	if (ret) {
-		dbg_loud("ACT8865: Failed to make REG2 output 1200mV\n");
-		return -1;
-	}
-
-	/* Enable REG4 output 2.5V */
 	reg = REG4_0;
 	value = ACT8865_2V5;
 	ret = act8865_set_reg_voltage(reg, value);
-	if (ret) {
+	if (ret)
 		dbg_loud("ACT8865: Failed to make REG4 output 2500mV\n");
-		return -1;
-	}
 
 	/* Enable REG5 output 3.3V */
 	reg = REG5_0;
 	value = ACT8865_3V3;
 	ret = act8865_set_reg_voltage(reg, value);
-	if (ret) {
+	if (ret)
 		dbg_loud("ACT8865: Failed to make REG5 output 3300mV\n");
-		return -1;
-	}
 
 	/* Enable REG6 output 2.5V */
 	reg = REG6_0;
 	value = ACT8865_2V5;
 	ret = act8865_set_reg_voltage(reg, value);
-	if (ret) {
+	if (ret)
 		dbg_loud("ACT8865: Failed to make REG6 output 2500mV\n");
-		return -1;
-	}
 
 	/* Enable REG7 output 1.8V */
 	reg = REG7_0;
 	value = ACT8865_1V8;
 	ret = act8865_set_reg_voltage(reg, value);
-	if (ret) {
+	if (ret)
 		dbg_loud("ACT8865: Failed to make REG7 output 1800mV\n");
-		return -1;
-	}
 
+	/* Enable REG2 output 1.2V */
+	reg = REG2_1;
+	value = ACT8865_1V2;
+	ret = act8865_set_reg_voltage(reg, value);
+	if (ret)
+		dbg_loud("ACT8865: Failed to make REG2 output 1200mV\n");
+
+	/* Enable REG4 output 2.5V */
 	return 0;
 }
 #endif
