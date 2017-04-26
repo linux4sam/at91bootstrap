@@ -341,6 +341,10 @@ ifeq ($(CONFIG_SECURE), y)
 CPPFLAGS += -DCONFIG_SECURE
 endif
 
+ifeq ($(CONFIG_BACKUP_MODE), y)
+CPPFLAGS += -DCONFIG_BACKUP_MODE
+endif
+
 ifeq ($(CPU_HAS_PIO4), y)
 CPPFLAGS += -DCPU_HAS_PIO4
 endif

@@ -33,6 +33,7 @@
 #include "tz_utils.h"
 #include "pm.h"
 #include "act8865.h"
+#include "backup.h"
 #include "secure.h"
 #include "sfr_aicredir.h"
 
@@ -56,6 +57,18 @@ int main(void)
 #if !defined(CONFIG_SCLK_BYPASS)
 	slowclk_enable_osc32();
 #endif
+#endif
+
+#ifdef CONFIG_BACKUP_MODE
+	ret = backup_mode_resume();
+	if (ret) {
+#ifdef CONFIG_REDIRECT_ALL_INTS_AIC
+		redirect_interrupts_to_nsaic();
+#endif
+		slowclk_switch_osc32();
+
+		return ret;
+	}
 #endif
 
 #ifdef CONFIG_HW_DISPLAY_BANNER

@@ -311,6 +311,15 @@ config CONFIG_PM_PMIC
 
 endmenu
 
+config CONFIG_BACKUP_MODE
+	bool "Enable Backup Mode"
+	default n
+	help
+	  Enables "Backup mode". Starting with sama5d2, it is possible to put
+	  use DDR Self Refresh and shutdown the core. Resuming from that state
+	  requires support in the bootloader.
+
+
 menu "Board's Workaround Options"
 	depends on CONFIG_HAS_PMIC_ACT8865
 
