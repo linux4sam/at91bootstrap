@@ -523,7 +523,7 @@ void at91_mci0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
+	pmc_enable_periph_clock(AT91C_ID_PIOD;
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
