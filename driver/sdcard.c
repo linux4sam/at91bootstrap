@@ -82,6 +82,8 @@ int load_sdcard(struct image_info *image)
 	at91_mci0_hw_init();
 #elif defined(CONFIG_AT91_MCI1)
 	at91_mci1_hw_init();
+#elif defined(CONFIG_AT91_MCI2)
+	at91_mci2_hw_init();
 #endif
 #endif
 
