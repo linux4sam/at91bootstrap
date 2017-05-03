@@ -111,6 +111,7 @@ extern void at91_qspi_hw_init(void);
 
 extern void at91_mci0_hw_init(void);
 extern void at91_mci1_hw_init(void);
+extern void at91_mci2_hw_init(void);
 
 extern void at91_sdhc_hw_init(void);
 
