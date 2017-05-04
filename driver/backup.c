@@ -58,7 +58,7 @@ static struct at91_pm_bu {
  * */
 static int resuming = -1;
 
-static int backup_mode(void)
+static void backup_mode(void)
 {
 	int ret;
 
@@ -66,7 +66,7 @@ static int backup_mode(void)
 
 	ret = readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
 	if (ret == 0)
-		return 0;
+		return;
 
 	do {
 		ret = readl(AT91C_BASE_SECUMOD + 0x14);
@@ -74,10 +74,10 @@ static int backup_mode(void)
 
 	pm_bu = (struct at91_pm_bu *)AT91C_BASE_SECURAM;
 	if (!pm_bu->suspended)
-		return 0;
+		return;
 
 	resuming = 1;
-	return 1;
+	return;
 }
 
 int backup_resume(void)
