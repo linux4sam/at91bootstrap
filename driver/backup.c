@@ -38,6 +38,24 @@ static struct at91_pm_bu {
 	unsigned long resume;
 } *pm_bu;
 
+/*
+ * resuming: static variable to reflect the state of resuming from
+ * Backup+Self-Refresh mode.
+ *
+ * -1: state at AT91Boostrap startup, just after SoC power-up or reset. As such
+ *     it also applies when the system comes back from Backup+Self-Refresh mode
+ *  0: transient state while the resume process is being evaluated:
+ *     - whether the DDR Backup mode is disabled: boot process can continue
+ *       normally
+ *     - or the DDR Backup mode is programmed but the PM status stored in
+ *       backup SRAM is not consistent => error condition: boot process will
+ *       continue as if the SoC have just experienced a cold boot
+ *  1: state where AT91Bootstrap is resuming from Backup+Self-Refresh mode
+ *
+ * This variable is modified and checked both in external ram initialization sequence
+ * in driver/ddramc.c and while actually starting the next level image in main.c
+ * (actually restarting Linux in the case of Backup+Self-Refresh mode).
+ * */
 static int resuming = -1;
 
 static int backup_mode(void)
