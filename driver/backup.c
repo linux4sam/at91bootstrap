@@ -30,6 +30,7 @@
 #include "hardware.h"
 #include "rstc.h"
 #include "arch/at91_sfrbu.h"
+#include "usart.h"
 
 static struct at91_pm_bu {
 	int suspended;
@@ -62,6 +63,7 @@ static void backup_mode(void)
 {
 	int ret;
 
+	usart_puts("BKP: enter backup_mode\n");
 	resuming = 0;
 
 	ret = readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
@@ -82,6 +84,7 @@ static void backup_mode(void)
 
 int backup_resume(void)
 {
+	usart_puts("BKP: enter backup_resume\n");
 	if (resuming == -1)
 		backup_mode();
 
@@ -90,10 +93,22 @@ int backup_resume(void)
 
 unsigned long backup_mode_resume(void)
 {
+	dbg_info("BKP: backup_mode_resume, resuming = %d\n", resuming);
+
 	if (!backup_resume())
 		return 0;
 
 	if (*pm_bu->canary != 0xa5a5a5a5) {
+		dbg_info("BKP: Failed to find the canary! Rebooting\n");
+		dbg_info("BKP: @%x: %x @%x:%x -> resume @%x\n"
+				, (unsigned long)pm_bu
+				, (unsigned long)(pm_bu->suspended)
+				, (unsigned long)(pm_bu->canary)
+				, (unsigned long)(*pm_bu->canary)
+				, (unsigned long)(pm_bu->resume)
+				);
+		dbg_hexdump((unsigned char *)pm_bu, 16, DUMP_WIDTH_BIT_32);
+		while (1) {};
 		cpu_reset();
 		return 0;
 	}
