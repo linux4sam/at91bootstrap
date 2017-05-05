@@ -93,8 +93,6 @@ unsigned long backup_mode_resume(void)
 	if (!backup_resume())
 		return 0;
 
-	writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
-
 	if (*pm_bu->canary != 0xa5a5a5a5) {
 		cpu_reset();
 		return 0;

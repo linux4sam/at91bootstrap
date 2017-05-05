@@ -29,6 +29,7 @@
 #include "hardware.h"
 #include "arch/at91_ddrsdrc.h"
 #include "arch/at91_sfr.h"
+#include "arch/at91_sfrbu.h"
 #include "backup.h"
 #include "debug.h"
 #include "ddramc.h"
@@ -841,6 +842,12 @@ int ddr3_sdram_initialize(unsigned int base_address,
 		write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
 		write_ddramc(base_address,
 			     HDDRSDRC2_LPR, 0x10001);
+
+		/* re-connect DDR Pads to the CPU domain (VCCCORE) */
+		writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
+		asm volatile ("dmb");
+		/* make sure to actually perform an access to the DDR chip */
+		*((unsigned int *)ram_address) = 0;
 	}
 
 	return 0;
