@@ -211,7 +211,7 @@ static int sd_cmd_send_status(struct sd_card *sdcard, unsigned int retries)
 	int ret;
 
 	command->cmd = SD_CMD_SEND_STATUS;
-	command->resp_type = SD_RESP_TYPE_R2;
+	command->resp_type = SD_RESP_TYPE_R1;
 	command->argu = sdcard->reg->rca << 16;
 
 	for (i = 0; i < retries; i++) {
