@@ -23,7 +23,7 @@ DSTATUS disk_initialize(BYTE drv        /* Physical drive number (0..) */
 {
 	if (drv) return STA_NOINIT;	
 	
-	if (sdcard_initialize() == 0)
+	if ((Stat & STA_NOINIT) != 0 && sdcard_initialize() == 0)
 		Stat &= ~STA_NOINIT;
 
 	return Stat;
