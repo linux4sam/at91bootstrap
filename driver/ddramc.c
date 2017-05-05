@@ -816,12 +816,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 		 */
 		*((unsigned int *)ram_address) = 0;
 	}
-	else
-	{
-		write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
-		write_ddramc(base_address,
-			     HDDRSDRC2_LPR, 0x10001);
-	}
+
 	/*
 	 * Step 14: Write the refresh rate into the COUNT field in the MPDDRC
 	 * Refresh Timer Register (MPDDRC_RTR):
@@ -835,6 +830,18 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address,
 		     MPDDRC_LPDDR2_CAL_MR4, ddramc_config->cal_mr4r);
+
+	if (backup_resume()) {
+		/*
+		 * make sure to configure the DDR controller's interface like
+		 * it was when it entered the Backup+Self-Refresh mode:
+		 * - Normal CMD mode
+		 * - Low-power Command Bit positioned
+		 **/
+		write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
+		write_ddramc(base_address,
+			     HDDRSDRC2_LPR, 0x10001);
+	}
 
 	return 0;
 }
