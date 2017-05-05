@@ -62,11 +62,13 @@ int main(void)
 #ifdef CONFIG_BACKUP_MODE
 	ret = backup_mode_resume();
 	if (ret) {
+		/* Backup+Self-Refresh mode detected... */
 #ifdef CONFIG_REDIRECT_ALL_INTS_AIC
 		redirect_interrupts_to_nsaic();
 #endif
 		slowclk_switch_osc32();
 
+		/* ...jump to Linux here */
 		return ret;
 	}
 #endif
