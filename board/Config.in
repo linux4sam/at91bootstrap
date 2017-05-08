@@ -25,6 +25,7 @@ source "board/sama5d4ek/Config.in.board"
 source "board/sama5d4_xplained/Config.in.board"
 source "board/sama5d2_ptc/Config.in.board"
 source "board/sama5d2_xplained/Config.in.board"
+source "board/sama5d27_som1_ek/Config.in.board"
 source "contrib/board/Config.in.board"
 
 endchoice
@@ -48,6 +49,7 @@ config CONFIG_BOARDNAME
 	default "sama5d4ek" if CONFIG_SAMA5D4EK
 	default "sama5d2_ptc" if CONFIG_SAMA5D2_PTC
 	default "sama5d2_xplained" if CONFIG_SAMA5D2_XPLAINED
+	default "sama5d27_som1_ek" if CONFIG_SAMA5D27_SOM1_EK
 source "contrib/board/Config.in.boardname"
 
 config AT91SAM9260
@@ -354,6 +356,10 @@ config	CONFIG_CPU_CLK_444MHZ
 	bool "444 MHz"
 	depends on ALLOW_CPU_CLK_444MHZ
 
+config CONFIG_CPU_CLK_492MHZ
+	bool "492 MHz"
+	depends on ALLOW_CPU_CLK_492MHZ
+
 config CONFIG_CPU_CLK_498MHZ
 	bool "498 MHz"
 	depends on ALLOW_CPU_CLK_498MHZ
@@ -401,6 +407,9 @@ config	ALLOW_CPU_CLK_400MHZ
 	bool
 
 config	ALLOW_CPU_CLK_444MHZ
+	bool
+
+config  ALLOW_CPU_CLK_492MHZ
 	bool
 
 config  ALLOW_CPU_CLK_498MHZ
@@ -453,6 +462,10 @@ config CONFIG_BUS_SPEED_148MHZ
 	bool "148 MHz"
 	depends on SUPPORT_BUS_SPEED_148MHZ && (CONFIG_CPU_CLK_444MHZ || CONFIG_CPU_CLK_594MHZ)
 
+config CONFIG_BUS_SPEED_164MHZ
+	bool "164 MHz"
+	depends on SUPPORT_BUS_SPEED_164MHZ && CONFIG_CPU_CLK_492MHZ
+
 config CONFIG_BUS_SPEED_166MHZ
 	bool "166 MHz"
 	depends on SUPPORT_BUS_SPEED_166MHZ && (CONFIG_CPU_CLK_498MHZ || CONFIG_CPU_CLK_332MHZ)
@@ -487,6 +500,9 @@ config SUPPORT_BUS_SPEED_133MHZ
 	bool
 
 config SUPPORT_BUS_SPEED_148MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_164MHZ
 	bool
 
 config SUPPORT_BUS_SPEED_166MHZ

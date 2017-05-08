@@ -96,6 +96,10 @@
 #include "sama5d2_xplained.h"
 #endif
 
+#ifdef CONFIG_SAMA5D27_SOM1_EK
+#include "sama5d27_som1_ek.h"
+#endif
+
 #include "contrib_board.h"
 
 /*
