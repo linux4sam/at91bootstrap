@@ -62,7 +62,7 @@ def display_pmecc_header(file_name, val):
 	json_file=open(file_name)
 	data = json.load(json_file)
 	#pprint(data["pmecc_header"]["usePmecc"])
-	if data.has_key(name):
+	if name in data:
 		bitfieldsparser.parse_bitfield(data[name]["struct"], val)
 	else:
 		print('Error: Cannot find the key name: %s in the json file: %s' % (name, file_name))
@@ -71,7 +71,7 @@ def display_pmecc_header(file_name, val):
 # Test code start here...
 # val = gen_pmecc_header(8192, 448, 8, 1024)
 #val = gen_pmecc_header(2048, 64, 4, 512)
-#print 'val = 0x%x' % val
-#print
+#print('val = 0x%x' % val)
+#print('')
 #val = 0xc1304805
 # display_pmecc_header("pmecc_head.json", val)

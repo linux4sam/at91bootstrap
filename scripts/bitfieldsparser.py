@@ -77,8 +77,8 @@ def parse_bitfield(fields, whole_word):
 			# print 'mask: %x' % mask
 			value = (whole_word & mask) >> start
 			meaning_str = ""
-			if bits.has_key("meaning"):
-				if bits["meaning"].has_key(repr(value)):
+			if "meaning" in bits:
+				if repr(value) in bits["meaning"]:
 					meaning_str = bits["meaning"][repr(value)][0]
 
 			if meaning_str == "":
