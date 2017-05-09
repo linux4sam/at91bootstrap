@@ -43,14 +43,11 @@ static void write_ddramc(unsigned int address,
 	writel(value, (address + offset));
 }
 
-#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)  || \
-    defined(CONFIG_LPDDR3)
 /* read DDRC registers */
 static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 {
 	return readl(address + offset);
 }
-#endif
 
 #ifdef CONFIG_DDR2
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
