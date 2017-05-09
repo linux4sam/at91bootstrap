@@ -847,6 +847,10 @@ int ddr3_sdram_initialize(unsigned int base_address,
 		/* re-connect DDR Pads to the CPU domain (VCCCORE) */
 		writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
 		asm volatile ("dmb");
+
+		/* re-synchronize pads with DDR controller */
+		mdelay(1000);
+
 		/* make sure to actually perform an access to the DDR chip */
 		*((unsigned int *)ram_address) = 0;
 	}
