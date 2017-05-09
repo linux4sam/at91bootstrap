@@ -196,6 +196,7 @@
 #define		AT91C_DDRC2_UPD_MR_NO_UPDATE		(0x0UL << 20)
 #define		AT91C_DDRC2_UPD_MR_SHARED_BUS		(0x1UL << 20)
 #define		AT91C_DDRC2_UPD_MR_NO_SHARED_BUS	(0x2UL << 20)
+#define AT91C_DDRC2_SELF_DONE	(0x1UL << 25)
 
 /* -------- HDDRSDRC2_MDR : (HDDRSDRC2 Offset: 0x20) Memory Device Register -------- */
 #define AT91C_DDRC2_MD		(0x7UL << 0)

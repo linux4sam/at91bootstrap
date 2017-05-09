@@ -839,6 +839,10 @@ int ddr3_sdram_initialize(unsigned int base_address,
 		write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
 		write_ddramc(base_address,
 			     HDDRSDRC2_LPR, AT91C_DDRC2_LPCB_SELFREFRESH);
+		asm volatile ("dmb");
+
+		/* wait for the SELF_DONE bit to raise */
+		while (!(read_ddramc(base_address, HDDRSDRC2_LPR) & AT91C_DDRC2_SELF_DONE));
 
 		/* re-connect DDR Pads to the CPU domain (VCCCORE) */
 		writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
