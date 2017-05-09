@@ -841,7 +841,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 		 **/
 		write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
 		write_ddramc(base_address,
-			     HDDRSDRC2_LPR, 0x10001);
+			     HDDRSDRC2_LPR, 0x1);
 
 		/* re-connect DDR Pads to the CPU domain (VCCCORE) */
 		writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
