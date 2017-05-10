@@ -853,6 +853,13 @@ int ddr3_sdram_initialize(unsigned int base_address,
 
 		/* make sure to actually perform an access to the DDR chip */
 		*((unsigned int *)ram_address) = 0;
+
+		/* switch back to NOLOWPOWER by clearing the Low-power Command Bit */
+		write_ddramc(base_address,
+			     HDDRSDRC2_LPR, 0x10000);
+		asm volatile ("dmb");
+		/* make sure to actually perform an access to the DDR chip */
+		*((unsigned int *)ram_address) = 0;
 	}
 
 	return 0;
