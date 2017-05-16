@@ -102,8 +102,10 @@ int load_sdcard(struct image_info *image)
 					image->filename, image->dest);
 
 	ret = sdcard_loadimage(image->filename, image->dest);
-	if (ret)
+	if (ret) {
+		(void)f_mount(0, NULL);
 		return ret;
+	}
 
 #ifdef CONFIG_OF_LIBFDT
 	at91_board_set_dtb_name(image->of_filename);
@@ -112,8 +114,10 @@ int load_sdcard(struct image_info *image)
 			image->of_filename, image->of_dest);
 
 	ret = sdcard_loadimage(image->of_filename, image->of_dest);
-	if (ret)
+	if (ret) {
+		(void)f_mount(0, NULL);
 		return ret;
+	}
 
 #endif
 
