@@ -119,7 +119,12 @@ int dbg_printf(const char *fmt_str, ...)
 			if ((fmtstring == 'i') ||
 			    (fmtstring == 'd') ||
 			    (fmtstring == 'u')) {
-				num = fill_dec_int(p, va_arg(ap, unsigned int));
+				int v = va_arg(ap, int);
+				if(v < 0 && fmtstring != 'u') {
+					*p++ = '-';
+					v = -v;
+				}
+				num = fill_dec_int(p, v);
 			} else if ((fmtstring == 'p') ||
 				   (fmtstring == 'x')) {
 				*p++ = '0';
