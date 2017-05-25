@@ -221,10 +221,6 @@ include	driver/driver.mk
 include	contrib/driver/driver.mk
 include	fs/src/fat.mk
 
-#$(SOBJS-y:.o=.S)
-
-SRCS:= $(COBJS-y:.o=.c)
-OBJS:= $(SOBJS-y) $(COBJS-y)
 GC_SECTIONS=--gc-sections
 
 NOSTDINC_FLAGS=-nostdinc -isystem $(shell $(CC) -print-file-name=include)
@@ -248,6 +244,8 @@ $(warning WARNING: *** file: $(BOARD_LOCATE)/board.mk are not found!)
 endif
 
 include	driver/driver_cpp.mk
+
+OBJS:= $(SOBJS-y) $(COBJS-y)
 
 ifeq ($(CONFIG_ENTER_NWD), y)
 link_script:=elf32-littlearm-tz.lds
