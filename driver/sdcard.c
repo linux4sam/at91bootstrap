@@ -102,32 +102,24 @@ int load_sdcard(struct image_info *image)
 					image->filename, image->dest);
 
 	ret = sdcard_loadimage(image->filename, image->dest);
-	if (ret)
+	if (ret) {
+		(void)f_mount(0, NULL);
 		return ret;
-
-	/* umount fs */
-	fret = f_mount(0, NULL);
-	if (fret != FR_OK) {
-		dbg_info("*** FATFS: f_mount umount error **\n");
-		return -1;
 	}
 
 #ifdef CONFIG_OF_LIBFDT
 	at91_board_set_dtb_name(image->of_filename);
 
-	/* mount fs */
-	fret = f_mount(0, &fs);
-	if (fret != FR_OK) {
-		dbg_info("*** FATFS: f_mount error **\n");
-		return -1;
-	}
-
 	dbg_info("SD/MMC: dt blob: Read file %s to %x\n",
 			image->of_filename, image->of_dest);
 
 	ret = sdcard_loadimage(image->of_filename, image->of_dest);
-	if (ret)
+	if (ret) {
+		(void)f_mount(0, NULL);
 		return ret;
+	}
+
+#endif
 
 	/* umount fs */
 	fret = f_mount(0, NULL);
@@ -135,7 +127,6 @@ int load_sdcard(struct image_info *image)
 		dbg_info("*** FATFS: f_mount umount error **\n");
 		return -1;
 	}
-#endif
 
 	return 0;
 }
