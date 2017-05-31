@@ -74,7 +74,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_NR_13              /* 13 row bits (8K) */
 			| AT91C_DDRC2_CAS_3              /* CAS Latency 3 */
 			| AT91C_DDRC2_NB_BANKS_8         /* 8 banks */
-			| AT91C_DDRC2_DLL_RESET_DISABLED /* DLL not reset */
+			| AT91C_DDRC2_DISABLE_RESET_DLL
 			| AT91C_DDRC2_DECOD_INTERLEAVED);/*Interleaved decode*/
 
 	/*

@@ -73,7 +73,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			| AT91C_DDRC2_NR_14		/* 14 row bits(8K)*/
 			| AT91C_DDRC2_CAS_3		/* CAS Latency 3 */
 			| AT91C_DDRC2_EBISHARE		/* DQM is shared with other controller */
-			| AT91C_DDRC2_DLL_RESET_DISABLED);	/* DLL not reset*/
+			| AT91C_DDRC2_DISABLE_RESET_DLL);
 
 	ddramc_config->rtr = 0x24B;
 

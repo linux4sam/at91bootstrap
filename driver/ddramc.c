@@ -162,7 +162,7 @@ int ddram_initialize(unsigned int base_address,
 	 * Step 9: Program DLL field into the Configuration Register to high(Enable DLL reset)
 	 */
 	cr = read_ddramc(base_address, HDDRSDRC2_CR);
-	write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_DLL_RESET_ENABLED);
+	write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_ENABLE_RESET_DLL);
 
 	/*
 	 * Step 10: A Mode Register set(MRS) cycle is issied to reset DLL.
@@ -205,7 +205,7 @@ int ddram_initialize(unsigned int base_address,
 	 * Step 13: Program DLL field into the Configuration Register to low(Disable DLL reset).
 	 */
 	cr = read_ddramc(base_address, HDDRSDRC2_CR);
-	write_ddramc(base_address, HDDRSDRC2_CR, cr & (~AT91C_DDRC2_DLL_RESET_ENABLED));
+	write_ddramc(base_address, HDDRSDRC2_CR, cr & (~AT91C_DDRC2_ENABLE_RESET_DLL));
 
 	/*
 	 * Step 14: A Mode Register set (MRS) cycle is issued to program
@@ -779,7 +779,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 		 */
 #if 0
 		cr = read_ddramc(base_address, HDDRSDRC2_CR);
-		write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_DLL_RESET_ENABLED);
+		write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_ENABLE_RESET_DLL);
 #endif
 
 		/*
