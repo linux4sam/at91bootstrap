@@ -82,7 +82,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_NR_13
 				| AT91C_DDRC2_CAS_3
 				| AT91C_DDRC2_DLL_RESET_DISABLED
-				| AT91C_DDRC2_DIS_DLL_DISABLED
+				| AT91C_DDRC2_ENABLE_DLL
 				| AT91C_DDRC2_ENRDM_ENABLE
 				| AT91C_DDRC2_NB_BANKS_8
 				| AT91C_DDRC2_NDQS_DISABLED
