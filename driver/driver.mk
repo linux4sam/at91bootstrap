@@ -32,10 +32,14 @@ COBJS-$(CONFIG_NANDFLASH)	+= $(DRIVERS_SRC)/nandflash.o
 COBJS-$(CONFIG_USE_PMECC)	+= $(DRIVERS_SRC)/pmecc.o
 COBJS-$(CONFIG_ENABLE_SW_ECC) 	+= $(DRIVERS_SRC)/hamming.o
 
+COBJS-$(CONFIG_SPI_FLASH)	+= $(DRIVERS_SRC)/spi_flash/spi_flash.o
+COBJS-$(CONFIG_SPI_FLASH)	+= $(DRIVERS_SRC)/spi_flash/sfdp.o
+COBJS-$(CONFIG_SPI_FLASH)	+= $(DRIVERS_SRC)/spi_flash/spi_nor.o
+COBJS-$(CONFIG_SPI_FLASH)	+= $(DRIVERS_SRC)/spi_flash/spi_nor_ids.o
+
 COBJS-$(CONFIG_SPI)		+= $(DRIVERS_SRC)/at91_spi.o
 COBJS-$(CONFIG_SPI)		+= $(DRIVERS_SRC)/spi_flash.o
 COBJS-$(CONFIG_QSPI)		+= $(DRIVERS_SRC)/at91_qspi.o
-COBJS-$(CONFIG_QSPI)		+= $(DRIVERS_SRC)/qspi_flash.o
 COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/dataflash.o
 
 COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o

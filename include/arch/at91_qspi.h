@@ -97,7 +97,8 @@
 /* QSPI_SCR */
 #define	QSPI_SCR_CPOL		(0x1 << 0)	/* Clock Polarity */
 #define	QSPI_SCR_CPHA		(0x1 << 1)	/* Clock Phase */
-#define	QSPI_SCR_SCBR_(x)	((x) << 8)	/* Serial Clock Baud Rate */
+#define	QSPI_SCR_SCBR		(0xff << 8)
+#define	QSPI_SCR_SCBR_(x)	(((x) << 8) & QSPI_SCR_SCBR)	/* Serial Clock Baud Rate */
 #define	QSPI_SCR_DLYBS_(x)	((x) << 16)	/* Delay Before QSCK */
 
 /* QSPI_ICR */

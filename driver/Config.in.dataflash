@@ -1,32 +1,16 @@
-choice
-	prompt "SPI Interface Select"
-	default	CONFIG_SPI
+config CONFIG_SPI_FLASH
+	bool
+	default n
 
-config CONFIG_SPI
-	bool "Standard SPI Interface"
-	depends on CPU_HAS_SPI0 || CPU_HAS_SPI1 || CPU_HAS_SPI1
-
-config CONFIG_QSPI
-	bool "Quad SPI Interface"
-	depends on CPU_HAS_QSPI0 || CPU_HAS_QSPI1
-
-endchoice
-
-menu  "SPI configuration"
-	depends on CONFIG_SPI
+config ALLOW_DATAFLASH_RECOVERY
+	bool
+	default	n
 
 config	CONFIG_SPI_CLK
 	int "SPI clock speed"
 	default 33000000
 	help
 	  Which speed (in Hz) should the SPI run at.
-
-config CONFIG_SMALL_DATAFLASH
-	bool "Support < 32 Mbit dataflashes"
-	default	y
-	help
-	  Deselect this to save some bytes of memory
-	  at the expense of flexibility in selecting memory sizes.
 
 config CONFIG_DATAFLASH_RECOVERY
 	bool "Support Dataflash recovery by pressing a button"
@@ -37,9 +21,30 @@ config CONFIG_DATAFLASH_RECOVERY
 	  and check that all, except the reserved vector
 	  contains a jump/branch
 
-config ALLOW_DATAFLASH_RECOVERY
-	bool
-	default	n
+choice
+	prompt "SPI Interface Select"
+	default	CONFIG_SPI
+
+config CONFIG_SPI
+	bool "Standard SPI Interface"
+	depends on CPU_HAS_SPI0 || CPU_HAS_SPI1 || CPU_HAS_SPI1
+
+config CONFIG_QSPI
+	select CONFIG_SPI_FLASH
+	bool "Quad SPI Interface"
+	depends on CPU_HAS_QSPI0 || CPU_HAS_QSPI1
+
+endchoice
+
+menu  "SPI configuration"
+	depends on CONFIG_SPI
+
+config CONFIG_SMALL_DATAFLASH
+	bool "Support < 32 Mbit dataflashes"
+	default	y
+	help
+	  Deselect this to save some bytes of memory
+	  at the expense of flexibility in selecting memory sizes.
 
 # ------- SPI boot source -----------------------------------------------------
 choice
@@ -182,12 +187,6 @@ endmenu
 
 menu "QSPI Configuration"
 	depends on CONFIG_QSPI
-
-config CONFIG_QSPI_CLK
-	int "QSPI Clock Speed"
-	default 33000000
-	help
-	  What speed (in Hz) should the QSPI run at.
 
 choice
 	prompt "QSPI Bus Select"

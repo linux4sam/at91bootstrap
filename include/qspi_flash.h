@@ -28,6 +28,6 @@
 #ifndef __QSPI_FLASH_H__
 #define __QSPI_FLASH_H__
 
-int qspi_flash_loadimage(struct image_info *image);
+int qspi_loadimage(struct image_info *image);
 
 #endif

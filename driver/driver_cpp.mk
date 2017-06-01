@@ -417,11 +417,6 @@ ifeq ($(CONFIG_SPI), y)
 CPPFLAGS += -DCONFIG_SPI
 endif
 
-ifeq ($(CONFIG_QSPI), y)
-CPPFLAGS += -DCONFIG_QSPI
-CPPFLAGS += -DAT91C_QSPI_CLK=$(QSPI_CLK)
-endif
-
 ifeq ($(CONFIG_QSPI_BUS0), y)
 CPPFLAGS += -DCONFIG_QSPI_BUS0
 endif
@@ -460,4 +455,8 @@ endif
 
 ifeq ($(CONFIG_QSPI_XIP), y)
 CPPFLAGS += -DCONFIG_QSPI_XIP
+endif
+
+ifeq ($(CONFIG_QSPI), y)
+CPPFLAGS += -DCONFIG_QSPI
 endif

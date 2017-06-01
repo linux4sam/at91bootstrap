@@ -27,37 +27,39 @@
  */
 #include "hardware.h"
 #include "board.h"
-#include "qspi.h"
 #include "pmc.h"
 #include "div.h"
 #include "string.h"
 #include "arch/at91_qspi.h"
+#include "spi_flash/spi_nor.h"
+#include "debug.h"
 
 #ifndef CONFIG_SYS_BASE_QSPI
-#define CONFIG_SYS_BASE_QSPI		AT91C_BASE_QSPI0
+#error "CONFIG_SYS_BASE_QSPI is not set"
 #endif
 
 #ifndef CONFIG_SYS_BASE_QSPI_MEM
-#define	CONFIG_SYS_BASE_QSPI_MEM	AT91C_BASE_QSPI0_MEM
+#error "CONFIG_SYS_BASE_QSPI_MEM is not set"
 #endif
 
-static unsigned int qspi_get_base(void)
+struct qspi_priv {
+	u32		reg_base;
+	void		*mem;
+};
+
+static unsigned int qspi_readl(struct qspi_priv *qspi, u32 reg)
 {
-	return CONFIG_SYS_BASE_QSPI;
+	return readl(qspi->reg_base + reg);
 }
 
-static unsigned int qspi_readl(unsigned int reg)
+static void qspi_writel(struct qspi_priv *qspi, u32 reg, u32 value)
 {
-	return readl(qspi_get_base() + reg);
+	writel(value, qspi->reg_base + reg);
 }
 
-static void qspi_writel(unsigned int reg, unsigned int value)
+static int qspi_set_freq(void *priv, u32 clock)
 {
-	writel(value, qspi_get_base() + reg);
-}
-
-static int qspi_clock_init(unsigned int clock, unsigned int mode)
-{
+	struct qspi_priv *qspi = priv;
 	unsigned int scbr;
 	unsigned int reg;
 
@@ -69,62 +71,168 @@ static int qspi_clock_init(unsigned int clock, unsigned int mode)
 			scbr--;
 	}
 
-	reg = QSPI_SCR_SCBR_(scbr);
-	if (mode == SPI_MODE1)
-		reg |= QSPI_SCR_CPHA;
-	else if (mode == SPI_MODE2)
-		reg |= QSPI_SCR_CPOL;
-	else if (mode == SPI_MODE3)
-		reg |= (QSPI_SCR_CPOL | QSPI_SCR_CPHA);
-
-	qspi_writel(QSPI_SCR, reg);
+	reg = qspi_readl(qspi, QSPI_SCR);
+	reg = (reg & ~QSPI_SCR_SCBR) | QSPI_SCR_SCBR_(scbr);
+	qspi_writel(qspi, QSPI_SCR, reg);
 
 	return 0;
 }
 
-int qspi_init(unsigned int clock, unsigned int mode)
+static int qspi_set_mode(void *priv, u8 mode)
 {
-	unsigned int config;
+	struct qspi_priv *qspi = priv;
+	unsigned int reg, val, msk;
 
-	qspi_writel(QSPI_CR, QSPI_CR_QSPIDIS);
-	qspi_writel(QSPI_CR, QSPI_CR_SWRST);
+	reg = qspi_readl(qspi, QSPI_SCR);
 
-	qspi_clock_init(clock, mode);
+	msk = (QSPI_SCR_CPHA | QSPI_SCR_CPOL);
+	switch (mode) {
+	case SPI_MODE0:
+		val = 0;
+		break;
 
-	config = QSPI_MR_SMM_MEMORY; 
-	qspi_writel(QSPI_MR, config);
+	case SPI_MODE1:
+		val = QSPI_SCR_CPHA;
+		break;
 
-	qspi_writel(QSPI_CR, QSPI_CR_QSPIEN);
+	case SPI_MODE2:
+		val = QSPI_SCR_CPOL;
+		break;
+
+	case SPI_MODE3:
+		val = (QSPI_SCR_CPOL | QSPI_SCR_CPHA);
+		break;
+
+	default:
+		return -1;
+	}
+
+	if ((reg & msk) != val) {
+		reg = (reg & ~msk) | val;
+		qspi_writel(qspi, QSPI_SCR, reg);
+	}
 
 	return 0;
 }
 
-int qspi_send_command(const qspi_command_t *cmd)
+static int qspi_init(void *priv)
 {
+	struct qspi_priv *qspi = priv;
+
+	at91_qspi_hw_init();
+
+	qspi_writel(qspi, QSPI_CR, QSPI_CR_QSPIDIS);
+	qspi_writel(qspi, QSPI_CR, QSPI_CR_SWRST);
+
+	qspi_writel(qspi, QSPI_MR, QSPI_MR_SMM_MEMORY);
+	qspi_writel(qspi, QSPI_SCR, 0);
+
+	qspi_writel(qspi, QSPI_CR, QSPI_CR_QSPIEN);
+
+	return 0;
+}
+
+static int qspi_cleanup(void *priv)
+{
+	struct qspi_priv *qspi = priv;
+
+	qspi_writel(qspi, QSPI_CR, QSPI_CR_QSPIDIS);
+	qspi_writel(qspi, QSPI_CR, QSPI_CR_SWRST);
+
+	return 0;
+}
+
+static int qspi_init_ifr(const struct spi_flash_command *cmd,
+			 unsigned int *ifr)
+{
+	*ifr = 0;
+
+	switch (cmd->flags & SFLASH_TYPE_MASK) {
+	case SFLASH_TYPE_READ:
+		*ifr |= QSPI_IFR_TFRTYPE_READ_MEMORY;
+		break;
+
+	case SFLASH_TYPE_WRITE:
+		*ifr |= QSPI_IFR_TFRTYPE_WRITE_MEMORY;
+		break;
+
+	case SFLASH_TYPE_READ_REG:
+		*ifr |= QSPI_IFR_TFRTYPE_READ;
+		break;
+
+	case SFLASH_TYPE_WRITE_REG:
+	case SFLASH_TYPE_ERASE:
+		*ifr |= QSPI_IFR_TFRTYPE_WRITE;
+		break;
+
+	default:
+		return -1;
+	}
+
+	switch (cmd->proto) {
+	case SFLASH_PROTO_1_1_1:
+		*ifr |= QSPI_IFR_WIDTH_SINGLE_BIT_SPI;
+		break;
+
+	case SFLASH_PROTO_1_1_2:
+		*ifr |= QSPI_IFR_WIDTH_DUAL_OUTPUT;
+		break;
+
+	case SFLASH_PROTO_1_2_2:
+		*ifr |= QSPI_IFR_WIDTH_DUAL_IO;
+		break;
+
+	case SFLASH_PROTO_2_2_2:
+		*ifr |= QSPI_IFR_WIDTH_DUAL_CMD;
+		break;
+
+	case SFLASH_PROTO_1_1_4:
+		*ifr |= QSPI_IFR_WIDTH_QUAD_OUTPUT;
+		break;
+
+	case SFLASH_PROTO_1_4_4:
+		*ifr |= QSPI_IFR_WIDTH_QUAD_IO;
+		break;
+
+	case SFLASH_PROTO_4_4_4:
+		*ifr |= QSPI_IFR_WIDTH_QUAD_CMD;
+		break;
+
+	default:
+		return -1;
+	}
+
+	return 0;
+}
+
+static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
+{
+	struct qspi_priv *qspi = priv;
 	unsigned int iar, icr, ifr;
 	unsigned int offset;
 	unsigned int sr, imr;
 
 	iar = 0;
 	icr = 0;
-	ifr = (QSPI_IFR_WIDTH_(cmd->protocol) |
-	       QSPI_IFR_TFRTYPE_(cmd->transfer_type));
+	ifr = 0;
 
-	/* Compute instruction parameters */
-	if (cmd->enable.bits.instruction) {
-		icr |= QSPI_ICR_INST_(cmd->instruction);
-		ifr |= QSPI_IFR_INSTEN;
-	}
+	/* Init ifr. */
+	if (qspi_init_ifr(cmd, &ifr))
+		return -1;
+
+	/* Compute instruction parameters. */
+	icr |= QSPI_ICR_INST_(cmd->inst);
+	ifr |= QSPI_IFR_INSTEN;
 
 	/* Compute address parameters. */
-	switch (cmd->enable.bits.address) {
+	switch (cmd->addr_len) {
 	case 4:
 		ifr |= QSPI_IFR_ADDRL_32_BIT;
 		//break; /* fall through the 24bit (3 byte) address case */
 	case 3:
-		iar = (cmd->enable.bits.data) ? 0 : cmd->address;
+		iar = cmd->data_len ? 0 : cmd->addr;
 		ifr |= QSPI_IFR_ADDREN;
-		offset = cmd->address;
+		offset = cmd->addr;
 		break;
 	case 0:
 		offset = 0;
@@ -134,7 +242,7 @@ int qspi_send_command(const qspi_command_t *cmd)
 	}
 
 	/* Compute option parameters. */
-	if (cmd->enable.bits.mode && cmd->num_mode_cycles) {
+	if (cmd->num_mode_cycles) {
 		unsigned int mode_cycle_bits, mode_bits;
 
 		icr |= QSPI_ICR_OPT_(cmd->mode);
@@ -182,58 +290,112 @@ int qspi_send_command(const qspi_command_t *cmd)
 	}
 
 	/* Set the number of dummy cycles. */
-	if (cmd->enable.bits.dummy)
-		ifr |= QSPI_IFR_NBDUM_(cmd->num_dummy_cycles);
+	if (cmd->num_wait_states)
+		ifr |= QSPI_IFR_NBDUM_(cmd->num_wait_states);
 
 	/* Set data enable. */
-	if (cmd->enable.bits.data) {
+	if (cmd->data_len) {
 		ifr |= QSPI_IFR_DATAEN;
 
 		/* Special case for Continuous Read Mode. */
-		if (!cmd->tx_buf && !cmd->rx_buf)
+		if (!cmd->tx_data && !cmd->rx_data)
 			ifr |= QSPI_IFR_CRM;
 	}
 
 	/* Clear pending interrupts. */
-	(void)qspi_readl(QSPI_SR);
+	(void)qspi_readl(qspi, QSPI_SR);
 
 	/* Set QSPI Instruction Frame registers. */
-	qspi_writel(QSPI_IAR, iar);
-	qspi_writel(QSPI_ICR, icr);
-	qspi_writel(QSPI_IFR, ifr);
+	qspi_writel(qspi, QSPI_IAR, iar);
+	qspi_writel(qspi, QSPI_ICR, icr);
+	qspi_writel(qspi, QSPI_IFR, ifr);
 
 	/* Skip to the final steps if there is no data. */
-	if (!cmd->enable.bits.data)
+	if (!cmd->data_len)
 		goto no_data;
 
 	/* Dummy read of QSPI_IFR to synchronize APB and AHB accesses. */
-	(void)qspi_readl(QSPI_IFR);
+	(void)qspi_readl(qspi, QSPI_IFR);
 
 	/* Stop here for Continuous Read. */
-	if (cmd->tx_buf)
+	if (cmd->tx_data)
 		/* Write data. */
-		memcpy(qspi_memory_base() + offset, cmd->tx_buf, cmd->buf_len);
-	else if (cmd->rx_buf)
+		memcpy(qspi->mem + offset, cmd->tx_data, cmd->data_len);
+	else if (cmd->rx_data)
 		/* Read data. */
-		memcpy(cmd->rx_buf, qspi_memory_base() + offset, cmd->buf_len);
+		memcpy(cmd->rx_data, qspi->mem + offset, cmd->data_len);
 	else
 		/* Stop here for continuous read */
 		return 0;
 
 	/* Release the chip-select. */
-	qspi_writel(QSPI_CR, QSPI_CR_LASTXFER);
+	qspi_writel(qspi, QSPI_CR, QSPI_CR_LASTXFER);
 
 no_data:
 	/* Poll INSTruction End and Chip Select Rise flags. */
 	imr = (QSPI_SR_INSTRE | QSPI_SR_CSR);
 	sr = 0;
 	while (sr != (QSPI_SR_INSTRE | QSPI_SR_CSR))
-		sr |= qspi_readl(QSPI_SR) & imr;
+		sr |= qspi_readl(qspi, QSPI_SR) & imr;
 
 	return 0;
 }
 
-unsigned char *qspi_memory_base(void)
+static const struct spi_ops qspi_ops = {
+	.init		= qspi_init,
+	.cleanup	= qspi_cleanup,
+	.set_freq	= qspi_set_freq,
+	.set_mode	= qspi_set_mode,
+	.exec		= qspi_exec,
+};
+
+int qspi_loadimage(struct image_info *image)
 {
-	return (unsigned char *)CONFIG_SYS_BASE_QSPI_MEM;
+	const struct spi_flash_hwcaps hwcaps = {
+		.mask = (SFLASH_HWCAPS_READ_MASK |
+			 SFLASH_HWCAPS_PP_MASK),
+	};
+	struct spi_flash flash;
+	struct qspi_priv qspi;
+	int ret;
+
+	memset(&qspi, 0, sizeof(qspi));
+	qspi.reg_base = CONFIG_SYS_BASE_QSPI;
+	qspi.mem = (void *)CONFIG_SYS_BASE_QSPI_MEM;
+
+	memset(&flash, 0, sizeof(flash));
+	flash.ops = &qspi_ops;
+	spi_flash_set_priv(&flash, &qspi);
+
+	/* Init the SPI controller. */
+	ret = spi_flash_init(&flash);
+	if (ret) {
+		dbg_info("SF: Fail to initialize spi\n");
+		return -1;
+	}
+
+	/* Probe the SPI flash memory. */
+	ret = spi_nor_probe(&flash, &hwcaps);
+	if (ret) {
+		dbg_info("SF: Fail to probe SPI flash\n");
+		spi_flash_cleanup(&flash);
+		return -1;
+	}
+
+	return spi_flash_loadimage(&flash, image);
+}
+
+int qspi_xip(struct spi_flash *flash, void **mem)
+{
+	struct qspi_priv *qspi = spi_flash_get_priv(flash);
+	int ret;
+
+	if (flash->enable_0_4_4) {
+		ret = flash->enable_0_4_4(flash, true);
+		if (ret)
+			return ret;
+	}
+
+	*mem = qspi->mem;
+	return spi_flash_read(flash, 0, 1, NULL);
 }
