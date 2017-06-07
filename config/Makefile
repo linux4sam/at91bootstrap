@@ -20,10 +20,10 @@ host-cobjs := $(sort $(foreach m,$(__hostprogs),$($(m)-objs)))
 host-cxxobjs := $(sort $(foreach m,$(__hostprogs),$($(m)-cxxobjs)))
 
 $(host-csingle): %: %.c
-	$(Q)$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS_$@) $< $(HOST_LOADLIBES) -o $@
+	$(Q)$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS_$@) $< $(HOSTLOADLIBES_$@) -o $@
 
 $(host-cmulti): %: $(host-cobjs) $(host-cshlib)
-	$(Q)$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS_$@) $($@-objs) $(HOST_LOADLIBES) -o $@
+	$(Q)$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS_$@) $($@-objs) $(HOSTLOADLIBES_$@) -o $@
 
 $(host-cxxmulti): %: $(host-cxxobjs) $(host-cobjs) $(host-cshlib)
 	$(Q)$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) $(HOSTCFLAGS_$@) $($@-objs) $($@-cxxobjs) $(HOSTLOADLIBES_$@) -o $@
