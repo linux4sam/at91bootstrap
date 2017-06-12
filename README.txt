@@ -12,17 +12,12 @@ to start it.
 
 AT91Bootstrap has been compiled and tested under Linux using the following GNU
 ARM Toolchain:
-- gcc version 4.2.1 (CodeSourcery Sourcery G++ Lite 2007q3-51)
-- gcc version 4.2.3 (Sourcery G++ Lite 2008q1-126)
-- gcc version 4.3.5 (Buildroot 2011.05)
-- gcc version 4.4.1 (Sourcery G++ Lite 2009q3-67)
-- gcc version 4.4.1 (Sourcery G++ Lite 2010q1-202)
-- gcc version 4.5.2 (Sourcery G++ Lite 2011.03-41)
-- gcc version 4.5.3 20110223 (prerelease) (GCC) (OE 2011.03)
 - gcc version 4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5)
-- gcc version 4.7.2 (Sourcery CodeBench Lite 2012.09-64)
 - gcc version 4.7.3 (Sourcery CodeBench Lite 2013.05-24)
 - gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
+- gcc version 4.8.3 (Sourcery CodeBench Lite 2014.05-29)
+- gcc version 4.9.3 (Linaro GCC 2014.11)
+- gcc version 5.1.1 (Linaro GCC 5.1-2015.08)
 
 2 Compile AT91Bootstrap
 ================================================================================
