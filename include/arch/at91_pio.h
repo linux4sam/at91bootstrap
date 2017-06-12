@@ -126,9 +126,9 @@
 #define	AT91C_PIO_CFGR_OPD	(0x01 << 14)	/* Open-Drain */
 #define	AT91C_PIO_CFGR_SCHMITT	(0x01 << 15)	/* Schmitt Trigger*/
 #define	AT91C_PIO_CFGR_DRVSTR	(0x03 << 16)	/* Drive Strength*/
-#define		AT91C_PIO_CFGR_DRVSTR_HIGH	(0x00 << 16)
-#define		AT91C_PIO_CFGR_DRVSTR_MEDIUM	(0x01 << 16)
-#define		AT91C_PIO_CFGR_DRVSTR_LOW	(0x02 << 16)
+#define		AT91C_PIO_CFGR_DRVSTR_HIGH	(0x03 << 16)
+#define		AT91C_PIO_CFGR_DRVSTR_MEDIUM	(0x02 << 16)
+#define		AT91C_PIO_CFGR_DRVSTR_LOW	(0x01 << 16)
 #define	AT91C_PIO_CFGR_EVTSEL	(0x07 << 24)	/* Event Selection */
 #define		AT91C_PIO_CFGR_EVTSEL_FALLING	(0x00 << 24)
 #define		AT91C_PIO_CFGR_EVTSEL_RISING	(0x01 << 24)
