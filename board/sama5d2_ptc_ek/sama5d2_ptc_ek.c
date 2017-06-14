@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         MICROCHIP/ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Microchip Technology Inc.
  *
  * All rights reserved.
  *
@@ -26,33 +26,32 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "common.h"
-#include "hardware.h"
-#include "pmc.h"
-#include "usart.h"
 #include "debug.h"
 #include "ddramc.h"
 #include "gpio.h"
+#include "hardware.h"
+#include "l2cc.h"
+#include "matrix.h"
+#include "pmc.h"
 #include "timer.h"
+#include "usart.h"
 #include "watchdog.h"
 
+#include "arch/at91_ddrsdrc.h"
+#include "arch/at91_pio.h"
 #include "arch/at91_pmc.h"
 #include "arch/at91_rstc.h"
-#include "arch/at91_pio.h"
-#include "arch/at91_ddrsdrc.h"
 #include "arch/at91_sfr.h"
 #include "arch/sama5_smc.h"
-#include "l2cc.h"
-#include "act8865.h"
-#include "twi.h"
 #include "arch/tz_matrix.h"
-#include "matrix.h"
-#include "sama5d2_ptc.h"
+#include "sama5d2_ptc_ek.h"
 
 static void at91_dbgu_hw_init(void)
 {
+	/* Have to use USART2 with prototype board. */
 	const struct pio_desc dbgu_pins[] = {
-		{"RXD0", CONFIG_SYS_DBGU_RXD_PIN, 0, PIO_DEFAULT, PIO_PERIPH_C},
-		{"TXD0", CONFIG_SYS_DBGU_TXD_PIN, 0, PIO_DEFAULT, PIO_PERIPH_C},
+		{"RXD2", CONFIG_SYS_DBGU_RXD_PIN, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TXD2", CONFIG_SYS_DBGU_TXD_PIN, 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
@@ -62,7 +61,7 @@ static void at91_dbgu_hw_init(void)
 
 static void initialize_dbgu(void)
 {
-	unsigned int baudrate = 57600;
+	unsigned int baudrate = 115200;
 
 	at91_dbgu_hw_init();
 
@@ -72,7 +71,7 @@ static void initialize_dbgu(void)
 		usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
 }
 
-#if defined(CONFIG_MATRIX)
+#ifdef CONFIG_MATRIX
 static int matrix_configure_slave(void)
 {
 	unsigned int ddr_port;
@@ -251,67 +250,45 @@ static int matrix_init(void)
 
 	return 0;
 }
-#endif	/* #if defined(CONFIG_MATRIX) */
+#endif	/* CONFIG_MATRIX */
 
-#if defined(CONFIG_DDR3)
+#ifdef CONFIG_DDR2
 static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 {
 	ddramc_config->mdr = (AT91C_DDRC2_DBW_32_BITS |
-			      AT91C_DDRC2_MD_DDR3_SDRAM);
+			      AT91C_DDRC2_MD_DDR2_SDRAM);
 
 	ddramc_config->cr = (AT91C_DDRC2_NC_DDR10_SDR9 |
 			     AT91C_DDRC2_NR_14 |
-			     AT91C_DDRC2_CAS_5 |
+			     AT91C_DDRC2_CAS_3 |
+			     AT91C_DDRC2_DISABLE_RESET_DLL |
 			     AT91C_DDRC2_DISABLE_DLL |
-			     AT91C_DDRC2_WEAK_STRENGTH_RZQ7 |
 			     AT91C_DDRC2_NB_BANKS_8 |
 			     AT91C_DDRC2_DECOD_INTERLEAVED |
 			     AT91C_DDRC2_UNAL_SUPPORTED);
 
-	/*
-	 * According to MT41K128M16 datasheet
-	 * Maximum fresh period: 64ms, refresh count: 8k
-	 */
-#ifdef CONFIG_BUS_SPEED_166MHZ
-	/* Refresh Timer is (64ms / 8k) * 166MHz = 1297(0x511) */
-	ddramc_config->rtr = 0x511;
+	ddramc_config->rtr = 0x500;
 
-	/*
-	 * According to the sama5d2 datasheet and the following values:
-	 * T Sens = 0.75%/C, V Sens = 0.2%/mV, T driftrate = 1C/sec and V driftrate = 15 mV/s
-	 * Warning: note that the values T driftrate and V driftrate are dependent on
-	 * the application environment.
-	 * ZQCS period is 1.5 / ((0.75 x 1) + (0.2 x 15)) = 0.4s
-	 * If tref is 7.8us, we have: 400000 / 7.8 = 51282(0xC852)
-	 * */
-	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
-
-	/* DDR3 ZQCS */
-	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
-
-	/* Assume timings for 8ns min clock period */
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(6) |
+	/* Assume timings for 6ns min clock period */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8) |
 			       AT91C_DDRC2_TRCD_(3) |
-			       AT91C_DDRC2_TWR_(4) |
-			       AT91C_DDRC2_TRC_(9) |
+			       AT91C_DDRC2_TWR_(3) |
+			       AT91C_DDRC2_TRC_(10) |
 			       AT91C_DDRC2_TRP_(3) |
 			       AT91C_DDRC2_TRRD_(4) |
 			       AT91C_DDRC2_TWTR_(4) |
-			       AT91C_DDRC2_TMRD_(4));
+			       AT91C_DDRC2_TMRD_(2));
 
-	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(27) |
-			       AT91C_DDRC2_TXSNR_(29) |
-			       AT91C_DDRC2_TXSRD_(0) |
+	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(33) |
+			       AT91C_DDRC2_TXSNR_(35) |
+			       AT91C_DDRC2_TXSRD_(200) |
 			       AT91C_DDRC2_TXP_(3));
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(0) |
-			       AT91C_DDRC2_TXARDS_(0) |
-			       AT91C_DDRC2_TRPA_(0) |
-			       AT91C_DDRC2_TRTP_(4) |
-			       AT91C_DDRC2_TFAW_(7));
-#else
-#error "No CLK setting defined"
-#endif
+	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(2) |
+			       AT91C_DDRC2_TXARDS_(8) |
+			       AT91C_DDRC2_TRPA_(4) |
+			       AT91C_DDRC2_TRTP_(2) |
+			       AT91C_DDRC2_TFAW_(8));
 }
 
 static void ddramc_init(void)
@@ -324,6 +301,10 @@ static void ddramc_init(void)
 	pmc_sam9x5_enable_periph_clk(AT91C_ID_MPDDRC);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
+	/* Configure Shift Sampling Point of Data. */
+	reg = AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES;
+	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
+
 	/* MPDDRC I/O Calibration Register */
 	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
 	reg &= ~AT91C_MPDDRC_RDIV;
@@ -332,14 +313,11 @@ static void ddramc_init(void)
 	reg |= AT91C_MPDDRC_TZQIO_(100);
 	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
 
-	writel(AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES,
-			(AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
-
-	ddr3_sdram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
+	ddram_initialize(AT91C_BASE_MPDDRC, AT91C_BASE_DDRCS, &ddramc_reg);
 
 	ddramc_dump_regs(AT91C_BASE_MPDDRC);
 }
-#endif
+#endif /* CONFIG DDR2 */
 
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
@@ -376,7 +354,7 @@ void hw_init(void)
 	/* Init timer */
 	timer_init();
 
-#if defined(CONFIG_DDR3)
+#if defined(CONFIG_DDR2)
 	/* Initialize MPDDR Controller */
 	ddramc_init();
 #endif
@@ -401,41 +379,23 @@ void at91_spi0_hw_init(void)
 }
 #endif
 
-#if defined(CONFIG_TWI0)
-unsigned int at91_twi0_hw_init(void)
-{
-	unsigned int base_addr = AT91C_BASE_TWI0;
-
-	const struct pio_desc twi_pins[] = {
-		{"TWD0", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_PERIPH_B},
-		{"TWCK0", AT91C_PIN_PD(22), 0, PIO_DEFAULT, PIO_PERIPH_B},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pio_configure(twi_pins);
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_TWI0);
-
-	return base_addr;
-}
-#endif
-
 #ifdef CONFIG_NANDFLASH
 void nandflash_hw_init(void)
 {
 	const struct pio_desc nand_pins[] = {
-		{"NANDOE", CONFIG_SYS_NAND_OE_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"NANDWE", CONFIG_SYS_NAND_WE_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"NANDALE", CONFIG_SYS_NAND_ALE_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"NANDCLE", CONFIG_SYS_NAND_CLE_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"NANDOE", CONFIG_SYS_NAND_OE_PIN, 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"NANDWE", CONFIG_SYS_NAND_WE_PIN, 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"NANDALE", CONFIG_SYS_NAND_ALE_PIN, 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"NANDCLE", CONFIG_SYS_NAND_CLE_PIN, 0, PIO_PULLUP, PIO_PERIPH_B},
 		{"NANDCS", CONFIG_SYS_NAND_ENABLE_PIN, 1, PIO_DEFAULT, PIO_OUTPUT},
-		{"D0", AT91C_PIN_PA(0), 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"D1", AT91C_PIN_PA(1), 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"D2", AT91C_PIN_PA(2), 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"D3", AT91C_PIN_PA(3), 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"D4", AT91C_PIN_PA(4), 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"D5", AT91C_PIN_PA(5), 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"D6", AT91C_PIN_PA(6), 0, PIO_PULLUP, PIO_PERIPH_F},
-		{"D7", AT91C_PIN_PA(7), 0, PIO_PULLUP, PIO_PERIPH_F},
+		{"D0", AT91C_PIN_PA(22), 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"D1", AT91C_PIN_PA(23), 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"D2", AT91C_PIN_PA(24), 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"D3", AT91C_PIN_PA(25), 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"D4", AT91C_PIN_PA(26), 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"D5", AT91C_PIN_PA(27), 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"D6", AT91C_PIN_PA(28), 0, PIO_PULLUP, PIO_PERIPH_B},
+		{"D7", AT91C_PIN_PA(29), 0, PIO_PULLUP, PIO_PERIPH_B},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
@@ -475,60 +435,50 @@ void nandflash_hw_init(void)
 	       AT91C_SMC_MODE_DBW_8 |
 	       AT91C_SMC_MODE_TDF_CYCLES(1), (ATMEL_BASE_SMC + SMC_MODE3));
 }
-#endif /* #ifdef CONFIG_NANDFLASH */
+#endif /* CONFIG_NANDFLASH */
 
-#if defined(CONFIG_TWI1)
-unsigned int at91_twi1_hw_init(void)
+#ifdef CONFIG_SDCARD
+#define ATMEL_SDHC_GCKDIV_VALUE	1
+
+void at91_sdhc_hw_init(void)
 {
-	return 0;
-}
+#ifdef CONFIG_SDHC0
+	const struct pio_desc sdmmc_pins[] = {
+		{"SDMMC0_CK",   AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_CMD",  AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT0", AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT1", AT91C_PIN_PA(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT2", AT91C_PIN_PA(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT3", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT4", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT5", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT6", AT91C_PIN_PA(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT7", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_RSTN", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_VDDSEL", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_CD",   AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 #endif
 
-#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
-void at91_board_config_twi_bus(void)
-{
-	act8865_twi_bus = 0;
-}
+#ifdef CONFIG_SDHC1
+	const struct pio_desc sdmmc_pins[] = {
+		{"SDMMC1_CD",   AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_CMD",  AT91C_PIN_PA(28), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_CK",   AT91C_PIN_PA(22), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_DAT0", AT91C_PIN_PA(18), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_DAT1", AT91C_PIN_PA(19), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_DAT2", AT91C_PIN_PA(20), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{"SDMMC1_DAT3", AT91C_PIN_PA(21), 0, PIO_DEFAULT, PIO_PERIPH_E},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 #endif
 
-#if defined(CONFIG_ACT8865_SET_VOLTAGE)
-int at91_board_act8865_set_reg_voltage(void)
-{
-	unsigned char reg, value;
-	int ret;
+	pio_configure(sdmmc_pins);
 
-	/* Check ACT8865 I2C interface */
-	if (act8865_check_i2c_disabled())
-		return 0;
-
-	/* Enable REG4 output 2.5V */
-	reg = REG4_0;
-	value = ACT8865_2V5;
-	ret = act8865_set_reg_voltage(reg, value);
-	if (ret)
-		dbg_loud("ACT8865: Failed to make REG4 output 2500mV\n");
-
-	/* Enable REG5 output 3.3V */
-	reg = REG5_0;
-	value = ACT8865_3V3;
-	ret = act8865_set_reg_voltage(reg, value);
-	if (ret)
-		dbg_loud("ACT8865: Failed to make REG5 output 3300mV\n");
-
-	/* Enable REG6 output 2.5V */
-	reg = REG6_0;
-	value = ACT8865_2V5;
-	ret = act8865_set_reg_voltage(reg, value);
-	if (ret)
-		dbg_loud("ACT8865: Failed to make REG6 output 2500mV\n");
-
-	/* Enable REG7 output 1.8V */
-	reg = REG7_0;
-	value = ACT8865_1V8;
-	ret = act8865_set_reg_voltage(reg, value);
-	if (ret)
-		dbg_loud("ACT8865: Failed to make REG7 output 1800mV\n");
-
-	return 0;
+	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC,
+					GCK_CSS_UPLL_CLK,
+					ATMEL_SDHC_GCKDIV_VALUE);
 }
-#endif
+#endif /* CONFIG_SDCARD */

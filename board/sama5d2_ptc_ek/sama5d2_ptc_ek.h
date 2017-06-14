@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
- *         ATMEL Microcontroller Software Support
+ *         MICROCHIP/ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2016, Atmel Corporation
+ * Copyright (c) 2017, Microchip Technology Inc.
  *
  * All rights reserved.
  *
@@ -25,8 +25,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __SAMA5D2_PTC_H
-#define __SAMA5D2_PTC_H
+#ifndef __SAMA5D2_PTC_EK_H
+#define __SAMA5D2_PTC_EK_H
 
 /*
  * PMC Settings
@@ -63,10 +63,10 @@
 /*
  * DBGU Settings
  */
-#define USART_BASE	AT91C_BASE_UART0
-#define CONFIG_SYS_DBGU_RXD_PIN		AT91C_PIN_PB(26)
-#define CONFIG_SYS_DBGU_TXD_PIN		AT91C_PIN_PB(27)
-#define CONFIG_SYS_DBGU_ID		AT91C_ID_UART0
+#define USART_BASE		AT91C_BASE_UART2
+#define CONFIG_SYS_DBGU_RXD_PIN	AT91C_PIN_PD(23)
+#define CONFIG_SYS_DBGU_TXD_PIN	AT91C_PIN_PD(24)
+#define CONFIG_SYS_DBGU_ID	AT91C_ID_UART2
 
 /*
  * DataFlash Settings
@@ -86,11 +86,25 @@
 #define CONFIG_SYS_NAND_MASK_ALE        (1 << 21)
 #define CONFIG_SYS_NAND_MASK_CLE        (1 << 22)
 
-#define CONFIG_SYS_NAND_OE_PIN		AT91C_PIN_PA(12)
-#define CONFIG_SYS_NAND_WE_PIN		AT91C_PIN_PA(8)
-#define CONFIG_SYS_NAND_ALE_PIN		AT91C_PIN_PA(10)
-#define CONFIG_SYS_NAND_CLE_PIN		AT91C_PIN_PA(11)
-#define CONFIG_SYS_NAND_ENABLE_PIN      AT91C_PIN_PA(9)
+#define CONFIG_SYS_NAND_OE_PIN		AT91C_PIN_PB(2)
+#define CONFIG_SYS_NAND_WE_PIN		AT91C_PIN_PA(30)
+#define CONFIG_SYS_NAND_ALE_PIN		AT91C_PIN_PB(0)
+#define CONFIG_SYS_NAND_CLE_PIN		AT91C_PIN_PB(1)
+#define CONFIG_SYS_NAND_ENABLE_PIN      AT91C_PIN_PA(31)
 
 #define NO_GALOIS_TABLE_IN_ROM
+
+/*
+ * SDHC Settings
+ */
+#ifdef CONFIG_SDHC0
+#define CONFIG_SYS_BASE_SDHC	AT91C_BASE_SDHC0
+#define CONFIG_SYS_ID_SDHC	AT91C_ID_SDMMC0
+#endif
+
+#ifdef CONFIG_SDHC1
+#define CONFIG_SYS_BASE_SDHC	AT91C_BASE_SDHC1
+#define CONFIG_SYS_ID_SDHC	AT91C_ID_SDMMC1
+#endif
+
 #endif

@@ -88,8 +88,8 @@
 #include "sama5d4_xplained.h"
 #endif
 
-#ifdef CONFIG_SAMA5D2_PTC
-#include "sama5d2_ptc.h"
+#ifdef CONFIG_SAMA5D2_PTC_EK
+#include "sama5d2_ptc_ek.h"
 #endif
 
 #ifdef CONFIG_SAMA5D2_XPLAINED
