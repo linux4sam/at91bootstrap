@@ -36,6 +36,7 @@
 #include "nand.h"
 #include "pmecc.h"
 #include "hamming.h"
+#include "ubi.h"
 #include "timer.h"
 #include "fdt.h"
 #include "div.h"
@@ -819,7 +820,7 @@ static int nand_read_sector(struct nand_info *nand,
 }
 #endif /* #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS */
 
-static int nand_check_badblock(struct nand_info *nand,
+int nand_check_badblock(struct nand_info *nand,
 				unsigned int block,
 				unsigned char *buffer)
 {
@@ -852,7 +853,7 @@ static void nand_read_ecc(struct nand_ooblayout *ooblayout,
 }
 #endif
 
-static int nand_read_page(struct nand_info *nand,
+int nand_read_page(struct nand_info *nand,
 				unsigned int block,
 				unsigned int page,
 				unsigned int zone_flag,
@@ -941,7 +942,54 @@ static int nandflash_recovery(struct nand_info *nand)
 }
 #endif /* #ifdef CONFIG_NANDFLASH_RECOVERY */
 
-static int nand_loadimage(struct nand_info *nand,
+#ifdef CONFIG_UBI
+unsigned int nand_searchvolume(struct ubi_device *ubi, const char *volname)
+{
+	unsigned int id = ubi_searchvolume(ubi, volname);
+
+	if (id == (unsigned int) -1 || ubi->voltable[id].update) {
+		dbg_info("NAND: UBI volume %s %s!\n", volname,
+			id == (unsigned int) -1 ? "not found" : "is marked as update");
+		return -1;
+	}
+
+	return id;
+}
+
+int nand_loadvolume(struct ubi_device *ubi,
+			const char *volname,
+#ifdef CONFIG_UBI_SPARE
+			const char *spare_volname,
+#endif
+			unsigned int *length,
+			unsigned char *dest)
+{
+	const char *vol = volname;
+	unsigned int id;
+	int ret;
+
+	id = nand_searchvolume(ubi, vol);
+	if (id == (unsigned int) -1) {
+#ifdef CONFIG_UBI_SPARE
+		vol = spare_volname;
+		dbg_info("NAND: Using spare-volume %s!\n", vol);
+		id = nand_searchvolume(ubi, vol);
+		if (id == (unsigned int) -1)
+			return -1;
+#else
+		return -1;
+#endif
+	}
+
+	dbg_loud("NAND: Loading UBI volume %s with volume-id %x...\n", vol, id);
+	ret = ubi_loadimage(ubi, id, length, dest);
+	if (ret)
+		return -1;
+
+	return 0;
+}
+#else
+int nand_loadimage(struct nand_info *nand,
 				unsigned int offset,
 				unsigned int length,
 				unsigned char *dest)
@@ -1030,10 +1078,14 @@ static int update_image_length(struct nand_info *nand,
 	return -1;
 }
 #endif
+#endif
 
 int load_nandflash(struct image_info *image)
 {
 	struct nand_info nand;
+#ifdef CONFIG_UBI
+	struct ubi_device ubi;
+#endif
 	int ret;
 
 	nandflash_hw_init();
@@ -1055,6 +1107,64 @@ int load_nandflash(struct image_info *image)
 	dbg_info("NAND: Using Software ECC\n");
 #endif
 
+#ifdef CONFIG_UBI
+	dbg_info("NAND: Initialize UBI...\n");
+	ret = ubi_init(&ubi, &nand);
+	if (ret) {
+		dbg_info("NAND: Failed to initialize UBI!\n");
+		return -1;
+	}
+
+	dbg_info("NAND: Loading UBI volume %s %s to @%x (%x bytes length)...\n",
+		image->volname,
+#ifdef CONFIG_UBI_SPARE
+		image->spare_volname,
+#else
+		"(no spare-volume)",
+#endif
+		image->dest, image->length);
+	ret = nand_loadvolume(&ubi, image->volname,
+#ifdef CONFIG_UBI_SPARE
+			image->spare_volname,
+#endif
+			&image->length, image->dest);
+	if (ret) {
+		dbg_info("NAND: Failed to load UBI volume %s %s!\n", image->volname,
+#ifdef CONFIG_UBI_SPARE
+			image->spare_volname
+#else
+			"(no spare-volume)"
+#endif
+			);
+		return -1;
+	}
+
+#ifdef CONFIG_OF_LIBFDT
+	dbg_info("NAND: Loading UBI volume %s %s to @%x (%x bytes length)...\n",
+		image->of_volname,
+#ifdef CONFIG_UBI_SPARE
+		image->of_spare_volname,
+#else
+		"(no spare-volume)",
+#endif
+		image->of_dest, image->of_length);
+	ret = nand_loadvolume(&ubi, image->of_volname,
+#ifdef CONFIG_UBI_SPARE
+			image->of_spare_volname,
+#endif
+			&image->of_length, image->of_dest);
+	if (ret) {
+		dbg_info("NAND: Failed to load UBI volume %s %s!\n", image->of_volname,
+#ifdef CONFIG_UBI_SPARE
+			image->of_spare_volname
+#else
+			"(no spare-volume)"
+#endif
+			);
+		return -1;
+	}
+#endif
+#else
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 	int length = update_image_length(&nand,
 				image->offset, image->dest, KERNEL_IMAGE);
@@ -1087,6 +1197,6 @@ int load_nandflash(struct image_info *image)
 	if (ret)
 		return ret;
 #endif
-
+#endif
 	return 0;
  }

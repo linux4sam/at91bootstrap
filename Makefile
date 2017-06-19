@@ -163,6 +163,10 @@ else
 BLOB:=
 endif
 
+ifeq ($(CONFIG_UBI), y)
+BLOB:=$(BLOB)-ubi
+endif
+
 ifeq ($(CONFIG_LOAD_LINUX), y)
 TARGET_NAME:=linux-$(subst I,i,$(IMAGE_NAME))
 endif

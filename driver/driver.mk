@@ -39,6 +39,7 @@ COBJS-$(CONFIG_QSPI)		+= $(DRIVERS_SRC)/qspi_flash.o
 COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/dataflash.o
 
 COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o
+COBJS-$(CONFIG_UBI)		+= $(DRIVERS_SRC)/ubi.o
 
 COBJS-$(CONFIG_LOAD_LINUX)	+= $(DRIVERS_SRC)/load_kernel.o
 COBJS-$(CONFIG_LOAD_ANDROID)	+= $(DRIVERS_SRC)/load_kernel.o
