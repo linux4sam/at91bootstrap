@@ -54,6 +54,7 @@
 #define DF_FAMILY_AT26DF		0x40	/* AT25DF and AT26DF */
 
 #define DF_FAMILY_N25Q			0xA0
+#define DF_FAMILY_M25P			0x20
 
 /* AT45 Density Code */
 #define DENSITY_AT45DB011D		0x0C
@@ -573,29 +574,52 @@ static int df_at25_desc_init(struct dataflash_descriptor *df_desc)
 	return 0;
 }
 
-static int df_desc_init(struct dataflash_descriptor *df_desc,
+static int df_desc_init(struct dataflash_descriptor *df_desc, unsigned char vendor,
 			unsigned char family)
 {
 	int ret;
 
 	df_desc->family = family;
 
-	if ((df_desc->family == DF_FAMILY_AT26F)
-		|| (df_desc->family == DF_FAMILY_AT26DF)) {
-		ret = df_at25_desc_init(df_desc);
-		if (ret)
-			return ret;
-	} else if (df_desc->family == DF_FAMILY_AT45) {
-		ret = df_at45_desc_init(df_desc);
-		if (ret)
-			return ret;
-	} else if (df_desc->family == DF_FAMILY_N25Q) {
-		ret = df_n25q_desc_init(df_desc);
-		if (ret)
-			return ret;
-	} else {
-		dbg_info("SF: Unsupported SerialFlash family %x\n", family);
-		return -1;
+	switch ( vendor ) {
+		case MANUFACTURER_ID_ATMEL: {
+
+			if ((df_desc->family == DF_FAMILY_AT26F)
+				|| (df_desc->family == DF_FAMILY_AT26DF)) {
+				ret = df_at25_desc_init(df_desc);
+				if (ret)
+					return ret;
+			} else if (df_desc->family == DF_FAMILY_AT45) {
+				ret = df_at45_desc_init(df_desc);
+				if (ret)
+					return ret;
+			} else {
+				dbg_info("SF: Unsupported SerialFlash family %x\n", family);
+				return -1;
+			}
+		}
+		break;
+
+		case MANUFACTURER_ID_MICRON:{
+
+			if (df_desc->family == DF_FAMILY_M25P) {
+				ret = df_n25q_desc_init(df_desc);
+				if (ret)
+					return ret;
+			}else if (df_desc->family == DF_FAMILY_N25Q) {
+				ret = df_n25q_desc_init(df_desc);
+				if (ret)
+					return ret;
+			} else {
+				dbg_info("SF: Unsupported SerialFlash family %x\n", family);
+				return -1;
+			}
+		}
+		break;
+
+		default:
+			dbg_info("SF: Unsupported Manufactorer ID %x\n", vendor);
+			return -1;
 	}
 
 	return 0;
@@ -630,7 +654,7 @@ static int dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
 		return -1;
 	}
 
-	ret = df_desc_init(df_desc, (dev_id[1] & 0xe0));
+	ret = df_desc_init(df_desc, dev_id[0], (dev_id[1] & 0xe0) );
 	if (ret)
 		return ret;
 
