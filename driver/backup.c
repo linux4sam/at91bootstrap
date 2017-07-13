@@ -63,7 +63,7 @@ static void backup_mode(void)
 {
 	int ret;
 
-	usart_puts("BKP: enter backup_mode\n");
+	usart_puts("BKP: enter backup_mode resuming = -1\n");
 	resuming = 0;
 
 	ret = readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
@@ -87,6 +87,12 @@ int backup_resume(void)
 	usart_puts("BKP: enter backup_resume\n");
 	if (resuming == -1)
 		backup_mode();
+
+	if (resuming == 1)
+		usart_puts("BKP: backup_resume resuming = 1\n");
+
+	if (resuming == 0)
+		usart_puts("BKP: backup_resume resuming = 0\n");
 
 	return resuming;
 }
