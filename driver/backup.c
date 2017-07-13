@@ -32,6 +32,8 @@
 #include "arch/at91_sfrbu.h"
 #include "usart.h"
 
+#undef DEBUG_BKP_SR_INIT
+
 static struct at91_pm_bu {
 	int suspended;
 	unsigned long *reserved;
@@ -113,8 +115,10 @@ unsigned long backup_mode_resume(void)
 				, (unsigned long)(*pm_bu->canary)
 				, (unsigned long)(pm_bu->resume)
 				);
+#if defined(DEBUG_BKP_SR_INIT)
 		dbg_hexdump((unsigned char *)pm_bu, 16, DUMP_WIDTH_BIT_32);
 		while (1) {};
+#endif
 		cpu_reset();
 		return 0;
 	}
