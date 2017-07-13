@@ -33,6 +33,11 @@
 #include "usart.h"
 
 #undef DEBUG_BKP_SR_INIT
+#if defined(DEBUG_BKP_SR_INIT)
+#define dbg_bkp_sf(fmt_str)	usart_puts("BKP: " fmt_str)
+#else
+#define dbg_bkp_sf(fmt_str)	do {} while (0)
+#endif
 
 static struct at91_pm_bu {
 	int suspended;
@@ -65,7 +70,7 @@ static void backup_mode(void)
 {
 	int ret;
 
-	usart_puts("BKP: enter backup_mode resuming = -1\n");
+	dbg_bkp_sf("enter backup_mode resuming = -1\n");
 	resuming = 0;
 
 	ret = readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
@@ -86,22 +91,22 @@ static void backup_mode(void)
 
 int backup_resume(void)
 {
-	usart_puts("BKP: enter backup_resume\n");
+	dbg_bkp_sf("enter backup_resume\n");
 	if (resuming == -1)
 		backup_mode();
 
 	if (resuming == 1)
-		usart_puts("BKP: backup_resume resuming = 1\n");
+		dbg_bkp_sf("backup_resume resuming = 1\n");
 
 	if (resuming == 0)
-		usart_puts("BKP: backup_resume resuming = 0\n");
+		dbg_bkp_sf("backup_resume resuming = 0\n");
 
 	return resuming;
 }
 
 unsigned long backup_mode_resume(void)
 {
-	dbg_info("BKP: backup_mode_resume, resuming = %d\n", resuming);
+	dbg_loud("BKP: backup_mode_resume, resuming = %d\n", resuming);
 
 	if (!backup_resume())
 		return 0;
