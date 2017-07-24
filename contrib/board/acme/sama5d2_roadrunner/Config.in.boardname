@@ -1,0 +1,2 @@
+config CONFIG_BOARDNAME
+	default "sama5d2_roadrunner"	if CONFIG_SAMA5D2_ROADRUNNER
