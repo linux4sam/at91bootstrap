@@ -251,7 +251,6 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			    AT91C_DDRC2_DISABLE_RESET_DLL |
 			    AT91C_DDRC2_WEAK_STRENGTH_RZQ7 |
 			    AT91C_DDRC2_ENABLE_DLL |
-			    AT91C_DDRC2_ZQ_LONG	|
 			    AT91C_DDRC2_NB_BANKS_8 |
 			    AT91C_DDRC2_DECOD_INTERLEAVED |
 			    AT91C_DDRC2_UNAL_SUPPORTED;
@@ -263,14 +262,14 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			      AT91C_DDRC2_TWR_(3) |
 			      AT91C_DDRC2_TRC_(9) |
 			      AT91C_DDRC2_TRP_(3) |
-			      AT91C_DDRC2_TRRD_(4) |
-			      AT91C_DDRC2_TWTR_(4) |
+			      AT91C_DDRC2_TRRD_(2) |
+			      AT91C_DDRC2_TWTR_(2) |
 			      AT91C_DDRC2_TMRD_(2);
 
 	ddramc_config->t1pr = AT91C_DDRC2_TRFC_(22) |
 			      AT91C_DDRC2_TXSNR_(23) |
 			      AT91C_DDRC2_TXSRD_(200) |
-			      AT91C_DDRC2_TXP_(3);
+			      AT91C_DDRC2_TXP_(2);
 
 	ddramc_config->t2pr = AT91C_DDRC2_TXARD_(2) |
 			      AT91C_DDRC2_TXARDS_(8) |
