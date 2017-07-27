@@ -7,6 +7,8 @@ config CONFIG_OVERRIDE_CMDLINE
 	help
 	  The board will override the kernel command-line which specified through the config.
 
+if CONFIG_OVERRIDE_CMDLINE
+
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	depends on CONFIG_LOAD_LINUX
 	string "Linux kernel command-line"
@@ -27,6 +29,8 @@ source "board/sama5d4_xplained/Config.in.linux_arg"
 source "board/sama5d2_ptc/Config.in.linux_arg"
 source "board/sama5d2_xplained/Config.in.linux_arg"
 source "contrib/board/Config.in.linux_arg"
+
+endif
 
 config CONFIG_LINUX_KERNEL_ARG_STRING
 	depends on CONFIG_LOAD_ANDROID
