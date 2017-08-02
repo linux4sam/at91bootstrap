@@ -71,6 +71,48 @@ open_fail:
 
 }
 
+#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
+static int sdcard_read_cmd(char *cmdline_file, char *cmdline_args)
+{
+	FIL 	file;
+	UINT	byte_to_read = CMDLINE_BUF_LEN;
+        UINT    byte_read;
+	FRESULT	fret;
+        int 	ret;
+
+	fret = f_open(&file, cmdline_file, FA_OPEN_EXISTING | FA_READ);
+	if (fret != FR_OK) {
+		dbg_info("*** FATFS: f_open, filename: [%s]: error\n", 
+                                                                  cmdline_file);
+                ret = -1;
+		goto open_fail;
+	}
+
+	do {
+		byte_read = 0;
+		fret = f_read(&file, (char *)(cmdline_args), byte_to_read,
+                                                                    &byte_read);
+	} while (0);
+
+        dbg_info("SD/MMC: kernel arg string: %s\n", cmdline_args);
+
+	if (fret != FR_OK) {
+		dbg_info("*** FATFS: cmdline f_read: error\n");
+		ret = -1;
+		goto read_fail;
+	}
+        
+        ret = 0;
+
+read_fail:
+	fret = f_close(&file);
+
+open_fail:
+	return ret;
+
+}
+#endif
+
 int load_sdcard(struct image_info *image)
 {
 	FATFS	fs;
@@ -118,6 +160,18 @@ int load_sdcard(struct image_info *image)
 		(void)f_mount(0, NULL);
 		return ret;
 	}
+
+#endif
+
+#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
+	dbg_info("SD/MMC: kernel arg string: Read file %s\n",
+			image->cmdline_file);
+
+	ret = sdcard_read_cmd(image->cmdline_file, image->cmdline_args);
+	if (image->cmdline_args) {
+		(void)f_mount(0, NULL);
+		return ret;
+        }
 
 #endif
 

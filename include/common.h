@@ -41,6 +41,7 @@
 #endif
 
 #define FILENAME_BUF_LEN	32
+#define CMDLINE_BUF_LEN		256
 
 enum {
 	KERNEL_IMAGE,
@@ -56,6 +57,10 @@ struct image_info
 #endif
 #ifdef CONFIG_SDCARD
 	char *filename;
+#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
+	char *cmdline_file;
+	char *cmdline_args;
+#endif
 #endif
 	unsigned char *dest;
 

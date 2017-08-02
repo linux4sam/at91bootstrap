@@ -40,6 +40,10 @@ char filename[FILENAME_BUF_LEN];
 #ifdef CONFIG_OF_LIBFDT
 char of_filename[FILENAME_BUF_LEN];
 #endif
+#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
+char cmdline_file[FILENAME_BUF_LEN];
+char cmdline_args[CMDLINE_BUF_LEN];
+#endif
 #endif
 
 void init_load_image(struct image_info *image)
@@ -92,6 +96,11 @@ void init_load_image(struct image_info *image)
 	strcpy(image->filename, IMAGE_NAME);
 #ifdef CONFIG_OF_LIBFDT
 	image->of_filename = of_filename;
+#endif
+#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
+	image->cmdline_file = cmdline_file;
+	strcpy(image->cmdline_file, CMDLINE_FILE);
+	image->cmdline_args = cmdline_args;
 #endif
 #endif
 
