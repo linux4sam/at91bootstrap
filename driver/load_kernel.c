@@ -342,6 +342,13 @@ static int load_kernel_image(struct image_info *image)
 	return 0;
 }
 
+#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
+__attribute__((weak)) char *board_override_cmd_line_ext(char *cmdline_args)
+{
+        return cmdline_args;
+}
+#endif
+
 __attribute__((weak)) char *board_override_cmd_line(void)
 {
 	return CMDLINE;
@@ -363,6 +370,9 @@ int load_kernel(struct image_info *image)
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
+	bootargs = board_override_cmd_line_ext(image->cmdline_args);
+#endif
 #if defined(CONFIG_SECURE)
 	ret = secure_check(image->dest);
 	if (ret)

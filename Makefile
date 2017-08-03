@@ -134,6 +134,7 @@ CARD_SUFFIX := $(strip $(subst ",,$(CONFIG_CARD_SUFFIX)))
 MEM_BANK := $(strip $(subst ",,$(CONFIG_MEM_BANK)))
 MEM_SIZE := $(strip $(subst ",,$(CONFIG_MEM_SIZE)))
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
+LINUX_KERNEL_ARG_STRING_FILE := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING_FILE)))
 
 # Board definitions
 BOARDNAME:=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
