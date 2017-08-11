@@ -71,6 +71,7 @@ int main(void)
 		/* ...jump to Linux here */
 		return ret;
 	}
+	usart_puts("Backup mode enabled\n");
 #endif
 
 #ifdef CONFIG_HW_DISPLAY_BANNER
