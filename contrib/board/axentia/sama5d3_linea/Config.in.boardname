@@ -1,0 +1,2 @@
+config CONFIG_BOARDNAME
+	default "sama5d3_linea" if CONFIG_SAMA5D3_LINEA

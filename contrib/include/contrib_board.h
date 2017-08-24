@@ -53,4 +53,8 @@
 #include "core9g25.h"
 #endif
 
+#ifdef CONFIG_SAMA5D3_LINEA
+#include "sama5d3_linea.h"
+#endif
+
 #endif
