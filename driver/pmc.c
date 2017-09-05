@@ -29,6 +29,7 @@
 #include "board.h"
 #include "timer.h"
 #include "arch/at91_pmc.h"
+#include "arch/at91_sfr.h"
 #include "rstc.h"
 #include "debug.h"
 #include "div.h"
@@ -355,16 +356,88 @@ int pmc_sam9x5_enable_periph_clk(unsigned int periph_id)
 	return 0;
 }
 
+#if defined(AT91C_BASE_SFR) && !defined(SAMA5D4)
+static unsigned long pmc_get_main_clock(void)
+{
+	unsigned int tmp;
+
+	do {
+		tmp = read_pmc(PMC_MCFR);
+	} while (!(tmp & AT91C_CKGR_MAINRDY));
+
+	tmp &= AT91C_CKGR_MAINF;
+	return tmp * (CONFIG_SYS_AT91_SLOW_CLOCK / 16);
+}
+
+static int clock_freq_in_range(unsigned long freq,
+			     unsigned long norm, unsigned int delta)
+{
+	if (delta > norm)
+		return 0;
+
+	if ((freq >= (norm - delta)) && (freq <= (norm + delta)))
+		return 1;
+	else
+		return 0;
+}
+
+static int pmc_configure_utmi_ref_clk(void)
+{
+	unsigned long main_clock;
+	unsigned int utmi_ref_clk_freq, tmp;
+	unsigned long delta = 50000;
+
+	/*
+	 * If mainck rate is different from 12 MHz, we have to configure
+	 * the FREQ field of the SFR_UTMICKTRIM register to generate properly
+	 * the utmi clock.
+	 */
+	main_clock = pmc_get_main_clock();
+	if (clock_freq_in_range(main_clock, 12000000, delta))
+		utmi_ref_clk_freq = 0;
+	else if (clock_freq_in_range(main_clock, 16000000, delta))
+		utmi_ref_clk_freq = 1;
+	else if (clock_freq_in_range(main_clock, 24000000, delta))
+		utmi_ref_clk_freq = 2;
+	/*
+	 * Not supported on SAMA5D2 but it's not an issue since MAINCK
+	 * maximum value is 24 MHz.
+	 */
+	else if (clock_freq_in_range(main_clock, 48000000, delta))
+		utmi_ref_clk_freq = 3;
+	else
+		return -1;
+
+	tmp = readl(SFR_UTMICKTRIM + AT91C_BASE_SFR);
+	tmp &= ~AT91C_UTMICKTRIM_FREQ;
+	tmp |= utmi_ref_clk_freq;
+	writel(tmp, SFR_UTMICKTRIM + AT91C_BASE_SFR);
+
+	return 0;
+}
+#else
+static int pmc_configure_utmi_ref_clk(void)
+{
+	return 0;
+}
+#endif
+
 int pmc_uckr_clk(unsigned int is_on)
 {
 	unsigned int uckr = read_pmc(PMC_UCKR);
 	unsigned int sr;
+	int ret;
 
 	if (is_on) {
-		uckr |= (AT91C_CKGR_UPLLCOUNT_DEFAULT | AT91C_CKGR_UPLLEN_ENABLED);
+		ret = pmc_configure_utmi_ref_clk();
+		if (ret)
+			return ret;
+
+		uckr |= (AT91C_CKGR_UPLLCOUNT_DEFAULT |
+			 AT91C_CKGR_UPLLEN | AT91C_CKGR_BIASEN);
 		sr = AT91C_PMC_LOCKU;
 	} else {
-		uckr &= ~AT91C_CKGR_UPLLEN_ENABLED;
+		uckr &= ~(AT91C_CKGR_UPLLEN | AT91C_CKGR_BIASEN);
 		sr = 0;
 	}
 
@@ -390,7 +463,7 @@ int pmc_enable_periph_generated_clk(unsigned int periph_id,
 	if (div > 0xff)
 		return -1;
 
-	if (!(read_pmc(PMC_UCKR) & AT91C_CKGR_UPLLEN_ENABLED))
+	if (!(read_pmc(PMC_SR) & AT91C_PMC_LOCKU))
 		pmc_uckr_clk(1);
 
 	write_pmc(PMC_PCR, periph_id);

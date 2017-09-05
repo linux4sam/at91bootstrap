@@ -37,7 +37,7 @@
 #define SFR_OHCIISR	0x14	/* OHCI Interrupt Status Register */
 /* Reserved */
 #define SFR_SECURE	0x28	/* Security Configuration Register */
-/* 0x2C ~ 0x3C Reserved */
+#define SFR_UTMICKTRIM	0x30	/* UTMI Clock Trimming Register */
 #define SFR_EBICFG	0x40	/* EBI Configuration Register */
 #define SFR_CAN		0x48	/* CAN Memories Address-based Register */
 #define SFR_SN0		0x4C	/* Serial Number 0 Register */
@@ -79,6 +79,8 @@
 #define AT91C_EBICFG_BMS	(0x01 << 16)
 #define		AT91C_EBICFG_BMS_ROM		(0x00 << 16)
 #define		AT91C_EBICFG_BMS_EBI		(0x01 << 16)
+
+#define AT91C_UTMICKTRIM_FREQ	0x03
 
 /*---SFR_CAN: (offset: 0x48) CAN Memories Address-based Register ----*/
 #define AT91C_CAN0_MEM_ADDR	(0xffff << 0)

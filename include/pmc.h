@@ -28,6 +28,8 @@
 #ifndef __PMC_H__
 #define __PMC_H__
 
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
+
 /* Generated clock source selection */
 #define GCK_CSS_SLOW_CLK	0x00
 #define GCK_CSS_MAIN_CLK	0x01
