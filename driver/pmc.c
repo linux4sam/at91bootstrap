@@ -359,6 +359,11 @@ int pmc_sam9x5_enable_periph_clk(unsigned int periph_id)
 #if defined(AT91C_BASE_SFR) && !defined(SAMA5D4)
 static unsigned long pmc_get_main_clock(void)
 {
+	unsigned long main_clock;
+
+#ifdef BOARD_MAINOSC
+	main_clock = BOARD_MAINOSC;
+#else
 	unsigned int tmp;
 
 	do {
@@ -366,7 +371,9 @@ static unsigned long pmc_get_main_clock(void)
 	} while (!(tmp & AT91C_CKGR_MAINRDY));
 
 	tmp &= AT91C_CKGR_MAINF;
-	return tmp * (CONFIG_SYS_AT91_SLOW_CLOCK / 16);
+	main_clock = tmp * (CONFIG_SYS_AT91_SLOW_CLOCK / 16);
+#endif
+	return main_clock;
 }
 
 static int clock_freq_in_range(unsigned long freq,
@@ -393,20 +400,22 @@ static int pmc_configure_utmi_ref_clk(void)
 	 * the utmi clock.
 	 */
 	main_clock = pmc_get_main_clock();
-	if (clock_freq_in_range(main_clock, 12000000, delta))
+	if (clock_freq_in_range(main_clock, 12000000, delta)) {
 		utmi_ref_clk_freq = 0;
-	else if (clock_freq_in_range(main_clock, 16000000, delta))
+	} else if (clock_freq_in_range(main_clock, 16000000, delta)) {
 		utmi_ref_clk_freq = 1;
-	else if (clock_freq_in_range(main_clock, 24000000, delta))
+	} else if (clock_freq_in_range(main_clock, 24000000, delta)) {
 		utmi_ref_clk_freq = 2;
 	/*
 	 * Not supported on SAMA5D2 but it's not an issue since MAINCK
 	 * maximum value is 24 MHz.
 	 */
-	else if (clock_freq_in_range(main_clock, 48000000, delta))
+	} else if (clock_freq_in_range(main_clock, 48000000, delta)) {
 		utmi_ref_clk_freq = 3;
-	else
+	} else {
+		dbg_info("The MAINCK frequency: %d\n", main_clock);
 		return -1;
+	}
 
 	tmp = readl(SFR_UTMICKTRIM + AT91C_BASE_SFR);
 	tmp &= ~AT91C_UTMICKTRIM_FREQ;
