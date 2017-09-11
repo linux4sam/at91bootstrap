@@ -34,7 +34,15 @@
 #define BOARD_MAINOSC		12000000
 
 /* PCK: 498MHz, MCK: 166MHz */
+#ifdef CONFIG_BUS_SPEED_166MHZ
 #define BOARD_PLLA_MULA		82
+#endif
+/* SAMA5D23 - SAMA5D28
+Frequency Monitor limitations
+PCK: 348MHz, MCK: 116MHz */
+#ifdef CONFIG_BUS_SPEED_116MHZ
+#define BOARD_PLLA_MULA		57
+#endif
 
 #define BOARD_PCK		((unsigned long)((BOARD_MAINOSC * (BOARD_PLLA_MULA + 1)) / 2))
 #define BOARD_MCK		((unsigned long)((BOARD_MAINOSC * (BOARD_PLLA_MULA + 1)) / 2 / 3))
@@ -53,7 +61,12 @@
 					| AT91C_PMC_MDIV_3 \
 					| AT91C_PMC_CSS_PLLA_CLK)
 
+#ifdef CONFIG_BUS_SPEED_166MHZ
 #define MASTER_CLOCK		166000000
+#endif
+#ifdef CONFIG_BUS_SPEED_116MHZ
+#define MASTER_CLOCK		116000000
+#endif
 
 #define PLLA_SETTINGS		(BOARD_CKGR_PLLA | \
 				BOARD_PLLACOUNT | \

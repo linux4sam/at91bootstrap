@@ -272,7 +272,44 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	 * According to MT41K128M16 datasheet
 	 * Maximum fresh period: 64ms, refresh count: 8k
 	 */
-#ifdef CONFIG_BUS_SPEED_166MHZ
+#ifdef CONFIG_BUS_SPEED_116MHZ
+	/* Refresh Timer is (64ms / 8k) * 166MHz = 951(0x3B7) */
+	ddramc_config->rtr = 0x3B7;
+
+	/*
+	 * According to the sama5d2 datasheet and the following values:
+	 * T Sens = 0.75%/C, V Sens = 0.2%/mV, T driftrate = 1C/sec and V driftrate = 15 mV/s
+	 * Warning: note that the values T driftrate and V driftrate are dependent on
+	 * the application environment.
+	 * ZQCS period is 1.5 / ((0.75 x 1) + (0.2 x 15)) = 0.4s
+	 * If tref is 7.8us, we have: 400000 / 7.8 = 51282(0xC852)
+	 * */
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
+
+	/* DDR3 ZQCS */
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
+
+	/* Assume timings for 8ns min clock period */
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(5)
+			| AT91C_DDRC2_TRCD_(2)
+			| AT91C_DDRC2_TWR_(4)
+			| AT91C_DDRC2_TRC_(6)
+			| AT91C_DDRC2_TRP_(2)
+			| AT91C_DDRC2_TRRD_(4)
+			| AT91C_DDRC2_TWTR_(4)
+			| AT91C_DDRC2_TMRD_(4));
+
+	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(19)
+			| AT91C_DDRC2_TXSNR_(21)
+			| AT91C_DDRC2_TXSRD_(0)
+			| AT91C_DDRC2_TXP_(10));
+
+	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(0)
+			| AT91C_DDRC2_TXARDS_(0)
+			| AT91C_DDRC2_TRPA_(0)
+			| AT91C_DDRC2_TRTP_(4)
+			| AT91C_DDRC2_TFAW_(5));
+#elif CONFIG_BUS_SPEED_166MHZ
 	/* Refresh Timer is (64ms / 8k) * 166MHz = 1297(0x511) */
 	ddramc_config->rtr = 0x511;
 
