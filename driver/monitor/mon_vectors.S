@@ -45,10 +45,10 @@ monitor_vectors:
 	b	.			/* Reset: not used by Monitor */
 	b	.			/* Undef: not used by Monitor */
 	ldr	pc, =monitor_smc_handler
-	b	.			/* Prefetch: can by used by Monitor */
-	b	.			/* Data abort: can by used by Monitor */
+	b	.			/* Prefetch: can be used by Monitor */
+	b	.			/* Data abort: can be used by Monitor */
 	b	.			/* RESERVED */
-	b	.			/* IRQ: can by used by Monitor */
-	b	.			/* FIQ - can by used by Monitor */
+	b	.			/* IRQ: can be used by Monitor */
+	b	.			/* FIQ: can be used by Monitor */
 
 	.end
