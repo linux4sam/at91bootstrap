@@ -302,6 +302,19 @@ static int nand_init_on_die_ecc(void)
 }
 #endif /* #ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT */
 
+static void nandflash_read_id(unsigned char *manf_id, unsigned char *dev_id)
+{
+	nand_cs_enable();
+
+	nand_command(CMD_READID);
+	nand_address(0x00);
+
+	*manf_id = read_byte();
+	*dev_id = read_byte();
+
+	nand_cs_disable();
+}
+
 #ifdef CONFIG_ONFI_DETECT_SUPPORT
 static unsigned short onfi_crc16(unsigned short crc,
 				unsigned char const *p,
@@ -391,19 +404,6 @@ static int get_ext_onfi_param(unsigned char *eccbits,
 	*eccwordsize = 0x01 << *(table + 1);
 
 	return 0;
-}
-
-static void nandflash_read_id(unsigned char *manf_id, unsigned char *dev_id)
-{
-	nand_cs_enable();
-
-	nand_command(CMD_READID);
-	nand_address(0x00);
-
-	*manf_id = read_byte();
-	*dev_id = read_byte();
-
-	nand_cs_disable();
 }
 
 static int nandflash_detect_onfi(struct nand_chip *chip)
