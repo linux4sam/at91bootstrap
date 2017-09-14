@@ -273,8 +273,8 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	 * Maximum fresh period: 64ms, refresh count: 8k
 	 */
 #ifdef CONFIG_BUS_SPEED_116MHZ
-	/* Refresh Timer is (64ms / 8k) * 166MHz = 951(0x3B7) */
-	ddramc_config->rtr = 0x3B7;
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 907(0x38b) */
+	ddramc_config->rtr = 0x38b;
 
 	/*
 	 * According to the sama5d2 datasheet and the following values:
