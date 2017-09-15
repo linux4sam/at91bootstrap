@@ -366,7 +366,15 @@ static void ddramc_init(void)
 	reg &= ~AT91C_MPDDRC_RDIV;
 	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
 	reg &= ~AT91C_MPDDRC_TZQIO;
+
+	/* TZQIO field must be set to 600ns */
+#ifdef CONFIG_BUS_SPEED_116MHZ
+	reg |= AT91C_MPDDRC_TZQIO_(70);
+#elif CONFIG_BUS_SPEED_166MHZ
 	reg |= AT91C_MPDDRC_TZQIO_(100);
+#else
+#error "No CLK setting defined"
+#endif
 	writel(reg, (AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR));
 
 	writel(AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES,
