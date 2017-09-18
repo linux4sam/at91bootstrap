@@ -252,6 +252,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			    AT91C_DDRC2_WEAK_STRENGTH_RZQ7 |
 			    AT91C_DDRC2_ENABLE_DLL |
 			    AT91C_DDRC2_NB_BANKS_8 |
+			    AT91C_DDRC2_NDQS_ENABLED |
 			    AT91C_DDRC2_DECOD_INTERLEAVED |
 			    AT91C_DDRC2_UNAL_SUPPORTED;
 
