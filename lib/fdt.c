@@ -183,6 +183,10 @@ static int of_get_token_nextoffset(void *blob,
 			cell++;
 			offset++;
 		} while (*cell != '\0');
+		/* the \0 is part of the node name, hence offset must be updated to the 
+		* position past the \0.
+		*/
+		++offset;
 	} else if (tag == OF_DT_TOKEN_PROP) {
 		/* the property value size */
 		plen = (unsigned int *)of_dt_struct_offset(blob, offset);
