@@ -185,7 +185,7 @@ static int parse_board_hw_info(unsigned char *buff,
 	hw_info_map_t *p = (hw_info_map_t *)buff;
 
 	if (p->total_bytes != HW_INFO_TOTAL_SIZE) {
-		dbg_info("HW Info: The total size: %x isn't correct\n",
+		dbg_loud("HW Info: The total size: %x isn't correct\n",
 			 p->total_bytes);
 		return -1;
 	}
