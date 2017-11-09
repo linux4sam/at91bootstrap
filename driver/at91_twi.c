@@ -32,6 +32,18 @@
 #include "debug.h"
 #include "pmc.h"
 
+#if defined(AT91SAM9X5)
+#define TWI_CLK_OFFSET (4)
+#elif defined(SAMA5D2)
+#define TWI_CLK_OFFSET (3) /* TODO: handle GCK case (offset=0) */
+#elif defined(SAMA5D3)
+#define TWI_CLK_OFFSET (4)
+#elif defined(SAMA5D4)
+#define TWI_CLK_OFFSET (4)
+#else
+#define TWI_CLK_OFFSET (4)
+#endif
+
 #define TWI_CLOCK	400000
 
 unsigned int twi_init_done;
@@ -124,7 +136,7 @@ static int twi_configure_master_mode(unsigned int bus,
 	twi_reg_write(twi_base, TWI_CR, TWI_CR_MSEN);
 
 	while (loop) {
-		clkdiv = div(clock, (2 * twi_clock)) - 4;
+		clkdiv = div(clock, (2 * twi_clock)) - TWI_CLK_OFFSET;
 		clkdiv = div(clkdiv, (1 << ckdiv));
 		if (clkdiv <= 255)
 			loop = 0;
