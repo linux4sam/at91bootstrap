@@ -136,8 +136,7 @@ static int twi_configure_master_mode(unsigned int bus,
 	twi_reg_write(twi_base, TWI_CR, TWI_CR_MSEN);
 
 	while (loop) {
-		clkdiv = div(clock, (2 * twi_clock)) - TWI_CLK_OFFSET;
-		clkdiv = div(clkdiv, (1 << ckdiv));
+		clkdiv = (div(clock, (2 * twi_clock)) - TWI_CLK_OFFSET) >> ckdiv;
 		if (clkdiv <= 255)
 			loop = 0;
 		else
