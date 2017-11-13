@@ -47,12 +47,9 @@
  *         Exported functions
  *------------------------------------------------------------------------------
  */
-extern void Hamming_Compute256x(const unsigned char *data,
-				unsigned int size,
-				unsigned char *code);
 
 extern unsigned char Hamming_Verify256x(unsigned char *data,
 					unsigned int size,
-					const unsigned char *code);
+					const unsigned char *ecc_from_nand);
 
 #endif /* #ifndef __HAMMING_H__ */
