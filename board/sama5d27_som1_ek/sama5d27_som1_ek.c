@@ -331,12 +331,6 @@ void hw_init(void)
 
 	at91_red_led_on();
 
-	/*
-	 * while coming from the ROM code, we run on PLLA @ 492 MHz / 164 MHz
-	 * so we need to slow down and configure MCKR accordingly.
-	 * This is why we have a special flavor of the switching function.
-	 */
-	pmc_cfg_mck_down(BOARD_PRESCALER_MAIN_CLOCK);
 	pmc_cfg_plla(PLLA_SETTINGS);
 
 	/* Initialize PLLA charge pump */
