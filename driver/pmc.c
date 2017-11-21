@@ -49,6 +49,19 @@ void lowlevel_clock_init()
 {
 	unsigned long tmp;
 
+	/*
+	 * Switch the master clock to the slow clock without modifying other
+	 * parameters. It is assumed that ROM code set H32MXDIV, PLLADIV2,
+	 * PCK_DIV3.
+	 */
+	tmp = read_pmc(PMC_MCKR);
+	tmp &= (~AT91C_PMC_CSS);
+	tmp |= AT91C_PMC_CSS_SLOW_CLK;
+	write_pmc(PMC_MCKR, tmp);
+
+	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
+		;
+
 #if defined(CONFIG_SAMA5D3X_CMP)
 	/*
 	 * On the sama5d3x_cmp board, a phy is not in the proper reset state
