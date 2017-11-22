@@ -179,8 +179,8 @@ AT91 Forum:
 http://www.at91.com/discussions/
 
 Maintainers:
-Wenyou Yang <wenyou.yang@atmel.com>
-Nicolas Ferre <nicolas.ferre@atmel.com>
+Wenyou Yang <wenyou.yang@microchip.com>
+Nicolas Ferre <nicolas.ferre@microchip.com>
 
 When creating patches insert the [at91bootstrap] tag in the subject, for example
 use something like:
