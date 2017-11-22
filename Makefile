@@ -266,6 +266,8 @@ ifneq ($(DATA_SECTION_ADDR),)
 LDFLAGS+=-Tdata $(DATA_SECTION_ADDR)
 endif
 
+REMOVE_SECTIONS=-R .note -R .comment -R .note.gnu.build-id
+
 gccversion := $(shell expr `$(CC) -dumpversion`)
 
 ifdef YYY   # For other utils
@@ -308,8 +310,8 @@ $(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
 	@echo "  LD        "$(BOOT_NAME).elf
 	$(Q)$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
-#	@$(OBJCOPY) --strip-debug --strip-unneeded $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
-	@$(OBJCOPY) --strip-all $(BINDIR)/$(BOOT_NAME).elf -O binary $@
+#	@$(OBJCOPY) --strip-debug --strip-unneeded $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
+	@$(OBJCOPY) --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK_BOOT}
 
