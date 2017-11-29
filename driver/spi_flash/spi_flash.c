@@ -209,7 +209,7 @@ int spi_flash_setup(struct spi_flash *flash,
 }
 
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-static int update_image_length(spi_flash_t *flash,
+static int update_image_length(struct spi_flash *flash,
 			       unsigned int offset,
 			       unsigned char *dest,
 			       unsigned char flag)
