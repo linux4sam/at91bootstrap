@@ -81,6 +81,7 @@ source "Config.in.u-boot"
 source "Config.in.app-image"
 
 config CONFIG_IMAGE_NAME
+	depends on CONFIG_FATFS
 	string "Image Name"
 	default "Image" if CONFIG_LINUX_IMAGE
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
