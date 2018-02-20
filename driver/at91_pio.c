@@ -99,6 +99,9 @@ static void pio4_set_periph(unsigned pio, unsigned mask,
 
 	value |= (config & PIO_PULLUP) ? AT91C_PIO_CFGR_PUEN : 0;
 	value |= (config & PIO_PULLDOWN) ? AT91C_PIO_CFGR_PDEN : 0;
+	value |= (config & PIO_DRVSTR_LO) ? AT91C_PIO_CFGR_DRVSTR_LOW : 0;
+	value |= (config & PIO_DRVSTR_ME) ? AT91C_PIO_CFGR_DRVSTR_MEDIUM : 0;
+	value |= (config & PIO_DRVSTR_HI) ? AT91C_PIO_CFGR_DRVSTR_HIGH : 0;
 
 	write_pio(pio, PIO_CFGR, value);
 }

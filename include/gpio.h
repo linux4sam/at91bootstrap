@@ -47,6 +47,9 @@ enum pio_type {
 #define PIO_DEGLITCH	(1 << 1)
 #define PIO_OPENDRAIN	(1 << 2)
 #define PIO_PULLDOWN	(1 << 3)
+#define PIO_DRVSTR_LO	(1 << 4)
+#define PIO_DRVSTR_ME	(1 << 5)
+#define PIO_DRVSTR_HI	(1 << 6)
 
 struct pio_desc {
 	const char	*pin_name;	/* Pin Name */
