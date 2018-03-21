@@ -25,7 +25,7 @@ BINDIR:=$(TOPDIR)/binaries
 
 DATE := $(shell date)
 VERSION := 3.8.10
-REVISION := rc1
+REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
 ifeq ($(SCMINFO),)
