@@ -45,6 +45,10 @@
 #include "sama5d3_acqua.h"
 #endif
 
+#ifdef CONFIG_SAMA5D3_STEPHAN
+#include "sama5d3_stephan.h"
+#endif
+
 #ifdef CONFIG_SAMA5D2_ROADRUNNER
 #include "sama5d2_roadrunner.h"
 #endif
