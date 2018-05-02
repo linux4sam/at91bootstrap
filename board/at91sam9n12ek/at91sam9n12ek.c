@@ -25,6 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "autoconf.h"
 #include "common.h"
 #include "hardware.h"
 #include "arch/at91_ccfg.h"
@@ -209,7 +210,11 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
-	strcpy(of_name, "at91sam9n12ek.dtb");
+	if (strcmp(CONFIG_OF_BLOB_STRING, "") == 0) {
+		strcpy(of_name, "at91sam9n12ek.dtb");
+	} else {
+		strcpy(of_name, CONFIG_OF_BLOB_STRING);
+	}
 }
 #endif
 
@@ -261,24 +266,24 @@ void nandflash_hw_init(void)
 	writel((AT91C_SMC_NWESETUP_(1)
 		| AT91C_SMC_NCS_WRSETUP_(0)
 		| AT91C_SMC_NRDSETUP_(3)
-		| AT91C_SMC_NCS_RDSETUP_(0)), 
+		| AT91C_SMC_NCS_RDSETUP_(0)),
 		AT91C_BASE_SMC + SMC_SETUP3);
 
 	writel((AT91C_SMC_NWEPULSE_(3)
-		| AT91C_SMC_NCS_WRPULSE_(5) 
-		| AT91C_SMC_NRDPULSE_(4) 
-		| AT91C_SMC_NCS_RDPULSE_(6)), 
+		| AT91C_SMC_NCS_WRPULSE_(5)
+		| AT91C_SMC_NRDPULSE_(4)
+		| AT91C_SMC_NCS_RDPULSE_(6)),
 		AT91C_BASE_SMC + SMC_PULSE3);
 
 	writel((AT91C_SMC_NWECYCLE_(5)
 		| AT91C_SMC_NRDCYCLE_(8)),
 		AT91C_BASE_SMC + SMC_CYCLE3);
 
-	writel((AT91C_SMC_READMODE 
-		| AT91C_SMC_WRITEMODE 
-		| AT91C_SMC_NWAITM_NWAIT_DISABLE 
+	writel((AT91C_SMC_READMODE
+		| AT91C_SMC_WRITEMODE
+		| AT91C_SMC_NWAITM_NWAIT_DISABLE
 		| AT91C_SMC_DBW_WIDTH_BITS_8
-		| AT91_SMC_TDF_(1)), 
+		| AT91_SMC_TDF_(1)),
 		AT91C_BASE_SMC + SMC_CTRL3);
 
 	/* Configure the nand controller pins*/

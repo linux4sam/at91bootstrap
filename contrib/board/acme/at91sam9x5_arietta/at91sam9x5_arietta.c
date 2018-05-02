@@ -25,6 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "autoconf.h"
 #include "common.h"
 #include "hardware.h"
 #include "arch/at91_ccfg.h"
@@ -142,13 +143,13 @@ static void ddramc_init(void)
 	/* Chip select 1 is for DDR2/SDRAM */
 	csa = readl(AT91C_BASE_CCFG + CCFG_EBICSA);
 	csa |= AT91C_EBI_CS1A_SDRAMC;
-	
+
 	/*
 	csa &= ~AT91C_EBI_DBPUC;
 	csa |= AT91C_EBI_DBPDC;
 	csa |= AT91C_EBI_DRV_HD;
 	*/
-	
+
 	writel(csa, AT91C_BASE_CCFG + CCFG_EBICSA);
 
 	/* DDRAM2 Controller initialize */
@@ -237,8 +238,11 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
-	strcpy(of_name, "acme-arietta");
-	strcat(of_name, ".dtb");
+	if (strcmp(CONFIG_OF_BLOB_STRING, "") == 0) {
+		strcpy(of_name, "acme-arietta.dtb");
+	} else {
+		strcpy(of_name, CONFIG_OF_BLOB_STRING);
+	}
 }
 #endif
 
