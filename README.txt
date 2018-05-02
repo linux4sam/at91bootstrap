@@ -179,7 +179,7 @@ AT91 Forum:
 http://www.at91.com/discussions/
 
 Maintainers:
-Wenyou Yang <wenyou.yang@microchip.com>
+Eugen Hristev <eugen.hristev@microchip.com>
 Nicolas Ferre <nicolas.ferre@microchip.com>
 
 When creating patches insert the [at91bootstrap] tag in the subject, for example
