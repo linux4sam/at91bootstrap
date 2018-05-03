@@ -139,7 +139,12 @@ LINUX_KERNEL_ARG_STRING_FILE := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STR
 # Board definitions
 BOARDNAME:=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
 
+ifeq ($(CONFIG_OVERRIDE_MACH_TYPE), y)
+MACH_TYPE:=$(strip $(subst ",,$(CONFIG_CUSTOM_MACH_TYPE)))
+else
 MACH_TYPE:=$(strip $(subst ",,$(CONFIG_MACH_TYPE)))
+endif
+
 LINK_ADDR:=$(strip $(subst ",,$(CONFIG_LINK_ADDR)))
 DATA_SECTION_ADDR:=$(strip $(subst ",,$(CONFIG_DATA_SECTION_ADDR)))
 TOP_OF_MEMORY:=$(strip $(subst ",,$(CONFIG_TOP_OF_MEMORY)))
