@@ -27,6 +27,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "autoconf.h"
 #include "common.h"
 #include "hardware.h"
 #include "pmc.h"
@@ -793,7 +794,11 @@ void at91_qspi_hw_init(void)
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
-	strcpy(of_name, "acme-roadrunner.dtb");
+	if (strcmp(CONFIG_OF_BLOB_STRING, "") == 0) {
+		strcpy(of_name, "acme-roadrunner.dtb");
+	} else {
+		strcpy(of_name, CONFIG_OF_BLOB_STRING);
+	}
 }
 #endif
 

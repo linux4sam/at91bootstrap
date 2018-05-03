@@ -25,6 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "autoconf.h"
 #include "common.h"
 #include "ddramc.h"
 #include "debug.h"
@@ -443,7 +444,11 @@ void at91_qspi_hw_init(void)
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
-	strcpy(of_name, "at91-sama5d27_som1_ek.dtb");
+	if (strcmp(CONFIG_OF_BLOB_STRING, "") == 0) {
+		strcpy(of_name, "at91-sama5d27_som1_ek.dtb");
+	} else {
+		strcpy(of_name, CONFIG_OF_BLOB_STRING);
+	}
 }
 #endif
 

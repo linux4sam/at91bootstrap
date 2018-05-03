@@ -25,6 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "autoconf.h"
 #include "common.h"
 #include "hardware.h"
 #include "arch/at91_ccfg.h"
@@ -104,7 +105,7 @@ static void ddramc_init(void)
 
 	ddramc_reg_config(&ddramc_reg);
 
-	/* ENABLE DDR2 clock */ 
+	/* ENABLE DDR2 clock */
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* Chip select 1 is for DDR2/SDRAM */
@@ -228,7 +229,11 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
-	strcpy(of_name, "at91sam9m10g45ek.dtb");
+	if (strcmp(CONFIG_OF_BLOB_STRING, "") == 0) {
+		strcpy(of_name, "at91sam9m10g45ek.dtb");
+	} else {
+		strcpy(of_name, CONFIG_OF_BLOB_STRING);
+	}
 }
 #endif
 

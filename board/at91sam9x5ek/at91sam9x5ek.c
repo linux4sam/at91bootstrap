@@ -25,6 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "autoconf.h"
 #include "common.h"
 #include "hardware.h"
 #include "arch/at91_ccfg.h"
@@ -223,23 +224,27 @@ void at91_board_set_dtb_name(char *of_name)
 	unsigned int cpu_board_id = get_cm_sn();
 	unsigned int disp_board_id = get_dm_sn();
 
-	if (cpu_board_id == BOARD_ID_SAM9G15_CM)
-		strcpy(of_name, "at91sam9g15ek");
-	else if (cpu_board_id == BOARD_ID_SAM9G25_CM)
-		strcpy(of_name, "at91sam9g25ek");
-	else if (cpu_board_id == BOARD_ID_SAM9G35_CM)
-		strcpy(of_name, "at91sam9g35ek");
-	else if (cpu_board_id == BOARD_ID_SAM9X25_CM)
-		strcpy(of_name, "at91sam9x25ek");
-	else if (cpu_board_id == BOARD_ID_SAM9X35_CM)
-		strcpy(of_name, "at91sam9x35ek");
-	else
-		dbg_info("WARNING: Not correct CPU board ID\n");
+	if (strcmp(CONFIG_OF_BLOB_STRING, "") == 0) {
+		if (cpu_board_id == BOARD_ID_SAM9G15_CM)
+			strcpy(of_name, "at91sam9g15ek");
+		else if (cpu_board_id == BOARD_ID_SAM9G25_CM)
+			strcpy(of_name, "at91sam9g25ek");
+		else if (cpu_board_id == BOARD_ID_SAM9G35_CM)
+			strcpy(of_name, "at91sam9g35ek");
+		else if (cpu_board_id == BOARD_ID_SAM9X25_CM)
+			strcpy(of_name, "at91sam9x25ek");
+		else if (cpu_board_id == BOARD_ID_SAM9X35_CM)
+			strcpy(of_name, "at91sam9x35ek");
+		else
+			dbg_info("WARNING: Not correct CPU board ID\n");
 
-	if (disp_board_id == BOARD_ID_PDA_DM)
-		strcat(of_name, "_pda");
+		if (disp_board_id == BOARD_ID_PDA_DM)
+			strcat(of_name, "_pda");
 
-	strcat(of_name, ".dtb");
+		strcat(of_name, ".dtb");
+	} else {
+		strcpy(of_name, CONFIG_OF_BLOB_STRING);
+	}
 }
 #endif
 

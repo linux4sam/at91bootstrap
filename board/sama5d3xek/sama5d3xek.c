@@ -25,6 +25,7 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "autoconf.h"
 #include "common.h"
 #include "hardware.h"
 #include "pmc.h"
@@ -469,39 +470,43 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
-	/* CPU TYPE*/
-	switch (get_cm_sn()) {
-	case BOARD_ID_SAMA5D31_CM:
-		strcpy(of_name, "sama5d31ek");
-		break;
+	if (strcmp(CONFIG_OF_BLOB_STRING, "") == 0) {
+		/* CPU TYPE*/
+		switch (get_cm_sn()) {
+		case BOARD_ID_SAMA5D31_CM:
+			strcpy(of_name, "sama5d31ek");
+			break;
 
-	case BOARD_ID_SAMA5D33_CM:
-		strcpy(of_name, "sama5d33ek");
-		break;
+		case BOARD_ID_SAMA5D33_CM:
+			strcpy(of_name, "sama5d33ek");
+			break;
 
-	case BOARD_ID_SAMA5D34_CM:
-		strcpy(of_name, "sama5d34ek");
-		break;
+		case BOARD_ID_SAMA5D34_CM:
+			strcpy(of_name, "sama5d34ek");
+			break;
 
-	case BOARD_ID_SAMA5D35_CM:
-		strcpy(of_name, "sama5d35ek");
-		break;
+		case BOARD_ID_SAMA5D35_CM:
+			strcpy(of_name, "sama5d35ek");
+			break;
 
-	case BOARD_ID_SAMA5D36_CM:
-		strcpy(of_name, "sama5d36ek");
-		break;
+		case BOARD_ID_SAMA5D36_CM:
+			strcpy(of_name, "sama5d36ek");
+			break;
 
-	default:
-		dbg_info("WARNING: Not correct CPU board ID\n");
-		break;
+		default:
+			dbg_info("WARNING: Not correct CPU board ID\n");
+			break;
+		}
+
+		if (get_dm_sn() == BOARD_ID_PDA_DM)
+			strcat(of_name, "_pda4");
+		else if (get_dm_sn() == BOARD_ID_PDA7_DM)
+			strcat(of_name, "_pda7");
+
+		strcat(of_name, ".dtb");
+	} else {
+		strcpy(of_name, CONFIG_OF_BLOB_STRING);
 	}
-
-	if (get_dm_sn() == BOARD_ID_PDA_DM)
-		strcat(of_name, "_pda4");
-	else if (get_dm_sn() == BOARD_ID_PDA7_DM)
-		strcat(of_name, "_pda7");
-
-	strcat(of_name, ".dtb");
 }
 #endif
 
@@ -622,19 +627,19 @@ void nandflash_hw_init(void)
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
 	writel(AT91C_SMC_SETUP_NWE(1)
-		| AT91C_SMC_SETUP_NCS_WR(1) 
-		| AT91C_SMC_SETUP_NRD(2) 
-		| AT91C_SMC_SETUP_NCS_RD(1), 
+		| AT91C_SMC_SETUP_NCS_WR(1)
+		| AT91C_SMC_SETUP_NRD(2)
+		| AT91C_SMC_SETUP_NCS_RD(1),
 		(ATMEL_BASE_SMC + SMC_SETUP3));
 
 	writel(AT91C_SMC_PULSE_NWE(5)
 		| AT91C_SMC_PULSE_NCS_WR(7)
 		| AT91C_SMC_PULSE_NRD(5)
-		| AT91C_SMC_PULSE_NCS_RD(7), 
+		| AT91C_SMC_PULSE_NCS_RD(7),
 	 	(ATMEL_BASE_SMC + SMC_PULSE3));
 
 	writel(AT91C_SMC_CYCLE_NWE(8)
-		| AT91C_SMC_CYCLE_NRD(9), 
+		| AT91C_SMC_CYCLE_NRD(9),
 		(ATMEL_BASE_SMC + SMC_CYCLE3));
 
 	writel(AT91C_SMC_TIMINGS_TCLR(3)
