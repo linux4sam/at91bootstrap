@@ -91,6 +91,10 @@ config CONFIG_OF_LIBFDT
 	bool "Flattened Device Tree Support"
 	default y
 
+config CONFIG_OF_OVERRIDE_DTB_NAME
+	"string "Override Flattended Device Tree Blob filename"
+	depends on CONFIG_OF_LIBFDT && CONFIG_SDCARD
+
 config CONFIG_OF_OFFSET
 	string "The Offset of Flash Device Tree Blob "
 	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH)

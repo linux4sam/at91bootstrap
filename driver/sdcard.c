@@ -25,9 +25,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "autoconf.h"
 #include "common.h"
 #include "hardware.h"
 #include "board.h"
+
+#include "string.h"
 
 #include "ff.h"
 
@@ -151,6 +154,10 @@ int load_sdcard(struct image_info *image)
 
 #ifdef CONFIG_OF_LIBFDT
 	at91_board_set_dtb_name(image->of_filename);
+
+	if (strcmp(CONFIG_OF_OVERRIDE_DTB_NAME, "")) {
+                strcpy(image->of_filename, CONFIG_OF_OVERRIDE_DTB_NAME);
+        }
 
 	dbg_info("SD/MMC: dt blob: Read file %s to %x\n",
 			image->of_filename, image->of_dest);
