@@ -230,6 +230,24 @@ config CONFIG_MACH_TYPE
 	default "9999"	if SAMA5D2
 	help
 
+config CONFIG_OVERRIDE_MACH_TYPE
+	bool "Override the default mach type"
+	default n
+	help
+	  This setting will let you choose a custom mach type.
+	  The selected CUSTOM_MACH_TYPE will override the autoselected
+	  MACH_TYPE setting which is based on the selected board.
+
+if CONFIG_OVERRIDE_MACH_TYPE
+
+config CONFIG_CUSTOM_MACH_TYPE
+	string "custom mach type"
+	default CONFIG_MACH_TYPE
+	help
+	  Custom mach type
+
+endif
+
 config CONFIG_LINK_ADDR
 	string
 	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4  || SAMA5D2
