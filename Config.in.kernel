@@ -58,8 +58,14 @@ source "board/sama5d3xek/Config.in.android_arg"
 
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
-	default "0x70000000" if AT91SAM9G45
+	default "0x70000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
 	default "0x20000000"
+
+config CONFIG_MEM_BANK2
+	depends on BOARD_HAS_2_BANKS
+	string "Extern Memory Bank2 Base Address"
+	default "0x70000000" if AT91SAM9G45 && BOARD_HAS_2_BANKS
+	default "0"
 
 config CONFIG_MEM_SIZE
 	string "Extern Memory Bank Size"
@@ -80,7 +86,7 @@ config CONFIG_IMG_ADDRESS
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
-	default "0x72000000" if AT91SAM9G45
+	default "0x72000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -102,7 +108,7 @@ config CONFIG_OF_OFFSET
 config CONFIG_OF_ADDRESS
 	string "The External Ram Address to Load Device Tree Blob"
 	depends on CONFIG_OF_LIBFDT
-	default "0x71000000" if AT91SAM9G45
+	default "0x71000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
 	default "0x21000000"
 	help
 
