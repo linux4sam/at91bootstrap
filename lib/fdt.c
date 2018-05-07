@@ -596,10 +596,11 @@ int fixup_chosen_node(void *blob, char *bootargs)
  */
 int fixup_memory_node(void *blob,
 			unsigned int *mem_bank,
+			unsigned int *mem_bank2,
 			unsigned int *mem_size)
 {
 	int nodeoffset;
-	unsigned int data[2];
+	unsigned int data[4];
 	int valuelen;
 	int ret;
 
@@ -622,10 +623,14 @@ int fixup_memory_node(void *blob,
 	}
 
 	/* set "reg" property */
-	valuelen = 8;
 	data[0] = swap_uint32(*mem_bank);
 	data[1] = swap_uint32(*mem_size);
-
+	valuelen = 8;
+	if (*mem_bank2) {
+		data[2] = swap_uint32(*mem_bank2);
+		data[3] = swap_uint32(*mem_size);
+		valuelen = 16;
+	}
 	ret = of_set_property(blob, nodeoffset, "reg", data, valuelen);
 	if (ret) {
 		dbg_info("DT: could not set reg property\n");

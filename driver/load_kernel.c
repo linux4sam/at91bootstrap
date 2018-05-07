@@ -50,6 +50,11 @@ static char *bootargs;
 static int setup_dt_blob(void *blob)
 {
 	unsigned int mem_bank = MEM_BANK;
+#ifdef MEM_BANK2
+	unsigned int mem_bank2 = MEM_BANK2;
+#else
+	unsigned int mem_bank2 = 0;
+#endif
 	unsigned int mem_size = MEM_SIZE;
 	int ret;
 
@@ -76,7 +81,7 @@ static int setup_dt_blob(void *blob)
 			return ret;
 	}
 
-	ret = fixup_memory_node(blob, &mem_bank, &mem_size);
+	ret = fixup_memory_node(blob, &mem_bank, &mem_bank2, &mem_size);
 	if (ret)
 		return ret;
 

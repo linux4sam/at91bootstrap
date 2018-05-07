@@ -696,3 +696,7 @@ config CPU_HAS_QSPI1_IOSET2
 config CPU_HAS_QSPI1_IOSET3
 	bool
 	default n
+
+config BOARD_HAS_2_BANKS
+	bool
+	default n

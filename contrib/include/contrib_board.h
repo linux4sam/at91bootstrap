@@ -41,6 +41,10 @@
 #include "at91sam9x5_arietta.h"
 #endif
 
+#ifdef CONFIG_PICOSAM9G45
+#include "pico_sam9g45.h"
+#endif
+
 #ifdef CONFIG_SAMA5D3_ACQUA
 #include "sama5d3_acqua.h"
 #endif
