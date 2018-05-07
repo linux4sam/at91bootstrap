@@ -1,0 +1,2 @@
+config CONFIG_BOARDNAME
+	default "pico_sam9g45"	if CONFIG_PICOSAM9G45
