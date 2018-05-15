@@ -167,7 +167,7 @@ config CONFIG_SCLK_BYPASS
 
 endmenu
 
-menu "ARM TurstZone Options"
+menu "ARM TrustZone Options"
 	depends on CPU_HAS_TRUSTZONE
 
 config CONFIG_MATRIX
