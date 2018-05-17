@@ -614,6 +614,10 @@ config CPU_HAS_TRUSTZONE
 	bool
 	default n
 
+config CPU_HAS_TZC400
+	bool
+	default n
+
 config CONFIG_CPU_V7
 	bool
 	default n

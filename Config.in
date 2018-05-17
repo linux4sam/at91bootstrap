@@ -244,6 +244,38 @@ config CONFIG_REDIRECT_ALL_INTS_AIC
 	  This interface let you to redirect all peripherals interrupts to AIC,
 	  otherwise, the secure peripherals interrupts direct to SAIC, others to AIC.
 
+config CONFIG_TZC400
+	bool "Configure TrustZone Controller TZC400"
+	default y if CPU_HAS_TZC400
+	help
+	  This will select the code that initializes the TZC 400 TrustZone Controller.
+
+config CONFIG_TZC400_SPECULATIVE_LOAD
+	bool "Enable TZC400 Speculative Load for all regions"
+	depends on CONFIG_TZC400
+	default n
+	help
+	  This will enable the Speculative Load for the TZC.
+	  Speculative load means that the TZC will send requests to DDR
+	  before the security check, but block the results and treat the
+	  requests with RAZ/WI if security check fails.
+	  May improve performance but bound for security checks.
+	  If unsure, say "n".
+
+choice
+	prompt "Select controller profile"
+	depends on CONFIG_TZC400
+	default CONFIG_TZC400_SIMPLE_PROFILE
+	help
+	  Decide which configuration to use for the controller.
+
+config CONFIG_TZC400_SIMPLE_PROFILE
+	bool "Simple TZC400 Profile"
+	depends on CONFIG_TZC400
+	help
+	  A single TrustZone Area with everything permitted.
+endchoice
+
 endmenu
 
 config CONFIG_PM
