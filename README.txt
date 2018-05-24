@@ -1,4 +1,4 @@
-AT91Bootstrap Project
+# AT91Bootstrap Project
 
 AT91Bootstrap is the 2nd level bootloader for Atmel SMART microprocessors (aka AT91).
 It providing a set of algorithms to manage the hardware initialization such as
@@ -18,6 +18,7 @@ ARM Toolchain:
 - gcc version 4.8.3 (Sourcery CodeBench Lite 2014.05-29)
 - gcc version 4.9.3 (Linaro GCC 2014.11)
 - gcc version 5.1.1 (Linaro GCC 5.1-2015.08)
+- gcc version 7.2.1 (Linaro GCC 7.2-2017.11)
 
 2 Compile AT91Bootstrap
 ================================================================================
