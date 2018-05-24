@@ -2,7 +2,11 @@
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
  * Copyright (c) 2014, Atmel Corporation
-
+ * Copyright (c) 2018, Fritz Stephan GmbH
+ *
+ * Based on sama5d3_acqua.c (Acqua SOM by Acme Systems)
+ * Difference is in RAM timings. 
+ *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
