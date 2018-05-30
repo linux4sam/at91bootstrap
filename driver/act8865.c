@@ -187,10 +187,10 @@ int act8865_set_power_saving_mode(void)
 		reg = reg_list[i];
 		ret = act8865_set_reg_mode(reg, mode);
 		if (ret)
-			dbg_loud("ACT8865: Failed to set Power-saving mode\n");
+			console_printf("ACT8865: Failed to set Power-saving mode\n");
 	}
 
-	dbg_loud("ACT8865: Set REG1/REG2/REG3 Power-saving mode\n");
+	console_printf("ACT8865: Set REG1/REG2/REG3 Power-saving mode\n");
 
 	return 0;
 }
@@ -264,11 +264,11 @@ static int act8865_workaround_disable_i2c(void)
 	}
 
 	if (i >= ARRAY_SIZE(version_array)) {
-		dbg_loud("ACT8865: Failed to disable I2C interface\n");
+		console_printf("ACT8865: Failed to disable I2C interface\n");
 		return -1;
 	}
 
-	dbg_loud("ACT8865: Disable ACT8865's I2C interface\n");
+	console_printf("ACT8865: Disable ACT8865's I2C interface\n");
 
 	return 0;
 }
@@ -288,7 +288,7 @@ void act8865_workaround(void)
 #if defined(CONFIG_DISABLE_ACT8865_I2C)
 	/* Disable ACT8865 I2C interface, if failed, don't go on */
 	if (act8865_workaround_disable_i2c()) {
-		dbg_loud("ACT8865: Failed to disable I2C interface\n");
+		console_printf("ACT8865: Failed to disable I2C interface\n");
 		while (1)
 			;
 	}
@@ -343,7 +343,7 @@ int act8945a_suspend_charger(void)
 		return -1;
 
 	if ((data & APCH_STATE_CSTATE) != APCH_STATE_CSTATE_DISABLED) {
-		dbg_loud("ACT8945A: Failed to suspend charger\n");
+		console_printf("ACT8945A: Failed to suspend charger\n");
 		return -1;
 	}
 

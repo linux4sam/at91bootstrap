@@ -544,14 +544,14 @@ int at91_board_act8865_set_reg_voltage(void)
 	value = ACT8865_3V3;
 	ret = act8865_set_reg_voltage(reg, value);
 	if (ret)
-		dbg_loud("ACT8865: Failed to make REG5 output 3300mV\n");
+		console_printf("ACT8865: Failed to make REG5 output 3300mV\n");
 
 	/* Enable REG6 output 1.8V */
 	reg = REG6_0;
 	value = ACT8865_1V8;
 	ret = act8865_set_reg_voltage(reg, value);
 	if (ret)
-		dbg_loud("ACT8865: Failed to make REG6 output 1800mV\n");
+		console_printf("ACT8865: Failed to make REG6 output 1800mV\n");
 
 	return 0;
 }
