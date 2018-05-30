@@ -41,10 +41,20 @@ extern void dbg_hexdump(const unsigned char *buf,
 			unsigned int size, unsigned int width);
 #else
 #define BOOTSTRAP_DEBUG_LEVEL 0
-static inline int dbg_printf(const char *fmt_str, ...) { return 0; }
+
+#include "usart.h"
+
+static inline int dbg_printf(const char *fmt_str, ...)
+{
+	usart_puts(fmt_str);
+	return 0;
+}
 static inline void dbg_hexdump(const unsigned char *buf,
 			       unsigned int size, unsigned int width) { }
 #endif
+
+#define console_printf(fmt_str, args...) \
+	dbg_printf(fmt_str , ## args)
 
 #define dbg_log(level, fmt_str, args...) \
 	({ \
