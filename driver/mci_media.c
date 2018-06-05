@@ -166,6 +166,7 @@ static int sd_cmd_all_send_cid(struct sd_card *sdcard)
 	struct sd_command *command = sdcard->command;
 	unsigned int i;
 	int ret;
+	unsigned int resp;
 
 	command->cmd = SD_CMD_ALL_SEND_CID;
 	command->resp_type = SD_RESP_TYPE_R2;
@@ -175,8 +176,17 @@ static int sd_cmd_all_send_cid(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	for (i = 0; i < 4; i++)
-		sdcard->reg->cid[i] = command->resp[i];
+	/* we need to shift the answer with 8 bits, because
+	 * the registers provide R[128:8] in RR3[23:0],
+	 * RR2[31:0], RR1[31:0] and RR0[31:0]
+	 */
+	sdcard->reg->cid[3] = 0x000000ff;
+	for (i = 0; i < 4; i++) {
+		resp = command->resp[i];
+		if (i < 3)
+			sdcard->reg->cid[2 - i] = resp >> 24 & 0xff;
+		sdcard->reg->cid[3 - i] |= resp << 8 & 0xffffff00;
+	}
 
 	return 0;
 }
@@ -256,6 +266,7 @@ static int sd_cmd_send_csd(struct sd_card *sdcard)
 	struct sd_command *command = sdcard->command;
 	unsigned int i;
 	int ret;
+	unsigned int resp;
 
 	command->cmd = SD_CMD_SEND_CSD;
 	command->resp_type = SD_RESP_TYPE_R2;
@@ -265,8 +276,17 @@ static int sd_cmd_send_csd(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	for (i = 0; i < 4; i++)
-		sdcard->reg->csd[i] = command->resp[i];
+	/* we need to shift the answer with 8 bits, because
+	 * the registers provide R[128:8] in RR3[23:0],
+	 * RR2[31:0], RR1[31:0] and RR0[31:0]
+	 */
+	sdcard->reg->csd[3] = 0x000000ff;
+	for (i = 0; i < 4; i++) {
+		resp = command->resp[i];
+		if (i < 3)
+			sdcard->reg->csd[2 - i] = resp >> 24 & 0xff;
+		sdcard->reg->csd[3 - i] |= resp << 8 & 0xffffff00;
+	}
 
 	return 0;
 }
