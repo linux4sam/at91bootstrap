@@ -307,7 +307,7 @@ static void sdhc_writeb(unsigned int reg, unsigned char value)
 	writeb(value, sdhc_get_base() + reg);
 }
 
-static void sdhc_softare_reset(void)
+static void sdhc_software_reset(void)
 {
 	sdhc_writeb(SDMMC_SRR, SDMMC_SRR_SWRSTALL);
 
@@ -315,7 +315,7 @@ static void sdhc_softare_reset(void)
 		;
 }
 
-static void sdhc_softare_reset_cmd(void)
+static void sdhc_software_reset_cmd(void)
 {
 	sdhc_writeb(SDMMC_SRR, SDMMC_SRR_SWRSTCMD);
 
@@ -323,7 +323,7 @@ static void sdhc_softare_reset_cmd(void)
 		;
 }
 
-static void sdhc_softare_reset_dat(void)
+static void sdhc_software_reset_dat(void)
 {
 	sdhc_writeb(SDMMC_SRR, SDMMC_SRR_SWRSTDAT);
 
@@ -520,7 +520,7 @@ static int sdhc_init(struct sd_card *sdcard)
 {
 	unsigned int normal_status_mask, error_status_mask;
 
-	sdhc_softare_reset();
+	sdhc_software_reset();
 
 	sdhc_set_power();
 
@@ -557,7 +557,7 @@ static int sdhc_init(struct sd_card *sdcard)
 
 static int sdhc_read_data(struct sd_data *data)
 {
-	unsigned int normal_status, error_status;
+	unsigned int normal_status, error_status, psr;
 	unsigned int timeout;
 	unsigned int i, block = 0;
 	unsigned int *tmp;
@@ -573,16 +573,22 @@ static int sdhc_read_data(struct sd_data *data)
 
 			sdhc_writew(SDMMC_EISTR, error_status);
 
-			sdhc_softare_reset_dat();
+			sdhc_software_reset_dat();
 
-			dbg_info("SDHC: Error detected in status\n");
+			dbg_info("SDHC: Error detected in status: %x, %x\n",
+				normal_status, error_status);
 
 			return -1;
 		}
-
-		if (normal_status & SDMMC_NISTR_BRDRDY) {
-			if (!(sdhc_readl(SDMMC_PSR) & SDMMC_PSR_BUFRDEN))
-				continue;
+		if (normal_status & SDMMC_NISTR_BRDRDY ||
+			normal_status & SDMMC_NISTR_BWRRDY) {
+			psr = sdhc_readl(SDMMC_PSR);
+			if (data->direction == SD_DATA_DIR_RD &&
+				!(psr & SDMMC_PSR_BUFRDEN))
+			continue;
+			if (data->direction == SD_DATA_DIR_WR &&
+				!(psr & SDMMC_PSR_BUFWREN))
+			continue;
 
 			tmp = (unsigned int *)data->buff;
 			for (i = 0; i < data->blocksize; i += 4) {
@@ -605,6 +611,24 @@ static int sdhc_read_data(struct sd_data *data)
 		}
 	} while (!(normal_status & SDMMC_NISTR_TRFC));
 
+	/* There is an issue when writing data,
+	 * even after the whole data has been written, the SDMMC will not
+	 * trigger TRFC in some cases. Check for WTACT for that.
+	 * In this case we use a sw workaround to reset the
+	 * CMD and DAT lines from SRR and clear the interrupts
+	 * Otherwise we are never getting inhibits bits back on
+	 */
+	if (data->direction == SD_DATA_DIR_WR &&
+		(sdhc_readl(SDMMC_PSR) & SDMMC_PSR_WTACT)) {
+
+		normal_status = sdhc_readw(SDMMC_NISTR);
+		error_status = sdhc_readw(SDMMC_EISTR);
+		sdhc_software_reset_dat();
+		sdhc_software_reset_cmd();
+		sdhc_writew(SDMMC_EISTR, error_status);
+		sdhc_writew(SDMMC_NISTR, normal_status);
+
+	}
 	return 0;
 }
 
@@ -679,7 +703,12 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	if (!timeout)
 		dbg_info("SDHC: Timeout waiting for command complete\n");
 
-	sdhc_writew(SDMMC_NISTR, normal_status);
+	/* clear the status, except for read and write ready.
+	 * those will be cleared by the read/write data routine, which
+	 * bases itself on the fact that the hardware is ready to receive data
+	 * or has data ready to be read
+	 */
+	sdhc_writew(SDMMC_NISTR, normal_status & ~ (SDMMC_NISTR_BWRRDY | SDMMC_NISTR_BRDRDY));
 
 	if ((normal_status & normal_status_mask) == normal_status_mask) {
 		if (sd_cmd->resp_type == SD_RESP_TYPE_R2) {
@@ -696,7 +725,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	} else {
 		error_status = sdhc_readw(SDMMC_EISTR);
 
-		sdhc_softare_reset_cmd();
+		sdhc_software_reset_cmd();
 
 		sdhc_writew(SDMMC_EISTR, error_status);
 

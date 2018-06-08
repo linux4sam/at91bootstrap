@@ -40,6 +40,9 @@ static struct sd_command	sdcard_command;
 static struct sd_data		sdcard_data;
 static struct sd_card		atmel_sdcard;
 
+static int sd_cmd_set_blocklen(struct sd_card *sdcard,
+				unsigned int block_len);
+
 static int sd_cmd_go_idle_state(struct sd_card *sdcard)
 {
 	struct sd_host *host = sdcard->host;
@@ -742,6 +745,10 @@ static int mmc_bus_width_select(struct sd_card *sdcard, unsigned int buswidth)
 			return ret;
 	}
 
+	sd_cmd_send_status(sdcard, 1000);
+	if (ret)
+		return ret;
+
 	return 0;
 }
 
@@ -981,11 +988,10 @@ static int mmc_initialization(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	if (sdcard->sd_spec_version >= MMC_VERSION_4) {
-		ret = mmc_detect_buswidth(sdcard);
-		if (ret)
-			return ret;
-	}
+	ret = sd_cmd_set_blocklen(sdcard, DEFAULT_SD_BLOCK_LEN);
+
+        if (ret)
+                return 0;
 
 	if (sdcard->host->caps_high_speed) {
 		if (sdcard->sd_spec_version >= MMC_VERSION_4) {
@@ -1000,6 +1006,12 @@ static int mmc_initialization(struct sd_card *sdcard)
 			host->ops->set_clock(sdcard, 52000000);
 		else
 			host->ops->set_clock(sdcard, 26000000);
+	}
+
+	if (sdcard->sd_spec_version >= MMC_VERSION_4) {
+		ret = mmc_detect_buswidth(sdcard);
+		if (ret)
+			return ret;
 	}
 
 	return 0;
