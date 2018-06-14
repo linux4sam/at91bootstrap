@@ -156,6 +156,7 @@ struct host_ops {
 	int (*send_command)(struct sd_command *command, struct sd_data *data);
 	int (*set_clock)(struct sd_card *sdcard, unsigned int clock);
 	int (*set_bus_width)(struct sd_card *sdcard, unsigned int width);
+	int (*set_ddr)(struct sd_card *sdcard);
 };
 
 #define	BUS_WIDTH_1_BIT		0x01
@@ -190,8 +191,11 @@ struct sd_card {
 	unsigned int	sd_spec_version;
 	unsigned int	highcapacity_card;
 	unsigned int	bus_width_support;
-	unsigned int	highspeed_card;
+	unsigned int	highspeed_card; /* is this card a HS according to CARDTYPE */
+	unsigned int	ddr; /* is this card running in DDR mode */
+	unsigned int	ddr_support; /* is this card a DDR according to CARDTYPE */
 	unsigned int	read_bl_len;
+	unsigned int	configured_bus_w; /* bus width which we configured */
 
 	struct sd_host	*host;
 

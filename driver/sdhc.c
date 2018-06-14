@@ -432,7 +432,15 @@ static int sdhc_set_bus_width(struct sd_card *sdcard, unsigned int width)
 		reg &= ~SDMMC_HC1R_DW;
 	}
 	sdhc_writeb(SDMMC_HC1R, reg);
+	sdcard->configured_bus_w = width;
 
+	return 0;
+}
+
+static int sdhc_set_ddr(struct sd_card *sdcard)
+{
+	sdhc_writeb(SDMMC_MC1R, sdhc_readb(SDMMC_MC1R) | SDMMC_MC1R_DDR);
+	sdcard->ddr = 1;
 	return 0;
 }
 
@@ -745,6 +753,7 @@ static struct host_ops sdhc_ops = {
 	.send_command = sdhc_send_command,
 	.set_clock = sdhc_set_clock,
 	.set_bus_width = sdhc_set_bus_width,
+	.set_ddr = sdhc_set_ddr,
 };
 
 int sdcard_register_sdhc(struct sd_card *sdcard)

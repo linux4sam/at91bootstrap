@@ -633,7 +633,7 @@ static int mmc_cmd_send_ext_csd(struct sd_card *sdcard, char *ext_csd)
 #define EXT_CSD_BYTE_CSD_STRUCTURE	194
 #define EXT_CSD_BYTE_CARD_TYPE		196
 
-static int mmc_switch_high_speed(struct sd_card *sdcard)
+static int mmc_card_identify(struct sd_card *sdcard)
 {
 	char ext_csd[DEFAULT_SD_BLOCK_LEN];
 	char cardtype;
@@ -643,7 +643,55 @@ static int mmc_switch_high_speed(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	cardtype = ext_csd[EXT_CSD_BYTE_CARD_TYPE] & 0x03;
+	cardtype = ext_csd[EXT_CSD_BYTE_CARD_TYPE] & 0x07;
+
+	switch(ext_csd[EXT_CSD_BYTE_EXT_CSD_REV]) {
+	case 0:
+		dbg_printf("MMC: v4.0 detected\n");
+		break;
+	case 1:
+		dbg_printf("MMC: v4.1 detected\n");
+		break;
+	case 2:
+		dbg_printf("MMC: v4.2 detected\n");
+		break;
+	case 3:
+		dbg_printf("MMC: v4.3 detected\n");
+		break;
+	case 4:
+		dbg_printf("MMC: v4.4 detected\n");
+		break;
+	case 5:
+		dbg_printf("MMC: v4.41 detected\n");
+		break;
+	case 6:
+		dbg_printf("MMC: v4.5/4.51 detected\n");
+		break;
+	case 7:
+		dbg_printf("MMC: v5.0/5.01 detected\n");
+		break;
+	case 8:
+		dbg_printf("MMC: v5.1 detected\n");
+		break;
+	default:
+		dbg_printf("MMC: unknown revision\n");
+	};
+
+	sdcard->highspeed_card = !!(cardtype & 0x02);
+	sdcard->ddr_support = !!(cardtype & 0x04);
+
+	if (sdcard->highspeed_card)
+		dbg_printf("MMC: highspeed supported\n");
+	if (sdcard->ddr_support)
+		dbg_printf("MMC: Dual Data Rate supported\n");
+
+	return 0;
+}
+
+static int mmc_switch_high_speed(struct sd_card *sdcard)
+{
+	char ext_csd[DEFAULT_SD_BLOCK_LEN];
+	int ret;
 
 	ret = mmc_cmd_switch_fun(sdcard,
 			MMC_EXT_CSD_ACCESS_WRITE_BYTE,
@@ -658,8 +706,6 @@ static int mmc_switch_high_speed(struct sd_card *sdcard)
 
 	if (!ext_csd[EXT_CSD_BYTE_HS_TIMING])
 		return -1;
-
-	sdcard->highspeed_card = (cardtype & 0x02) ? 1 : 0;
 
 	return 0;
 }
@@ -720,17 +766,23 @@ static int mmc_cmd_bustest_r(struct sd_card *sdcard,
 	return 0;
 }
 
+#define MMC_BUS_WIDTH_8_DDR	6
+#define MMC_BUS_WIDTH_4_DDR	5
 #define MMC_BUS_WIDTH_8		2
 #define MMC_BUS_WIDTH_4		1
 #define MMC_BUS_WIDTH_1		0
 
-static int mmc_bus_width_select(struct sd_card *sdcard, unsigned int buswidth)
+static int mmc_bus_width_select(struct sd_card *sdcard, unsigned int buswidth,
+				int ddr)
 {
 	struct sd_host *host = sdcard->host;
 	unsigned char busw;
 	int ret;
 
-	busw = (buswidth == 8) ? MMC_BUS_WIDTH_8 : MMC_BUS_WIDTH_4;
+	if (!ddr)
+		busw = (buswidth == 8) ? MMC_BUS_WIDTH_8 : MMC_BUS_WIDTH_4;
+	else
+		busw = (buswidth == 8) ? MMC_BUS_WIDTH_8_DDR : MMC_BUS_WIDTH_4_DDR;
 
 	ret = mmc_cmd_switch_fun(sdcard,
 			MMC_EXT_CSD_ACCESS_WRITE_BYTE,
@@ -748,6 +800,12 @@ static int mmc_bus_width_select(struct sd_card *sdcard, unsigned int buswidth)
 	sd_cmd_send_status(sdcard, 1000);
 	if (ret)
 		return ret;
+
+	if (ddr && host->ops->set_ddr) {
+		ret = host->ops->set_ddr(sdcard);
+		if (ret)
+			return ret;
+	}
 
 	return 0;
 }
@@ -767,7 +825,7 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 	for (busw = 8, len = 2; busw != 0; busw -= 4, len--) {
 		pdata_w = (busw == 8) ? data_8bits : data_4bits;
 
-		ret = mmc_bus_width_select(sdcard, busw);
+		ret = mmc_bus_width_select(sdcard, busw, 0);
 		if (ret)
 			return ret;
 
@@ -974,7 +1032,7 @@ static int mmc_initialization(struct sd_card *sdcard)
 		dbg_info("3.0\n");
 	} else if (version == 4) {
 		sdcard->sd_spec_version = MMC_VERSION_4;
-		dbg_info("4.1 - 4.2\n");
+		dbg_info("4.0 or higher\n");
 	} else {
 		sdcard->sd_spec_version = MMC_VERSION_1_2;
 		dbg_info("1.2\n");
@@ -993,6 +1051,11 @@ static int mmc_initialization(struct sd_card *sdcard)
         if (ret)
                 return 0;
 
+	ret = mmc_card_identify(sdcard);
+
+	if (ret)
+		return ret;
+
 	if (sdcard->host->caps_high_speed) {
 		if (sdcard->sd_spec_version >= MMC_VERSION_4) {
 			ret = mmc_switch_high_speed(sdcard);
@@ -1010,11 +1073,18 @@ static int mmc_initialization(struct sd_card *sdcard)
 
 	if (sdcard->sd_spec_version >= MMC_VERSION_4) {
 		ret = mmc_detect_buswidth(sdcard);
-		if (ret)
+		if (ret) {
+			console_printf("MMC: Bustest failed !\n");
 			return ret;
+		}
 	}
 
-	return 0;
+	/* we enable here DDR if supported */
+	if (sdcard->ddr_support) {
+		ret = mmc_bus_width_select(sdcard, sdcard->configured_bus_w, 1);
+	}
+
+	return ret;
 }
 
 static void init_sdcard_struct(struct sd_card *sdcard)
@@ -1178,11 +1248,13 @@ unsigned int sdcard_block_read(unsigned int start,
 	 * Refer to the at91sam9g20 datasheet:
 	 * Figure 35-10. Read Function Flow Diagram
 	*/
-
-	/* Send SET_BLOCKLEN command */
-	ret = sd_cmd_set_blocklen(sdcard, block_len);
-	if (ret)
-		return 0;
+	/* in DDR mode, we can only use fixed block size: 512 bytes */
+	if (!sdcard->ddr) {
+		/* Send SET_BLOCKLEN command */
+		ret = sd_cmd_set_blocklen(sdcard, block_len);
+		if (ret)
+			return ret;
+	}
 
 	for (blocks_todo = block_count; blocks_todo > 0; ) {
 		blocks = (blocks_todo > SUPPORT_MAX_BLOCKS) ?
