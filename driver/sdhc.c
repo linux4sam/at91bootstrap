@@ -32,6 +32,7 @@
 #include "timer.h"
 #include "debug.h"
 #include "pmc.h"
+#include "sdhc.h"
 
 /*
  * Registers Definitions
@@ -461,6 +462,8 @@ static int sdhc_host_capability(struct sd_card *sdcard)
 	host->caps_high_speed = 0;
 	if (caps & SDMMC_CA0R_HSSUP)
 		host->caps_high_speed = 1;
+	if (caps & SDMMC_CA0R_ADMA2SUP)
+		dbg_printf("MMC: ADMA supported\n");
 
 	host->caps_voltages = 0;
 	if (caps & SDMMC_CA0R_V33VSUP)
@@ -542,8 +545,10 @@ static int sdhc_init(struct sd_card *sdcard)
 	normal_status_mask = SDMMC_NISTR_CMDC
 				| SDMMC_NISTR_TRFC
 				| SDMMC_NISTR_BWRRDY
-				| SDMMC_NISTR_BRDRDY;
-	error_status_mask = SDMMC_EISTR_CMDTEO
+				| SDMMC_NISTR_BRDRDY
+				| SDMMC_NISTR_DMAINT;
+	error_status_mask = SDMMC_EISTR_ADMA
+				| SDMMC_EISTR_CMDTEO
 				| SDMMC_EISTR_CMDCRC
 				| SDMMC_EISTR_CMDEND
 				| SDMMC_EISTR_CMDIDX
@@ -647,6 +652,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	unsigned int i;
 	int ret;
 	unsigned int timeout;
+	struct adma_desc dma_desc[8] = {0};
 
 	timeout = 100000;
 	while ((--timeout) &&
@@ -683,17 +689,47 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	}
 
 	if (data) {
+		if (sd_cmd->cmd == SD_CMD_READ_SINGLE_BLOCK ||
+		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK) {
+			/* for CMD18 and CMD18 we use ADMA2 */
+			sdhc_writeb(SDMMC_HC1R, sdhc_readb(SDMMC_HC1R) |
+						SDMMC_HC1R_DMASEL_ADMA32);
+		}
+
 		cmd_reg |= SDMMC_CR_DPSEL;
 
 		mode = SDMMC_TMR_BCEN;
 		mode |= (data->blocks > 1) ? SDMMC_TMR_MSBSEL : 0;
 		mode |= (data->direction == SD_DATA_DIR_RD) ? SDMMC_TMR_DTDSEL_READ : 0;
 
+		if (sd_cmd->cmd == SD_CMD_READ_SINGLE_BLOCK ||
+		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK)
+			mode |= SDMMC_TMR_DMAEN;
+
 		sdhc_writeb(SDMMC_TCR, 0xe);
 		sdhc_writew(SDMMC_BSR, data->blocksize);
 		if (data->blocks > 1)
 			sdhc_writew(SDMMC_BCR, data->blocks);
+
 		sdhc_writew(SDMMC_TMR, mode);
+
+		/* for CMD17 and CMD18 we use ADMA to transfer faster */
+		if (sd_cmd->cmd == SD_CMD_READ_SINGLE_BLOCK ||
+		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK) {
+			/* prepare descriptor table */
+			for (i = 0; i < data->blocks; i++) {
+				/* last descriptor must have the end bit */
+				if (i == data->blocks - 1)
+					dma_desc[i].cmd = 0x23;
+				else
+					dma_desc[i].cmd = 0x21;
+
+				dma_desc[i].len = data->blocksize;
+				dma_desc[i].addr = (unsigned int)(data->buff + data->blocksize * i);
+			}
+		/* address of the first descriptor goes here */
+		sdhc_writel(SDMMC_ASAR0, (unsigned int) &dma_desc[0]);
+		}
 	}
 
 	sdhc_writel(SDMMC_ARG1R, sd_cmd->argu);
@@ -709,7 +745,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 		 ((normal_status & normal_status_mask) != normal_status_mask));
 
 	if (!timeout)
-		dbg_info("SDHC: Timeout waiting for command complete\n");
+		console_printf("SDHC: Timeout waiting for command complete\n");
 
 	/* clear the status, except for read and write ready.
 	 * those will be cleared by the read/write data routine, which
@@ -726,8 +762,24 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 			*sd_cmd->resp = sdhc_readl(SDMMC_RR0);
 		}
 
-		if (data)
+		/* if we have data but not using block transfer, we use PIO mode */
+		if (data && sd_cmd->cmd != SD_CMD_READ_SINGLE_BLOCK &&
+		    sd_cmd->cmd != SD_CMD_READ_MULTIPLE_BLOCK) {
 			sdhc_read_data(data);
+		} else if (data) {
+			/* otherwise, ADMA will carry the data for us */
+			/* Let's wait for ADMA to finish transferring */
+			timeout = 1000000;
+			do {
+				normal_status = sdhc_readw(SDMMC_NISTR);
+				udelay(1);
+			} while (--timeout && !(normal_status & SDMMC_NISTR_TRFC));
+			if (!timeout)
+				console_printf("SDHC: Timeout waiting for ADMA\n");
+
+			sdhc_writew(SDMMC_NISTR, SDMMC_NISTR_TRFC);
+			error_status = sdhc_readw(SDMMC_EISTR);
+		}
 
 		ret = 0;
 	} else {

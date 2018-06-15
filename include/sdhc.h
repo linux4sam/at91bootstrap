@@ -30,4 +30,10 @@
 
 int sdcard_register_sdhc(struct sd_card *sdcard);
 
+struct adma_desc {
+	unsigned short cmd;
+	unsigned short len;
+	unsigned int addr;
+} __attribute__ ((packed, aligned(4)));
+
 #endif
