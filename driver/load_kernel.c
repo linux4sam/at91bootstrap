@@ -66,11 +66,12 @@ static int setup_dt_blob(void *blob)
 	dbg_info("\nUsing device tree in place at %x\n",
 						(unsigned int)blob);
 
-	if (bootargs) {
+	/* no point in fixing if we do not have configured bootargs */
+	if (bootargs && *bootargs) {
 		char *p;
 
 		/* set "/chosen" node */
-		for (p = bootargs; *p == ' '; p++)
+		for (p = bootargs; *p == ' '; p++) /* skip spaces */
 			;
 
 		if (*p == '\0')
