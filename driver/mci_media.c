@@ -1232,7 +1232,7 @@ static int sd_cmd_read_single_block(struct sd_card *sdcard,
 	return 1;
 }
 
-#define SUPPORT_MAX_BLOCKS	65535
+#define SUPPORT_MAX_BLOCKS	16
 unsigned int sdcard_block_read(unsigned int start,
 				unsigned int block_count,
 				void *buf)

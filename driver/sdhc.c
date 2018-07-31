@@ -652,7 +652,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	unsigned int i;
 	int ret;
 	unsigned int timeout;
-	struct adma_desc dma_desc[8] = {0};
+	struct adma_desc dma_desc[16] = {0};
 
 	timeout = 100000;
 	while ((--timeout) &&
@@ -717,6 +717,9 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 		if (sd_cmd->cmd == SD_CMD_READ_SINGLE_BLOCK ||
 		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK) {
 			/* prepare descriptor table */
+			if (data->blocks > 16 )
+				dbg_printf("too many blocks requested at once, error\n");
+
 			for (i = 0; i < data->blocks; i++) {
 				/* last descriptor must have the end bit */
 				if (i == data->blocks - 1)
