@@ -168,6 +168,8 @@ struct sd_host {
 	struct host_ops *ops;
 	unsigned int caps_bus_width;
 	unsigned int caps_high_speed;
+	unsigned int caps_adma2;
+	unsigned int caps_ddr;
 	unsigned int caps_clk_mult;
 	unsigned int caps_max_clock;
 	unsigned int caps_min_clock;
