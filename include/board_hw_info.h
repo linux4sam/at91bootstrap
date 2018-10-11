@@ -50,6 +50,7 @@
 #define	BOARD_ID_SAMA5D36_CP	18
 #define	BOARD_ID_SAMA5D2_XULT	19
 #define	BOARD_ID_SAMA5D2_ICP	20
+#define	BOARD_ID_SAM9X60_EK	21
 
 /* Vendor id definition */
 #define VENDOR_EMBEST		1
