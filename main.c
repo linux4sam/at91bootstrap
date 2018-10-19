@@ -46,8 +46,10 @@ static void display_banner (void)
 
 int main(void)
 {
+#if !defined(CONFIG_LOAD_NONE)
 	struct image_info image;
-	int ret;
+#endif
+	int ret = 0;
 
 #ifdef CONFIG_HW_INIT
 	hw_init();
@@ -96,6 +98,7 @@ int main(void)
 	act8945a_suspend_charger();
 #endif
 
+#if !defined(CONFIG_LOAD_NONE)
 	init_load_image(&image);
 
 #if defined(CONFIG_SECURE)
@@ -110,6 +113,7 @@ int main(void)
 	image.dest += sizeof(at91_secure_header_t);
 #endif
 
+#endif
 	load_image_done(ret);
 
 #ifdef CONFIG_SCLK
@@ -126,5 +130,9 @@ int main(void)
 	/* point never reached with TZ support */
 #endif
 
+#if !defined(CONFIG_LOAD_NONE)
 	return JUMP_ADDR;
+#else
+	return 0;
+#endif
 }

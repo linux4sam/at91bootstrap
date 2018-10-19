@@ -125,7 +125,9 @@ void load_image_done(int retval)
 {
 	char *media;
 
-#if defined(CONFIG_FLASH)
+#if defined(CONFIG_LOAD_NONE)
+	media = "NONE: ";
+#elif defined(CONFIG_FLASH)
 	media = "FLASH: ";
 #elif defined(CONFIG_NANDFLASH)
 	media = "NAND: ";
@@ -140,8 +142,12 @@ void load_image_done(int retval)
 	if (media)
 		usart_puts(media);
 
-	if (retval == 0){
+	if (retval == 0) {
+#if defined(CONFIG_LOAD_NONE)
+		usart_puts("AT91Bootstrap completed. Can load application via JTAG and jump.\n");
+#else
 		usart_puts("Done to load image\n");
+#endif
 	}
 	if (retval == -1) {
 		usart_puts("Failed to load image\n");

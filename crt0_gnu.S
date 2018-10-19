@@ -173,7 +173,10 @@ _go:
 	ldr 	r1, =MACH_TYPE
 	mov     lr, pc
 
-#if defined(CONFIG_ENTER_NWD)
+/* we endless loop here and not jump to any application
+ * if we are configured to not load anything
+ */
+#if defined(CONFIG_ENTER_NWD) || defined(CONFIG_LOAD_NONE)
 loop:
 	b	loop
 #endif

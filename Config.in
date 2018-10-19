@@ -33,6 +33,12 @@ config CONFIG_LOAD_LINUX
 	---help---
 	   Load Linux kernel directly from storage media
 
+config CONFIG_LOAD_NONE
+	bool "Do not load any image after bootstrap run"
+	help
+	  Do not not load any image after bootstrap run.
+	  Bootstrap will endless loop, use JTAG to load application.
+
 config CONFIG_LOAD_ANDROID
 	select CONFIG_LINUX_IMAGE
 	bool "Support loading Android directly"
@@ -80,13 +86,19 @@ source "Config.in.u-boot"
 #
 source "Config.in.app-image"
 
+#
+# No Image Storage Setup
+#
+source "Config.in.none"
+
 config CONFIG_IMAGE_NAME
 	depends on CONFIG_FATFS
 	string "Image Name"
 	default "Image" if CONFIG_LINUX_IMAGE
 	default "u-boot.bin" if CONFIG_LOAD_UBOOT
 	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
-	  
+	default "none" if CONFIG_LOAD_NONE
+
 config CONFIG_DEBUG
 	bool "Debug Support"
 	default n

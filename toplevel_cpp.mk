@@ -45,3 +45,7 @@ endif
 ifeq ($(BOARD_HAS_2_BANKS),y)
 CPPFLAGS += -DMEM_BANK2=$(MEM_BANK2)
 endif
+
+#ifeq ($(CONFIG_LOAD_NONE),y)
+#CPPFLAGS += -DCONFIG_LOAD_NONE
+#endif
