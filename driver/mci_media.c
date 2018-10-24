@@ -1080,7 +1080,7 @@ static int mmc_initialization(struct sd_card *sdcard)
 	}
 
 	/* we enable here DDR if supported */
-	if (sdcard->ddr_support) {
+	if (sdcard->ddr_support && sdcard->host->caps_ddr) {
 		ret = mmc_bus_width_select(sdcard, sdcard->configured_bus_w, 1);
 		if (ret)
 			console_printf("MMC: DDR mode could not be enabled: %d\n", ret);
