@@ -18,6 +18,12 @@ config CONFIG_DDRC
 	help
 	  Initialize DDR-2 SDRAM controller before copying
 
+config CONFIG_UMCTL2
+	bool
+	default n
+	help
+	  Initialize DDR Synopsys controller before copying
+
 config	ALLOW_DATAFLASH
 	bool
 	default n
@@ -46,7 +52,7 @@ menu "RAM Configuration"
 
 choice
 	prompt "RAM size"
-	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDRC
+	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDRC || CONFIG_UMCTL2
 	default CONFIG_RAM_64MB
 
 config	CONFIG_RAM_8MB
@@ -71,22 +77,27 @@ endchoice
 
 choice
 	prompt "DDR-SDRAM device type"
-	depends on CONFIG_DDRC
+	depends on CONFIG_DDRC || CONFIG_UMCTL2
 	default CONFIG_DDR2
 
 config CONFIG_LPDDR1
+	depends on CONFIG_DDRC
 	bool "Low-power DDR1-SDRAM"
 
 config CONFIG_LPDDR2
+	depends on CONFIG_DDRC
 	bool "Low-power DDR2-SDRAM"
 
 config CONFIG_LPDDR3
+	depends on CONFIG_DDRC
 	bool "Low-power DDR3-SDRAM"
 
 config CONFIG_DDR2
+	depends on CONFIG_DDRC
 	bool "DDR2-SDRAM"
 
 config CONFIG_DDR3
+	depends on CONFIG_DDRC || CONFIG_UMCTL2
 	bool "DDR3-SDRAM"
 
 endchoice
