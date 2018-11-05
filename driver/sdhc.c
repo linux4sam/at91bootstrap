@@ -778,8 +778,8 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 		}
 
 		/* if we have data but not using block transfer, we use PIO mode */
-		if (!sdhc_host.caps_adma2 || (data && sd_cmd->cmd != SD_CMD_READ_SINGLE_BLOCK &&
-		    sd_cmd->cmd != SD_CMD_READ_MULTIPLE_BLOCK)) {
+		if (data && (!sdhc_host.caps_adma2 || (sd_cmd->cmd != SD_CMD_READ_SINGLE_BLOCK &&
+		    sd_cmd->cmd != SD_CMD_READ_MULTIPLE_BLOCK))) {
 			sdhc_read_data(data);
 		} else if (data && sdhc_host.caps_adma2) {
 			/* otherwise, ADMA will carry the data for us */
