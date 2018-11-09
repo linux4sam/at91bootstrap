@@ -469,10 +469,12 @@ static int sdhc_host_capability(struct sd_card *sdcard)
 	host->caps_adma2 = 0;
 	if (caps & SDMMC_CA0R_HSSUP)
 		host->caps_high_speed = 1;
+#if !defined(CONFIG_SDHC_NODMA)
 	if (caps & SDMMC_CA0R_ADMA2SUP) {
 		dbg_printf("MMC: ADMA supported\n");
 		host->caps_adma2 = 1;
 	}
+#endif
 
 	host->caps_voltages = 0;
 
