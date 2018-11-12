@@ -191,6 +191,13 @@ config CONFIG_SDHC1
 
 endchoice
 
+config CONFIG_SDHC_NODMA
+	bool "Disable DMA mode"
+	depends on CONFIG_SDHC
+	default n
+	help
+	  Disable SDHC DMA mode, use PIO mode only
+
 config CONFIG_FATFS
 	bool
 	depends on CONFIG_SDCARD
