@@ -1,0 +1,2 @@
+config CONFIG_LINUX_KERNEL_ARG_STRING
+	default "console=ttyS0,115200 earlyprintk root=/dev/mmcblk0p2 rw rootwait" if CONFIG_SAMA5D2_LPDDR2SIP_VB && CONFIG_SDCARD
