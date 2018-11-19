@@ -28,6 +28,7 @@
 #include "hardware.h"
 #include "arch/at91_slowclk.h"
 #include "timer.h"
+#include "backup.h"
 
 int slowclk_enable_osc32(void)
 {
@@ -50,6 +51,10 @@ int slowclk_enable_osc32(void)
 
 static void slowclk_wait_osc32_stable(void)
 {
+	/* VDDBU keeps feeding oscilator. No need for wait here. */
+	if (backup_resume())
+		return;
+
 	/*
 	 * Wait 32768 Hz Startup Time for clock stabilization (software loop)
 	 * wait about 1s (1300ms)
