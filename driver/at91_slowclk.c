@@ -85,6 +85,11 @@ static int slowclk_select_osc32(void)
 	 * by setting the bit OSCSEL to 1
 	 */
 	reg = readl(AT91C_BASE_SCKCR);
+
+	/* Do nothing if aleady set. */
+	if (reg & AT91C_SLCKSEL_OSCSEL)
+		return 0;
+
 	reg |= AT91C_SLCKSEL_OSCSEL;
 	writel(reg, AT91C_BASE_SCKCR);
 
