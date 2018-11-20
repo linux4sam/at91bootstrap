@@ -256,11 +256,18 @@ static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
 			      AT91C_DDRC2_MD_LPDDR2_SDRAM);
 
 	ddramc_config->cr = (AT91C_DDRC2_NC_DDR9_SDR8 |
-			     AT91C_DDRC2_NR_14 |
 			     AT91C_DDRC2_CAS_3 |
 			     AT91C_DDRC2_ZQ_SHORT |
 			     AT91C_DDRC2_NB_BANKS_8 |
 			     AT91C_DDRC2_UNAL_SUPPORTED);
+
+#if defined(CONFIG_RAM_128MB)
+	ddramc_config->cr |= AT91C_DDRC2_NR_13;
+#elif defined(CONFIG_RAM_256MB)
+	ddramc_config->cr |= AT91C_DDRC2_NR_14;
+#else
+#error "No proper LPDDR2 memory size for SiP provided"
+#endif
 
 	ddramc_config->lpddr2_lpr = AT91C_LPDDRC2_DS(0x03);
 
