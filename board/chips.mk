@@ -69,9 +69,6 @@ ASFLAGS += -mcpu=arm926ej-s -mtune=arm926ej-s -mfloat-abi=soft
 endif
 
 ifeq ($(CORE_CORTEX_A5), y)
-gcc_cortexa5=$(shell $(CC) --target-help | grep cortex-a5)
-ifneq (, $(findstring cortex-a5,$(gcc_cortexa5)))
 CPPFLAGS += -mcpu=cortex-a5 -mtune=cortex-a5
 ASFLAGS += -mcpu=cortex-a5 -mtune=cortex-a5
-endif
 endif
