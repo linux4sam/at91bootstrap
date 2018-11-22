@@ -109,6 +109,7 @@ static void pio4_set_periph(unsigned pio, unsigned mask,
 
 static int pio_set_a_periph(unsigned pin, int config)
 {
+	unsigned reg_value;
 	unsigned pio = pin_to_controller(pin);
 	unsigned mask = pin_to_mask(pin);
 
@@ -125,6 +126,13 @@ static int pio_set_a_periph(unsigned pin, int config)
 	write_pio(pio, ((config & PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 #ifdef CPU_HAS_PIO3
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
+
+#ifdef AT91SAM9X60
+	if (config & PIO_DRVSTR_HI) {
+		reg_value = read_pio(pio, PIO_DRIVER1);
+		write_pio(pio, PIO_DRIVER1, reg_value | mask);
+	}
+#endif
 
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) & ~mask);
@@ -345,6 +353,7 @@ static int pio_config_gpio_output(unsigned int pin,
 				unsigned int config,
 				int value)
 {
+	unsigned reg_value;
 	unsigned pio = pin_to_controller(pin);
 	unsigned mask = pin_to_mask(pin);
 
@@ -352,8 +361,6 @@ static int pio_config_gpio_output(unsigned int pin,
 		return -1;
 
 #if defined CPU_HAS_PIO4
-	unsigned reg_value;
-
 	write_pio(pio, PIO_MSKR, mask);
 
 	reg_value = AT91C_PIO_CFGR_FUNC_GPIO | AT91C_PIO_CFGR_DIR;
@@ -362,6 +369,12 @@ static int pio_config_gpio_output(unsigned int pin,
 	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
 #else
 	write_pio(pio, ((config & PIO_OPENDRAIN) ? PIO_MDER : PIO_MDDR), mask);
+#ifdef AT91SAM9X60
+	if (config & PIO_DRVSTR_HI) {
+		reg_value = read_pio(pio, PIO_DRIVER1);
+		write_pio(pio, PIO_DRIVER1, reg_value | mask);
+	}
+#endif
 
 	pio_set_gpio_output(pin, value);
 #endif
