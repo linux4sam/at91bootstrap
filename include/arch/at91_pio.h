@@ -97,7 +97,9 @@
 #define PIO_PPDDR	0x0090	/* Pull-down Disable Register */
 #define PIO_PPDER	0x0094	/* Pull-down Enable Register */
 #define PIO_PPDSR	0x0098	/* Pull-down Status Register */
-/* 0x009c */
+/* 0x009c ~ 0x0114 */
+#define PIO_DRIVER1	0x0118	/* I/O Drive Register 1 */
+/* 0x011a */
 #endif	/* #ifndef CPU_HAS_PIO3 */
 #define PIO_OWER	0x00a0	/* Output Write Enable Register */
 #define PIO_OWDR	0x00a4	/* Output Write Disable Register */

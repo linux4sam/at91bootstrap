@@ -107,6 +107,24 @@ static void pio4_set_periph(unsigned pio, unsigned mask,
 }
 #endif
 
+#if defined CPU_HAS_PIO3
+static void pio3_set_drvstr(unsigned pin, int config)
+{
+	unsigned reg_value;
+	unsigned mask = pin_to_mask(pin);
+	unsigned pio = pin_to_controller(pin);
+
+	if (config & PIO_DRVSTR_HI) {
+		reg_value = read_pio(pio, PIO_DRIVER1);
+		write_pio(pio, PIO_DRIVER1, reg_value | mask);
+	}
+	else if (config & PIO_DRVSTR_LO) {
+		reg_value = read_pio(pio, PIO_DRIVER1);
+		write_pio(pio, PIO_DRIVER1, reg_value & ~mask);
+	}
+}
+#endif
+
 static int pio_set_a_periph(unsigned pin, int config)
 {
 	unsigned pio = pin_to_controller(pin);
@@ -125,6 +143,8 @@ static int pio_set_a_periph(unsigned pin, int config)
 	write_pio(pio, ((config & PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 #ifdef CPU_HAS_PIO3
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
+
+	pio3_set_drvstr(pin, config);
 
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) & ~mask);
@@ -156,6 +176,8 @@ static int pio_set_b_periph(unsigned pin, int config)
 #ifdef CPU_HAS_PIO3
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
+	pio3_set_drvstr(pin, config);
+
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) | mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) & ~mask);
 #else
@@ -186,6 +208,9 @@ static int pio_set_c_periph(unsigned pin, int config)
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config && PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
+
+	pio3_set_drvstr(pin, config);
+
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) | mask);
 	write_pio(pio, PIO_PDR, mask);
@@ -213,6 +238,9 @@ static int pio_set_d_periph(unsigned pin, int config)
 	write_pio(pio, PIO_IDR, mask);
 	write_pio(pio, ((config && PIO_PULLUP) ? PIO_PPUER : PIO_PPUDR), mask);
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
+
+	pio3_set_drvstr(pin, config);
+
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) | mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) | mask);
 	write_pio(pio, PIO_PDR, mask);
@@ -362,6 +390,10 @@ static int pio_config_gpio_output(unsigned int pin,
 	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
 #else
 	write_pio(pio, ((config & PIO_OPENDRAIN) ? PIO_MDER : PIO_MDDR), mask);
+
+#if defined CPU_HAS_PIO3
+	pio3_set_drvstr(pin, config);
+#endif
 
 	pio_set_gpio_output(pin, value);
 #endif
