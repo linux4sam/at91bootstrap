@@ -50,6 +50,7 @@ enum pio_type {
 #define PIO_DRVSTR_LO	(1 << 4)
 #define PIO_DRVSTR_ME	(1 << 5)
 #define PIO_DRVSTR_HI	(1 << 6)
+#define PIO_SLEWR_CTRL	(1 << 7)
 
 struct pio_desc {
 	const char	*pin_name;	/* Pin Name */
