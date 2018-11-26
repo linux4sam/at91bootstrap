@@ -128,6 +128,11 @@ static int pio_set_a_periph(unsigned pin, int config)
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
 #ifdef AT91SAM9X60
+	if (config & PIO_SLEWR_CTRL) {
+		reg_value = read_pio(pio, PIO_SLEWR);
+		write_pio(pio, PIO_SLEWR, reg_value | mask);
+	}
+
 	if (config & PIO_DRVSTR_HI) {
 		reg_value = read_pio(pio, PIO_DRIVER1);
 		write_pio(pio, PIO_DRIVER1, reg_value | mask);
