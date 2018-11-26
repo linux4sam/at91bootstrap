@@ -123,6 +123,18 @@ static void pio3_set_drvstr(unsigned pin, int config)
 		write_pio(pio, PIO_DRIVER1, reg_value & ~mask);
 	}
 }
+
+static void pio3_set_slewrate(unsigned pin, int config)
+{
+	unsigned reg_value;
+	unsigned mask = pin_to_mask(pin);
+	unsigned pio = pin_to_controller(pin);
+
+	if (config & PIO_SLEWR_CTRL) {
+		reg_value = read_pio(pio, PIO_SLEWR);
+		write_pio(pio, PIO_SLEWR, reg_value | mask);
+	}
+}
 #endif
 
 static int pio_set_a_periph(unsigned pin, int config)
@@ -145,6 +157,7 @@ static int pio_set_a_periph(unsigned pin, int config)
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
 	pio3_set_drvstr(pin, config);
+	pio3_set_slewrate(pin, config);
 
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) & ~mask);
@@ -177,6 +190,7 @@ static int pio_set_b_periph(unsigned pin, int config)
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
 	pio3_set_drvstr(pin, config);
+	pio3_set_slewrate(pin, config);
 
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) | mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) & ~mask);
@@ -210,6 +224,7 @@ static int pio_set_c_periph(unsigned pin, int config)
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
 	pio3_set_drvstr(pin, config);
+	pio3_set_slewrate(pin, config);
 
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) & ~mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) | mask);
@@ -240,6 +255,7 @@ static int pio_set_d_periph(unsigned pin, int config)
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
 	pio3_set_drvstr(pin, config);
+	pio3_set_slewrate(pin, config);
 
 	write_pio(pio, PIO_SP1, read_pio(pio, PIO_SP1) | mask);
 	write_pio(pio, PIO_SP2, read_pio(pio, PIO_SP2) | mask);
@@ -393,6 +409,7 @@ static int pio_config_gpio_output(unsigned int pin,
 
 #if defined CPU_HAS_PIO3
 	pio3_set_drvstr(pin, config);
+	pio3_set_slewrate(pin, config);
 #endif
 
 	pio_set_gpio_output(pin, value);
