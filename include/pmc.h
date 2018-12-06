@@ -38,6 +38,14 @@
 #define GCK_CSS_MCK_CLK		0x04
 #define GCK_CSS_AUDIO_CLK	0x05
 
+struct _pmc_plla_cfg {
+	unsigned int mul;	/* PLLA MUL value */
+	unsigned int div;	/* PLLA DIV value */
+	unsigned int count;	/* PLLA COUNT value */
+	unsigned int fracr;
+	unsigned int loop_filter;
+};
+
 extern void pmc_init_pll(unsigned int pmc_pllicpr);
 extern int pmc_cfg_plla(unsigned int pmc_pllar);
 extern int pmc_cfg_mck(unsigned int pmc_mckr);
@@ -70,5 +78,16 @@ extern void pmc_pck_setup(unsigned int reg_offset, unsigned int reg_value);
 
 extern int pmc_check_mck_h32mxdiv(void);
 extern unsigned int at91_get_ahb_clock(void);
+
+extern void pmc_sam9x60_cfg_pll(unsigned int pll_id, const struct _pmc_plla_cfg *plla);
+extern void pmc_sam9x60_disable_pll(unsigned int pll_id);
+extern void pmc_switch_mck_to_slck(void);
+extern void pmc_disable_internal_osc(void);
+extern void pmc_enable_internal_osc(void);
+extern int pmc_enable_external_osc(unsigned int bypass);
+extern void pmc_set_mck_prescaler(unsigned int prescaler);
+extern void pmc_set_mck_divider(unsigned int divider);
+extern int pmc_select_external_osc(unsigned int bypass);
+extern void pmc_switch_mck_to_pll(void);
 
 #endif	/* #ifndef __PMC_H__ */
