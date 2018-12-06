@@ -64,6 +64,10 @@
 #include "arch/at91sam9x5.h"
 #endif
 
+#ifdef AT91SAM9X60
+#include "arch/at91sam9x60.h"
+#endif
+
 #ifdef AT91SAM9N12
 #include "arch/at91sam9n12.h"
 #endif
