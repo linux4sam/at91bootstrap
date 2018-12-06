@@ -32,7 +32,7 @@
  * Register Offset
  */
 #define SFR_DDRCFG	0x04	/* DDR Configuration Register */
-
+#define SFR_CCFG_EBICSA	0x04 /* EBI Chip Select Register */
 #define SFR_OHCXIICR	0x10	/* OHCI Interrupt Configuration Register */
 #define SFR_OHCIISR	0x14	/* OHCI Interrupt Status Register */
 /* Reserved */
@@ -44,6 +44,7 @@
 #define SFR_SN1		0x50	/* Serial Number 1 Register */
 #define SFR_AICREDIR	0x54
 #define SFR_L2CC_HRAMC	0x58
+#define SFR_CAL1	0xB4
 
 /*
  * Register Fields
@@ -87,5 +88,34 @@
 #define AT91C_CAN0_MEM_ADDR_(addr)	(((addr) & 0xffff) << 0)
 #define AT91C_CAN1_MEM_ADDR	(0xffff << 16)
 #define AT91C_CAN1_MEM_ADDR_(addr)	(((addr) & 0xffff) << 16)
+
+/*--- SFR_EBICSA: (offset: 0x4) EBI Chip Select Register ---*/
+#define AT91C_EBI_CS1A		(0x1UL << 1)
+#define		AT91C_EBI_CS1A_SMC	(0x0UL << 1)
+#define		AT91C_EBI_CS1A_SDRAMC	(0x1UL << 1)
+#define AT91C_EBI_CS3A		(0x1UL << 3)
+#define		AT91C_EBI_CS3A_SMC	(0x0UL << 3)
+#define		AT91C_EBI_CS3A_SM	(0x1UL << 3)
+#define AT91C_EBI_CS4A		(0x1UL << 4)
+#define		AT91C_EBI_CS4A_SMC	(0x0UL << 4)
+#define		AT91C_EBI_CS4A_SM	(0x1UL << 4)
+#define AT91C_EBI_CS5A		(0x1UL << 5)
+#define		AT91C_EBI_CS5A_SMC	(0x0UL << 5)
+#define		AT91C_EBI_CS5A_SM	(0x1UL << 5)
+#define AT91C_EBI_DBPUC		(0x1UL << 8)
+#define AT91C_EBI_DBPDC		(0x1UL << 9)
+#define AT91C_EBI_DRV		(0x1UL << 16)
+#define		AT91C_EBI_DRV_LD	(0x0UL << 16)
+#define		AT91C_EBI_DRV_HD	(0x1UL << 16)
+#define AT91C_EBI_DQIENF	(0x1UL << 20)
+#define AT91C_EBI_NFD0_ON_D16	(0x1UL << 24)
+#define AT91C_EBI_DDR_MP_EN	(0x1UL << 25)
+
+/*--- SFR_CAL1: (offset: 0xB4) I/O Calibration 1 Register ---*/
+#define SFR_CAL1_CALN_M		(0xfUL << 0)
+#define		SFR_CAL1_CALN_M_(x)	((x) << 0)
+#define SFR_CAL1_CALP_M		(0xfUL << 4)
+#define		SFR_CAL1_CALP_M_(x) ((x) << 4)
+#define SFR_CAL1_TEST_M	(0x1u << 8)
 
 #endif /* #ifndef __AT91_SFR_H__ */

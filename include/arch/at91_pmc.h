@@ -32,16 +32,25 @@
 #define PMC_SCER	0x00	/* System Clock Enable Register */
 #define PMC_SCDR	0x04	/* System Clock Disable Register */
 #define PMC_SCSR	0x08	/* System Clock Status Register */
-/* 0x0C Reversed */
+
+#define PMC_PLL_CTRL0	0x0C	/* PLL Control Register 0 */
+#define PMC_PLL_CTRL1	0x10	/* PLL Control Register 1 */
+#define PMC_PLL_SSR	0x14	/* PLL Spread Spectrum Register */
+#define PMC_PLL_ACR	0x18	/* PLL Analog Control Register */
+#define PMC_PLL_UPDT	0x1c	/* PLL Update Register */
+
 #define PMC_PCER	0x10	/* Peripheral Clock Enable Register  (0:31 PERI_ID) */
 #define PMC_PCDR	0x14	/* Peripheral Clock Disable Register (0:31 PERI_ID) */
 #define PMC_PCSR	0x18	/* Peripheral Clock Status Register  (0:31 PERI_ID) */
 #define PMC_UCKR	0x1C	/* UTMI Clock Configuration Register */
+
+
 #define PMC_MOR		0x20	/* Main Oscillator Register */
 #define PMC_MCFR	0x24	/* Main Clock  Frequency Register */
+
 #define PMC_PLLAR	0x28	/* PLL A Register */
 #define PMC_PLLBR	0x2C	/* PLL B Register */
-#define PMC_MCKR	0x30	/* Master Clock Register */
+#define PMC_MCKR	0x28	/* Master Clock Register */
 /* 0x34 Reserved */
 #define PMC_USB		0x38	/* USB clock register */
 #define PMC_SMD		0x3C	/* SMD clock register */
@@ -57,17 +66,35 @@
 #define PMC_FSPR	0x74	/* Fast Startup Polarity Register */
 #define PMC_FOCR	0x78	/* Fault Output Clear Register */
 /* 0x7C Reserved */
+
 #define PMC_PLLICPR	0x80	/* PLL Charge Pump Current Register */
-/* 0x84 ~ 0xE0 Reserved */
-#define PMC_WPMR	0xE4	/* Write Protect Mode Register */
-#define PMC_WPSR	0xE8	/* Write Protect Status Register */
-/* 0xEC ~ 0xF8 */
+#define PMC_SLPWK_AIPR	0x90	/* SleepWalking Activity In Progress Register */
+#define PMC_SLPWKCR	0x94    /* SleepWalking Control Register */
+#define PMC_ULPST	0x98	/* ULP Startup Time Register */
+#define PMC_MCKLIM	0x9c	/* MCK Monitor Limits Register */
+#define PMC_CSR0	0xA0    /* Peripheral Clock Status Register 0 */
+#define PMC_CSR1	0xA4    /* Peripheral Clock Status Register 1 */
+#define PMC_CSR2	0xA8	/* Peripheral Clock Status Register 2 */
+#define PMC_CSR3	0xAC	/* Peripheral Clock Status Register 3 */
+#define PMC_GCSR0	0xC0    /* Generic Clock Status Register 0 */
+#define PMC_GCSR1	0xC4    /* Generic Clock Status Register 1 */
+#define PMC_GCSR2	0xC8    /* Generic Clock Status Register 2 */
+#define PMC_GCSR3	0xCC    /* Generic Clock Status Register 3 */
+#define PMC_PLL_IER	0xE0    /* PLL Interrupt Enable Register */
+#define PMC_PLL_IDR	0xE4    /* PLL Interrupt Disable Register */
+#define PMC_PLL_IMR	0xE8    /* PLL Interrupt Mask Register */
+#define PMC_PLL_ISR0	0xEC	/* PLL Interrupt Status Register 0 */
+#define PMC_PLL_ISR1	0xF0	/* PLL Interrupt Status Register 1 */
+
 #define PMC_VERSION	0xFC	/* Version Register */
 #define PMC_PCER1	0x100	/* Peripheral Clock Enable Register1  32:63 PERI_ID */
 #define PMC_PCDR1	0x104	/* Peripheral Clock Disable Register1 32:63 PERI_ID */
 #define PMC_PCSR1	0x108	/* Peripheral Clock Status Register1  32:63 PERI_ID */
-#define PMC_PCR		0x10C	/* Peripheral Control Register */
-#define PMC_OCR		0x110	/* Oscillator Calibration Register */
+
+#define PMC_WPMR	0x80	/* Write Protect Mode Register */
+#define PMC_WPSR	0x84	/* Write Protect Status Register */
+#define PMC_PCR		0x88    /* Peripheral Control Register */
+#define PMC_OCR		0x8C    /* Oscillator Calibration Register */
 
 /* -------- PMC_SCER : (PMC Offset: 0x0) System Clock Enable Register --------*/ 
 #define AT91C_PMC_DDR		(0x1UL <<  2)
@@ -92,18 +119,57 @@
 /* -------- PMC_SCSR : (PMC Offset: 0x8) System Clock Status Register ---------*/
 #define AT91C_PMC_PCK		(0x1UL <<  0)
 
+/* -------- PMC_PLL_CTRL0 : (PMC Offset: 0xC) PLL Control Register 0 -------- */
+#define AT91C_PLL_CTRL0_DIVPMC	(0xffUL << 0)
+#define		AT91C_PLL_CTRL0_DIVPMC_(x)	((x) << 0)
+#define AT91C_PLL_CTRL0_DIVIO	(0xffUL << 12)
+#define		AT91C_PLL_CTRL0_DIVIO_(x)	((x) << 12)
+#define AT91C_PLL_CTRL0_ENPLL	(0x1UL << 28)
+#define AT91C_PLL_CTRL0_ENPLLCK	(0x1u << 29)
+#define AT91C_PLL_CTRL0_ENLOCK	(0x1u << 31)
+
+/* -------- PMC_PLL_CTRL1 : (PMC Offset: 0x10) PLL Control Register 1 -------- */
+#define AT91C_PLL_CTRL1_FRACR	(0x3fffffUL << 0)
+#define		AT91C_PLL_CTRL1_FRACR_(x)	((x) << 0)
+#define AT91C_PLL_CTRL1_MUL	(0x7fUL << 24)
+#define		AT91C_PLL_CTRL1_MUL_(x)		((x) << 24)
+
+/* -------- PMC_PLL_SSR : (PMC Offset: 0x14) PLL Spread Spectrum Register -------- */
+#define AT91C_PLL_SSR_STEP	(0xffffUL << 0)
+#define		AT91C_PLL_SSR_STEP_(x)		((x) << 0)
+#define AT91C_PLL_SSR_NSTEP	(0xffUL << 16)
+#define		AT91C_PLL_SSR_NSTEP_(x)		((x) << 16)
+#define AT91C_PLL_SSR_ENSPREAD	(0x1UL << 28)
+
+/* -------- PMC_PLL_ACR : (PMC Offset: 0x18) PLL Analog Control Register -------- */
+#define AT91C_PLL_ACR_CONTROL	(0xfffUL << 0)
+#define		AT91C_PLL_ACR_CONTROL_(x)	((x) << 0)
+#define AT91C_PLL_ACR_UTMIVR	(0x1UL << 12)
+#define AT91C_PLL_ACR_UTMIBG	(0x1UL << 13)
+#define AT91C_PLL_ACR_LOCK_THR	(0xffUL << 16)
+#define		AT91C_PLL_ACR_LOCK_THR_(x)	((x) << 16)
+#define AT91C_PLL_ACR_LOOP_FILTER	(0xffUL << 24)
+#define		AT91C_PLL_ACR_LOOP_FILTER_(x)	((x) << 24)
+
+/* -------- PMC_PLL_UPDT : (PMC Offset: 0x1C) PLL Update Register -------- */
+#define AT91C_PLL_UPDT_ID	(0xfUL << 0)
+#define		AT91C_PLL_UPDT_ID_(x)	((x) << 0)
+#define AT91C_PLL_UPDT_UPDATE	(0x1UL << 8)
+#define AT91C_PLL_UPDT_STUPTIM	(0xffUL << 16)
+#define AT91C_PLL_UPDT_STUPTIM_(x)	((x) << 16)
+
 /*-- PMC_UCKR : (PMC Offset: 0x1c) UTMI Clock Configuration Register ------*/
 #define AT91C_CKGR_UOSCEN	(0x1UL <<  0)
 #define AT91C_CKGR_OSCBYPASS	(0x1UL <<  1)
 #define AT91C_CKGR_OSCOUNT	(0xFFUL << 8)
 #define AT91C_CKGR_UPLLEN	(0x1UL << 16)
-#define 	AT91C_CKGR_UPLLEN_DISABLED	(0x0UL << 16)
-#define 	AT91C_CKGR_UPLLEN_ENABLED	(0x1UL << 16)
+#define		AT91C_CKGR_UPLLEN_DISABLED	(0x0UL << 16)
+#define		AT91C_CKGR_UPLLEN_ENABLED	(0x1UL << 16)
 #define AT91C_CKGR_UPLLCOUNT	(0xFUL << 20)
 #define		AT91C_CKGR_UPLLCOUNT_DEFAULT	(0x1UL << 20)
 #define AT91C_CKGR_BIASEN	(0x1UL << 24)
-#define 	AT91C_CKGR_BIASEN_DISABLED	(0x0UL << 24)
-#define 	AT91C_CKGR_BIASEN_ENABLED	(0x1UL << 24)
+#define		AT91C_CKGR_BIASEN_DISABLED	(0x0UL << 24)
+#define		AT91C_CKGR_BIASEN_ENABLED	(0x1UL << 24)
 #define AT91C_CKGR_BIASCOUNT	(0xFUL << 28)
 
 /* -------- CKGR_MOR : (PMC Offset: 0x20) Main Oscillator Register --------*/ 
@@ -112,7 +178,7 @@
 #define AT91C_CKGR_WAITMODE	(0x1UL <<  2)
 #define AT91C_CKGR_MOSCRCEN	(0x1UL <<  3)
 #define AT91C_CKGR_MOSCXTST	(0xFFUL <<  8)
-#define		AT91_CKGR_MOSCXTST_SET(value)	(value << 8)
+#define		AT91_CKGR_MOSCXTST_SET(x)	((x) << 8)
 #define AT91C_CKGR_KEY		(0xFFUL << 16)
 #define		AT91C_CKGR_PASSWD		(0x37 << 16)
 #define AT91C_CKGR_MOSCSEL	(0x1UL << 24)
@@ -315,21 +381,33 @@
 #define 	AT91C_PMC_MFN_1		(0x1UL << 16)
 
 /* -------- PMC_PCR : (PMC Offset: 0x10c) Peripheral Control Register --------*/ 
-#define	AT91C_PMC_PID		(0x3f << 0)
-#define	AT91C_PMC_GCKCSS	(0x7 << 8)
+#define	AT91C_PMC_PID		(0x7f << 0)
+#define	AT91C_PMC_GCKCSS	(0x1f << 8)
+#if defined(AT91SAM9X60)
+#define		AT91C_PMC_GCKCSS_SLOW_CLK	(0x0 << 8)
+#define		AT91C_PMC_GCKCSS_TD_SLOW_CLK	(0x1 << 8)
+#define		AT91C_PMC_GCKCSS_MAIN_CLK	(0x2 << 8)
+#define		AT91C_PMC_GCKCSS_MCK_CLK	(0x3 << 8)
+#define		AT91C_PMC_GCKCSS_PLLA_CLK	(0x4 << 8)
+#define		AT91C_PMC_GCKCSS_UPLL_CLK	(0x5 << 8)
+#else
 #define		AT91C_PMC_GCKCSS_SLOW_CLK	(0x0 << 8)
 #define		AT91C_PMC_GCKCSS_MAIN_CLK	(0x1 << 8)
 #define		AT91C_PMC_GCKCSS_PLLA_CLK	(0x2 << 8)
 #define		AT91C_PMC_GCKCSS_UPLL_CLK	(0x3 << 8)
 #define		AT91C_PMC_GCKCSS_MCK_CLK	(0x4 << 8)
 #define		AT91C_PMC_GCKCSS_AUDIO_CLK	(0x5 << 8)
-#define	AT91C_PMC_CMD		(0x1 << 12)
-#define	AT91C_PMC_DIV		(0x3 << 16)
+#endif
+#define	AT91C_PMC_DIV		(0x3 << 14)
 #define	AT91C_PMC_GCKDIV	(0xff << 20)
 #define		AT91C_PMC_GCKDIV_MSK		0xff
 #define		AT91C_PMC_GCKDIV_OFFSET		20
 #define		AT91C_PMC_GCKDIV_(x)		(((x) & AT91C_PMC_GCKDIV_MSK) << AT91C_PMC_GCKDIV_OFFSET)
 #define	AT91C_PMC_EN		(0x1 << 28)
 #define	AT91C_PMC_GCKEN		(0x1 << 29)
+#define	AT91C_PMC_CMD		(0x1 << 31)
+
+#define AT91C_PLL_ISR0_LOCK0	(0x1UL << 0)
+#define AT91C_PLL_IER_UNLOCK0	(0x1UL << 16)
 
 #endif /* #ifndef __AT91_PMC_H__ */
