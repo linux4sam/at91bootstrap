@@ -68,6 +68,10 @@
 #include "arch/at91sam9n12.h"
 #endif
 
+#ifdef SAM9X60
+#include "arch/sam9x60.h"
+#endif
+
 #ifdef SAMA5D3X
 #include "arch/sama5d3x.h"
 #endif

@@ -28,6 +28,7 @@ source "board/sama5d2_xplained/Config.in.board"
 source "board/sama5d27_som1_ek/Config.in.board"
 source "board/sama5d2_lpddr2sip_vb/Config.in.board"
 source "board/sama5d2_icp/Config.in.board"
+source "board/sam9x60ek/Config.in.board"
 source "contrib/board/Config.in.board"
 
 endchoice
@@ -54,6 +55,7 @@ config CONFIG_BOARDNAME
 	default "sama5d27_som1_ek" if CONFIG_SAMA5D27_SOM1_EK
 	default "sama5d2_lpddr2sip_vb" if CONFIG_SAMA5D2_LPDDR2SIP_VB
 	default "sama5d2_icp" if CONFIG_SAMA5D2_ICP
+	default "sam9x60ek" if CONFIG_SAM9X60EK
 source "contrib/board/Config.in.boardname"
 
 config AT91SAM9260
@@ -145,6 +147,18 @@ config AT91SAM9X5
 	select CPU_HAS_HSMCI1
 	select CPU_HAS_SPI0
 	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config SAM9X60
+	select CORE_ARM926EJS
+	select CPU_HAS_SCKC
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_SDHC0
+	select CPU_HAS_SDHC1
+	select CPU_HAS_QSPI0
+	select CPU_HAS_WDT2
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -241,6 +255,7 @@ config CONFIG_MACH_TYPE
 	default "1830"	if AT91SAM9G45
 	default "3373"	if AT91SAM9X5
 	default "9999"	if AT91SAM9N12
+	default "3373"	if SAM9X60
 	default "9999"	if SAMA5D3X
 	default "9999"	if SAMA5D4
 	default "9999"	if SAMA5D2
@@ -287,6 +302,7 @@ config CONFIG_TOP_OF_MEMORY
 	default "0x30A000"	if AT91SAM9G45
 	default "0x308000"	if AT91SAM9X5
 	default "0x308000"	if AT91SAM9N12
+	default "0x308000"	if SAM9X60
 	default "0x310000"	if SAMA5D3X
 	default "0x210000"	if SAMA5D4
 	default "0x210000"	if SAMA5D2

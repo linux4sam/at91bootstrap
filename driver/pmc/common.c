@@ -61,7 +61,7 @@ void lowlevel_clock_init()
 #endif
 
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
-	|| defined(SAMA5D4) || defined(SAMA5D2)
+	|| defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60)
 	/*
 	 * Enable the Main Crystal Oscillator
 	 * tST_max = 2ms
