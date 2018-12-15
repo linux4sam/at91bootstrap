@@ -412,7 +412,7 @@ distrib: mrproper
 
 config-clean:
 	@echo "  CLEAN        "configuration files!
-	$(Q)make -C config distclean
+	$(Q)$(MAKE) -C config distclean
 	$(Q)rm -fr config/at91bootstrap-config
 	$(Q)rm -f  config/.depend
 
