@@ -23,8 +23,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __AT91SAM9X60_H__
-#define __AT91SAM9X60_H__
+#ifndef __SAM9X60_H__
+#define __SAM9X60_H__
 
 /*
  * Peripheral identifiers/interrupts.
@@ -50,7 +50,7 @@
 #define AT91C_ID_PWM		18	/* Pulse Width Modulation Controller */
 #define AT91C_ID_ADC		19	/* ADC Controller */
 #define AT91C_ID_XDMAC		20	/* XDMA Controller */
-#define AT91C_ID_MATRIX		21	/* SAM9X6 Matrix (MATRIX) */
+#define AT91C_ID_MATRIX		21	/* SAM9X60 Matrix (MATRIX) */
 #define AT91C_ID_UHPHS		22	/* USB Host High Speed */
 #define AT91C_ID_UDPHS		23	/* USB Device High Speed */
 #define AT91C_ID_EMAC		24	/* Ethernet MAC 0 */
@@ -184,6 +184,6 @@
 /*
  * SoC specific defines
  */
-#define AT91C_CPU_NAME         "AT91SAM9X60"
+#define AT91C_CPU_NAME         "SAM9X60"
 
-#endif	/* #ifndef __AT91SAM9X60_H__ */
+#endif	/* #ifndef __SAM9X60_H__ */

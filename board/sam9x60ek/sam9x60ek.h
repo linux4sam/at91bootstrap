@@ -23,8 +23,8 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef __AT91SAM9X60EK_H__
-#define __AT91SAM9X60EK_H__
+#ifndef __SAM9X60EK_H__
+#define __SAM9X60EK_H__
 
 /*
  * PMC Settings
@@ -144,4 +144,4 @@
  */
 #define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PB(18)
 
-#endif /*#ifndef __AT91SAM9X60EK_H__ */
+#endif /*#ifndef __SAM9X60EK_H__ */
