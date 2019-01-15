@@ -474,14 +474,9 @@ static unsigned int set_default_sn(void)
 #elif defined(CONFIG_SAMA5D2_XPLAINED)
 	board_id_ek = BOARD_ID_SAMA5D2_XULT;
 	vendor_ek = VENDOR_ATMEL_RFO;
-#elif defined(CONFIG_AT91SAM9X60EK)
-	/* at91sam9x60ek
-	 * EK Module: SAM9x60-EK, FLEX
-	 */
-	board_id_ek = BOARD_ID_SAM9X60_EK;
-	vendor_ek = VENDOR_ATMEL_RFO;
-#elif defined(CONFIG_AT91SAM9X60EK)
-	/* at91sam9x60ek
+#elif defined(CONFIG_SAM9X60EK)
+	/*
+	 * SAM9X60-EK
 	 * EK Module: SAM9x60-EK, FLEX
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
@@ -553,7 +548,7 @@ static unsigned int set_default_rev(void)
 	rev_id_cm = '1';
 	rev_id_dm = '1';
 	rev_id_ek = '1';
-#elif defined(CONFIG_AT91SAM9X60EK)
+#elif defined(CONFIG_SAM9X60EK)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
