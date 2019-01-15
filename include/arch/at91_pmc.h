@@ -383,7 +383,7 @@
 /* -------- PMC_PCR : (PMC Offset: 0x10c) Peripheral Control Register --------*/ 
 #define	AT91C_PMC_PID		(0x7f << 0)
 #define	AT91C_PMC_GCKCSS	(0x1f << 8)
-#if defined(AT91SAM9X60)
+#if defined(SAM9X60)
 #define		AT91C_PMC_GCKCSS_SLOW_CLK	(0x0 << 8)
 #define		AT91C_PMC_GCKCSS_TD_SLOW_CLK	(0x1 << 8)
 #define		AT91C_PMC_GCKCSS_MAIN_CLK	(0x2 << 8)
