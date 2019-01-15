@@ -57,7 +57,7 @@ int timer_init(void)
 #ifdef AT91C_ID_PIT
 	pmc_enable_periph_clock(AT91C_ID_PIT);
 #else
-#if defined(AT91SAM9X60)
+#if defined(SAM9X60)
 	pmc_sam9x5_enable_periph_clk(AT91C_ID_SYS);
 #else
 	pmc_enable_periph_clock(AT91C_ID_SYS);
