@@ -98,7 +98,7 @@
 #define PIO_PPDER	0x0094	/* Pull-down Enable Register */
 #define PIO_PPDSR	0x0098	/* Pull-down Status Register */
 /* 0x009c */
-#ifdef AT91SAM9X60
+#ifdef SAM9X60
 #define PIO_SLEWR	0x0110	/* I/O Slewrate Control Register */
 #define PIO_DRIVER1	0x0118	/* I/O Drive Register 1 */
 #endif

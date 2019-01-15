@@ -127,7 +127,7 @@ static int pio_set_a_periph(unsigned pin, int config)
 #ifdef CPU_HAS_PIO3
 	write_pio(pio, ((config & PIO_PULLDOWN) ? PIO_PPDER : PIO_PPDDR), mask);
 
-#ifdef AT91SAM9X60
+#ifdef SAM9X60
 	if (config & PIO_SLEWR_CTRL) {
 		reg_value = read_pio(pio, PIO_SLEWR);
 		write_pio(pio, PIO_SLEWR, reg_value | mask);
@@ -374,7 +374,7 @@ static int pio_config_gpio_output(unsigned int pin,
 	write_pio(pio, (value ? PIO_SODR : PIO_CODR), mask);
 #else
 	write_pio(pio, ((config & PIO_OPENDRAIN) ? PIO_MDER : PIO_MDDR), mask);
-#ifdef AT91SAM9X60
+#ifdef SAM9X60
 	if (config & PIO_DRVSTR_HI) {
 		reg_value = read_pio(pio, PIO_DRIVER1);
 		write_pio(pio, PIO_DRIVER1, reg_value | mask);
