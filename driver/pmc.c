@@ -71,7 +71,7 @@ void lowlevel_clock_init()
 #endif
 
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
-	|| defined(SAMA5D4) || defined(SAMA5D2) || defined(AT91SAM9X60)
+	|| defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60)
 	/*
 	 * Enable the Main Crystal Oscillator
 	 * tST_max = 2ms
@@ -100,7 +100,7 @@ void lowlevel_clock_init()
 #endif
 
 	/* Switch from internal 12MHz RC to the Main Cristal Oscillator */
-#if !defined(AT91SAM9X60)
+#if !defined(SAM9X60)
 	tmp = read_pmc(PMC_MOR);
 	tmp &= (~AT91C_CKGR_MOSCXTBY);
 	tmp &= (~AT91C_CKGR_KEY);
@@ -143,7 +143,7 @@ void lowlevel_clock_init()
 #endif
 
 	/* After stablization, switch to Main Clock */
-#if !defined(AT91SAM9X60)
+#if !defined(SAM9X60)
 	if ((read_pmc(PMC_MCKR) & AT91C_PMC_CSS) == AT91C_PMC_CSS_SLOW_CLK) {
 #endif
 		tmp = read_pmc(PMC_MCKR);
@@ -155,7 +155,7 @@ void lowlevel_clock_init()
 
 		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
 			;
-#if !defined(AT91SAM9X60)
+#if !defined(SAM9X60)
 	}
 #endif
 
@@ -455,7 +455,7 @@ int pmc_cfg_mck(unsigned int pmc_mckr)
 	tmp = read_pmc(PMC_MCKR);
 	tmp &= (~(0x1 << 13));
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
-	|| defined(SAMA5D4) || defined(SAMA5D2) ||  defined(AT91SAM9X60)
+	|| defined(SAMA5D4) || defined(SAMA5D2) ||  defined(SAM9X60)
 	tmp &= (~AT91C_PMC_ALT_PRES);
 	tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
 #else
@@ -693,7 +693,7 @@ int pmc_enable_periph_generated_clk(unsigned int periph_id,
 	if (div > 0xff)
 		return -1;
 
-#if !defined(AT91SAM9X60)
+#if !defined(SAM9X60)
 	if (!(read_pmc(PMC_SR) & AT91C_PMC_LOCKU))
 		pmc_uckr_clk(1);
 #endif
@@ -719,7 +719,7 @@ int pmc_enable_periph_generated_clk(unsigned int periph_id,
 	case GCK_CSS_MCK_CLK:
 		regval |= AT91C_PMC_GCKCSS_MCK_CLK;
 		break;
-#if !defined(AT91SAM9X60)
+#if !defined(SAM9X60)
 	case GCK_CSS_AUDIO_CLK:
 		regval |= AT91C_PMC_GCKCSS_AUDIO_CLK;
 		break;
@@ -729,7 +729,7 @@ int pmc_enable_periph_generated_clk(unsigned int periph_id,
 		return -1;
 	}
 
-#if defined(AT91SAM9X60)
+#if defined(SAM9X60)
 	div = 5; /* 6 as a divider */
 #endif
 
@@ -739,7 +739,7 @@ int pmc_enable_periph_generated_clk(unsigned int periph_id,
 
 	write_pmc(PMC_PCR, regval);
 
-#if defined(AT91SAM9X60)
+#if defined(SAM9X60)
 	/* TODO adapt to PMC and periph ID */
 	do {
 		udelay(1);
@@ -791,7 +791,7 @@ unsigned int at91_get_ahb_clock(void)
 }
 
 /* TODO: to be updated for sam9x60 */
-#if !defined(AT91SAM9X60)
+#if !defined(SAM9X60)
 static unsigned int pmc_get_plla_freq(void)
 {
 	unsigned int tmp;
@@ -845,7 +845,7 @@ unsigned int pmc_get_generated_clock(unsigned int periph_id)
 #endif
 		break;
 	case AT91C_PMC_GCKCSS_PLLA_CLK:
-#if defined(AT91SAM9X60)
+#if defined(SAM9X60)
 		freq = 600000000;
 #else
 		freq = pmc_get_plla_freq();
