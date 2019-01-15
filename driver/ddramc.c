@@ -128,7 +128,7 @@ int ddram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that BA[1] is set to 1 and BA[0] is set to 0.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x2 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x2 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
 	udelay(1);
@@ -140,7 +140,7 @@ int ddram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that BA[1] is set to 1 and BA[0] is set to 1.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x3 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x3 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
 	udelay(1);
@@ -152,7 +152,7 @@ int ddram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x1 << ba_offset))) = 0;
 
 	/* An additional 200 cycles of clock are required for locking DLL */
 	udelay(1);
@@ -169,7 +169,7 @@ int ddram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that BA[1:0] bits are set to 0.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x0 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x0 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
 	udelay(1);
@@ -214,7 +214,7 @@ int ddram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that BA[1:0] bits are set to 0.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x0 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x0 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
 	udelay(1);
@@ -235,7 +235,7 @@ int ddram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x1 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
 	udelay(1);
@@ -256,7 +256,7 @@ int ddram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that BA[1] is set to 0 and BA[0] is set to 1.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x1 << ba_offset))) = 0;
 
 	/* wait 2 cycles min (of tCK) = 15 ns min */
 	udelay(1);
@@ -480,7 +480,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
 	asm volatile ("dmb");
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
 	 * Step 21: In the DDR Configuration Register, close the input buffers.
@@ -653,7 +653,7 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
 	asm volatile ("dmb");
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
 	 * Step 15: close the input buffers: error in documentation: no need.
@@ -750,14 +750,14 @@ void ddr3_sdram_bkp_init(unsigned int base_address,
 #endif
 
 	/* make sure to actually perform an access to the DDR chip */
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 
 	/* switch back to NOLOWPOWER by clearing the Low-power Command Bit */
 	write_ddramc(base_address,
 		     HDDRSDRC2_LPR, AT91C_DDRC2_LPCB_DISABLED);
 	asm volatile ("dmb");
 	/* make sure to actually perform an access to the DDR chip */
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 }
 
 
@@ -834,7 +834,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * BA[1] is set to 1 and signal BA[0] is set to 0.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x2 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x2 << ba_offset))) = 0;
 
 	/*
 	 * Step 7: An Extended Mode Register Set (EMRS3) cycle is issued to set
@@ -845,7 +845,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * BA[0] is set to 1.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x3 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x3 << ba_offset))) = 0;
 
 	/*
 	 * Step 8: An Extended Mode Register Set (EMRS1) cycle is issued to
@@ -856,7 +856,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * and signal BA[0] is set to 1.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
-	*((unsigned int *)(ram_address + (0x1 << ba_offset))) = 0;
+	*((unsigned volatile int *)(ram_address + (0x1 << ba_offset))) = 0;
 
 	/*
 	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
@@ -874,7 +874,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that signals BA[2:0] are set to 0
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_LMR_CMD);
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 
 	udelay(50);
 
@@ -886,7 +886,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * The write address must be chosen so that signals BA[2:0] are set to 0.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_DEEP_CMD);
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
 	 * Step 12: A Normal Mode command is provided.
@@ -894,12 +894,12 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * to any DDR3-SDRAM address to acknowledge this command.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
 	 * Step 13: Perform a write access to any DDR3-SDRAM address.
 	 */
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
 	 * Step 14: Write the refresh rate into the COUNT field in the MPDDRC
@@ -1081,7 +1081,7 @@ int lpddr3_sdram_initialize(unsigned int base_address,
 	 * Step 20: A Normal Mode command is provided.
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
-	*((unsigned int *)ram_address) = 0;
+	*((unsigned volatile int *)ram_address) = 0;
 
 	/*
 	 * Step 21: In the DDR Configuration Register, close the input buffers.
