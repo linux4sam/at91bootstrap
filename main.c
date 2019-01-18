@@ -98,7 +98,7 @@ int main(void)
 	act8945a_suspend_charger();
 #endif
 
-#if !defined(CONFIG_LOAD_NONE)
+#if !defined(CONFIG_LOAD_NONE) && !defined(CONFIG_SKIP_COPY_IMAGE)
 	init_load_image(&image);
 
 #if defined(CONFIG_SECURE)

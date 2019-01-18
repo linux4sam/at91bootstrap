@@ -71,6 +71,16 @@ config CONFIG_LINUX_IMAGE
 	help
 	  Select to load linux uImage or zImage to boot
 
+config CONFIG_SKIP_COPY_IMAGE
+	bool "Skip copying image from external media"
+	help
+	  In some cases we cannot copy the image from external media
+	  to DRAM. With this config, the copying is skipped.
+	  Bootstrap will jump directly to the DRAM area where the image
+	  should be located. It relies on a different way of loading the
+	  image to DRAM. For example it can be copied using the boot
+	  assistant SAM-BA or JTAG.
+
 #
 # Kernel Image Storage Setup
 #
