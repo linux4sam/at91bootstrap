@@ -705,7 +705,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	if (data) {
 		if (sdhc_host.caps_adma2 && (sd_cmd->cmd == SD_CMD_READ_SINGLE_BLOCK ||
 		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK)) {
-			/* for CMD18 and CMD18 we use ADMA2 */
+			/* for CMD17 and CMD18 we use ADMA2 */
 			sdhc_writeb(SDMMC_HC1R, sdhc_readb(SDMMC_HC1R) |
 						SDMMC_HC1R_DMASEL_ADMA32);
 		}
