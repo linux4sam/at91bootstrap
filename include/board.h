@@ -100,6 +100,10 @@
 #include "sama5d27_som1_ek.h"
 #endif
 
+#ifdef CONFIG_SAMA5D27_WLSOM1_EK
+#include "sama5d27_wlsom1_ek.h"
+#endif
+
 #ifdef CONFIG_SAMA5D2_LPDDR2SIP_VB
 #include "sama5d2_lpddr2sip_vb.h"
 #endif
