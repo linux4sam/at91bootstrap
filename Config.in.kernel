@@ -30,6 +30,7 @@ source "board/sama5d2_ptc_ek/Config.in.linux_arg"
 source "board/sama5d2_xplained/Config.in.linux_arg"
 source "board/sama5d2_icp/Config.in.linux_arg"
 source "board/sama5d27_som1_ek/Config.in.linux_arg"
+source "board/sama5d27_wlsom1_ek/Config.in.linux_arg"
 source "contrib/board/Config.in.linux_arg"
 
 endif
