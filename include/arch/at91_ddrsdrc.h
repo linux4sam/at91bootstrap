@@ -77,6 +77,9 @@
 
 /* -------- HDDRSDRC2_RTR : (HDDRSDRC2 Offset: 0x4) Refresh Timer Register -------- */
 #define AT91C_DDRC2_COUNT	(0xFFFUL << 0)
+#define AT91C_DDRC2_ADJ_REF	(0x1UL << 16)
+#define 	AT91C_DDRC2_DISABLE_ADJ_REF	(0x0UL << 16)
+#define 	AT91C_DDRC2_ENABLE_ADJ_REF	(0x1UL << 16)
 
 /* -------- HDDRSDRC2_CR : (HDDRSDRC2 Offset: 0x8) Configuration Register --------*/
 #define AT91C_DDRC2_NC		(0x3UL <<  0)
