@@ -232,6 +232,7 @@
 /* -------- MPDDRC_LPDDR2_CAL_MR4: (MPDDRC Offset: 0x2c) Calibration and MR4 Register --------*/
 #define AT91C_DDRC2_COUNT_CAL_MASK	(0xFFFFUL)
 #define AT91C_DDRC2_COUNT_CAL(value)	(((value) & AT91C_DDRC2_COUNT_CAL_MASK) << 0)
+#define AT91C_DDRC2_MR4R(value)		(((value) & 0xFFFFUL) << 16)
 
 /* -------- MPDDRC_LPDDR2_TIM_CAL : (MPDDRC Offset: 0x30) */
 #define AT91C_DDRC2_ZQCS(value)	(value << 0)
