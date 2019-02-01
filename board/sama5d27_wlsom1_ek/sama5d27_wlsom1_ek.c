@@ -279,6 +279,26 @@ static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
 	/* Enable Adjust Refresh Rate */
 	ddramc_config->rtr |= AT91C_DDRC2_ENABLE_ADJ_REF;
 
+	/*
+	 * According to the sama5d2 datasheet and the following values:
+	 * T Sens = 0.75%/C, V Sens = 0.2%/mV, T driftrate = 1C/sec and V driftrate = 15 mV/s
+	 * Warning: note that the values T driftrate and V driftrate are dependent on
+	 * the application environment.
+	 * ZQCS period is 1.5 / ((0.75 x 1) + (0.2 x 15)) = 0.4s
+	 * If Trefi is 3.9us, we have: 400000 / 3.9 = 102564: we can maximize
+	 * this timer to 0xFFFE.
+	 * */
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xFFFE);
+
+	/*
+	 * MR4 Read interval is dependent on the application environment.
+	 * Here, we want to maximize this value as temperature is supposed
+	 * to vary slowly in the application chosen.
+	 * If Trefi is 3.9us, we have:
+	 * (0xFFFE) 65534 x 3.9 = 0.25s between MR4 reads.
+	 */
+	ddramc_config->cal_mr4r |= AT91C_DDRC2_MR4R(0xFFFE);
+
 	/* 90n short calibration: ZQCS */
 	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(15);
 
