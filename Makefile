@@ -23,7 +23,13 @@ endif
 
 BINDIR:=$(TOPDIR)/binaries
 
-DATE := $(shell date)
+# see https://reproducible-builds.org/docs/source-date-epoch/#makefile
+DATE_FMT = %Y-%m-%d
+ifdef SOURCE_DATE_EPOCH
+	DATE ?= $(shell date -u -d "@$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)"  2>/dev/null || date -u -r "$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)" 2>/dev/null || date -u "+$(DATE_FMT)")
+else
+	DATE := $(shell date)
+endif
 VERSION := 3.8.12
 REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
