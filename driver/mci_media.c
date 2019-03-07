@@ -827,15 +827,15 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 
 		ret = mmc_bus_width_select(sdcard, busw, 0);
 		if (ret)
-			return ret;
+			continue;
 
 		ret = mmc_cmd_bustest_w(sdcard, busw, pdata_w);
 		if (ret)
-			return ret;
+			continue;
 
 		ret = mmc_cmd_bustest_r(sdcard, busw, read_data);
 		if (ret)
-			return ret;
+			continue;
 
 		for (i = 0; i < len; i++) {
 			if ((pdata_w[i] ^ read_data[i]) != 0xff)
@@ -848,6 +848,9 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 		}
 
 	}
+
+	if (!busw && !len)
+		dbg_info("MMC: falling back to 1 bit bus width\n");
 
 	return 0;
 
