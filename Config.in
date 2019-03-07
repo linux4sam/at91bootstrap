@@ -86,11 +86,6 @@ source "Config.in.u-boot"
 #
 source "Config.in.app-image"
 
-#
-# No Image Storage Setup
-#
-source "Config.in.none"
-
 config CONFIG_IMAGE_NAME
 	depends on CONFIG_FATFS
 	string "Image Name"

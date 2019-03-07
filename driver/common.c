@@ -46,6 +46,7 @@ char cmdline_args[CMDLINE_BUF_LEN];
 #endif
 #endif
 
+#if !defined(CONFIG_LOAD_NONE)
 void init_load_image(struct image_info *image)
 {
 	memset(image,		0, sizeof(*image));
@@ -120,6 +121,7 @@ void init_load_image(struct image_info *image)
 #endif
 #endif
 }
+#endif
 
 void load_image_done(int retval)
 {

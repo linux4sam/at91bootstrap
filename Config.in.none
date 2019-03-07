@@ -1,3 +1,0 @@
-config CONFIG_JUMP_ADDR
-	default "0x0" if CONFIG_LOAD_NONE
-
