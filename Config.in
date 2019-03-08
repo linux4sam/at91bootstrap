@@ -160,17 +160,29 @@ menu "Slow Clock Configuration Options"
 	depends on CPU_HAS_SCKC
 
 config CONFIG_SCLK
-	bool "Use external 32KHZ oscillator as source of slow clock"
+	bool "Use external 32kHz crystal oscillator as source of slow clock"
 	default y
 	help
-	  Use external 32KHZ oscillator as source of slow clock
+	  Use external 32kHz crystal oscillator as source of slow clock instead
+	  of the embedded 32 khz RC source which typically has a lower accuracy
+	  Both XIN32 and XOUT32 need to be connected to enable the SoC to
+	  drive the crystal oscillator.
+	  Behavior can be changed using CONFIG_SCLK_BYPASS, if this is
+	  supported by the SoC.
+	  If CONFIG_SCLK_BYPASS is unavailable, only a crystal oscillator
+	  can be connected.
 
 config CONFIG_SCLK_BYPASS
-	depends on CONFIG_SCLK
-	bool "Use external 32kHz clock as source of slow clock"
+	depends on CONFIG_SCLK && CPU_HAS_SCLK_BYPASS
+	bool "Use external 32kHz clock signal as source of slow clock"
 	default n
 	help
-	  Use external 32kHz clock as source of slow clock
+	  Use external 32kHz clock signal as source of slow clock instead of
+	  an external crystal oscillator.
+	  This option disables the internal driving on the XOUT32 pin.
+	  The external source has to provide a stable clock on the XIN32 pin.
+	  If this option is disabled, the SoC expects a crystal oscillator
+	  that needs driving on both XIN32 and XOUT32 lines.
 
 endmenu
 
