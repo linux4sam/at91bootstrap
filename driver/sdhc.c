@@ -756,8 +756,6 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	timeout = 100000;
 	do {
 		normal_status = sdhc_readw(SDMMC_NISTR);
-		if (normal_status & SDMMC_NISTR_ERRINT)
-			break;
 	} while ((--timeout) &&
 		 ((normal_status & normal_status_mask) != normal_status_mask));
 
