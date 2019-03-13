@@ -62,7 +62,7 @@
 #define	QSPI_CR_LASTXFER	(0x1 << 24)	/* Last Transfer */
 
 /* QSPI_MR */
-#define	QSPI_MR_SMM		(0x1 << 0)	/* Serial Memort Mode */
+#define	QSPI_MR_SMM		(0x1 << 0)	/* Serial Memory Mode */
 #define		QSPI_MR_SMM_SPI		(0x0 << 0)
 #define		QSPI_MR_SMM_MEMORY	(0x1 << 0)
 #define	QSPI_MR_LLB		(0x1 << 1)	/* Local Localback Enable */
