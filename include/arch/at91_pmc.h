@@ -105,6 +105,7 @@
 #define AT91C_PMC_PCK0		(0x1UL <<  8)
 #define AT91C_PMC_PCK1		(0x1UL <<  9)
 #define AT91C_PMC_PCK2		(0x1UL << 10)
+#define AT91C_PMC_QSPICLK	(0x1UL << 19)
 
 #define AVAILABLE_SYS_CLK (AT91C_PMC_DDR \
 			 | AT91C_PMC_LCDCK \
@@ -113,7 +114,8 @@
 			 | AT91C_PMC_UDP \
 			 | AT91C_PMC_PCK0 \
 			 | AT91C_PMC_PCK1 \
-			 | AT91C_PMC_PCK2)
+			 | AT91C_PMC_PCK2 \
+			 | AT91C_PMC_QSPICLK)
 
 /* -------- PMC_SCDR : (PMC Offset: 0x4) System Clock Disable Register --------*/ 
 /* -------- PMC_SCSR : (PMC Offset: 0x8) System Clock Status Register ---------*/
