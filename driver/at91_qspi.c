@@ -33,6 +33,7 @@
 #include "arch/at91_qspi.h"
 #include "spi_flash/spi_nor.h"
 #include "debug.h"
+#include "timer.h"
 
 #ifndef CONFIG_SYS_BASE_QSPI
 #error "CONFIG_SYS_BASE_QSPI is not set"
@@ -211,6 +212,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 	unsigned int iar, icr, ifr;
 	unsigned int offset;
 	unsigned int sr, imr;
+	unsigned int timeout = 1000000;
 
 	iar = 0;
 	icr = 0;
@@ -335,8 +337,13 @@ no_data:
 	/* Poll INSTruction End and Chip Select Rise flags. */
 	imr = (QSPI_SR_INSTRE | QSPI_SR_CSR);
 	sr = 0;
-	while (sr != (QSPI_SR_INSTRE | QSPI_SR_CSR))
+	do {
+		udelay(1);
 		sr |= qspi_readl(qspi, QSPI_SR) & imr;
+	} while ((!!(--timeout)) && (sr != imr));
+
+	if (!timeout)
+		dbg_info("Timeout waiting Instruction End! sr = %08x\n", sr);
 
 	return 0;
 }
