@@ -101,4 +101,11 @@
 #define CONFIG_SYS_ID_SDHC	AT91C_ID_SDMMC1
 #endif
 
+/*
+ * LEDs
+ */
+#define CONFIG_SYS_LED_RED_PIN      AT91C_PIN_PA(10)
+#define CONFIG_SYS_LED_GREEN_PIN    AT91C_PIN_PB(1)
+#define CONFIG_SYS_LED_BLUE_PIN     AT91C_PIN_PA(31)
+
 #endif
