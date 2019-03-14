@@ -223,7 +223,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 		return -1;
 
 	/* Compute instruction parameters. */
-	icr |= QSPI_ICR_INST_(cmd->inst);
+	icr |= QSPI_ICR_INST(cmd->inst);
 	ifr |= QSPI_IFR_INSTEN;
 
 	/* Compute address parameters. */
@@ -247,7 +247,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 	if (cmd->num_mode_cycles) {
 		unsigned int mode_cycle_bits, mode_bits;
 
-		icr |= QSPI_ICR_OPT_(cmd->mode);
+		icr |= QSPI_ICR_OPT(cmd->mode);
 		ifr |= QSPI_IFR_OPTEN;
 
 		switch (ifr & QSPI_IFR_WIDTH) {

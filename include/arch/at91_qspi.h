@@ -102,8 +102,10 @@
 #define	QSPI_SCR_DLYBS_(x)	((x) << 16)	/* Delay Before QSCK */
 
 /* QSPI_ICR */
-#define	QSPI_ICR_INST_(x)	((x) << 0)	/* Instruction Code */
-#define	QSPI_ICR_OPT_(x)	((x) << 16)	/* Option Code */
+#define QSPI_ICR_INST_MASK     0xff
+#define QSPI_ICR_INST(inst)    ((inst) & QSPI_ICR_INST_MASK)
+#define QSPI_ICR_OPT_MASK      (0xff << 16)
+#define QSPI_ICR_OPT(opt)      (((opt) << 16) & QSPI_ICR_OPT_MASK)
 
 /* QSPI_IFR */
 #define	QSPI_IFR_WIDTH		(0x7 << 0)	/* Width of Instruction Code, Address, Option Code and Data */
