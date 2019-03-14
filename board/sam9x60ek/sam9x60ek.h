@@ -59,16 +59,6 @@
 #endif
 
 /*
- * DataFlash Settings
- */
-#define CONFIG_SYS_SPI_CLOCK    AT91C_SPI_CLK
-#define CONFIG_SYS_SPI_MODE     SPI_MODE3
-
-#if defined(CONFIG_SPI_BUS0)
-#define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI0
-#endif
-
-/*
  * NandFlash Settings
  */
 #define CONFIG_SYS_NAND_BASE            AT91C_BASE_CS3
