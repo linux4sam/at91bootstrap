@@ -309,7 +309,15 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 
 	/* Set QSPI Instruction Frame registers. */
 	qspi_writel(qspi, QSPI_IAR, iar);
+#ifdef QSPI_RICR
+	if ((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_READ ||
+	    (cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_READ_REG)
+		qspi_writel(qspi, QSPI_RICR, icr);
+	else
+		qspi_writel(qspi, QSPI_WICR, icr);
+#else
 	qspi_writel(qspi, QSPI_ICR, icr);
+#endif
 	qspi_writel(qspi, QSPI_IFR, ifr);
 
 	/* Skip to the final steps if there is no data. */
