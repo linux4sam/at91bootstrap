@@ -145,7 +145,6 @@ config SAM9X60
 	select CPU_HAS_SDHC0
 	select CPU_HAS_SDHC1
 	select CPU_HAS_QSPI0
-	select CPU_HAS_QSPI0_IOSET1
 	bool
 
 config AT91SAM9N12
