@@ -82,5 +82,9 @@ config CPU_HAS_WDT2
 	bool
 	default n
 
+config CPU_HAS_QSPI_RICR_WICR
+	bool
+	default n
+
 source "driver/Config.in.memory"
 source "contrib/driver/Config.in.driver"
