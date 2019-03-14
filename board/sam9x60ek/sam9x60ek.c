@@ -243,6 +243,30 @@ void hw_init(void)
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
+#ifdef CONFIG_DATAFLASH
+
+#if defined(CONFIG_QSPI)
+void at91_qspi_hw_init(void)
+{
+	const struct pio_desc qspi_pins[] = {
+		{"QSPI0_SCK", AT91C_PIN_PB(19), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"QSPI0_CS", AT91C_PIN_PB(20), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"QSPI0_IO0", AT91C_PIN_PB(21), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"QSPI0_IO1", AT91C_PIN_PB(22), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"QSPI0_IO2", AT91C_PIN_PB(23), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"QSPI0_IO3", AT91C_PIN_PB(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(qspi_pins);
+
+	pmc_enable_system_clock(AT91C_PMC_QSPICLK);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI);
+}
+#endif  /* #ifdef CONFIG_QSPI */
+
+#endif	/* #ifdef CONFIG_DATAFLASH */
+
 #ifdef CONFIG_SDCARD
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)

@@ -58,6 +58,12 @@
 #define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI1
 #endif
 
+#if defined(CONFIG_QSPI)
+#define CONFIG_SYS_BASE_QSPI		AT91C_BASE_QSPI0
+#define CONFIG_SYS_BASE_QSPI_MEM	AT91C_BASE_QSPI0_MEM
+#define CONFIG_SYS_ID_QSPI		AT91C_ID_QSPI0
+#endif
+
 /*
  * NandFlash Settings
  */
