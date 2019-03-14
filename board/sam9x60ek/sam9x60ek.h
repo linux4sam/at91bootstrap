@@ -59,10 +59,6 @@
 #endif
 
 /*
- * MCI Settings
- */
-
-/*
  * DataFlash Settings
  */
 #define CONFIG_SYS_SPI_CLOCK    AT91C_SPI_CLK
