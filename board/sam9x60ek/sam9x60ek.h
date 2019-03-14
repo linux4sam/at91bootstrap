@@ -50,7 +50,7 @@
  * DataFlash Settings
  */
 #define CONFIG_SYS_SPI_CLOCK    AT91C_SPI_CLK
-#define CONFIG_SYS_SPI_MODE     SPI_MODE3
+#define CONFIG_SYS_SPI_MODE     SPI_MODE0
 
 #if defined(CONFIG_SPI_BUS0)
 #define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI0
