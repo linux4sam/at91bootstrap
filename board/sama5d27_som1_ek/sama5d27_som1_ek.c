@@ -319,9 +319,21 @@ void at91_init_can_message_ram(void)
 	       (AT91C_BASE_SFR + SFR_CAN));
 }
 
-static void at91_red_led_on(void)
+static void led_hw_init(void)
 {
-	pio_set_gpio_output(AT91C_PIN_PA(27), 0);
+	const struct pio_desc led_pins[] = {
+		{"LED_RED", CONFIG_SYS_LED_RED_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+		{"LED_GREEN", CONFIG_SYS_LED_GREEN_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+		{"LED_BLUE", CONFIG_SYS_LED_BLUE_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A}
+	};
+
+	pio_configure(led_pins);
+}
+
+static void at91_led_on(void)
+{
+	pio_set_gpio_output(CONFIG_SYS_LED_GREEN_PIN, 1);
 }
 
 #ifdef CONFIG_HW_INIT
@@ -329,7 +341,9 @@ void hw_init(void)
 {
 	at91_disable_wdt();
 
-	at91_red_led_on();
+	led_hw_init();
+
+	at91_led_on();
 
 	pmc_cfg_plla(PLLA_SETTINGS);
 
