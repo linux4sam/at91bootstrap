@@ -144,6 +144,7 @@
 #define AT91C_PLL_SSR_ENSPREAD	(0x1UL << 28)
 
 /* -------- PMC_PLL_ACR : (PMC Offset: 0x18) PLL Analog Control Register -------- */
+#define AT91C_PLL_ACR_DEFAULT	0x1b040010UL
 #define AT91C_PLL_ACR_CONTROL	(0xfffUL << 0)
 #define		AT91C_PLL_ACR_CONTROL_(x)	((x) << 0)
 #define AT91C_PLL_ACR_UTMIVR	(0x1UL << 12)
