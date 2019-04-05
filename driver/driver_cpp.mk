@@ -464,3 +464,7 @@ endif
 ifeq ($(CONFIG_QSPI), y)
 CPPFLAGS += -DCONFIG_QSPI
 endif
+
+ifeq ($(CONFIG_FLEXCOM), y)
+CPPFLAGS += -DCONFIG_FLEXCOM
+endif

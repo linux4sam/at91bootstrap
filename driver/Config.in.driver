@@ -70,5 +70,13 @@ config CPU_HAS_PIO4
 	bool
 	default n
 
+config CONFIG_FLEXCOM
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM
+	bool
+	default n
+
 source "driver/Config.in.memory"
 source "contrib/driver/Config.in.driver"
