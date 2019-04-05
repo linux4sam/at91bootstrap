@@ -104,6 +104,10 @@
 #include "sama5d2_lpddr2sip_vb.h"
 #endif
 
+#ifdef CONFIG_SAMA5D2_ICP
+#include "sama5d2_icp.h"
+#endif
+
 #include "contrib_board.h"
 
 /*

@@ -116,6 +116,7 @@ static struct {
 	{"SAMA5D44-MB",	BOARD_TYPE_EK,	BOARD_ID_SAMA5D4_MB},
 	{"SAMA5D4-XULT",BOARD_TYPE_EK,	BOARD_ID_SAMA5D4_MB},
 	{"SAMA5D2-XULT",BOARD_TYPE_EK,	BOARD_ID_SAMA5D2_XULT},
+	{"SAMA5D2-ICP", BOARD_TYPE_EK,	BOARD_ID_SAMA5D2_ICP},
 	{0,		0,		0},
 };
 
@@ -132,6 +133,7 @@ static struct {
 	{"ATMEL-RFO",	VENDOR_ATMEL_RFO},
 	{"ATMEL RFO",	VENDOR_ATMEL_RFO},
 	{"ATMEL-RF0",	VENDOR_ATMEL_RFO},
+	{"MCHIP RFO",	VENDOR_MCHIP_RFO},
 	{0,		0},
 };
 
@@ -473,6 +475,9 @@ static unsigned int set_default_sn(void)
 #elif defined(CONFIG_SAMA5D2_XPLAINED)
 	board_id_ek = BOARD_ID_SAMA5D2_XULT;
 	vendor_ek = VENDOR_ATMEL_RFO;
+#elif defined(CONFIG_SAMA5D2_ICP)
+	board_id_ek = BOARD_ID_SAMA5D2_ICP;
+	vendor_ek = VENDOR_MCHIP_RFO;
 #else
 #error "OneWire: No defined board"
 #endif
@@ -534,6 +539,14 @@ static unsigned int set_default_rev(void)
 	rev_id_ek = '3';
 
 #elif defined(CONFIG_SAMA5D2_XPLAINED)
+	rev_cm = 'A';
+	rev_dm = 'A';
+	rev_ek = 'A';
+	rev_id_cm = '1';
+	rev_id_dm = '1';
+	rev_id_ek = '1';
+
+#elif defined(CONFIG_SAMA5D2_ICP)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
