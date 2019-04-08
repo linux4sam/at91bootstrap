@@ -83,6 +83,8 @@ typedef struct board_hw_info {
 	unsigned char revision_id;
 	unsigned char bom_revision;
 	unsigned char vendor_id;
+	unsigned char year;
+	unsigned char week;
 } board_info_t;
 
 static unsigned int sn;
@@ -290,6 +292,9 @@ static int parse_alt_board_hw_info(unsigned char *buff,
 	bd_info->revision_code = normalize_rev_code(p->revision_code);
 	bd_info->revision_id = normalize_rev_id_map_b(p->revision_id);
 	bd_info->bom_revision = normalize_bom_revision(p->bom_revision);
+
+	bd_info->year = p->year;
+	bd_info->week = p->week;
 
 	return 0;
 
@@ -676,6 +681,10 @@ static int load_eeprom_info(unsigned char *buff, unsigned int size,
 
 	if (construct_sn_rev(bd_info, psn, prev))
 		return -1;
+
+	dbg_info("EEPROM: BoardDate | Year | Week\n");
+	dbg_info("EEPROM:             %u    %u\n",
+		 2000 + bd_info->year, bd_info->week);
 
 	return 0;
 }
