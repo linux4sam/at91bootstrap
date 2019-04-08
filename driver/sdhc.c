@@ -760,7 +760,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 		 ((normal_status & normal_status_mask) != normal_status_mask));
 
 	if (!timeout)
-		console_printf("SDHC: Timeout waiting for command complete\n");
+		dbg_very_loud("SDHC: Timeout waiting for command complete\n");
 
 	/* clear the status, except for read and write ready.
 	 * those will be cleared by the read/write data routine, which
