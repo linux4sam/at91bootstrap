@@ -53,18 +53,22 @@ unsigned char wm8904_twi_bus;
 unsigned char act8865_twi_bus;
 unsigned char at24xx_twi_bus;
 
-#if defined(CONFIG_TWI0)
-static unsigned int at91_twi0_base;
-#endif
-#if defined(CONFIG_TWI1)
-static unsigned int at91_twi1_base;
-#endif
-#if defined(CONFIG_TWI2)
-static unsigned int at91_twi2_base;
-#endif
-#if defined(CONFIG_TWI3)
-static unsigned int at91_twi3_base;
-#endif
+#define AT91_MAX_TWI_SUPPORTED		16
+
+static unsigned int at91_twi_base[AT91_MAX_TWI_SUPPORTED];
+static unsigned int at91_twi_cur_num = 0;
+
+int at91_twi_register_bus(unsigned int twi_base)
+{
+	if (at91_twi_cur_num >= AT91_MAX_TWI_SUPPORTED)
+		return -1;
+
+	at91_twi_base[at91_twi_cur_num] = twi_base;
+
+	at91_twi_cur_num++;
+
+	return at91_twi_cur_num - 1;
+}
 
 static inline unsigned int twi_reg_read(unsigned int twi_base,
 					unsigned int offset)
@@ -80,38 +84,10 @@ static inline void twi_reg_write(unsigned int twi_base,
 
 static unsigned int get_twi_base(unsigned int bus)
 {
-	unsigned int twi_base;
-
-	if (bus >= AT91C_NUM_TWI)
+	if (bus >= at91_twi_cur_num)
 		return 0;
 
-	switch (bus) {
-#ifdef CONFIG_TWI0
-	case 0:
-		twi_base = at91_twi0_base;
-		break;
-#endif
-#ifdef CONFIG_TWI1
-	case 1:
-		twi_base = at91_twi1_base;
-		break;
-#endif
-#ifdef CONFIG_TWI2
-	case 2:
-		twi_base = at91_twi2_base;
-		break;
-#endif
-#ifdef CONFIG_TWI3
-	case 3:
-		twi_base = at91_twi3_base;
-		break;
-#endif
-	default:
-		twi_base = 0;
-		break;
-	}
-
-	return twi_base;
+	return at91_twi_base[bus];
 }
 
 static int twi_configure_master_mode(unsigned int bus,
@@ -297,41 +273,22 @@ int twi_write(unsigned int bus, unsigned char device_addr,
 	return 0;
 }
 
-void twi_init(void)
+void twi_bus_init(unsigned int (*at91_twi_hw_init)(void))
 {
 	unsigned int bus_clock = at91_get_ahb_clock();
+	unsigned int base = at91_twi_hw_init();
+	int bus;
 
-#if defined(CONFIG_TWI0)
-	at91_twi0_base = at91_twi0_hw_init();
-	if (at91_twi0_base)
-		twi_configure_master_mode(0, bus_clock, TWI_CLOCK);
-#endif
-#if defined(CONFIG_TWI1)
-	at91_twi1_base = at91_twi1_hw_init();
-	if (at91_twi1_base)
-		twi_configure_master_mode(1, bus_clock, TWI_CLOCK);
-#endif
-#if defined(CONFIG_TWI2)
-	at91_twi2_base = at91_twi2_hw_init();
-	if (at91_twi2_base)
-		twi_configure_master_mode(2, bus_clock, TWI_CLOCK);
-#endif
-#if defined(CONFIG_TWI3)
-	at91_twi3_base = at91_twi3_hw_init();
-	if (at91_twi3_base)
-		twi_configure_master_mode(3, bus_clock, TWI_CLOCK);
-#endif
+	bus = at91_twi_register_bus(base);
+	if (bus < 0)
+		return;
+
+	twi_configure_master_mode(bus, bus_clock, TWI_CLOCK);
 
 	hdmi_twi_bus	= 0xff;
 	wm8904_twi_bus	= 0xff;
 	act8865_twi_bus	= 0xff;
 	at24xx_twi_bus	= 0xff;
-
-#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
-	dbg_loud("Auto-Config the TWI Bus by the board\n");
-
-	at91_board_config_twi_bus();
-#endif
 
 	twi_init_done = 1;
 }

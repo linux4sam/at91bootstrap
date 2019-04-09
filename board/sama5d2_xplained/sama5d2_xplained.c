@@ -673,6 +673,10 @@ void hw_init(void)
 	l2cache_prepare();
 
 	at91_init_can_message_ram();
+
+#if defined(CONFIG_TWI)
+	twi_init();
+#endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
@@ -878,7 +882,7 @@ void at91_sdhc_hw_init(void)
 }
 #endif
 
-#if defined(CONFIG_TWI0)
+#if defined(CONFIG_TWI)
 unsigned int at91_twi0_hw_init(void)
 {
 	unsigned int base_addr = AT91C_BASE_TWI0;
@@ -895,9 +899,7 @@ unsigned int at91_twi0_hw_init(void)
 
 	return base_addr;
 }
-#endif
 
-#if defined(CONFIG_TWI1)
 unsigned int at91_twi1_hw_init(void)
 {
 	const struct pio_desc twi_pins[] = {
@@ -912,13 +914,23 @@ unsigned int at91_twi1_hw_init(void)
 
 	return AT91C_BASE_TWI1;
 }
-#endif
 
 #if defined(CONFIG_AUTOCONFIG_TWI_BUS)
 void at91_board_config_twi_bus(void)
 {
 	act8865_twi_bus = 0;
 	at24xx_twi_bus = 1;
+}
+#endif
+
+void twi_init()
+{
+	twi_bus_init(at91_twi0_hw_init);
+	twi_bus_init(at91_twi1_hw_init);
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+	dbg_loud("Auto-Config the TWI Bus by the board\n");
+	at91_board_config_twi_bus();
+#endif
 }
 #endif
 

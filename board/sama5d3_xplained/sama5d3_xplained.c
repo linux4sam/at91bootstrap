@@ -284,14 +284,12 @@ void at91_disable_mac_clock(void)
 }
 #endif
 
-#if defined(CONFIG_TWI0)
+#ifdef CONFIG_TWI
 unsigned int at91_twi0_hw_init(void)
 {
 	return 0;
 }
-#endif
 
-#if defined(CONFIG_TWI1)
 unsigned int at91_twi1_hw_init(void)
 {
 	unsigned int base_addr = AT91C_BASE_TWI1;
@@ -309,20 +307,18 @@ unsigned int at91_twi1_hw_init(void)
 
 	return base_addr;
 }
-#endif
 
-#if defined(CONFIG_TWI2)
 unsigned int at91_twi2_hw_init(void)
 {
 	return 0;
 }
-#endif
 
 #if defined(CONFIG_AUTOCONFIG_TWI_BUS)
 void at91_board_config_twi_bus(void)
 {
 	act8865_twi_bus	= 1;
 }
+#endif
 #endif
 
 #if defined(CONFIG_ACT8865_SET_VOLTAGE)
@@ -406,6 +402,10 @@ void hw_init(void)
 #ifdef CONFIG_DDR2
 	/* Initialize MPDDR Controller */
 	ddramc_init();
+#endif
+
+#if defined(CONFIG_TWI)
+	twi_init();
 #endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
@@ -516,3 +516,17 @@ void nandflash_hw_init(void)
 		(ATMEL_BASE_SMC + SMC_MODE3));
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
+
+#if defined(CONFIG_TWI)
+void twi_init()
+{
+	twi_bus_init(at91_twi0_hw_init);
+	twi_bus_init(at91_twi1_hw_init);
+	twi_bus_init(at91_twi2_hw_init);
+
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+	dbg_loud("Auto-Config the TWI Bus by the board\n");
+	at91_board_config_twi_bus();
+#endif
+}
+#endif

@@ -477,7 +477,7 @@ static int matrix_init(void)
 }
 #endif	/* #if defined(CONFIG_MATRIX) */
 
-#if defined(CONFIG_TWI0)
+#if defined(CONFIG_TWI)
 unsigned int at91_twi0_hw_init(void)
 {
 	unsigned int base_addr = AT91C_BASE_TWI0;
@@ -495,23 +495,17 @@ unsigned int at91_twi0_hw_init(void)
 
 	return base_addr;
 }
-#endif
 
-#if defined(CONFIG_TWI1)
 unsigned int at91_twi1_hw_init(void)
 {
 	return 0;
 }
-#endif
 
-#if defined(CONFIG_TWI2)
 unsigned int at91_twi2_hw_init(void)
 {
 	return 0;
 }
-#endif
 
-#if defined(CONFIG_TWI3)
 unsigned int at91_twi3_hw_init(void)
 {
 	unsigned int base_addr = AT91C_BASE_TWI3;
@@ -529,7 +523,6 @@ unsigned int at91_twi3_hw_init(void)
 
 	return base_addr;
 }
-#endif
 
 #if defined(CONFIG_AUTOCONFIG_TWI_BUS)
 void at91_board_config_twi_bus(void)
@@ -538,6 +531,7 @@ void at91_board_config_twi_bus(void)
 	wm8904_twi_bus	= 0;
 	act8865_twi_bus	= 0;
 }
+#endif
 #endif
 
 #if defined(CONFIG_ACT8865_SET_VOLTAGE)
@@ -706,6 +700,10 @@ void hw_init(void)
 
 	/* Prepare L2 cache setup */
 	l2cache_prepare();
+
+#if defined(CONFIG_TWI)
+	twi_init();
+#endif
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
@@ -855,3 +853,17 @@ void nandflash_hw_init(void)
 		(ATMEL_BASE_SMC + SMC_MODE3));
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
+
+#if defined(CONFIG_TWI)
+void twi_init()
+{
+	twi_bus_init(at91_twi0_hw_init);
+	twi_bus_init(at91_twi1_hw_init);
+	twi_bus_init(at91_twi2_hw_init);
+	twi_bus_init(at91_twi3_hw_init);
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+	dbg_loud("Auto-Config the TWI Bus by the board\n");
+	at91_board_config_twi_bus();
+#endif
+}
+#endif
