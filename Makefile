@@ -25,7 +25,7 @@ BINDIR:=$(TOPDIR)/binaries
 
 DATE := $(shell date)
 VERSION := 3.8.11
-REVISION :=
+REVISION := sam9x60_2.0-rc2
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
 ifeq ($(SCMINFO),)
