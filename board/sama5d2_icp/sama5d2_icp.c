@@ -81,6 +81,20 @@ void at91_leds_init(void)
 	pio_configure(leds_pins);
 }
 
+/*
+ * Must set PB25 to LOW to enable the can transceivers.
+ * This needs to be replaced later with Linux control over this GPIO
+ */
+void at91_can_stdby_dis(void)
+{
+	const struct pio_desc can_pins[] = {
+		{"CAN_STDBY", AT91C_PIN_PB(25), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
+	};
+
+	pio_configure(can_pins);
+}
+
 #if defined(CONFIG_MATRIX)
 static int matrix_configure_slave(void)
 {
@@ -454,6 +468,8 @@ void hw_init(void)
 	twi_init();
 #endif
 	at91_leds_init();
+
+	at91_can_stdby_dis();
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
