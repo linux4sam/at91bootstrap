@@ -69,6 +69,18 @@ static void initialize_dbgu(void)
 		usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
 }
 
+void at91_leds_init(void)
+{
+	const struct pio_desc leds_pins[] = {
+		{"RED", AT91C_PIN_PB(0), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{"GREEN", AT91C_PIN_PB(1), 1, PIO_DEFAULT, PIO_OUTPUT},
+		{"BLUE", AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
+	};
+
+	pio_configure(leds_pins);
+}
+
 #if defined(CONFIG_MATRIX)
 static int matrix_configure_slave(void)
 {
@@ -441,6 +453,7 @@ void hw_init(void)
 #if defined(CONFIG_TWI)
 	twi_init();
 #endif
+	at91_leds_init();
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
