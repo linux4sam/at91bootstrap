@@ -202,6 +202,7 @@ config SAMA5D2
 	select CORE_CORTEX_A5
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
+	select CPU_HAS_FLEXCOM
 	select CPU_HAS_AES
 	select CPU_HAS_L2CC
 	select CPU_HAS_SCKC
