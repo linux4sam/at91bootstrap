@@ -137,4 +137,8 @@ PCK: 348MHz, MCK: 116MHz */
 #define CONFIG_SYS_ID_SDHC	AT91C_ID_SDMMC1
 #endif
 
+#ifdef CONFIG_FLEXCOM
+#define AT91C_NUM_FLEXCOM	5
+#endif
+
 #endif

@@ -654,10 +654,29 @@ unsigned int at91_twi1_hw_init(void)
 	return AT91C_BASE_TWI1;
 }
 
+#if defined(CONFIG_FLEXCOM)
+unsigned int at91_flexcom4_init(void)
+{
+	const struct pio_desc flx_pins[] = {
+		{"FLX_IO0", AT91C_PIN_PD(28), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"FLX_IO1", AT91C_PIN_PD(29), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
+	};
+
+	pio_configure(flx_pins);
+	pmc_sam9x5_enable_periph_clk(AT91C_ID_FLEXCOM4);
+
+	return AT91C_BASE_FLEXCOM4;
+}
+#endif
+
 void twi_init()
 {
 	twi_bus_init(at91_twi0_hw_init);
 	twi_bus_init(at91_twi1_hw_init);
+#if defined(CONFIG_FLEXCOM)
+	twi_bus_init(at91_flexcom4_init);
+#endif
 
 #if defined(CONFIG_AUTOCONFIG_TWI_BUS)
 	dbg_loud("Auto-Config the TWI Bus by the board\n");
