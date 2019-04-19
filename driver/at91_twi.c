@@ -211,7 +211,7 @@ int twi_read(unsigned int bus, unsigned char device_addr,
 			;
 
 		if (!timeout) {
-			dbg_loud("twi read: timeout to wait RXRDY bit\n");
+			dbg_loud("twi read: timeout to wait RXRDY bit on bus %u\n", bus);
 			return -1;
 		}
 
