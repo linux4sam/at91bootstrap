@@ -426,6 +426,29 @@ void at91_init_can_message_ram(void)
 	       (AT91C_BASE_SFR + SFR_CAN));
 }
 
+static void icp_peripherals_hw_reset(void)
+{
+	const struct pio_desc reset_peripherals[] = {
+		{"LAN9252_RST",	AT91C_PIN_PB(16),	0, PIO_DEFAULT, PIO_OUTPUT},	/* min. deassertion 200us */
+		{"HSIC_RST",	AT91C_PIN_PC(2),	0, PIO_DEFAULT, PIO_OUTPUT},	/* min. deassertion 1us */
+		{"USB2534_RST",	AT91C_PIN_PC(17),	0, PIO_DEFAULT, PIO_OUTPUT},	/* min. deassertion 5us */
+		{"KSZ8563_RST",	AT91C_PIN_PD(4),	0, PIO_DEFAULT, PIO_OUTPUT},	/* min. deassertion 100us */
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	const struct pio_desc wake_peripherals[] = {
+		{"LAN9252_RST",	AT91C_PIN_PB(16),	1, PIO_DEFAULT, PIO_OUTPUT},
+		{"HSIC_RST",	AT91C_PIN_PC(2),	1, PIO_DEFAULT, PIO_OUTPUT},
+		{"USB2534_RST",	AT91C_PIN_PC(17),	1, PIO_DEFAULT, PIO_OUTPUT},
+		{"KSZ8563_RST",	AT91C_PIN_PD(4),	1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(reset_peripherals);
+	udelay(250);
+	pio_configure(wake_peripherals);
+}
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -470,6 +493,9 @@ void hw_init(void)
 	at91_leds_init();
 
 	at91_can_stdby_dis();
+
+	/* Reset peripherals*/
+	icp_peripherals_hw_reset();
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
