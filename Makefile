@@ -176,31 +176,31 @@ BLOB:=
 endif
 
 ifeq ($(CONFIG_LOAD_LINUX), y)
-TARGET_NAME:=linux-$(subst I,i,$(IMAGE_NAME))
+TARGET_NAME:=linux-$(or $(subst I,i,$(IMAGE_NAME)),image)
 endif
 
 ifeq ($(CONFIG_LOAD_ANDROID), y)
-TARGET_NAME:=android-$(subst I,i,$(IMAGE_NAME))
+TARGET_NAME:=android-$(or $(subst I,i,$(IMAGE_NAME)),image)
 endif
 
 ifeq ($(CONFIG_LOAD_UBOOT), y)
-TARGET_NAME:=$(subst -,,$(basename $(IMAGE_NAME)))
+TARGET_NAME:=$(or $(subst -,,$(basename $(IMAGE_NAME))),uboot)
 endif
 
 ifeq ($(CONFIG_LOAD_64KB), y)
-TARGET_NAME:=$(basename $(IMAGE_NAME))
+TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),softpack)
 endif
 
 ifeq ($(CONFIG_LOAD_1MB), y)
-TARGET_NAME:=$(basename $(IMAGE_NAME))
+TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),softpack)
 endif
 
 ifeq ($(CONFIG_LOAD_4MB), y)
-TARGET_NAME:=$(basename $(IMAGE_NAME))
+TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),softpack)
 endif
 
 ifeq ($(CONFIG_LOAD_NONE), y)
-TARGET_NAME:=$(basename $(IMAGE_NAME))
+TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),none)
 endif
 
 BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
