@@ -662,6 +662,10 @@ config CORE_CORTEX_A5
 	bool
 	default n
 
+config CORE_CORTEX_A7
+	bool
+	default n
+
 config CPU_HAS_SCKC
 	bool
 	default n

@@ -77,3 +77,9 @@ ifeq ($(CORE_CORTEX_A5), y)
 CPPFLAGS += -mcpu=cortex-a5 -mtune=cortex-a5
 ASFLAGS += -mcpu=cortex-a5 -mtune=cortex-a5
 endif
+
+ifeq ($(CORE_CORTEX_A7), y)
+CPPFLAGS += -mcpu=cortex-a7 -mtune=cortex-a7
+ASFLAGS += -mcpu=cortex-a7 -mtune=cortex-a7
+endif
+
