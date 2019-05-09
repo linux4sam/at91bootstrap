@@ -251,6 +251,13 @@ config SAMA5D2
 	select CPU_HAS_QSPI1_IOSET3
 	bool
 
+config SAMA7G5
+	select CORE_CORTEX_A7
+	select CPU_HAS_FLEXCOM
+	select CPU_HAS_TRUSTZONE
+	select CPU_HAS_WDT2
+	bool
+
 config CONFIG_MACH_TYPE
 	string
 	default "1099"	if AT91SAM9260
@@ -267,6 +274,7 @@ config CONFIG_MACH_TYPE
 	default "9999"	if SAMA5D3X
 	default "9999"	if SAMA5D4
 	default "9999"	if SAMA5D2
+	default "9999"	if SAMA7G5
 	help
 
 config CONFIG_OVERRIDE_MACH_TYPE
@@ -290,6 +298,7 @@ endif
 config CONFIG_LINK_ADDR
 	string
 	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4  || SAMA5D2
+	default "0x100000" if SAMA7G5
 	default "0x300000" if !(AT91SAM9260 && AT91SAM9G20)
 	help
 
@@ -314,6 +323,7 @@ config CONFIG_TOP_OF_MEMORY
 	default "0x310000"	if SAMA5D3X
 	default "0x210000"	if SAMA5D4
 	default "0x210000"	if SAMA5D2
+	default "0x120000"	if SAMA7G5
 	help
 	    The top address of internal SRAM
 

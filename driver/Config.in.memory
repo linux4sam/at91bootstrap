@@ -105,6 +105,7 @@ endchoice
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
 	default "0x70000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
+	default "0x60000000" if SAMA7G5
 	default "0x20000000"
 
 config CONFIG_MEM_BANK2
@@ -252,7 +253,7 @@ config CONFIG_BOOTSTRAP_MAXSIZE
 	default "4096" if AT91SAM9260
 	default "8192" if AT91SAM9G10 && CONFIG_SDCARD
 	default "12288" if AT91SAM9G10 && !CONFIG_SDCARD
-	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60
+	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60 || SAMA7G5
 	default "23000"
 
 endmenu

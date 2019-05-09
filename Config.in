@@ -598,7 +598,7 @@ config CONFIG_PMC_V1
 
 config CONFIG_PMC_V2
 	bool "Peripheral management controller support for second version"
-	depends on SAM9X60
+	depends on SAM9X60 || SAMA7G5
 	default y
 	help
 	  Enable power management controller support for second version

@@ -68,6 +68,11 @@ CPPFLAGS += -DSAMA5D2
 ASFLAGS += -DSAMA5D2
 endif
 
+ifeq ($(SAMA7G5), y)
+CPPFLAGS += -DSAMA7G5
+ASFLAGS += -DSAMA7G5
+endif
+
 ifeq ($(CORE_ARM926EJS), y)
 CPPFLAGS += -mcpu=arm926ej-s -mtune=arm926ej-s -mfloat-abi=soft
 ASFLAGS += -mcpu=arm926ej-s -mtune=arm926ej-s -mfloat-abi=soft

@@ -70,6 +70,7 @@ config CONFIG_IMG_ADDRESS
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
 	default "0x72000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
+	default "0x62000000" if SAMA7G5
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.
@@ -96,6 +97,7 @@ config CONFIG_OF_ADDRESS
 	string "The External Ram Address to Load Device Tree Blob"
 	depends on CONFIG_OF_LIBFDT
 	default "0x71000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
+	default "0x61000000" if SAMA7G5
 	default "0x21000000"
 	help
 
