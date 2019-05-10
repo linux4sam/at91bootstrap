@@ -25,6 +25,9 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#ifdef CONFIG_RSTC
+
 #include "common.h"
 #include "hardware.h"
 #include "rstc.h"
@@ -71,3 +74,13 @@ void cpu_reset()
 		| AT91C_RSTC_PERRST	/* Peripheral Reset */
 		| AT91C_RSTC_EXTRST);	/* External Reset (assert nRST pin) */
 }
+
+#else
+void rstc_external_reset(void)
+{
+}
+
+void cpu_reset(void)
+{
+}
+#endif

@@ -469,3 +469,44 @@ config CONFIG_AUTOCONFIG_TWI_BUS
 	  This interface allow the board determines  which TWI bus that
 	  the HDMI, Audio CODEC(wm8904), PMIC(ACT8865) is wired on,
 	  select automatically, no menuconfig selecting to need.
+
+menu "Basic Drivers support"
+
+config CONFIG_PIT
+	bool "Programmable interrupt timer support"
+	default y
+	help
+	  Programmable interrupt timer support
+
+config CONFIG_WDT
+	bool "Watchdog timer support"
+	default y
+	help
+	  Watchdog timer support
+
+config CONFIG_RSTC
+	bool "Reset controller support"
+	default y
+	help
+	  Reset controller support
+
+config CONFIG_USART
+	bool "Serial controller support"
+	default y
+	help
+	  Serial controller support
+
+config CONFIG_PIO
+	bool "Programmable I/O support"
+	default y
+	help
+	  Programmable I/O support
+
+config CONFIG_PMC
+	bool "Peripheral management controller support"
+	default y
+	help
+	  Peripheral management controller support
+
+endmenu
+

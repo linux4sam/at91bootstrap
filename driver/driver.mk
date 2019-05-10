@@ -9,10 +9,10 @@ COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/debug.o
 COBJS-$(CONFIG_SCLK)		+= $(DRIVERS_SRC)/at91_slowclk.o
 
 COBJS-y				+= $(DRIVERS_SRC)/common.o
-COBJS-y				+= $(DRIVERS_SRC)/at91_pio.o
-COBJS-y				+= $(DRIVERS_SRC)/pmc.o
-COBJS-y				+= $(DRIVERS_SRC)/at91_pit.o
-COBJS-y				+= $(DRIVERS_SRC)/at91_wdt.o
+COBJS-$(CONFIG_PIO)		+= $(DRIVERS_SRC)/at91_pio.o
+COBJS-$(CONFIG_PMC)		+= $(DRIVERS_SRC)/pmc.o
+COBJS-$(CONFIG_PIT)		+= $(DRIVERS_SRC)/at91_pit.o
+COBJS-$(CONFIG_WDT)		+= $(DRIVERS_SRC)/at91_wdt.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_usart.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_rstc.o
 

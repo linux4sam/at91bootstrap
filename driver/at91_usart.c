@@ -29,6 +29,8 @@
 #include "board.h"
 #include "arch/at91_dbgu.h"
 
+#ifdef CONFIG_USART
+
 #ifndef USART_BASE
 #define USART_BASE	AT91C_BASE_DBGU
 #endif
@@ -94,3 +96,12 @@ char usart_getc(void)
 
 	return (char)read_usart(DBGU_RHR);
 }
+
+#else
+
+void usart_puts(const char *ptr)
+{
+
+}
+
+#endif

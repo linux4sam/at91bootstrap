@@ -468,3 +468,12 @@ endif
 ifeq ($(CONFIG_FLEXCOM), y)
 CPPFLAGS += -DCONFIG_FLEXCOM
 endif
+
+ifeq ($(CONFIG_USART), y)
+CPPFLAGS += -DCONFIG_USART
+endif
+
+ifeq ($(CONFIG_RSTC), y)
+CPPFLAGS += -DCONFIG_RSTC
+endif
+
