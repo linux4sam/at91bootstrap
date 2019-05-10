@@ -32,6 +32,7 @@ source "board/sama5d2_icp/Config.in.board"
 source "board/sam9x60ek/Config.in.board"
 source "board/sam9x60_ddr2_sip_eb/Config.in.board"
 source "board/sam9x60_sdr_sip_eb/Config.in.board"
+source "board/sama7g5ek/Config.in.board"
 source "contrib/board/Config.in.board"
 
 endchoice
@@ -62,6 +63,7 @@ config CONFIG_BOARDNAME
 	default "sam9x60ek" if CONFIG_SAM9X60EK
 	default "sam9x60_ddr2_sip_eb" if CONFIG_SAM9X60_DDR2_SIP_EB
 	default "sam9x60_sdr_sip_eb" if CONFIG_SAM9X60_SDR_SIP_EB
+	default "sama7g5ek" if CONFIG_SAMA7G5EK
 source "contrib/board/Config.in.boardname"
 
 config AT91SAM9260
@@ -779,3 +781,4 @@ config BOARD_HAS_2_BANKS
 config CPU_HAS_SCLK_BYPASS
 	bool
 	default n
+

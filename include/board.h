@@ -124,6 +124,10 @@
 #include "sama5d2_icp.h"
 #endif
 
+#ifdef CONFIG_SAMA7G5EK
+#include "sama7g5ek.h"
+#endif
+
 #include "contrib_board.h"
 
 /*

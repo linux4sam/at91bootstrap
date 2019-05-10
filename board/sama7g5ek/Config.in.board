@@ -1,0 +1,7 @@
+config CONFIG_SAMA7G5EK
+	bool "sama7g5ek"
+	select SAMA7G5
+	select CONFIG_CPU_V7
+	select CONFIG_UMCTL2
+	help
+	  Use the SAMA7G5 Evaluation kit board
