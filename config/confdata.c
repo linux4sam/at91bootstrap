@@ -584,7 +584,7 @@ int conf_write(const char *name)
 
     const char *basename;
 
-    char dirname[128], tmpname[128], newname[128];
+    char dirname[PATH_MAX+1], tmpname[PATH_MAX+22], newname[PATH_MAX+8];
 	enum symbol_type type;
 
 
