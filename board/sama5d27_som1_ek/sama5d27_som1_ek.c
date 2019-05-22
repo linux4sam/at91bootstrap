@@ -508,6 +508,8 @@ void at91_board_set_dtb_name(char *of_name)
 
 void at91_sdhc_hw_init(void)
 {
+	unsigned int reg;
+
 #ifdef CONFIG_SDHC0
 	const struct pio_desc sdmmc_pins[] = {
 		{"SDMMC0_CK",   AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -540,7 +542,15 @@ void at91_sdhc_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #endif
+	/* First, print status of CAL for VDDSDMMC over-consumption errata */
+	pmc_sam9x5_enable_periph_clk(AT91C_ID_SDMMC0);
+	reg = readl(AT91C_BASE_SDHC0 + SDMMC_CALCR);
+	pmc_sam9x5_disable_periph_clk(AT91C_ID_SDMMC0);
 
+	if (reg | SDMMC_CALCR_ALWYSON)
+		dbg_info("SDHC: fix in place for SAMA5D2 SoM VDDSDMMC over-consumption errata\n");
+
+	/* Deal with usual SD/MCC peripheral init sequence */
 	pio_configure(sdmmc_pins);
 
 	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SDHC);
