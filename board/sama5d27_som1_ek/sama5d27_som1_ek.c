@@ -38,6 +38,7 @@
 #include "timer.h"
 #include "usart.h"
 #include "watchdog.h"
+#include "sdhc_cal.h"
 #include "arch/at91_ddrsdrc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_pmc.h"
@@ -336,6 +337,45 @@ static void at91_led_on(void)
 	pio_set_gpio_output(CONFIG_SYS_LED_GREEN_PIN, 1);
 }
 
+static void sdmmc_cal_setup(void)
+{
+	unsigned int cidr, exid;
+	unsigned int reg;
+
+	/* Identify SAMA5D2 SiP that are concerned by the errata */
+	cidr = readl(AT91C_BASE_CHIPID + CHIPID_CIDR);
+	if ((cidr & 0x7fffffe0) != SAMA5D2_CIDR)
+		return;
+
+	exid = readl(AT91C_BASE_CHIPID + CHIPID_EXID);
+	if (exid != SAMA5D225C_D1M_EXID
+	 && exid != SAMA5D27C_D1G_EXID
+	 && exid != SAMA5D28C_D1G_EXID)
+		return;
+
+	/*
+	 * Even if SDMMC interfaces are not in use, enable the
+	 * calibration analog cell and make it remain powered after
+	 * calibration procedure is done.
+	 * It's needed on SDMMC0 only
+	 */
+	dbg_loud("Applying VDDSDMMC errata to ID: %x\n", exid);
+
+	/* Enable peripheral clock */
+	pmc_sam9x5_enable_periph_clk(AT91C_ID_SDMMC0);
+
+	/* Launch calibration and wait till it's completed */
+	reg = readl(AT91C_BASE_SDHC0 + SDMMC_CALCR);
+	reg |= SDMMC_CALCR_ALWYSON | SDMMC_CALCR_EN;
+	writel(reg, AT91C_BASE_SDHC0 + SDMMC_CALCR);
+	while (readl(AT91C_BASE_SDHC0 + SDMMC_CALCR) & SDMMC_CALCR_EN)
+		;
+
+	/* Disable peripheral clock */
+	pmc_sam9x5_disable_periph_clk(AT91C_ID_SDMMC0);
+}
+
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -368,6 +408,9 @@ void hw_init(void)
 	l2cache_prepare();
 
 	at91_init_can_message_ram();
+
+	/* SiP: Implement the VDDSDMMC power supply over-consumption errata */
+	sdmmc_cal_setup();
 }
 #endif
 
