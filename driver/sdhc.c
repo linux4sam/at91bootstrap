@@ -33,6 +33,7 @@
 #include "debug.h"
 #include "pmc.h"
 #include "sdhc.h"
+#include "sdhc_cal.h"
 
 /*
  * Registers Definitions
@@ -101,7 +102,7 @@
 /* 0x224 ~ 0x22c: Reserved */
 #define	SDMMC_CACR	0x230	/* Capabilities Control Register */
 /* 0x234 ~ 0x23c: Reserved */
-#define	SDMMC_CALCR	0x240	/* Calibration Control Register */
+/* SDMMC_CACR register definition moved to sdhc_cal.h file */
 /* 0x224 ~ 0x2fc: Reserved */
 
 /*
