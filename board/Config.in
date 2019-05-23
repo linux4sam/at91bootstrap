@@ -293,6 +293,8 @@ config CONFIG_TOP_OF_MEMORY
 	help
 	    The top address of internal SRAM
 
+menu "Main Crystal configuration"
+
 choice
 	prompt "Crystal Frequency"
 	default CONFIG_CRYSTAL_18_432MHZ
@@ -320,6 +322,19 @@ config CONFIG_CRYSTAL_24_000MHZ
 	depends on ALLOW_CRYSTAL_24_000MHZ
 
 endchoice
+
+config CONFIG_MCK_BYPASS
+	bool "Use external clock signal as a source of main clock"
+	default n
+	help
+	  Use external 8 to 24 Mhz clock signal as source of main clock instead
+	  of an external crystal oscillator.
+	  This option disables the internal driving on the XOUT pin.
+	  The external source has to provide a stable clock on the XIN pin.
+	  If this option is disabled, the SoC expects a crystal oscillator
+	  that needs driving on both XIN and XOUT lines.
+
+endmenu
 
 config ALLOW_CRYSTAL_12_000MHZ
 	bool

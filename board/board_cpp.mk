@@ -25,6 +25,10 @@ ifeq ($(CONFIG_SCLK_BYPASS),y)
 CPPFLAGS += -DCONFIG_SCLK_BYPASS
 endif
 
+ifeq ($(CONFIG_MCK_BYPASS),y)
+CPPFLAGS += -DCONFIG_MCK_BYPASS
+endif
+
 # Crystal frequency
 
 ifeq ($(CONFIG_CRYSTAL_12_000MHZ),y)

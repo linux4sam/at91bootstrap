@@ -101,7 +101,11 @@ void lowlevel_clock_init()
 
 	/* Switch from internal 12MHz RC to the Main Cristal Oscillator */
 	tmp = read_pmc(PMC_MOR);
-	tmp &= (~AT91C_CKGR_MOSCXTBY);
+#if defined (CONFIG_MCK_BYPASS)
+	tmp |= (AT91C_CKGR_MOSCXTBY);
+#else
+	tmp &= ~(AT91C_CKGR_MOSCXTBY);
+#endif
 	tmp &= (~AT91C_CKGR_KEY);
 	tmp |= AT91C_CKGR_PASSWD;
 	write_pmc(PMC_MOR, tmp);
