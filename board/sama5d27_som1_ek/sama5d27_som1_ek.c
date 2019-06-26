@@ -257,7 +257,12 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 			    AT91C_DDRC2_DECOD_INTERLEAVED |
 			    AT91C_DDRC2_UNAL_SUPPORTED;
 
-	ddramc_config->rtr = 0x511;
+	/*
+	 * With DDRCK running at 164 MHz (DDRCK = 2 x MCK / 2),
+	 * MPDDRC_RTR.COUNT should equal 0x4ff, which results in tREFI
+	 * (COUNT / MASTER_CLOCK) remaining under 7.8 us (Winbond's max).
+	 */
+	ddramc_config->rtr = 0x4FF;
 
 	ddramc_config->t0pr = AT91C_DDRC2_TRAS_(7) |
 			      AT91C_DDRC2_TRCD_(3) |
