@@ -146,7 +146,7 @@ struct sd_data {
 	unsigned char *buff;
 	unsigned int direction;
 	unsigned int blocks;
-	unsigned int blocksize;
+	unsigned short blocksize;
 };
 
 struct sd_card;

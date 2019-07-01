@@ -603,7 +603,7 @@ static int mmc_cmd_send_ext_csd(struct sd_card *sdcard, char *ext_csd)
 	struct sd_host *host = sdcard->host;
 	struct sd_command *command = sdcard->command;
 	struct sd_data *data = sdcard->data;
-	unsigned int block_len = DEFAULT_SD_BLOCK_LEN;
+	unsigned short block_len = DEFAULT_SD_BLOCK_LEN;
 	int ret;
 
 	command->cmd = MMC_CMD_SEND_EXT_CSD;
@@ -721,7 +721,7 @@ static int mmc_cmd_bustest_w(struct sd_card *sdcard,
 	struct sd_host *host = sdcard->host;
 	struct sd_command *command = sdcard->command;
 	struct sd_data *data = sdcard->data;
-	unsigned int bytes_to_write;
+	unsigned short bytes_to_write;
 	int ret;
 
 	bytes_to_write = (buswidth == 8) ? 8 : 4;
@@ -749,7 +749,7 @@ static int mmc_cmd_bustest_r(struct sd_card *sdcard,
 	struct sd_host *host = sdcard->host;
 	struct sd_command *command = sdcard->command;
 	struct sd_data *data = sdcard->data;
-	unsigned int bytes_to_read;
+	unsigned short bytes_to_read;
 	int ret;
 
 	bytes_to_read = (buswidth == 8) ? 8 : 4;
@@ -1207,7 +1207,7 @@ static int sd_cmd_read_multiple_block(struct sd_card *sdcard,
 				unsigned int start,
 				unsigned int block_count)
 {
-	unsigned int block_len = sdcard->read_bl_len;
+	unsigned short block_len = sdcard->read_bl_len;
 	struct sd_host *host = sdcard->host;
 	struct sd_command *command = sdcard->command;
 	struct sd_data *data = sdcard->data;
@@ -1233,7 +1233,7 @@ static int sd_cmd_read_single_block(struct sd_card *sdcard,
 				void *buf,
 				unsigned int start)
 {
-	unsigned int block_len = sdcard->read_bl_len;
+	unsigned short block_len = sdcard->read_bl_len;
 	struct sd_host *host = sdcard->host;
 	struct sd_command *command = sdcard->command;
 	struct sd_data *data = sdcard->data;

@@ -585,12 +585,15 @@ static int sdhc_init(struct sd_card *sdcard)
 
 static int sdhc_read_data(struct sd_data *data)
 {
-	unsigned int normal_status, error_status, psr;
+	unsigned short normal_status, error_status;
+	unsigned int psr;
 	unsigned int timeout;
-	unsigned int i, block = 0;
+	unsigned int block = 0;
+	unsigned short i;
 	unsigned int *tmp;
+	int done = 0;
 
-	timeout = 1000000;
+	timeout = 10000;
 	do {
 		normal_status = sdhc_readw(SDMMC_NISTR);
 
@@ -608,8 +611,8 @@ static int sdhc_read_data(struct sd_data *data)
 
 			return -1;
 		}
-		if (normal_status & SDMMC_NISTR_BRDRDY ||
-			normal_status & SDMMC_NISTR_BWRRDY) {
+		if (((normal_status & SDMMC_NISTR_BRDRDY) ||
+			(normal_status & SDMMC_NISTR_BWRRDY)) && !done ) {
 			psr = sdhc_readl(SDMMC_PSR);
 			if (data->direction == SD_DATA_DIR_RD &&
 				!(psr & SDMMC_PSR_BUFRDEN))
@@ -627,18 +630,23 @@ static int sdhc_read_data(struct sd_data *data)
 			}
 
 			data->buff += data->blocksize;
-			if (++block >= data->blocks)
-				break;
+			if (++block >= data->blocks) {
+				done = 1;
+				goto sdhc_read_data_reset;
+			}
 		}
 
 		if (timeout-- > 0) {
 			udelay(10);
 		} else {
-			dbg_info("SDHC: Transfer data timeout\n");
-			return -1;
+			dbg_loud("SDHC: Transfer data timeout\n");
+			goto sdhc_read_data_reset;
 		}
-	} while (!(normal_status & SDMMC_NISTR_TRFC));
+	} while (!(normal_status & SDMMC_NISTR_TRFC) && !done);
 
+	return 0;
+
+sdhc_read_data_reset:
 	/* There is an issue when writing data,
 	 * even after the whole data has been written, the SDMMC will not
 	 * trigger TRFC in some cases. Check for WTACT for that.
@@ -648,16 +656,20 @@ static int sdhc_read_data(struct sd_data *data)
 	 */
 	if (data->direction == SD_DATA_DIR_WR &&
 		(sdhc_readl(SDMMC_PSR) & SDMMC_PSR_WTACT)) {
-
-		normal_status = sdhc_readw(SDMMC_NISTR);
-		error_status = sdhc_readw(SDMMC_EISTR);
-		sdhc_software_reset_dat();
-		sdhc_software_reset_cmd();
-		sdhc_writew(SDMMC_EISTR, error_status);
-		sdhc_writew(SDMMC_NISTR, normal_status);
-
+		/* wait for BWRRDY to be cleared */
+		unsigned int timeout2 = 10000;
+		do {
+			normal_status = sdhc_readw(SDMMC_NISTR);
+		} while (timeout2-- && (normal_status & SDMMC_NISTR_BWRRDY));
 	}
-	return 0;
+
+	error_status = sdhc_readw(SDMMC_EISTR);
+	sdhc_software_reset_dat();
+	sdhc_software_reset_cmd();
+	sdhc_writew(SDMMC_EISTR, error_status);
+	sdhc_writew(SDMMC_NISTR, normal_status);
+
+	return -1;
 }
 
 static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
