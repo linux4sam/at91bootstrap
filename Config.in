@@ -488,11 +488,25 @@ config CONFIG_PIT
 	help
 	  Programmable interrupt timer support
 
+choice
+	prompt "Watchdog timer controller selection"
+	default CONFIG_WDT
+
 config CONFIG_WDT
 	bool "Watchdog timer support"
-	default y
+	depends on !CPU_HAS_WDT2
 	help
 	  Watchdog timer support
+
+config CONFIG_WDT2
+	bool "Watchdog timer 2 support"
+	depends on CPU_HAS_WDT2
+	help
+	  Watchdog timer 2 support. This is a newer version of the old
+	  watchdog timer (CONFIG_WDT). Only one of them is present in each
+	  product.
+
+endchoice
 
 config CONFIG_RSTC
 	bool "Reset controller support"

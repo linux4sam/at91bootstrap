@@ -78,5 +78,9 @@ config CPU_HAS_FLEXCOM
 	bool
 	default n
 
+config CPU_HAS_WDT2
+	bool
+	default n
+
 source "driver/Config.in.memory"
 source "contrib/driver/Config.in.driver"

@@ -13,6 +13,7 @@ COBJS-$(CONFIG_PIO)		+= $(DRIVERS_SRC)/at91_pio.o
 COBJS-$(CONFIG_PMC)		+= $(DRIVERS_SRC)/pmc.o
 COBJS-$(CONFIG_PIT)		+= $(DRIVERS_SRC)/at91_pit.o
 COBJS-$(CONFIG_WDT)		+= $(DRIVERS_SRC)/at91_wdt.o
+COBJS-$(CONFIG_WDT2)		+= $(DRIVERS_SRC)/at91_wdt2.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_usart.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_rstc.o
 
