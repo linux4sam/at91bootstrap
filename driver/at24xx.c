@@ -33,6 +33,9 @@
 /* ICP EK has different EEPROM */
 #define	EK_AT24XX_ADDR		0x50
 #define	MAX_AT24XX_BYTES	128
+#elif defined CONFIG_SAM9X60EK
+#define	EK_AT24XX_ADDR		0x53
+#define	MAX_AT24XX_BYTES	128
 #else
 #define EK_AT24XX_ADDR		0x54
 #define	MAX_AT24XX_BYTES	256
