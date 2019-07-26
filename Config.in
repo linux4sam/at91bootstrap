@@ -526,11 +526,11 @@ config CONFIG_PIO
 	help
 	  Programmable I/O support
 
-config CONFIG_PMC
-	bool "Peripheral management controller support"
+config CONFIG_PMC_COMMON
+	bool "Common support for power management controller"
 	default y
 	help
-	  Peripheral management controller support
+	  Common support for power management controller
 
 endmenu
 

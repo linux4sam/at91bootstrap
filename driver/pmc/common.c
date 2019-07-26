@@ -250,6 +250,16 @@ int pmc_cfg_pck(unsigned char x, unsigned int clk_sel, unsigned int prescaler)
 	return 0;
 }
 
+void pmc_enable_system_clock(unsigned int clock_id)
+{
+	 write_pmc(PMC_SCER, clock_id);
+}
+
+void pmc_disable_system_clock(unsigned int clock_id)
+{
+	 write_pmc(PMC_SCDR, clock_id);
+};
+
 int pmc_enable_periph_clock(unsigned int periph_id)
 {
 	unsigned int mask = 0x01 << (periph_id % 32);
@@ -291,15 +301,6 @@ int pmc_periph_clock_enabled(unsigned int periph_id)
 	return enabled;
 }
 
-void pmc_enable_system_clock(unsigned int clock_id)
-{
-	 write_pmc(PMC_SCER, clock_id);
-}
-
-void pmc_disable_system_clock(unsigned int clock_id)
-{
-	 write_pmc(PMC_SCDR, clock_id);
-};
 
 int pmc_sam9x5_enable_periph_clk(unsigned int periph_id)
 {
