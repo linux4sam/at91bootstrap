@@ -445,22 +445,22 @@ choice
 
 config	CONFIG_EEPROM_ON_TWI0
 	bool "On TWI0"
-	depends on CPU_HAS_TWI0
+	depends on CPU_HAS_TWI0 || CPU_HAS_FLEXCOM
 	select CONFIG_TWI0
 
 config	CONFIG_EEPROM_ON_TWI1
 	bool "On TWI1"
-	depends on CPU_HAS_TWI1
+	depends on CPU_HAS_TWI1 || CPU_HAS_FLEXCOM
 	select CONFIG_TWI1
 
 config	CONFIG_EEPROM_ON_TWI2
 	bool "On TWI2"
-	depends on CPU_HAS_TWI2
+	depends on CPU_HAS_TWI2 || CPU_HAS_FLEXCOM
 	select CONFIG_TWI2
 
 config	CONFIG_EEPROM_ON_TWI3
 	bool "On TWI3"
-	depends on CPU_HAS_TWI3
+	depends on CPU_HAS_TWI3 || CPU_HAS_FLEXCOM
 	select CONFIG_TWI3
 
 endchoice
@@ -470,10 +470,10 @@ endmenu
 config CONFIG_AUTOCONFIG_TWI_BUS
 	bool "Auto Configure TWI Bus by Board"
 	depends on CONFIG_TWI
-	select CONFIG_TWI0 if CPU_HAS_TWI0
-	select CONFIG_TWI1 if CPU_HAS_TWI1
-	select CONFIG_TWI2 if CPU_HAS_TWI2
-	select CONFIG_TWI3 if CPU_HAS_TWI3
+	select CONFIG_TWI0 if CPU_HAS_TWI0 || CPU_HAS_FLEXCOM
+	select CONFIG_TWI1 if CPU_HAS_TWI1 || CPU_HAS_FLEXCOM
+	select CONFIG_TWI2 if CPU_HAS_TWI2 || CPU_HAS_FLEXCOM
+	select CONFIG_TWI3 if CPU_HAS_TWI3 || CPU_HAS_FLEXCOM
 	default y
 	help
 	  This interface allow the board determines  which TWI bus that
