@@ -43,6 +43,8 @@
 #include "sam9x60ek.h"
 #include "board_hw_info.h"
 #include "twi.h"
+#include "flexcom.h"
+#include "board.h"
 
 #define PLLA_DIV 1
 #define PLLA_COUNT 0x3f
@@ -146,6 +148,56 @@ static void at91_green_led_on(void)
 	pio_set_gpio_output(AT91C_PIN_PB(12), 1);
 }
 
+#if defined(CONFIG_FLEXCOM)
+unsigned int at91_flexcom0_init(void)
+{
+	const struct pio_desc flx_pins[] = {
+		{"FLX_IO0", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"FLX_IO1", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(flx_pins);
+	pmc_enable_periph_clock(AT91C_ID_FLEXCOM0);
+
+	flexcom_init(0);
+
+	return flexcom_get_regmap(0);
+}
+#endif
+
+#if defined CONFIG_TWI
+void twi_init()
+{
+#if defined(CONFIG_FLEXCOM)
+       twi_bus_init(at91_flexcom0_init);
+#endif
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+	dbg_loud("Auto-Config the TWI Bus by the board\n");
+	at91_board_config_twi_bus();
+#endif
+}
+#endif
+
+#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
+void at91_board_config_twi_bus(void)
+{
+	at24xx_twi_bus = 0;
+}
+#endif
+#if defined CONFIG_FLEXCOM
+static struct at91_flexcom flexcoms[] = {
+#if defined CONFIG_TWI
+	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0, 0},
+#endif
+};
+
+void board_flexcoms_init()
+{
+	flexcoms_init(flexcoms);
+}
+#endif
+
 #ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
@@ -175,6 +227,14 @@ void hw_init(void)
 
 	/* Init timer */
 	timer_init();
+
+#ifdef CONFIG_FLEXCOM
+	board_flexcoms_init();
+#endif
+
+#ifdef CONFIG_TWI
+	twi_init();
+#endif
 
 #ifdef CONFIG_DDR2
 	/* Initialize DDRAM Controller */

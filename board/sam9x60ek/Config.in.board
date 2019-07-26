@@ -10,5 +10,6 @@ config	CONFIG_SAM9X60EK
 	select ALLOW_CPU_CLK_600MHZ
 	select ALLOW_CRYSTAL_24_000MHZ
 	select SUPPORT_BUS_SPEED_200MHZ
+	select CONFIG_FLEXCOM
 	help
 	    Use the SAM9X60-EK Development board

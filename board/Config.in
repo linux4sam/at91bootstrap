@@ -160,6 +160,7 @@ config SAM9X60
 	select CPU_HAS_QSPI0
 	select CPU_HAS_WDT2
 	select CPU_HAS_SCLK_BYPASS
+	select CPU_HAS_FLEXCOM
 	bool
 
 config AT91SAM9N12
