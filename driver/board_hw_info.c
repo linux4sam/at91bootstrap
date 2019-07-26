@@ -137,6 +137,7 @@ static struct {
 	{"ATMEL RFO",	VENDOR_ATMEL_RFO},
 	{"ATMEL-RF0",	VENDOR_ATMEL_RFO},
 	{"MCHIP RFO",	VENDOR_MCHIP_RFO},
+	{"MCHIP RDC",	VENDOR_MCHIP_RDC},
 	{0,		0},
 };
 
@@ -488,7 +489,7 @@ static unsigned int set_default_sn(void)
 	/* sam9x60ek
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
-	vendor_ek = VENDOR_MCHIP_RFO;
+	vendor_ek = VENDOR_MCHIP_RDC;
 #else
 #error "OneWire: No defined board"
 #endif

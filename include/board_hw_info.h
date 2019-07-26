@@ -60,6 +60,7 @@
 #define VENDOR_PDA		5
 #define VENDOR_ATMEL_RFO	6
 #define VENDOR_MCHIP_RFO	7
+#define VENDOR_MCHIP_RDC	8
 
 #define HW_INFO_TOTAL_SIZE	0x20
 
