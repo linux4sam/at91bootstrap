@@ -31,7 +31,7 @@
 #include "pmc.h"
 
 #include "arch/at91_pit.h"
-#include "arch/at91_pmc.h"
+#include "arch/at91_pmc/pmc.h"
 
 #define MAX_PIV		0xfffff
 

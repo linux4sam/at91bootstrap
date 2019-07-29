@@ -41,7 +41,7 @@
 #include "sdhc_cal.h"
 #include "arch/at91_ddrsdrc.h"
 #include "arch/at91_pio.h"
-#include "arch/at91_pmc.h"
+#include "arch/at91_pmc/pmc.h"
 #include "arch/at91_rstc.h"
 #include "arch/at91_sfr.h"
 #include "arch/tz_matrix.h"

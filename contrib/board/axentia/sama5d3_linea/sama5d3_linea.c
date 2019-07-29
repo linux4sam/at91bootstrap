@@ -38,7 +38,7 @@
 #include "string.h"
 #include "board_hw_info.h"
 
-#include "arch/at91_pmc.h"
+#include "arch/at91_pmc/pmc.h"
 #include "arch/at91_rstc.h"
 #include "arch/sama5_smc.h"
 #include "arch/at91_pio.h"

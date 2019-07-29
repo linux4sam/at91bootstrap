@@ -29,7 +29,7 @@
 #include "board.h"
 #include "common.h"
 #include "timer.h"
-#include "arch/at91_pmc.h"
+#include "arch/at91_pmc/pmc.h"
 #include "arch/at91_sfr.h"
 #include "rstc.h"
 #include "debug.h"

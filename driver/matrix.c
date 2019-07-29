@@ -27,7 +27,7 @@
  */
 #include "common.h"
 #include "hardware.h"
-#include "arch/at91_pmc.h"
+#include "arch/at91_pmc/pmc.h"
 #include "pmc.h"
 #include "arch/tz_matrix.h"
 #include "debug.h"

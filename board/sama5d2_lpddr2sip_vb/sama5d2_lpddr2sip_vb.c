@@ -34,7 +34,7 @@
 #include "watchdog.h"
 #include "string.h"
 
-#include "arch/at91_pmc.h"
+#include "arch/at91_pmc/pmc.h"
 #include "arch/at91_rstc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"

@@ -30,7 +30,7 @@
 #include "arch/at91_ccfg.h"
 #include "arch/at91sam9g10_matrix.h"
 #include "arch/at91_rstc.h"
-#include "arch/at91_pmc.h"
+#include "arch/at91_pmc/pmc.h"
 #include "arch/at91_smc.h"
 #include "arch/at91_pio.h"
 #include "arch/at91_sdramc.h"

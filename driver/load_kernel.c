@@ -28,7 +28,7 @@
 #include "common.h"
 #include "hardware.h"
 #include "board.h"
-#include "arch/at91_pmc.h"
+#include "arch/at91_pmc/pmc.h"
 #include "string.h"
 #include "slowclk.h"
 #include "dataflash.h"
