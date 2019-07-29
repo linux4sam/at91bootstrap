@@ -28,6 +28,12 @@
 #ifndef __AT91_PMC_H__
 #define __AT91_PMC_H__
 
+#if defined(CONFIG_PMC_V1)
+#include "pmc-v1.h"
+#else
+#error "Invalid PMC version"
+#endif
+
 /* Register offset in AT91C_PMC structure */
 #define PMC_SCER	0x00	/* System Clock Enable Register */
 #define PMC_SCDR	0x04	/* System Clock Disable Register */
@@ -60,7 +66,6 @@
 #define PMC_WPSR	0xE8	/* Write Protect Status Register */
 /* 0xEC ~ 0xF8 */
 #define PMC_VERSION	0xFC	/* Version Register */
-#define PMC_PCR		0x10C	/* Peripheral Control Register */
 #define PMC_OCR		0x110	/* Oscillator Calibration Register */
 
 /* -------- PMC_SCER : (PMC Offset: 0x0) System Clock Enable Register --------*/ 
@@ -307,23 +312,5 @@
 #define AT91C_PMC_MFN		(0x7UL << 16)
 #define 	AT91C_PMC_MFN_0		(0x0UL << 16)
 #define 	AT91C_PMC_MFN_1		(0x1UL << 16)
-
-/* -------- PMC_PCR : (PMC Offset: 0x10c) Peripheral Control Register --------*/ 
-#define	AT91C_PMC_PID		(0x3f << 0)
-#define	AT91C_PMC_GCKCSS	(0x7 << 8)
-#define		AT91C_PMC_GCKCSS_SLOW_CLK	(0x0 << 8)
-#define		AT91C_PMC_GCKCSS_MAIN_CLK	(0x1 << 8)
-#define		AT91C_PMC_GCKCSS_PLLA_CLK	(0x2 << 8)
-#define		AT91C_PMC_GCKCSS_UPLL_CLK	(0x3 << 8)
-#define		AT91C_PMC_GCKCSS_MCK_CLK	(0x4 << 8)
-#define		AT91C_PMC_GCKCSS_AUDIO_CLK	(0x5 << 8)
-#define	AT91C_PMC_CMD		(0x1 << 12)
-#define	AT91C_PMC_DIV		(0x3 << 16)
-#define	AT91C_PMC_GCKDIV	(0xff << 20)
-#define		AT91C_PMC_GCKDIV_MSK		0xff
-#define		AT91C_PMC_GCKDIV_OFFSET		20
-#define		AT91C_PMC_GCKDIV_(x)		(((x) & AT91C_PMC_GCKDIV_MSK) << AT91C_PMC_GCKDIV_OFFSET)
-#define	AT91C_PMC_EN		(0x1 << 28)
-#define	AT91C_PMC_GCKEN		(0x1 << 29)
 
 #endif /* #ifndef __AT91_PMC_H__ */
