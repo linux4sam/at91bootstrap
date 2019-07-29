@@ -19,6 +19,8 @@ elif sys.argv[3] == "at91sam9x5ek" or sys.argv[3] == "at91sam9n12ek":
 	pmecc_word = pmecc_head.gen_pmecc_header(2048, 64, 2, 512)
 elif sys.argv[3] == "sam9x60ek":
 	pmecc_word = pmecc_head.gen_pmecc_header(4096, 224, 8, 512)
+elif sys.argv[3] == "sam9x60_ddr2_sip_eb":
+	pmecc_word = pmecc_head.gen_pmecc_header(4096, 224, 8, 512)
 elif sys.argv[3] == "core9g25":
 	pmecc_word = pmecc_head.gen_pmecc_header(2048, 64, 2, 512)
 else:
