@@ -546,6 +546,14 @@ config CONFIG_PMC_PERIPH_CLK_AT91SAM9
 	help
 	  Enable peripheral clock for AT91SAM9 related SoCs
 
+config CONFIG_PMC_PERIPH_CLK_SAM9X5
+	bool "PMC peripheral clock control for SAM9X5 SoCs and above"
+	depends on AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X || SAMA5D4 || \
+		SAMA5D2 || SAM9X60
+	default y
+	help
+	  Enable peripheral clock control for SAM9X5 SoCs and above
+
 config CONFIG_PMC_GENERIC_CLK
 	bool "PMC generic clock control support"
 	depends on SAMA5D2 || SAM9X60
