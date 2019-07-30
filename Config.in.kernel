@@ -70,6 +70,7 @@ config CONFIG_MEM_BANK2
 
 config CONFIG_MEM_SIZE
 	string "Extern Memory Bank Size"
+	default "0x800000" if CONFIG_RAM_8MB
 	default "0x2000000" if CONFIG_RAM_32MB
 	default "0x4000000" if CONFIG_RAM_64MB
 	default "0x8000000" if CONFIG_RAM_128MB
