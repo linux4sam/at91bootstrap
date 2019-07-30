@@ -79,6 +79,7 @@
 #define AT91C_ID_DBGU		47
 #define AT91C_ID_PMECC		48
 #define AT91C_ID_MPDDRC		49
+#define AT91C_ID_SDRAMC		49	/* shared PID with MPDDRC */
 #define AT91C_ID_UTMI		50
 
 /*

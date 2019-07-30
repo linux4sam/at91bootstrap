@@ -76,6 +76,10 @@
 #include "sam9x60_ddr2_sip_eb.h"
 #endif
 
+#ifdef CONFIG_SAM9X60_SDR_SIP_EB
+#include "sam9x60_sdr_sip_eb.h"
+#endif
+
 #ifdef CONFIG_SAMA5D3XEK
 #include "sama5d3xek.h"
 #endif

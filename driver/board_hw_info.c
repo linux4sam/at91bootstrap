@@ -485,8 +485,8 @@ static unsigned int set_default_sn(void)
 #elif defined(CONFIG_SAMA5D2_ICP)
 	board_id_ek = BOARD_ID_SAMA5D2_ICP;
 	vendor_ek = VENDOR_MCHIP_RFO;
-#elif defined(CONFIG_SAM9X60EK) || defined(CONFIG_SAM9X60_DDR2_SIP_EB)
-	/* sam9x60ek and sam9x60 ddr2 sip eb
+#elif defined(CONFIG_SAM9X60EK) || defined(CONFIG_SAM9X60_DDR2_SIP_EB) || defined(CONFIG_SAM9X60_SDR_SIP_EB)
+	/* sam9x60ek ; sam9x60 ddr2 sip eb and sam9x60 sdr sip eb
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
 	vendor_ek = VENDOR_MCHIP_RDC;
@@ -573,6 +573,13 @@ static unsigned int set_default_rev(void)
 	rev_id_dm = '0';
 	rev_id_ek = '0';
 #elif defined(CONFIG_SAM9X60_DDR2_SIP_EB)
+	rev_cm = 'A';
+	rev_dm = 'A';
+	rev_ek = 'A';
+	rev_id_cm = '0';
+	rev_id_dm = '0';
+	rev_id_ek = '0';
+#elif defined(CONFIG_SAM9X60_SDR_SIP_EB)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
