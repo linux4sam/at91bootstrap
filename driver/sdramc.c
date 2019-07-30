@@ -48,6 +48,11 @@ int sdramc_initialize(struct sdramc_register *sdramc_config,
 	/* Step#1 SDRAM feature must be in the configuration register */
 	sdramc_writel(SDRAMC_CR, sdramc_config->cr);
 
+	/* Step#1 bis (SAM9X60 SDRAMC ) - initialize CFR1 register */
+
+	if (sdramc_config->cfr1) /* avoid write for products where cfr1 is unavailable */
+		sdramc_writel(SDRAMC_CFR1, sdramc_config->cfr1);
+
 	/* Step#2 For mobile SDRAM, temperature-compensated self refresh(TCSR),... */
 
 	/* Step#3 The SDRAM memory type must be set in the Memory Device Register */
@@ -72,9 +77,15 @@ int sdramc_initialize(struct sdramc_register *sdramc_config,
 		writel(0x00000001 + i, sdram_address + 4 + 4 * i);
 	}
 
+	/*  Pause cycles */
+	for (i = 0; i < 1000; i++) ;
+
 	/* Step#8 A Mode Register set (MRS) cyscle is issued to program the SDRAM parameters(TCSR, PASR, DS) */
 	sdramc_writel(SDRAMC_MR, AT91C_SDRAMC_MODE_LOAD_MODE);
 	writel(0xcafedede, sdram_address + 0x24);
+
+	/*  Pause cycles */
+	for (i = 0; i < 1000; i++) ;
 
 	/* Step#9 For mobile SDRAM initialization, an Extended Mode Register set cycle is issued to ... */
 

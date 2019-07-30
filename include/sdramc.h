@@ -34,6 +34,7 @@ struct sdramc_register {
 	unsigned int cr;
 	unsigned int lpr;
 	unsigned int mdr;
+	unsigned int cfr1;
 };
 
 int sdramc_initialize(struct sdramc_register *sdramc_config,

@@ -39,6 +39,7 @@
 #define SDRAMC_IMR	0x1c	/* SDRAMC Interrupt Mask Register */
 #define SDRAMC_ISR	0x20	/* SDRAMC Interrupt Mask Register */
 #define SDRAMC_MDR	0x24	/* SDRAMC Memory Device Register */
+#define SDRAMC_CFR1	0x28	/* SDRAMC Configuration Register 1 -- SAM9x60 */
 
 /*-------- SDRAMC_MR : (SDRAMC Offset: 0x0) SDRAMC Mode Register -------*/
 #define AT91C_SDRAMC_MODE	(0xF << 0)	/* SDRAMC Command Mode */
@@ -200,5 +201,32 @@
 #define AT91C_SDRAMC_MD		(0x3 << 0)	/* Memory Device Type */
 #define 	AT91C_SDRAMC_MD_SDRAM			0x0
 #define 	AT91C_SDRAMC_MD_LOW_POWER_SDRAM		0x1
+#define		AT91C_SDRAMC_MD_SHIFT_SAMPLING_1_CYCLE	(0x1 << 4)
+#define		AT91C_SDRAMC_MD_SHIFT_SAMPLING_2_CYCLE	(0x2 << 4)
+#define		AT91C_SDRAMC_MD_SHIFT_SAMPLING_3_CYCLE	(0x3 << 4)
 
+/*-------- SDRAMC_CFR1 : (SDRAMC Offset: 0x28) SDRAM Controller Memory Configuration Register 1 - SAM9X60 -------*/
+#define	AT91C_SDRAMC_CFR1_TMRD	(0xF << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_0		(0x0 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_1		(0x1 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_2		(0x2 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_3		(0x3 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_4		(0x4 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_5		(0x5 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_6		(0x6 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_7		(0x7 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_8		(0x8 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_9		(0x9 << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_10		(0xA << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_11		(0xB << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_12		(0xC << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_13		(0xD << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_14		(0xE << 0)
+#define 	AT91C_SDRAMC_CFR1_TMRD_15		(0xF << 0)
+
+#define AT91C_SDRAMC_CFR1_UNAL	(0x1 << 8)
+#define AT91C_SDRAMC_CFR1_ADD_DATA_MUX_SUPPORTED	(0x1 << 10)
+#define AT91C_SDRAMC_CFR1_ADD_DATA_MUX_UNSUPPORTED	(0x0 << 10)
+#define AT91C_SDRAMC_CFR1_CMD_MUX_SUPPORTED		(0x1 << 11)
+#define AT91C_SDRAMC_CFR1_CMD_MUX_UNSUPPORTED		(0x0 << 11)
 #endif /* #ifndef __AT91_SDRAMC_H__ */
