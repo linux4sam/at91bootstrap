@@ -543,6 +543,8 @@ static int mmc_verify_operating_condition(struct sd_card *sdcard)
 	unsigned int i;
 	int ret;
 
+	dbg_very_loud("mmc_verify_operating_condition\n");
+
 	/* Query the card and determine the voltage type of the card */
 	ret = mmc_cmd_send_op_cond(sdcard, 0);
 	if (ret)
@@ -566,6 +568,8 @@ static int mmc_verify_operating_condition(struct sd_card *sdcard)
 
 	sdcard->reg->ocr = command->resp[0];
 
+	dbg_very_loud("mmc_verify_operating_condition success OCR = %x\n",
+			sdcard->reg->ocr);
 	return 0;
 }
 
@@ -822,6 +826,8 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 	unsigned int i;
 	int ret;
 
+	console_printf("MMC: detecting buswidth...\n");
+
 	for (busw = 8, len = 2; busw != 0; busw -= 4, len--) {
 		pdata_w = (busw == 8) ? data_8bits : data_4bits;
 
@@ -878,6 +884,7 @@ static int sdcard_identification(struct sd_card *sdcard)
 	ret = mmc_verify_operating_condition(sdcard);
 	if (ret == 0) {
 		sdcard->card_type = CARD_TYPE_MMC;
+		dbg_very_loud("Card type is MMC\n");
 
 	} else if (ret == ERROR_TIMEOUT) {
 		ret = sd_cmd_send_if_cond(sdcard);
@@ -924,24 +931,35 @@ static int sdcard_identification(struct sd_card *sdcard)
 	 * sends its CID number
 	 */
 	ret = sd_cmd_all_send_cid(sdcard);
-	if (ret)
+	if (ret) {
+		dbg_very_loud("sd_cmd_all_send_cid failed\n");
 		return ret;
+	}
 
-	/* Asks the card to pubish a new relative card address (RCA) */
+	dbg_very_loud("sd card identified with CID = %x %x %x %x\n",
+			sdcard->reg->cid[0], sdcard->reg->cid[1],
+			sdcard->reg->cid[2], sdcard->reg->cid[3]);
+
+	/* Asks the card to publish a new relative card address (RCA) */
 	ret = sd_cmd_send_relative_addr(sdcard);
-	if (ret)
+	if (ret) {
+		dbg_very_loud("sd_cmd_send_relative_addr failed\n");
 		return ret;
+	}
 
 	/*
 	 * The host issues SEND_CSD(CMD9) to obtain
 	 * the Card Specific Data (CSD Register),
 	 */
 	ret = sd_cmd_send_csd(sdcard);
-	if (ret)
+	if (ret) {
+		dbg_very_loud("sd_cmd_send_csd failed\n");
 		return ret;
+	}
 
 	sdcard->read_bl_len = DEFAULT_SD_BLOCK_LEN;
 
+	dbg_very_loud("sdcard_identification success\n");
 	return 0;
 }
 
