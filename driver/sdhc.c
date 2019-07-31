@@ -392,7 +392,7 @@ static int sdhc_set_clock(struct sd_card *sdcard, unsigned int clock)
 	sdhc_writew(SDMMC_CCR, SDMMC_CCR_INTCLKEN | clk_gen_sel
 			| ((clk_div & 0xff) << SDMMC_CCR_SDCLKFSEL_OFFSET)
 			| (((clk_div >> 8) & SDMMC_CCR_USDCLKFSEL_MSK)
-					< SDMMC_CCR_USDCLKFSEL_OFFSET));
+					<< SDMMC_CCR_USDCLKFSEL_OFFSET));
 
 	timeout = 1000000;
 	while ((--timeout) && (!(sdhc_readw(SDMMC_CCR) & SDMMC_CCR_INTCLKS)))
