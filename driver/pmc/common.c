@@ -93,8 +93,6 @@ void lowlevel_clock_init()
 	tmp = read_pmc(PMC_MOR);
 #if defined (CONFIG_MCK_BYPASS)
 	tmp |= (AT91C_CKGR_MOSCXTBY);
-#else
-	tmp &= ~(AT91C_CKGR_MOSCXTBY);
 #endif
 	tmp &= (~AT91C_CKGR_KEY);
 	tmp |= AT91C_CKGR_PASSWD;
