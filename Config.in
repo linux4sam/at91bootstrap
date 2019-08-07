@@ -534,9 +534,19 @@ config CONFIG_PMC_COMMON
 
 config CONFIG_PMC_V1
 	bool "Power management controller support for first version"
+	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
+		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
+		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2
 	default y
 	help
 	  Enable power management controller support for first version
+
+config CONFIG_PMC_V2
+	bool "Peripheral management controller support for second version"
+	depends on SAM9X60
+	default y
+	help
+	  Enable power management controller support for second version
 
 config CONFIG_PMC_PERIPH_CLK_AT91SAM9
 	bool "PMC peripheral clock control for AT91SAM9 SoCs"
@@ -577,5 +587,12 @@ config CONFIG_PMC_PLL_CLK
 	default y
 	help
 	  Enable PMC PLL clock control
+
+config CONFIG_PMC_PLL_CLK_SAM9X60
+	bool "PMC PLL clock control support for SAM9X60 SoCs"
+	depends on SAM9X60
+	default y
+	help
+	  Enable PMC PLL clock control for SAM9X60 SoCs
 endmenu
 

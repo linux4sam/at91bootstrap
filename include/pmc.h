@@ -38,8 +38,17 @@
 #define GCK_CSS_MCK_CLK		0x04
 #define GCK_CSS_AUDIO_CLK	0x05
 
+struct pmc_pll_cfg {
+	unsigned int mul;	/* PLLA MUL value */
+	unsigned int div;	/* PLLA DIV value */
+	unsigned int count;	/* PLLA COUNT value */
+	unsigned int fracr;
+	unsigned int loop_filter;
+};
+
 extern void pmc_init_pll(unsigned int pmc_pllicpr);
 extern int pmc_cfg_plla(unsigned int pmc_pllar);
+extern void pmc_sam9x60_cfg_pll(unsigned int pll_id, const struct pmc_pll_cfg *plla);
 extern unsigned int pmc_get_plla_freq(void);
 
 extern int pmc_cfg_mck(unsigned int pmc_mckr);

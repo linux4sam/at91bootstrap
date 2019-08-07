@@ -30,6 +30,8 @@
 
 #if defined(CONFIG_PMC_V1)
 #include "pmc-v1.h"
+#elif defined(CONFIG_PMC_V2)
+#include "pmc-v2.h"
 #else
 #error "Invalid PMC version"
 #endif
