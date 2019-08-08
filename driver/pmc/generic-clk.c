@@ -126,7 +126,7 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 		freq = 0;
 #endif
 		break;
-#ifdef CONFIG_PMC_PLL_CLK
+#if defined(CONFIG_PMC_PLL_CLK) || defined(CONFIG_PMC_PLL_CLK_SAM9X60)
 	case AT91C_PMC_GCKCSS_PLLA_CLK:
 		freq = pmc_get_plla_freq();
 		break;

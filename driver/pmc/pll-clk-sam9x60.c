@@ -25,11 +25,14 @@
  */
 #include "board.h"
 #include "common.h"
+#include "div.h"
 #include "pmc.h"
 #include "timer.h"
 #include "arch/at91_pmc/pmc.h"
 
-void pmc_sam9x60_cfg_pll(unsigned int pll_id, const struct pmc_pll_cfg *cfg)
+static struct pmc_pll_cfg config[2] = { 0 };
+
+void pmc_sam9x60_cfg_pll(unsigned int pll_id,  struct pmc_pll_cfg *cfg)
 {
 
 	unsigned int reg;
@@ -86,4 +89,24 @@ void pmc_sam9x60_cfg_pll(unsigned int pll_id, const struct pmc_pll_cfg *cfg)
 	while ((read_pmc(PMC_PLL_ISR0) & (AT91C_PLL_ISR0_LOCKA << pll_id))
 			!= (AT91C_PLL_ISR0_LOCKA << pll_id))
 		;
+
+	config[pll_id] = *(struct pmc_pll_cfg *) cfg;
+}
+
+unsigned int pmc_get_plla_freq(void)
+{
+	unsigned int freq, core_freq, parent;
+
+#ifdef BOARD_MAINOSC
+	parent = BOARD_MAINOSC;
+#else
+	return 0;
+#endif
+
+	core_freq = parent * (config[PLL_ID_PLLA].mul + 1 +
+			      (config[PLL_ID_PLLA].fracr >> 22));
+
+	freq = div(core_freq, (config[PLL_ID_PLLA].div + 1));
+
+	return freq;
 }
