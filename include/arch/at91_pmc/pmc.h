@@ -41,7 +41,6 @@
 /* 0x0C Reversed */
 #define PMC_MOR		0x20	/* Main Oscillator Register */
 #define PMC_MCFR	0x24	/* Main Clock  Frequency Register */
-#define PMC_MCKR	0x30	/* Master Clock Register */
 /* 0x34 Reserved */
 #define PMC_USB		0x38	/* USB clock register */
 #define PMC_SMD		0x3C	/* SMD clock register */
@@ -117,44 +116,6 @@
 #define 	AT91C_CKGR_OUTB_2		(0x2UL << 14)
 #define 	AT91C_CKGR_OUTB_3		(0x3UL << 14)
 #define AT91C_CKGR_MULB		(0x7FFUL << 16)
-
-/* -------- PMC_MCKR : (PMC Offset: 0x30) Master Clock Register --------*/ 
-#define AT91C_PMC_CSS		(0x7UL <<  0)
-#define 	AT91C_PMC_CSS_SLOW_CLK		(0x0UL)
-#define 	AT91C_PMC_CSS_MAIN_CLK		(0x1UL)
-#define 	AT91C_PMC_CSS_PLLA_CLK		(0x2UL)
-#define 	AT91C_PMC_CSS_UPLL_CLK		(0x3UL)
-#define 	AT91C_PMC_CSS_SYS_CLK		(0x4UL)
-#define	AT91C_PMC_PRES		(0xFUL << 2)
-#define		AT91C_PMC_PRES_CLK		(0x0UL << 2)
-#define		AT91C_PMC_PRES_CLK_2		(0x1UL << 2)
-#define		AT91C_PMC_PRES_CLK_4		(0x2UL << 2)
-#define		AT91C_PMC_PRES_CLK_8		(0x3UL << 2)
-#define		AT91C_PMC_PRES_CLK_16		(0x4UL << 2)
-#define		AT91C_PMC_PRES_CLK_32		(0x5UL << 2)
-#define		AT91C_PMC_PRES_CLK_64		(0x6UL << 2)
-#define		AT91C_PMC_PRES_CLK_3		(0x7UL << 2)
-#define		AT91C_PMC_PRES_CLK_1_5		(0x8UL << 2)
-/* Master/Processor Clock Prescaler [alternate location ] */
-#define	AT91C_PMC_ALT_PRES	(0xFUL << 4)
-#define		AT91C_PMC_PRES_ALT_CLK		(0x0UL << 4)
-#define		AT91C_PMC_PRES_ALT_CLK_2	(0x1UL << 4)
-#define		AT91C_PMC_PRES_ALT_CLK_4	(0x2UL << 4)
-#define		AT91C_PMC_PRES_ALT_CLK_8	(0x3UL << 4)
-#define		AT91C_PMC_PRES_ALT_CLK_16	(0x4UL << 4)
-#define		AT91C_PMC_PRES_ALT_CLK_32	(0x5UL << 4)
-#define		AT91C_PMC_PRES_ALT_CLK_64	(0x6UL << 4)
-#define AT91C_PMC_MDIV		(0x3UL <<  8)
-#define 	AT91C_PMC_MDIV_1		(0x0UL <<  8)
-#define 	AT91C_PMC_MDIV_2		(0x1UL <<  8)
-#define 	AT91C_PMC_MDIV_4		(0x2UL <<  8)
-#define 	AT91C_PMC_MDIV_3		(0x3UL <<  8)
-#define AT91C_PMC_PLLADIV2	(0x1UL << 12)
-#define 	AT91C_PMC_PLLADIV2_1		(0x0UL << 12)
-#define 	AT91C_PMC_PLLADIV2_2		(0x1UL << 12)
-#define AT91C_PMC_H32MXDIV	(0x1UL << 24)
-#define		AT91C_PMC_H32MXDIV_H32MXDIV1	(0x00UL << 24)
-#define		AT91C_PMC_H32MXDIV_H32MXDIV2	(0x01UL << 24)
 
 /* -------- PMC_USB : (PMC Offset: 0x38) USB Clock Register --------*/ 
 #define AT91C_PMC_USBS		(0x1UL <<  0)
