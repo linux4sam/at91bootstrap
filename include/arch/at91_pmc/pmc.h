@@ -41,8 +41,6 @@
 /* 0x0C Reversed */
 #define PMC_MOR		0x20	/* Main Oscillator Register */
 #define PMC_MCFR	0x24	/* Main Clock  Frequency Register */
-#define PMC_PLLAR	0x28	/* PLL A Register */
-#define PMC_PLLBR	0x2C	/* PLL B Register */
 #define PMC_MCKR	0x30	/* Master Clock Register */
 /* 0x34 Reserved */
 #define PMC_USB		0x38	/* USB clock register */
@@ -59,8 +57,6 @@
 #define PMC_FSPR	0x74	/* Fast Startup Polarity Register */
 #define PMC_FOCR	0x78	/* Fault Output Clear Register */
 /* 0x7C Reserved */
-#define PMC_PLLICPR	0x80	/* PLL Charge Pump Current Register */
-/* 0x84 ~ 0xE0 Reserved */
 #define PMC_WPMR	0xE4	/* Write Protect Mode Register */
 #define PMC_WPSR	0xE8	/* Write Protect Status Register */
 /* 0xEC ~ 0xF8 */
@@ -109,25 +105,6 @@
 #define AT91C_CKGR_CCSS         (0x1UL << 24)
 #define		AT91C_CKGR_CCSS_RC_OSC		(0x0UL << 24)
 #define		AT91C_CKGR_CCSS_XTAL_OSC	(0x1UL << 24)
-
-
-/* -------- CKGR_PLLAR : (PMC Offset: 0x28) PLL A Register --------*/ 
-#define AT91C_CKGR_DIVA		(0xff << 0)
-#define		AT91C_CKGR_DIVA_MSK		0xff
-#define		AT91C_CKGR_DIVA_OFFSET		0
-#define		AT91C_CKGR_DIVA_0		0x0
-#define		AT91C_CKGR_DIVA_BYPASS		0x1
-#define AT91C_CKGR_PLLACOUNT	(0x3FUL <<  8)
-#define AT91C_CKGR_OUTA		(0x3UL << 14)
-#define 	AT91C_CKGR_OUTA_0		(0x0UL << 14)
-#define 	AT91C_CKGR_OUTA_1		(0x1UL << 14)
-#define 	AT91C_CKGR_OUTA_2		(0x2UL << 14)
-#define 	AT91C_CKGR_OUTA_3		(0x3UL << 14)
-#define AT91C_CKGR_MULA		(0xff << 16)
-#define	AT91C_CKGR_ALT_MULA	(0x7f << 18)
-#define		AT91C_CKGR_ALT_MULA_MSK		0x7f
-#define		AT91C_CKGR_ALT_MULA_OFFSET	18
-#define AT91C_CKGR_SRCA		(0x1UL << 29)
 
 /* -------- CKGR_PLLBR : (PMC Offset: 0x2c) PLL B Register --------*/
 #define AT91C_CKGR_DIVB		(0xFFUL <<  0)
@@ -227,17 +204,6 @@
 
 /* -------- PMC_FOCR : (PMC Offset: 0x78) Fault Output Clear Register --------*/ 
 #define AT91C_PMC_FOCLR		(0x1UL << 0)
-
-/* -------- PMC_PLLICPR : (PMC Offset: 0x80) PLL Charge Pump Current Register --------*/ 
-#define AT91C_PMC_ICPPLLA	(0xFUL <<  0)
-#define 	AT91C_PMC_ICPPLLA_0		(0x0UL << 0)
-#define 	AT91C_PMC_ICPPLLA_1		(0x1UL << 0)
-#define AT91C_PMC_REALLOCK	(0x1UL <<  7)
-#define AT91C_PMC_IPLLA		(0xFUL <<  8)
-#define 	AT91C_PMC_IPLLA_0		(0x0UL <<  8)
-#define 	AT91C_PMC_IPLLA_1		(0x1UL <<  8)
-#define 	AT91C_PMC_IPLLA_2		(0x2UL <<  8)
-#define 	AT91C_PMC_IPLLA_3		(0x3UL <<  8)
 
 /* -------- PMC_FEATURES : (PMC Offset: 0xf8)   --------*/ 
 #define AT91C_PMC_CFGAHBCLK	(0x1UL <<  0)

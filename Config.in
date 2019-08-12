@@ -568,5 +568,14 @@ config CONFIG_PMC_UTMI_CLK
 	default y
 	help
 	  Enable PMC UTMI clock control
+
+config CONFIG_PMC_PLL_CLK
+	bool "PMC PLL clock control support"
+	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
+		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
+		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2
+	default y
+	help
+	  Enable PMC PLL clock control
 endmenu
 

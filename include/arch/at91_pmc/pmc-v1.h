@@ -40,6 +40,30 @@
 #define		AT91C_CKGR_BIASEN_ENABLED	(0x1UL << 24)
 #define AT91C_CKGR_BIASCOUNT			(0xFUL << 28)
 
+#define PMC_PLLAR		0x28		/* PLL A Register */
+#define AT91C_CKGR_DIVA		(0x1 << 0)
+#define		AT91C_CKGR_DIVA_MSK		0x1
+#define		AT91C_CKGR_DIVA_OFFSET		0
+#define		AT91C_CKGR_DIVA_0		0x0
+#define		AT91C_CKGR_DIVA_BYPASS		0x1
+#define AT91C_CKGR_PLLACOUNT	(0x3FUL << 8)
+#define AT91C_CKGR_OUTA		(0xFUL << 14)
+#define		AT91C_CKGR_OUTA_0		(0x0UL << 14)
+#define		AT91C_CKGR_OUTA_1		(0x1UL << 14)
+#define		AT91C_CKGR_OUTA_2		(0x2UL << 14)
+#define		AT91C_CKGR_OUTA_3		(0x3UL << 14)
+#define AT91C_CKGR_MULA		(0x7f << 18)
+#define		AT91C_CKGR_MULA_MSK		0x7f
+#define		AT91C_CKGR_MULA_OFFSET		18
+#define AT91C_CKGR_SRCA		(0x1UL << 29)
+
+#define PMC_PLLICPR		0x80		/* PLL Charge Pump Current Register */
+#define AT91C_PMC_IPLLA		(0x7UL << 8)
+#define		AT91C_PMC_IPLLA_0		(0x0UL << 8)
+#define		AT91C_PMC_IPLLA_1		(0x1UL << 8)
+#define		AT91C_PMC_IPLLA_2		(0x2UL << 8)
+#define		AT91C_PMC_IPLLA_3		(0x3UL << 8)
+
 #define PMC_PCR			0x10C		/* Peripheral Control Register */
 #define	AT91C_PMC_PID		(0x3F << 0)
 #define	AT91C_PMC_GCKCSS	(0x3 << 8)

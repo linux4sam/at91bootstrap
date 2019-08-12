@@ -156,23 +156,6 @@ void lowlevel_clock_init()
 	return;
 }
 
-void pmc_init_pll(unsigned int pmc_pllicpr)
-{
-	write_pmc(PMC_PLLICPR, pmc_pllicpr);
-}
-
-int pmc_cfg_plla(unsigned int pmc_pllar)
-{
-	/* Always disable PLL before configuring it */
-	write_pmc((unsigned int)PMC_PLLAR, 0 | AT91C_CKGR_SRCA);
-	write_pmc((unsigned int)PMC_PLLAR, pmc_pllar);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_LOCKA))
-		;
-
-	return 0;
-}
-
 int pmc_cfg_mck(unsigned int pmc_mckr)
 {
 	unsigned int tmp;

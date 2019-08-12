@@ -105,36 +105,6 @@ int pmc_enable_generic_clock(unsigned int periph_id, unsigned int clk_source,
 	return 0;
 }
 
-static unsigned int pmc_get_plla_freq(void)
-{
-	unsigned int tmp;
-	unsigned int divider, multiplier;
-	unsigned int main_clock;
-	unsigned int freq;
-
-#ifdef BOARD_MAINOSC
-	main_clock = BOARD_MAINOSC;
-#else
-	return 0;
-#endif
-
-	tmp = read_pmc(PMC_PLLAR);
-	divider = tmp & AT91C_CKGR_DIVA_MSK;
-	multiplier = (tmp >> AT91C_CKGR_ALT_MULA_OFFSET)
-					& AT91C_CKGR_ALT_MULA_MSK;
-	if (divider && multiplier) {
-		freq = div(main_clock, divider);
-		freq *= multiplier + 1;
-
-		if (read_pmc(PMC_MCKR) & AT91C_PMC_PLLADIV2)
-			freq /= 2;
-	} else {
-		freq = 0;
-	}
-
-	return freq;
-}
-
 unsigned int pmc_get_generic_clock(unsigned int periph_id)
 {
 	unsigned int tmp;
@@ -156,9 +126,11 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 		freq = 0;
 #endif
 		break;
+#ifdef CONFIG_PMC_PLL_CLK
 	case AT91C_PMC_GCKCSS_PLLA_CLK:
 		freq = pmc_get_plla_freq();
 		break;
+#endif
 	case AT91C_PMC_GCKCSS_UPLL_CLK:
 		freq = 480000000;
 		break;
