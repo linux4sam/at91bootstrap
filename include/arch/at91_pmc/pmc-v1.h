@@ -26,6 +26,20 @@
 #ifndef __AT91_PMC_V1_H__
 #define __AT91_PMC_V1_H__
 
+#define PMC_UCKR		0x1C		/* UTMI Clock Configuration Register */
+#define AT91C_CKGR_UOSCEN			(0x1UL <<  0)
+#define AT91C_CKGR_OSCBYPASS			(0x1UL <<  1)
+#define AT91C_CKGR_OSCOUNT			(0xFFUL << 8)
+#define AT91C_CKGR_UPLLEN			(0x1UL << 16)
+#define		AT91C_CKGR_UPLLEN_DISABLED 	(0x0UL << 16)
+#define		AT91C_CKGR_UPLLEN_ENABLED  	(0x1UL << 16)
+#define AT91C_CKGR_UPLLCOUNT			(0xFUL << 20)
+#define		AT91C_CKGR_UPLLCOUNT_DEFAULT	(0x1UL << 20)
+#define AT91C_CKGR_BIASEN			(0x1UL << 24)
+#define		AT91C_CKGR_BIASEN_DISABLED	(0x0UL << 24)
+#define		AT91C_CKGR_BIASEN_ENABLED	(0x1UL << 24)
+#define AT91C_CKGR_BIASCOUNT			(0xFUL << 28)
+
 #define PMC_PCR			0x10C		/* Peripheral Control Register */
 #define	AT91C_PMC_PID		(0x3F << 0)
 #define	AT91C_PMC_GCKCSS	(0x3 << 8)

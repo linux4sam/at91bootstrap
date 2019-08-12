@@ -52,8 +52,10 @@ int pmc_enable_generic_clock(unsigned int periph_id, unsigned int clk_source,
 	if (div > 0xff)
 		return -1;
 
+#ifdef CONFIG_PMC_UTMI_CLK
 	if (!(read_pmc(PMC_SR) & AT91C_PMC_LOCKU))
 		pmc_uckr_clk(1);
+#endif
 
 	write_pmc(PMC_PCR, periph_id);
 	regval = read_pmc(PMC_PCR);

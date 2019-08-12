@@ -560,5 +560,13 @@ config CONFIG_PMC_GENERIC_CLK
 	default y
 	help
 	   Enable generic clock control support
+
+config CONFIG_PMC_UTMI_CLK
+	bool "PMC UTMI clock control support"
+	depends on AT91SAM9X5 || AT91SAM9G45 || AT91SAM9RL || SAMA5D3X || \
+		SAMA5D4 || SAMA5D2
+	default y
+	help
+	  Enable PMC UTMI clock control
 endmenu
 

@@ -39,7 +39,6 @@
 #define PMC_SCDR	0x04	/* System Clock Disable Register */
 #define PMC_SCSR	0x08	/* System Clock Status Register */
 /* 0x0C Reversed */
-#define PMC_UCKR	0x1C	/* UTMI Clock Configuration Register */
 #define PMC_MOR		0x20	/* Main Oscillator Register */
 #define PMC_MCFR	0x24	/* Main Clock  Frequency Register */
 #define PMC_PLLAR	0x28	/* PLL A Register */
@@ -90,20 +89,6 @@
 /* -------- PMC_SCDR : (PMC Offset: 0x4) System Clock Disable Register --------*/ 
 /* -------- PMC_SCSR : (PMC Offset: 0x8) System Clock Status Register ---------*/
 #define AT91C_PMC_PCK		(0x1UL <<  0)
-
-/*-- PMC_UCKR : (PMC Offset: 0x1c) UTMI Clock Configuration Register ------*/
-#define AT91C_CKGR_UOSCEN	(0x1UL <<  0)
-#define AT91C_CKGR_OSCBYPASS	(0x1UL <<  1)
-#define AT91C_CKGR_OSCOUNT	(0xFFUL << 8)
-#define AT91C_CKGR_UPLLEN	(0x1UL << 16)
-#define 	AT91C_CKGR_UPLLEN_DISABLED	(0x0UL << 16)
-#define 	AT91C_CKGR_UPLLEN_ENABLED	(0x1UL << 16)
-#define AT91C_CKGR_UPLLCOUNT	(0xFUL << 20)
-#define		AT91C_CKGR_UPLLCOUNT_DEFAULT	(0x1UL << 20)
-#define AT91C_CKGR_BIASEN	(0x1UL << 24)
-#define 	AT91C_CKGR_BIASEN_DISABLED	(0x0UL << 24)
-#define 	AT91C_CKGR_BIASEN_ENABLED	(0x1UL << 24)
-#define AT91C_CKGR_BIASCOUNT	(0xFUL << 28)
 
 /* -------- CKGR_MOR : (PMC Offset: 0x20) Main Oscillator Register --------*/ 
 #define AT91C_CKGR_MOSCXTEN	(0x1UL <<  0)
