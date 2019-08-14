@@ -56,6 +56,13 @@ static void at91_dbgu_hw_init(void)
 	pmc_enable_periph_clock(CONFIG_SYS_DBGU_ID);
 }
 
+static void at91_green_led_on(void)
+{
+	pio_set_gpio_output(AT91C_PIN_PA(6), 0);
+	pio_set_gpio_output(AT91C_PIN_PA(8), 0);
+	pio_set_gpio_output(AT91C_PIN_PA(7), 1);
+}
+
 static void initialize_dbgu(void)
 {
 	unsigned int baudrate = 115200;
@@ -375,6 +382,9 @@ void hw_init(void)
 
 	/* Configure PLLA */
 	pmc_cfg_plla(PLLA_SETTINGS);
+
+	/* Green Led ON */
+	at91_green_led_on();
 
 	/* Initialize PLLA charge pump */
 	/* No need: we keep what is set in ROM code */
