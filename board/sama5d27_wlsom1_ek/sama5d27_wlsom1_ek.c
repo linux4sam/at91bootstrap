@@ -417,6 +417,38 @@ void hw_init(void)
 }
 #endif /* #ifdef CONFIG_HW_INIT */
 
+#ifdef CONFIG_DATAFLASH
+
+#if defined(CONFIG_QSPI)
+void at91_qspi_hw_init(void)
+{
+
+#if defined(CONFIG_QSPI_BUS1)
+#if defined(CONFIG_QSPI1_IOSET_2)
+	const struct pio_desc qspi_pins[] = {
+		{"QSPI1_SCK", AT91C_PIN_PB(5), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"QSPI1_CS", AT91C_PIN_PB(6), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"QSPI1_IO0", AT91C_PIN_PB(7), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"QSPI1_IO1", AT91C_PIN_PB(8), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"QSPI1_IO2", AT91C_PIN_PB(9), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"QSPI1_IO3", AT91C_PIN_PB(10), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#else
+#error "This board supports only QSPI1 I/O Set 2"
+#endif
+#else
+#error "This board supports only QSPI Bus 1"
+#endif
+
+	pio_configure(qspi_pins);
+
+	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI);
+}
+#endif  /* #ifdef CONFIG_QSPI */
+
+#endif	/* #ifdef CONFIG_DATAFLASH */
+
 #if defined(CONFIG_SDCARD)
 #if defined(CONFIG_OF_LIBFDT)
 void at91_board_set_dtb_name(char *of_name)
