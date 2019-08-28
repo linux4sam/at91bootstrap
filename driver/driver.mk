@@ -11,6 +11,7 @@ COBJS-$(CONFIG_SCLK)		+= $(DRIVERS_SRC)/at91_slowclk.o
 COBJS-y				+= $(DRIVERS_SRC)/common.o
 COBJS-$(CONFIG_PIO)		+= $(DRIVERS_SRC)/at91_pio.o
 COBJS-$(CONFIG_PMC_COMMON)	+= $(DRIVERS_SRC)/pmc/common.o
+COBJS-$(CONFIG_PMC_PERIPH_CLK_AT91SAM9) += $(DRIVERS_SRC)/pmc/periph-clk-at91sam9.o
 COBJS-$(CONFIG_PIT)		+= $(DRIVERS_SRC)/at91_pit.o
 COBJS-$(CONFIG_WDT)		+= $(DRIVERS_SRC)/at91_wdt.o
 COBJS-$(CONFIG_WDT2)		+= $(DRIVERS_SRC)/at91_wdt2.o

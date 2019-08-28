@@ -27,6 +27,7 @@
  */
 #include "hardware.h"
 #include "board.h"
+#include "common.h"
 #include "timer.h"
 #include "arch/at91_pmc.h"
 #include "arch/at91_sfr.h"
@@ -34,16 +35,6 @@
 #include "debug.h"
 #include "div.h"
 #include "pmc.h"
-
-static inline void write_pmc(unsigned int offset, const unsigned int value)
-{
-	writel(value, offset + AT91C_BASE_PMC);
-}
-
-static inline unsigned int read_pmc(unsigned int offset)
-{
-	return readl(offset + AT91C_BASE_PMC);
-}
 
 void lowlevel_clock_init()
 {
@@ -260,48 +251,9 @@ void pmc_disable_system_clock(unsigned int clock_id)
 	 write_pmc(PMC_SCDR, clock_id);
 };
 
-int pmc_enable_periph_clock(unsigned int periph_id)
-{
-	unsigned int mask = 0x01 << (periph_id % 32);
-
-	if ((periph_id / 32) == 1)
-		write_pmc(PMC_PCER1, mask);
-	else if ((periph_id / 32) == 0)
-		write_pmc(PMC_PCER, mask);
-	else
-		return -1;
-
-	return 0;
-}
-
-int pmc_disable_periph_clock(unsigned int periph_id)
-{
-	unsigned int mask = 0x01 << (periph_id % 32);
-
-	if ((periph_id / 32) == 1)
-		write_pmc(PMC_PCDR1, mask);
-	else if ((periph_id / 32) == 0)
-		write_pmc(PMC_PCDR, mask);
-	else
-		return -1;
-
-	return 0;
-}
-
-int pmc_periph_clock_enabled(unsigned int periph_id)
-{
-	unsigned int mask = 0x01 << (periph_id % 32);
-	int enabled = 0;
-
-	if ((periph_id / 32) == 1)
-		enabled = !!(read_pmc(PMC_PCSR1) & mask);
-	else if ((periph_id / 32) == 0)
-		enabled = !!(read_pmc(PMC_PCSR) & mask);
-
-	return enabled;
-}
-
-
+#if !defined(AT91SAM9260) && !defined(AT91SAM9261) && !defined(AT91SAM9263) && \
+    !defined(AT91SAM9G10) && !defined(AT91SAM9G20) && !defined(AT91SAM9G45) && \
+    !defined(AT91SAM9RL)
 int pmc_sam9x5_enable_periph_clk(unsigned int periph_id)
 {
 	unsigned int div_value;
@@ -315,6 +267,12 @@ int pmc_sam9x5_enable_periph_clk(unsigned int periph_id)
 
 	return 0;
 }
+
+int pmc_enable_periph_clock(unsigned int periph_id)
+{
+	return pmc_sam9x5_enable_periph_clk(periph_id);
+}
+#endif
 
 #if defined(AT91C_BASE_SFR) && !defined(SAMA5D4)
 static unsigned long pmc_get_main_clock(void)
@@ -481,10 +439,20 @@ int pmc_enable_periph_generated_clk(unsigned int periph_id,
 	return 0;
 }
 
+#if !defined(AT91SAM9260) && !defined(AT91SAM9261) && !defined(AT91SAM9263) && \
+    !defined(AT91SAM9G10) && !defined(AT91SAM9G20) && !defined(AT91SAM9G45) && \
+    !defined(AT91SAM9RL)
 void pmc_sam9x5_disable_periph_clk(unsigned int periph_id)
 {
 	write_pmc(PMC_PCR, ((periph_id & AT91C_PMC_PID) | AT91C_PMC_CMD));
 }
+
+int pmc_disable_periph_clock(unsigned int periph_id)
+{
+	pmc_sam9x5_disable_periph_clk(periph_id);
+	return 0;
+}
+#endif
 
 void pmc_set_smd_clock_divider(unsigned int divider)
 {

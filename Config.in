@@ -532,5 +532,12 @@ config CONFIG_PMC_COMMON
 	help
 	  Common support for power management controller
 
+config CONFIG_PMC_PERIPH_CLK_AT91SAM9
+	bool "PMC peripheral clock control for AT91SAM9 SoCs"
+	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
+		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9RL
+	default y
+	help
+	  Enable peripheral clock for AT91SAM9 related SoCs
 endmenu
 
