@@ -33,9 +33,6 @@
 #define PMC_SCDR	0x04	/* System Clock Disable Register */
 #define PMC_SCSR	0x08	/* System Clock Status Register */
 /* 0x0C Reversed */
-#define PMC_PCER	0x10	/* Peripheral Clock Enable Register  (0:31 PERI_ID) */
-#define PMC_PCDR	0x14	/* Peripheral Clock Disable Register (0:31 PERI_ID) */
-#define PMC_PCSR	0x18	/* Peripheral Clock Status Register  (0:31 PERI_ID) */
 #define PMC_UCKR	0x1C	/* UTMI Clock Configuration Register */
 #define PMC_MOR		0x20	/* Main Oscillator Register */
 #define PMC_MCFR	0x24	/* Main Clock  Frequency Register */
@@ -63,9 +60,6 @@
 #define PMC_WPSR	0xE8	/* Write Protect Status Register */
 /* 0xEC ~ 0xF8 */
 #define PMC_VERSION	0xFC	/* Version Register */
-#define PMC_PCER1	0x100	/* Peripheral Clock Enable Register1  32:63 PERI_ID */
-#define PMC_PCDR1	0x104	/* Peripheral Clock Disable Register1 32:63 PERI_ID */
-#define PMC_PCSR1	0x108	/* Peripheral Clock Status Register1  32:63 PERI_ID */
 #define PMC_PCR		0x10C	/* Peripheral Control Register */
 #define PMC_OCR		0x110	/* Oscillator Calibration Register */
 

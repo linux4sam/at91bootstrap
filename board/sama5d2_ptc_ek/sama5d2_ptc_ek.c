@@ -55,7 +55,7 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	pio_configure(dbgu_pins);
-	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_DBGU_ID);
+	pmc_enable_periph_clock(CONFIG_SYS_DBGU_ID);
 }
 
 static void initialize_dbgu(void)
@@ -297,7 +297,7 @@ static void ddramc_init(void)
 
 	ddramc_reg_config(&ddramc_reg);
 
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_MPDDRC);
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* Configure Shift Sampling Point of Data. */
@@ -365,7 +365,7 @@ void at91_spi0_hw_init(void)
 	};
 
 	pio_configure(spi_pins);
-	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SPI);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SPI);
 }
 #endif
 
@@ -390,7 +390,7 @@ void nandflash_hw_init(void)
 	};
 
 	pio_configure(nand_pins);
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_HSMC);
+	pmc_enable_periph_clock(AT91C_ID_HSMC);
 
 	/* EBI Configuration Register */
 	writel((AT91C_EBICFG_DRIVE0_HIGH |
@@ -466,7 +466,7 @@ void at91_sdhc_hw_init(void)
 
 	pio_configure(sdmmc_pins);
 
-	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC);
 	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC,
 					GCK_CSS_UPLL_CLK,
 					ATMEL_SDHC_GCKDIV_VALUE);

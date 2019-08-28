@@ -189,7 +189,7 @@ static void at91_special_pio_output_low(void)
 	base = AT91C_BASE_PIOB;
 	value = GMAC_PINS;
 
-	writel((1 << AT91C_ID_PIOB), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOB);
 
 	writel(value, base + PIO_REG_PPUDR);	/* PIO_PPUDR */
 	writel(value, base + PIO_REG_PPDDR);	/* PIO_PPDDR */
@@ -200,7 +200,7 @@ static void at91_special_pio_output_low(void)
 	base = AT91C_BASE_PIOC;
 	value = EMAC_PINS;
 
-	writel((1 << AT91C_ID_PIOC), (PMC_PCER + AT91C_BASE_PMC));
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
 
 	writel(value, base + PIO_REG_PPUDR);	/* PIO_PPUDR */
 	writel(value, base + PIO_REG_PPDDR);	/* PIO_PPDDR */

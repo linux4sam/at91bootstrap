@@ -57,7 +57,7 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	pio_configure(dbgu_pins);
-	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_DBGU_ID);
+	pmc_enable_periph_clock(CONFIG_SYS_DBGU_ID);
 }
 
 static void initialize_dbgu(void)
@@ -358,7 +358,7 @@ static void ddramc_init(void)
 
 	ddramc_reg_config(&ddramc_reg);
 
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_MPDDRC);
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* MPDDRC I/O Calibration Register */
@@ -440,7 +440,7 @@ static void lpddr1_init(void)
 
 	lpddr1_reg_config(&ddramc_reg);
 
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_MPDDRC);
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/*
@@ -448,7 +448,7 @@ static void lpddr1_init(void)
 	 * the DDR_DQ and DDR_DQS input buffers to always on by setting
 	 * the FDQIEN and FDQSIEN bits in the SFR_DDRCFG register.
 	 */
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_SFR);
+	pmc_enable_periph_clock(AT91C_ID_SFR);
 	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
 	reg |= AT91C_DDRCFG_FDQIEN;
 	reg |= AT91C_DDRCFG_FDQSIEN;
@@ -740,7 +740,7 @@ void at91_spi0_hw_init(void)
 
 	pio_configure(spi_pins);
 
-	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SPI);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SPI);
 }
 #endif
 
@@ -824,7 +824,7 @@ void at91_qspi_hw_init(void)
 
 	pio_configure(qspi_pins);
 
-	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_QSPI);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI);
 }
 #endif
 #endif
@@ -875,7 +875,7 @@ void at91_sdhc_hw_init(void)
 
 	pio_configure(sdmmc_pins);
 
-	pmc_sam9x5_enable_periph_clk(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC);
 	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC,
 					GCK_CSS_UPLL_CLK,
 					ATMEL_SDHC_GCKDIV_VALUE);
@@ -895,7 +895,7 @@ unsigned int at91_twi0_hw_init(void)
 
 	pio_configure(twi_pins);
 
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_TWI0);
+	pmc_enable_periph_clock(AT91C_ID_TWI0);
 
 	return base_addr;
 }
@@ -910,7 +910,7 @@ unsigned int at91_twi1_hw_init(void)
 
 	pio_configure(twi_pins);
 
-	pmc_sam9x5_enable_periph_clk(AT91C_ID_TWI1);
+	pmc_enable_periph_clock(AT91C_ID_TWI1);
 
 	return AT91C_BASE_TWI1;
 }
