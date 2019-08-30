@@ -377,9 +377,8 @@ int pmc_uckr_clk(unsigned int is_on)
 	return 0;
 }
 
-int pmc_enable_periph_generated_clk(unsigned int periph_id,
-				    unsigned int clk_source,
-				    unsigned int div)
+int pmc_enable_generic_clock(unsigned int periph_id, unsigned int clk_source,
+			     unsigned int div)
 {
 	unsigned int regval, status;
 	unsigned int timeout = 1000;
@@ -511,7 +510,7 @@ static unsigned int pmc_get_plla_freq(void)
 	return freq;
 }
 
-unsigned int pmc_get_generated_clock(unsigned int periph_id)
+unsigned int pmc_get_generic_clock(unsigned int periph_id)
 {
 	unsigned int tmp;
 	unsigned int clock_source, divider;

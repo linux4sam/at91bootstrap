@@ -681,9 +681,9 @@ void at91_sdhc_hw_init(void)
 	pio_configure(sdmmc_pins);
 
 	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC);
-	pmc_enable_periph_generated_clk(CONFIG_SYS_ID_SDHC,
-					GCK_CSS_UPLL_CLK,
-					ATMEL_SDHC_GCKDIV_VALUE);
+	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
+				 GCK_CSS_UPLL_CLK,
+				 ATMEL_SDHC_GCKDIV_VALUE);
 #endif
 
 }

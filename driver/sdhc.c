@@ -456,7 +456,7 @@ static int sdhc_host_capability(struct sd_card *sdcard)
 	struct sd_host *host = sdcard->host;
 	unsigned int caps;
 
-	host->caps_max_clock = pmc_get_generated_clock(CONFIG_SYS_ID_SDHC);
+	host->caps_max_clock = pmc_get_generic_clock(CONFIG_SYS_ID_SDHC);
 	host->caps_min_clock = host->caps_max_clock / 2048;
 
 	caps = sdhc_readl(SDMMC_CA0R);
