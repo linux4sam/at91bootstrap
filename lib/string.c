@@ -36,7 +36,7 @@ void *memcpy(void *dst, const void *src, int cnt)
 	while (cnt--)
 		*d++ = *s++;
 
-	return d;
+	return dst;
 }
 
 void *memset(void *dst, int val, int cnt)
@@ -46,7 +46,7 @@ void *memset(void *dst, int val, int cnt)
 	while (cnt--)
 		*d++ = (char)val;
 
-	return d;
+	return dst;
 }
 
 int memcmp(const void *dst, const void *src, unsigned int cnt)
