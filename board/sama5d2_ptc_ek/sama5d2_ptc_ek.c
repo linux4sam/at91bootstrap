@@ -327,6 +327,14 @@ void hw_init(void)
 	/* Configure PLLA */
 	pmc_cfg_plla(PLLA_SETTINGS);
 
+	/* Initialize PLLA charge pump */
+	/*
+	 * The field named ICP_PLLA[1:0] must be written to 0.
+	 * Even if its default value is 0, it is wrongly re-written to 0x3
+	 * by the ROMCode.
+	 */
+	pmc_init_pll(AT91C_PMC_ICPPLLA_0);
+
 	/* Switch MCK clock source to PLLA */
 	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
 

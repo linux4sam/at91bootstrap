@@ -387,8 +387,12 @@ void hw_init(void)
 	at91_green_led_on();
 
 	/* Initialize PLLA charge pump */
-	/* No need: we keep what is set in ROM code */
-	//pmc_init_pll(0x3);
+	/*
+	 * The field named ICP_PLLA[1:0] must be written to 0.
+	 * Even if its default value is 0, it is wrongly re-written to 0x3
+	 * by the ROMCode.
+	 */
+	pmc_init_pll(AT91C_PMC_ICPPLLA_0);
 
 	/* Switch MCK on PLLA output */
 	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
