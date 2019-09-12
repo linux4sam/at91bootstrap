@@ -30,9 +30,7 @@
 
 void pmc_init_pll(unsigned int pmc_pllicpr)
 {
-#ifdef PMC_PLLICPR
 	write_pmc(PMC_PLLICPR, pmc_pllicpr);
-#endif
 }
 
 int pmc_cfg_plla(unsigned int pmc_pllar)
