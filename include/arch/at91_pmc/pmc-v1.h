@@ -52,9 +52,10 @@
 #define		AT91C_CKGR_OUTA_1		(0x1UL << 14)
 #define		AT91C_CKGR_OUTA_2		(0x2UL << 14)
 #define		AT91C_CKGR_OUTA_3		(0x3UL << 14)
-#define AT91C_CKGR_MULA		(0x7f << 18)
-#define		AT91C_CKGR_MULA_MSK		0x7f
-#define		AT91C_CKGR_MULA_OFFSET		18
+#define AT91C_CKGR_MULA		(0xff << 16)
+#define	AT91C_CKGR_ALT_MULA	(0x7f << 18)
+#define		AT91C_CKGR_ALT_MULA_MSK		0x7f
+#define		AT91C_CKGR_ALT_MULA_OFFSET	18
 #define AT91C_CKGR_SRCA		(0x1UL << 29)
 
 #define PMC_MCKR		0x30		/* Master Clock Register */

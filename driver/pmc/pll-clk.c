@@ -62,7 +62,8 @@ unsigned int pmc_get_plla_freq(void)
 
 	tmp = read_pmc(PMC_PLLAR);
 	divider = tmp & AT91C_CKGR_DIVA_MSK;
-	multiplier = (tmp >> AT91C_CKGR_MULA_OFFSET) & AT91C_CKGR_MULA_MSK;
+	multiplier = (tmp >> AT91C_CKGR_ALT_MULA_OFFSET) &
+		     AT91C_CKGR_ALT_MULA_MSK;
 	if (divider && multiplier) {
 		freq = div(main_clock, divider);
 		freq *= multiplier + 1;
