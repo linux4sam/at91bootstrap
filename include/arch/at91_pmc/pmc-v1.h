@@ -41,17 +41,17 @@
 #define AT91C_CKGR_BIASCOUNT			(0xFUL << 28)
 
 #define PMC_PLLAR		0x28		/* PLL A Register */
-#define AT91C_CKGR_DIVA		(0x1 << 0)
-#define		AT91C_CKGR_DIVA_MSK		0x1
+#define AT91C_CKGR_DIVA		(0xff << 0)
+#define		AT91C_CKGR_DIVA_MSK		0xff
 #define		AT91C_CKGR_DIVA_OFFSET		0
 #define		AT91C_CKGR_DIVA_0		0x0
 #define		AT91C_CKGR_DIVA_BYPASS		0x1
-#define AT91C_CKGR_PLLACOUNT	(0x3FUL << 8)
-#define AT91C_CKGR_OUTA		(0xFUL << 14)
-#define		AT91C_CKGR_OUTA_0		(0x0UL << 14)
-#define		AT91C_CKGR_OUTA_1		(0x1UL << 14)
-#define		AT91C_CKGR_OUTA_2		(0x2UL << 14)
-#define		AT91C_CKGR_OUTA_3		(0x3UL << 14)
+#define AT91C_CKGR_PLLACOUNT	(0x3FUL <<  8)
+#define AT91C_CKGR_OUTA		(0x3UL << 14)
+#define 	AT91C_CKGR_OUTA_0		(0x0UL << 14)
+#define 	AT91C_CKGR_OUTA_1		(0x1UL << 14)
+#define 	AT91C_CKGR_OUTA_2		(0x2UL << 14)
+#define 	AT91C_CKGR_OUTA_3		(0x3UL << 14)
 #define AT91C_CKGR_MULA		(0xff << 16)
 #define	AT91C_CKGR_ALT_MULA	(0x7f << 18)
 #define		AT91C_CKGR_ALT_MULA_MSK		0x7f
@@ -59,11 +59,12 @@
 #define AT91C_CKGR_SRCA		(0x1UL << 29)
 
 #define PMC_MCKR		0x30		/* Master Clock Register */
-#define AT91C_PMC_CSS		(0x3UL <<  0)
+#define AT91C_PMC_CSS		(0x7UL <<  0)
 #define 	AT91C_PMC_CSS_SLOW_CLK		(0x0UL)
 #define 	AT91C_PMC_CSS_MAIN_CLK		(0x1UL)
 #define 	AT91C_PMC_CSS_PLLA_CLK		(0x2UL)
 #define 	AT91C_PMC_CSS_UPLL_CLK		(0x3UL)
+#define 	AT91C_PMC_CSS_SYS_CLK		(0x4UL)
 #define	AT91C_PMC_PRES		(0xFUL << 2)
 #define		AT91C_PMC_PRES_CLK		(0x0UL << 2)
 #define		AT91C_PMC_PRES_CLK_2		(0x1UL << 2)
@@ -96,15 +97,19 @@
 #define		AT91C_PMC_H32MXDIV_H32MXDIV2	(0x1UL << 24)
 
 #define PMC_PLLICPR		0x80		/* PLL Charge Pump Current Register */
-#define AT91C_PMC_IPLLA		(0x7UL << 8)
-#define		AT91C_PMC_IPLLA_0		(0x0UL << 8)
-#define		AT91C_PMC_IPLLA_1		(0x1UL << 8)
-#define		AT91C_PMC_IPLLA_2		(0x2UL << 8)
-#define		AT91C_PMC_IPLLA_3		(0x3UL << 8)
+#define AT91C_PMC_ICPPLLA	(0xFUL <<  0)
+#define 	AT91C_PMC_ICPPLLA_0		(0x0UL << 0)
+#define 	AT91C_PMC_ICPPLLA_1		(0x1UL << 0)
+#define AT91C_PMC_REALLOCK	(0x1UL <<  7)
+#define AT91C_PMC_IPLLA		(0xFUL <<  8)
+#define 	AT91C_PMC_IPLLA_0		(0x0UL <<  8)
+#define 	AT91C_PMC_IPLLA_1		(0x1UL <<  8)
+#define 	AT91C_PMC_IPLLA_2		(0x2UL <<  8)
+#define 	AT91C_PMC_IPLLA_3		(0x3UL <<  8)
 
 #define PMC_PCR			0x10C		/* Peripheral Control Register */
 #define	AT91C_PMC_PID		(0x3F << 0)
-#define	AT91C_PMC_GCKCSS	(0x3 << 8)
+#define	AT91C_PMC_GCKCSS	(0x7 << 8)
 #define		AT91C_PMC_GCKCSS_SLOW_CLK	(0x0 << 8)
 #define		AT91C_PMC_GCKCSS_MAIN_CLK	(0x1 << 8)
 #define		AT91C_PMC_GCKCSS_PLLA_CLK	(0x2 << 8)
@@ -112,7 +117,7 @@
 #define		AT91C_PMC_GCKCSS_MCK_CLK	(0x4 << 8)
 #define		AT91C_PMC_GCKCSS_AUDIO_CLK	(0x5 << 8)
 #define	AT91C_PMC_CMD		(1 << 12)
-#define	AT91C_PMC_DIV		(0x0)
+#define	AT91C_PMC_DIV		(0x3 << 16)
 #define	AT91C_PMC_GCKDIV	(0xff << 20)
 #define		AT91C_PMC_GCKDIV_MSK		0xff
 #define		AT91C_PMC_GCKDIV_OFFSET		20
