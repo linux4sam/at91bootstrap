@@ -108,7 +108,7 @@ static void sdramc_init(void)
 	 * We need to also enable AT91C_EBI_NFD0_ON_D16 . Otherwise the DDR will
 	 * not work if NAND lines have been previously used by RomCode
 	 */
-	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN | AT91C_EBI_NFD0_ON_D16);
+	reg |= (AT91C_EBI_CS1A | AT91C_EBI_NFD0_ON_D16);
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 
 	pmc_enable_periph_clock(AT91C_ID_SDRAMC);
