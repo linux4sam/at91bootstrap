@@ -557,7 +557,7 @@ void at91_sdhc_hw_init(void)
 	reg = readl(AT91C_BASE_SDHC0 + SDMMC_CALCR);
 	pmc_disable_periph_clock(AT91C_ID_SDMMC0);
 
-	if (reg | SDMMC_CALCR_ALWYSON)
+	if (reg & SDMMC_CALCR_ALWYSON)
 		dbg_info("SDHC: fix in place for SAMA5D2 SoM VDDSDMMC over-consumption errata\n");
 
 	/* Deal with usual SD/MCC peripheral init sequence */
