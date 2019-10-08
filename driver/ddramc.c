@@ -50,6 +50,94 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 	return readl(address + offset);
 }
 
+#if defined(CONFIG_DDR3) || \
+    (defined(CONFIG_SAMA5D2_LPDDR2) && defined(CONFIG_LPDDR2))
+#undef DEBUG_BKP_SR_INIT
+
+void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
+				unsigned int ram_address,
+				struct ddramc_register *ddramc_config)
+{
+	/*
+	 * Program the memory device type in the MPDDRC Memory Device Register
+	 */
+	write_ddramc(base_address, HDDRSDRC2_MDR, ddramc_config->mdr);
+	asm volatile ("dmb");
+
+	/*
+	 * Program features of the DDR3-SDRAM/LPDDR2-SDRAM device in the MPDDRC
+	 * Configuration Register and in the MPDDRC Timing Parameter 0 Register
+	 * /MPDDRC Timing Parameter 1 Register
+	 */
+	write_ddramc(base_address, HDDRSDRC2_CR, ddramc_config->cr);
+
+	write_ddramc(base_address, HDDRSDRC2_T0PR, ddramc_config->t0pr);
+	write_ddramc(base_address, HDDRSDRC2_T1PR, ddramc_config->t1pr);
+	write_ddramc(base_address, HDDRSDRC2_T2PR, ddramc_config->t2pr);
+
+	/*
+	 * Write the refresh rate into the COUNT field in the MPDDRC
+	 * Refresh Timer Register (MPDDRC_RTR):
+	 * refresh rate = delay between refresh cycles.
+	 * Please check the datasheet for refresh periods of
+	 * DDR3-SDRAM/LPDDR2-SDRAM device.
+	 */
+	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
+
+	/*
+	 * Configure the CAL MR4 & TIM CAL registers
+	 */
+	write_ddramc(base_address,
+		     MPDDRC_LPDDR2_CAL_MR4, ddramc_config->cal_mr4r);
+
+	write_ddramc(base_address,
+		     MPDDRC_LPDDR2_TIM_CAL, ddramc_config->tim_calr);
+
+#if defined(DEBUG_BKP_SR_INIT)
+	/* wait for the SELF_DONE bit to raise */
+	usart_puts("BKP: about to check SELF_DONE\n");
+#endif
+
+	/*
+	 * make sure to configure the DDR controller's interface like
+	 * it was when it entered the Backup+Self-Refresh mode:
+	 * - Normal CMD mode
+	 * - Low-power Command Bit positioned
+	 **/
+	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
+	write_ddramc(base_address,
+		     HDDRSDRC2_LPR, AT91C_DDRC2_LPCB_SELFREFRESH);
+	asm volatile ("dmb");
+
+	while (!(read_ddramc(base_address, HDDRSDRC2_LPR) & AT91C_DDRC2_SELF_DONE));
+#if defined(DEBUG_BKP_SR_INIT)
+	usart_puts("BKP: SELF_DONE ok\n");
+#endif
+
+	/* re-connect DDR Pads to the CPU domain (VCCCORE) */
+	writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
+	asm volatile ("dmb");
+
+#if defined(DEBUG_BKP_SR_INIT)
+	usart_puts("BKP: pads CX\n");
+
+	/* take some time to re-synchronize pads with DDR controller */
+	mdelay(1000);
+#endif
+
+	/* make sure to actually perform an access to the DDR chip */
+	*((unsigned volatile int *)ram_address) = 0;
+
+	/* switch back to NOLOWPOWER by clearing the Low-power Command Bit */
+	write_ddramc(base_address,
+		     HDDRSDRC2_LPR, AT91C_DDRC2_LPCB_DISABLED);
+	asm volatile ("dmb");
+	/* make sure to actually perform an access to the DDR chip */
+	*((unsigned volatile int *)ram_address) = 0;
+}
+#endif /* #if defined(CONFIG_DDR3) || \
+	      (defined(CONFIG_SAMA5D2_LPDDR2) && defined(CONFIG_LPDDR2)) */
+
 #ifdef CONFIG_DDR2
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
 {
@@ -299,6 +387,12 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 			    struct ddramc_register *ddramc_config)
 {
 	unsigned int reg;
+
+	if (backup_resume()) {
+		ddr3_lpddr2_sdram_bkp_init(base_address, ram_address,
+					   ddramc_config);
+		return 0;
+	}
 
 	write_ddramc(base_address,
 		     MPDDRC_LPDDR2_LPR, ddramc_config->lpddr2_lpr);
@@ -677,89 +771,6 @@ int lpddr2_sdram_initialize(unsigned int base_address,
 #endif
 
 #elif defined(CONFIG_DDR3)
-#undef DEBUG_BKP_SR_INIT
-
-void ddr3_sdram_bkp_init(unsigned int base_address,
-			unsigned int ram_address,
-			struct ddramc_register *ddramc_config)
-{
-	/*
-	 * Step 1: Program the memory device type in the MPDDRC Memory Device Register
-	 */
-	write_ddramc(base_address, HDDRSDRC2_MDR, ddramc_config->mdr);
-	asm volatile ("dmb");
-
-	/*
-	 * Step 2: Program features of the DDR3-SDRAM device in the MPDDRC
-	 * Configuration Register and in the MPDDRC Timing Parameter 0 Register
-	 * /MPDDRC Timing Parameter 1 Register
-	 */
-	write_ddramc(base_address, HDDRSDRC2_CR, ddramc_config->cr);
-
-	write_ddramc(base_address, HDDRSDRC2_T0PR, ddramc_config->t0pr);
-	write_ddramc(base_address, HDDRSDRC2_T1PR, ddramc_config->t1pr);
-	write_ddramc(base_address, HDDRSDRC2_T2PR, ddramc_config->t2pr);
-
-	/*
-	 * Step 14: Write the refresh rate into the COUNT field in the MPDDRC
-	 * Refresh Timer Register (MPDDRC_RTR):
-	 * refresh rate = delay between refresh cycles.
-	 * The DDR3-SDRAM device requires a refresh every 7.81 us.
-	 */
-	write_ddramc(base_address, HDDRSDRC2_RTR, ddramc_config->rtr);
-
-	/*
-	 * Now configure the CAL MR4 & TIM CAL registers
-	 */
-	write_ddramc(base_address,
-		     MPDDRC_LPDDR2_CAL_MR4, ddramc_config->cal_mr4r);
-
-	write_ddramc(base_address,
-		     MPDDRC_LPDDR2_TIM_CAL, ddramc_config->tim_calr);
-
-#if defined(DEBUG_BKP_SR_INIT)
-	/* wait for the SELF_DONE bit to raise */
-	usart_puts("BKP: about to check SELF_DONE\n");
-#endif
-
-	/*
-	 * make sure to configure the DDR controller's interface like
-	 * it was when it entered the Backup+Self-Refresh mode:
-	 * - Normal CMD mode
-	 * - Low-power Command Bit positioned
-	 **/
-	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
-	write_ddramc(base_address,
-		     HDDRSDRC2_LPR, AT91C_DDRC2_LPCB_SELFREFRESH);
-	asm volatile ("dmb");
-
-	while (!(read_ddramc(base_address, HDDRSDRC2_LPR) & AT91C_DDRC2_SELF_DONE));
-#if defined(DEBUG_BKP_SR_INIT)
-	usart_puts("BKP: SELF_DONE ok\n");
-#endif
-
-	/* re-connect DDR Pads to the CPU domain (VCCCORE) */
-	writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
-	asm volatile ("dmb");
-
-#if defined(DEBUG_BKP_SR_INIT)
-	usart_puts("BKP: pads CX\n");
-
-	/* take some time to re-synchronize pads with DDR controller */
-	mdelay(1000);
-#endif
-
-	/* make sure to actually perform an access to the DDR chip */
-	*((unsigned volatile int *)ram_address) = 0;
-
-	/* switch back to NOLOWPOWER by clearing the Low-power Command Bit */
-	write_ddramc(base_address,
-		     HDDRSDRC2_LPR, AT91C_DDRC2_LPCB_DISABLED);
-	asm volatile ("dmb");
-	/* make sure to actually perform an access to the DDR chip */
-	*((unsigned volatile int *)ram_address) = 0;
-}
-
 
 int ddr3_sdram_initialize(unsigned int base_address,
 			unsigned int ram_address,
@@ -768,7 +779,8 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	unsigned int ba_offset;
 
 	if (backup_resume()) {
-		ddr3_sdram_bkp_init(base_address, ram_address, ddramc_config);
+		ddr3_lpddr2_sdram_bkp_init(base_address, ram_address,
+					   ddramc_config);
 		return 0;
 	}
 
