@@ -50,10 +50,12 @@ void pmc_sam9x60_cfg_pll(unsigned int pll_id,  struct pmc_pll_cfg *cfg)
 		| AT91C_PLL_UPDT_ID_(pll_id));
 	write_pmc(PMC_PLL_UPDT, reg);
 
-	reg = read_pmc(PMC_PLL_ACR);
-	reg &= ~AT91C_PLL_ACR_LOOP_FILTER;
+	if (pll_id == PLL_ID_UPLL)
+		reg = AT91C_PLL_ACR_DEFAULT_UTMI;
+	else
+		reg = AT91C_PLL_ACR_DEFAULT_PLLA;
+
 	reg |= AT91C_PLL_ACR_LOOP_FILTER_(cfg->loop_filter);
-	reg |= AT91C_PLL_ACR_DEFAULT;
 	write_pmc(PMC_PLL_ACR, reg);
 	write_pmc(PMC_PLL_CTRL1, AT91C_PLL_CTRL1_MUL_(cfg->mul)
 			| AT91C_PLL_CTRL1_FRACR_(cfg->fracr));
@@ -61,12 +63,10 @@ void pmc_sam9x60_cfg_pll(unsigned int pll_id,  struct pmc_pll_cfg *cfg)
 	if (pll_id == PLL_ID_UPLL) {
 		reg = read_pmc(PMC_PLL_ACR);
 		reg |= AT91C_PLL_ACR_UTMIBG;
-		reg |= AT91C_PLL_ACR_DEFAULT;
 		write_pmc(PMC_PLL_ACR, reg);
 		udelay(10);
 		reg = read_pmc(PMC_PLL_ACR);
 		reg |= AT91C_PLL_ACR_UTMIVR;
-		reg |= AT91C_PLL_ACR_DEFAULT;
 		write_pmc(PMC_PLL_ACR, reg);
 		udelay(10);
 	}
