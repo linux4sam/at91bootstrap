@@ -8,7 +8,7 @@ config CONFIG_IMG_ADDRESS
 	default "0x00008000" if CONFIG_DATAFLASH
 	default "0x00040000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
-	help
+
 
 config CONFIG_IMG_SIZE
 	string "U-Boot Image Size"

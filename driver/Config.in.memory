@@ -150,13 +150,13 @@ config CONFIG_SAMA5D2_LPDDR2
 config	CONFIG_SDRAM_16BIT
 	bool "Use 16 bit SDRAM"
 	depends on ALLOW_SDRAM_16BIT
-	help
-	  
+
+
 config	CONFIG_PSRAM
 	bool "Enable PSRAM on EBI1"
 	depends on ALLOW_PSRAM
-	help
-	  
+
+
 choice
 	prompt "Flash Memory Technology"
 	default CONFIG_DATAFLASH
