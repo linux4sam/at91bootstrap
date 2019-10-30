@@ -88,12 +88,12 @@ config CONFIG_NANDFLASH_RECOVERY
 config CONFIG_ONFI_DETECT_SUPPORT
 	bool "Support NAND flash ONFI detect function"
 	default y
-	help
+
 
 config CONFIG_USE_ON_DIE_ECC_SUPPORT
 	bool "Support to use NAND flash On-Die ECC"
 	default y
-	help
+
 
 config ALLOW_NANDFLASH_RECOVERY
 	bool

@@ -65,7 +65,7 @@ config CONFIG_IMG_ADDRESS
 	default "0x00040000" if CONFIG_DATAFLASH
 	default "0x00200000" if CONFIG_NANDFLASH
 	default	"0x00000000" if CONFIG_SDCARD
-	help
+
 
 config CONFIG_JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
@@ -85,7 +85,7 @@ config CONFIG_OF_OVERRIDE_DTB_NAME
 	depends on CONFIG_OF_LIBFDT && CONFIG_SDCARD
 
 config CONFIG_OF_OFFSET
-	string "The Offset of Flash Device Tree Blob "
+	string "The Offset of Flash Device Tree Blob"
 	depends on CONFIG_OF_LIBFDT && (CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH)
 	default "0x00008400" if CONFIG_DATAFLASH
 	default "0x00180000" if CONFIG_NANDFLASH
@@ -97,7 +97,7 @@ config CONFIG_OF_ADDRESS
 	depends on CONFIG_OF_LIBFDT
 	default "0x71000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
 	default "0x21000000"
-	help
+
 
 endmenu
 

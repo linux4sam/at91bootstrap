@@ -50,7 +50,7 @@ config CONFIG_SMALL_DATAFLASH
 choice
 	prompt "SPI Bus Select"
 	default CONFIG_SPI_BUS0
-	help
+
 
 config CONFIG_SPI_BUS0
 	bool "SPI Bus 0"
@@ -73,7 +73,7 @@ choice
 	prompt "SPI0 IOSET"
 	depends on CONFIG_SPI_BUS0
 	default	CONFIG_SPI0_IOSET_1
-	help
+
 
 config CONFIG_SPI0_IOSET_1
 	depends on CPU_HAS_SPI0_IOSET1
@@ -89,7 +89,7 @@ choice
 	prompt "SPI1 IOSET"
 	depends on CONFIG_SPI_BUS1
 	default	CONFIG_SPI1_IOSET_1
-	help
+
 
 config CONFIG_SPI1_IOSET_1
 	depends on CPU_HAS_SPI1_IOSET1
@@ -191,7 +191,7 @@ menu "QSPI Configuration"
 choice
 	prompt "QSPI Bus Select"
 	default CONFIG_QSPI_BUS0
-	help
+
 
 config CONFIG_QSPI_BUS0
 	bool "QSPI Bus 0"
@@ -210,7 +210,7 @@ choice
 	prompt "QSPI0 IOSET"
 	depends on CONFIG_QSPI_BUS0
 	default	CONFIG_QSPI0_IOSET_1
-	help
+
 
 config CONFIG_QSPI0_IOSET_1
 	depends on CPU_HAS_QSPI0_IOSET1
@@ -230,7 +230,8 @@ choice
 	prompt "QSPI1 IOSET"
 	depends on CONFIG_QSPI_BUS1
 	default	CONFIG_QSPI1_IOSET_1
-	help
+
+
 
 config CONFIG_QSPI1_IOSET_1
 	depends on CPU_HAS_QSPI1_IOSET1

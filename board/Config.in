@@ -267,7 +267,6 @@ config CONFIG_MACH_TYPE
 	default "9999"	if SAMA5D3X
 	default "9999"	if SAMA5D4
 	default "9999"	if SAMA5D2
-	help
 
 config CONFIG_OVERRIDE_MACH_TYPE
 	bool "Override the default mach type"
@@ -291,12 +290,12 @@ config CONFIG_LINK_ADDR
 	string
 	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4  || SAMA5D2
 	default "0x300000" if !(AT91SAM9260 && AT91SAM9G20)
-	help
+
 
 config CONFIG_DATA_SECTION_ADDR
 	string
 	default "0x304000" if AT91SAM9XE
-	help
+
 
 config CONFIG_TOP_OF_MEMORY
 	string
