@@ -111,9 +111,11 @@ _relocate_to_sram:
 	bcc     1b
 #endif /* CONFIG_FLASH */
 
+#if defined(CONFIG_PMC_COMMON)
 	ldr     r4, = lowlevel_clock_init
 	mov     lr, pc
 	bx      r4
+#endif /* CONFIG_PMC */
 
 #if defined(CONFIG_CPU_V7)
 /* Clear Abort condition if it is pending with help of the abort handler */
