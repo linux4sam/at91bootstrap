@@ -116,6 +116,10 @@
 #include "sama5d27_wlsom1_ek.h"
 #endif
 
+#ifdef CONFIG_SAMA5D27_OC_CA
+#include "sama5d27_oc_ca.h"
+#endif
+
 #ifdef CONFIG_SAMA5D2_LPDDR2SIP_VB
 #include "sama5d2_lpddr2sip_vb.h"
 #endif

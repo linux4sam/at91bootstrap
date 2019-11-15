@@ -27,6 +27,7 @@ source "board/sama5d2_ptc_ek/Config.in.board"
 source "board/sama5d2_xplained/Config.in.board"
 source "board/sama5d27_som1_ek/Config.in.board"
 source "board/sama5d27_wlsom1_ek/Config.in.board"
+source "board/sama5d27_oc_ca/Config.in.board"
 source "board/sama5d2_lpddr2sip_vb/Config.in.board"
 source "board/sama5d2_icp/Config.in.board"
 source "board/sam9x60ek/Config.in.board"
@@ -57,6 +58,7 @@ config CONFIG_BOARDNAME
 	default "sama5d2_xplained" if CONFIG_SAMA5D2_XPLAINED
 	default "sama5d27_som1_ek" if CONFIG_SAMA5D27_SOM1_EK
 	default "sama5d27_wlsom1_ek" if CONFIG_SAMA5D27_WLSOM1_EK
+	default "sama5d27_oc_ca" if CONFIG_SAMA5D27_OC_CA
 	default "sama5d2_lpddr2sip_vb" if CONFIG_SAMA5D2_LPDDR2SIP_VB
 	default "sama5d2_icp" if CONFIG_SAMA5D2_ICP
 	default "sam9x60ek" if CONFIG_SAM9X60EK
@@ -395,6 +397,7 @@ choice
 	default CONFIG_CPU_CLK_498MHZ if CONFIG_SAMA5D2_XPLAINED
 	default CONFIG_CPU_CLK_492MHZ if CONFIG_SAMA5D27_SOM1_EK
 	default CONFIG_CPU_CLK_492MHZ if CONFIG_SAMA5D27_WLSOM1_EK
+	default CONFIG_CPU_CLK_492MHZ if CONFIG_SAMA5D27_OC_CA
 	default CONFIG_CPU_CLK_498MHZ if CONFIG_SAMA5D2_LPDDR2SIP_VB
 
 

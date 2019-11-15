@@ -551,12 +551,10 @@ static int sdhc_init(struct sd_card *sdcard)
 	sdhc_set_power();
 
 	sdhc_host_capability(sdcard);
-
+	
 	if (sdhc_is_card_inserted(sdcard) <= 0) {
 		dbg_info("SDHC: Error: No Card Inserted\n");
-		return -1;
 	}
-
 	normal_status_mask = SDMMC_NISTR_CMDC
 				| SDMMC_NISTR_TRFC
 				| SDMMC_NISTR_BWRRDY
