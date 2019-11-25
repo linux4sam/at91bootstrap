@@ -87,14 +87,13 @@ static int matrix_configure_slave(void)
 
 	/* 1: H64MX Peripheral Bridge */
 
-	/* 2 ~ 9 DDR2 Port1 ~ 7: Non-Secure */
+	/* 2 ~ 9 DDR2 Port0 ~ 7: Non-Secure */
 	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_128M);
 	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_128M);
 	ssr_setting = MATRIX_LANSECH_NS(0) |
 		      MATRIX_RDNSECH_NS(0) |
 		      MATRIX_WRNSECH_NS(0);
-	/* DDR port 0 not used from NWd */
-	for (ddr_port = 1; ddr_port < 8; ddr_port++) {
+	for (ddr_port = 0; ddr_port < 8; ddr_port++) {
 		matrix_configure_slave_security(AT91C_BASE_MATRIX64,
 					(H64MX_SLAVE_DDR2_PORT_0 + ddr_port),
 					srtop_setting,
