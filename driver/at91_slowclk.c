@@ -62,7 +62,7 @@ static void slowclk_wait_osc32_stable(void)
 	wait_interval_timer(1300);
 }
 
-#if !defined(SAMA5D4) && !defined(SAMA5D2)
+#if !defined(SAMA5D4) && !defined(SAMA5D2) && !defined(SAM9X60)
 static void slowclk_disable_rc32(void)
 {
 	unsigned int reg;
@@ -108,7 +108,7 @@ int slowclk_switch_osc32(void)
 
 	slowclk_select_osc32();
 
-#if !defined(SAMA5D4) && !defined(SAMA5D2)
+#if !defined(SAMA5D4) && !defined(SAMA5D2) && !defined(SAM9X60)
 	slowclk_disable_rc32();
 #endif
 

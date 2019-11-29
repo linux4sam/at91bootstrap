@@ -31,6 +31,11 @@
 #define AT91C_SLCKSEL_RCEN	(0x1UL << 0)
 #define AT91C_SLCKSEL_OSC32EN	(0x1UL << 1)
 #define AT91C_SLCKSEL_OSC32BYP	(0x1UL << 2)
+
+#if defined(SAM9X60)
+#define AT91C_SLCKSEL_OSCSEL	(0x1UL << 24)
+#else
 #define AT91C_SLCKSEL_OSCSEL	(0x1UL << 3)
+#endif
 
 #endif /* #ifndef __AT91_SLOWCLK_H__ */
