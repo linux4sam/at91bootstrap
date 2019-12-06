@@ -59,6 +59,8 @@ int main(void)
 #if !defined(CONFIG_SCLK_BYPASS)
 	slowclk_enable_osc32();
 #endif
+#elif defined(CONFIG_SCLK_INTRC)
+	slowclk_switch_rc32();
 #endif
 
 #ifdef CONFIG_BACKUP_MODE

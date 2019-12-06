@@ -6,7 +6,7 @@ DRIVERS_SRC:=$(TOPDIR)/driver
 
 COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/debug.o
 
-COBJS-$(CONFIG_SCLK)		+= $(DRIVERS_SRC)/at91_slowclk.o
+COBJS-$(CPU_HAS_SCKC)		+= $(DRIVERS_SRC)/at91_slowclk.o
 
 COBJS-y				+= $(DRIVERS_SRC)/common.o
 COBJS-$(CONFIG_PIO)		+= $(DRIVERS_SRC)/at91_pio.o

@@ -115,13 +115,12 @@ int slowclk_switch_osc32(void)
 	return 0;
 }
 
-
-#if defined(CONFIG_SCLK_BYPASS)
 /* Switch from 32768 Hz Crystal Oscillator to Internal 32 kHz RC Oscillator */
-static int slowclk_switch_rc32(void)
+int slowclk_switch_rc32(void)
 {
 	unsigned int reg;
 
+#if !defined(SAMA5D4) && !defined(SAMA5D2) && !defined(SAM9X60)
 	/* Enable the internal 32 kHz RC oscillator for low power by writing a 1 to the RCEN bit. */
 	reg = readl(AT91C_BASE_SCKCR);
 	reg |= AT91C_SLCKSEL_RCEN;
@@ -130,6 +129,7 @@ static int slowclk_switch_rc32(void)
 	/* Wait internal 32 kHz RC startup time for clock stabilization (software loop). */
 	/* 500 us */
 	udelay(500);
+#endif
 
 	/* Switch from 32768 Hz oscillator to internal RC by writing a 0 to the OSCSEL bit. */
 	reg = readl(AT91C_BASE_SCKCR);
@@ -140,14 +140,17 @@ static int slowclk_switch_rc32(void)
 	/* 5 slow clock cycles = ~153 us (5 / 32768) */
 	udelay(153);
 
+#if !defined(SAMA5D4) && !defined(SAMA5D2)
 	/* Disable the 32768 Hz oscillator by writing a 0 to the OSC32EN bit. */
 	reg = readl(AT91C_BASE_SCKCR);
 	reg &= ~AT91C_SLCKSEL_OSC32EN;
 	writel(reg, AT91C_BASE_SCKCR);
+#endif
 
 	return 0;
 }
 
+#if defined(CONFIG_SCLK_BYPASS)
 static int slowclk_osc32_bypass(void)
 {
 	unsigned int reg;
