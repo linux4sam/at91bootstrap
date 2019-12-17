@@ -180,6 +180,9 @@ _go:
  */
 #if defined(CONFIG_ENTER_NWD) || defined(CONFIG_LOAD_NONE)
 loop:
+#ifdef CONFIG_BKPT_NOTIFY_DONE
+	bkpt
+#endif
 	b	loop
 #endif
 

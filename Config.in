@@ -81,6 +81,15 @@ config CONFIG_SKIP_COPY_IMAGE
 	  image to DRAM. For example it can be copied using the boot
 	  assistant SAM-BA or JTAG.
 
+config CONFIG_BKPT_NOTIFY_DONE
+    depends on CONFIG_LOAD_NONE
+    bool "Build image for use with debuggers"
+    help
+      In order to load code into DRAM from a debugger, a bootstrap is
+      required to configure the clocks, pio, and memory correctly.  Selecting
+      this option builds an image that can be used for this purpose.
+
+
 #
 # Kernel Image Storage Setup
 #
