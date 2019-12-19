@@ -91,6 +91,26 @@ config CONFIG_DDR3
 
 endchoice
 
+config CONFIG_MEM_BANK
+	string "Extern Memory Bank Base Address"
+	default "0x70000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
+	default "0x20000000"
+
+config CONFIG_MEM_BANK2
+	depends on BOARD_HAS_2_BANKS
+	string "Extern Memory Bank2 Base Address"
+	default "0x70000000" if AT91SAM9G45 && BOARD_HAS_2_BANKS
+	default "0"
+
+config CONFIG_MEM_SIZE
+	string "Extern Memory Bank Size"
+	default "0x800000" if CONFIG_RAM_8MB
+	default "0x2000000" if CONFIG_RAM_32MB
+	default "0x4000000" if CONFIG_RAM_64MB
+	default "0x8000000" if CONFIG_RAM_128MB
+	default "0x10000000" if CONFIG_RAM_256MB
+	default "0x20000000" if CONFIG_RAM_512MB
+
 endmenu
 
 config CONFIG_SAMA5D2_LPDDR2
