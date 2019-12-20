@@ -73,6 +73,16 @@ fiq_vector:
 	b 	fiq_vector
 reset_vector:
 
+#if defined(CONFIG_CPU_V7)
+	/*
+	 * We must configure VBAR for the reset vectors to be at
+	 * the start of SRAM (CONFIG_LINK_ADDR)
+	 */
+	mrc     p15, 0, r2, c12, c0, 0 /* Read VBAR into R2 */
+	mov	r2,#LINK_ADDR
+	mcr	p15, 0, r2, c12, c0, 0
+#endif /* CONFIG_CPU_V7 */
+
 #ifdef BACKUP_REGISTER_BOOT_MODE_R4
 	ldr	r1, =BACKUP_REGISTER_BOOT_MODE_R4
 	str	r4, [r1]
