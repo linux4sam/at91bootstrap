@@ -698,7 +698,7 @@ void at91_board_set_dtb_name(char *of_name)
 }
 #endif
 
-void at91_mci0_hw_init(void)
+void at91_mci1_hw_init(void)
 {
 	const struct pio_desc mci_pins[] = {
 		{"MCI1_CK", AT91C_PIN_PE(18), 0, PIO_DEFAULT, PIO_PERIPH_C},
