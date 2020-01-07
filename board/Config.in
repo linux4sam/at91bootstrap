@@ -255,6 +255,8 @@ config SAMA5D2
 
 config SAMA7G5
 	select CORE_CORTEX_A7
+	select CPU_HAS_SCKC
+	select CPU_HAS_SCLK_BYPASS
 	select CPU_HAS_FLEXCOM
 	select CPU_HAS_TRUSTZONE
 	select CPU_HAS_WDT2
