@@ -38,6 +38,16 @@
 #include "pmc.h"
 #include "sama7g5ek.h"
 
+static void ca7_enable_smp()
+{
+	/* asm code to enable ACTLR.SMP . this is needed for SCU for L2 cache */
+	asm  volatile (
+		"MRC p15, 0, R1, c1, c0, 1;"
+		"ORR R1, R1, #64;"
+		"MCR p15, 0, R1, c1, c0, 1;"
+	);
+}
+
 static void initialize_serial(void)
 {
 	unsigned int baudrate = 115200;
@@ -85,4 +95,6 @@ void hw_init(void)
 	initialize_serial();
 
 	usart_puts("hardware init CA7\n");
+
+	ca7_enable_smp();
 }
