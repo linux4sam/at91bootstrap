@@ -7,8 +7,4 @@ CONFIG_DEBUG_VERY_LOUD=y
 # CONFIG_ENTER_NWD is not set
 # CONFIG_REDIRECT_ALL_INTS_AIC is not set
 CONFIG_TZC400=y
-# CONFIG_PIT is not set
 # CONFIG_RSTC is not set
-# CONFIG_USART is not set
-# CONFIG_PIO is not set
-# CONFIG_PMC_COMMON is not set

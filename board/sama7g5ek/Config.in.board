@@ -3,5 +3,6 @@ config CONFIG_SAMA7G5EK
 	select SAMA7G5
 	select CONFIG_CPU_V7
 	select CONFIG_UMCTL2
+	select CONFIG_FLEXCOM
 	help
 	  Use the SAMA7G5 Evaluation kit board
