@@ -10,39 +10,39 @@ config CPU_HAS_PMECC
 	bool
 	default n
 
-config CONFIG_HAS_HW_INFO
+config HAS_HW_INFO
 	bool
 	default n
 
-config CONFIG_TWI
+config TWI
 	bool
 	default n
 
-config CONFIG_TWI0
+config TWI0
 	bool
 	default n
 
-config CONFIG_TWI1
+config TWI1
 	bool
 	default n
 
-config CONFIG_TWI2
+config TWI2
 	bool
 	default n
 
-config CONFIG_TWI3
+config TWI3
 	bool
 	default n
 
-config CONFIG_MACB
+config MACB
 	bool
 	default n
 
-config CONFIG_AES
+config AES
 	bool
 	default n
 
-config CONFIG_LOAD_HW_INFO
+config LOAD_HW_INFO
 	bool
 	default n
 
@@ -70,7 +70,7 @@ config CPU_HAS_PIO4
 	bool
 	default n
 
-config CONFIG_FLEXCOM
+config FLEXCOM
 	bool
 	default n
 

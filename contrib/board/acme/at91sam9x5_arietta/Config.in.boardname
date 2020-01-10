@@ -1,2 +1,2 @@
-config CONFIG_BOARDNAME
-	default "at91sam9x5_arietta"	if CONFIG_AT91SAM9X5_ARIETTA
+config BOARDNAME
+	default "at91sam9x5_arietta"	if AT91SAM9X5_ARIETTA

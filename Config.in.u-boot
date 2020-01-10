@@ -1,23 +1,23 @@
 menu "U-Boot Image Storage Setup"
-	depends on CONFIG_LOAD_UBOOT
+	depends on LOAD_UBOOT
 
-config CONFIG_IMG_ADDRESS
+config IMG_ADDRESS
 	string "Flash Offset for U-Boot"
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
-	default "0x00008000" if CONFIG_FLASH
-	default "0x00008000" if CONFIG_DATAFLASH
-	default "0x00040000" if CONFIG_NANDFLASH
-	default	"0x00000000" if CONFIG_SDCARD
+	depends on DATAFLASH || FLASH || NANDFLASH
+	default "0x00008000" if FLASH
+	default "0x00008000" if DATAFLASH
+	default "0x00040000" if NANDFLASH
+	default	"0x00000000" if SDCARD
 
 
-config CONFIG_IMG_SIZE
+config IMG_SIZE
 	string "U-Boot Image Size"
-	depends on CONFIG_DATAFLASH || CONFIG_FLASH || CONFIG_NANDFLASH
+	depends on DATAFLASH || FLASH || NANDFLASH
 	default	"0x000a0000"
 	help
 	  at91bootstrap will copy this size of U-Boot image
 
-config CONFIG_JUMP_ADDR
+config JUMP_ADDR
 	string "The External Ram Address to Load U-Boot Image"
 	default "0x73F00000" if AT91SAM9G45
 	default "0x26F00000" if AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X  || SAMA5D4 || SAMA5D2

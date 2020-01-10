@@ -1,8 +1,8 @@
-config CONFIG_SAMA5D27_WLSOM1_EK
+config SAMA5D27_WLSOM1_EK
 	bool "sama5d27_wlsom1_ek"
 	select SAMA5D2
-	select CONFIG_CPU_V7
-	select CONFIG_DDRC
+	select CPU_V7
+	select DDRC
 	select ALLOW_DATAFLASH
 	select ALLOW_SDCARD
 	select ALLOW_CPU_CLK_492MHZ

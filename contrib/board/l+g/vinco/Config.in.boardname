@@ -1,2 +1,2 @@
-config CONFIG_BOARDNAME
-	default "vinco" if CONFIG_VINCO
+config BOARDNAME
+	default "vinco" if VINCO
