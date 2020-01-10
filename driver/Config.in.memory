@@ -1,18 +1,18 @@
 menu "Memory selection"
 
-config CONFIG_SDRAM
+config SDRAM
 	bool
 	default n
 	help
 	  Initialize SDRAM controller before copying
 
-config CONFIG_SDDRC
+config SDDRC
 	bool
 	default n
 	help
 	  Initialize DDR SDRAM controller before copying
 
-config CONFIG_DDRC
+config DDRC
 	bool
 	default n
 	help
@@ -46,99 +46,97 @@ menu "RAM Configuration"
 
 choice
 	prompt "RAM size"
-	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDRC
-	default CONFIG_RAM_64MB
+	depends on SDRAM || SDDRC || DDRC
+	default RAM_64MB
 
-config	CONFIG_RAM_8MB
+config	RAM_8MB
 	bool "8 MB"
 
-config	CONFIG_RAM_32MB
+config	RAM_32MB
 	bool "32 MB"
 
-config	CONFIG_RAM_64MB
+config	RAM_64MB
 	bool "64 MB"
 
-config	CONFIG_RAM_128MB
+config	RAM_128MB
 	bool "128 MB"
 
-config	CONFIG_RAM_256MB
+config	RAM_256MB
 	bool "256 MB"
 
-config	CONFIG_RAM_512MB
+config	RAM_512MB
 	bool "512 MB"
 
 endchoice
 
 choice
 	prompt "DDR-SDRAM device type"
-	depends on CONFIG_DDRC
-	default CONFIG_DDR2
+	depends on DDRC
+	default DDR2
 
-config CONFIG_LPDDR1
+config LPDDR1
 	bool "Low-power DDR1-SDRAM"
 
-config CONFIG_LPDDR2
+config LPDDR2
 	bool "Low-power DDR2-SDRAM"
 
-config CONFIG_LPDDR3
+config LPDDR3
 	bool "Low-power DDR3-SDRAM"
 
-config CONFIG_DDR2
+config DDR2
 	bool "DDR2-SDRAM"
 
-config CONFIG_DDR3
+config DDR3
 	bool "DDR3-SDRAM"
 
 endchoice
 
-config CONFIG_MEM_BANK
+config MEM_BANK
 	string "Extern Memory Bank Base Address"
 	default "0x70000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
 	default "0x20000000"
 
-config CONFIG_MEM_BANK2
+config MEM_BANK2
 	depends on BOARD_HAS_2_BANKS
 	string "Extern Memory Bank2 Base Address"
 	default "0x70000000" if AT91SAM9G45 && BOARD_HAS_2_BANKS
 	default "0"
 
-config CONFIG_MEM_SIZE
+config MEM_SIZE
 	string "Extern Memory Bank Size"
-	default "0x800000" if CONFIG_RAM_8MB
-	default "0x2000000" if CONFIG_RAM_32MB
-	default "0x4000000" if CONFIG_RAM_64MB
-	default "0x8000000" if CONFIG_RAM_128MB
-	default "0x10000000" if CONFIG_RAM_256MB
-	default "0x20000000" if CONFIG_RAM_512MB
+	default "0x800000" if RAM_8MB
+	default "0x2000000" if RAM_32MB
+	default "0x4000000" if RAM_64MB
+	default "0x8000000" if RAM_128MB
+	default "0x10000000" if RAM_256MB
+	default "0x20000000" if RAM_512MB
 
 endmenu
 
-config CONFIG_SAMA5D2_LPDDR2
+config SAMA5D2_LPDDR2
 	bool
-	default y if CONFIG_LPDDR2 && SAMA5D2
+	default y if LPDDR2 && SAMA5D2
 	default n
 
-config	CONFIG_SDRAM_16BIT
+config	SDRAM_16BIT
 	bool "Use 16 bit SDRAM"
 	depends on ALLOW_SDRAM_16BIT
 
-
-config	CONFIG_PSRAM
+config	PSRAM
 	bool "Enable PSRAM on EBI1"
 	depends on ALLOW_PSRAM
 
-
 choice
 	prompt "Flash Memory Technology"
-	default CONFIG_DATAFLASH
+	default DATAFLASH
 	help
 	  Select memory for at91bootstrap
 
-config	CONFIG_DATAFLASH
+config	DATAFLASH
 	bool "Dataflash"
 	depends on ALLOW_DATAFLASH
 
-config	CONFIG_FLASH
+config	FLASH
 	bool "Parallel NOR flash(supported from ROM Code v2.1)"
 	depends on ALLOW_FLASH
 	help
@@ -146,101 +144,101 @@ config	CONFIG_FLASH
 	  to boot from the NOR flash.  Beacause booting from the external
 	  NOR memory is supported in ROM Code v2.1 for SAMA5D3x.
 
-config	CONFIG_NANDFLASH
+config	NANDFLASH
 	bool "NAND flash"
 	depends on ALLOW_NANDFLASH
 
-config	CONFIG_SDCARD
+config	SDCARD
 	bool "SD card"
 	depends on ALLOW_SDCARD
 
 endchoice
 
-config CONFIG_MEMORY
+config MEMORY
 	string
-	default "dataflash"	if CONFIG_DATAFLASH
-	default "flash"		if CONFIG_FLASH
-	default "nandflash"	if CONFIG_NANDFLASH
-	default "sdcard"	if CONFIG_SDCARD
+	default "dataflash"	if DATAFLASH
+	default "flash"		if FLASH
+	default "nandflash"	if NANDFLASH
+	default "sdcard"	if SDCARD
 
 menu  "SD Card Configuration"
-	depends on CONFIG_SDCARD
+	depends on SDCARD
 
-config CONFIG_AT91_MCI
+config AT91_MCI
 	bool
 	depends on CPU_HAS_HSMCI0 || CPU_HAS_HSMCI1 || CPU_HAS_HSMCI2 || CPU_HAS_MCI0 || CPU_HAS_MCI1
 	default y
 
 choice
 	prompt "MultiMedia Card Interface Select"
-	depends on CONFIG_AT91_MCI
-	default CONFIG_AT91_MCI0
+	depends on AT91_MCI
+	default AT91_MCI0
 	help
 	  This interface allow you select which MultiMedia Card Interface is used for the SD Card.
 
-config CONFIG_AT91_MCI0
+config AT91_MCI0
 	bool "On Atmel MCI 0"
 	depends on CPU_HAS_HSMCI0 || CPU_HAS_MCI0
 
-config CONFIG_AT91_MCI1
+config AT91_MCI1
 	bool "On Atmel MCI 1"
 	depends on CPU_HAS_HSMCI1 || CPU_HAS_MCI1
 
-config CONFIG_AT91_MCI2
+config AT91_MCI2
 	bool "On Atmel MCI 2"
 	depends on CPU_HAS_HSMCI2
 
 endchoice
 
-config CONFIG_SDHC
+config SDHC
 	bool
 	depends on CPU_HAS_SDHC0 || CPU_HAS_SDHC1
 	default y
 
 choice
 	prompt "SD Host Controller Select"
-	depends on CONFIG_SDHC
-	default CONFIG_SDHC0
+	depends on SDHC
+	default SDHC0
 	help
 	  This interface allow you select which SD Host Controller for the SD Card.
 
-config CONFIG_SDHC0
+config SDHC0
 	bool "On SDHC0"
 	depends on CPU_HAS_SDHC0
 
-config CONFIG_SDHC1
+config SDHC1
 	bool "On SDHC1"
 	depends on CPU_HAS_SDHC1
 
 endchoice
 
-config CONFIG_SDHC_NODMA
+config SDHC_NODMA
 	bool "Disable DMA mode"
-	depends on CONFIG_SDHC
+	depends on SDHC
 	default n
 	help
 	  Disable SDHC DMA mode, use PIO mode only
 
-config CONFIG_FATFS
+config FATFS
 	bool
-	depends on CONFIG_SDCARD
-	default y if CONFIG_SDCARD
+	depends on SDCARD
+	default y if SDCARD
 
 endmenu
 
-if CONFIG_DATAFLASH
+if DATAFLASH
 	source "driver/Config.in.dataflash"
 endif
 
-if CONFIG_NANDFLASH
+if NANDFLASH
 	source "driver/Config.in.nandflash"
 endif
 
-config CONFIG_BOOTSTRAP_MAXSIZE
+config BOOTSTRAP_MAXSIZE
 	string
 	default "4096" if AT91SAM9260
-	default "8192" if AT91SAM9G10 && CONFIG_SDCARD
-	default "12288" if AT91SAM9G10 && !CONFIG_SDCARD
+	default "8192" if AT91SAM9G10 && SDCARD
+	default "12288" if AT91SAM9G10 && !SDCARD
 	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60
 	default "23000"
 

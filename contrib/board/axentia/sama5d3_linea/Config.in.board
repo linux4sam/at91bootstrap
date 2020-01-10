@@ -1,8 +1,8 @@
-config CONFIG_SAMA5D3_LINEA
+config SAMA5D3_LINEA
 	bool "sama5d3_linea"
 	select SAMA5D3X
-	select CONFIG_DDRC
-	select CONFIG_LPDDR1
+	select DDRC
+	select LPDDR1
 	select ALLOW_NANDFLASH
 	select ALLOW_SDCARD
 	select ALLOW_CPU_CLK_266MHZ

@@ -1,8 +1,8 @@
-config CONFIG_SAMA5D2_LPDDR2SIP_VB
+config SAMA5D2_LPDDR2SIP_VB
 	bool "sama5d2_lpddr2sip_vb"
 	select SAMA5D2
-	select CONFIG_CPU_V7
-	select CONFIG_DDRC
+	select CPU_V7
+	select DDRC
 	select ALLOW_SDCARD
 	select ALLOW_CPU_CLK_498MHZ
 	select ALLOW_CRYSTAL_12_000MHZ

@@ -1,7 +1,7 @@
-config	CONFIG_AT91SAM9XEEK
+config	AT91SAM9XEEK
 	bool "at91sam9xeek"
 	select AT91SAM9XE
-	select CONFIG_SDRAM
+	select SDRAM
 	select ALLOW_DATAFLASH
 	select ALLOW_NANDFLASH
 	select DATAFLASHCARD_ON_CS0

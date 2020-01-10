@@ -10,54 +10,54 @@ source "board/Config.in"
 
 source "driver/Config.in.driver"
 
-config CONFIG_PROJECT
+config PROJECT
 	string
-	default "dataflash"	if CONFIG_DATAFLASH
-	default "flash"		if CONFIG_FLASH
-	default "nandflash"	if CONFIG_NANDFLASH
-	default "sdcard"	if CONFIG_SDCARD
+	default "dataflash"	if DATAFLASH
+	default "flash"		if FLASH
+	default "nandflash"	if NANDFLASH
+	default "sdcard"	if SDCARD
 
 choice
 	prompt "Image Loading Strategy"
-	default CONFIG_LOAD_UBOOT
+	default LOAD_UBOOT
 
-config CONFIG_LOAD_UBOOT
+config LOAD_UBOOT
 	bool "Load U-Boot into last MBYTE of SDRAM"
 	help
 	  Use this mode to load an second level boot monitor
 	  like U-boot into the last MB of SDRAM.
 
-config CONFIG_LOAD_LINUX
-	select CONFIG_LINUX_IMAGE
+config LOAD_LINUX
+	select LINUX_IMAGE
 	bool "Support loading Linux directly"
 	---help---
 	   Load Linux kernel directly from storage media
 
-config CONFIG_LOAD_NONE
+config LOAD_NONE
 	bool "Do not load any image after bootstrap run"
 	help
 	  Do not not load any image after bootstrap run.
 	  Bootstrap will endless loop, use JTAG to load application.
 
-config CONFIG_LOAD_ANDROID
-	select CONFIG_LINUX_IMAGE
+config LOAD_ANDROID
+	select LINUX_IMAGE
 	bool "Support loading Android directly"
 	help
 	   Load Android image directly from storage media
 
-config CONFIG_LOAD_1MB
+config LOAD_1MB
 	bool "Load 1 MB into start of SDRAM"
 	help
 	  Use this mode to load an embedded application
 	  which can have a size of up to 1 MByte
 
-config CONFIG_LOAD_4MB
+config LOAD_4MB
 	bool "Load 4 MB into start of SDRAM"
 	help
 	  Use this mode to load an embedded application
 	  which can have a size of up to 4 MByte
 
-config CONFIG_LOAD_64KB
+config LOAD_64KB
 	bool "Load 64 kB into the start of SDRAM"
 	help
 	  Use this mode to load an embedded application
@@ -65,13 +65,13 @@ config CONFIG_LOAD_64KB
 
 endchoice
 
-config CONFIG_LINUX_IMAGE
-	depends on CONFIG_LOAD_LINUX || CONFIG_LOAD_ANDROID
+config LINUX_IMAGE
+	depends on LOAD_LINUX || LOAD_ANDROID
 	bool
 	help
 	  Select to load linux uImage or zImage to boot
 
-config CONFIG_SKIP_COPY_IMAGE
+config SKIP_COPY_IMAGE
 	bool "Skip copying image from external media"
 	help
 	  In some cases we cannot copy the image from external media
@@ -81,14 +81,13 @@ config CONFIG_SKIP_COPY_IMAGE
 	  image to DRAM. For example it can be copied using the boot
 	  assistant SAM-BA or JTAG.
 
-config CONFIG_BKPT_NOTIFY_DONE
-    depends on CONFIG_LOAD_NONE
-    bool "Build image for use with debuggers"
-    help
-      In order to load code into DRAM from a debugger, a bootstrap is
-      required to configure the clocks, pio, and memory correctly.  Selecting
-      this option builds an image that can be used for this purpose.
-
+config BKPT_NOTIFY_DONE
+	depends on LOAD_NONE
+	bool "Build image for use with debuggers"
+	help
+	  In order to load code into DRAM from a debugger, a bootstrap is
+	  required to configure the clocks, pio, and memory correctly.  Selecting
+	  this option builds an image that can be used for this purpose.
 
 #
 # Kernel Image Storage Setup
@@ -105,43 +104,43 @@ source "Config.in.u-boot"
 #
 source "Config.in.app-image"
 
-config CONFIG_IMAGE_NAME
-	depends on CONFIG_FATFS
+config IMAGE_NAME
+	depends on FATFS
 	string "Image Name"
-	default "Image" if CONFIG_LINUX_IMAGE
-	default "u-boot.bin" if CONFIG_LOAD_UBOOT
-	default "softpack.bin" if CONFIG_LOAD_64KB || CONFIG_LOAD_4MB || CONFIG_LOAD_1MB
-	default "none" if CONFIG_LOAD_NONE
+	default "Image" if LINUX_IMAGE
+	default "u-boot.bin" if LOAD_UBOOT
+	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
+	default "none" if LOAD_NONE
 
-config CONFIG_DEBUG
+config DEBUG
 	bool "Debug Support"
 	default n
 	help
 	  Output Debug messages
 choice
 	prompt "Debug Level"
-	depends on CONFIG_DEBUG
+	depends on DEBUG
 
-config CONFIG_DEBUG_INFO
+config DEBUG_INFO
 	bool "General debug information"
 
-config CONFIG_DEBUG_LOUD
+config DEBUG_LOUD
 	bool "Loud debug output"
 
-config CONFIG_DEBUG_VERY_LOUD
+config DEBUG_VERY_LOUD
 	bool "Even louder debug output"
 
 endchoice
 
 source "Config.in.secure"
 
-config CONFIG_THUMB
+config THUMB
 	depends on !(SAMA5D3X || SAMA5D4)
 	bool "Build in thumb mode"
 	help
 	  Build code in thumb mode
 
-config CONFIG_DISABLE_WATCHDOG
+config DISABLE_WATCHDOG
 	bool "Disable Watchdog"
 	default y
 	help
@@ -149,26 +148,26 @@ config CONFIG_DISABLE_WATCHDOG
 
 menu "Hardware Initialization Options"
 
-config CONFIG_HW_DISPLAY_BANNER
+config HW_DISPLAY_BANNER
 	bool "Display Banner"
 	default y
 	help
 	  Display banner
 
-config CONFIG_HW_BANNER
+config HW_BANNER
 	string "Banner"
 	default "\"\\n\\nAT91Bootstrap \" AT91BOOTSTRAP_VERSION \" (\" COMPILE_TIME \")\\n\\n\""
-	depends on CONFIG_HW_DISPLAY_BANNER
+	depends on HW_DISPLAY_BANNER
 	help
 	  The banner displayed on serial port
 
-config CONFIG_HW_INIT
+config HW_INIT
 	bool "Call Hardware Initialization"
 	default y
 	help
 	  Initialize Hardware
 
-config CONFIG_USER_HW_INIT
+config USER_HW_INIT
 	bool "Call User specific Hardware Initialization"
 	help
 	  Initialize Hardware
@@ -180,23 +179,23 @@ menu "Slow Clock Configuration Options"
 
 choice
 	prompt "Select slow clock configuration profile"
-	default CONFIG_SCLK
+	default SCLK
 	help
 	  Decide which slow clock to use
 
-config CONFIG_SCLK
+config SCLK
 	bool "Use external 32kHz crystal oscillator as source of slow clock"
 	help
 	  Use external 32kHz crystal oscillator as source of slow clock instead
 	  of the embedded 32 khz RC source which typically has a lower accuracy
 	  Both XIN32 and XOUT32 need to be connected to enable the SoC to
 	  drive the crystal oscillator.
-	  Behavior can be changed using CONFIG_SCLK_BYPASS, if this is
+	  Behavior can be changed using SCLK_BYPASS, if this is
 	  supported by the SoC.
-	  If CONFIG_SCLK_BYPASS is unavailable, only a crystal oscillator
+	  If SCLK_BYPASS is unavailable, only a crystal oscillator
 	  can be connected.
 
-config CONFIG_SCLK_INTRC
+config SCLK_INTRC
 	bool "Use internal RC oscillator as a source of slow clock"
 	help
 	  Use internal 32 kHz internal RC oscillator as a source of slow clock.
@@ -205,8 +204,8 @@ config CONFIG_SCLK_INTRC
 
 endchoice
 
-config CONFIG_SCLK_BYPASS
-	depends on CONFIG_SCLK && CPU_HAS_SCLK_BYPASS
+config SCLK_BYPASS
+	depends on SCLK && CPU_HAS_SCLK_BYPASS
 	bool "Use external 32kHz clock signal as source of slow clock"
 	default n
 	help
@@ -222,22 +221,22 @@ endmenu
 menu "ARM TrustZone Options"
 	depends on CPU_HAS_TRUSTZONE
 
-config CONFIG_MATRIX
+config MATRIX
 	bool "Enable Configure the Matrix"
 	default y
 	help
 	  This interface let you to configure the MATRIX0(H64MX) and
 	  MATRIX1(H32MX) slave security  and to select the APB slave security startup.
 
-config CONFIG_ENTER_NWD
-	select CONFIG_MATRIX
+config ENTER_NWD
+	select MATRIX
 	bool "Enable Enter the Normal World before Jumping"
 	default y
 	help
 	  This interface let you to make the system to enter from the Secure World
 	  to the Non-Secure World before the jumping.
 
-config CONFIG_REDIRECT_ALL_INTS_AIC
+config REDIRECT_ALL_INTS_AIC
 	bool "Redirect All Peripherals Interrupts to AIC"
 	default y
 	help
@@ -246,9 +245,9 @@ config CONFIG_REDIRECT_ALL_INTS_AIC
 
 endmenu
 
-config CONFIG_PM
+config PM
 	bool "Power Management Options"
-	depends on CONFIG_SUPPORT_PM
+	depends on SUPPORT_PM
 	default y
 	help
 	  This interface let you select the external devices on the board to
@@ -257,30 +256,30 @@ config CONFIG_PM
 	  which will not be touched in the kernel are set the proper power state.
 
 menu "Select the Devices to the Low-power mode"
-	depends on CONFIG_PM
+	depends on PM
 
-config CONFIG_MAC0_PHY
+config MAC0_PHY
 	bool "MAC0 PHYs"
-	depends on CONFIG_HAS_EHT0_PHY
-	select CONFIG_MACB
+	depends on HAS_EHT0_PHY
+	select MACB
 	default y
 	help
 	  This interface allow you to select the MAC0 PHY on the board
 	  which will be put into the Power-Down mode.
 
-config CONFIG_MAC1_PHY
+config MAC1_PHY
 	bool "MAC1 PHYs"
-	depends on CONFIG_HAS_EHT1_PHY
-	select CONFIG_MACB
+	depends on HAS_EHT1_PHY
+	select MACB
 	default y
 	help
 	  This interface allow you to select the MAC1 PHY on the board
 	  which will be put into the Power-Down mode.
 
-config CONFIG_HDMI
+config HDMI
 	bool "HDMI (SiI9022)"
-	depends on CONFIG_HAS_HDMI
-	select CONFIG_TWI
+	depends on HAS_HDMI
+	select TWI
 	default y
 	help
 	  This interface allow you to select the HDMI chip on the board
@@ -288,37 +287,37 @@ config CONFIG_HDMI
 
 choice
 	prompt "HDMI on TWI Select"
-	depends on CONFIG_HDMI && !CONFIG_AUTOCONFIG_TWI_BUS
-	default CONFIG_HDMI_ON_TWI0
+	depends on HDMI && !AUTOTWI_BUS
+	default HDMI_ON_TWI0
 	help
 	  This interface allow you select which TWI bus for the HDMI to wire on.
 
-config	CONFIG_HDMI_ON_TWI0
+config	HDMI_ON_TWI0
 	bool "On TWI0"
 	depends on CPU_HAS_TWI0
-	select CONFIG_TWI0
+	select TWI0
 
-config	CONFIG_HDMI_ON_TWI1
+config	HDMI_ON_TWI1
 	bool "On TWI1"
 	depends on CPU_HAS_TWI1
-	select CONFIG_TWI1
+	select TWI1
 
-config	CONFIG_HDMI_ON_TWI2
+config	HDMI_ON_TWI2
 	bool "On TWI2"
 	depends on CPU_HAS_TWI2
-	select CONFIG_TWI2
+	select TWI2
 
-config	CONFIG_HDMI_ON_TWI3
+config	HDMI_ON_TWI3
 	bool "On TWI3"
 	depends on CPU_HAS_TWI3
-	select CONFIG_TWI3
+	select TWI3
 
 endchoice
 
-config CONFIG_WM8904
+config WM8904
 	bool "Audio CODEC (wm8904)"
-	depends on CONFIG_HAS_AUDIO_CODEC
-	select CONFIG_TWI
+	depends on HAS_AUDIO_CODEC
+	select TWI
 	default y
 	help
 	  This interface allow you to select the CODEC chip on the board
@@ -326,37 +325,37 @@ config CONFIG_WM8904
 
 choice
 	prompt "CODEC on TWI Select"
-	depends on CONFIG_WM8904 && !CONFIG_AUTOCONFIG_TWI_BUS
-	default CONFIG_CODEC_ON_TWI0
+	depends on WM8904 && !AUTOTWI_BUS
+	default CODEC_ON_TWI0
 	help
 	  This interface allow you select which TWI bus for the CODEC to wire on.
 
-config	CONFIG_CODEC_ON_TWI0
+config	CODEC_ON_TWI0
 	bool "On TWI0"
 	depends on CPU_HAS_TWI0
-	select CONFIG_TWI0
+	select TWI0
 
-config	CONFIG_CODEC_ON_TWI1
+config	CODEC_ON_TWI1
 	bool "On TWI1"
 	depends on CPU_HAS_TWI1
-	select CONFIG_TWI1
+	select TWI1
 
-config	CONFIG_CODEC_ON_TWI2
+config	CODEC_ON_TWI2
 	bool "On TWI2"
 	depends on CPU_HAS_TWI2
-	select CONFIG_TWI2
+	select TWI2
 
-config	CONFIG_CODEC_ON_TWI3
+config	CODEC_ON_TWI3
 	bool "On TWI3"
 	depends on CPU_HAS_TWI3
-	select CONFIG_TWI3
+	select TWI3
 
 endchoice
 
-config CONFIG_PM_PMIC
+config PM_PMIC
 	bool "PMIC (ACT8865)"
-	depends on CONFIG_HAS_PMIC_ACT8865
-	select CONFIG_ACT8865
+	depends on HAS_PMIC_ACT8865
+	select ACT8865
 	default y
 	help
 	  This interface allow you to select the PMIC(ACT8865) chip on the board
@@ -364,7 +363,7 @@ config CONFIG_PM_PMIC
 
 endmenu
 
-config CONFIG_BACKUP_MODE
+config BACKUP_MODE
 	bool "Enable Backup Mode"
 	default n
 	help
@@ -374,29 +373,29 @@ config CONFIG_BACKUP_MODE
 
 
 menu "Board's Workaround Options"
-	depends on CONFIG_HAS_PMIC_ACT8865
+	depends on HAS_PMIC_ACT8865
 
-config CONFIG_ACT8865_SET_VOLTAGE
+config ACT8865_SET_VOLTAGE
 	bool "Set ACT8865 Initial Output Voltage"
-	select CONFIG_ACT8865
+	select ACT8865
 	default n
 	help
 	  This interface let you to set the ACT8865 initial output value
 
-config CONFIG_DISABLE_ACT8865_I2C
+config DISABLE_ACT8865_I2C
 	bool "Disable the ACT8865 I2C interface"
-	depends on CONFIG_HAS_PMIC_ACT8865
-	select CONFIG_ACT8865
-	select CONFIG_ACT8865_SET_VOLTAGE
+	depends on HAS_PMIC_ACT8865
+	select ACT8865
+	select ACT8865_SET_VOLTAGE
 	default y
 	help
 	  This interface let you to disable the ACT8865's I2C interface.
 	  There are some issue about active-semi ACT8865's I2C interface,
 	  which affects the other chip which stands on the same I2C bus, such as MXT touchscreen.
 
-config CONFIG_SUSPEND_ACT8945A_CHARGER
+config SUSPEND_ACT8945A_CHARGER
 	bool "Suspend ACT8945A Charger"
-	select CONFIG_ACT8865
+	select ACT8865
 	default n
 	help
 	  This interface let you to suspend the ACT8945A charger
@@ -404,99 +403,99 @@ config CONFIG_SUSPEND_ACT8945A_CHARGER
 
 endmenu
 
-config CONFIG_ACT8865
+config ACT8865
 	bool "PMIC (ACT8865) Support"
-	depends on CONFIG_HAS_PMIC_ACT8865
-	select CONFIG_TWI
+	depends on HAS_PMIC_ACT8865
+	select TWI
 	default n
 
 choice
 	prompt "PMIC (ACT8865) on TWI Select"
-	depends on CONFIG_ACT8865 && !CONFIG_AUTOCONFIG_TWI_BUS
-	default CONFIG_PMIC_ON_TWI0
+	depends on ACT8865 && !AUTOTWI_BUS
+	default PMIC_ON_TWI0
 	help
 	  This interface allow you select which TWI bus for the PMIC to wire on.
 
-config	CONFIG_PMIC_ON_TWI0
+config	PMIC_ON_TWI0
 	bool "On TWI0"
 	depends on CPU_HAS_TWI0
-	select CONFIG_TWI0
+	select TWI0
 
-config	CONFIG_PMIC_ON_TWI1
+config	PMIC_ON_TWI1
 	bool "On TWI1"
 	depends on CPU_HAS_TWI1
-	select CONFIG_TWI1
+	select TWI1
 
-config	CONFIG_PMIC_ON_TWI2
+config	PMIC_ON_TWI2
 	bool "On TWI2"
 	depends on CPU_HAS_TWI2
-	select CONFIG_TWI2
+	select TWI2
 
-config	CONFIG_PMIC_ON_TWI3
+config	PMIC_ON_TWI3
 	bool "On TWI3"
 	depends on CPU_HAS_TWI2
-	select CONFIG_TWI3
+	select TWI3
 
 endchoice
 
 menu "Board Hardware Information Options"
-	depends on CONFIG_HAS_HW_INFO
+	depends on HAS_HW_INFO
 
-config CONFIG_LOAD_ONE_WIRE
+config LOAD_ONE_WIRE
 	bool "Load Information from 1-Wire"
-	depends on CONFIG_HAS_ONE_WIRE
-	select CONFIG_LOAD_HW_INFO
+	depends on HAS_ONE_WIRE
+	select LOAD_HW_INFO
 	default y
 	help
 	  This interface allow you to select hardware information from 1-Wire chips.
 
-config CONFIG_LOAD_EEPROM
+config LOAD_EEPROM
 	bool "Load Information from EEPROM"
-	depends on CONFIG_HAS_EEPROM
-	select CONFIG_TWI
-	select CONFIG_LOAD_HW_INFO
+	depends on HAS_EEPROM
+	select TWI
+	select LOAD_HW_INFO
 	default y
 	help
 	  This interface allow you to select hardware information from EEPROM chips.
 
 choice
 	prompt "EEPROM on TWI Select"
-	depends on CONFIG_LOAD_EEPROM && !CONFIG_AUTOCONFIG_TWI_BUS
-	default CONFIG_EEPROM_ON_TWI0
+	depends on LOAD_EEPROM && !AUTOTWI_BUS
+	default EEPROM_ON_TWI0
 	help
 	  This interface allow you select which TWI bus for the EEPROM to wire on.
 
-config	CONFIG_EEPROM_ON_TWI0
+config	EEPROM_ON_TWI0
 	bool "On TWI0"
 	depends on CPU_HAS_TWI0 || CPU_HAS_FLEXCOM
-	select CONFIG_TWI0
+	select TWI0
 
-config	CONFIG_EEPROM_ON_TWI1
+config	EEPROM_ON_TWI1
 	bool "On TWI1"
 	depends on CPU_HAS_TWI1 || CPU_HAS_FLEXCOM
-	select CONFIG_TWI1
+	select TWI1
 
-config	CONFIG_EEPROM_ON_TWI2
+config	EEPROM_ON_TWI2
 	bool "On TWI2"
 	depends on CPU_HAS_TWI2 || CPU_HAS_FLEXCOM
-	select CONFIG_TWI2
+	select TWI2
 
-config	CONFIG_EEPROM_ON_TWI3
+config	EEPROM_ON_TWI3
 	bool "On TWI3"
 	depends on CPU_HAS_TWI3 || CPU_HAS_FLEXCOM
-	select CONFIG_TWI3
+	select TWI3
 
 endchoice
 
 endmenu
 
-config CONFIG_AUTOCONFIG_TWI_BUS
+config AUTOTWI_BUS
 	bool "Auto Configure TWI Bus by Board"
-	depends on CONFIG_TWI
-	select CONFIG_TWI0 if CPU_HAS_TWI0 || CPU_HAS_FLEXCOM
-	select CONFIG_TWI1 if CPU_HAS_TWI1 || CPU_HAS_FLEXCOM
-	select CONFIG_TWI2 if CPU_HAS_TWI2 || CPU_HAS_FLEXCOM
-	select CONFIG_TWI3 if CPU_HAS_TWI3 || CPU_HAS_FLEXCOM
+	depends on TWI
+	select TWI0 if CPU_HAS_TWI0 || CPU_HAS_FLEXCOM
+	select TWI1 if CPU_HAS_TWI1 || CPU_HAS_FLEXCOM
+	select TWI2 if CPU_HAS_TWI2 || CPU_HAS_FLEXCOM
+	select TWI3 if CPU_HAS_TWI3 || CPU_HAS_FLEXCOM
 	default y
 	help
 	  This interface allow the board determines  which TWI bus that
@@ -505,7 +504,7 @@ config CONFIG_AUTOCONFIG_TWI_BUS
 
 menu "Basic Drivers support"
 
-config CONFIG_PIT
+config PIT
 	bool "Programmable interrupt timer support"
 	default y
 	help
@@ -513,49 +512,49 @@ config CONFIG_PIT
 
 choice
 	prompt "Watchdog timer controller selection"
-	default CONFIG_WDT
+	default WDT
 
-config CONFIG_WDT
+config WDT
 	bool "Watchdog timer support"
 	depends on !CPU_HAS_WDT2
 	help
 	  Watchdog timer support
 
-config CONFIG_WDT2
+config WDT2
 	bool "Watchdog timer 2 support"
 	depends on CPU_HAS_WDT2
 	help
 	  Watchdog timer 2 support. This is a newer version of the old
-	  watchdog timer (CONFIG_WDT). Only one of them is present in each
+	  watchdog timer (WDT). Only one of them is present in each
 	  product.
 
 endchoice
 
-config CONFIG_RSTC
+config RSTC
 	bool "Reset controller support"
 	default y
 	help
 	  Reset controller support
 
-config CONFIG_USART
+config USART
 	bool "Serial controller support"
 	default y
 	help
 	  Serial controller support
 
-config CONFIG_PIO
+config PIO
 	bool "Programmable I/O support"
 	default y
 	help
 	  Programmable I/O support
 
-config CONFIG_PMC_COMMON
+config PMC_COMMON
 	bool "Common support for power management controller"
 	default y
 	help
 	  Common support for power management controller
 
-config CONFIG_PMC_V1
+config PMC_V1
 	bool "Power management controller support for first version"
 	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
 		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
@@ -564,14 +563,14 @@ config CONFIG_PMC_V1
 	help
 	  Enable power management controller support for first version
 
-config CONFIG_PMC_V2
+config PMC_V2
 	bool "Peripheral management controller support for second version"
 	depends on SAM9X60
 	default y
 	help
 	  Enable power management controller support for second version
 
-config CONFIG_PMC_PERIPH_CLK_AT91SAM9
+config PMC_PERIPH_CLK_AT91SAM9
 	bool "PMC peripheral clock control for AT91SAM9 SoCs"
 	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
 		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9RL
@@ -579,7 +578,7 @@ config CONFIG_PMC_PERIPH_CLK_AT91SAM9
 	help
 	  Enable peripheral clock for AT91SAM9 related SoCs
 
-config CONFIG_PMC_PERIPH_CLK_SAM9X5
+config PMC_PERIPH_CLK_SAM9X5
 	bool "PMC peripheral clock control for SAM9X5 SoCs and above"
 	depends on AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X || SAMA5D4 || \
 		SAMA5D2 || SAM9X60
@@ -587,14 +586,14 @@ config CONFIG_PMC_PERIPH_CLK_SAM9X5
 	help
 	  Enable peripheral clock control for SAM9X5 SoCs and above
 
-config CONFIG_PMC_GENERIC_CLK
+config PMC_GENERIC_CLK
 	bool "PMC generic clock control support"
 	depends on SAMA5D2 || SAM9X60
 	default y
 	help
 	   Enable generic clock control support
 
-config CONFIG_PMC_UTMI_CLK
+config PMC_UTMI_CLK
 	bool "PMC UTMI clock control support"
 	depends on AT91SAM9X5 || AT91SAM9G45 || AT91SAM9RL || SAMA5D3X || \
 		SAMA5D4 || SAMA5D2
@@ -602,7 +601,7 @@ config CONFIG_PMC_UTMI_CLK
 	help
 	  Enable PMC UTMI clock control
 
-config CONFIG_PMC_PLL_CLK
+config PMC_PLL_CLK
 	bool "PMC PLL clock control support"
 	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
 		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
@@ -611,7 +610,7 @@ config CONFIG_PMC_PLL_CLK
 	help
 	  Enable PMC PLL clock control
 
-config CONFIG_PMC_PLL_CLK_SAM9X60
+config PMC_PLL_CLK_SAM9X60
 	bool "PMC PLL clock control support for SAM9X60 SoCs"
 	depends on SAM9X60
 	default y
