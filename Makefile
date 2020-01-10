@@ -12,7 +12,7 @@ MAKEFLAGS += -rR --no-print-directory
 
 TOPDIR:=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
-CONFIG_CONFIG_IN=Config.in
+CONFIG_CONFIG_IN=Kconfig
 CONFIG_DEFCONFIG=.defconfig
 CONFIG=config
 
