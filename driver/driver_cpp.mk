@@ -42,6 +42,12 @@ ifeq ($(CONFIG_DDR3),y)
 CPPFLAGS += -DCONFIG_DDR3
 endif
 
+ifeq ($(CONFIG_MEM_CLOCK_533), y)
+CPPFLAGS += -DCONFIG_MEM_CLOCK=533
+else
+CPPFLAGS += -DCONFIG_MEM_CLOCK=1
+endif
+
 # Support for PSRAM on SAM9263EK EBI1
 
 ifeq ($(CONFIG_PSRAM),y)

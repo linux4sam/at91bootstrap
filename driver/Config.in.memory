@@ -123,6 +123,17 @@ config CONFIG_MEM_SIZE
 	default "0x10000000" if CONFIG_RAM_256MB
 	default "0x20000000" if CONFIG_RAM_512MB
 
+choice
+	prompt "Extern Memory Clock"
+	depends on CONFIG_UMCTL2
+	default CONFIG_MEM_CLOCK_533
+
+config CONFIG_MEM_CLOCK_533
+	depends on CONFIG_UMCTL2
+	bool "533 MHz Ram Clock"
+
+endchoice
+
 endmenu
 
 config CONFIG_SAMA5D2_LPDDR2
