@@ -260,7 +260,7 @@ static int parse_alt_board_hw_info(unsigned char *buff,
 	hw_info_alt_map_t *p = (hw_info_alt_map_t *)buff;
 
 	if (p->size_byte != 0x41) {
-		dbg_info("%s: Size of byte is incorrect\n");
+		dbg_info("%s: Size of byte is incorrect\n", __func__);
 		return -1;
 	}
 
