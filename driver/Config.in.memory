@@ -24,6 +24,12 @@ config CONFIG_UMCTL2
 	help
 	  Initialize DDR Synopsys controller before copying
 
+config CONFIG_PUBL
+	bool
+	default n
+	help
+	  Initialize DDR Synopsys PUBL (Phy Utility Block Lite)
+
 config	ALLOW_DATAFLASH
 	bool
 	default n
