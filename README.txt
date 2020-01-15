@@ -1,6 +1,6 @@
 # AT91Bootstrap Project
 
-AT91Bootstrap is the 2nd level bootloader for Atmel SMART microprocessors (aka AT91).
+AT91Bootstrap is the 2nd level bootloader for Microchip microprocessors (aka AT91).
 It providing a set of algorithms to manage the hardware initialization such as
 clock speed configuration, PIO settings, DRAM initialization, to download your
 main application from specified boot media: NAND FLASH, serial FLASH (both
