@@ -11,12 +11,18 @@ lkc_defs.h
 gconf.glade.h
 *.pot
 *.mo
+.depend
 
 #
 # configuration programs
 #
 conf
+conf.exe
 mconf
+mconf.exe
 qconf
+qconf.exe
 gconf
+gconf.exe
 kxgettext
+kxgettext.exe
