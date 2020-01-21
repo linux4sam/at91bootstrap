@@ -37,6 +37,8 @@
 #include "gpio.h"
 #include "pmc.h"
 #include "sama7g5ek.h"
+#include "publ.h"
+#include "umctl2.h"
 
 static void ca7_enable_smp()
 {
@@ -87,6 +89,97 @@ unsigned int at91_flexcom3_init(void)
 }
 #endif
 
+static struct umctl2_config_state umctl2_config;
+
+static void umctl2_config_state_init()
+{
+	/* enable 5 AXI ports */
+	umctl2_config.axi_port_bitmap = MP_AXI_PORT_ENABLE(0) |
+					MP_AXI_PORT_ENABLE(1) |
+					MP_AXI_PORT_ENABLE(2) |
+					MP_AXI_PORT_ENABLE(3) |
+					MP_AXI_PORT_ENABLE(4);
+
+	/* port 0 configuration : CPU port */
+		/* region 0 is ArQOS 0x0 to 0x8; */
+		/* region 1 is ArQOS 0x9 to 0xF; */
+	umctl2_config.port_x_read_region0_last[0] = 0x3;
+		/* region 2 doesn't exist (single queue port) */
+	umctl2_config.port_x_read_region1_last[0] = 0xE;
+		/* region 0 is AwQOS 0x0 to 0xF; */
+	umctl2_config.port_x_write_region0_last[0] = 0x3;
+	umctl2_config.port_x_write_region1_last[0] = 0xE;
+
+	/* port 1 configuration : AHB port */
+		/* region 0 is ArQOS 0x0 to 0x8; */
+		/* region 1 is ArQOS 0x9 to 0xF; */
+	umctl2_config.port_x_read_region0_last[1] = 0x3;
+		/* region 2 doesn't exist (single queue port) */
+	umctl2_config.port_x_read_region1_last[1] = 0xE;
+		/* region 0 is AwQOS 0x0 to 0xF; */
+	umctl2_config.port_x_write_region0_last[1] = 0x3;
+	umctl2_config.port_x_write_region1_last[1] = 0xE;
+
+	/* port 2 configuration : PSS port XDMAC0,1+... */
+		/* region 0 is ArQOS 0x0 to 0x3; */
+		/* region 1 is ArQOS 0x3 to 0x8; */
+	umctl2_config.port_x_read_region0_last[2] = 0x3;
+		/* region 2 is ArQOS 0x8 to 0xF */
+	umctl2_config.port_x_read_region1_last[2] = 0x8;
+		/* region 0 is AwQOS 0x0 to 0xF; */
+	umctl2_config.port_x_write_region0_last[2] = 0x3;
+	umctl2_config.port_x_write_region1_last[2] = 0xE;
+
+	umctl2_config.port_x_rdwr_ordered_en = 0x0;
+
+	/* port 4 configuration : MSS port SD+GMAC+... */
+		/* region 0 is ArQOS 0x0 to 0x8; */
+		/* region 1 is ArQOS 0x9 to 0xF; */
+	umctl2_config.port_x_read_region0_last[4] = 0x3;
+		/* region 2 doesn't exist (single queue port) */
+	umctl2_config.port_x_read_region1_last[4] = 0xE;
+		/* region 0 is AwQOS 0x0 to 0xF; */
+	umctl2_config.port_x_write_region0_last[4] = 0x3;
+	umctl2_config.port_x_write_region1_last[4] = 0xE;
+
+	/* configure 16 entries from 32 as low priority. other 16 will be high */
+	/* MEMC_NO_OF_ENTRY is total number. synthesised as 32 */
+	umctl2_config.lpr_num_entries = 16;
+
+	/* configure time queues can be unserved until going critical; DFI clocks */
+	umctl2_config.lpr_max_starve = 0x1FF;
+	umctl2_config.hpr_max_starve = 0x1F;
+	umctl2_config.w_max_starve = 0x7F;
+
+	/* configure how long queues should run after going critical; number of transactions */
+	umctl2_config.lpr_xact_run_length = 0xF;
+	umctl2_config.hpr_xact_run_length = 0xF;
+	umctl2_config.w_xact_run_length = 0xF;
+
+	/* wait 3 cycles and then go to alternate store if it's non empty */
+	/* for now go immediately to alternate store */
+	umctl2_config.rdwr_idle_gap = 0;
+
+	/* prefer the read transaction store. */
+	umctl2_config.prefer_write = 0;
+
+	/* enable pageclose mechanism */
+	umctl2_config.pageclose = 0;
+	umctl2_config.pageclose_timer = 0x27;
+
+	/* disable auto-precharge for flushed command in collision case */
+	umctl2_config.dis_collision_page_opt = 0;
+
+	/* do not disable write combine */
+	umctl2_config.dis_wc = 0;
+
+	/* Use PUBL as PHY */
+	umctl2_config.phy_init = &publ_init;
+	umctl2_config.phy_idone = &publ_idone;
+	umctl2_config.phy_start = &publ_start;
+	umctl2_config.phy_train = &publ_train;
+}
+
 void hw_init(void)
 {
 	board_flexcoms_init();
@@ -97,4 +190,12 @@ void hw_init(void)
 	usart_puts("hardware init CA7\n");
 
 	ca7_enable_smp();
+
+	umctl2_config_state_init();
+
+	if (umctl2_init(&umctl2_config)) {
+		dbg_info("UMCTL2: Error initializing\n");
+	} else {
+		dbg_info("UMCTL2: Initialization complete.\n");
+	}
 }
