@@ -109,7 +109,7 @@ endmenu
 
 choice
 	prompt "Chip Select"
-	default CONFIG_SPI_CS0
+	default CONFIG_SPI_BOOT_CS0
 	help
 	  Determine which SPI chip select is to be used
 
