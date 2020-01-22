@@ -94,9 +94,4 @@ config USE_ON_DIE_ECC_SUPPORT
 	bool "Support to use NAND flash On-Die ECC"
 	default y
 
-
-config ALLOW_NANDFLASH_RECOVERY
-	bool
-	default	n
-
 endmenu

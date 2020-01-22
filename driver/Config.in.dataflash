@@ -131,22 +131,6 @@ config	SPI_BOOT_CS3
 
 endchoice
 
-config	ALLOW_BOOT_FROM_DATAFLASH_CS0
-	bool
-	default n
-
-config	ALLOW_BOOT_FROM_DATAFLASH_CS1
-	bool
-	default n
-
-config	ALLOW_BOOT_FROM_DATAFLASH_CS2
-	bool
-	default n
-
-config	ALLOW_BOOT_FROM_DATAFLASH_CS3
-	bool
-	default n
-
 config DATAFLASHCARD_ON_CS0
 	bool
 	default n
