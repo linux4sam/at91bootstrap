@@ -259,9 +259,29 @@ if DATAFLASH
 	source "driver/Config.in.dataflash"
 endif
 
+config  ALLOW_BOOT_FROM_DATAFLASH_CS0
+	bool
+	default n
+
+config  ALLOW_BOOT_FROM_DATAFLASH_CS1
+	bool
+	default n
+
+config  ALLOW_BOOT_FROM_DATAFLASH_CS2
+	bool
+	default n
+
+config  ALLOW_BOOT_FROM_DATAFLASH_CS3
+	bool
+	default n
+
 if NANDFLASH
 	source "driver/Config.in.nandflash"
 endif
+
+config ALLOW_NANDFLASH_RECOVERY
+	bool
+	default n
 
 config BOOTSTRAP_MAXSIZE
 	string
