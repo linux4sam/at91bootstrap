@@ -175,9 +175,6 @@
 #define AT91C_NUM_TWI		0
 #define	AT91C_NUM_FLEXCOM	13
 
-#define PLL_ID_PLLA 0
-#define PLL_ID_UPLL 1
-
 /*
  * SoC specific defines
  */

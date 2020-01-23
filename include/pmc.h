@@ -38,6 +38,15 @@
 #define GCK_CSS_MCK_CLK		0x04
 #define GCK_CSS_AUDIO_CLK	0x05
 
+enum pll_ids {
+	PLL_ID_PLLA,
+	PLL_ID_UPLL,
+	#ifdef SAMA5D2
+	PLL_ID_AUDIO,
+	#endif
+	PLL_ID_MAX,
+};
+
 struct pmc_pll_cfg {
 	unsigned int mul;	/* PLLA MUL value */
 	unsigned int div;	/* PLLA DIV value */
