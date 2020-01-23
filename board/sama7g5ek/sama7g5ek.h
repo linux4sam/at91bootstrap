@@ -47,4 +47,22 @@
 #define CONFIG_SYS_BASE_UMCTL2		AT91C_BASE_UMCTL2
 #define CONFIG_SYS_BASE_UMCTL2_MP	AT91C_BASE_UMCTL2_MP
 
+#define _tRFC		350UL		/* Refresh to Refresh, ns */
+#define _tREFI		7800UL		/* Refresh Intervals, ns */
+#define _tWR		15UL		/* Write Recovery, ns */
+#define _tRP		14UL		/* Row Precharge command, ns */
+#define _tRP_ps		13125UL		/* Row Precharge command, ps */
+#define _tRCD		14UL		/* Row to Column delay, ns */
+#define _tRCD_ps	13125UL		/* Row to Column delay, ps */
+#define _tRAS		45UL		/* Row Active Strobe, ns */
+#define _tRASMAX	70000UL		/* RAS max, ns */
+#define _tRC_ps		50625UL		/* Row Cycle, ps */
+#define _tFAW		50UL		/* Four Activation Window, ns */
+#define _tPRECKE	500000UL
+#define _CL		7UL		/* CAS Latency, Clock cycles */
+#define _CWL		6UL		/* CAS Write Latency, Clock cycles */
+#define _AL		0UL		/* Additive Latency, Clock cycles */
+#define _TZQOPER	256UL		/* TZQ Long Calibration, Clock cycles */
+#define _TZQCS		64UL		/* TZQ Short Calibration, Clock cycles */
+
 #endif
