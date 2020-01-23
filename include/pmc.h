@@ -55,16 +55,16 @@ enum pll_ids {
 };
 
 struct pmc_pll_cfg {
-	unsigned int mul;	/* PLLA MUL value */
-	unsigned int div;	/* PLLA DIV value */
-	unsigned int count;	/* PLLA COUNT value */
+	unsigned int mul;	/* PLL MUL value */
+	unsigned int div;	/* PLL DIV value */
+	unsigned int count;	/* PLL COUNT value */
 	unsigned int fracr;
 	unsigned int loop_filter;
 };
 
 extern void pmc_init_pll(unsigned int pmc_pllicpr);
 extern int pmc_cfg_plla(unsigned int pmc_pllar);
-extern void pmc_sam9x60_cfg_pll(unsigned int pll_id, struct pmc_pll_cfg *plla);
+extern void pmc_sam9x60_cfg_pll(unsigned int pll_id, struct pmc_pll_cfg *cfg);
 extern unsigned int pmc_get_pll_freq(unsigned int pll_id);
 
 extern int pmc_cfg_mck(unsigned int pmc_mckr);
