@@ -32,6 +32,8 @@
 #include "pmc-v1.h"
 #elif defined(CONFIG_PMC_V2)
 #include "pmc-v2.h"
+#elif defined(CONFIG_PMC_V3)
+#include "pmc-v3.h"
 #else
 #error "Invalid PMC version"
 #endif

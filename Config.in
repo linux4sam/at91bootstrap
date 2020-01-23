@@ -598,10 +598,17 @@ config CONFIG_PMC_V1
 
 config CONFIG_PMC_V2
 	bool "Peripheral management controller support for second version"
-	depends on SAM9X60 || SAMA7G5
+	depends on SAM9X60
 	default y
 	help
 	  Enable power management controller support for second version
+
+config CONFIG_PMC_V3
+	bool "Peripheral management controller support for third version"
+	depends on SAMA7G5
+	default y
+	help
+	  Enable power management controller support for third version
 
 config CONFIG_PMC_PERIPH_CLK_AT91SAM9
 	bool "PMC peripheral clock control for AT91SAM9 SoCs"
