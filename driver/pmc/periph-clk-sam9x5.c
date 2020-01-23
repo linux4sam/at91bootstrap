@@ -24,7 +24,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "board.h"
-#include "common.h"
+#include "clk-common.h"
 #include "arch/at91_pmc/pmc.h"
 
 int pmc_enable_periph_clock(unsigned int periph_id)

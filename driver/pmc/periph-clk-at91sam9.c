@@ -24,6 +24,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "board.h"
+#include "clk-common.h"
 #include "common.h"
 
 #define PMC_PCER	0x10	/* Peripheral Clock Enable Register  (0:31 PERI_ID) */

@@ -24,6 +24,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "board.h"
+#include "clk-common.h"
 #include "common.h"
 #include "div.h"
 #include "arch/at91_pmc/pmc.h"
