@@ -656,5 +656,15 @@ config CONFIG_PMC_PLL_CLK_SAM9X60
 	default y
 	help
 	  Enable PMC PLL clock control for SAM9X60 SoCs
+
+config CONFIG_PMC_MCK_CLK
+	bool "PMC master clock support"
+	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
+		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
+		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2 || \
+		SAM9X60
+	default y
+	help
+	  Enable PMC master clock support
 endmenu
 

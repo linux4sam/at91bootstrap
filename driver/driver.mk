@@ -17,6 +17,7 @@ COBJS-$(CONFIG_PMC_GENERIC_CLK)	+= $(DRIVERS_SRC)/pmc/generic-clk.o
 COBJS-$(CONFIG_PMC_UTMI_CLK)	+= $(DRIVERS_SRC)/pmc/utmi-clk.o
 COBJS-$(CONFIG_PMC_PLL_CLK)	+= $(DRIVERS_SRC)/pmc/pll-clk.o
 COBJS-$(CONFIG_PMC_PLL_CLK_SAM9X60)	+= $(DRIVERS_SRC)/pmc/pll-clk-sam9x60.o
+COBJS-$(CONFIG_PMC_MCK_CLK)	+= $(DRIVERS_SRC)/pmc/master-clk.o
 COBJS-$(CONFIG_PIT)		+= $(DRIVERS_SRC)/at91_pit.o
 COBJS-$(CONFIG_WDT)		+= $(DRIVERS_SRC)/at91_wdt.o
 COBJS-$(CONFIG_WDT2)		+= $(DRIVERS_SRC)/at91_wdt2.o
