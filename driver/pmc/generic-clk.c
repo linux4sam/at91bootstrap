@@ -129,11 +129,11 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 		break;
 #if defined(CONFIG_PMC_PLL_CLK) || defined(CONFIG_PMC_PLL_CLK_SAM9X60)
 	case AT91C_PMC_GCKCSS_PLLA_CLK:
-		freq = pmc_get_plla_freq();
+	case AT91C_PMC_GCKCSS_UPLL_CLK:
+		tmp = (clock_source - AT91C_PMC_GCKCSS_PLLA_CLK) >> 8;
+		freq = pmc_get_pll_freq(tmp);
 		break;
 #endif
-	case AT91C_PMC_GCKCSS_UPLL_CLK:
-		freq = 480000000;
 		break;
 	case AT91C_PMC_GCKCSS_MCK_CLK:
 		freq = MASTER_CLOCK;

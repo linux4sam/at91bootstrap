@@ -94,20 +94,29 @@ void pmc_sam9x60_cfg_pll(unsigned int pll_id,  struct pmc_pll_cfg *cfg)
 	config[pll_id] = *(struct pmc_pll_cfg *) cfg;
 }
 
-unsigned int pmc_get_plla_freq(void)
+unsigned int pmc_get_pll_freq(unsigned int pll_id)
 {
-	unsigned int freq, core_freq, parent;
+	unsigned int freq, core_freq, divider, parent_rate = 0;
 
+	switch (pll_id) {
+	case PLL_ID_PLLA:
+		parent_rate = pmc_mainck_get_rate();
+		divider = config[PLL_ID_PLLA].div + 1;
+		break;
 #ifdef BOARD_MAINOSC
-	parent = BOARD_MAINOSC;
-#else
-	return 0;
+	case PLL_ID_UPLL:
+		parent_rate = BOARD_MAINOSC;
+		divider = 2;
+		break;
 #endif
+	default:
+		return 0;
+	}
 
-	core_freq = parent * (config[PLL_ID_PLLA].mul + 1 +
-			      (config[PLL_ID_PLLA].fracr >> 22));
+	core_freq = parent_rate * (config[PLL_ID_PLLA].mul + 1 +
+				   (config[PLL_ID_PLLA].fracr >> 22));
 
-	freq = div(core_freq, (config[PLL_ID_PLLA].div + 1));
+	freq = div(core_freq, divider);
 
 	return freq;
 }

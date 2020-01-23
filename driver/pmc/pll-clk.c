@@ -27,6 +27,7 @@
 #include "clk-common.h"
 #include "common.h"
 #include "div.h"
+#include "pmc.h"
 #include "arch/at91_pmc/pmc.h"
 
 void pmc_init_pll(unsigned int pmc_pllicpr)
@@ -46,25 +47,39 @@ int pmc_cfg_plla(unsigned int pmc_pllar)
 	return 0;
 }
 
-unsigned int pmc_get_plla_freq(void)
+unsigned int pmc_get_pll_freq(unsigned int pll_id)
 {
 	unsigned int tmp;
 	unsigned int divider, multiplier;
-	unsigned int main_clock;
+	unsigned int parent_rate = 0;
 	unsigned int freq;
 
-#ifdef BOARD_MAINOSC
-	main_clock = BOARD_MAINOSC;
-#else
-	return 0;
+	switch (pll_id) {
+	case PLL_ID_PLLA:
+		parent_rate = pmc_mainck_get_rate();
+		break;
+	case PLL_ID_UPLL:
+#ifdef AT91SAM9N12
+		parent_rate = pmc_mainck_get_rate();
+#elif BOARD_MAINOSC
+		parent_rate = BOARD_MAINOSC;
 #endif
+		break;
+#if defined(SAMA5D2) && defined(BOARD_MAINOSC)
+	case PLL_ID_AUDIO:
+		parent_rate = BOARD_MAINOSC;
+		break;
+#endif
+	default:
+		break;
+	}
 
 	tmp = read_pmc(PMC_PLLAR);
 	divider = tmp & AT91C_CKGR_DIVA_MSK;
 	multiplier = (tmp >> AT91C_CKGR_ALT_MULA_OFFSET) &
 		     AT91C_CKGR_ALT_MULA_MSK;
 	if (divider && multiplier) {
-		freq = div(main_clock, divider);
+		freq = div(parent_rate, divider);
 		freq *= multiplier + 1;
 
 		if (read_pmc(PMC_MCKR) & AT91C_PMC_PLLADIV2)
