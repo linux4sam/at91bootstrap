@@ -32,7 +32,7 @@
 #define AT91C_SLCKSEL_OSC32EN	(0x1UL << 1)
 #define AT91C_SLCKSEL_OSC32BYP	(0x1UL << 2)
 
-#if defined(SAM9X60)
+#ifdef CONFIG_SAM9X60
 #define AT91C_SLCKSEL_OSCSEL	(0x1UL << 24)
 #else
 #define AT91C_SLCKSEL_OSCSEL	(0x1UL << 3)

@@ -32,7 +32,7 @@
 #include "timer.h"
 #include "arch/at91_pmc/pmc.h"
 
-#ifdef SAMA5D2
+#ifdef CONFIG_SAMA5D2
 #define GCK_STATUS_REG(_p)	(PMC_SR)
 #define GCK_READY(_s, _p)	((_s) & AT91C_PMC_GCKRDY)
 #else
@@ -78,7 +78,7 @@ int pmc_enable_generic_clock(unsigned int periph_id, unsigned int clk_source,
 	case GCK_CSS_MCK_CLK:
 		regval |= AT91C_PMC_GCKCSS_MCK_CLK;
 		break;
-#ifdef SAMA5D2
+#ifdef CONFIG_SAMA5D2
 	case GCK_CSS_AUDIO_CLK:
 		regval |= AT91C_PMC_GCKCSS_AUDIO_CLK;
 		break;

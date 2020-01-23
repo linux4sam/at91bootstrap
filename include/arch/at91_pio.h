@@ -29,7 +29,7 @@
 #define __AT91_PIO_H__
 
 /* Register offset in AT91S_PIO structure */
-#ifdef CPU_HAS_PIO4
+#ifdef CONFIG_CPU_HAS_PIO4
 #define	PIO_MSKR	0x0000	/* PIO Mask Register */
 #define	PIO_CFGR	0x0004	/* PIO Configuration Register */
 #define	PIO_PDSR	0x0008	/* PIO Pin Data Status Register */
@@ -84,7 +84,7 @@
 #define PIO_PPUER	0x0064	/* Pull-up Enable Register */
 #define PIO_PPUSR	0x0068	/* Pull-up Status Register */
 /* 0x006c */
-#ifndef CPU_HAS_PIO3
+#ifndef CONFIG_CPU_HAS_PIO3
 #define PIO_ASR		0x0070	/* Peripheral Select Register 1 */
 #define PIO_BSR		0x0074	/* Peripheral Select Register 2 */
 #define PIO_ABSR	0x0078	/* AB Select Status Register */
@@ -102,12 +102,12 @@
 /* 0x0114 */
 #define PIO_DRIVER1	0x0118	/* I/O Drive Register 1 */
 /* 0x011a */
-#endif	/* #ifndef CPU_HAS_PIO3 */
+#endif	/* !CONFIG_CPU_HAS_PIO3 */
 #define PIO_OWER	0x00a0	/* Output Write Enable Register */
 #define PIO_OWDR	0x00a4	/* Output Write Disable Register */
 #define PIO_OWSR	0x00a8	/* Output Write Status Register */
 /* 0x00ac */
-#endif	/* #ifdef CPU_HAS_PIO4 */
+#endif	/* CONFIG_CPU_HAS_PIO4 */
 
 /*
  * Register Field definition
@@ -159,4 +159,4 @@
 #define PIO_REG_PPUDR		0x60
 #define	PIO_REG_PPDDR		0x90
 
-#endif /* #ifndef __AT91_PIO_H__ */
+#endif	/* !__AT91_PIO_H__ */
