@@ -38,7 +38,7 @@
 #define PMC_PLL_CTRL1		0x10		/* PLL Control Register 1 */
 #define AT91C_PLL_CTRL1_FRACR	(0x3FFFFFUL << 0)
 #define		AT91C_PLL_CTRL1_FRACR_(x)	((x) << 0)
-#define AT91C_PLL_CTRL1_MUL	(0x7FUL << 24)
+#define AT91C_PLL_CTRL1_MUL	(0xFFUL << 24)
 #define		AT91C_PLL_CTRL1_MUL_(x)		((x) << 24)
 
 #define PMC_PLL_SSR		0x14		/* PLL Spread Spectrum Register */
@@ -53,9 +53,9 @@
 #define		AT91C_PLL_ACR_CONTROL_(x)	((x) << 0)
 #define AT91C_PLL_ACR_UTMIVR	(0x1UL << 12)
 #define AT91C_PLL_ACR_UTMIBG	(0x1UL << 13)
-#define AT91C_PLL_ACR_LOCK_THR	(0xFFUL << 16)
+#define AT91C_PLL_ACR_LOCK_THR	(0x7UL << 16)
 #define		AT91C_PLL_ACR_LOCK_THR_(x)	((x) << 16)
-#define AT91C_PLL_ACR_LOOP_FILTER (0xFFUL << 24)
+#define AT91C_PLL_ACR_LOOP_FILTER (0x3FUL << 24)
 #define		AT91C_PLL_ACR_LOOP_FILTER_(x)	((x) << 24)
 #define AT91C_PLL_ACR_DEFAULT_UTMI	0x12020010UL
 #define AT91C_PLL_ACR_DEFAULT_PLLA	0x20010UL
