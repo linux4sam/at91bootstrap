@@ -33,7 +33,7 @@
 
 static struct pmc_pll_cfg config[2] = { 0 };
 
-void pmc_sam9x60_cfg_pll(unsigned int pll_id,  struct pmc_pll_cfg *cfg)
+void pmc_sam9x60_cfg_pll(unsigned int pll_id, struct pmc_pll_cfg *cfg)
 {
 
 	unsigned int reg;
