@@ -6,7 +6,7 @@ DRIVERS_SRC:=$(TOPDIR)/driver
 
 COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/debug.o
 
-COBJS-$(CPU_HAS_SCKC)		+= $(DRIVERS_SRC)/at91_slowclk.o
+COBJS-$(CONFIG_CPU_HAS_SCKC)	+= $(DRIVERS_SRC)/at91_slowclk.o
 
 COBJS-y				+= $(DRIVERS_SRC)/common.o
 COBJS-$(CONFIG_PIO)		+= $(DRIVERS_SRC)/at91_pio.o
@@ -26,7 +26,7 @@ COBJS-$(CONFIG_WDT2)		+= $(DRIVERS_SRC)/at91_wdt2.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_usart.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_rstc.o
 
-COBJS-$(CPU_HAS_L2CC)		+= $(DRIVERS_SRC)/lp310_l2cc.o
+COBJS-$(CONFIG_CPU_HAS_L2CC)	+= $(DRIVERS_SRC)/lp310_l2cc.o
 
 COBJS-$(CONFIG_SDRAM)		+= $(DRIVERS_SRC)/sdramc.o
 COBJS-$(CONFIG_SDDRC)		+= $(DRIVERS_SRC)/sddrc.o

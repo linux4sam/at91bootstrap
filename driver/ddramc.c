@@ -135,14 +135,14 @@ void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
 	/* make sure to actually perform an access to the DDR chip */
 	*((unsigned volatile int *)ram_address) = 0;
 }
-#endif /* #if defined(CONFIG_DDR3) || \
-	      (defined(CONFIG_SAMA5D2_LPDDR2) && defined(CONFIG_LPDDR2)) */
+#endif /* CONFIG_DDR3 || (CONFIG_LPDDR2 && CONFIG_SAMA5D2_LPDDR2) */
 
 #ifdef CONFIG_DDR2
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
 {
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
-	|| defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60)
+#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12) \
+	|| defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
+	|| defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60)
 	if (ddramc_cr & AT91C_DDRC2_DECOD_INTERLEAVED)
 		return 0;
 #endif

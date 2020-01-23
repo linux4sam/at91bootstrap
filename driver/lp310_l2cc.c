@@ -39,7 +39,7 @@ static inline unsigned int read_l2cc(unsigned int offset)
 	return readl(offset + AT91C_BASE_L2CC);
 }
 
-#if defined(SAMA5D2)
+#ifdef CONFIG_SAMA5D2
 static void l2cache_configure_ram(void)
 {
 	writel(0x1, SFR_L2CC_HRAMC + AT91C_BASE_SFR);

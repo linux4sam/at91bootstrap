@@ -33,7 +33,7 @@
 #include "arch/at91_sfr.h"
 #include "board.h"
 
-#if defined(AT91C_BASE_SFR) && !defined(SAMA5D4)
+#if defined(AT91C_BASE_SFR) && !defined(CONFIG_SAMA5D4)
 static unsigned long pmc_get_main_clock(void)
 {
 	unsigned long main_clock;
@@ -106,7 +106,7 @@ static int pmc_configure_utmi_ref_clk(void)
 {
 	return 0;
 }
-#endif
+#endif /* AT91C_BASE_SFR && !CONFIG_SAMA5D4 */
 
 int pmc_uckr_clk(unsigned int is_on)
 {

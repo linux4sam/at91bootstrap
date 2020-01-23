@@ -49,9 +49,9 @@ enum gck_css_clk {
 enum pll_ids {
 	PLL_ID_PLLA,
 	PLL_ID_UPLL,
-	#ifdef SAMA5D2
+	#if defined(CONFIG_SAMA5D2)
 	PLL_ID_AUDIO,
-	#elif SAMA7G5
+	#elif  defined(CONFIG_SAMA7G5)
 	PLL_ID_CPUPLL = 0,
 	PLL_ID_SYSPLL,
 	PLL_ID_DDRPLL,

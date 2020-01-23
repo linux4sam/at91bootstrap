@@ -76,7 +76,7 @@ endif
 
 include	host-utilities/host.mk
 
-ifeq ($(HAVE_DOT_CONFIG),)
+ifeq ($(CONFIG_HAVE_DOT_CONFIG),)
 
 all: menuconfig
 
@@ -390,7 +390,7 @@ ChkFileSize: $(AT91BOOTSTRAP)
 		stack_space=`expr $(BOOTSTRAP_MAXSIZE) - $$fsize`; \
 		echo "[Attention] The space left for stack is $$stack_space bytes"; \
 	  fi )
-endif  # HAVE_DOT_CONFIG
+endif  # CONFIG_HAVE_DOT_CONFIG
 
 PHONY+= rebuild
 

@@ -46,7 +46,7 @@ void lowlevel_clock_init()
 	 */
 	pmc_mck_cfg_set(0, AT91C_PMC_CSS_SLOW_CLK, AT91C_PMC_CSS);
 
-#if defined(CONFIG_SAMA5D3X_CMP)
+#ifdef CONFIG_SAMA5D3X_CMP
 	/*
 	 * On the sama5d3x_cmp board, a phy is not in the proper reset state
 	 * after power-up, additional reset
@@ -54,9 +54,10 @@ void lowlevel_clock_init()
 	rstc_external_reset();
 #endif
 
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
-	|| defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60) \
-	|| defined(SAMA7G5)
+#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12) \
+	|| defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
+	|| defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) \
+	|| defined(CONFIG_SAMA7G5)
 	/*
 	 * Enable the Main Crystal Oscillator
 	 * tST_max = 2ms
@@ -73,7 +74,7 @@ void lowlevel_clock_init()
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
 		;
 
-#if defined(SAMA5D2) || defined(SAMA7G5)
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA7G5)
 	/* Enable a measurement of the Main Cristal Oscillator */
 	tmp = read_pmc(PMC_MCFR);
 	tmp |= AT91C_CKGR_CCSS_XTAL_OSC;
@@ -83,7 +84,7 @@ void lowlevel_clock_init()
 	while (!(tmp = read_pmc(PMC_MCFR) & AT91C_CKGR_MAINRDY))
 		;
 
-#if defined(SAMA7G5) && 0
+#if defined(CONFIG_SAMA7G5) && 0
 	tmp = (tmp & AT91C_CKGR_MAINF) * 32768 / 16;
 	if (tmp != pmc_mck_get_rate(0))
 		return;
@@ -92,7 +93,7 @@ void lowlevel_clock_init()
 
 	/* Switch from internal 12MHz RC to the Main Cristal Oscillator */
 	tmp = read_pmc(PMC_MOR);
-#if defined (CONFIG_MCK_BYPASS)
+#ifdef CONFIG_MCK_BYPASS
 	tmp |= (AT91C_CKGR_MOSCXTBY);
 #endif
 	tmp &= (~AT91C_CKGR_KEY);
@@ -108,7 +109,8 @@ void lowlevel_clock_init()
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCSELS))
 		;
 
-#if !defined(SAMA5D4) && !defined(SAMA5D2) && !defined(SAMA7G5)
+#if !defined(CONFIG_SAMA5D4) && !defined(CONFIG_SAMA5D2) \
+	&& !defined(CONFIG_SAMA7G5)
 	/* Disable the 12MHz RC Oscillator */
 	tmp = read_pmc(PMC_MOR);
 	tmp &= (~AT91C_CKGR_MOSCRCEN);
@@ -131,11 +133,13 @@ void lowlevel_clock_init()
 
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
 		;
-#endif
+#endif /* CONFIG_AT91SAM9X5 || CONFIG_AT91SAM9N12 || CONFIG_SAMA5D3X ||
+        * CONFIG_SAMA5D4 || CONFIG_SAMA5D2 || CONFIG_SAM9X60 */
 
 	/* After stablization, switch to Main Clock */
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
-	|| defined(SAMA5D4) || defined(SAMA5D2)
+#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12) \
+	|| defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
+	|| defined(CONFIG_SAMA5D2)
 	pmc_mck_cfg_set(0, AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK,
 			AT91C_PMC_CSS | AT91C_PMC_ALT_PRES);
 #else
@@ -185,9 +189,10 @@ unsigned int at91_get_ahb_clock(void)
 
 unsigned int pmc_mainck_get_rate(void)
 {
-#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || \
-     defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60) || \
-     defined(SAMA7G5)
+#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12) || \
+	defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) || \
+	defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) || \
+	defined(CONFIG_SAMA7G5)
 	unsigned int val = read_pmc(PMC_MOR);
 
 	if (val & AT91C_CKGR_MOSCSEL)
@@ -303,4 +308,4 @@ void pmc_smd_setup(unsigned int val)
 
 	write_pmc(PMC_SMD, val);
 }
-#endif	/* #if defined(CONFIG_ENTER_NWD) */
+#endif /* CONFIG_ENTER_NWD */

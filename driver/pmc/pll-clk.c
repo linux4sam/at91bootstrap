@@ -59,13 +59,13 @@ unsigned int pmc_get_pll_freq(unsigned int pll_id)
 		parent_rate = pmc_mainck_get_rate();
 		break;
 	case PLL_ID_UPLL:
-#ifdef AT91SAM9N12
+#ifdef CONFIG_AT91SAM9N12
 		parent_rate = pmc_mainck_get_rate();
 #elif BOARD_MAINOSC
 		parent_rate = BOARD_MAINOSC;
 #endif
 		break;
-#if defined(SAMA5D2) && defined(BOARD_MAINOSC)
+#if defined(CONFIG_SAMA5D2) && defined(BOARD_MAINOSC)
 	case PLL_ID_AUDIO:
 		parent_rate = BOARD_MAINOSC;
 		break;
