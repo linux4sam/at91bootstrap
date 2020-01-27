@@ -628,7 +628,7 @@ config CONFIG_PMC_PERIPH_CLK_SAM9X5
 
 config CONFIG_PMC_GENERIC_CLK
 	bool "PMC generic clock control support"
-	depends on SAMA5D2 || SAM9X60
+	depends on SAMA5D2 || SAM9X60 || SAMA7G5
 	default y
 	help
 	   Enable generic clock control support
