@@ -88,5 +88,6 @@ extern void pmc_pck_setup(unsigned int reg_offset, unsigned int reg_value);
 
 extern int pmc_check_mck_h32mxdiv(void);
 extern unsigned int at91_get_ahb_clock(void);
+extern unsigned int pmc_mainck_get_rate(void);
 
 #endif	/* #ifndef __PMC_H__ */

@@ -265,6 +265,29 @@ unsigned int at91_get_ahb_clock(void)
 	return MASTER_CLOCK;
 }
 
+unsigned int pmc_mainck_get_rate(void)
+{
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || \
+     defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60)
+	unsigned int val = read_pmc(PMC_MOR);
+
+	if (val & AT91C_CKGR_MOSCSEL)
+		/* Crystal oscillator. */
+#if defined(BOARD_MAINOSC)
+		return BOARD_MAINOSC;
+#else
+		return 0;
+#endif
+	else
+		/* Embedded RC oscillator. */
+		return 12000000;
+#elif defined(BOARD_MAINOSC)
+	return BOARD_MAINOSC;
+#endif
+
+	return 0;
+}
+
 #if defined(CONFIG_ENTER_NWD)
 unsigned int pmc_read_reg(unsigned int reg_offset)
 {
