@@ -50,6 +50,14 @@ enum pll_ids {
 	PLL_ID_UPLL,
 	#ifdef SAMA5D2
 	PLL_ID_AUDIO,
+	#elif SAMA7G5
+	PLL_ID_CPUPLL = 0,
+	PLL_ID_SYSPLL,
+	PLL_ID_DDRPLL,
+	PLL_ID_IMGPLL,
+	PLL_ID_BAUDPLL,
+	PLL_ID_AUDIOPLL,
+	PLL_ID_ETHPLL,
 	#endif
 	PLL_ID_MAX,
 };
@@ -57,6 +65,7 @@ enum pll_ids {
 struct pmc_pll_cfg {
 	unsigned int mul;	/* PLL MUL value */
 	unsigned int div;	/* PLL DIV value */
+	unsigned int divio;	/* PLL DIVIO value */
 	unsigned int count;	/* PLL COUNT value */
 	unsigned int fracr;
 	unsigned int acr;

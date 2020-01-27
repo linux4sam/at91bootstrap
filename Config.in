@@ -652,7 +652,7 @@ config CONFIG_PMC_PLL_CLK
 
 config CONFIG_PMC_PLL_CLK_SAM9X60
 	bool "PMC PLL clock control support for SAM9X60 SoCs"
-	depends on SAM9X60
+	depends on SAM9X60 || SAMA7G5
 	default y
 	help
 	  Enable PMC PLL clock control for SAM9X60 SoCs

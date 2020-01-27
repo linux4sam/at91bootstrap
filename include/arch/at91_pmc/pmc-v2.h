@@ -29,10 +29,11 @@
 #define PMC_PLL_CTRL0		0x0C		/* PLL Control Register 0 */
 #define AT91C_PLL_CTRL0_DIVPMC	(0xFFUL << 0)
 #define		AT91C_PLL_CTRL0_DIVPMC_(x)	((x) << 0)
-#define AT91C_PLL_CTRL0_DIVIO	(0xFFUL << 12)
-#define		AT91C_PLL_CTRL0_DIVIO_(x)	((x) << 12)
+#define AT91C_PLL_CTRL0_DIVIO	(0x0UL << 12)
+#define		AT91C_PLL_CTRL0_DIVIO_(x)	((0) << 12)
 #define AT91C_PLL_CTRL0_ENPLL	(0x1UL << 28)
 #define AT91C_PLL_CTRL0_ENPLLCK	(0x1UL << 29)
+#define AT91C_PLL_CTRL0_ENIOPLLCK (0x0UL << 30)
 #define AT91C_PLL_CTRL0_ENLOCK	(0x1UL << 31)
 
 #define PMC_PLL_CTRL1		0x10		/* PLL Control Register 1 */
