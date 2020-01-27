@@ -48,7 +48,6 @@
 
 #define PLLA_DIV 1
 #define PLLA_COUNT 0x3f
-#define PLLA_LOOP_FILTER 0
 #define PLLA_CLOCK 200000000
 #define PLLA_FRACR(_p, _q) \
 	((unsigned int)((((unsigned long)(_p)) << 22) / (_q)))
@@ -227,7 +226,7 @@ void hw_init(void)
 	plla_config.div = PLLA_DIV;
 	plla_config.count = PLLA_COUNT;
 	plla_config.fracr = 0;
-	plla_config.loop_filter = PLLA_LOOP_FILTER;
+	plla_config.acr = AT91C_PLL_ACR_DEFAULT_PLLA;
 	pmc_sam9x60_cfg_pll(PLL_ID_PLLA, &plla_config);
 
 	pmc_cfg_mck(BOARD_PRESCALER_PLLA);

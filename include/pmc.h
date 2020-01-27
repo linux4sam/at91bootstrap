@@ -59,7 +59,7 @@ struct pmc_pll_cfg {
 	unsigned int div;	/* PLL DIV value */
 	unsigned int count;	/* PLL COUNT value */
 	unsigned int fracr;
-	unsigned int loop_filter;
+	unsigned int acr;
 };
 
 extern void pmc_init_pll(unsigned int pmc_pllicpr);
