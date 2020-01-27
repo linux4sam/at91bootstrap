@@ -59,8 +59,8 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	pio_configure(dbgu_pins);
-	pmc_enable_periph_clock(AT91C_ID_PIOE);
-	pmc_enable_periph_clock(AT91C_ID_USART3);
+	pmc_enable_periph_clock(AT91C_ID_PIOE, PMC_PERIPH_CLK_DIVIDER_NA);
+	pmc_enable_periph_clock(AT91C_ID_USART3, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 
 static void initialize_dbgu(void)
@@ -202,7 +202,7 @@ static void ddramc_init(void)
 	ddramc_reg_config(&ddramc_reg);
 
 	/* enable ddr2 clock */
-	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* configure Shift Sampling Point of Data */
@@ -475,10 +475,10 @@ unsigned int at91_twi0_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	pmc_enable_periph_clock(AT91C_ID_PIOA);
+	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(twi_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_TWI0);
+	pmc_enable_periph_clock(AT91C_ID_TWI0, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	return base_addr;
 }
@@ -503,10 +503,10 @@ unsigned int at91_twi3_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	pmc_enable_periph_clock(AT91C_ID_PIOC);
+	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(twi_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_TWI3);
+	pmc_enable_periph_clock(AT91C_ID_TWI3, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	return base_addr;
 }
@@ -559,7 +559,7 @@ void at91_disable_smd_clock(void)
 	 */
 	pmc_enable_system_clock(AT91C_PMC_SMDCK);
 	pmc_set_smd_clock_divider(AT91C_PMC_SMDDIV);
-	pmc_enable_periph_clock(AT91C_ID_SMD);
+	pmc_enable_periph_clock(AT91C_ID_SMD, PMC_PERIPH_CLK_DIVIDER_NA);
 	writel(0xF, (0x0C + AT91C_BASE_SMD));
 	pmc_disable_periph_clock(AT91C_ID_SMD);
 	pmc_disable_system_clock(AT91C_PMC_SMDCK);
@@ -586,9 +586,9 @@ unsigned int at91_eth0_hw_init(void)
 	};
 
 	pio_configure(macb_pins);
-	pmc_enable_periph_clock(AT91C_ID_PIOB);
+	pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
 
-	pmc_enable_periph_clock(AT91C_ID_GMAC);
+	pmc_enable_periph_clock(AT91C_ID_GMAC, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	return base_addr;
 }
@@ -684,8 +684,8 @@ void at91_spi0_hw_init(void)
 	/* Configure the PIO controller */
 	pio_configure(spi0_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_PIOC);
-	pmc_enable_periph_clock(AT91C_ID_SPI0);
+	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
+	pmc_enable_periph_clock(AT91C_ID_SPI0, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
@@ -712,8 +712,8 @@ void at91_mci1_hw_init(void)
 
 	/* Configure the PIO controller */
 	pio_configure(mci_pins);
-	pmc_enable_periph_clock(AT91C_ID_PIOE);
-	pmc_enable_periph_clock(AT91C_ID_HSMCI1);
+	pmc_enable_periph_clock(AT91C_ID_PIOE, PMC_PERIPH_CLK_DIVIDER_NA);
+	pmc_enable_periph_clock(AT91C_ID_HSMCI1, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif /* #ifdef CONFIG_SDCARD */
 
@@ -745,10 +745,10 @@ void nandflash_hw_init(void)
 
 	/* Configure the nand controller pins*/
 	pio_configure(nand_pins);
-	pmc_enable_periph_clock(AT91C_ID_PIOC);
+	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	/* Enable the clock */
-	pmc_enable_periph_clock(AT91C_ID_HSMC);
+	pmc_enable_periph_clock(AT91C_ID_HSMC, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	/* EBI Configuration Register */
 	writel((AT91C_EBICFG_DRIVE0_HIGH

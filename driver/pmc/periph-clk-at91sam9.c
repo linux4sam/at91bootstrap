@@ -34,7 +34,7 @@
 #define PMC_PCDR1	0x104	/* Peripheral Clock Disable Register1 32:63 PERI_ID */
 #define PMC_PCSR1	0x108	/* Peripheral Clock Status Register1  32:63 PERI_ID */
 
-int pmc_enable_periph_clock(unsigned int periph_id)
+int pmc_enable_periph_clock(unsigned int periph_id, int divider)
 {
 	unsigned int mask = 0x01 << (periph_id % 32);
 

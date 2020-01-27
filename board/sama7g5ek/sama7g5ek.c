@@ -79,7 +79,7 @@ unsigned int at91_flexcom3_init(void)
 	};
 
 	pio_configure(flx_pins);
-	pmc_enable_periph_clock(AT91C_ID_FLEXCOM3);
+	pmc_enable_periph_clock(AT91C_ID_FLEXCOM3, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	flexcom_init(3);
 

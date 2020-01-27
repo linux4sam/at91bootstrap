@@ -56,7 +56,7 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	/* Configure the dbgu pins */
-	pmc_enable_periph_clock(AT91C_ID_PIOB);
+	pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(dbgu_pins);
 }
 
@@ -180,10 +180,10 @@ void at91_mci0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	pmc_enable_periph_clock(AT91C_ID_PIOA);
+	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
-	pmc_enable_periph_clock(AT91C_ID_MCI0);
+	pmc_enable_periph_clock(AT91C_ID_MCI0, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif /* #ifdef CONFIG_SDCARD */

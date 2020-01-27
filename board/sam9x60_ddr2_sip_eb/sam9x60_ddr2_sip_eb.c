@@ -63,7 +63,7 @@ static void at91_dbgu_hw_init(void)
 
 	pio_configure(dbgu_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_DBGU);
+	pmc_enable_periph_clock(AT91C_ID_DBGU, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 
 static void initialize_dbgu(void)
@@ -129,7 +129,7 @@ static void ddramc_init(void)
 	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN | AT91C_EBI_NFD0_ON_D16);
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 
-	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	ddramc_reg_config(&ddramc_reg);
@@ -170,7 +170,7 @@ unsigned int at91_flexcom0_init(void)
 	};
 
 	pio_configure(flx_pins);
-	pmc_enable_periph_clock(AT91C_ID_FLEXCOM0);
+	pmc_enable_periph_clock(AT91C_ID_FLEXCOM0, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	flexcom_init(0);
 
@@ -273,7 +273,7 @@ void at91_qspi_hw_init(void)
 	pio_configure(qspi_pins);
 
 	pmc_enable_system_clock(AT91C_PMC_QSPICLK);
-	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif  /* #ifdef CONFIG_QSPI */
 
@@ -303,7 +303,7 @@ void at91_sdhc_hw_init(void)
 	};
 	pio_configure(sdmmc_pins);
 
-	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
 				 GCK_CSS_PLLA_CLK,
 				 ATMEL_SDHC_GCKDIV_VALUE);
@@ -338,7 +338,7 @@ void nandflash_hw_init(void)
 	};
 
 	pio_configure(nand_pins);
-	pmc_enable_periph_clock(AT91C_ID_PIOD);
+	pmc_enable_periph_clock(AT91C_ID_PIOD, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	reg = readl(AT91C_BASE_SFR + SFR_CCFG_EBICSA);
 	reg |= AT91C_EBI_CS3A_SM | AT91C_EBI_NFD0_ON_D16;

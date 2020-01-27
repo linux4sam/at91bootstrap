@@ -54,7 +54,7 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	/* Configure the dbgu pins */
-	pmc_enable_periph_clock(AT91C_ID_PIOA);
+	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(dbgu_pins);
 }
 
@@ -90,7 +90,7 @@ static void sdramc_hw_init(void)
 	};
 
 	/* Configure the sdramc pins */
-	pmc_enable_periph_clock(AT91C_ID_PIOB);
+	pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(sdramc_pins);
 }
 
@@ -176,7 +176,7 @@ static void recovery_buttons_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 
-	pmc_enable_periph_clock(AT91C_ID_PIOB);
+	pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(recovery_button_pins);
 }
 #endif /* #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY) */
@@ -237,11 +237,11 @@ void at91_spi0_hw_init(void)
 	};
 
 	/* Configure the spi0 pins */
-	pmc_enable_periph_clock(AT91C_ID_PIOA);
+	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(spi0_pins);
 
 	/* Enable the spi0 clock */
-	pmc_enable_periph_clock(AT91C_ID_SPI);
+	pmc_enable_periph_clock(AT91C_ID_SPI, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
@@ -260,11 +260,11 @@ void at91_mci0_hw_init(void)
 	};
 
 	/* Configure the PIO controller */
-	pmc_enable_periph_clock(AT91C_ID_PIOA);
+	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(mci_pins);
 
 	/* Enable the clock */
-	pmc_enable_periph_clock(AT91C_ID_MCI);
+	pmc_enable_periph_clock(AT91C_ID_MCI, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif /* #ifdef CONFIG_SDCARD */
 
@@ -313,7 +313,7 @@ void nandflash_hw_init(void)
 		AT91C_BASE_SMC + SMC_CTRL3);
 
 	/* Configure the NANDFlash pins */
-	pmc_enable_periph_clock(AT91C_ID_PIOB);
+	pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
 	pio_configure(nand_pins);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */

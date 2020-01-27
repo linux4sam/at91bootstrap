@@ -54,7 +54,7 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	pio_configure(dbgu_pins);
-	pmc_enable_periph_clock(CONFIG_SYS_DBGU_ID);
+	pmc_enable_periph_clock(CONFIG_SYS_DBGU_ID, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 
 static void initialize_dbgu(void)
@@ -380,7 +380,7 @@ static void ddramc_init(void)
 
 	ddramc_reg_config(&ddramc_reg);
 
-	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	/* MPDDRC I/O Calibration Register */
@@ -562,7 +562,7 @@ void at91_spi0_hw_init(void)
 
 	pio_configure(spi_pins);
 
-	pmc_enable_periph_clock(CONFIG_SYS_ID_SPI);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SPI, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif
 
@@ -646,7 +646,7 @@ void at91_qspi_hw_init(void)
 
 	pio_configure(qspi_pins);
 
-	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif
 #endif
@@ -683,7 +683,7 @@ void at91_sdhc_hw_init(void)
 
 	pio_configure(sdmmc_pins);
 
-	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
 				 GCK_CSS_UPLL_CLK,
 				 ATMEL_SDHC_GCKDIV_VALUE);
@@ -707,7 +707,7 @@ unsigned int at91_twi1_hw_init(void)
 	};
 
 	pio_configure(twi_pins);
-	pmc_enable_periph_clock(AT91C_ID_TWI1);
+	pmc_enable_periph_clock(AT91C_ID_TWI1, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	return AT91C_BASE_TWI1;
 }
@@ -722,7 +722,7 @@ unsigned int at91_flexcom4_init(void)
 	};
 
 	pio_configure(flx_pins);
-	pmc_enable_periph_clock(AT91C_ID_FLEXCOM4);
+	pmc_enable_periph_clock(AT91C_ID_FLEXCOM4, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	return AT91C_BASE_FLEXCOM4;
 }

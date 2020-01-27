@@ -29,6 +29,7 @@
 #define __PMC_H__
 
 #define CONFIG_SYS_AT91_SLOW_CLOCK	32768
+#define PMC_PERIPH_CLK_DIVIDER_NA	(-1)
 
 /* Generated clock source selection */
 enum gck_css_clk {
@@ -81,7 +82,7 @@ extern int pmc_cfg_pck(unsigned char x,
 			unsigned int clk_sel,
 			unsigned int prescaler);
 
-extern int pmc_enable_periph_clock(unsigned int periph_id);
+extern int pmc_enable_periph_clock(unsigned int periph_id, int divider);
 extern int pmc_disable_periph_clock(unsigned int periph_id);
 extern int pmc_periph_clock_enabled(unsigned int periph_id);
 extern void pmc_enable_system_clock(unsigned int clock_id);

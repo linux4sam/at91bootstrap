@@ -27,7 +27,7 @@
 #include "clk-common.h"
 #include "arch/at91_pmc/pmc.h"
 
-int pmc_enable_periph_clock(unsigned int periph_id)
+int pmc_enable_periph_clock(unsigned int periph_id, int divider)
 {
 	unsigned int div_value;
 
