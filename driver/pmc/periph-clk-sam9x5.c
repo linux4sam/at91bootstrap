@@ -25,16 +25,15 @@
  */
 #include "board.h"
 #include "clk-common.h"
+#include "pmc.h"
 #include "arch/at91_pmc/pmc.h"
 
 int pmc_enable_periph_clock(unsigned int periph_id, int divider)
 {
-	unsigned int div_value;
+	if (divider == PMC_PERIPH_CLK_DIVIDER_NA)
+		divider = 0;
 
-	write_pmc(PMC_PCR, periph_id);
-	div_value = read_pmc(PMC_PCR) & AT91C_PMC_DIV;
-
-	write_pmc(PMC_PCR, (periph_id | div_value
+	write_pmc(PMC_PCR, (periph_id | AT91C_PMC_DIV(divider)
 				| AT91C_PMC_CMD
 				| AT91C_PMC_EN));
 
