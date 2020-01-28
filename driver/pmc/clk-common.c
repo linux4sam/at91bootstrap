@@ -44,13 +44,7 @@ void lowlevel_clock_init()
 	 * parameters. It is assumed that ROM code set H32MXDIV, PLLADIV2,
 	 * PCK_DIV3.
 	 */
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_CSS);
-	tmp |= AT91C_PMC_CSS_SLOW_CLK;
-	write_pmc(PMC_MCKR, tmp);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
+	pmc_mck_cfg_set(AT91C_PMC_CSS_SLOW_CLK, AT91C_PMC_CSS);
 
 #if defined(CONFIG_SAMA5D3X_CMP)
 	/*
@@ -140,23 +134,14 @@ void lowlevel_clock_init()
 #endif
 
 	/* After stablization, switch to Main Clock */
-	if ((read_pmc(PMC_MCKR) & AT91C_PMC_CSS) == AT91C_PMC_CSS_SLOW_CLK) {
-		tmp = read_pmc(PMC_MCKR);
-		tmp &= (~(0x1 << 13));
-		tmp &= ~AT91C_PMC_CSS;
-		tmp |= AT91C_PMC_CSS_MAIN_CLK;
-		write_pmc(PMC_MCKR, tmp);
-
-		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-			;
-
-		tmp &= ~AT91C_PMC_PRES;
-		tmp |= AT91C_PMC_PRES_CLK;
-		write_pmc(PMC_MCKR, tmp);
-
-		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-			;
-	}
+#if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
+	|| defined(SAMA5D4) || defined(SAMA5D2)
+	pmc_mck_cfg_set(AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK,
+			AT91C_PMC_CSS | AT91C_PMC_ALT_PRES);
+#else
+	pmc_mck_cfg_set(AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK,
+			AT91C_PMC_CSS | AT91C_PMC_PRES);
+#endif
 
 	return;
 }

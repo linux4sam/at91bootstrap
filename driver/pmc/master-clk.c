@@ -27,60 +27,77 @@
 #include "clk-common.h"
 #include "arch/at91_pmc/pmc.h"
 
-void pmc_mck_cfg_set(unsigned int pmc_mckr)
+void pmc_mck_cfg_set(unsigned int pmc_mckr, unsigned int mask)
 {
-	unsigned int tmp;
+	unsigned int tmp = read_pmc(PMC_MCKR) & mask;
+	unsigned int updates = tmp ^ pmc_mckr;
 
 	/*
 	 * Program the PRES field in the PMC_MCKR register
 	 */
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~(0x1 << 13));
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
 	|| defined(SAMA5D4) || defined(SAMA5D2)
-	tmp &= (~AT91C_PMC_ALT_PRES);
-	tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
+	if (updates & AT91C_PMC_ALT_PRES) {
+		tmp &= (~(0x1 << 13));
+		tmp &= (~AT91C_PMC_ALT_PRES);
+		tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
+		write_pmc(PMC_MCKR, tmp);
+		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+	}
 #else
-	tmp &= (~AT91C_PMC_PRES);
-	tmp |= (pmc_mckr & AT91C_PMC_PRES);
+	if (updates & AT91C_PMC_PRES) {
+		tmp &= (~(0x1 << 13));
+		tmp &= (~AT91C_PMC_PRES);
+		tmp |= (pmc_mckr & AT91C_PMC_PRES);
+		write_pmc(PMC_MCKR, tmp);
+		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+	}
 #endif
-	write_pmc(PMC_MCKR, tmp);
 
 	/*
 	 * Program the MDIV field in the PMC_MCKR register
 	 */
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_MDIV);
-	tmp |= (pmc_mckr & AT91C_PMC_MDIV);
-	write_pmc(PMC_MCKR, tmp);
+	if (updates & AT91C_PMC_MDIV) {
+		tmp = read_pmc(PMC_MCKR);
+		tmp &= (~AT91C_PMC_MDIV);
+		tmp |= (pmc_mckr & AT91C_PMC_MDIV);
+		write_pmc(PMC_MCKR, tmp);
+		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+	}
 
 	/*
 	 * Program the PLLADIV2 field in the PMC_MCKR register
 	 */
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_PLLADIV2);
-	tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
-	write_pmc(PMC_MCKR, tmp);
+	if (updates & AT91C_PMC_PLLADIV2) {
+		tmp = read_pmc(PMC_MCKR);
+		tmp &= (~AT91C_PMC_PLLADIV2);
+		tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
+		write_pmc(PMC_MCKR, tmp);
+		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+	}
 
 	/*
 	 * Program the H32MXDIV field in the PMC_MCKR register
 	 */
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_H32MXDIV);
-	tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
-	write_pmc(PMC_MCKR, tmp);
+	if (updates & AT91C_PMC_H32MXDIV) {
+		tmp = read_pmc(PMC_MCKR);
+		tmp &= (~AT91C_PMC_H32MXDIV);
+		tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
+		write_pmc(PMC_MCKR, tmp);
+		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+	}
 
 	/*
 	 * Program the CSS field in the PMC_MCKR register,
 	 * wait for MCKRDY bit to be set in the PMC_SR register
 	 */
-	tmp = read_pmc(PMC_MCKR);
-	tmp &= (~AT91C_PMC_CSS);
-	tmp |= (pmc_mckr & AT91C_PMC_CSS);
-	write_pmc(PMC_MCKR, tmp);
-
-	while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY))
-		;
+	if (updates & AT91C_PMC_CSS) {
+		tmp = read_pmc(PMC_MCKR);
+		tmp &= (~AT91C_PMC_CSS);
+		tmp |= (pmc_mckr & AT91C_PMC_CSS);
+		write_pmc(PMC_MCKR, tmp);
+		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+	}
 }
 
 int pmc_mck_check_h32mxdiv(void)
@@ -91,4 +108,3 @@ int pmc_mck_check_h32mxdiv(void)
 	return 0;
 #endif
 }
-

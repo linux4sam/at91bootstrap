@@ -158,10 +158,12 @@ void hw_init(void)
 	pmc_cfg_plla(PLLA_SETTINGS);
 
 	/* PCK = PLLA/2 = 3 * MCK */
-	pmc_mck_cfg_set(BOARD_PRESCALER_MAIN_CLOCK);
+	pmc_mck_cfg_set(BOARD_PRESCALER_MAIN_CLOCK,
+			AT91C_PMC_PLLADIV2 | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	/* Switch MCK on PLLA output */
-	pmc_mck_cfg_set(BOARD_PRESCALER_PLLA);
+	pmc_mck_cfg_set(BOARD_PRESCALER_PLLA,
+			AT91C_PMC_PLLADIV2 | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
