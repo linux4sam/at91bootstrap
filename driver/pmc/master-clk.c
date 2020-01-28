@@ -83,7 +83,7 @@ void pmc_mck_cfg_set(unsigned int pmc_mckr)
 		;
 }
 
-int pmc_check_mck_h32mxdiv(void)
+int pmc_mck_check_h32mxdiv(void)
 {
 #ifdef CPU_HAS_H32MXDIV
 	return read_pmc(PMC_MCKR) & AT91C_PMC_H32MXDIV;

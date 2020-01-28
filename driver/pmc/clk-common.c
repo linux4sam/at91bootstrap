@@ -192,7 +192,7 @@ void pmc_set_smd_clock_divider(unsigned int divider)
 
 unsigned int at91_get_ahb_clock(void)
 {
-	if (pmc_check_mck_h32mxdiv())
+	if (pmc_mck_check_h32mxdiv())
 		return MASTER_CLOCK / 2;
 
 	return MASTER_CLOCK;

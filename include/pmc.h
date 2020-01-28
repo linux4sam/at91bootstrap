@@ -78,6 +78,7 @@ extern void pmc_sam9x60_cfg_pll(unsigned int pll_id, struct pmc_pll_cfg *cfg);
 extern unsigned int pmc_get_pll_freq(unsigned int pll_id);
 
 extern void pmc_mck_cfg_set(unsigned int pmc_mckr);
+extern int pmc_mck_check_h32mxdiv(void);
 extern int pmc_cfg_pck(unsigned char x,
 			unsigned int clk_sel,
 			unsigned int prescaler);
@@ -103,7 +104,6 @@ extern unsigned int pmc_usb_setup(void);
 extern void pmc_smd_setup(unsigned int val);
 extern void pmc_pck_setup(unsigned int reg_offset, unsigned int reg_value);
 
-extern int pmc_check_mck_h32mxdiv(void);
 extern unsigned int at91_get_ahb_clock(void);
 extern unsigned int pmc_mainck_get_rate(void);
 

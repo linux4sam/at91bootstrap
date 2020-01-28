@@ -62,7 +62,7 @@ static void initialize_dbgu(void)
 
 	at91_dbgu_hw_init();
 
-	if (pmc_check_mck_h32mxdiv())
+	if (pmc_mck_check_h32mxdiv())
 		usart_init(BAUDRATE(MASTER_CLOCK / 2, baudrate));
 	else
 		usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
