@@ -27,7 +27,7 @@
 #include "clk-common.h"
 #include "arch/at91_pmc/pmc.h"
 
-void pmc_cfg_mck(unsigned int pmc_mckr)
+void pmc_mck_cfg_set(unsigned int pmc_mckr)
 {
 	unsigned int tmp;
 

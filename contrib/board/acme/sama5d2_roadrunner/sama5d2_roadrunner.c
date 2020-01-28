@@ -599,7 +599,7 @@ void hw_init(void)
 	//pmc_init_pll(0x3);
 
 	/* Switch MCK on PLLA output */
-	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
+	pmc_mck_cfg_set(BOARD_PRESCALER_PLLA);
 
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN,

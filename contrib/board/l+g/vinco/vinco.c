@@ -589,7 +589,7 @@ void hw_init(void)
 	 */
 
 	/* Switch PCK/MCK on Main clock output */
-	pmc_cfg_mck(BOARD_PRESCALER_MAIN_CLOCK);
+	pmc_mck_cfg_set(BOARD_PRESCALER_MAIN_CLOCK);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
 	pmc_cfg_plla(PLLA_SETTINGS);
@@ -599,7 +599,7 @@ void hw_init(void)
 	pmc_init_pll(0);
 
 	/* Switch MCK on PLLA output */
-	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
+	pmc_mck_cfg_set(BOARD_PRESCALER_PLLA);
 
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN,

@@ -256,7 +256,7 @@ void hw_init(void)
 	plla_config.acr = AT91C_PLL_ACR_DEFAULT_PLLA;
 	pmc_sam9x60_cfg_pll(PLL_ID_PLLA, &plla_config);
 
-	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
+	pmc_mck_cfg_set(BOARD_PRESCALER_PLLA);
 
 	/* Initialize dbgu */
 	initialize_dbgu();
