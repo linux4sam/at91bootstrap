@@ -226,22 +226,22 @@ int conf_read_simple(const char *name, int def)
         sym = NULL;
         switch (line[0]) {
         case '#':
-            if (line[1] != ' ')
+            if (memcmp(line + 2, "CONFIG_", 7))
                 continue;
-            p = strchr(line + 2, ' ');
+            p = strchr(line + 9, ' ');
             if (!p)
                 continue;
             *p++ = 0;
             if (strncmp(p, "is not set", 10))
                 continue;
             if (def == S_DEF_USER) {
-                sym = sym_find(line + 2);
+                sym = sym_find(line + 9);
                 if (!sym) {
                     sym_add_change_count(1);
                     break;
                 }
             } else {
-                sym = sym_lookup(line + 2, 0);
+                sym = sym_lookup(line + 9, 0);
                 if (sym->type == S_UNKNOWN)
                     sym->type = S_BOOLEAN;
             }
@@ -258,33 +258,12 @@ int conf_read_simple(const char *name, int def)
                 ;
             }
             break;
-        case 'A':
-        case 'B':
         case 'C':
-        case 'D':
-        case 'E':
-        case 'F':
-        case 'G':
-        case 'H':
-        case 'I':
-        case 'J':
-        case 'K':
-        case 'L':
-        case 'M':
-        case 'N':
-        case 'O':
-        case 'P':
-        case 'Q':
-        case 'R':
-        case 'S':
-        case 'T':
-        case 'U':
-        case 'V':
-        case 'W':
-        case 'X':
-        case 'Y':
-        case 'Z':
-            p = strchr(line, '=');
+            if (memcmp(line, "CONFIG_", 7)) {
+                conf_warning("unexpected data");
+                continue;
+            }
+            p = strchr(line + 7, '=');
             if (!p)
                 continue;
             *p++ = 0;
@@ -295,13 +274,13 @@ int conf_read_simple(const char *name, int def)
                     *p2 = 0;
             }
             if (def == S_DEF_USER) {
-                sym = sym_find(line);
+                sym = sym_find(line + 7);
                 if (!sym) {
                     sym_add_change_count(1);
                     break;
                 }
             } else {
-                sym = sym_lookup(line, 0);
+                sym = sym_lookup(line + 7, 0);
                 if (sym->type == S_UNKNOWN)
                     sym->type = S_OTHER;
             }
@@ -446,9 +425,9 @@ static void conf_write_string(bool headerfile, const char *name,
 {
 	int l;
 	if (headerfile)
-		fprintf(out, "#define %s \"", name);
+		fprintf(out, "#define CONFIG_%s \"", name);
 	else
-		fprintf(out, "%s=\"", name);
+		fprintf(out, "CONFIG_%s=\"", name);
 
 	while (1) {
 		l = strcspn(str, "\"\\");
@@ -474,13 +453,13 @@ static void conf_write_symbol(struct symbol *sym, enum symbol_type type,
 		switch (sym_get_tristate_value(sym)) {
 		case no:
 			if (write_no)
-				fprintf(out, "# %s is not set\n", sym->name);
+				fprintf(out, "# CONFIG_%s is not set\n", sym->name);
 			break;
 		case mod:
-			fprintf(out, "%s=m\n", sym->name);
+			fprintf(out, "CONFIG_%s=m\n", sym->name);
 			break;
 		case yes:
-			fprintf(out, "%s=y\n", sym->name);
+			fprintf(out, "CONFIG_%s=y\n", sym->name);
 			break;
 		}
 		break;
@@ -490,7 +469,7 @@ static void conf_write_symbol(struct symbol *sym, enum symbol_type type,
 	case S_HEX:
 	case S_INT:
 		str = sym_get_string_value(sym);
-		fprintf(out, "%s=%s\n", sym->name, str);
+		fprintf(out, "CONFIG_%s=%s\n", sym->name, str);
 		break;
 	case S_OTHER:
 	case S_UNKNOWN:
@@ -901,10 +880,10 @@ int conf_write_autoconf(void)
             case no:
                 break;
             case mod:
-                fprintf(out_h, "#define %s_MODULE 1\n", sym->name);
+                fprintf(out_h, "#define CONFIG_%s_MODULE 1\n", sym->name);
                 break;
             case yes:
-                fprintf(out_h, "#define %s 1\n", sym->name);
+                fprintf(out_h, "#define CONFIG_%s 1\n", sym->name);
                 break;
             }
             break;
@@ -914,12 +893,12 @@ int conf_write_autoconf(void)
         case S_HEX:
             str = sym_get_string_value(sym);
             if (str[0] != '0' || (str[1] != 'x' && str[1] != 'X')) {
-                fprintf(out_h, "#define %s 0x%s\n", sym->name, str);
+                fprintf(out_h, "#define CONFIG_%s 0x%s\n", sym->name, str);
                 break;
             }
         case S_INT:
             str = sym_get_string_value(sym);
-            fprintf(out_h, "#define %s %s\n", sym->name, str);
+            fprintf(out_h, "#define CONFIG_%s %s\n", sym->name, str);
             break;
         default:
             break;
