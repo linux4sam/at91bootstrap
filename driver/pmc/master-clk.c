@@ -27,10 +27,10 @@
 #include "clk-common.h"
 #include "arch/at91_pmc/pmc.h"
 
-void pmc_mck_cfg_set(unsigned int pmc_mckr, unsigned int mask)
+void pmc_mck_cfg_set(unsigned int bits, unsigned int mask)
 {
 	unsigned int tmp = read_pmc(PMC_MCKR) & mask;
-	unsigned int updates = tmp ^ pmc_mckr;
+	unsigned int updates = tmp ^ bits;
 
 	/*
 	 * Program the PRES field in the PMC_MCKR register
@@ -40,7 +40,7 @@ void pmc_mck_cfg_set(unsigned int pmc_mckr, unsigned int mask)
 	if (updates & AT91C_PMC_ALT_PRES) {
 		tmp &= (~(0x1 << 13));
 		tmp &= (~AT91C_PMC_ALT_PRES);
-		tmp |= (pmc_mckr & AT91C_PMC_ALT_PRES);
+		tmp |= (bits & AT91C_PMC_ALT_PRES);
 		write_pmc(PMC_MCKR, tmp);
 		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
 	}
@@ -48,7 +48,7 @@ void pmc_mck_cfg_set(unsigned int pmc_mckr, unsigned int mask)
 	if (updates & AT91C_PMC_PRES) {
 		tmp &= (~(0x1 << 13));
 		tmp &= (~AT91C_PMC_PRES);
-		tmp |= (pmc_mckr & AT91C_PMC_PRES);
+		tmp |= (bits & AT91C_PMC_PRES);
 		write_pmc(PMC_MCKR, tmp);
 		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
 	}
@@ -60,7 +60,7 @@ void pmc_mck_cfg_set(unsigned int pmc_mckr, unsigned int mask)
 	if (updates & AT91C_PMC_MDIV) {
 		tmp = read_pmc(PMC_MCKR);
 		tmp &= (~AT91C_PMC_MDIV);
-		tmp |= (pmc_mckr & AT91C_PMC_MDIV);
+		tmp |= (bits & AT91C_PMC_MDIV);
 		write_pmc(PMC_MCKR, tmp);
 		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
 	}
@@ -71,7 +71,7 @@ void pmc_mck_cfg_set(unsigned int pmc_mckr, unsigned int mask)
 	if (updates & AT91C_PMC_PLLADIV2) {
 		tmp = read_pmc(PMC_MCKR);
 		tmp &= (~AT91C_PMC_PLLADIV2);
-		tmp |= (pmc_mckr & AT91C_PMC_PLLADIV2);
+		tmp |= (bits & AT91C_PMC_PLLADIV2);
 		write_pmc(PMC_MCKR, tmp);
 		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
 	}
@@ -82,7 +82,7 @@ void pmc_mck_cfg_set(unsigned int pmc_mckr, unsigned int mask)
 	if (updates & AT91C_PMC_H32MXDIV) {
 		tmp = read_pmc(PMC_MCKR);
 		tmp &= (~AT91C_PMC_H32MXDIV);
-		tmp |= (pmc_mckr & AT91C_PMC_H32MXDIV);
+		tmp |= (bits & AT91C_PMC_H32MXDIV);
 		write_pmc(PMC_MCKR, tmp);
 		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
 	}
@@ -94,7 +94,7 @@ void pmc_mck_cfg_set(unsigned int pmc_mckr, unsigned int mask)
 	if (updates & AT91C_PMC_CSS) {
 		tmp = read_pmc(PMC_MCKR);
 		tmp &= (~AT91C_PMC_CSS);
-		tmp |= (pmc_mckr & AT91C_PMC_CSS);
+		tmp |= (bits & AT91C_PMC_CSS);
 		write_pmc(PMC_MCKR, tmp);
 		while (!(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
 	}
