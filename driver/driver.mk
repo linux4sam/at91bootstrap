@@ -10,7 +10,7 @@ COBJS-$(CPU_HAS_SCKC)		+= $(DRIVERS_SRC)/at91_slowclk.o
 
 COBJS-y				+= $(DRIVERS_SRC)/common.o
 COBJS-$(CONFIG_PIO)		+= $(DRIVERS_SRC)/at91_pio.o
-COBJS-$(CONFIG_PMC_COMMON)	+= $(DRIVERS_SRC)/pmc/common.o
+COBJS-$(CONFIG_PMC_COMMON)	+= $(DRIVERS_SRC)/pmc/clk-common.o
 COBJS-$(CONFIG_PMC_PERIPH_CLK_AT91SAM9) += $(DRIVERS_SRC)/pmc/periph-clk-at91sam9.o
 COBJS-$(CONFIG_PMC_PERIPH_CLK_SAM9X5)	+= $(DRIVERS_SRC)/pmc/periph-clk-sam9x5.o
 COBJS-$(CONFIG_PMC_GENERIC_CLK)	+= $(DRIVERS_SRC)/pmc/generic-clk.o
