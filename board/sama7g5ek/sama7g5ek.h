@@ -47,6 +47,9 @@
 #define CONFIG_SYS_BASE_UMCTL2		AT91C_BASE_UMCTL2
 #define CONFIG_SYS_BASE_UMCTL2_MP	AT91C_BASE_UMCTL2_MP
 
+#define CONFIG_SYS_BASE_SDHC		AT91C_BASE_SDMMC1
+#define	CONFIG_SYS_ID_SDHC		AT91C_ID_SDMMC1
+
 #define _tRFC		350UL		/* Refresh to Refresh, ns */
 #define _tREFI		7800UL		/* Refresh Intervals, ns */
 #define _tWR		15UL		/* Write Recovery, ns */

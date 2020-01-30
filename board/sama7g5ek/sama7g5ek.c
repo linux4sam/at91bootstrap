@@ -180,6 +180,43 @@ static void umctl2_config_state_init()
 	umctl2_config.phy_train = &publ_train;
 }
 
+#if defined(CONFIG_SDCARD)
+#if defined(CONFIG_OF_LIBFDT)
+void at91_board_set_dtb_name(char *of_name)
+{
+	strcpy(of_name, "at91-sama7g5ek.dtb");
+}
+#endif
+
+#define ATMEL_SDHC_GCKDIV_VALUE		9
+
+void at91_sdhc_hw_init(void)
+{
+#if defined(CONFIG_SDHC1)
+	const struct pio_desc sdmmc_pins[] = {
+		{"SDMMC1_CK",   AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_CMD",  AT91C_PIN_PB(29), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_DAT0", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_DAT1", AT91C_PIN_PC(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_DAT2", AT91C_PIN_PC(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_DAT3", AT91C_PIN_PC(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_VDDSEL", AT91C_PIN_PC(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_WP",   AT91C_PIN_PC(3), 1, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_CD",   AT91C_PIN_PC(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#endif
+
+	pio_configure(sdmmc_pins);
+
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
+	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
+				 GCK_CSS_SYSPLL_CLK,
+				 ATMEL_SDHC_GCKDIV_VALUE);
+}
+#endif
+
+
 void hw_init(void)
 {
 	board_flexcoms_init();
