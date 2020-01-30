@@ -268,7 +268,8 @@ unsigned int at91_get_ahb_clock(void)
 unsigned int pmc_mainck_get_rate(void)
 {
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) || \
-     defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60)
+     defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60) || \
+     defined(SAMA7G5)
 	unsigned int val = read_pmc(PMC_MOR);
 
 	if (val & AT91C_CKGR_MOSCSEL)
