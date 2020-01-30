@@ -61,7 +61,8 @@ void lowlevel_clock_init()
 #endif
 
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
-	|| defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60)
+	|| defined(SAMA5D4) || defined(SAMA5D2) || defined(SAM9X60) \
+	|| defined(SAMA7G5)
 	/*
 	 * Enable the Main Crystal Oscillator
 	 * tST_max = 2ms
@@ -78,15 +79,21 @@ void lowlevel_clock_init()
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
 		;
 
-#if defined(SAMA5D2)
+#if defined(SAMA5D2) || defined(SAMA7G5)
 	/* Enable a measurement of the Main Cristal Oscillator */
 	tmp = read_pmc(PMC_MCFR);
 	tmp |= AT91C_CKGR_CCSS_XTAL_OSC;
 	tmp |= AT91C_CKGR_RCMEAS;
 	write_pmc(PMC_MCFR, tmp);
 
-	while (!(read_pmc(PMC_MCFR) & AT91C_CKGR_MAINRDY))
+	while (!(tmp = read_pmc(PMC_MCFR) & AT91C_CKGR_MAINRDY))
 		;
+
+#if defined(SAMA7G5)
+	tmp = (tmp & AT91C_CKGR_MAINF) * 32768 / 16;
+	if (tmp != MASTER_CLOCK)
+		return;
+#endif
 #endif
 
 	/* Switch from internal 12MHz RC to the Main Cristal Oscillator */
@@ -107,7 +114,7 @@ void lowlevel_clock_init()
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCSELS))
 		;
 
-#if !defined(SAMA5D4) && !defined(SAMA5D2)
+#if !defined(SAMA5D4) && !defined(SAMA5D2) && !defined(SAMA7G5)
 	/* Disable the 12MHz RC Oscillator */
 	tmp = read_pmc(PMC_MOR);
 	tmp &= (~AT91C_CKGR_MOSCRCEN);
