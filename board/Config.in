@@ -477,6 +477,10 @@ config CONFIG_CPU_CLK_600MHZ
 	bool "600 MHz"
 	depends on ALLOW_CPU_CLK_600MHZ
 
+config CONFIG_CPU_CLK_800MHZ
+	bool "800 MHz"
+	depends on ALLOW_CPU_CLK_800MHZ
+
 endchoice
 
 config	ALLOW_CPU_CLK_166MHZ
@@ -525,6 +529,9 @@ config  ALLOW_CPU_CLK_594MHZ
 	bool
 
 config  ALLOW_CPU_CLK_600MHZ
+	bool
+
+config  ALLOW_CPU_CLK_800MHZ
 	bool
 
 config	DISABLE_CPU_CLK_240MHZ
