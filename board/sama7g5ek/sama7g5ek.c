@@ -39,6 +39,7 @@
 #include "sama7g5ek.h"
 #include "publ.h"
 #include "umctl2.h"
+#include "watchdog.h"
 
 static void ca7_enable_smp()
 {
@@ -219,6 +220,10 @@ void at91_sdhc_hw_init(void)
 
 void hw_init(void)
 {
+	at91_disable_wdt();
+#ifdef CONFIG_WDTS
+	at91_disable_wdts();
+#endif
 	board_flexcoms_init();
 	at91_flexcom3_init();
 
