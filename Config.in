@@ -563,6 +563,13 @@ config CONFIG_WDT2
 
 endchoice
 
+config CONFIG_WDTS
+	bool "Programmable Secure dual watchdog timer support"
+	depends on CPU_HAS_DWDT && CONFIG_WDT2
+	help
+	  This adds support for an additional Programmable Secure Watchdog.
+	  Products with this additional watchdog have a Dual Watchog Timer.
+
 config CONFIG_RSTC
 	bool "Reset controller support"
 	default y

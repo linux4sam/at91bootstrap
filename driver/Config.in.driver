@@ -82,6 +82,10 @@ config CPU_HAS_WDT2
 	bool
 	default n
 
+config CPU_HAS_DWDT
+	bool
+	default n
+
 config CPU_HAS_QSPI_RICR_WICR
 	bool
 	default n
