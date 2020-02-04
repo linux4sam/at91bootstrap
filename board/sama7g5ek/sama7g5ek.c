@@ -36,10 +36,12 @@
 #include "umctl2.h"
 #include "gpio.h"
 #include "pmc.h"
-#include "sama7g5ek.h"
+#include "arch/at91_pmc/pmc.h"
 #include "publ.h"
 #include "umctl2.h"
 #include "watchdog.h"
+
+#include "sama7g5ek.h"
 
 static void ca7_enable_smp()
 {
@@ -77,7 +79,7 @@ unsigned int at91_flexcom3_init(void)
 {
 	const struct pio_desc flx_pins[] = {
 		{"FLX_IO0", CONFIG_SYS_DBGU_TXD_PIN, 0, PIO_DEFAULT, PIO_PERIPH_F},
-		{"FLX_IO1", CONFIG_SYS_DBGU_RXD_PIN, 0, PIO_DEFAULT, PIO_PERIPH_F},
+		{"FLX_IO1", CONFIG_SYS_DBGU_RXD_PIN, 0, PIO_PULLUP, PIO_PERIPH_F},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_F},
 	};
 
@@ -224,6 +226,24 @@ void hw_init(void)
 #ifdef CONFIG_WDTS
 	at91_disable_wdts();
 #endif
+
+	struct pmc_pll_cfg plla_config;
+
+	/* Configure & Enable CPU PLL */
+	plla_config.mul = 32;
+	plla_config.div = 0;
+	plla_config.count = 0x3f;
+	plla_config.fracr = 0x155555; /* 2^22 / 3 */
+	plla_config.acr = 0x1b040010;
+	pmc_sam9x60_cfg_pll(PLL_ID_CPUPLL, &plla_config);
+
+	pmc_mck_cfg_set(0, BOARD_PRESCALER_CPUPLL,
+			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
+
+	pmc_mck_cfg_set(1, BOARD_PRESCALER_MCK1,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
+
+
 	board_flexcoms_init();
 	at91_flexcom3_init();
 
@@ -234,6 +254,10 @@ void hw_init(void)
 	ca7_enable_smp();
 
 	umctl2_config_state_init();
+
+dbg_info("Preparing to init DDR\n");
+
+	while(1);
 
 	if (umctl2_init(&umctl2_config)) {
 		dbg_info("UMCTL2: Error initializing\n");
