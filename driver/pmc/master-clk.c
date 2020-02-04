@@ -27,7 +27,7 @@
 #include "clk-common.h"
 #include "arch/at91_pmc/pmc.h"
 
-void pmc_mck_cfg_set(unsigned int bits, unsigned int mask)
+void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits, unsigned int mask)
 {
 	unsigned int tmp = read_pmc(PMC_MCKR) & mask;
 	unsigned int updates = tmp ^ bits;

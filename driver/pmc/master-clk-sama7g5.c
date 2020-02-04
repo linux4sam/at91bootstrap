@@ -104,9 +104,8 @@ static void pmc_mck_mck0_set(unsigned int updates, unsigned int bits,
 	}
 }
 
-void pmc_mck_cfg_set(unsigned int bits, unsigned int mask)
+void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits, unsigned int mask)
 {
-	unsigned int mckid = bits & AT91C_MCR_ID;
 	unsigned int updates, tmp;
 	unsigned long cur_freq = 0, new_freq = 0;
 

@@ -589,7 +589,7 @@ void hw_init(void)
 	 */
 
 	/* Switch PCK/MCK on Main clock output */
-	pmc_mck_cfg_set(BOARD_PRESCALER_MAIN_CLOCK,
+	pmc_mck_cfg_set(0, BOARD_PRESCALER_MAIN_CLOCK,
 			AT91C_PMC_PLLADIV2 | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	/* Configure PLLA = MOSC * (PLL_MULA + 1) / PLL_DIVA */
@@ -600,7 +600,7 @@ void hw_init(void)
 	pmc_init_pll(0);
 
 	/* Switch MCK on PLLA output */
-	pmc_mck_cfg_set(BOARD_PRESCALER_PLLA,
+	pmc_mck_cfg_set(0, BOARD_PRESCALER_PLLA,
 			AT91C_PMC_H32MXDIV | AT91C_PMC_PLLADIV2 |
 			AT91C_PMC_MDIV | AT91C_PMC_CSS);
 

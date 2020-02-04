@@ -44,7 +44,7 @@ void lowlevel_clock_init()
 	 * parameters. It is assumed that ROM code set H32MXDIV, PLLADIV2,
 	 * PCK_DIV3.
 	 */
-	pmc_mck_cfg_set(AT91C_PMC_CSS_SLOW_CLK, AT91C_PMC_CSS);
+	pmc_mck_cfg_set(0, AT91C_PMC_CSS_SLOW_CLK, AT91C_PMC_CSS);
 
 #if defined(CONFIG_SAMA5D3X_CMP)
 	/*
@@ -136,10 +136,10 @@ void lowlevel_clock_init()
 	/* After stablization, switch to Main Clock */
 #if defined(AT91SAM9X5) || defined(AT91SAM9N12) || defined(SAMA5D3X) \
 	|| defined(SAMA5D4) || defined(SAMA5D2)
-	pmc_mck_cfg_set(AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK,
+	pmc_mck_cfg_set(0, AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK,
 			AT91C_PMC_CSS | AT91C_PMC_ALT_PRES);
 #else
-	pmc_mck_cfg_set(AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK,
+	pmc_mck_cfg_set(0, AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK,
 			AT91C_PMC_CSS | AT91C_PMC_PRES);
 #endif
 
