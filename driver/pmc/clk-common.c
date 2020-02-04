@@ -83,7 +83,7 @@ void lowlevel_clock_init()
 	while (!(tmp = read_pmc(PMC_MCFR) & AT91C_CKGR_MAINRDY))
 		;
 
-#if defined(SAMA7G5)
+#if defined(SAMA7G5) && 0
 	tmp = (tmp & AT91C_CKGR_MAINF) * 32768 / 16;
 	if (tmp != MASTER_CLOCK)
 		return;
