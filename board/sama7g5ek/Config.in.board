@@ -8,5 +8,6 @@ config CONFIG_SAMA7G5EK
 	select ALLOW_SDCARD
 	select ALLOW_CPU_CLK_800MHZ
 	select ALLOW_CRYSTAL_24_000MHZ
+	select SUPPORT_BUS_SPEED_200MHZ
 	help
 	  Use the SAMA7G5 Evaluation kit board
