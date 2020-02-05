@@ -37,8 +37,16 @@
 				AT91C_PMC_MDIV_4 | \
 				AT91C_PMC_CSS_CPUPLL_CLK)
 
-#define BOARD_PRESCALER_MCK1	(AT91C_MCR_MASTER_DIV1 | \
-				AT91C_MCR_CSS_MCK0_CLK | \
+#define BOARD_PRESCALER_MCK1	(AT91C_MCR_MASTER_DIV2 | \
+				AT91C_MCR_CSS_SYSPLL_CLK | \
+				AT91C_MCR_EN)
+
+#define BOARD_PRESCALER_MCK2	(AT91C_MCR_MASTER_DIV1 | \
+				AT91C_MCR_CSS_DDRPLL_CLK | \
+				AT91C_MCR_EN)
+
+#define BOARD_PRESCALER_MCK4	(AT91C_MCR_MASTER_DIV1 | \
+				AT91C_MCR_CSS_SYSPLL_CLK | \
 				AT91C_MCR_EN)
 
 #define CONFIG_SYS_BASE_TZC400		AT91C_BASE_TZC400
@@ -65,7 +73,7 @@
 #define _tRP_ps		13125UL		/* Row Precharge command, ps */
 #define _tRCD		14UL		/* Row to Column delay, ns */
 #define _tRCD_ps	13125UL		/* Row to Column delay, ps */
-#define _tRAS		45UL		/* Row Active Strobe, ns */
+#define _tRAS		38UL		/* Row Active Strobe, ns */
 #define _tRASMAX	70000UL		/* RAS max, ns */
 #define _tRC_ps		50625UL		/* Row Cycle, ps */
 #define _tFAW		50UL		/* Four Activation Window, ns */
@@ -75,5 +83,4 @@
 #define _AL		0UL		/* Additive Latency, Clock cycles */
 #define _TZQOPER	256UL		/* TZQ Long Calibration, Clock cycles */
 #define _TZQCS		64UL		/* TZQ Short Calibration, Clock cycles */
-
 #endif

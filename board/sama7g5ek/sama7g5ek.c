@@ -191,7 +191,7 @@ void at91_board_set_dtb_name(char *of_name)
 }
 #endif
 
-#define ATMEL_SDHC_GCKDIV_VALUE		9
+#define ATMEL_SDHC_GCKDIV_VALUE		1
 
 void at91_sdhc_hw_init(void)
 {
@@ -214,7 +214,7 @@ void at91_sdhc_hw_init(void)
 
 	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
-				 GCK_CSS_SYSPLL_CLK,
+				 GCK_CSS_MCK_CLK,
 				 ATMEL_SDHC_GCKDIV_VALUE);
 }
 #endif
@@ -222,12 +222,17 @@ void at91_sdhc_hw_init(void)
 
 void hw_init(void)
 {
+	struct pmc_pll_cfg plla_config;
+	struct pmc_pll_cfg ddrpll_config;
+	struct pmc_pll_cfg syspll_config;
+
 	at91_disable_wdt();
 #ifdef CONFIG_WDTS
 	at91_disable_wdts();
 #endif
 
-	struct pmc_pll_cfg plla_config;
+	ca7_enable_smp();
+
 
 	/* Configure & Enable CPU PLL */
 	plla_config.mul = 32;
@@ -240,28 +245,50 @@ void hw_init(void)
 	pmc_mck_cfg_set(0, BOARD_PRESCALER_CPUPLL,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
-	pmc_mck_cfg_set(1, BOARD_PRESCALER_MCK1,
+	/* Configure & Enable SYS PLL */
+	syspll_config.mul = 49; /* (49 + 1) * 24 = 1200 */
+	syspll_config.div = 2; /* Feed to PMC 1200/3 = 400 Mhz */
+	syspll_config.count = 0x7f;
+	syspll_config.fracr = 0;
+	syspll_config.acr = 0x1b040010;
+	/* SYSPLL @ 1200 MHz */
+	pmc_sam9x60_cfg_pll(PLL_ID_SYSPLL, &syspll_config);
+
+	/* MCK4 @ 400 Mhz (== SYSPLL) */
+	pmc_mck_cfg_set(4, BOARD_PRESCALER_MCK4,
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
+	/* MCK1 @ 200 Mhz (== SYSPLL/2) */
+	pmc_mck_cfg_set(1, BOARD_PRESCALER_MCK1,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
 	board_flexcoms_init();
 	at91_flexcom3_init();
 
 	initialize_serial();
 
-	usart_puts("hardware init CA7\n");
+	usart_puts("early uart CA7\n");
 
-	ca7_enable_smp();
+	/* Configure & Enable DDR PLL */
+	ddrpll_config.mul = 43; /* (43 + 1) * 24 = 1056 */
+	ddrpll_config.div = 1;
+	ddrpll_config.divio = 100;
+	ddrpll_config.count = 0x3f;
+	ddrpll_config.fracr = 0x1aaaaa; /* (10/24) * 2^22 to get extra 10 MHz */
+	ddrpll_config.acr = 0x00020033;
+	/* DDRPLL @ 1066 MHz */
+	pmc_sam9x60_cfg_pll(PLL_ID_DDRPLL, &ddrpll_config);
+
+	/* MCK2 @ 533 MHz */
+	pmc_mck_cfg_set(2, BOARD_PRESCALER_MCK2,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
 	umctl2_config_state_init();
-
-dbg_info("Preparing to init DDR\n");
-
-	while(1);
-
 	if (umctl2_init(&umctl2_config)) {
 		dbg_info("UMCTL2: Error initializing\n");
 	} else {
 		dbg_info("UMCTL2: Initialization complete.\n");
 	}
+
+	tzc400_init();
 }
