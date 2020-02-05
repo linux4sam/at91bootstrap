@@ -158,7 +158,7 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 	case AT91C_PMC_GCKCSS_BAUDPLL_CLK:
 	case AT91C_PMC_GCKCSS_AUDIOPLL_CLK:
 	case AT91C_PMC_GCKCSS_ETHPLL_CLK:
-		tmp = (clock_source - AT91C_PMC_GCKCSS_SYSPLL_CLK) >> 8;
+		tmp = ((clock_source - AT91C_PMC_GCKCSS_SYSPLL_CLK) >> 8) + 1;
 		freq = pmc_get_pll_freq(tmp);
 		break;
 #else
