@@ -151,14 +151,16 @@ static int pmc_pll_get_parent_props(unsigned int pll_id,
 unsigned int pmc_get_pll_freq(unsigned int pll_id)
 {
 	unsigned int freq, core_freq, divider = 0, parent_rate = 0;
+	unsigned long long frac_freq;
 	int ret;
 
 	ret = pmc_pll_get_parent_props(pll_id, &parent_rate, &divider);
 	if (ret)
 		return ret;
 
-	core_freq = parent_rate * (config[PLL_ID_PLLA].mul + 1 +
-				   (config[PLL_ID_PLLA].fracr >> 22));
+	core_freq = parent_rate * (config[pll_id].mul + 1);
+	frac_freq = ((parent_rate >> 20) * config[pll_id].fracr) >> 2;
+	core_freq += frac_freq;
 
 	freq = div(core_freq, divider);
 
