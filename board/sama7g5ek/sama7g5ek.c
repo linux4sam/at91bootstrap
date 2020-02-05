@@ -57,7 +57,7 @@ static void initialize_serial(void)
 {
 	unsigned int baudrate = 115200;
 
-	usart_init(BAUDRATE(200000000, baudrate));
+	usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
 }
 
 #if defined CONFIG_FLEXCOM
