@@ -88,6 +88,7 @@ extern int pmc_cfg_pck(unsigned char x,
 extern int pmc_enable_periph_clock(unsigned int periph_id, int divider);
 extern int pmc_disable_periph_clock(unsigned int periph_id);
 extern int pmc_periph_clock_enabled(unsigned int periph_id);
+unsigned int pmc_periph_clock_get_rate(unsigned int periph_id);
 extern void pmc_enable_system_clock(unsigned int clock_id);
 extern void pmc_disable_system_clock(unsigned int clock_id);
 extern void pmc_set_smd_clock_divider(unsigned int divider);

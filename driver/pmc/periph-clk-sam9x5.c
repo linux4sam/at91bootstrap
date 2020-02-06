@@ -47,3 +47,20 @@ int pmc_disable_periph_clock(unsigned int periph_id)
 	return 0;
 }
 
+unsigned int pmc_periph_clock_get_rate(unsigned int periph_id)
+{
+#ifdef SAMA7G5
+	unsigned int val, mck_rate, mckid, div;
+
+	write_pmc(PMC_PCR, (periph_id & AT91C_PMC_PID));
+	val = read_pmc(PMC_PCR);
+	mckid = (val & AT91C_PMC_MCKID) >> 16;
+	div = (val & AT91C_PMC_DIV) >> 14;
+
+	mck_rate = pmc_mck_get_rate(mckid);
+
+	return mck_rate / (1 << div);
+#else
+	return at91_get_ahb_clock();
+#endif
+}
