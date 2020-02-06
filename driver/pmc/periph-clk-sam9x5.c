@@ -33,7 +33,8 @@ int pmc_enable_periph_clock(unsigned int periph_id, int divider)
 	if (divider == PMC_PERIPH_CLK_DIVIDER_NA)
 		divider = 0;
 
-	write_pmc(PMC_PCR, (periph_id | AT91C_PMC_DIV_(divider)
+	write_pmc(PMC_PCR, ((periph_id & AT91C_PMC_PID)
+				| AT91C_PMC_DIV_(divider)
 				| AT91C_PMC_CMD
 				| AT91C_PMC_EN));
 
