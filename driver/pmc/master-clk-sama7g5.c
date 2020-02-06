@@ -29,26 +29,62 @@
 #include "types.h"
 #include "arch/at91_pmc/pmc.h"
 
-static unsigned long pmc_mck_css_to_freq(unsigned int css)
+static unsigned long pmc_mck_mck0_rate(unsigned int mckr)
 {
-	unsigned long freq = 0;
+	unsigned int css  = mckr & AT91C_PMC_CSS;
+	unsigned int pres = mckr & AT91C_PMC_PRES;
+	unsigned int mdiv = mckr & AT91C_PMC_MDIV;
+	unsigned long rate = 0;
 
 	switch (css) {
 	case AT91C_PMC_CSS_SLOW_CLK:
-		freq = 32768;
+		rate = 32768;
 		break;
 	case AT91C_PMC_CSS_MAIN_CLK:
-		freq = pmc_mainck_get_rate();
+		rate = pmc_mainck_get_rate();
 		break;
 	case AT91C_PMC_CSS_CPUPLL_CLK:
 	case AT91C_PMC_CSS_SYSPLL_CLK:
-		freq = pmc_get_pll_freq(css - AT91C_PMC_CSS_CPUPLL_CLK);
+		rate = pmc_get_pll_freq(css - AT91C_PMC_CSS_CPUPLL_CLK);
 		break;
 	default:
-		break;
+		return rate;
 	}
 
-	return freq;
+	switch (pres) {
+	case AT91C_PMC_PRES_CLK:
+	case AT91C_PMC_PRES_CLK_2:
+	case AT91C_PMC_PRES_CLK_4:
+	case AT91C_PMC_PRES_CLK_8:
+	case AT91C_PMC_PRES_CLK_16:
+	case AT91C_PMC_PRES_CLK_32:
+	case AT91C_PMC_PRES_CLK_64:
+		rate = rate >> (pres >> 4);
+		break;
+	case AT91C_PMC_PRES_CLK_3:
+		rate /= 3;
+		break;
+	default:
+		return rate;
+	}
+
+	switch (mdiv) {
+	case AT91C_PMC_MDIV_1:
+	case AT91C_PMC_MDIV_2:
+	case AT91C_PMC_MDIV_4:
+		rate = rate >> (mdiv >> 8);
+		break;
+	case AT91C_PMC_MDIV_3:
+		rate /= 3;
+		break;
+	case AT91C_PMC_MDIV_5:
+		rate /= 5;
+		break;
+	default:
+		return rate;
+	}
+
+	return rate;
 }
 
 static void pmc_mck_mck0_set(unsigned int updates, unsigned int bits,
@@ -107,7 +143,7 @@ static void pmc_mck_mck0_set(unsigned int updates, unsigned int bits,
 void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits, unsigned int mask)
 {
 	unsigned int updates, tmp;
-	unsigned long cur_freq = 0, new_freq = 0;
+	unsigned long cur_rate = 0, new_rate = 0;
 
 	/* MCK0 is programmed via PMC_MCKR. */
 	if (!mckid) {
@@ -119,11 +155,12 @@ void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits, unsigned int mask)
 			 * We have different progamming order b/w CSS, PRES,
 			 * MDIV based on selected clock source.
 			 */
-			cur_freq = pmc_mck_css_to_freq(tmp & AT91C_PMC_CSS);
-			new_freq = pmc_mck_css_to_freq(bits & AT91C_PMC_CSS);
+			cur_rate = pmc_mck_mck0_rate(tmp);
+			new_rate = pmc_mck_mck0_rate(bits & mask);
+
 		}
 
-		pmc_mck_mck0_set(updates, bits, cur_freq < new_freq);
+		pmc_mck_mck0_set(updates, bits, cur_rate < new_rate);
 
 		return;
 	}
