@@ -43,7 +43,6 @@
 #define AT91C_ID_PIT64B0	70
 #define AT91C_ID_PIT64B		AT91C_ID_PIT64B0
 
-#define AT91C_ID_SYS		AT91C_ID_PIT64B0
 /*
  * User Peripherals physical base addresses.
  */
