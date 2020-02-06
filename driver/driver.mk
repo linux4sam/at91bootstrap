@@ -20,6 +20,7 @@ COBJS-$(CONFIG_PMC_PLL_CLK_SAM9X60)	+= $(DRIVERS_SRC)/pmc/pll-clk-sam9x60.o
 COBJS-$(CONFIG_PMC_MCK_CLK)		+= $(DRIVERS_SRC)/pmc/master-clk.o
 COBJS-$(CONFIG_PMC_MCK_CLK_SAMA7G5)	+= $(DRIVERS_SRC)/pmc/master-clk-sama7g5.o
 COBJS-$(CONFIG_PIT)		+= $(DRIVERS_SRC)/at91_pit.o
+COBJS-$(CONFIG_PIT64B)		+= $(DRIVERS_SRC)/pit64b.o
 COBJS-$(CONFIG_WDT)		+= $(DRIVERS_SRC)/at91_wdt.o
 COBJS-$(CONFIG_WDT2)		+= $(DRIVERS_SRC)/at91_wdt2.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_usart.o

@@ -540,8 +540,19 @@ menu "Basic Drivers support"
 config CONFIG_PIT
 	bool "Programmable interrupt timer support"
 	default y
+	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
+		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
+		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2 || \
+		SAM9X60
 	help
 	  Programmable interrupt timer support
+
+config CONFIG_PIT64B
+	bool "64-bit Periodic Interval Timer"
+	default y
+	depends on SAMA7G5
+	help
+	  Enable 64-bit periodic interval timer.
 
 choice
 	prompt "Watchdog timer controller selection"
