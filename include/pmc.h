@@ -80,6 +80,7 @@ extern unsigned int pmc_get_pll_freq(unsigned int pll_id);
 extern void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits,
 			    unsigned int mask);
 extern int pmc_mck_check_h32mxdiv(void);
+extern unsigned int pmc_mck_get_rate(unsigned int mckid);
 extern int pmc_cfg_pck(unsigned char x,
 			unsigned int clk_sel,
 			unsigned int prescaler);

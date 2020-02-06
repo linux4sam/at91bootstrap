@@ -85,7 +85,7 @@ void lowlevel_clock_init()
 
 #if defined(SAMA7G5) && 0
 	tmp = (tmp & AT91C_CKGR_MAINF) * 32768 / 16;
-	if (tmp != MASTER_CLOCK)
+	if (tmp != pmc_mck_get_rate(0))
 		return;
 #endif
 #endif

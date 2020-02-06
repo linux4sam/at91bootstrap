@@ -191,6 +191,48 @@ void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits, unsigned int mask)
 	       !(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
 }
 
+unsigned int pmc_mck_get_rate(unsigned int mckid)
+{
+	unsigned int clock_source, tmp, rate = 0;
+
+	if (!mckid) {
+		tmp = read_pmc(PMC_MCKR);
+		return pmc_mck_mck0_rate(tmp);
+	}
+
+	write_pmc(PMC_MCR, mckid);
+	clock_source = read_pmc(PMC_MCR) & AT91C_MCR_CSS;
+
+	switch (clock_source) {
+	case AT91C_MCR_CSS_MD_SLOW_CLK:
+	case AT91C_MCR_CSS_TD_SLOW_CLK:
+		rate = 32768;
+		break;
+	case AT91C_MCR_CSS_MAIN_CLK:
+#ifdef BOARD_MAINOSC
+		rate = BOARD_MAINOSC;
+#endif
+		break;
+	case AT91C_MCR_CSS_MCK0_CLK:
+		tmp = read_pmc(PMC_MCKR);
+		rate = pmc_mck_mck0_rate(tmp);
+		break;
+	case AT91C_MCR_CSS_SYSPLL_CLK:
+	case AT91C_MCR_CSS_DDRPLL_CLK:
+	case AT91C_MCR_CSS_IMGPLL_CLK:
+	case AT91C_MCR_CSS_BAUDPLL_CLK:
+	case AT91C_MCR_CSS_AUDIOPLL_CLK:
+	case AT91C_MCR_CSS_ETHPLL_CLK:
+		tmp = (clock_source - AT91C_MCR_CSS_SYSPLL_CLK) >> 8;
+		rate = pmc_get_pll_freq(tmp);
+		break;
+	default:
+		break;
+	}
+
+	return rate;
+}
+
 int pmc_mck_check_h32mxdiv(void)
 {
 	return 0;

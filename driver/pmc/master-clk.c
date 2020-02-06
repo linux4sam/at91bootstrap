@@ -108,3 +108,8 @@ int pmc_mck_check_h32mxdiv(void)
 	return 0;
 #endif
 }
+
+unsigned int pmc_mck_get_rate(unsigned int mckid)
+{
+	return MASTER_CLOCK;
+}
