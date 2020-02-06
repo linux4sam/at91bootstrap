@@ -83,7 +83,7 @@
 #define		AT91C_PMC_PRES_CLK_32		(0x5UL << 4)
 #define		AT91C_PMC_PRES_CLK_64		(0x6UL << 4)
 #define		AT91C_PMC_PRES_CLK_3		(0x7UL << 4)
-#define AT91C_PMC_MDIV		(0x3UL <<  8)
+#define AT91C_PMC_MDIV		(0x7UL <<  8)
 #define 	AT91C_PMC_MDIV_1		(0x0UL <<  8)
 #define 	AT91C_PMC_MDIV_2		(0x1UL <<  8)
 #define 	AT91C_PMC_MDIV_4		(0x2UL <<  8)
