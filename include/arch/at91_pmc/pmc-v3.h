@@ -133,6 +133,7 @@
 #define		AT91C_PMC_GCKCSS_ETHPLL_CLK	(10UL << 8)
 #define AT91C_PMC_DIV		(0x3UL << 14)
 #define		AT91C_PMC_DIV_(x)		((x) << 14)
+#define	AT91C_PMC_MCKID		(0xFUL << 16)
 #define	AT91C_PMC_GCKDIV	(0xFFUL << 20)
 #define		AT91C_PMC_GCKDIV_MSK		0xFF
 #define		AT91C_PMC_GCKDIV_OFFSET		20
