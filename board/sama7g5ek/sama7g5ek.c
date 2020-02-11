@@ -40,6 +40,7 @@
 #include "publ.h"
 #include "umctl2.h"
 #include "watchdog.h"
+#include "timer.h"
 
 #include "sama7g5ek.h"
 
@@ -233,6 +234,7 @@ void hw_init(void)
 
 	ca7_enable_smp();
 
+	timer_init();
 
 	/* Configure & Enable CPU PLL */
 	plla_config.mul = 32;
