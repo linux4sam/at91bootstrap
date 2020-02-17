@@ -1,0 +1,61 @@
+
+config UART_1_IOSET_1
+	bool "UART1 IO Set 1"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_0
+	help 
+		Use UART1 IO Set 1
+config UART_0_IOSET_1
+	bool "UART0 IO Set 1"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_1
+	help 
+		Use UART0 IO Set 1
+config UART_1_IOSET_2
+	bool "UART1 IO Set 2"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_2
+	help 
+		Use UART1 IO Set 2
+config UART_2_IOSET_1
+	bool "UART2 IO Set 1"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_3
+	help 
+		Use UART2 IO Set 1
+config UART_2_IOSET_2
+	bool "UART2 IO Set 2"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_4
+	help 
+		Use UART2 IO Set 2
+config UART_2_IOSET_3
+	bool "UART2 IO Set 3"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_5
+	help 
+		Use UART2 IO Set 3
+config UART_3_IOSET_1
+	bool "UART3 IO Set 1"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_6
+	help 
+		Use UART3 IO Set 1
+config UART_3_IOSET_2
+	bool "UART3 IO Set 2"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_7
+	help 
+		Use UART3 IO Set 2
+config UART_3_IOSET_3
+	bool "UART3 IO Set 3"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_8
+	help 
+		Use UART3 IO Set 3
+config UART_4_IOSET_1
+	bool "UART4 IO Set 1"
+	depends on SAMA5D2
+	select CONSOLE_INDEX_9
+	help 
+		Use UART4 IO Set 1

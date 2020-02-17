@@ -1,0 +1,307 @@
+menu "Config target clock"
+
+menu "Main Crystal configuration"
+
+choice
+	prompt "Crystal Frequency"
+	default CRYSTAL_18_432MHZ
+	help
+	  Select the crystal frequency
+
+config CRYSTAL_12_000MHZ
+	bool "Build for use of an 12.000 MHz crystal"
+	depends on ALLOW_CRYSTAL_12_000MHZ
+
+config CRYSTAL_16_000MHZ
+	bool "Build for use of an 16.000 MHz crystal"
+	depends on ALLOW_CRYSTAL_16_000MHZ
+
+config CRYSTAL_16_36766MHZ
+	bool "Build for use of an 16.36766 MHz crystal"
+	depends on ALLOW_CRYSTAL_16_36766MHZ
+
+config CRYSTAL_18_432MHZ
+	bool "Build for use of an 18.432 MHz crystal"
+	depends on ALLOW_CRYSTAL_18_432MHZ
+
+config CRYSTAL_24_000MHZ
+	bool "Build for use of an 24.000 MHz crystal"
+	depends on ALLOW_CRYSTAL_24_000MHZ
+
+endchoice
+
+config MCK_BYPASS
+	bool "Use external clock signal as a source of main clock"
+	default n
+	help
+	  Use external 8 to 24 Mhz clock signal as source of main clock instead
+	  of an external crystal oscillator.
+	  This option disables the internal driving on the XOUT pin.
+	  The external source has to provide a stable clock on the XIN pin.
+	  If this option is disabled, the SoC expects a crystal oscillator
+	  that needs driving on both XIN and XOUT lines.
+
+endmenu
+
+menu "Slow Clock Configuration Options"
+	depends on CPU_HAS_SCKC
+
+config SCLK
+	bool "Use external 32kHz crystal oscillator as source of slow clock"
+	default y
+	help
+	  Use external 32kHz crystal oscillator as source of slow clock instead
+	  of the embedded 32 khz RC source which typically has a lower accuracy
+	  Both XIN32 and XOUT32 need to be connected to enable the SoC to
+	  drive the crystal oscillator.
+	  Behavior can be changed using SCLK_BYPASS, if this is
+	  supported by the SoC.
+	  If SCLK_BYPASS is unavailable, only a crystal oscillator
+	  can be connected.
+
+config SCLK_BYPASS
+	depends on SCLK && CPU_HAS_SCLK_BYPASS
+	bool "Use external 32kHz clock signal as source of slow clock"
+	default n
+	help
+	  Use external 32kHz clock signal as source of slow clock instead of
+	  an external crystal oscillator.
+	  This option disables the internal driving on the XOUT32 pin.
+	  The external source has to provide a stable clock on the XIN32 pin.
+	  If this option is disabled, the SoC expects a crystal oscillator
+	  that needs driving on both XIN32 and XOUT32 lines.
+
+endmenu
+
+config ALLOW_CRYSTAL_12_000MHZ
+	bool
+
+config ALLOW_CRYSTAL_16_000MHZ
+	bool
+
+config ALLOW_CRYSTAL_16_36766MHZ
+	bool
+
+config ALLOW_CRYSTAL_18_432MHZ
+	bool
+
+config ALLOW_CRYSTAL_24_000MHZ
+	bool
+
+choice
+	prompt "CPU clock"
+	default CPU_CLK_200MHZ
+
+config	CPU_CLK_166MHZ
+	bool "166 MHz"
+	depends on ALLOW_CPU_CLK_166MHZ
+
+config	CPU_CLK_180MHZ
+	bool "180 MHz"
+	depends on ALLOW_CPU_CLK_180MHZ
+
+config	CPU_CLK_200MHZ
+	bool "200 MHz"
+	depends on ALLOW_CPU_CLK_200MHZ
+
+config	CPU_CLK_240MHZ
+	bool "240 MHz"
+	depends on ALLOW_CPU_CLK_240MHZ
+	depends on !DISABLE_CPU_CLK_240MHZ
+
+config	CPU_CLK_266MHZ
+	bool "266 MHz"
+	depends on ALLOW_CPU_CLK_266MHZ
+
+config	CPU_CLK_332MHZ
+	bool "332 MHz"
+	depends on ALLOW_CPU_CLK_332MHZ
+
+config	CPU_CLK_348MHZ
+	bool "348 MHz"
+	depends on ALLOW_CPU_CLK_348MHZ
+
+config	CPU_CLK_396MHZ
+	bool "396 MHz"
+	depends on ALLOW_CPU_CLK_396MHZ
+
+config	CPU_CLK_400MHZ
+	bool "400 MHz"
+	depends on ALLOW_CPU_CLK_400MHZ
+
+config	CPU_CLK_444MHZ
+	bool "444 MHz"
+	depends on ALLOW_CPU_CLK_444MHZ
+
+config CPU_CLK_492MHZ
+	bool "492 MHz"
+	depends on ALLOW_CPU_CLK_492MHZ
+
+config CPU_CLK_498MHZ
+	bool "498 MHz"
+	depends on ALLOW_CPU_CLK_498MHZ
+
+config CPU_CLK_510MHZ
+	bool "510 MHz"
+	depends on ALLOW_CPU_CLK_510MHZ
+
+config CPU_CLK_528MHZ
+	bool "528 MHz"
+	depends on ALLOW_CPU_CLK_528MHZ
+
+config CPU_CLK_594MHZ
+	bool "594 MHz"
+	depends on ALLOW_CPU_CLK_594MHZ
+
+config CPU_CLK_600MHZ
+	bool "600 MHz"
+	depends on ALLOW_CPU_CLK_600MHZ
+
+endchoice
+
+config	ALLOW_CPU_CLK_166MHZ
+	bool
+
+config	ALLOW_CPU_CLK_180MHZ
+	bool
+
+config	ALLOW_CPU_CLK_200MHZ
+	bool
+
+config	ALLOW_CPU_CLK_240MHZ
+	bool
+
+config	ALLOW_CPU_CLK_266MHZ
+	bool
+
+config	ALLOW_CPU_CLK_332MHZ
+	bool
+
+config	ALLOW_CPU_CLK_348MHZ
+	bool
+
+config	ALLOW_CPU_CLK_396MHZ
+	bool
+
+config	ALLOW_CPU_CLK_400MHZ
+	bool
+
+config	ALLOW_CPU_CLK_444MHZ
+	bool
+
+config  ALLOW_CPU_CLK_492MHZ
+	bool
+
+config  ALLOW_CPU_CLK_498MHZ
+	bool
+
+config  ALLOW_CPU_CLK_510MHZ
+	bool
+
+config  ALLOW_CPU_CLK_528MHZ
+	bool
+
+config  ALLOW_CPU_CLK_594MHZ
+	bool
+
+config  ALLOW_CPU_CLK_600MHZ
+	bool
+
+config	DISABLE_CPU_CLK_240MHZ
+	bool
+	default y if AT91SAM9263EK && CRYSTAL_16_36766MHZ
+	default n
+
+choice
+	prompt "Bus Speed"
+	default BUS_SPEED_133MHZ
+	help
+	  Select the speed of the bus
+
+config BUS_SPEED_83MHZ
+	bool "83 MHz"
+	depends on SUPPORT_BUS_SPEED_83MHZ && CPU_CLK_166MHZ
+
+config BUS_SPEED_90MHZ
+	bool "90 MHz"
+	depends on SUPPORT_BUS_SPEED_90MHZ && CPU_CLK_180MHZ
+
+config BUS_SPEED_100MHZ
+	bool "100 MHz"
+	depends on SUPPORT_BUS_SPEED_100MHZ && (CPU_CLK_200MHZ || CPU_CLK_400MHZ)
+
+config BUS_SPEED_116MHZ
+	bool "116 MHz"
+	depends on SUPPORT_BUS_SPEED_116MHZ && (CPU_CLK_348MHZ || CPU_CLK_498MHZ)
+
+config BUS_SPEED_124MHZ
+	bool "124 MHz"
+	depends on SUPPORT_BUS_SPEED_124MHZ && CPU_CLK_498MHZ
+
+config BUS_SPEED_133MHZ
+	bool "133 MHz"
+	depends on SUPPORT_BUS_SPEED_133MHZ && (CPU_CLK_528MHZ || CPU_CLK_400MHZ || CPU_CLK_396MHZ || CPU_CLK_266MHZ)
+
+config BUS_SPEED_148MHZ
+	bool "148 MHz"
+	depends on SUPPORT_BUS_SPEED_148MHZ && (CPU_CLK_444MHZ || CPU_CLK_594MHZ)
+
+config BUS_SPEED_164MHZ
+	bool "164 MHz"
+	depends on SUPPORT_BUS_SPEED_164MHZ && CPU_CLK_492MHZ && CRYSTAL_24_000MHZ
+
+config BUS_SPEED_166MHZ
+	bool "166 MHz"
+	depends on SUPPORT_BUS_SPEED_166MHZ && (CPU_CLK_498MHZ || CPU_CLK_332MHZ)
+
+config BUS_SPEED_170MHZ
+	bool "170 MHz"
+	depends on SUPPORT_BUS_SPEED_170MHZ && CPU_CLK_510MHZ
+
+config BUS_SPEED_176MHZ
+	bool "176 MHz"
+	depends on SUPPORT_BUS_SPEED_176MHZ && CPU_CLK_528MHZ
+
+config BUS_SPEED_200MHZ
+	bool "200 MHz"
+	depends on SUPPORT_BUS_SPEED_200MHZ && CPU_CLK_600MHZ
+
+endchoice
+
+config SUPPORT_BUS_SPEED_83MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_90MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_100MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_116MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_124MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_133MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_148MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_164MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_166MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_170MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_176MHZ
+	bool
+
+config SUPPORT_BUS_SPEED_200MHZ
+	bool
+
+endmenu

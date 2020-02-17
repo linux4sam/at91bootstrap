@@ -1,0 +1,85 @@
+config DBGU
+	bool "DBGU"
+	depends on SAM9X60
+	select CONSOLE_INDEX_0
+	help 
+		Uses DBGU
+
+config UART0
+	bool "FLEXCOM0 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_1
+	help 
+		Uses FLEXCOM0 UART pins
+config UART1
+	bool "FLEXCOM1 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_2
+	help 
+		Uses FLEXCOM1 UART pins
+config UART2
+	bool "FLEXCOM2 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_3
+	help 
+		Uses FLEXCOM2 UART pins
+config UART3
+	bool "FLEXCOM3 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_4
+	help 
+		Uses FLEXCOM3 UART pins
+config UART4
+	bool "FLEXCOM4 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_5
+	help 
+		Uses FLEXCOM4 UART pins
+config UART5
+	bool "FLEXCOM5 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_6
+	help 
+		Uses FLEXCOM5 UART pins
+config UART6
+	bool "FLEXCOM6 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_7
+	help 
+		Uses FLEXCOM6 UART pins
+config UART7
+	bool "FLEXCOM7 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_8
+	help 
+		Uses FLEXCOM7 UART pins
+config UART8
+	bool "FLEXCOM8 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_9
+	help 
+		Uses FLEXCOM8 UART pins
+config UART9
+	bool "FLEXCOM9 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_10
+	help 
+		Uses FLEXCOM9 UART pins
+config UART10
+	bool "FLEXCOM10 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_11
+	help 
+		Uses FLEXCOM10 UART pins
+config UART11
+	bool "FLEXCOM11 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_12
+	help 
+		Uses FLEXCOM11 UART pins
+config UART12
+	bool "FLEXCOM12 UART"
+	depends on SAM9X60
+	select CONSOLE_INDEX_13
+	help 
+		Uses FLEXCOM12 UART pins

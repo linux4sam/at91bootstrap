@@ -1,0 +1,214 @@
+choice
+	prompt "Device Type"
+	default SAMA5D2_BOARD
+	help
+	  Select which device your board is based on
+
+source "device/sama5d2/Config.in.device"
+source "device/sam9x60/Config.in.device"
+endchoice
+
+
+config DEVICENAME
+	string
+	default "sama5d2" if SAMA5D2_BOARD
+	default "sam9x60" if SAM9X60_BOARD
+	default "sama5d3" if SAMA5D3_BOARD
+	default "sama5d4" if SAMA5D4_BOARD
+	default "at91sam9rl"	if AT91SAM9RL_BOARD
+	default "at91sam9260"	if AT91SAM9260_BOARD
+	default "at91sam9261"	if AT91SAM9261_BOARD
+	default "at91sam9263"	if AT91SAM9263_BOARD
+	default "at91sam9xe"	if AT91SAM9XE_BOARD
+	default "at91sam9g10"	if AT91SAM9G10_BOARD
+	default "at91sam9g20"	if AT91SAM9G20_BOARD
+	default "at91sam9m10g45" if AT91SAM9M10G45_BOARD
+	default "at91sam9n12"	if AT91SAM9N12_BOARD
+	default "at91sam9x5"	if AT91SAM9X5_BOARD
+
+config AT91SAM9260
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_MCI0
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config AT91SAM9261
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_MCI0
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config AT91SAM9263
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_MCI0
+	select CPU_HAS_MCI1
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config AT91SAM9RL
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_SCKC
+	select CPU_HAS_SPI0
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config AT91SAM9XE
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_MCI0
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config AT91SAM9G10
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_MCI0
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config AT91SAM9G20
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_MCI0
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config AT91SAM9G45
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_SCKC
+	select CPU_HAS_HSMCI0
+	select CPU_HAS_HSMCI1
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config AT91SAM9X5
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_TWI2
+	select CPU_HAS_SCKC
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_HSMCI0
+	select CPU_HAS_HSMCI1
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config SAM9X60
+	select CORE_ARM926EJS
+	select CPU_HAS_SCKC
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_SDHC0
+	select CPU_HAS_SDHC1
+	select CPU_HAS_QSPI0
+	select CPU_HAS_WDT2
+	select CPU_HAS_SCLK_BYPASS
+	select CPU_HAS_FLEXCOM
+	select CPU_HAS_QSPI_RICR_WICR
+	bool
+
+config AT91SAM9N12
+	select CORE_ARM926EJS
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_SCKC
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_HSMCI0
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config SAMA5D3X
+	select CORE_CORTEX_A5
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_TWI2
+	select CPU_HAS_AES
+	select CPU_HAS_SCKC
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_HSMCI0
+	select CPU_HAS_HSMCI1
+	select CPU_HAS_HSMCI2
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SCLK_BYPASS
+	bool
+
+config SAMA5D4
+	select CORE_CORTEX_A5
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_TWI2
+	select CPU_HAS_TWI3
+	select CPU_HAS_AES
+	select CPU_HAS_L2CC
+	select CPU_HAS_SCKC
+	select CPU_HAS_H32MXDIV
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_TRUSTZONE
+	select CPU_HAS_HSMCI0
+	select CPU_HAS_HSMCI1
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SPI2
+	bool
+
+config SAMA5D2
+	select CORE_CORTEX_A5
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_FLEXCOM
+	select CPU_HAS_AES
+	select CPU_HAS_L2CC
+	select CPU_HAS_SCKC
+	select CPU_HAS_H32MXDIV
+	select CPU_HAS_PIO4
+	select CPU_HAS_PMECC
+	select CPU_HAS_TRUSTZONE
+	select CPU_HAS_SDHC0
+	select CPU_HAS_SDHC1
+	select CPU_HAS_SPI0
+	select CPU_HAS_SPI1
+	select CPU_HAS_SPI0_IOSET1
+	select CPU_HAS_SPI0_IOSET2
+	select CPU_HAS_SPI1_IOSET1
+	select CPU_HAS_SPI1_IOSET2
+	select CPU_HAS_SPI1_IOSET3
+	select CPU_HAS_QSPI0
+	select CPU_HAS_QSPI1
+	select CPU_HAS_QSPI0_IOSET1
+	select CPU_HAS_QSPI0_IOSET2
+	select CPU_HAS_QSPI0_IOSET3
+	select CPU_HAS_QSPI1_IOSET1
+	select CPU_HAS_QSPI1_IOSET2
+	select CPU_HAS_QSPI1_IOSET3
+	bool
