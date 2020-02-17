@@ -1,5 +1,122 @@
 menu  "NAND flash configuration"
 
+menu "PMECC Configuration"
+
+choice
+	prompt "PMECC Page Size"
+	default PMECC_PAGESIZE_2048
+	help
+		Select the PMECC page size
+
+config PMECC_PAGESIZE_512
+	bool "pagesize 512"
+
+config PMECC_PAGESIZE_1024
+	bool "pagesize 1024"
+
+config PMECC_PAGESIZE_2048
+	bool "pagesize 2048"
+
+config PMECC_PAGESIZE_4096
+	bool "pagesize 4096"
+
+config PMECC_PAGESIZE_8192
+	bool "pagesize 8192"
+endchoice
+
+choice
+	prompt "PMECC spare Size (oob)"
+	default PMECC_OOB_64
+	help
+		Select the PMECC spare size
+
+config PMECC_OOB_16
+	bool "16-byte"
+
+config PMECC_OOB_32
+	bool "32-byte"
+
+config PMECC_OOB_64
+	bool "64-byte"
+
+config PMECC_OOB_224
+	bool "224-byte"
+
+config PMECC_OOB_256
+	bool "256-byte"
+endchoice
+
+choice
+	prompt "PMECC Error Correction Bits"
+	default PMECC_CORRECT_BITS_2
+	help
+		Select the PMECC correction bits
+
+config PMECC_CORRECT_BITS_2
+	bool "2-bit"
+
+config PMECC_CORRECT_BITS_4
+	bool "4-bit"
+
+config PMECC_CORRECT_BITS_8
+	bool "8-bit"
+
+config PMECC_CORRECT_BITS_12
+	bool "12-bit"
+
+config PMECC_CORRECT_BITS_24
+	bool "24-bit"
+
+config PMECC_CORRECT_BITS_32
+	bool "32-bit"
+endchoice
+
+choice
+	prompt "PMECC Sector Size"
+	default PMECC_SECTOR_SIZE_512
+	help
+		Select the PMECC sector size
+
+config PMECC_SECTOR_SIZE_512
+	bool "512-byte"
+
+config PMECC_SECTOR_SIZE_1024
+	bool "1024-byte"
+
+endchoice
+
+endmenu
+
+config PMECC_PAGE_SIZE
+	string
+	default "512" if PMECC_PAGESIZE_512
+	default "1024" if PMECC_PAGESIZE_1024
+	default "2048" if PMECC_PAGESIZE_2048
+	default "4096" if PMECC_PAGESIZE_4096
+	default "8192" if PMECC_PAGESIZE_8192
+
+config PMECC_OOB_SIZE
+	string
+	default "16" if PMECC_OOB_16
+	default "32" if PMECC_OOB_32
+	default "64" if PMECC_OOB_64
+	default "224" if PMECC_OOB_224
+	default "256" if PMECC_OOB_256
+
+config PMECC_CORRECT_BITS
+	string
+	default "2" if PMECC_CORRECT_BITS_2
+	default "4" if PMECC_CORRECT_BITS_4
+	default "8" if PMECC_CORRECT_BITS_8
+	default "12" if PMECC_CORRECT_BITS_12
+	default "24" if PMECC_CORRECT_BITS_24
+	default "32" if PMECC_CORRECT_BITS_32
+
+config PMECC_SECTOR_SIZE
+	string
+	default "512" if PMECC_SECTOR_SIZE_512
+	default "1024" if PMECC_SECTOR_SIZE_1024
+
 choice
 	prompt "ECC Configuration"
 	default USE_PMECC if CPU_HAS_PMECC
@@ -20,56 +137,6 @@ config ON_DIE_ECC
 
 endchoice
 
-menu "PMECC Configuration"
-	depends on USE_PMECC
-
-config PMECC_AUTO_DETECT
-	bool "Auto-detect ONFI minimum error requirement"
-	default y
-	help
-	  Detect the ONFI parameters and use the minimum error
-	  requirement
-
-choice
-	prompt "PMECC Error Correction Bits"
-	depends on !PMECC_AUTO_DETECT
-	default PMECC_CORRECT_BITS_2
-	help
-		Select the PMECC correction bits
-
-config PMECC_CORRECT_BITS_2
-	bool "2-bit"
-
-config PMECC_CORRECT_BITS_4
-	bool "4-bit"
-
-config PMECC_CORRECT_BITS_8
-	bool "8-bit"
-
-config PMECC_CORRECT_BITS_12
-	bool "12-bit"
-
-config PMECC_CORRECT_BITS_24
-	bool "24-bit"
-
-endchoice
-
-choice
-	prompt "PMECC Sector Size"
-	depends on !PMECC_AUTO_DETECT
-	default PMECC_SECTOR_SIZE_512
-	help
-		Select the PMECC sector size
-
-config PMECC_SECTOR_SIZE_512
-	bool "512-byte"
-
-config PMECC_SECTOR_SIZE_1024
-	bool "1024-byte"
-
-endchoice
-
-endmenu
 
 config NANDFLASH_SMALL_BLOCKS
 	bool "Use NAND flash with small blocks"
@@ -88,7 +155,6 @@ config NANDFLASH_RECOVERY
 config ONFI_DETECT_SUPPORT
 	bool "Support NAND flash ONFI detect function"
 	default y
-
 
 config USE_ON_DIE_ECC_SUPPORT
 	bool "Support to use NAND flash On-Die ECC"
