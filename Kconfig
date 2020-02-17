@@ -6,7 +6,67 @@ config HAVE_DOT_CONFIG
 	help
 	  Indicate that have an included file.
 
-source "board/Config.in"
+source "device/Config.in.dev"
+source "device/Config.in.clk"
+
+config CONSOLE_INDEX_0
+	bool
+	default n
+config CONSOLE_INDEX_1
+	bool
+	default n
+config CONSOLE_INDEX_2
+	bool
+	default n
+config CONSOLE_INDEX_3
+	bool
+	default n
+config CONSOLE_INDEX_4
+	bool
+	default n
+config CONSOLE_INDEX_5
+	bool
+	default n
+config CONSOLE_INDEX_6
+	bool
+	default n
+config CONSOLE_INDEX_7
+	bool
+	default n
+config CONSOLE_INDEX_8
+	bool
+	default n
+config CONSOLE_INDEX_9
+	bool
+	default n
+config CONSOLE_INDEX_10
+	bool
+	default n
+config CONSOLE_INDEX_11
+	bool
+	default n
+config CONSOLE_INDEX_12
+	bool
+	default n
+config CONSOLE_INDEX_13
+	bool
+	default n
+config CONSOLE_INDEX_14
+	bool
+	default n
+config CONSOLE_INDEX_15
+	bool
+	default n
+
+choice
+	prompt "Bootstrap Console Setup"
+	help
+	  Select the Pins and UART Interface Used as a Console Terminal
+source "device/sama5d2/Config.in.con"
+source "device/sam9x60/Config.in.con"
+endchoice
+
+source "device/Config.in"
 
 source "driver/Config.in.driver"
 
@@ -174,49 +234,6 @@ config USER_HW_INIT
 
 endmenu
 
-menu "Slow Clock Configuration Options"
-	depends on CPU_HAS_SCKC
-
-choice
-	prompt "Select slow clock configuration profile"
-	default SCLK
-	help
-	  Decide which slow clock to use
-
-config SCLK
-	bool "Use external 32kHz crystal oscillator as source of slow clock"
-	help
-	  Use external 32kHz crystal oscillator as source of slow clock instead
-	  of the embedded 32 khz RC source which typically has a lower accuracy
-	  Both XIN32 and XOUT32 need to be connected to enable the SoC to
-	  drive the crystal oscillator.
-	  Behavior can be changed using SCLK_BYPASS, if this is
-	  supported by the SoC.
-	  If SCLK_BYPASS is unavailable, only a crystal oscillator
-	  can be connected.
-
-config SCLK_INTRC
-	bool "Use internal RC oscillator as a source of slow clock"
-	help
-	  Use internal 32 kHz internal RC oscillator as a source of slow clock.
-	  This means that an oscillator/crystal connected on XIN32/XOUT32
-	  pins of the SoC will be unused.
-
-endchoice
-
-config SCLK_BYPASS
-	depends on SCLK && CPU_HAS_SCLK_BYPASS
-	bool "Use external 32kHz clock signal as source of slow clock"
-	default n
-	help
-	  Use external 32kHz clock signal as source of slow clock instead of
-	  an external crystal oscillator.
-	  This option disables the internal driving on the XOUT32 pin.
-	  The external source has to provide a stable clock on the XIN32 pin.
-	  If this option is disabled, the SoC expects a crystal oscillator
-	  that needs driving on both XIN32 and XOUT32 lines.
-
-endmenu
 
 menu "ARM TrustZone Options"
 	depends on CPU_HAS_TRUSTZONE
