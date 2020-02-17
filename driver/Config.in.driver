@@ -91,4 +91,5 @@ config CPU_HAS_QSPI_RICR_WICR
 	default n
 
 source "driver/Config.in.memory"
+source "driver/Config.in.nvm"
 source "contrib/driver/Config.in.driver"
