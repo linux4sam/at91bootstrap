@@ -41,7 +41,29 @@ struct ddramc_register {
 	unsigned int cal_mr4r;
 };
 
-extern int ddram_initialize(unsigned int base_address,
+struct ddram_timings {
+	unsigned int tmrd;   /**< Load Mode Register Command to Activate or Refresh Command */
+	unsigned int twtr;   /**< Internal Write to Read Delay */
+	unsigned int trrd;   /**< Active BankA to Active BankB */
+	unsigned int trp;    /**< Row Precharge Delay */
+	unsigned int trc;    /**< Row Cycle Delay */
+	unsigned int twr;    /**< Write Recovery Delay */
+	unsigned int trcd;   /**< Row to Column Delay */
+	unsigned int tras;   /**< Active to Precharge Delay */
+	unsigned int txp;    /**< Exit Powerdown Delay to First Command */
+	unsigned int txsrd;  /**< Exit Self-refresh Delay to Read Command */
+	unsigned int txsnr;  /**< Exit Self-refresh Delay to Non-Read Command */
+	unsigned int trfc;   /**< Row Cycle Delay */
+	unsigned int tfaw;   /**< Four Active Windows */
+	unsigned int trtp;   /**< Read to Precharge */
+	unsigned int trpa;   /**< Row Precharge All Delay */
+	unsigned int txards; /**< Exit Active Powerdown Delay to Read Command in Mode "Slow Exit" */
+	unsigned int txard;  /**< Exit Active Powerdown Delay to Read Command in Mode "Fast Exit" */
+};
+
+extern void ddram_init(void);
+
+extern int ddr2_sdram_initialize(unsigned int base_address,
 		unsigned int ram_address,
 		struct ddramc_register *ddramc_config);
 
