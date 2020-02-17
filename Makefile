@@ -1,5 +1,5 @@
 #
-# Default config file is in board/$(BOARD_NAME)/*_defconfig
+# Default config file is in device/$(DEVICE_NAME)/*_defconfig
 # First, run xxx_defconfig
 # Then, `make menuconfig' if needed
 #
@@ -158,8 +158,8 @@ MEM_BANK2 := $(strip $(subst ",,$(CONFIG_MEM_BANK2)))
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
 LINUX_KERNEL_ARG_STRING_FILE := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING_FILE)))
 
-# Board definitions
-BOARDNAME:=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
+# Device definitions
+DEVICENAME:=$(strip $(subst ",,$(CONFIG_DEVICENAME)))
 
 ifeq ($(CONFIG_OVERRIDE_MACH_TYPE), y)
 MACH_TYPE:=$(strip $(subst ",,$(CONFIG_CUSTOM_MACH_TYPE)))
@@ -219,9 +219,9 @@ TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),none)
 endif
 
 ifneq ($(TARGET_NAME), none)
-BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
+BOOT_NAME=$(DEVICENAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
 else
-BOOT_NAME=$(BOARDNAME)-boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
+BOOT_NAME=$(DEVICENAME)-boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
 endif
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
@@ -232,19 +232,16 @@ endif
 COBJS-y:= main.o
 SOBJS-y:= crt0_gnu.o
 
-# Verify that BOARDNAME is the name of a subdirectory of board/
-BOARD_LOCATE=$(if $(wildcard board/$(BOARDNAME)/.),board/$(BOARDNAME))
-ifeq ("$(realpath $(BOARD_LOCATE))", "")
-# List all vendor subdirectories found under contrib/board/
-CONTRIB_VENDORS=$(foreach file,$(wildcard contrib/board/*),$(if $(wildcard $(addsuffix /.,$(file))),$(file)))
-BOARD_LOCATE=$(firstword $(wildcard $(addsuffix /$(BOARDNAME),$(CONTRIB_VENDORS))))
-ifeq ("$(realpath $(BOARD_LOCATE))", "")
-$(error ERROR: *** $(BOARDNAME) board not found!)
+# Verify that DEVICENAME is the name of a subdirectory of device/
+DEVICE_LOCATE=$(if $(wildcard device/$(DEVICENAME)/.),device/$(DEVICENAME))
+ifeq ("$(realpath $(DEVICE_LOCATE))", "")
+ifeq ("$(realpath $(DEVICE_LOCATE))", "")
+$(error ERROR: *** file: $(DEVICE_LOCATE) device does not found!)
 endif
 endif
 
-COBJS-y += $(BOARD_LOCATE)/$(BOARDNAME).o
-INCL = $(BOARD_LOCATE)
+COBJS-y += $(DEVICE_LOCATE)/$(DEVICENAME).o
+INCL = $(DEVICE_LOCATE)
 
 include	lib/lib.mk
 include	driver/driver.mk
@@ -265,13 +262,7 @@ CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude -Icontrib/include
 
 include	toplevel_cpp.mk
-include	board/board_cpp.mk
-
-ifneq ("$(wildcard $(BOARD_LOCATE)/board.mk)", "")
-include $(BOARD_LOCATE)/board.mk
-else
-$(warning WARNING: *** file: $(BOARD_LOCATE)/board.mk are not found!)
-endif
+include	device/device_cpp.mk
 
 include	driver/driver_cpp.mk
 
@@ -435,7 +426,7 @@ $(CONFIG)/at91bootstrap-config $(BINDIR):
 	@$(MAKE) defconfig
 
 update:
-	cp .config $(BOARD_LOCATE)/$(BOARDNAME)_defconfig
+	cp .config $(DEVICE_LOCATE)/$(DEVICENAME)_defconfig
 
 no-cross-compiler:
 	@echo
