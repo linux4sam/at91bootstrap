@@ -28,107 +28,13 @@
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
-#ifdef CONFIG_AT91SAM9260EK
-#include "at91sam9260ek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9XEEK
-#include "at91sam9xeek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9G10EK
-#include "at91sam9g10ek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9G20EK
-#include "at91sam9g20ek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9M10G45EK
-#include "at91sam9m10g45ek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9261EK
-#include "at91sam9261ek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9263EK
-#include "at91sam9263ek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9RLEK
-#include "at91sam9rlek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9X5EK
-#include "at91sam9x5ek.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9N12EK
-#include "at91sam9n12ek.h"
-#endif
-
 #ifdef CONFIG_SAM9X60EK
-#include "sam9x60ek.h"
+#include "sam9x60_board.h"
 #endif
 
-#ifdef CONFIG_SAM9X60_DDR2_SIP_EB
-#include "sam9x60_ddr2_sip_eb.h"
+#ifdef CONFIG_SAMA5D2
+#include "sama5d2_board.h"
 #endif
-
-#ifdef CONFIG_SAM9X60_SDR_SIP_EB
-#include "sam9x60_sdr_sip_eb.h"
-#endif
-
-#ifdef CONFIG_SAMA5D3XEK
-#include "sama5d3xek.h"
-#endif
-
-#ifdef CONFIG_SAMA5D3_XPLAINED
-#include "sama5d3_xplained.h"
-#endif
-
-#ifdef CONFIG_SAMA5D3X_CMP
-#include "sama5d3x_cmp.h"
-#endif
-
-#ifdef CONFIG_SAMA5D4EK
-#include "sama5d4ek.h"
-#endif
-
-#ifdef CONFIG_SAMA5D4_XPLAINED
-#include "sama5d4_xplained.h"
-#endif
-
-#ifdef CONFIG_SAMA5D2_PTC_EK
-#include "sama5d2_ptc_ek.h"
-#endif
-
-#ifdef CONFIG_SAMA5D2_XPLAINED
-#include "sama5d2_xplained.h"
-#endif
-
-#ifdef CONFIG_SAMA5D27_SOM1_EK
-#include "sama5d27_som1_ek.h"
-#endif
-
-#ifdef CONFIG_SAMA5D27_WLSOM1_EK
-#include "sama5d27_wlsom1_ek.h"
-#endif
-
-#ifdef CONFIG_SAMA5D2_LPDDR2SIP_VB
-#include "sama5d2_lpddr2sip_vb.h"
-#endif
-
-#ifdef CONFIG_SAMA5D2_ICP
-#include "sama5d2_icp.h"
-#endif
-
-#ifdef CONFIG_SAMA7G5EK
-#include "sama7g5ek.h"
-#endif
-
-#include "contrib_board.h"
 
 /*
  * Functions Prototype
