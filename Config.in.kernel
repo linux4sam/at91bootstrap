@@ -12,30 +12,9 @@ if OVERRIDE_CMDLINE
 config LINUX_KERNEL_ARG_STRING
 	depends on LOAD_LINUX
 	string "Linux kernel command-line"
-source "board/at91sam9261ek/Config.in.linux_arg"
-source "board/at91sam9263ek/Config.in.linux_arg"
-source "board/at91sam9g10ek/Config.in.linux_arg"
-source "board/at91sam9g20ek/Config.in.linux_arg"
-source "board/at91sam9rlek/Config.in.linux_arg"
-source "board/at91sam9xeek/Config.in.linux_arg"
-source "board/at91sam9m10g45ek/Config.in.linux_arg"
-source "board/at91sam9x5ek/Config.in.linux_arg"
-source "board/at91sam9n12ek/Config.in.linux_arg"
-source "board/sam9x60ek/Config.in.linux_arg"
-source "board/sam9x60_ddr2_sip_eb/Config.in.linux_arg"
-source "board/sam9x60_sdr_sip_eb/Config.in.linux_arg"
-source "board/sama5d3xek/Config.in.linux_arg"
-source "board/sama5d3_xplained/Config.in.linux_arg"
-source "board/sama5d3x_cmp/Config.in.linux_arg"
-source "board/sama5d4ek/Config.in.linux_arg"
-source "board/sama5d4_xplained/Config.in.linux_arg"
-source "board/sama5d2_ptc_ek/Config.in.linux_arg"
-source "board/sama5d2_xplained/Config.in.linux_arg"
-source "board/sama5d2_icp/Config.in.linux_arg"
-source "board/sama5d27_som1_ek/Config.in.linux_arg"
-source "board/sama5d27_wlsom1_ek/Config.in.linux_arg"
+source "device/sama5d2/Config.in.linux_arg"
+source "device/sam9x60/Config.in.linux_arg"
 source "board/sama7g5ek/Config.in.linux_arg"
-source "contrib/board/Config.in.linux_arg"
 
 endif
 
@@ -56,11 +35,6 @@ config LINUX_KERNEL_ARG_STRING_FILE
           This file should be in the same VFAT partition where the kernel is.
 
 endif
-
-config LINUX_KERNEL_ARG_STRING
-	depends on LOAD_ANDROID
-	string "Android kernel command-line"
-source "board/sama5d3xek/Config.in.android_arg"
 
 config IMG_ADDRESS
 	depends on DATAFLASH || FLASH || NANDFLASH
