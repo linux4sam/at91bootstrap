@@ -58,13 +58,38 @@ config CONSOLE_INDEX_15
 	bool
 	default n
 
+menu "Debug & Console"
+
+config DEBUG
+	bool "Debug Support"
+	default n
+	help
+	  Output Debug messages
+choice
+	prompt "Debug Level"
+	depends on DEBUG
+
+config DEBUG_INFO
+	bool "General debug information"
+
+config DEBUG_LOUD
+	bool "Loud debug output"
+
+config DEBUG_VERY_LOUD
+	bool "Even louder debug output"
+
+endchoice
+
 choice
 	prompt "Bootstrap Console Setup"
 	help
 	  Select the Pins and UART Interface Used as a Console Terminal
 source "device/sama5d2/Config.in.con"
 source "device/sam9x60/Config.in.con"
+
 endchoice
+
+endmenu
 
 source "device/Config.in"
 
@@ -171,26 +196,6 @@ config IMAGE_NAME
 	default "u-boot.bin" if LOAD_UBOOT
 	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
 	default "none" if LOAD_NONE
-
-config DEBUG
-	bool "Debug Support"
-	default n
-	help
-	  Output Debug messages
-choice
-	prompt "Debug Level"
-	depends on DEBUG
-
-config DEBUG_INFO
-	bool "General debug information"
-
-config DEBUG_LOUD
-	bool "Loud debug output"
-
-config DEBUG_VERY_LOUD
-	bool "Even louder debug output"
-
-endchoice
 
 source "Config.in.secure"
 
