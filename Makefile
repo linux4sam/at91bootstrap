@@ -235,9 +235,7 @@ SOBJS-y:= crt0_gnu.o
 # Verify that DEVICENAME is the name of a subdirectory of device/
 DEVICE_LOCATE=$(if $(wildcard device/$(DEVICENAME)/.),device/$(DEVICENAME))
 ifeq ("$(realpath $(DEVICE_LOCATE))", "")
-ifeq ("$(realpath $(DEVICE_LOCATE))", "")
 $(error ERROR: *** file: $(DEVICE_LOCATE) device does not found!)
-endif
 endif
 
 COBJS-y += $(DEVICE_LOCATE)/$(DEVICENAME).o
@@ -245,7 +243,6 @@ INCL = $(DEVICE_LOCATE)
 
 include	lib/lib.mk
 include	driver/driver.mk
-include	contrib/driver/driver.mk
 include	fs/src/fat.mk
 
 GC_SECTIONS=--gc-sections
@@ -255,11 +252,11 @@ NOSTDINC_FLAGS := -nostdinc -isystem "$(shell "$(CC)" -print-file-name=include)"
 CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-mno-unaligned-access \
 	-fno-stack-protector -fno-common -fno-builtin -fno-jump-tables -fno-pie \
-	-I$(INCL) -Icontrib/include -Iinclude -Ifs/include \
+	-I$(INCL) -Iinclude -Ifs/include \
 	-I$(CONFIG)/at91bootstrap-config \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(BUILD_DATE)\""
 
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude -Icontrib/include
+ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude 
 
 include	toplevel_cpp.mk
 include	device/device_cpp.mk
