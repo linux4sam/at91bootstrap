@@ -17,7 +17,7 @@ config	ALLOW_SDCARD
 	default n
 
 choice
-	prompt "Flash Memory Technology"
+	prompt "NVM Boot from "
 	default DATAFLASH
 	help
 	  Select memory for at91bootstrap
