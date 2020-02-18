@@ -135,7 +135,7 @@ config	CPU_CLK_444MHZ
 
 config CPU_CLK_492MHZ
 	bool "492 MHz"
-	depends on ALLOW_CPU_CLK_492MHZ
+	depends on ALLOW_CPU_CLK_492MHZ && CRYSTAL_24_000MHZ
 
 config CPU_CLK_498MHZ
 	bool "498 MHz"
