@@ -898,7 +898,7 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 }
 
 #if defined(CONFIG_DDR3) || \
-    (defined(CONFIG_SAMA5D2_LPDDR2) && defined(CONFIG_LPDDR2))
+    (defined(CONFIG_SAMA5D2) && defined(CONFIG_LPDDR2))
 #undef DEBUG_BKP_SR_INIT
 
 void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
@@ -982,7 +982,7 @@ void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
 	/* make sure to actually perform an access to the DDR chip */
 	*((unsigned volatile int *)ram_address) = 0;
 }
-#endif /* CONFIG_DDR3 || (CONFIG_LPDDR2 && CONFIG_SAMA5D2_LPDDR2) */
+#endif /* CONFIG_DDR3 || (CONFIG_LPDDR2 && CONFIG_SAMA5D2) */
 
 #ifdef CONFIG_DDR2
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
@@ -1227,7 +1227,7 @@ int ddr2_sdram_initialize(unsigned int base_address,
  * This is the sama5d2-compatible initialization sequence for LP-DDR2
  * Check after the #else for sama5d3 and sama5d4 LP-DDR2 initialization sequence
  */
-#if defined(CONFIG_SAMA5D2_LPDDR2)
+#if defined(CONFIG_SAMA5D2 || CONFIG_SAM9X60)
 
 int lpddr2_sdram_initialize(unsigned int base_address,
 			    unsigned int ram_address,
