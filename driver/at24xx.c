@@ -29,11 +29,11 @@
 #include "board_hw_info.h"
 #include "debug.h"
 
-#ifdef CONFIG_SAMA5D2_ICP
+#ifdef CONFIG_SAMA5D2
 /* ICP EK has different EEPROM */
 #define	EK_AT24XX_ADDR		0x50
 #define	MAX_AT24XX_BYTES	128
-#elif defined(CONFIG_SAM9X60EK) || defined(CONFIG_SAM9X60_DDR2_SIP_EB)
+#elif defined(CONFIG_SAM9X60)
 #define	EK_AT24XX_ADDR		0x53
 #define	MAX_AT24XX_BYTES	128
 #else
