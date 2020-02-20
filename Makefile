@@ -16,9 +16,20 @@ CONFIG_CONFIG_IN=Config.in
 CONFIG_DEFCONFIG=.defconfig
 CONFIG=config
 
+# Detect if the current command interpreter is a Unix-like shell,
+# or a non-*nix interpreter such as Command Prompt/PowerShell.
+# When given a *nix shell, we'll further assume that all the necessary tools
+# are installed, and enable all the rules and features.
+# With a non-*nix interpreter we'll trim the recipes, skipping unsupported
+# commands and scripts.
+ifeq ($(strip $(shell echo $$0)),$$0)
+NIX_SHELL=
+else
+NIX_SHELL=1
 CONFIG_SHELL=$(shell which bash)
 ifeq ($(CONFIG_SHELL),)
-$(error GNU Bash is needed to build Bootstrap!)
+$(error GNU Bash is needed to build Kconfig host tools!)
+endif
 endif
 
 BINDIR:=$(TOPDIR)/binaries
