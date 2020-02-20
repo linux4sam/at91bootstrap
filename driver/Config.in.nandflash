@@ -120,12 +120,12 @@ config PMECC_SECTOR_SIZE
 choice
 	prompt "ECC Configuration"
 	default USE_PMECC if CPU_HAS_PMECC
-	default ENABLE_SW_ECC if !CPU_HAS_PMECC
+#default ENABLE_SW_ECC if !CPU_HAS_PMECC
 	help
 		Select ECC Configuration
 
-config ENABLE_SW_ECC
-	bool "Using Software ECC"
+#config ENABLE_SW_ECC
+#bool "Using Software ECC"
 
 config USE_PMECC
 	bool "Using PMECC"
@@ -138,11 +138,11 @@ config ON_DIE_ECC
 endchoice
 
 
-config NANDFLASH_SMALL_BLOCKS
-	bool "Use NAND flash with small blocks"
-	default n
-	help
-	  Use NAND flash with small blocks
+#config NANDFLASH_SMALL_BLOCKS
+#	bool "Use NAND flash with small blocks"
+	#default n
+	#help
+	 # Use NAND flash with small blocks
 
 config NANDFLASH_RECOVERY
 	bool "Support NAND flash recovery by pressing a button"
