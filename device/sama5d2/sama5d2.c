@@ -362,8 +362,6 @@ static void sdmmc_cal_setup(void)
 	pmc_disable_periph_clock(AT91C_ID_SDMMC0);
 }
 
-
-#ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
 	at91_disable_wdt();
@@ -403,7 +401,6 @@ void hw_init(void)
 	/* SiP: Implement the VDDSDMMC power supply over-consumption errata */
 	sdmmc_cal_setup();
 }
-#endif
 
 #ifdef CONFIG_QSPI
 void at91_qspi_hw_init(void)

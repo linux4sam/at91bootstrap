@@ -202,35 +202,29 @@ void board_flexcoms_init()
 
 void wilc_pwrseq()
 {
-       const struct pio_desc wilc_down_pins[] = {
-               {"WILC_RESETN", AT91C_PIN_PB(25), 0, PIO_DEFAULT, PIO_OUTPUT},
-               {"WILC_EN", AT91C_PIN_PA(29), 0, PIO_DEFAULT, PIO_OUTPUT},
-               {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-       };
+	const struct pio_desc wilc_down_pins[] = {
+		{"WILC_RESETN", AT91C_PIN_PB(25), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{"WILC_EN", AT91C_PIN_PA(29), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 
-       const struct pio_desc wilc_powerup_pins[] = {
-               {"WILC_EN", AT91C_PIN_PA(29), 1, PIO_DEFAULT, PIO_OUTPUT},
-               {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-       };
+	const struct pio_desc wilc_powerup_pins[] = {
+		{"WILC_EN", AT91C_PIN_PA(29), 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 
-       const struct pio_desc wilc_en_pins[] = {
-               {"WILC_RESETN", AT91C_PIN_PB(25), 1, PIO_DEFAULT, PIO_OUTPUT},
-               {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-       };
+	const struct pio_desc wilc_en_pins[] = {
+		{"WILC_RESETN", AT91C_PIN_PB(25), 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
 
-       pio_configure(wilc_down_pins);
-
-       udelay(5000);
-
-       pio_configure(wilc_powerup_pins);
-
-       udelay(5000);
-
-       pio_configure(wilc_en_pins);
+	pio_configure(wilc_down_pins);
+	udelay(5000);
+	pio_configure(wilc_powerup_pins);
+	udelay(5000);
+	pio_configure(wilc_en_pins);
 }
 
-
-#ifdef CONFIG_HW_INIT
 void hw_init(void)
 {
 	struct pmc_pll_cfg plla_config;
@@ -274,7 +268,6 @@ void hw_init(void)
 	/* Perform the WILC initialization sequence */
 	wilc_pwrseq();
 }
-#endif /* #ifdef CONFIG_HW_INIT */
 
 #ifdef CONFIG_DATAFLASH
 
