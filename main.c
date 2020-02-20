@@ -51,9 +51,7 @@ int main(void)
 #endif
 	int ret = 0;
 
-#ifdef CONFIG_HW_INIT
 	hw_init();
-#endif
 
 #if defined(CONFIG_SCLK)
 #if !defined(CONFIG_SCLK_BYPASS)
