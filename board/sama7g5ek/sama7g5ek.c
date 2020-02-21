@@ -237,6 +237,11 @@ void hw_init(void)
 	struct pmc_pll_cfg syspll_config;
 	struct pmc_pll_cfg imgpll_config;
 
+#if BOOTSTRAP_DEBUG_LEVEL==DEBUG_VERY_LOUD
+	volatile unsigned int *EXTRAM_CS;
+	int i;
+#endif
+
 	at91_disable_wdt();
 #ifdef CONFIG_WDTS
 	at91_disable_wdts();
@@ -309,6 +314,8 @@ void hw_init(void)
 	pmc_mck_cfg_set(3, BOARD_PRESCALER_MCK3,
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
+	dbg_printf("MCK: mck domains initialization complete.\n");
+
 	tzc400_init();
 
 	/* All MCK MUST be started before UMCTL2. Otherwise UMCTL2 will
@@ -316,8 +323,25 @@ void hw_init(void)
 	 */
 	umctl2_config_state_init();
 	if (umctl2_init(&umctl2_config)) {
-		dbg_info("UMCTL2: Error initializing\n");
+		console_printf("UMCTL2: Error initializing.\n");
 	} else {
-		dbg_info("UMCTL2: Initialization complete.\n");
+		console_printf("UMCTL2: Initialization complete.\n");
 	}
+
+#if BOOTSTRAP_DEBUG_LEVEL==DEBUG_VERY_LOUD
+	EXTRAM_CS = (unsigned int *) MEM_BANK;
+	for (i = 0; i < MEM_SIZE / 4; i++) {
+		*EXTRAM_CS = 0xaaaaaaaa;
+		EXTRAM_CS++;
+		if (!(i % 10000000)) dbg_very_loud("WRITING DDR\n");
+	}
+
+	EXTRAM_CS = (unsigned int *) MEM_BANK;
+	for (i = 0; i < MEM_SIZE / 4; i++) {
+		if (*EXTRAM_CS != 0xaaaaaaaa)
+			dbg_printf("ERRORS IN DDR %x:%x\n", EXTRAM_CS, *EXTRAM_CS);
+		EXTRAM_CS++;
+		if (!(i % 10000000)) dbg_very_loud("TESTING DDR\n");
+	}
+#endif
 }
