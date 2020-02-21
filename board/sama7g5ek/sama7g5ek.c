@@ -134,6 +134,16 @@ static void umctl2_config_state_init()
 	umctl2_config.port_x_write_region0_last[2] = 0x3;
 	umctl2_config.port_x_write_region1_last[2] = 0xE;
 
+	/* port 3 configuration : ISS port XISC */
+		/* region 0 is ArQOS 0x0 to 0x8; */
+		/* region 1 is ArQOS 0x9 to 0xF; */
+	umctl2_config.port_x_read_region0_last[3] = 0x3;
+		/* region 2 doesn't exist (single queue port) */
+	umctl2_config.port_x_read_region1_last[3] = 0xE;
+		/* region 0 is AwQOS 0x0 to 0xF; */
+	umctl2_config.port_x_write_region0_last[3] = 0x3;
+	umctl2_config.port_x_write_region1_last[3] = 0xE;
+
 	umctl2_config.port_x_rdwr_ordered_en = 0x0;
 
 	/* port 4 configuration : MSS port SD+GMAC+... */
@@ -220,12 +230,12 @@ void at91_sdhc_hw_init(void)
 }
 #endif
 
-
 void hw_init(void)
 {
 	struct pmc_pll_cfg plla_config;
 	struct pmc_pll_cfg ddrpll_config;
 	struct pmc_pll_cfg syspll_config;
+	struct pmc_pll_cfg imgpll_config;
 
 	at91_disable_wdt();
 #ifdef CONFIG_WDTS
@@ -269,7 +279,7 @@ void hw_init(void)
 
 	initialize_serial();
 
-	usart_puts("early uart CA7\n");
+	dbg_very_loud("CA7 early uart\n");
 
 	/* Configure & Enable DDR PLL */
 	ddrpll_config.mul = 43; /* (43 + 1) * 24 = 1056 */
@@ -285,12 +295,29 @@ void hw_init(void)
 	pmc_mck_cfg_set(2, BOARD_PRESCALER_MCK2,
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
+	/* Configure & Enable IMG PLL */
+	imgpll_config.mul = 43; /* (43 + 1) * 24 = 1056 */
+	imgpll_config.div = 3;
+	imgpll_config.divio = 3;
+	imgpll_config.count = 0x3f;
+	imgpll_config.fracr = 0x155555; /* (8/24) * 2^22 to get extra 8 MHz */
+	imgpll_config.acr = 0x1b040010;
+	/* IMGPLL @ 1064 MHz */
+	pmc_sam9x60_cfg_pll(PLL_ID_IMGPLL, &imgpll_config);
+
+	/* MCK3 @ 266 MHz */
+	pmc_mck_cfg_set(3, BOARD_PRESCALER_MCK3,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
+
+	tzc400_init();
+
+	/* All MCK MUST be started before UMCTL2. Otherwise UMCTL2 will
+	 * have the AXI ports blocked.
+	 */
 	umctl2_config_state_init();
 	if (umctl2_init(&umctl2_config)) {
 		dbg_info("UMCTL2: Error initializing\n");
 	} else {
 		dbg_info("UMCTL2: Initialization complete.\n");
 	}
-
-	tzc400_init();
 }
