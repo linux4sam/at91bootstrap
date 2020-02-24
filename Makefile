@@ -232,11 +232,14 @@ endif
 COBJS-y:= $(TOPDIR)/main.o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 
-BOARD_LOCATE=$(shell find $(TOPDIR)/board/ -name $(BOARDNAME) -type d)
+# Verify that BOARDNAME is the name of a subdirectory of board/
+BOARD_LOCATE=$(if $(wildcard $(TOPDIR)/board/$(BOARDNAME)/.),$(TOPDIR)/board/$(BOARDNAME))
 ifeq ("$(realpath $(BOARD_LOCATE))", "")
-BOARD_LOCATE=$(shell find $(TOPDIR)/contrib/board/ -name $(BOARDNAME) -type d)
+# List all vendor subdirectories found under contrib/board/
+CONTRIB_VENDORS=$(foreach file,$(wildcard $(TOPDIR)/contrib/board/*),$(if $(wildcard $(addsuffix /.,$(file))),$(file)))
+BOARD_LOCATE=$(firstword $(wildcard $(addsuffix /$(BOARDNAME),$(CONTRIB_VENDORS))))
 ifeq ("$(realpath $(BOARD_LOCATE))", "")
-$(error ERROR: *** file: $(BOARD_LOCATE) does not found!)
+$(error ERROR: *** $(BOARDNAME) board not found!)
 endif
 endif
 
