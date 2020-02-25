@@ -304,7 +304,7 @@ endif
 
 REMOVE_SECTIONS=-R .note -R .comment -R .note.gnu.build-id
 
-gccversion := $(shell expr `$(CC) -dumpversion`)
+gccversion := $(shell $(CC) -dumpversion)
 
 ifdef YYY   # For other utils
 ifeq ($(CC),gcc) 
