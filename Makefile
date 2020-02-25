@@ -60,6 +60,12 @@ Q=@
 export Q
 endif
 
+# Function brief: Search for existing files, recursively
+# param 1: List of directories to search in
+# param 2: List of patterns to match
+# return: List of paths to the matching files, relative to and including param 1
+rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(strip $(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d)))
+
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig
 
 # Check first if we want to configure at91bootstrap
@@ -417,14 +423,7 @@ debug:
 PHONY+=update no-cross-compiler debug
 
 distrib: mrproper
-	$(Q)find . -type f \( -name .depend \
-		-o -name '*.srec' \
-		-o -name '*.elf' \
-		-o -name '*.map' \
-		-o -name '*.o' \
-		-o -name '*~' \) \
-		-print0 \
-		| xargs -0 rm -f
+	$(Q)rm -f  $(call rwildcard,.,*.elf *.map)
 	$(Q)rm -fr result
 	$(Q)rm -fr build
 	$(Q)rm -fr ..make.deps.tmp
@@ -438,12 +437,8 @@ config-clean:
 
 clean:
 	@echo "  CLEAN        "obj and misc files!
-	$(Q)find . -type f \( -name .depend \
-		-o -name '*.srec' \
-		-o -name '*.o' \
-		-o -name '*~' \) \
-		-print0 \
-		| xargs -0 rm -f
+	$(Q)rm -f $(CONFIG)/.depend
+	$(Q)rm -f $(call rwildcard,.,*.o *.srec *~)
 
 distclean: clean config-clean
 #	rm -fr $(BINDIR)
