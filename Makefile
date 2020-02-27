@@ -134,7 +134,7 @@ savedefconfig: $(CONFIG)/conf
 
 else #  Have DOT Config
 
-HOSTARCH := $(shell uname -m | sed -e s/arm.*/arm/)
+HOSTARCH := $(patsubst arm%,arm,$(shell uname -m))
 
 AS=$(CROSS_COMPILE)gcc
 CC=$(CROSS_COMPILE)gcc
