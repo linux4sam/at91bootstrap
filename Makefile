@@ -325,18 +325,22 @@ CheckCrossCompile:
 		$(error Error: the CROSS_COMPILE environment variable must be defined)))
 
 PrintFlags:
-	@echo CC
-	@echo ========
-	@echo $(CC) $(gccversion)&& echo
-	@echo as FLAGS
-	@echo ========
-	@echo $(ASFLAGS) && echo
-	@echo gcc FLAGS
-	@echo =========
-	@echo $(CPPFLAGS) && echo
-	@echo ld FLAGS
-	@echo ========
-	@echo $(LDFLAGS) && echo
+	$(info CC)
+	$(info ========)
+	$(info $(CC) $(gccversion))
+	$(info )
+	$(info as FLAGS)
+	$(info ========)
+	$(info $(ASFLAGS))
+	$(info )
+	$(info gcc FLAGS)
+	$(info =========)
+	$(info $(CPPFLAGS))
+	$(info )
+	$(info ld FLAGS)
+	$(info ========)
+	$(info $(LDFLAGS))
+	$(info )
 
 $(AT91BOOTSTRAP): $(OBJS)
 	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
