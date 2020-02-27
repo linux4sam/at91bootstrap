@@ -321,12 +321,8 @@ PHONY:=all
 all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize ${AT91BOOTSTRAP}.pmecc
 
 CheckCrossCompile:
-	@( if [ "$(HOSTARCH)" != "arm" ]; then \
-		if [ "x$(CROSS_COMPILE)" = "x" ]; then \
-			echo "error: Environment variable "CROSS_COMPILE" must be defined!"; \
-			exit 2; \
-		fi \
-	fi )
+	$(if $(filter-out arm,$(HOSTARCH)),$(if $(CROSS_COMPILE),, \
+		$(error Error: the CROSS_COMPILE environment variable must be defined)))
 
 PrintFlags:
 	@echo CC
