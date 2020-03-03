@@ -188,7 +188,7 @@ void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits, unsigned int mask)
 	write_pmc(PMC_MCR, AT91C_MCR_CMD | mckid | tmp);
 
 	while ((updates & AT91C_MCR_CSS) &&
-	       !(read_pmc(PMC_SR) & AT91C_PMC_MCKRDY)) ;
+	       !(read_pmc(PMC_SR) & AT91C_PMC_MCKXRDY)) ;
 }
 
 unsigned int pmc_mck_get_rate(unsigned int mckid)
