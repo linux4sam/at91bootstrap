@@ -30,20 +30,30 @@
 
 int pmc_enable_periph_clock(unsigned int periph_id, int divider)
 {
+	unsigned int val;
+
 	if (divider == PMC_PERIPH_CLK_DIVIDER_NA)
 		divider = 0;
 
-	write_pmc(PMC_PCR, ((periph_id & AT91C_PMC_PID)
-				| AT91C_PMC_DIV_(divider)
-				| AT91C_PMC_CMD
-				| AT91C_PMC_EN));
+	write_pmc(PMC_PCR, ((periph_id & AT91C_PMC_PID)));
+	val = read_pmc(PMC_PCR);
+	val &= ~AT91C_PMC_DIV;
+	val |= AT91C_PMC_DIV_(divider) | AT91C_PMC_CMD | AT91C_PMC_EN;
+	write_pmc(PMC_PCR, val);
 
 	return 0;
 }
 
 int pmc_disable_periph_clock(unsigned int periph_id)
 {
-	write_pmc(PMC_PCR, ((periph_id & AT91C_PMC_PID) | AT91C_PMC_CMD));
+	unsigned int val;
+
+	write_pmc(PMC_PCR, (periph_id & AT91C_PMC_PID));
+	val = read_pmc(PMC_PCR);
+	val &= ~AT91C_PMC_EN;
+	val |= AT91C_PMC_CMD;
+	write_pmc(PMC_PCR, val);
+
 	return 0;
 }
 
