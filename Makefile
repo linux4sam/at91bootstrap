@@ -88,22 +88,19 @@ all: menuconfig
 HOSTCFLAGS=$(CFLAGS_FOR_BUILD)
 export HOSTCFLAGS
 
-$(CONFIG)/conf:
-	@mkdir -p $(CONFIG)/at91bootstrap-config
+$(CONFIG)/conf: | $(CONFIG)/at91bootstrap-config
 	@$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
 
-$(CONFIG)/mconf:
-	@mkdir -p $(CONFIG)/at91bootstrap-config
+$(CONFIG)/mconf: | $(CONFIG)/at91bootstrap-config
 	@$(MAKE) CC="$(HOSTCC)" -C $(CONFIG) conf mconf
 	-@if [ ! -f .config ]; then \
 		cp $(CONFIG_DEFCONFIG) .config; \
 	fi
 
 menuconfig: $(CONFIG)/mconf
-	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@if ! KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
 		$(CONFIG)/mconf $(CONFIG_CONFIG_IN); then \
@@ -111,25 +108,21 @@ menuconfig: $(CONFIG)/mconf
 	fi
 
 $(CONFIG): $(CONFIG)/conf
-	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
 		$(CONFIG)/conf $(CONFIG_CONFIG_IN)
 
 oldconfig: $(CONFIG)/conf
-	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
 		$(CONFIG)/conf --oldconfig $(CONFIG_CONFIG_IN)
 
 defconfig: $(CONFIG)/conf
-	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
 		$(CONFIG)/conf --defconfig=.config $(CONFIG_CONFIG_IN)
 
 savedefconfig: $(CONFIG)/conf
-	@mkdir -p $(CONFIG)/at91bootstrap-config
 	@KCONFIG_AUTOCONFIG=$(CONFIG)/at91bootstrap-config/auto.conf \
 		KCONFIG_AUTOHEADER=$(CONFIG)/at91bootstrap-config/autoconf.h \
 		$(CONFIG)/conf --savedefconfig=defconfig $(CONFIG_CONFIG_IN)
@@ -344,8 +337,7 @@ PrintFlags:
 	$(info $(LDFLAGS))
 	$(info )
 
-$(AT91BOOTSTRAP): $(OBJS)
-	$(if $(wildcard $(BINDIR)),,mkdir -p $(BINDIR))
+$(AT91BOOTSTRAP): $(OBJS) | $(BINDIR)
 	@echo "  LD        "$(BOOT_NAME).elf
 	$(Q)$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
@@ -395,6 +387,9 @@ ChkFileSize: $(AT91BOOTSTRAP)
 endif  # CONFIG_HAVE_DOT_CONFIG
 
 PHONY+= rebuild
+
+$(CONFIG)/at91bootstrap-config $(BINDIR):
+	@$(MKDIR) -p $@
 
 %_defconfig:
 	@(conf_file=`find ./ -name $@`; \
@@ -459,7 +454,7 @@ PHONY+=distrib config-clean clean distclean mrproper
 
 tarball:
 	@echo "Tar the source code to ${TARBALL_NAME}"
-	$(Q)mkdir -p ${TARBALL_DIR}
+	$(Q)$(MKDIR) -p ${TARBALL_DIR}
 	$(Q)git archive --prefix=${TARBALL_PREFIX} HEAD | gzip > ${TARBALL_DIR}/${TARBALL_NAME}
 	$(Q)echo "RECORD_SCMINFO=${SCMINFO}" > ${TARBALL_DIR}/scminfo.mk
 	$(Q)cd ${TARBALL_DIR}; tar -xzf ${TARBALL_NAME}
