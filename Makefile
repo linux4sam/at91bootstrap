@@ -246,7 +246,7 @@ include	fs/src/fat.mk
 
 GC_SECTIONS=--gc-sections
 
-NOSTDINC_FLAGS=-nostdinc -isystem $(shell $(CC) -print-file-name=include)
+NOSTDINC_FLAGS=-nostdinc -isystem "$(shell $(CC) -print-file-name=include)"
 
 CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-mno-unaligned-access \
