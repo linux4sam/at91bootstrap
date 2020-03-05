@@ -1,5 +1,5 @@
 #
-# Default config file is in $(TOPDIR)/board/$(BOARD_NAME)/*_defconfig
+# Default config file is in board/$(BOARD_NAME)/*_defconfig
 # First, run xxx_defconfig
 # Then, `make menuconfig' if needed
 #
@@ -9,8 +9,6 @@
 #    (this increases performance and avoids hard-to-debug behaviour);
 # o  print "Entering directory ...";
 MAKEFLAGS += -rR --no-print-directory
-
-TOPDIR:=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 CONFIG_CONFIG_IN=Kconfig
 CONFIG_DEFCONFIG=.defconfig
@@ -32,7 +30,7 @@ $(error GNU Bash is needed to build Kconfig host tools!)
 endif
 endif
 
-BINDIR:=$(TOPDIR)/binaries
+BINDIR:=binaries
 SYMLINK ?= at91bootstrap.bin
 SYMLINK_BOOT ?= boot.bin
 
@@ -49,10 +47,10 @@ else
 endif
 VERSION := 3.9.2
 REVISION :=
-SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
+SCMINFO := $(shell (host-utilities/setlocalversion))
 
 ifeq ($(SCMINFO),)
--include $(TOPDIR)/scminfo.mk
+-include scminfo.mk
 SCMINFO=$(RECORD_SCMINFO)
 endif
 
@@ -224,14 +222,14 @@ ifeq ($(IMAGE),)
 IMAGE=$(BOOT_NAME).bin
 endif
 
-COBJS-y:= $(TOPDIR)/main.o
-SOBJS-y:= $(TOPDIR)/crt0_gnu.o
+COBJS-y:= main.o
+SOBJS-y:= crt0_gnu.o
 
 # Verify that BOARDNAME is the name of a subdirectory of board/
-BOARD_LOCATE=$(if $(wildcard $(TOPDIR)/board/$(BOARDNAME)/.),$(TOPDIR)/board/$(BOARDNAME))
+BOARD_LOCATE=$(if $(wildcard board/$(BOARDNAME)/.),board/$(BOARDNAME))
 ifeq ("$(realpath $(BOARD_LOCATE))", "")
 # List all vendor subdirectories found under contrib/board/
-CONTRIB_VENDORS=$(foreach file,$(wildcard $(TOPDIR)/contrib/board/*),$(if $(wildcard $(addsuffix /.,$(file))),$(file)))
+CONTRIB_VENDORS=$(foreach file,$(wildcard contrib/board/*),$(if $(wildcard $(addsuffix /.,$(file))),$(file)))
 BOARD_LOCATE=$(firstword $(wildcard $(addsuffix /$(BOARDNAME),$(CONTRIB_VENDORS))))
 ifeq ("$(realpath $(BOARD_LOCATE))", "")
 $(error ERROR: *** $(BOARDNAME) board not found!)
@@ -254,7 +252,7 @@ CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-mno-unaligned-access \
 	-fno-stack-protector -fno-common -fno-builtin -fno-jump-tables -fno-pie \
 	-I$(INCL) -Icontrib/include -Iinclude -Ifs/include \
-	-I$(TOPDIR)/config/at91bootstrap-config \
+	-I$(CONFIG)/at91bootstrap-config \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(BUILD_DATE)\""
 
 ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude -Icontrib/include
