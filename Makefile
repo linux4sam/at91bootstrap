@@ -10,7 +10,7 @@
 # o  print "Entering directory ...";
 MAKEFLAGS += -rR --no-print-directory
 
-TOPDIR=$(shell pwd)
+TOPDIR:=$(realpath $(dir $(lastword $(MAKEFILE_LIST))))
 
 CONFIG_CONFIG_IN=Config.in
 CONFIG_DEFCONFIG=.defconfig
