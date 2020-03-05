@@ -2,7 +2,7 @@
 # DIRS				+= drivers
 
 DRIVERS:=
-DRIVERS_SRC:=$(TOPDIR)/driver
+DRIVERS_SRC:=driver
 
 COBJS-$(CONFIG_DEBUG)		+= $(DRIVERS_SRC)/debug.o
 

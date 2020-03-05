@@ -1,7 +1,7 @@
 # Makefile for AT91Bootstrap lib directory
 # DIRS				+= lib
 
-LIB:=$(TOPDIR)/lib
+LIB:=lib
 
 COBJS-y		+= $(LIB)/string.o
 COBJS-y		+= $(LIB)/eabi_utils.o
