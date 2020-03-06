@@ -32,6 +32,7 @@ ifndef HOSTNM
 HOSTNM:=nm
 endif
 
+ifdef NIX_SHELL
 HOSTAR:=$(shell $(CONFIG_SHELL)	 -c "which $(HOSTAR)"  || type -p $(HOSTAR)  || echo ar)
 HOSTAS:=$(shell $(CONFIG_SHELL)  -c "which $(HOSTAS)"  || type -p $(HOSTAS)  || echo as)
 HOSTCC:=$(shell $(CONFIG_SHELL)  -c "which $(HOSTCC)"  || type -p $(HOSTCC)  || echo gcc)
@@ -39,7 +40,7 @@ HOSTCPP:=$(shell $(CONFIG_SHELL) -c "which $(HOSTCPP)" || type -p $(HOSTCPP) || 
 HOSTLD:=$(shell $(CONFIG_SHELL)  -c "which $(HOSTLD)"  || type -p $(HOSTLD)  || echo ld)
 HOSTLN:=$(shell $(CONFIG_SHELL)  -c "which $(HOSTLN)"  || type -p $(HOSTLN)  || echo ln)
 HOSTNM:=$(shell $(CONFIG_SHELL)  -c "which $(HOSTNM)"  || type -p $(HOSTNM)  || echo nm)
-
+endif
 
 ifndef CFLAGS_FOR_BUILD
 CFLAGS_FOR_BUILD:=-g -O2
