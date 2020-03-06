@@ -64,7 +64,7 @@
 #define AT91C_PLL_UPDT_ID	(0xFUL << 0)
 #define		AT91C_PLL_UPDT_ID_(x)	((x) << 0)
 #define AT91C_PLL_UPDT_UPDATE	(0x1UL << 8)
-#define AT91C_PLL_UPDT_STUPTIM	(0xFFUL << 16)
+#define AT91C_PLL_UPDT_STUPTIM	(0x3FUL << 16)
 #define AT91C_PLL_UPDT_STUPTIM_(x) ((x) << 16)
 
 #define PMC_MCKR		0x28		/* Master Clock Register */
