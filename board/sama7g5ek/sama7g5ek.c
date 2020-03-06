@@ -265,7 +265,7 @@ void hw_init(void)
 	/* Configure & Enable SYS PLL */
 	syspll_config.mul = 49; /* (49 + 1) * 24 = 1200 */
 	syspll_config.div = 2; /* Feed to PMC 1200/3 = 400 Mhz */
-	syspll_config.count = 0x7f;
+	syspll_config.count = 0x3f;
 	syspll_config.fracr = 0;
 	syspll_config.acr = 0x1b040010;
 	/* SYSPLL @ 1200 MHz */
