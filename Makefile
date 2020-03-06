@@ -302,11 +302,15 @@ TARGETS=$(AT91BOOTSTRAP) host-utilities .config filesize
 endif
 endif
 
-TARGETS=$(AT91BOOTSTRAP)
+TARGETS=CheckCrossCompile PrintFlags $(AT91BOOTSTRAP)
+ifdef NIX_SHELL
+TARGETS+=ChkFileSize
+endif
+TARGETS+=${AT91BOOTSTRAP}.pmecc
 
 PHONY:=all
 
-all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize ${AT91BOOTSTRAP}.pmecc
+all: $(TARGETS)
 
 CheckCrossCompile:
 	$(if $(filter-out arm,$(HOSTARCH)),$(if $(CROSS_COMPILE),, \
