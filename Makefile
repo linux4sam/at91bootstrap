@@ -49,7 +49,9 @@ endif
 endif
 VERSION := 3.9.2
 REVISION :=
+ifdef NIX_SHELL
 SCMINFO := $(shell (host-utilities/setlocalversion))
+endif
 
 ifeq ($(SCMINFO),)
 -include scminfo.mk
