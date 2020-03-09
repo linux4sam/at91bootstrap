@@ -342,8 +342,13 @@ $(AT91BOOTSTRAP): $(OBJS) | $(BINDIR)
 	$(Q)$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
 #	@$(OBJCOPY) --strip-debug --strip-unneeded $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
 	@$(OBJCOPY) --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
+ifdef NIX_SHELL
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK_BOOT}
+else
+	@cp -l ${BINDIR}/$(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
+	@cp -l ${BINDIR}/$(BOOT_NAME).bin ${BINDIR}/${SYMLINK_BOOT}
+endif
 
 %.o : %.c .config
 	@echo "  CC        "$<
