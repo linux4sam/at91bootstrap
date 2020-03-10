@@ -103,7 +103,7 @@ int secure_decrypt(void *data, unsigned int data_length, int is_signed)
 		/* Check the CMAC */
 		fixed_length = at91_aes_roundup(data_length);
 		cmac = (const unsigned int *)((char *)data + fixed_length);
-		if (memcmp(cmac, computed_cmac, AT91_AES_BLOCK_SIZE_BYTE))
+		if (!consttime_memequal(cmac, computed_cmac, AT91_AES_BLOCK_SIZE_BYTE))
 			goto exit;
 	}
 
