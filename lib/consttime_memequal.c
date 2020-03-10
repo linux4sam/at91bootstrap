@@ -5,7 +5,7 @@
  * Public domain.
  */
 
-#include <string.h>
+#include <types.h>
 
 int
 consttime_memequal(const void *b1, const void *b2, size_t len)
