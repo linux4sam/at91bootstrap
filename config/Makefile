@@ -6,7 +6,9 @@ srctree := .
 
 include Makefile.kconfig
 #HOSTCFLAGS+=-Dinline="" -include foo.h
+ifneq ($(filter-out clean distclean,$(MAKECMDGOALS)),)
 -include .depend
+endif
 .depend: $(wildcard *.h *.c)
 	$(Q)$(HOSTCC) $(HOST_EXTRACFLAGS) $(HOSTCFLAGS) -MM *.c > .depend 2>/dev/null || :
 
