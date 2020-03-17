@@ -202,7 +202,7 @@ void at91_board_set_dtb_name(char *of_name)
 }
 #endif
 
-#define ATMEL_SDHC_GCKDIV_VALUE		1
+#define ATMEL_SDHC_GCKDIV_VALUE		0
 
 void at91_sdhc_hw_init(void)
 {
