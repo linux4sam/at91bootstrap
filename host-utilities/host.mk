@@ -1,3 +1,10 @@
+ifdef NIX_SHELL
+DATE:=date
+else
+GNU_DATE?="date"
+DATE:=$(GNU_DATE)
+endif
+
 ifndef HOSTAR
 HOSTAR:=ar
 endif

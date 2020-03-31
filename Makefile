@@ -34,12 +34,16 @@ endif
 
 BINDIR:=$(TOPDIR)/binaries
 
+include	host-utilities/host.mk
+
+# Automatically escape '%' symbols when recipes are implemented as batch files
+PERCENT := $(if $(findstring %%_dummy_,$(shell echo %%_dummy_)),%,%%)
 # see https://reproducible-builds.org/docs/source-date-epoch/#makefile
-DATE_FMT = %Y-%m-%d
+DATE_FMT = +$(PERCENT)Y-$(PERCENT)m-$(PERCENT)d $(PERCENT)H:$(PERCENT)M:$(PERCENT)S
 ifdef SOURCE_DATE_EPOCH
-	DATE ?= $(shell date -u -d "@$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)"  2>/dev/null || date -u -r "$(SOURCE_DATE_EPOCH)" "+$(DATE_FMT)" 2>/dev/null || date -u "+$(DATE_FMT)")
+	BUILD_DATE ?= $(shell $(DATE) -u -d "@$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>/dev/null || $(DATE) -u -r "$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>/dev/null || $(DATE) -u "$(DATE_FMT)")
 else
-	DATE := $(shell date)
+	BUILD_DATE ?= $(shell $(DATE) "$(DATE_FMT)")
 endif
 VERSION := 3.9.2
 REVISION :=
@@ -73,8 +77,6 @@ noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig
 ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
 -include .config
 endif
-
-include	host-utilities/host.mk
 
 ifeq ($(CONFIG_HAVE_DOT_CONFIG),)
 
@@ -266,7 +268,7 @@ CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-fno-stack-protector -fno-common -fno-builtin -fno-jump-tables -fno-pie \
 	-I$(INCL) -Icontrib/include -Iinclude -Ifs/include \
 	-I$(TOPDIR)/config/at91bootstrap-config \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(DATE)\""
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(BUILD_DATE)\""
 
 ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude -Icontrib/include
 
