@@ -33,6 +33,8 @@ endif
 BINDIR:=binaries
 SYMLINK ?= at91bootstrap.bin
 SYMLINK_BOOT ?= boot.bin
+SYMLINK_ELF ?= at91bootstrap.elf
+SYMLINK_ELF_STRIPPED ?= at91bootstrap-stripped.elf
 
 include	host-utilities/host.mk
 
@@ -345,10 +347,15 @@ $(AT91BOOTSTRAP): $(OBJS) | $(BINDIR)
 	@echo "  LD        "$(BOOT_NAME).elf
 	$(Q)"$(LD)" $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
 	@"$(OBJCOPY)" --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
+# TODO: Compile a stripped ELF i.e. without the '-g' compiler option
 ifdef NIX_SHELL
+	@ln -sf $(BOOT_NAME).elf ${BINDIR}/${SYMLINK_ELF}
+	@ln -sf $(BOOT_NAME).elf ${BINDIR}/${SYMLINK_ELF_STRIPPED}
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK_BOOT}
 else
+	@cp -l ${BINDIR}/$(BOOT_NAME).elf ${BINDIR}/${SYMLINK_ELF}
+	@cp -l ${BINDIR}/$(BOOT_NAME).elf ${BINDIR}/${SYMLINK_ELF_STRIPPED}
 	@cp -l ${BINDIR}/$(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
 	@cp -l ${BINDIR}/$(BOOT_NAME).bin ${BINDIR}/${SYMLINK_BOOT}
 endif
@@ -409,9 +416,9 @@ prepare: .prepared | $(CONFIG)/at91bootstrap-config $(BINDIR)
 	@echo KCONFIG_AUTOHEADER = $(CONFIG)/at91bootstrap-config/autoconf.h >> $@
 	@echo AT91BOOTSTRAP_SCMREVIN = scminfo.mk >> $@
 	@echo AT91BOOTSTRAP_BINOUTPUT = $(BINDIR) >> $@
+	@echo AT91BOOTSTRAP_ELF = $(BINDIR)/$(SYMLINK_ELF) >> $@
 	@echo AT91BOOTSTRAP_BIN = $(BINDIR)/$(SYMLINK) >> $@
 ifneq ($(CONFIG_HAVE_DOT_CONFIG),)
-	@echo AT91BOOTSTRAP_ELF = $(BINDIR)/$(BOOT_NAME).elf >> $@
 	@echo AT91BOOTSTRAP_MAP = $(BINDIR)/$(BOOT_NAME).map >> $@
 	@echo AT91BOOTSTRAP_VERSIONEXTD = $(VERSION)$(REV)$(SCMINFO) >> $@
 	@echo AT91BOOTSTRAP_TARBALL = $(TARBALL_NAME) >> $@
