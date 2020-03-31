@@ -1,8 +1,10 @@
 ifdef NIX_SHELL
 DATE:=date
+DEV_NULL:=/dev/null
 else
 GNU_DATE?="date"
 DATE:=$(GNU_DATE)
+DEV_NULL:=nul
 endif
 
 ifndef HOSTAR

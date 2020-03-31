@@ -41,7 +41,7 @@ PERCENT := $(if $(findstring %%_dummy_,$(shell echo %%_dummy_)),%,%%)
 # see https://reproducible-builds.org/docs/source-date-epoch/#makefile
 DATE_FMT = +$(PERCENT)Y-$(PERCENT)m-$(PERCENT)d $(PERCENT)H:$(PERCENT)M:$(PERCENT)S
 ifdef SOURCE_DATE_EPOCH
-	BUILD_DATE ?= $(shell $(DATE) -u -d "@$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>/dev/null || $(DATE) -u -r "$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>/dev/null || $(DATE) -u "$(DATE_FMT)")
+	BUILD_DATE ?= $(shell $(DATE) -u -d "@$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>$(DEV_NULL) || $(DATE) -u -r "$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>$(DEV_NULL) || $(DATE) -u "$(DATE_FMT)")
 else
 	BUILD_DATE ?= $(shell $(DATE) "$(DATE_FMT)")
 endif
