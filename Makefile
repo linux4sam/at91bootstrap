@@ -483,6 +483,11 @@ distclean: clean config-clean
 	$(Q)rm -f .configured
 	$(Q)rm -f .prepared
 
+mplabclean: clean
+	@echo "  CLEAN        "binary files!
+	$(Q)rm -fr $(BINDIR)
+	$(Q)rm -fr log
+
 mrproper: distclean
 	@echo "  CLEAN        "binary files!
 	$(Q)rm -fr $(BINDIR)
