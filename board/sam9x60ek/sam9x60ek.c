@@ -88,12 +88,18 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				AT91C_DDRC2_DECOD_INTERLEAVED |
 				AT91C_DDRC2_UNAL_SUPPORTED);
 
-	ddramc_config->rtr = 0x30e;
+	/*
+	 * This value is set for normal operating conditions.
+	 * Change this to :
+	 * ddramc_config->rtr = 0x30e;
+	 * for temperatures > 85C
+	 */
+	ddramc_config->rtr = 0x618;
 
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(9)
 				| AT91C_DDRC2_TRCD_(3)
 				| AT91C_DDRC2_TWR_(3)
-				| AT91C_DDRC2_TRC_(11)
+				| AT91C_DDRC2_TRC_(12)
 				| AT91C_DDRC2_TRP_(3)
 				| AT91C_DDRC2_TRRD_(2)
 				| AT91C_DDRC2_TWTR_(2)
@@ -101,14 +107,14 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->t1pr = (AT91C_DDRC2_TXP_(2)
 				| AT91C_DDRC2_TXSRD_(200)
-				| AT91C_DDRC2_TXSNR_(28)
-				| AT91C_DDRC2_TRFC_(26));
+				| AT91C_DDRC2_TXSNR_(41)
+				| AT91C_DDRC2_TRFC_(39));
 
-	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(7)
+	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(9)
 				| AT91C_DDRC2_TRTP_(2)
-				| AT91C_DDRC2_TRPA_(3)
-				| AT91C_DDRC2_TXARDS_(2)
-				| AT91C_DDRC2_TXARD_(8));
+				| AT91C_DDRC2_TRPA_(4)
+				| AT91C_DDRC2_TXARDS_(8)
+				| AT91C_DDRC2_TXARD_(2));
 }
 
 static void ddramc_init(void)
