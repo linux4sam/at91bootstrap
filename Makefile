@@ -33,6 +33,8 @@ endif
 endif
 
 BINDIR:=$(TOPDIR)/binaries
+SYMLINK ?= at91bootstrap.bin
+SYMLINK_BOOT ?= boot.bin
 
 include	host-utilities/host.mk
 
@@ -222,14 +224,6 @@ ifeq ($(IMAGE),)
 IMAGE=$(BOOT_NAME).bin
 endif
 
-ifeq ($(SYMLINK),)
-SYMLINK=at91bootstrap.bin
-endif
-
-ifeq ($(SYMLINK_BOOT),)
-SYMLINK_BOOT=boot.bin
-endif
-
 COBJS-y:= $(TOPDIR)/main.o
 SOBJS-y:= $(TOPDIR)/crt0_gnu.o
 
@@ -388,6 +382,28 @@ endif  # CONFIG_HAVE_DOT_CONFIG
 
 PHONY+= rebuild
 
+prepare: .prepared | $(CONFIG)/at91bootstrap-config $(BINDIR)
+
+.prepared: $(wildcard .config)
+	@echo AT91BOOTSTRAP_PREP_REV = 1 > $@
+	@echo AT91BOOTSTRAP_VERSIONNO = $(VERSION) >> $@
+	@echo KBUILD_KCONFIG = $(CONFIG_CONFIG_IN) >> $@
+	@echo KCONFIG_DEFCONFIG = $(CONFIG_DEFCONFIG) >> $@
+	@echo KCONFIG_CONFIG = .config >> $@
+	@echo KCONFIG_AUTOCONFIGOUTPUT = $(CONFIG)/at91bootstrap-config >> $@
+	@echo KCONFIG_AUTOCONFIG = $(CONFIG)/at91bootstrap-config/auto.conf >> $@
+	@echo KCONFIG_AUTOHEADER = $(CONFIG)/at91bootstrap-config/autoconf.h >> $@
+	@echo AT91BOOTSTRAP_SCMREVIN = scminfo.mk >> $@
+	@echo AT91BOOTSTRAP_BINOUTPUT = $(BINDIR) >> $@
+	@echo AT91BOOTSTRAP_BIN = $(BINDIR)/$(SYMLINK) >> $@
+ifneq ($(CONFIG_HAVE_DOT_CONFIG),)
+	@echo AT91BOOTSTRAP_ELF = $(BINDIR)/$(BOOT_NAME).elf >> $@
+	@echo AT91BOOTSTRAP_MAP = $(BINDIR)/$(BOOT_NAME).map >> $@
+	@echo AT91BOOTSTRAP_VERSIONEXTD = $(VERSION)$(REV)$(SCMINFO) >> $@
+	@echo AT91BOOTSTRAP_TARBALL = $(TARBALL_NAME) >> $@
+	@echo AT91BOOTSTRAP_BOARDDIR = $(BOARD_LOCATE) >> $@
+endif
+
 $(CONFIG)/at91bootstrap-config $(BINDIR):
 	@$(MKDIR) -p $@
 
@@ -444,6 +460,7 @@ distclean: clean config-clean
 	$(Q)rm -f .installed
 	$(Q)rm -f ..*.tmp
 	$(Q)rm -f .configured
+	$(Q)rm -f .prepared
 
 mrproper: distclean
 	@echo "  CLEAN        "binary files!
