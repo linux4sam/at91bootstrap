@@ -10,13 +10,18 @@ to start it.
 1 Host Setup
 ================================================================================
 
-## 1.1 Linux Host Requirements
+## 1.1 Generic Requirements
+
+Python3
+ - needed by the scripts that prepend the PMECC header for the NAND flash boot
+
+## 1.2 Linux Host Requirements
 
 Refer to the GNU ARM Toolchain section below for toolchain recommendations.
 
-## 1.2 Windows Host Setup
+## 1.3 Windows Host Setup
 
-### 1.2.1 Install required tools
+### 1.3.1 Install required tools
 
 A toolchain such as GNU Tools for Arm Embedded Processors shall be provided.
 Get one from e.g. <https://developer.arm.com/open-source/gnu-toolchain/gnu-rm>.
@@ -56,7 +61,7 @@ on when building AT91Bootstrap:
 
 Finally, close the "MSYS2 MSYS" terminal window.
 
-### 1.2.2 Open a shell suitable for building AT91Bootstrap
+### 1.3.2 Open a shell suitable for building AT91Bootstrap
 
 Launch mintty in the "MSYS2 MinGW 64-bit" configuration: either search for the
 "MSYS2 MinGW 64-bit" shortcut in the Program menu, or invoke the Run dialog
