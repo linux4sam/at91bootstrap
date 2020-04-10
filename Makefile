@@ -312,7 +312,10 @@ TARGETS=CheckCrossCompile PrintFlags $(AT91BOOTSTRAP)
 ifdef NIX_SHELL
 TARGETS+=ChkFileSize
 endif
+
+ifeq ($(CONFIG_NANDFLASH)$(CONFIG_USE_PMECC), yy)
 TARGETS+=${AT91BOOTSTRAP}.pmecc
+endif
 
 PHONY:=all
 
@@ -360,11 +363,12 @@ endif
 	@echo "  AS        "$<
 	@"$(AS)" $(ASFLAGS) -c -o $@ $<
 
-$(AT91BOOTSTRAP).pmecc: $(AT91BOOTSTRAP)
-ifeq ($(CONFIG_NANDFLASH), y)
-ifeq ($(CONFIG_USE_PMECC), y)
-	$(Q)./scripts/addpmecchead.py $(AT91BOOTSTRAP) $(AT91BOOTSTRAP).pmecc $(BOARDNAME)
-endif
+$(AT91BOOTSTRAP).pmecc: $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP)
+	$(Q)cat $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP) > $@
+
+$(BINDIR)/pmecc.tmp: .config | $(BINDIR)
+ifdef NIX_SHELL
+	$(Q)./scripts/addpmecchead.py .config $(BINDIR)
 endif
 
 PHONY+= bootstrap
@@ -472,6 +476,7 @@ distclean: clean config-clean
 	$(Q)rm -fr .auto.deps
 	$(Q)rm -f .installed
 	$(Q)rm -fr ..make.deps.tmp ..config.tmp
+	$(Q)rm -f $(BINDIR)/pmecc.tmp
 	$(Q)rm -f .configured
 	$(Q)rm -f .prepared
 
