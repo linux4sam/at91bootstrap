@@ -218,7 +218,11 @@ ifeq ($(CONFIG_LOAD_NONE), y)
 TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),none)
 endif
 
+ifneq ($(TARGET_NAME), none)
 BOOT_NAME=$(BOARDNAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
+else
+BOOT_NAME=$(BOARDNAME)-boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
+endif
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
 ifeq ($(IMAGE),)
