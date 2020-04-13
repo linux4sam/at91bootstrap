@@ -473,7 +473,7 @@ distclean: clean config-clean
 	$(Q)rm -fr .config .config.cmd .config.old
 	$(Q)rm -fr .auto.deps
 	$(Q)rm -f .installed
-	$(Q)rm -f ..*.tmp
+	$(Q)rm -fr ..make.deps.tmp ..config.tmp
 	$(Q)rm -f .configured
 	$(Q)rm -f .prepared
 
