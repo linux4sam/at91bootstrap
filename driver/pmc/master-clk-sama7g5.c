@@ -223,7 +223,7 @@ unsigned int pmc_mck_get_rate(unsigned int mckid)
 	case AT91C_MCR_CSS_BAUDPLL_CLK:
 	case AT91C_MCR_CSS_AUDIOPLL_CLK:
 	case AT91C_MCR_CSS_ETHPLL_CLK:
-		tmp = (clock_source - AT91C_MCR_CSS_SYSPLL_CLK) >> 8;
+		tmp = ((clock_source - AT91C_MCR_CSS_SYSPLL_CLK) >> 16) + 1;
 		rate = pmc_get_pll_freq(tmp);
 		break;
 	default:
