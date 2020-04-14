@@ -253,7 +253,7 @@ include	fs/src/fat.mk
 
 GC_SECTIONS=--gc-sections
 
-NOSTDINC_FLAGS := -nostdinc -isystem "$(shell $(CC) -print-file-name=include)"
+NOSTDINC_FLAGS := -nostdinc -isystem "$(shell "$(CC)" -print-file-name=include)"
 
 CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-mno-unaligned-access \
@@ -298,7 +298,7 @@ endif
 
 REMOVE_SECTIONS=-R .note -R .comment -R .note.gnu.build-id
 
-gccversion := $(shell $(CC) -dumpversion)
+gccversion := $(shell "$(CC)" -dumpversion)
 
 ifdef YYY   # For other utils
 ifeq ($(CC),gcc) 
@@ -342,9 +342,8 @@ PrintFlags:
 
 $(AT91BOOTSTRAP): $(OBJS) | $(BINDIR)
 	@echo "  LD        "$(BOOT_NAME).elf
-	$(Q)$(LD) $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
-#	@$(OBJCOPY) --strip-debug --strip-unneeded $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $(BINDIR)/$(BOOT_NAME).bin
-	@$(OBJCOPY) --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
+	$(Q)"$(LD)" $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
+	@"$(OBJCOPY)" --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 ifdef NIX_SHELL
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK}
 	@ln -sf $(BOOT_NAME).bin ${BINDIR}/${SYMLINK_BOOT}
@@ -355,11 +354,11 @@ endif
 
 %.o : %.c .config
 	@echo "  CC        "$<
-	@$(CC) $(CPPFLAGS) -c -o $@ $<
+	@"$(CC)" $(CPPFLAGS) -c -o $@ $<
 
 %.o : %.S .config
 	@echo "  AS        "$<
-	@$(AS) $(ASFLAGS)  -c -o $@  $<
+	@"$(AS)" $(ASFLAGS) -c -o $@ $<
 
 $(AT91BOOTSTRAP).pmecc: $(AT91BOOTSTRAP)
 ifeq ($(CONFIG_NANDFLASH), y)

@@ -1,4 +1,4 @@
-$(shell $(CC) --target-help > tmp.file)
+$(shell "$(CC)" --target-help > tmp.file)
 gcc_cortexa5=$(shell grep cortex-a5 tmp.file)
 
 ifeq (, $(findstring cortex-a5,$(gcc_cortexa5)))
