@@ -20,8 +20,6 @@ Refer to the GNU ARM Toolchain section below for toolchain recommendations.
 
 A toolchain such as GNU Tools for Arm Embedded Processors shall be provided.
 Get one from e.g. <https://developer.arm.com/open-source/gnu-toolchain/gnu-rm>.
-Run the installation wizard and specify a destination folder whose full path is
-free from any whitespace.
 Further instructions below are written as if the toolchain had been installed
 to C:\opt\gnu_tools_arm\7-2018-q2.
 
@@ -68,8 +66,7 @@ prompt:
 In this terminal, whose prompt is suffixed with "MINGW64", configure environment
 variables:
 
-    $ export CROSS_COMPILE="arm-none-eabi-"
-    $ export PATH=/c/opt/gnu_tools_arm/7-2018-q2/bin:$PATH
+    $ export CROSS_COMPILE=/c/opt/gnu_tools_arm/7-2018-q2/bin/arm-none-eabi-
 
 Still at the "MINGW64" prompt, proceed with instructions given in the Compile
 AT91Bootstrap section below.
