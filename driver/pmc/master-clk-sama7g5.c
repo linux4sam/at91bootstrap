@@ -193,7 +193,7 @@ void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits, unsigned int mask)
 
 unsigned int pmc_mck_get_rate(unsigned int mckid)
 {
-	unsigned int clock_source, tmp, rate = 0;
+	unsigned int clock_source, div, tmp, rate = 0;
 
 	if (!mckid) {
 		tmp = read_pmc(PMC_MCKR);
@@ -201,7 +201,9 @@ unsigned int pmc_mck_get_rate(unsigned int mckid)
 	}
 
 	write_pmc(PMC_MCR, mckid);
-	clock_source = read_pmc(PMC_MCR) & AT91C_MCR_CSS;
+	tmp = read_pmc(PMC_MCR);
+	clock_source = tmp & AT91C_MCR_CSS;
+	div = (tmp & AT91C_MCR_DIV) >> 8;
 
 	switch (clock_source) {
 	case AT91C_MCR_CSS_MD_SLOW_CLK:
@@ -230,7 +232,7 @@ unsigned int pmc_mck_get_rate(unsigned int mckid)
 		break;
 	}
 
-	return rate;
+	return rate >> div;
 }
 
 int pmc_mck_check_h32mxdiv(void)
