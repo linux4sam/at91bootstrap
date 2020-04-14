@@ -24,7 +24,7 @@ ifeq ($(strip $(shell echo $$0)),$$0)
 NIX_SHELL=
 else
 NIX_SHELL=1
-CONFIG_SHELL=$(shell which bash)
+CONFIG_SHELL := $(shell which bash)
 ifeq ($(CONFIG_SHELL),)
 $(error GNU Bash is needed to build Kconfig host tools!)
 endif
@@ -36,14 +36,16 @@ SYMLINK_BOOT ?= boot.bin
 
 include	host-utilities/host.mk
 
+ifeq ($(origin BUILD_DATE), undefined)
 # Automatically escape '%' symbols when recipes are implemented as batch files
 PERCENT := $(if $(findstring %%_dummy_,$(shell echo %%_dummy_)),%,%%)
 # see https://reproducible-builds.org/docs/source-date-epoch/#makefile
 DATE_FMT = +$(PERCENT)Y-$(PERCENT)m-$(PERCENT)d $(PERCENT)H:$(PERCENT)M:$(PERCENT)S
 ifdef SOURCE_DATE_EPOCH
-	BUILD_DATE ?= $(shell $(DATE) -u -d "@$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>$(DEV_NULL) || $(DATE) -u -r "$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>$(DEV_NULL) || $(DATE) -u "$(DATE_FMT)")
+	BUILD_DATE := $(shell $(DATE) -u -d "@$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>$(DEV_NULL) || $(DATE) -u -r "$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>$(DEV_NULL) || $(DATE) -u "$(DATE_FMT)")
 else
-	BUILD_DATE ?= $(shell $(DATE) "$(DATE_FMT)")
+	BUILD_DATE := $(shell $(DATE) "$(DATE_FMT)")
+endif
 endif
 VERSION := 3.9.2
 REVISION :=
@@ -246,7 +248,7 @@ include	fs/src/fat.mk
 
 GC_SECTIONS=--gc-sections
 
-NOSTDINC_FLAGS=-nostdinc -isystem "$(shell $(CC) -print-file-name=include)"
+NOSTDINC_FLAGS := -nostdinc -isystem "$(shell $(CC) -print-file-name=include)"
 
 CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-mno-unaligned-access \
