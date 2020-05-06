@@ -593,7 +593,7 @@ static int sdhc_read_data(struct sd_data *data)
 	unsigned int *tmp;
 	int done = 0;
 
-	timeout = 10000;
+	timeout = 100000;
 	do {
 		normal_status = sdhc_readw(SDMMC_NISTR);
 
