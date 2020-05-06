@@ -219,11 +219,18 @@ void at91_sdhc_hw_init(void)
 		{"SDMMC1_VDDSEL", AT91C_PIN_PC(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC1_WP",   AT91C_PIN_PC(3), 1, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC1_CD",   AT91C_PIN_PC(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_RST",  AT91C_PIN_PB(22), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+	const struct pio_desc sdmmc_pins_reset[] = {
+		{"SDMMC1_RST",  AT91C_PIN_PB(22), 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #endif
 
 	pio_configure(sdmmc_pins);
+	mdelay(500);
+	pio_configure(sdmmc_pins_reset);
 
 	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
