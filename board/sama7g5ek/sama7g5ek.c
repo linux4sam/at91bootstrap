@@ -41,6 +41,7 @@
 #include "umctl2.h"
 #include "watchdog.h"
 #include "timer.h"
+#include "sdhc_cal.h"
 
 #include "sama7g5ek.h"
 
@@ -206,6 +207,7 @@ void at91_board_set_dtb_name(char *of_name)
 
 void at91_sdhc_hw_init(void)
 {
+	u32 reg;
 #if defined(CONFIG_SDHC1)
 	const struct pio_desc sdmmc_pins[] = {
 		{"SDMMC1_CK",   AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -227,6 +229,15 @@ void at91_sdhc_hw_init(void)
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
 				 GCK_CSS_MCK_CLK,
 				 ATMEL_SDHC_GCKDIV_VALUE);
+
+	/* Launch calibration and wait till it's completed */
+	reg = readl(CONFIG_SYS_BASE_SDHC + SDMMC_CALCR);
+	reg |= SDMMC_CALCR_CLKDIV(7) | SDMMC_CALCR_ALWYSON;
+	writel(reg, CONFIG_SYS_BASE_SDHC + SDMMC_CALCR);
+	reg |= SDMMC_CALCR_EN;
+	writel(reg, CONFIG_SYS_BASE_SDHC + SDMMC_CALCR);
+	while (readl(CONFIG_SYS_BASE_SDHC + SDMMC_CALCR) & SDMMC_CALCR_EN)
+		;
 }
 #endif
 
