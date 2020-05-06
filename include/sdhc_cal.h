@@ -31,5 +31,7 @@
 /* SDMMC_CALCR */
 #define	SDMMC_CALCR_EN		(0x1 << 0)	/* PADs Calibration Enable */
 #define	SDMMC_CALCR_ALWYSON	(0x1 << 4)	/* Calibration Analog Always ON */
+#define	SDMMC_CALCR_CLKDIV_MASK	(0x7)
+#define	SDMMC_CALCR_CLKDIV(v)	(((v) & SDMMC_CALCR_CLKDIV_MASK) << 1) /* Calibration Clock Division */
 
 #endif
