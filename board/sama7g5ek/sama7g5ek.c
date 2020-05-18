@@ -260,13 +260,15 @@ void hw_init(void)
 	int i;
 #endif
 
+	/* Watchdog might be enabled out of reset. Let's make sure it's off */
 	at91_disable_wdt();
 #ifdef CONFIG_WDTS
 	at91_disable_wdts();
 #endif
-
+	/* SMP is needed for L2 cache in cortex A7 */
 	ca7_enable_smp();
 
+	/* We need timers in the following steps */
 	timer_init();
 
 	/* Configure & Enable CPU PLL */
@@ -279,6 +281,25 @@ void hw_init(void)
 
 	pmc_mck_cfg_set(0, BOARD_PRESCALER_CPUPLL,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
+
+	/*
+	 * Out of Romcode, MCK1 & MCK4 are already configured with SYSPLL
+	 * at unwanted frequencies.
+	 * We cannot reconfigure SYSPLL without first reconfiguring
+	 * MCK1 & MCK4 to different clock source.
+	 * After we complete configuration for SYSPLL,
+	 * we can configure MCK1 & MCK4 accordingly
+	 */
+	pmc_mck_cfg_set(4, BOARD_PRESCALER_MCK4_CLEAN,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
+
+	pmc_mck_cfg_set(1, BOARD_PRESCALER_MCK1_CLEAN,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
+
+	/*
+	 * We are done here cleaning up MCK1 & MCK4, so we can configure
+	 * SYSPLL at cruise speed
+	 */
 
 	/* Configure & Enable SYS PLL */
 	syspll_config.mul = 49; /* (49 + 1) * 24 = 1200 */
