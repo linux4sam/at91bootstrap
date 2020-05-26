@@ -10,24 +10,45 @@ to start it.
 1 Host Setup
 ================================================================================
 
-## 1.1 Linux Host Requirements
+## 1.1 Using an Integrated Development Environment
+
+AT91Bootstrap was initially designed to bootstrap Linux-powered targets, and,
+being based on Kconfig and Makefiles, is primarily configured and built from a
+Bash shell on a Linux build system. Users of U-Boot and of the Linux Kernel are
+already familiar with the commands involved in this process.
+
+Now, and this will be detailed in the subsequent sections, other operating
+systems may be used to compile AT91Bootstrap, still on the command line, once
+the build system has been set up for that purpose.
+
+Alternatively to using the Command-Line Interface, Microchip provides the MPLAB
+X IDE, which can be used to build, load and debug AT91Bootstrap. This tool is
+offered when targeting recent MPUs such as the SAM9X60 and the SAMA5D2x series.
+Users who favor an IDE over the CLI will find MPLAB X IDE available for Windows,
+macOS and Linux platforms, at <https://www.microchip.com/mplab/mplab-x-ide>.
+
+Note: the next sections will notably discuss the supported toolchains which,
+even when AT91Bootstrap is compiled within the MPLAB X IDE, have to be
+installed separately.
+
+## 1.2 Linux Host Requirements
 
 Refer to the GNU ARM Toolchain section below for toolchain recommendations.
 
-## 1.2 Windows Host Setup
+## 1.3 Windows Host Setup
 
-### 1.2.1 Install required tools
+### 1.3.1 Install required tools
 
 A toolchain such as GNU Tools for Arm Embedded Processors shall be provided.
 Get one from e.g. <https://developer.arm.com/open-source/gnu-toolchain/gnu-rm>.
 Further instructions below are written as if the toolchain had been installed
 to C:\opt\gnu_tools_arm\7-2018-q2.
 
-Building AT91Bootstrap requires a POSIX environment. Several tools are available
-on the market to provide such an environment. In these instructions we rely on
-Minimal SYStem 2 (MSYS2).
+Building AT91Bootstrap on the command line requires a POSIX environment. Several
+tools are available on the market to provide such an environment. In this
+section we rely on Minimal SYStem 2 (MSYS2).
 Get MSYS2 from <http://www.msys2.org>.
-Install it. The installation wizard ask for the installation folder, and
+Install it. The installation wizard prompts for the installation directory, and
 suggests to keep its full path short.
 Further instructions below are written as if MSYS2 had been installed to
 C:\opt\msys.
@@ -48,13 +69,13 @@ manager to update both its database and the packages already installed:
 Still at the "MSYS" prompt, install additional packages that we will need later
 on when building AT91Bootstrap:
 
-    $ pacman -S bc gawk gcc git make python2 tar
-    $ cd /usr/bin
-    $ ln -s python2.exe python.exe && ln -s python2-config python-config
+    $ pacman -S bash bc binutils bison coreutils findutils flex gawk gcc gettext
+    $ pacman -S git gperf grep gzip make ncurses-devel pkg-config python sed tar
+    $ pacman -S which
 
 Finally, close the "MSYS2 MSYS" terminal window.
 
-### 1.2.2 Open a shell suitable for building AT91Bootstrap
+### 1.3.2 Open a shell suitable for building AT91Bootstrap
 
 Launch mintty in the "MSYS2 MinGW 64-bit" configuration: either search for the
 "MSYS2 MinGW 64-bit" shortcut in the Program menu, or invoke the Run dialog
