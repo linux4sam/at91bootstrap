@@ -30,7 +30,7 @@ ifdef SOURCE_DATE_EPOCH
 else
 	DATE := $(shell date)
 endif
-VERSION := 3.9.2
+VERSION := 3.9.3
 REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
