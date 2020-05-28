@@ -55,9 +55,7 @@ manager to update both its database and the packages already installed:
 Still at the "MSYS" prompt, install additional packages that we will need later
 on when building AT91Bootstrap:
 
-    $ pacman -S bc gawk gcc git make python2 tar
-    $ cd /usr/bin
-    $ ln -s python2.exe python.exe && ln -s python2-config python-config
+    $ pacman -S bc gawk gcc git make python tar
 
 Finally, close the "MSYS2 MSYS" terminal window.
 
