@@ -738,10 +738,10 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #if defined(CONFIG_DDR2)
 #if defined(CONFIG_BANK_4)
 /* tRPall = tRP for 4 bank device */
-							AT91C_DDRC2_TRPA_(NS2CYCLES(ddr_ddram_timings.trp, mck)) |
+							AT91C_DDRC2_TRPA_(NS2CYCLES(ddr_ddram_timings.trpa, mck)) |
 #else
 /* tRPall = tRP + 1 x tCK for 8 bank device */
-							AT91C_DDRC2_TRPA_((NS2CYCLES(ddr_ddram_timings.trp, mck) + 1)) |
+							AT91C_DDRC2_TRPA_((NS2CYCLES(ddr_ddram_timings.trpa, mck) + 1)) |
 #endif
 #else
 							AT91C_DDRC2_TRPA_(0) |
@@ -768,7 +768,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 /* This field is found only in the DDR2-SDRAM devices */
 	ddramc_config->t2pr = ( AT91C_DDRC2_TXARD_(ddr_ddram_timings.txard) |
 							AT91C_DDRC2_TXARDS_(ddr_ddram_timings.txards) |
-							AT91C_DDRC2_TRPA_(ddr_ddram_timings.trp) |
+							AT91C_DDRC2_TRPA_(ddr_ddram_timings.trpa) |
 							AT91C_DDRC2_TRTP_(ddr_ddram_timings.trtp) |
 							AT91C_DDRC2_TFAW_(ddr_ddram_timings.tfaw)
 						  );
@@ -802,7 +802,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 /* This field is found only in the DDR2-SDRAM devices */
 #if defined(CONFIG_DDR2)
 /* tRPall = tRP for 4 bank device */
-							AT91C_DDRC2_TRPA_(CONFIG_DDR_TXARD) |
+							AT91C_DDRC2_TRPA_(CONFIG_DDR_TRPA) |
 #else
 							AT91C_DDRC2_TRPA_(0) |
 #endif
