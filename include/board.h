@@ -28,7 +28,7 @@
 #ifndef __BOARD_H__
 #define __BOARD_H__
 
-#ifdef CONFIG_SAM9X60EK
+#ifdef CONFIG_SAM9X60
 #include "sam9x60_board.h"
 #endif
 

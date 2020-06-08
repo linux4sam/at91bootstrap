@@ -167,6 +167,7 @@
 /*
  * External memory
  */
+#define AT91C_BASE_DDRCS        0x20000000
 #define AT91C_BASE_CS0          0x10000000      /* typically NOR */
 #define AT91C_BASE_CS1          0x20000000      /* MPDDRC / SDRAMC */
 #define AT91C_BASE_CS2          0x30000000
