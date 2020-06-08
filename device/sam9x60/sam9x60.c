@@ -234,6 +234,7 @@ void wilc_pwrseq()
 
 void hw_init(void)
 {
+	unsigned int reg;
 	struct pmc_pll_cfg plla_config;
 
 	/* Disable watchdog */
@@ -268,11 +269,21 @@ void hw_init(void)
 #ifdef CONFIG_TWI
 	twi_init();
 #endif
+
+	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
+	/*
+	 * We need to also enable AT91C_EBI_NFD0_ON_D16 . Otherwise the DDR will
+	 * not work if NAND lines have been previously used by RomCode
+	 */
 #ifdef CONFIG_DDR2
+	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN | AT91C_EBI_NFD0_ON_D16);
+	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 	/* Initialize DDRAM Controller */
 	ddram_init();
 #endif
 #ifdef CONFIG_SDRAM
+	reg |= (AT91C_EBI_CS1A | AT91C_EBI_NFD0_ON_D16);
+	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 	/* Initialize SDRAM Controller */
 	sdramc_init();
 #endif
