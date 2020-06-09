@@ -866,7 +866,7 @@ int ddr2_sdram_initialize(unsigned int base_address,
  * This is the sama5d2-compatible initialization sequence for LP-DDR2
  * Check after the #else for sama5d3 and sama5d4 LP-DDR2 initialization sequence
  */
-#if defined(CONFIG_SAMA5D2 || CONFIG_SAM9X60)
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60)
 
 int lpddr2_sdram_initialize(unsigned int base_address,
 			    unsigned int ram_address,
