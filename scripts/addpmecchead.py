@@ -17,31 +17,53 @@ def pmecchead(dot_config_path, binaries_path):
     if find_in_file(dot_config_path, "CONFIG_NANDFLASH=y"):
         if not (os.path.exists(binaries_path)):
             os.mkdir(binaries_path)
-        if find_in_file(dot_config_path, "CONFIG_SAMA5D2_PTC_EK=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(2048, 64, 4, 512)
-        elif find_in_file(dot_config_path, "CONFIG_SAMA5D3XEK=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(2048, 64, 4, 512)
-        elif find_in_file(dot_config_path, "CONFIG_SAMA5D3_XPLAINED=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(2048, 64, 4, 512)
-        elif find_in_file(dot_config_path, "CONFIG_SAMA5D4EK=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(4096, 224, 8, 512)
-        elif find_in_file(dot_config_path, "CONFIG_SAMA5D4_XPLAINED=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(4096, 224, 8, 512)
-        elif find_in_file(dot_config_path, "CONFIG_AT91SAM9X5EK=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(2048, 64, 2, 512)
-        elif find_in_file(dot_config_path, "CONFIG_AT91SAM9N12EK=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(2048, 64, 2, 512)
-        elif find_in_file(dot_config_path, "CONFIG_SAM9X60EK=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(4096, 224, 8, 512)
-        elif find_in_file(dot_config_path, "CONFIG_SAM9X60_DDR2_SIP_EB=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(4096, 224, 8, 512)
-        elif find_in_file(dot_config_path, "CONFIG_SAM9X60_SDR_SIP_EB=y"):
-            pmecc_word = pmecc_head.gen_pmecc_header(2048, 64, 2, 512)
+        if find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_512=y"):
+            pagesize = 512
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_1024=y"):
+            pagesize = 1024
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_2048=y"):
+            pagesize = 2048
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_4096=y"):
+            pagesize = 4096
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_8192=y"):
+            pagesize = 8192
+        else:
+            return
+        if find_in_file(dot_config_path, "CONFIG_PMECC_OOB_16=y"):
+            oob = 16
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_32=y"):
+            oob = 32
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_64=y"):
+            oob = 64
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_224=y"):
+            oob = 224
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_256=y"):
+            oob = 256
+        else:
+            return
+        if find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_2=y"):
+            correct = 2
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_4=y"):
+            correct = 4
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_8=y"):
+            correct = 8
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_12=y"):
+            correct = 12
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_24=y"):
+            correct = 24
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_32=y"):
+            correct = 32
+        else:
+            return
+        if find_in_file(dot_config_path, "CONFIG_PMECC_SECTOR_SIZE_512=y"):
+            sector = 512
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_SECTOR_SIZE_1024=y"):
+            sector = 1024
         else:
             return
     else:
         return
-
+    pmecc_word = pmecc_head.gen_pmecc_header(pagesize, oob, correct, sector)
     vec = struct.pack("<I", pmecc_word)
     # generate a new file with pmecc header
     fd = open(header, "wb")
