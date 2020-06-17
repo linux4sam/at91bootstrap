@@ -21,15 +21,16 @@ Now, and this will be detailed in the subsequent sections, other operating
 systems may be used to compile AT91Bootstrap, still on the command line, once
 the build system has been set up for that purpose.
 
-Alternatively to using the Command-Line Interface, Microchip provides the MPLAB
-X IDE, which can be used to build, load and debug AT91Bootstrap. This tool is
-offered when targeting recent MPUs such as the SAM9X60 and the SAMA5D2x series.
+As an alternative to using the Command-Line Interface, Microchip provides the
+MPLAB X IDE, which can be used to build, load and debug AT91Bootstrap. This
+environment is offered when targeting recent MPUs such as the SAM9X60 and the
+SAMA5D2x series.
 Users who favor an IDE over the CLI will find MPLAB X IDE available for Windows,
 macOS and Linux platforms, at <https://www.microchip.com/mplab/mplab-x-ide>.
 
-Note: the next sections will notably discuss the supported toolchains which,
-even when AT91Bootstrap is compiled within the MPLAB X IDE, have to be
-installed separately.
+Note: the next sections will notably discuss the supported toolchains, which
+shall be installed separately even when AT91Bootstrap is compiled within the
+MPLAB X IDE.
 
 ## 1.2 Generic Requirements
 
@@ -40,9 +41,81 @@ Python3
 
 Refer to the GNU ARM Toolchain section below for toolchain recommendations.
 
-## 1.4 Windows Host Setup
+## 1.4 macOS Host Setup
 
 ### 1.4.1 Install required tools
+
+Many Unix-like utilities are installed as standard, as part of macOS - often in
+a BSD or macOS variant - and are available at shell prompt.
+AT91Bootstrap, to be configured and built, may require the GNU variant of a
+given utility, occasionally. It also requires a few additional tools.
+Several package managers are available on the market and provide a large choice
+of open source tools, already compiled and packaged for macOS systems.
+For this purpose and throughout this README we will use MacPorts, from
+The MacPorts Project.
+Get MacPorts from <https://www.macports.org> and follow the installation
+instructions given on their website. As of writing, MacPorts requires Apple's
+Xcode, and Xcode Command Line Tools, to be installed on the machine.
+
+Once MacPorts is installed, open the terminal emulator of your choice. Apple's
+Terminal for instance, which may be found under the Applications' Utilities
+subdirectory. At shell prompt, request the MacPorts package manager to update
+both its database and the packages already installed:
+
+    $ sudo port -v selfupdate
+    $ sudo port upgrade outdated
+
+Now install the few additional packages needed to configure and build
+AT91Bootstrap:
+
+    $ sudo port install arm-none-eabi-binutils arm-none-eabi-gcc gettext ncurses
+    $ sudo port install pkgconfig python38
+    $ sudo port select --set python3 python38
+
+Here a recent toolchain, notably, is obtained from MacPorts, conveniently.
+By default, MacPorts installs executables - including those forming the
+toolchain - in the /opt/local/bin directory and prepend the PATH environment
+variable with this path.
+
+Alternatively, may a specific toolchain or a specific version be preferred, GNU
+Tools for Arm Embedded Processors, for instance, can be downloaded from
+<https://developer.arm.com/open-source/gnu-toolchain/gnu-rm> and extracted to
+the installation directory of your choice. The bin/ subdirectory there would
+contain the compiler and other toolchain binaries used in subsequent steps.
+
+### 1.4.2 Optionally configure MPLAB X IDE
+
+If you use MPLAB X IDE and wish you could add the toolchain to the executable
+search path, effective for all projects, you may edit the
+mplab_platform/etc/mplab_ide.conf file in MPLAB's installation directory.
+Mind that modifying this file will likely require administrator privileges.
+Either open the file with a text editor such as MacroMates' TextMate, so that
+you can append the below line to it, where /opt/local/bin stands for the path to
+the toolchain binaries:
+
+    PATH=$PATH:/opt/local/bin
+
+Or do it on the command line. In a terminal emulator issue the below command,
+where /opt/local/bin stands for the path to the toolchain binaries, and
+/Applications/Microchip/MPLABX/v5.40 stands for the directory MPLAB has been
+installed to:
+
+    $ echo "PATH=\$PATH:/opt/local/bin" | sudo tee -a /Applications/Microchip/MPLABX/v5.40/mplab_platform/etc/mplab_ide.conf
+
+The change will come into effect the next time you launch MPLAB X IDE.
+
+### 1.4.3 Open a shell suitable for building AT91Bootstrap
+
+Open the terminal emulator of your choice and configure environment variables:
+
+    $ export CROSS_COMPILE=/opt/local/bin/arm-none-eabi-
+
+Then, still at this shell prompt, proceed with the instructions given in the
+Compile AT91Bootstrap section below.
+
+## 1.5 Windows Host Setup
+
+### 1.5.1 Install required tools
 
 A toolchain such as GNU Tools for Arm Embedded Processors shall be provided.
 Get one from e.g. <https://developer.arm.com/open-source/gnu-toolchain/gnu-rm>.
@@ -80,7 +153,7 @@ on when building AT91Bootstrap:
 
 Finally, close the "MSYS2 MSYS" terminal window.
 
-### 1.4.2 Open a shell suitable for building AT91Bootstrap
+### 1.5.2 Open a shell suitable for building AT91Bootstrap
 
 Launch mintty in the "MSYS2 MinGW 64-bit" configuration: either search for the
 "MSYS2 MinGW 64-bit" shortcut in the Program menu, or invoke the Run dialog
