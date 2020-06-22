@@ -254,9 +254,10 @@ CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-fno-stack-protector -fno-common -fno-builtin -fno-jump-tables -fno-pie \
 	-I$(INCL) -Iinclude -Ifs/include \
 	-I$(CONFIG)/at91bootstrap-config \
+	-include $(CONFIG)/at91bootstrap-config/autoconf.h \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(BUILD_DATE)\""
 
-ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude 
+ASFLAGS=-g -Os -Wall -I$(INCL) -Iinclude -include $(CONFIG)/at91bootstrap-config/autoconf.h 
 
 include	toplevel_cpp.mk
 include	device/device_cpp.mk
