@@ -31,7 +31,7 @@ else
 	DATE := $(shell date)
 endif
 VERSION := sama7g5-early-1.0
-REVISION := rc1
+REVISION :=
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
 ifeq ($(SCMINFO),)
