@@ -1085,12 +1085,8 @@ static int mmc_initialization(struct sd_card *sdcard)
 		}
 	}
 
-	if (host->ops->set_clock) {
-		if (sdcard->highspeed_card)
-			host->ops->set_clock(sdcard, 52000000);
-		else
-			host->ops->set_clock(sdcard, 26000000);
-	}
+	/* Bustest does not work below 26 Mhz */
+	host->ops->set_clock(sdcard, 26000000);
 
 	if (sdcard->sd_spec_version >= MMC_VERSION_4) {
 		ret = mmc_detect_buswidth(sdcard);
@@ -1098,6 +1094,15 @@ static int mmc_initialization(struct sd_card *sdcard)
 			console_printf("MMC: Bustest failed !\n");
 			return ret;
 		}
+	}
+
+	/* Now we can go to cruise speed */
+	if (host->ops->set_clock) {
+		if (sdcard->highspeed_card) {
+			host->ops->set_clock(sdcard, 52000000);
+		}
+		else
+			host->ops->set_clock(sdcard, 26000000);
 	}
 
 	/* we enable here DDR if supported */
