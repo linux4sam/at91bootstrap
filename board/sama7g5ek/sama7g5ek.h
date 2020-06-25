@@ -78,8 +78,13 @@
 #define CONFIG_SYS_BASE_UMCTL2		AT91C_BASE_UMCTL2
 #define CONFIG_SYS_BASE_UMCTL2_MP	AT91C_BASE_UMCTL2_MP
 
+#if defined(CONFIG_SDHC0)
+#define CONFIG_SYS_BASE_SDHC		AT91C_BASE_SDMMC0
+#define	CONFIG_SYS_ID_SDHC		AT91C_ID_SDMMC0
+#elif defined(CONFIG_SDHC1)
 #define CONFIG_SYS_BASE_SDHC		AT91C_BASE_SDMMC1
 #define	CONFIG_SYS_ID_SDHC		AT91C_ID_SDMMC1
+#endif
 
 #define _tRFC		350UL		/* Refresh to Refresh, ns */
 #define _tREFI		7800UL		/* Refresh Intervals, ns */

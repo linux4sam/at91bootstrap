@@ -239,10 +239,30 @@ void at91_sdhc_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #endif
+#if defined(CONFIG_SDHC0)
+	const struct pio_desc sdmmc_pins[] = {
+		{"SDMMC0_CK",   AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_CMD",  AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_RST",  AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT0", AT91C_PIN_PA(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT1", AT91C_PIN_PA(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT2", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT3", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT4", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT5", AT91C_PIN_PA(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT6", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT7", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_WP",   AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_CD",  AT91C_PIN_PA(14), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#endif
 
 	pio_configure(sdmmc_pins);
+#if defined(CONFIG_SDHC1)
 	mdelay(500);
 	pio_configure(sdmmc_pins_reset);
+#endif
 
 	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
