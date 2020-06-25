@@ -203,6 +203,18 @@ void at91_board_set_dtb_name(char *of_name)
 }
 #endif
 
+void at91_leds_init(void)
+{
+	const struct pio_desc leds_pins[] = {
+		{"RED", AT91C_PIN_PB(8), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{"GREEN", AT91C_PIN_PA(13), 1, PIO_DEFAULT, PIO_OUTPUT},
+		{"BLUE", AT91C_PIN_PD(20), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
+	};
+
+	pio_configure(leds_pins);
+}
+
 #define ATMEL_SDHC_GCKDIV_VALUE		0
 
 void at91_sdhc_hw_init(void)
@@ -320,6 +332,7 @@ void hw_init(void)
 
 	board_flexcoms_init();
 	at91_flexcom3_init();
+	at91_leds_init();
 
 	initialize_serial();
 
