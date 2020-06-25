@@ -262,6 +262,7 @@ config SAMA7G5
 	select CPU_HAS_TRUSTZONE
 	select CPU_HAS_WDT2
 	select CPU_HAS_DWDT
+	select CPU_HAS_SDHC0
 	select CPU_HAS_SDHC1
 	bool
 
