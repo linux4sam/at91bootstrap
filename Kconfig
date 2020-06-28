@@ -9,65 +9,10 @@ config HAVE_DOT_CONFIG
 source "device/Config.in.dev"
 source "device/Config.in.clk"
 
-config CONSOLE_INDEX_0
-	bool
-	default n
-config CONSOLE_INDEX_1
-	bool
-	default n
-config CONSOLE_INDEX_2
-	bool
-	default n
-config CONSOLE_INDEX_3
-	bool
-	default n
-config CONSOLE_INDEX_4
-	bool
-	default n
-config CONSOLE_INDEX_5
-	bool
-	default n
-config CONSOLE_INDEX_6
-	bool
-	default n
-config CONSOLE_INDEX_7
-	bool
-	default n
-config CONSOLE_INDEX_8
-	bool
-	default n
-config CONSOLE_INDEX_9
-	bool
-	default n
-config CONSOLE_INDEX_10
-	bool
-	default n
-config CONSOLE_INDEX_11
-	bool
-	default n
-config CONSOLE_INDEX_12
-	bool
-	default n
-config CONSOLE_INDEX_13
-	bool
-	default n
-config CONSOLE_INDEX_14
-	bool
-	default n
-config CONSOLE_INDEX_15
-	bool
-	default n
-
 menu "Console and Debug"
 
-choice
-	prompt "Bootstrap Console Setup"
-	help
-	  Select the Pins and UART Interface Used as a Console Terminal
 source "device/sama5d2/Config.in.con"
 source "device/sam9x60/Config.in.con"
-
-endchoice
 
 config DEBUG
 	bool "Debug Support"
