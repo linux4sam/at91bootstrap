@@ -1,5 +1,5 @@
 #
-# Default config file is in device/$(DEVICE_NAME)/*_defconfig
+# Default config file is in configs/$(DEVICE_NAME)*_defconfig
 # First, run xxx_defconfig
 # Then, `make menuconfig' if needed
 #
@@ -235,7 +235,7 @@ SOBJS-y:= crt0_gnu.o
 # Verify that DEVICENAME is the name of a subdirectory of device/
 DEVICE_LOCATE=$(if $(wildcard device/$(DEVICENAME)/.),device/$(DEVICENAME))
 ifeq ("$(realpath $(DEVICE_LOCATE))", "")
-$(error ERROR: *** file: $(DEVICE_LOCATE) device does not found!)
+$(error ERROR: *** device not found!)
 endif
 
 COBJS-y += $(DEVICE_LOCATE)/$(DEVICENAME).o
@@ -423,7 +423,7 @@ $(CONFIG)/at91bootstrap-config $(BINDIR):
 	@$(MAKE) defconfig
 
 update:
-	cp .config $(DEVICE_LOCATE)/$(DEVICENAME)_defconfig
+	cp .config configs/$(DEVICENAME)_defconfig
 
 no-cross-compiler:
 	@echo
