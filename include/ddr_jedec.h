@@ -197,7 +197,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	/* For low-power DDR2-SDRAM and low-power DDR3-SDRAM, this field is equivalent to TMRW timing.*/
 	.tmrd = 5,
 	
-#if #if defined(CONFIG_DDR_1_GBIT) || defined(CONFIG_DDR_2_GBIT) 
+#if defined(CONFIG_DDR_1_GBIT) || defined(CONFIG_DDR_2_GBIT) 
 /* 1Gb | 2Gb */
 	.trfc = 130,
 	.txsnr = 140,
