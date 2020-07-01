@@ -38,7 +38,7 @@
 #include "timer.h"
 #include "usart.h"
 
-#if defined(CONFIG_DDR_SET_JEDEC)
+#if defined(CONFIG_DDR_SET_BY_JEDEC)
 #include "ddr_jedec.h"
 #elif defined(CONFIG_DDR_SET_BY_DEVICE)
 #include "ddr_device.h"
@@ -48,7 +48,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 {
 	unsigned int type, dbw, col, row, cas, bank;
 
-#if defined(CONFIG_DDR_SET_JEDEC) || defined(CONFIG_DDR_SET_BY_TIMING)
+#if defined(CONFIG_DDR_SET_BY_JEDEC) || defined(CONFIG_DDR_SET_BY_TIMING)
 	unsigned int mck;
 	unsigned int win, ref_cycle;
 #endif

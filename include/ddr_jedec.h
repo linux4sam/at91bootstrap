@@ -32,7 +32,7 @@
 #include "arch/at91_ddrsdrc.h"
 #include "ddramc.h"
 
-#if defined(CONFIG_DDR_SET_JEDEC)
+#if defined(CONFIG_DDR_SET_BY_JEDEC)
 /* Convert nanoseconds to clock cycles for given master clock in MHz */
 #define NS2CYCLES(ns, clk) ((((ns) * (clk)) + 999) / 1000)
 
