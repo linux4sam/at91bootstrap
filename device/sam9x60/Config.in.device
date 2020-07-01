@@ -1,5 +1,15 @@
-config	SAM9X60_BOARD
-	select SAM9X60
+config	SAM9X60
+	select CORE_ARM926EJS
+	select CPU_HAS_SCKC
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_SDHC0
+	select CPU_HAS_SDHC1
+	select CPU_HAS_QSPI0
+	select CPU_HAS_WDT2
+	select CPU_HAS_SCLK_BYPASS
+	select CPU_HAS_FLEXCOM
+	select CPU_HAS_QSPI_RICR_WICR
 	select DDRC
 	select ALLOW_DATAFLASH
 	select ALLOW_NANDFLASH

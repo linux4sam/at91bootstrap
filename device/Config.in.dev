@@ -1,6 +1,6 @@
 choice
 	prompt "Device Type"
-	default SAMA5D2_BOARD
+	default SAMA5D2
 	help
 	  Select which device your board is based on
 
@@ -11,8 +11,8 @@ endchoice
 
 config DEVICENAME
 	string
-	default "sama5d2" if SAMA5D2_BOARD
-	default "sam9x60" if SAM9X60_BOARD
+	default "sama5d2" if SAMA5D2
+	default "sam9x60" if SAM9X60
 	default "sama5d3" if SAMA5D3_BOARD
 	default "sama5d4" if SAMA5D4_BOARD
 	default "at91sam9rl"	if AT91SAM9RL_BOARD
@@ -118,20 +118,6 @@ config AT91SAM9X5
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
-config SAM9X60
-	select CORE_ARM926EJS
-	select CPU_HAS_SCKC
-	select CPU_HAS_PIO3
-	select CPU_HAS_PMECC
-	select CPU_HAS_SDHC0
-	select CPU_HAS_SDHC1
-	select CPU_HAS_QSPI0
-	select CPU_HAS_WDT2
-	select CPU_HAS_SCLK_BYPASS
-	select CPU_HAS_FLEXCOM
-	select CPU_HAS_QSPI_RICR_WICR
-	bool
-
 config AT91SAM9N12
 	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
@@ -180,35 +166,4 @@ config SAMA5D4
 	select CPU_HAS_SPI0
 	select CPU_HAS_SPI1
 	select CPU_HAS_SPI2
-	bool
-
-config SAMA5D2
-	select CORE_CORTEX_A5
-	select CPU_HAS_TWI0
-	select CPU_HAS_TWI1
-	select CPU_HAS_FLEXCOM
-	select CPU_HAS_AES
-	select CPU_HAS_L2CC
-	select CPU_HAS_SCKC
-	select CPU_HAS_H32MXDIV
-	select CPU_HAS_PIO4
-	select CPU_HAS_PMECC
-	select CPU_HAS_TRUSTZONE
-	select CPU_HAS_SDHC0
-	select CPU_HAS_SDHC1
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
-	select CPU_HAS_SPI0_IOSET1
-	select CPU_HAS_SPI0_IOSET2
-	select CPU_HAS_SPI1_IOSET1
-	select CPU_HAS_SPI1_IOSET2
-	select CPU_HAS_SPI1_IOSET3
-	select CPU_HAS_QSPI0
-	select CPU_HAS_QSPI1
-	select CPU_HAS_QSPI0_IOSET1
-	select CPU_HAS_QSPI0_IOSET2
-	select CPU_HAS_QSPI0_IOSET3
-	select CPU_HAS_QSPI1_IOSET1
-	select CPU_HAS_QSPI1_IOSET2
-	select CPU_HAS_QSPI1_IOSET3
 	bool
