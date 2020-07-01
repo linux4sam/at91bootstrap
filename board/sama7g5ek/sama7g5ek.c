@@ -215,7 +215,7 @@ void at91_leds_init(void)
 	pio_configure(leds_pins);
 }
 
-#define ATMEL_SDHC_GCKDIV_VALUE		0
+#define ATMEL_SDHC_GCKDIV_VALUE		1
 
 void at91_sdhc_hw_init(void)
 {
@@ -266,7 +266,7 @@ void at91_sdhc_hw_init(void)
 
 	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
-				 GCK_CSS_MCK_CLK,
+				 GCK_CSS_SYSPLL_CLK,
 				 ATMEL_SDHC_GCKDIV_VALUE);
 
 	/* Launch calibration and wait till it's completed */
