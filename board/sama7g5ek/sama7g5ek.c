@@ -307,7 +307,7 @@ void hw_init(void)
 	plla_config.mul = 32;
 	plla_config.div = 0;
 	plla_config.count = 0x3f;
-	plla_config.fracr = 0x155555; /* 2^22 / 3 */
+	plla_config.fracr = 0x155556; /* 2^22 / 3 */
 	plla_config.acr = 0x1b040010;
 	pmc_sam9x60_cfg_pll(PLL_ID_CPUPLL, &plla_config);
 
@@ -363,7 +363,7 @@ void hw_init(void)
 	ddrpll_config.div = 1;
 	ddrpll_config.divio = 100;
 	ddrpll_config.count = 0x3f;
-	ddrpll_config.fracr = 0x1aaaaa; /* (10/24) * 2^22 to get extra 10 MHz */
+	ddrpll_config.fracr = 0x1aaaab; /* (10/24) * 2^22 to get extra 10 MHz */
 	ddrpll_config.acr = 0x00020033;
 	/* DDRPLL @ 1066 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_DDRPLL, &ddrpll_config);
@@ -377,7 +377,7 @@ void hw_init(void)
 	imgpll_config.div = 3;
 	imgpll_config.divio = 3;
 	imgpll_config.count = 0x3f;
-	imgpll_config.fracr = 0x155555; /* (8/24) * 2^22 to get extra 8 MHz */
+	imgpll_config.fracr = 0x155556; /* (8/24) * 2^22 to get extra 8 MHz */
 	imgpll_config.acr = 0x1b040010;
 	/* IMGPLL @ 1064 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_IMGPLL, &imgpll_config);
