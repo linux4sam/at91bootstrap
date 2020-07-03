@@ -96,7 +96,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trtp = 2,
 	.tfaw = 8,
 #elif defined(CONFIG_DDR_W972GG6KB_9X60)
-/* DDR2 (W972GG6KB-25-2 Gbits = 16 Mbits x 16 x 8 banks), total 4 Gbits on the SAMA5D2-PTC-EK */
+/* DDR2 (W972GG6KB-25-2 Gbits = 16 Mbits x 16 x 8 banks), total 2 Gbits on the SAM9X60-EK */
 /* all timings in nCK */
 	.tras = 8,
 	.trcd = 3,
