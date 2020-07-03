@@ -58,7 +58,6 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 /* Two DDR3L(MT41H128M16JT-125-K = 16 Mbit x 16 x 8 banks), total 4Gbit on SAMA5D2 Xplained Ultra Evaluation Kit*/
 	type = AT91C_DDRC2_MD_DDR3_SDRAM;
 	dbw = AT91C_DDRC2_DBW_32_BITS;
-	dbw = AT91C_DDRC2_DBW_16_BITS;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
 	row = AT91C_DDRC2_NR_14;
 	cas = AT91C_DDRC2_CAS_5;
