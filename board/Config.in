@@ -32,6 +32,7 @@ source "board/sama5d2_icp/Config.in.board"
 source "board/sam9x60ek/Config.in.board"
 source "board/sam9x60_ddr2_sip_eb/Config.in.board"
 source "board/sam9x60_sdr_sip_eb/Config.in.board"
+source "board/sama7g5ek/Config.in.board"
 source "contrib/board/Config.in.board"
 
 endchoice
@@ -62,6 +63,7 @@ config CONFIG_BOARDNAME
 	default "sam9x60ek" if CONFIG_SAM9X60EK
 	default "sam9x60_ddr2_sip_eb" if CONFIG_SAM9X60_DDR2_SIP_EB
 	default "sam9x60_sdr_sip_eb" if CONFIG_SAM9X60_SDR_SIP_EB
+	default "sama7g5ek" if CONFIG_SAMA7G5EK
 source "contrib/board/Config.in.boardname"
 
 config AT91SAM9260
@@ -251,6 +253,18 @@ config SAMA5D2
 	select CPU_HAS_QSPI1_IOSET3
 	bool
 
+config SAMA7G5
+	select CORE_CORTEX_A7
+	select CPU_HAS_PIO4
+	select CPU_HAS_SCKC
+	select CPU_HAS_SCLK_BYPASS
+	select CPU_HAS_FLEXCOM
+	select CPU_HAS_TRUSTZONE
+	select CPU_HAS_WDT2
+	select CPU_HAS_DWDT
+	select CPU_HAS_SDHC1
+	bool
+
 config CONFIG_MACH_TYPE
 	string
 	default "1099"	if AT91SAM9260
@@ -267,6 +281,7 @@ config CONFIG_MACH_TYPE
 	default "9999"	if SAMA5D3X
 	default "9999"	if SAMA5D4
 	default "9999"	if SAMA5D2
+	default "9999"	if SAMA7G5
 	help
 
 config CONFIG_OVERRIDE_MACH_TYPE
@@ -290,6 +305,7 @@ endif
 config CONFIG_LINK_ADDR
 	string
 	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4  || SAMA5D2
+	default "0x100000" if SAMA7G5
 	default "0x300000" if !(AT91SAM9260 && AT91SAM9G20)
 	help
 
@@ -314,6 +330,7 @@ config CONFIG_TOP_OF_MEMORY
 	default "0x310000"	if SAMA5D3X
 	default "0x210000"	if SAMA5D4
 	default "0x210000"	if SAMA5D2
+	default "0x120000"	if SAMA7G5
 	help
 	    The top address of internal SRAM
 
@@ -463,6 +480,10 @@ config CONFIG_CPU_CLK_600MHZ
 	bool "600 MHz"
 	depends on ALLOW_CPU_CLK_600MHZ
 
+config CONFIG_CPU_CLK_800MHZ
+	bool "800 MHz"
+	depends on ALLOW_CPU_CLK_800MHZ
+
 endchoice
 
 config	ALLOW_CPU_CLK_166MHZ
@@ -511,6 +532,9 @@ config  ALLOW_CPU_CLK_594MHZ
 	bool
 
 config  ALLOW_CPU_CLK_600MHZ
+	bool
+
+config  ALLOW_CPU_CLK_800MHZ
 	bool
 
 config	DISABLE_CPU_CLK_240MHZ
@@ -570,7 +594,7 @@ config CONFIG_BUS_SPEED_176MHZ
 
 config CONFIG_BUS_SPEED_200MHZ
 	bool "200 MHz"
-	depends on SUPPORT_BUS_SPEED_200MHZ && CONFIG_CPU_CLK_600MHZ
+	depends on SUPPORT_BUS_SPEED_200MHZ && (CONFIG_CPU_CLK_600MHZ || CONFIG_CPU_CLK_800MHZ)
 
 endchoice
 
@@ -611,6 +635,10 @@ config SUPPORT_BUS_SPEED_200MHZ
 	bool
 
 config CPU_HAS_TRUSTZONE
+	bool
+	default n
+
+config CPU_HAS_TZC400
 	bool
 	default n
 
@@ -655,6 +683,10 @@ config CORE_ARM926EJS
 	default n
 
 config CORE_CORTEX_A5
+	bool
+	default n
+
+config CORE_CORTEX_A7
 	bool
 	default n
 
@@ -761,3 +793,4 @@ config BOARD_HAS_2_BANKS
 config CPU_HAS_SCLK_BYPASS
 	bool
 	default n
+

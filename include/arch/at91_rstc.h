@@ -32,6 +32,7 @@
 #define RSTC_RCR	0x00	/* Reset Control Register */
 #define RSTC_RSR	0x04	/* Reset Status Register */
 #define RSTC_RMR	0x08	/* Reset Mode Register */
+#define RSTC_GRSTR	0xE4	/* Generic Reset Register */
 #define RSTC_VER	0xFC	/* Version Register */
 
 /* -------- RSTC_RCR : (RSTC Offset: 0x0) Reset Control Register --------*/ 
@@ -60,5 +61,9 @@
 #define AT91C_RSTC_ERSTL(x)	((x) & AT91C_RSTC_ERSTL_MASK << 8)
 #define AT91C_RSTC_RMRKEY_MASK	(0xFFUL << 24)
 #define		AT91C_RSTC_KEY_UNLOCK		(0xA5UL << 24)
+
+/* -------- RSTC_GRSTR : (RSTC Offset: 0xE4) Generic Reset Register --------*/
+#define AT91C_GRSTR_DDR_RST	(0x1UL << 0)
+#define AT91C_GRSTR_DDR_PHY_RST	(0x1UL << 2)
 
 #endif /* #ifndef __AT91_RSTC_H__ */

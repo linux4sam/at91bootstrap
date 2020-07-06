@@ -55,7 +55,7 @@ static void at91_dbgu_hw_init(void)
 	};
 
 	pio_configure(dbgu_pins);
-	pmc_enable_periph_clock(CONFIG_SYS_DBGU_ID);
+	pmc_enable_periph_clock(CONFIG_SYS_DBGU_ID, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 
 static void initialize_dbgu(void)
@@ -64,7 +64,7 @@ static void initialize_dbgu(void)
 
 	at91_dbgu_hw_init();
 
-	if (pmc_check_mck_h32mxdiv())
+	if (pmc_mck_check_h32mxdiv())
 		usart_init(BAUDRATE(MASTER_CLOCK / 2, baudrate));
 	else
 		usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
@@ -291,7 +291,7 @@ static void ddr2_init(void)
 
 	ddramc_reg_config(&ddramc_reg);
 
-	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	reg = AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES;
@@ -366,7 +366,7 @@ static void sdmmc_cal_setup(void)
 	dbg_loud("Applying VDDSDMMC errata to ID: %x\n", exid);
 
 	/* Enable peripheral clock */
-	pmc_enable_periph_clock(AT91C_ID_SDMMC0);
+	pmc_enable_periph_clock(AT91C_ID_SDMMC0, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	/* Launch calibration and wait till it's completed */
 	reg = readl(AT91C_BASE_SDHC0 + SDMMC_CALCR);
@@ -399,7 +399,9 @@ void hw_init(void)
 	 */
 	pmc_init_pll(AT91C_PMC_ICPPLLA_0);
 
-	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
+	pmc_mck_cfg_set(0, BOARD_PRESCALER_PLLA,
+			AT91C_PMC_H32MXDIV | AT91C_PMC_PLLADIV2 |
+			AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN,
 	       AT91C_BASE_RSTC + RSTC_RMR);
@@ -501,7 +503,7 @@ void at91_qspi_hw_init(void)
 #endif
 
 	pio_configure(qspi_pins);
-	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif
 
@@ -552,7 +554,7 @@ void at91_sdhc_hw_init(void)
 	};
 #endif
 	/* First, print status of CAL for VDDSDMMC over-consumption errata */
-	pmc_enable_periph_clock(AT91C_ID_SDMMC0);
+	pmc_enable_periph_clock(AT91C_ID_SDMMC0, PMC_PERIPH_CLK_DIVIDER_NA);
 	reg = readl(AT91C_BASE_SDHC0 + SDMMC_CALCR);
 	pmc_disable_periph_clock(AT91C_ID_SDMMC0);
 
@@ -562,7 +564,7 @@ void at91_sdhc_hw_init(void)
 	/* Deal with usual SD/MCC peripheral init sequence */
 	pio_configure(sdmmc_pins);
 
-	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
 				 GCK_CSS_UPLL_CLK,
 				 ATMEL_SDHC_GCKDIV_VALUE);

@@ -48,7 +48,6 @@
 
 #define PLLA_DIV 1
 #define PLLA_COUNT 0x3f
-#define PLLA_LOOP_FILTER 0
 #define PLLA_CLOCK 200000000
 #define PLLA_FRACR(_p, _q) \
 	((unsigned int)((((unsigned long)(_p)) << 22) / (_q)))
@@ -64,7 +63,7 @@ static void at91_dbgu_hw_init(void)
 
 	pio_configure(dbgu_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_DBGU);
+	pmc_enable_periph_clock(AT91C_ID_DBGU, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 
 static void initialize_dbgu(void)
@@ -111,7 +110,7 @@ static void sdramc_init(void)
 	reg |= (AT91C_EBI_CS1A | AT91C_EBI_NFD0_ON_D16);
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 
-	pmc_enable_periph_clock(AT91C_ID_SDRAMC);
+	pmc_enable_periph_clock(AT91C_ID_SDRAMC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	sdramc_reg_config(&sdramc_reg);
@@ -137,7 +136,7 @@ unsigned int at91_flexcom0_init(void)
 	};
 
 	pio_configure(flx_pins);
-	pmc_enable_periph_clock(AT91C_ID_FLEXCOM0);
+	pmc_enable_periph_clock(AT91C_ID_FLEXCOM0, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	flexcom_init(0);
 
@@ -193,10 +192,11 @@ void hw_init(void)
 	plla_config.div = PLLA_DIV;
 	plla_config.count = PLLA_COUNT;
 	plla_config.fracr = 0;
-	plla_config.loop_filter = PLLA_LOOP_FILTER;
+	plla_config.acr = AT91C_PLL_ACR_DEFAULT_PLLA;
 	pmc_sam9x60_cfg_pll(PLL_ID_PLLA, &plla_config);
 
-	pmc_cfg_mck(BOARD_PRESCALER_PLLA);
+	pmc_mck_cfg_set(0, BOARD_PRESCALER_PLLA,
+			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	/* Initialize dbgu */
 	initialize_dbgu();
@@ -240,7 +240,7 @@ void at91_qspi_hw_init(void)
 	pio_configure(qspi_pins);
 
 	pmc_enable_system_clock(AT91C_PMC_QSPICLK);
-	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif  /* #ifdef CONFIG_QSPI */
 
@@ -270,7 +270,7 @@ void at91_sdhc_hw_init(void)
 	};
 	pio_configure(sdmmc_pins);
 
-	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC);
+	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
 				 GCK_CSS_PLLA_CLK,
 				 ATMEL_SDHC_GCKDIV_VALUE);
@@ -305,7 +305,7 @@ void nandflash_hw_init(void)
 	};
 
 	pio_configure(nand_pins);
-	pmc_enable_periph_clock(AT91C_ID_PIOD);
+	pmc_enable_periph_clock(AT91C_ID_PIOD, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	reg = readl(AT91C_BASE_SFR + SFR_CCFG_EBICSA);
 	reg |= AT91C_EBI_CS3A_SM | AT91C_EBI_NFD0_ON_D16;

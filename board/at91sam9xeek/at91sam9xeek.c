@@ -57,7 +57,7 @@ static void at91_dbgu_hw_init(void)
 	/* Configure the dbgu pins */
 	pio_configure(dbgu_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_PIOB);
+	pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 
 static void initialize_dbgu(void)
@@ -95,7 +95,7 @@ static void sdramc_hw_init(void)
 	/* Configure the sdramc pins */
 	pio_configure(sdramc_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_PIOC);
+	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 
 static void sdramc_init(void)
@@ -144,10 +144,11 @@ void hw_init(void)
 	pmc_cfg_plla(PLLA_SETTINGS);
 
 	/* PCK = PLLA = 2 * MCK */
-	pmc_cfg_mck(MCKR_SETTINGS);
+	pmc_mck_cfg_set(0, MCKR_SETTINGS, AT91C_PMC_PRES | AT91C_PMC_MDIV);
 
 	/* Switch MCK on PLLA output */
-	pmc_cfg_mck(MCKR_CSS_SETTINGS);
+	pmc_mck_cfg_set(0, MCKR_CSS_SETTINGS,
+			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	/* Enable External Reset */
 	writel(AT91C_RSTC_KEY_UNLOCK | AT91C_RSTC_URSTEN, AT91C_BASE_RSTC + RSTC_RMR);
@@ -179,11 +180,11 @@ void at91_spi0_hw_init(void)
 	/* Configure the spi0 pins */
 	pio_configure(spi0_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_PIOA);
-	pmc_enable_periph_clock(AT91C_ID_PIOC);
+	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
+	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	/* Enable the spi0 clock */
-	pmc_enable_periph_clock(AT91C_ID_SPI0);
+	pmc_enable_periph_clock(AT91C_ID_SPI0, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif /* #ifdef CONFIG_DATAFLASH */
 
@@ -230,6 +231,6 @@ void nandflash_hw_init(void)
 	/* Configure the NANDFlash pins */
 	pio_configure(nand_pins);
 
-	pmc_enable_periph_clock(AT91C_ID_PIOC);
+	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */

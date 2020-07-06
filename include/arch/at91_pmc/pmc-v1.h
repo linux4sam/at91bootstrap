@@ -117,7 +117,8 @@
 #define		AT91C_PMC_GCKCSS_MCK_CLK	(0x4 << 8)
 #define		AT91C_PMC_GCKCSS_AUDIO_CLK	(0x5 << 8)
 #define	AT91C_PMC_CMD		(1 << 12)
-#define	AT91C_PMC_DIV		(0x3 << 16)
+#define AT91C_PMC_DIV		(0x3UL << 16)
+#define		AT91C_PMC_DIV_(x)		((x) << 16)
 #define	AT91C_PMC_GCKDIV	(0xff << 20)
 #define		AT91C_PMC_GCKDIV_MSK		0xff
 #define		AT91C_PMC_GCKDIV_OFFSET		20

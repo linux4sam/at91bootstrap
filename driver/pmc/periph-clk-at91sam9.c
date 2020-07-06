@@ -24,7 +24,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "board.h"
+#include "clk-common.h"
 #include "common.h"
+#include "pmc.h"
 
 #define PMC_PCER	0x10	/* Peripheral Clock Enable Register  (0:31 PERI_ID) */
 #define PMC_PCDR	0x14	/* Peripheral Clock Disable Register (0:31 PERI_ID) */
@@ -33,7 +35,7 @@
 #define PMC_PCDR1	0x104	/* Peripheral Clock Disable Register1 32:63 PERI_ID */
 #define PMC_PCSR1	0x108	/* Peripheral Clock Status Register1  32:63 PERI_ID */
 
-int pmc_enable_periph_clock(unsigned int periph_id)
+int pmc_enable_periph_clock(unsigned int periph_id, int divider)
 {
 	unsigned int mask = 0x01 << (periph_id % 32);
 
@@ -74,3 +76,7 @@ int pmc_periph_clock_enabled(unsigned int periph_id)
 	return enabled;
 }
 
+unsigned int pmc_periph_clock_get_rate(unsigned int periph_id)
+{
+	return at91_get_ahb_clock();
+}

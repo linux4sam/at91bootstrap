@@ -73,7 +73,7 @@ static inline void aes_writeb(unsigned int reg, unsigned char value)
 void at91_aes_init(void)
 {
 	/* Enable peripheral clock */
-	pmc_enable_periph_clock(AT91C_ID_AES);
+	pmc_enable_periph_clock(AT91C_ID_AES, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	/* Reset AES */
 	aes_writel(AES_CR, AES_CR_SWRST);

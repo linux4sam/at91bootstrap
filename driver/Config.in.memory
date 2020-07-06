@@ -18,6 +18,18 @@ config CONFIG_DDRC
 	help
 	  Initialize DDR-2 SDRAM controller before copying
 
+config CONFIG_UMCTL2
+	bool
+	default n
+	help
+	  Initialize DDR Synopsys controller before copying
+
+config CONFIG_PUBL
+	bool
+	default n
+	help
+	  Initialize DDR Synopsys PUBL (Phy Utility Block Lite)
+
 config	ALLOW_DATAFLASH
 	bool
 	default n
@@ -46,7 +58,7 @@ menu "RAM Configuration"
 
 choice
 	prompt "RAM size"
-	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDRC
+	depends on CONFIG_SDRAM || CONFIG_SDDRC || CONFIG_DDRC || CONFIG_UMCTL2
 	default CONFIG_RAM_64MB
 
 config	CONFIG_RAM_8MB
@@ -71,22 +83,27 @@ endchoice
 
 choice
 	prompt "DDR-SDRAM device type"
-	depends on CONFIG_DDRC
+	depends on CONFIG_DDRC || CONFIG_UMCTL2
 	default CONFIG_DDR2
 
 config CONFIG_LPDDR1
+	depends on CONFIG_DDRC
 	bool "Low-power DDR1-SDRAM"
 
 config CONFIG_LPDDR2
+	depends on CONFIG_DDRC
 	bool "Low-power DDR2-SDRAM"
 
 config CONFIG_LPDDR3
+	depends on CONFIG_DDRC
 	bool "Low-power DDR3-SDRAM"
 
 config CONFIG_DDR2
+	depends on CONFIG_DDRC
 	bool "DDR2-SDRAM"
 
 config CONFIG_DDR3
+	depends on CONFIG_DDRC || CONFIG_UMCTL2
 	bool "DDR3-SDRAM"
 
 endchoice
@@ -94,6 +111,7 @@ endchoice
 config CONFIG_MEM_BANK
 	string "Extern Memory Bank Base Address"
 	default "0x70000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
+	default "0x60000000" if SAMA7G5
 	default "0x20000000"
 
 config CONFIG_MEM_BANK2
@@ -110,6 +128,17 @@ config CONFIG_MEM_SIZE
 	default "0x8000000" if CONFIG_RAM_128MB
 	default "0x10000000" if CONFIG_RAM_256MB
 	default "0x20000000" if CONFIG_RAM_512MB
+
+choice
+	prompt "Extern Memory Clock"
+	depends on CONFIG_UMCTL2
+	default CONFIG_MEM_CLOCK_533
+
+config CONFIG_MEM_CLOCK_533
+	depends on CONFIG_UMCTL2
+	bool "533 MHz Ram Clock"
+
+endchoice
 
 endmenu
 
@@ -241,7 +270,7 @@ config CONFIG_BOOTSTRAP_MAXSIZE
 	default "4096" if AT91SAM9260
 	default "8192" if AT91SAM9G10 && CONFIG_SDCARD
 	default "12288" if AT91SAM9G10 && !CONFIG_SDCARD
-	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60
+	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60 || SAMA7G5
 	default "23000"
 
 endmenu

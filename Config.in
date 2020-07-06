@@ -244,6 +244,38 @@ config CONFIG_REDIRECT_ALL_INTS_AIC
 	  This interface let you to redirect all peripherals interrupts to AIC,
 	  otherwise, the secure peripherals interrupts direct to SAIC, others to AIC.
 
+config CONFIG_TZC400
+	bool "Configure TrustZone Controller TZC400"
+	default y if CPU_HAS_TZC400
+	help
+	  This will select the code that initializes the TZC 400 TrustZone Controller.
+
+config CONFIG_TZC400_SPECULATIVE_LOAD
+	bool "Enable TZC400 Speculative Load for all regions"
+	depends on CONFIG_TZC400
+	default n
+	help
+	  This will enable the Speculative Load for the TZC.
+	  Speculative load means that the TZC will send requests to DDR
+	  before the security check, but block the results and treat the
+	  requests with RAZ/WI if security check fails.
+	  May improve performance but bound for security checks.
+	  If unsure, say "n".
+
+choice
+	prompt "Select controller profile"
+	depends on CONFIG_TZC400
+	default CONFIG_TZC400_SIMPLE_PROFILE
+	help
+	  Decide which configuration to use for the controller.
+
+config CONFIG_TZC400_SIMPLE_PROFILE
+	bool "Simple TZC400 Profile"
+	depends on CONFIG_TZC400
+	help
+	  A single TrustZone Area with everything permitted.
+endchoice
+
 endmenu
 
 config CONFIG_PM
@@ -508,8 +540,19 @@ menu "Basic Drivers support"
 config CONFIG_PIT
 	bool "Programmable interrupt timer support"
 	default y
+	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
+		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
+		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2 || \
+		SAM9X60
 	help
 	  Programmable interrupt timer support
+
+config CONFIG_PIT64B
+	bool "64-bit Periodic Interval Timer"
+	default y
+	depends on SAMA7G5
+	help
+	  Enable 64-bit periodic interval timer.
 
 choice
 	prompt "Watchdog timer controller selection"
@@ -530,6 +573,13 @@ config CONFIG_WDT2
 	  product.
 
 endchoice
+
+config CONFIG_WDTS
+	bool "Programmable Secure dual watchdog timer support"
+	depends on CPU_HAS_DWDT && CONFIG_WDT2
+	help
+	  This adds support for an additional Programmable Secure Watchdog.
+	  Products with this additional watchdog have a Dual Watchog Timer.
 
 config CONFIG_RSTC
 	bool "Reset controller support"
@@ -571,6 +621,13 @@ config CONFIG_PMC_V2
 	help
 	  Enable power management controller support for second version
 
+config CONFIG_PMC_V3
+	bool "Peripheral management controller support for third version"
+	depends on SAMA7G5
+	default y
+	help
+	  Enable power management controller support for third version
+
 config CONFIG_PMC_PERIPH_CLK_AT91SAM9
 	bool "PMC peripheral clock control for AT91SAM9 SoCs"
 	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
@@ -582,14 +639,14 @@ config CONFIG_PMC_PERIPH_CLK_AT91SAM9
 config CONFIG_PMC_PERIPH_CLK_SAM9X5
 	bool "PMC peripheral clock control for SAM9X5 SoCs and above"
 	depends on AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X || SAMA5D4 || \
-		SAMA5D2 || SAM9X60
+		SAMA5D2 || SAM9X60 || SAMA7G5
 	default y
 	help
 	  Enable peripheral clock control for SAM9X5 SoCs and above
 
 config CONFIG_PMC_GENERIC_CLK
 	bool "PMC generic clock control support"
-	depends on SAMA5D2 || SAM9X60
+	depends on SAMA5D2 || SAM9X60 || SAMA7G5
 	default y
 	help
 	   Enable generic clock control support
@@ -613,9 +670,26 @@ config CONFIG_PMC_PLL_CLK
 
 config CONFIG_PMC_PLL_CLK_SAM9X60
 	bool "PMC PLL clock control support for SAM9X60 SoCs"
-	depends on SAM9X60
+	depends on SAM9X60 || SAMA7G5
 	default y
 	help
 	  Enable PMC PLL clock control for SAM9X60 SoCs
+
+config CONFIG_PMC_MCK_CLK
+	bool "PMC master clock support"
+	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
+		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
+		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2 || \
+		SAM9X60
+	default y
+	help
+	  Enable PMC master clock support
+
+config CONFIG_PMC_MCK_CLK_SAMA7G5
+	bool "PMC master clock support for SAMA7G5 SoCs"
+	depends on SAMA7G5
+	default y
+	help
+	  Enable PMC master clock support for SAMA7G5 SoCs
 endmenu
 

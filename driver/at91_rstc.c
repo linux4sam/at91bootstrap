@@ -75,6 +75,22 @@ void cpu_reset()
 		| AT91C_RSTC_EXTRST);	/* External Reset (assert nRST pin) */
 }
 
+void rstc_ddr_rst_deassert(void)
+{
+	unsigned int grstr = rstc_read(RSTC_GRSTR);
+
+	grstr |= AT91C_GRSTR_DDR_RST;
+	rstc_write(RSTC_GRSTR, grstr);
+}
+
+void rstc_ddr_phy_rst_deassert(void)
+{
+	unsigned int grstr = rstc_read(RSTC_GRSTR);
+
+	grstr |= AT91C_GRSTR_DDR_PHY_RST;
+	rstc_write(RSTC_GRSTR, grstr);
+}
+
 #else
 void rstc_external_reset(void)
 {

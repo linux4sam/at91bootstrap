@@ -55,9 +55,9 @@ int timer_init(void)
 
 	/* Enable PITC Clock */
 #ifdef AT91C_ID_PIT
-	pmc_enable_periph_clock(AT91C_ID_PIT);
+	pmc_enable_periph_clock(AT91C_ID_PIT, PMC_PERIPH_CLK_DIVIDER_NA);
 #else
-	pmc_enable_periph_clock(AT91C_ID_SYS);
+	pmc_enable_periph_clock(AT91C_ID_SYS, PMC_PERIPH_CLK_DIVIDER_NA);
 #endif
 	return 0;
 }
@@ -88,7 +88,7 @@ void udelay(unsigned int usec)
 	 * but it is acceptable.
 	 * ((MASTER_CLOCK / 1024) * usec) / (16 * 1024)
 	 */
-	if (pmc_check_mck_h32mxdiv())
+	if (pmc_mck_check_h32mxdiv())
 		delay = (((MASTER_CLOCK / 2) >> 10) * usec) >> 14;
 	else
 		delay = ((MASTER_CLOCK >> 10) * usec) >> 14;
@@ -105,7 +105,7 @@ void mdelay(unsigned int msec)
 	unsigned int delay;
 	unsigned int current;
 
-	if (pmc_check_mck_h32mxdiv())
+	if (pmc_mck_check_h32mxdiv())
 		delay = (((MASTER_CLOCK / 2) / 1000) * msec) / 16;
 	else
 		delay = ((MASTER_CLOCK / 1000) * msec) / 16;
@@ -138,7 +138,7 @@ int wait_interval_timer(unsigned int msec)
 	unsigned int delay;
 	unsigned int current;
 
-	if (pmc_check_mck_h32mxdiv())
+	if (pmc_mck_check_h32mxdiv())
 		delay = (((MASTER_CLOCK / 2) / 1000) * msec) / 16;
 	else
 		delay = ((MASTER_CLOCK / 1000) * msec) / 16;
