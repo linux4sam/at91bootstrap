@@ -2,10 +2,6 @@ config SPI_FLASH
 	bool
 	default n
 
-config ALLOW_DATAFLASH_RECOVERY
-	bool
-	default	n
-
 config	SPI_CLK
 	int "SPI clock speed"
 	default 33000000
@@ -14,8 +10,7 @@ config	SPI_CLK
 
 config DATAFLASH_RECOVERY
 	bool "Support Dataflash recovery by pressing a button"
-	default y
-	depends on ALLOW_DATAFLASH_RECOVERY
+	default n
 	help
 	  Let bootstrap disassemble the first 7 double words
 	  and check that all, except the reserved vector

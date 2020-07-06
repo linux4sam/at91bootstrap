@@ -1,21 +1,5 @@
 menu "NVM boot config"
 
-config	ALLOW_DATAFLASH
-	bool
-	default n
-
-config	ALLOW_FLASH
-	bool
-	default n
-
-config	ALLOW_NANDFLASH
-	bool
-	default n
-
-config	ALLOW_SDCARD
-	bool
-	default n
-
 choice
 	prompt "NVM Boot from"
 	default DATAFLASH
@@ -24,11 +8,9 @@ choice
 
 config	DATAFLASH
 	bool "Dataflash"
-	depends on ALLOW_DATAFLASH
 
 config	FLASH
 	bool "Parallel NOR flash(supported from ROM Code v2.1)"
-	depends on ALLOW_FLASH
 	help
 	  Before you select it, please check the ROM Code if it supports
 	  to boot from the NOR flash.  Beacause booting from the external
@@ -36,11 +18,9 @@ config	FLASH
 
 config	NANDFLASH
 	bool "NAND flash"
-	depends on ALLOW_NANDFLASH
 
 config	SDCARD
 	bool "SD card"
-	depends on ALLOW_SDCARD
 
 endchoice
 
