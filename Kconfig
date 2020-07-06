@@ -427,24 +427,24 @@ config	PMIC_ON_TWI3
 endchoice
 
 menu "Board Hardware Information Options"
-	depends on HAS_HW_INFO
+
+choice
+	prompt "Load Board Hardware Information"
+	default HW_INFO_NONE
+
+config HW_INFO_NONE
+	bool "Not to Load Hardware Information"
 
 config LOAD_ONE_WIRE
-	bool "Load Information from 1-Wire"
-	depends on HAS_ONE_WIRE
+	bool "Load Hardware Information from 1-Wire Chips"
 	select LOAD_HW_INFO
-	default y
-	help
-	  This interface allow you to select hardware information from 1-Wire chips.
 
 config LOAD_EEPROM
-	bool "Load Information from EEPROM"
-	depends on HAS_EEPROM
+	bool "Load Hardware Information from EEPROM Chips"
 	select TWI
 	select LOAD_HW_INFO
-	default y
-	help
-	  This interface allow you to select hardware information from EEPROM chips.
+
+endchoice
 
 choice
 	prompt "EEPROM on TWI Select"
