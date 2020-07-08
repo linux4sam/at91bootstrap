@@ -409,8 +409,8 @@ void hw_init(void)
 #ifdef CONFIG_QSPI
 void at91_qspi_hw_init(void)
 {
-#if defined(CONFIG_QSPI_BUS0)
-#if defined(CONFIG_QSPI0_IOSET_1)
+#if CONFIG_QSPI_BUS == 0
+#if CONFIG_QSPI_IOSET == 1
 	const struct pio_desc qspi_pins[] = {
 		{"QSPI0_SCK",	AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_B},
 		{"QSPI0_CS",	AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_B},
@@ -420,7 +420,7 @@ void at91_qspi_hw_init(void)
 		{"QSPI0_IO3",	AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_B},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
-#elif defined(CONFIG_QSPI0_IOSET_2)
+#elif CONFIG_QSPI_IOSET == 2
 	const struct pio_desc qspi_pins[] = {
 		{"QSPI0_SCK",	AT91C_PIN_PA(14), 0, PIO_DEFAULT, PIO_PERIPH_C},
 		{"QSPI0_CS",	AT91C_PIN_PA(15), 0, PIO_DEFAULT, PIO_PERIPH_C},
@@ -430,7 +430,7 @@ void at91_qspi_hw_init(void)
 		{"QSPI0_IO3",	AT91C_PIN_PA(19), 0, PIO_DEFAULT, PIO_PERIPH_C},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
-#elif defined(CONFIG_QSPI0_IOSET_3)
+#elif CONFIG_QSPI_IOSET == 3
 	const struct pio_desc qspi_pins[] = {
 		{"QSPI0_SCK",	AT91C_PIN_PA(22), 0, PIO_DEFAULT, PIO_PERIPH_F},
 		{"QSPI0_CS",	AT91C_PIN_PA(23), 0, PIO_DEFAULT, PIO_PERIPH_F},
@@ -441,12 +441,12 @@ void at91_qspi_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #else
-#error "No QSPI0 IOSET defined"
+#error "Invalid QSPI IOSET was chosen"
 #endif
 
-#elif defined(CONFIG_QSPI_BUS1)
+#elif CONFIG_QSPI_BUS == 1
 
-#if defined(CONFIG_QSPI1_IOSET_1)
+#if CONFIG_QSPI_IOSET == 1
 	const struct pio_desc qspi_pins[] = {
 		{"QSPI1_SCK",	AT91C_PIN_PA(6),  0, PIO_DEFAULT, PIO_PERIPH_B},
 		{"QSPI1_CS",	AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_B},
@@ -456,7 +456,7 @@ void at91_qspi_hw_init(void)
 		{"QSPI1_IO3",	AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_B},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
-#elif defined(CONFIG_QSPI1_IOSET_2)
+#elif CONFIG_QSPI_IOSET == 2
 	const struct pio_desc qspi_pins[] = {
 		{"QSPI1_SCK",	AT91C_PIN_PB(5),  0, PIO_DEFAULT, PIO_PERIPH_D},
 		{"QSPI1_CS",	AT91C_PIN_PB(6),  0, PIO_DEFAULT, PIO_PERIPH_D},
@@ -466,7 +466,7 @@ void at91_qspi_hw_init(void)
 		{"QSPI1_IO3",	AT91C_PIN_PB(10), 0, PIO_DEFAULT, PIO_PERIPH_D},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
-#elif defined(CONFIG_QSPI1_IOSET_3)
+#elif CONFIG_QSPI_IOSET == 3
 	const struct pio_desc qspi_pins[] = {
 		{"QSPI1_SCK",	AT91C_PIN_PB(14), 0, PIO_DEFAULT, PIO_PERIPH_E},
 		{"QSPI1_CS",	AT91C_PIN_PB(15), 0, PIO_DEFAULT, PIO_PERIPH_E},
@@ -477,10 +477,10 @@ void at91_qspi_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #else
-#error "No QSPI1 IOSET defined"
+#error "Invalid QSPI IOSET was chosen"
 #endif
 #else
-#error "No QSPI Bus defined"
+#error "Invalid QSPI BUS was chosen"
 #endif
 
 	pio_configure(qspi_pins);
