@@ -179,35 +179,7 @@ config CPU_HAS_SPI1_IOSET3
 	bool
 	default n
 
-config CPU_HAS_QSPI0
-	bool
-	default n
-
-config CPU_HAS_QSPI1
-	bool
-	default n
-
-config CPU_HAS_QSPI0_IOSET1
-	bool
-	default n
-
-config CPU_HAS_QSPI0_IOSET2
-	bool
-	default n
-
-config CPU_HAS_QSPI0_IOSET3
-	bool
-	default n
-
-config CPU_HAS_QSPI1_IOSET1
-	bool
-	default n
-
-config CPU_HAS_QSPI1_IOSET2
-	bool
-	default n
-
-config CPU_HAS_QSPI1_IOSET3
+config CPU_HAS_QSPI
 	bool
 	default n
 

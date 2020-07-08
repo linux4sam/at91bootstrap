@@ -27,7 +27,7 @@ config SPI
 config QSPI
 	select SPI_FLASH
 	bool "Quad SPI Interface"
-	depends on CPU_HAS_QSPI0 || CPU_HAS_QSPI1
+	depends on CPU_HAS_QSPI
 
 endchoice
 
@@ -167,65 +167,19 @@ endmenu
 menu "QSPI Configuration"
 	depends on QSPI
 
-choice
-	prompt "QSPI Bus Select"
-	default QSPI_BUS0
+if QSPI_BUS_MAX != 0
+config QSPI_BUS
+	int "QSPI Bus Used for Dataflash"
+	range 0 QSPI_BUS_MAX
+	default 0
+endif
 
-
-config QSPI_BUS0
-	bool "QSPI Bus 0"
-	depends on CPU_HAS_QSPI0
-
-config QSPI_BUS1
-	bool "QSPI Bus 1"
-	depends on CPU_HAS_QSPI1
-
-endchoice
-
-menu  "QSPI IOSET Select"
-	depends on CPU_HAS_PIO4
-
-choice
-	prompt "QSPI0 IOSET"
-	depends on QSPI_BUS0
-	default	QSPI0_IOSET_1
-
-
-config QSPI0_IOSET_1
-	depends on CPU_HAS_QSPI0_IOSET1
-	bool "QSPI0 IOSET 1"
-
-config QSPI0_IOSET_2
-	depends on CPU_HAS_QSPI0_IOSET2
-	bool "QSPI0 IOSET 2"
-
-config QSPI0_IOSET_3
-	depends on CPU_HAS_QSPI0_IOSET3
-	bool "QSPI0 IOSET 3"
-
-endchoice
-
-choice
-	prompt "QSPI1 IOSET"
-	depends on QSPI_BUS1
-	default	QSPI1_IOSET_1
-
-
-config QSPI1_IOSET_1
-	depends on CPU_HAS_QSPI1_IOSET1
-	bool "QSPI1 IOSET 1"
-
-config QSPI1_IOSET_2
-	depends on CPU_HAS_QSPI1_IOSET2
-	bool "QSPI1 IOSET 2"
-
-config QSPI1_IOSET_3
-	depends on CPU_HAS_QSPI1_IOSET3
-	bool "QSPI1 IOSET 3"
-
-endchoice
-
-endmenu
+if QSPI_IOSET_MAX != 1
+config QSPI_IOSET
+	int "QSPI IOSET Used for Dataflash"
+	range 1 QSPI_IOSET_MAX
+	default 1
+endif
 
 config QSPI_4B_OPCODES
 	bool "Quad SPI NOR flash memory is >16MiB (>128Mib)"
