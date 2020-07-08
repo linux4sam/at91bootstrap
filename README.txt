@@ -19,6 +19,8 @@ Python3
 
 Refer to the GNU ARM Toolchain section below for toolchain recommendations.
 
+We recommend using a GNU Make with a version of 4.2 or newer.
+
 ## 1.3 Windows Host Setup
 
 ### 1.3.1 Install required tools
@@ -90,6 +92,7 @@ ARM Toolchain:
 - gcc version 5.1.1 (Linaro GCC 5.1-2015.08)
 - gcc version 7.2.1 (Linaro GCC 7.2-2017.11)
 - gcc version 7.3.1 (Linaro GCC 7.2-2018.05)
+- gcc version 7.5.0 (Linaro GCC 7.5-2019.12)
 - gcc version 8.2.0 (Ubuntu 8.2.0-7ubuntu1)
 
 WARNING: check KNOWN_ISSUES for issues with older gcc versions. We recommend
