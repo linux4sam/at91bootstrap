@@ -115,6 +115,18 @@ config CORE_CORTEX_A5
 	bool
 	default n
 
+config CPU_HAS_DDRC
+	bool
+	default n
+
+config CPU_HAS_SDDRC
+	bool
+	default n
+
+config CPU_HAS_SDRAMC
+	bool
+	default n
+
 config CPU_HAS_SCKC
 	bool
 	default n

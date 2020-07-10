@@ -1,11 +1,5 @@
 menu "DDR-SDRAM Configuration"
 
-config DDRC
-	bool
-	default y
-	help
-	  Initialize DDR-2 SDRAM controller before copying
-
 config DDR_SEL_BANK
 	bool
 	default n

@@ -1,22 +1,27 @@
 menu "Memory selection"
 
+choice
+	prompt "SDRAM controller selection"
+
 config SDRAM
-	bool
-	default n
+	bool "SDRAM"
+	depends on CPU_HAS_SDRAMC
 	help
 	  Initialize SDRAM controller before copying
 
 config SDDRC
-	bool
-	default n
+	bool "DDR-SDRAM"
+	depends on CPU_HAS_SDDRC
 	help
 	  Initialize DDR SDRAM controller before copying
 
 config DDRC
-	bool
-	default n
+	bool "DDR2-SDRAM"
+	depends on CPU_HAS_DDRC
 	help
 	  Initialize DDR-2 SDRAM controller before copying
+
+endchoice
 
 config UMCTL2
 	bool
