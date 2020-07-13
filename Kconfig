@@ -430,10 +430,7 @@ menu "Board Hardware Information Options"
 
 choice
 	prompt "Load Board Hardware Information"
-	default HW_INFO_NONE
-
-config HW_INFO_NONE
-	bool "Not to Load Hardware Information"
+	optional
 
 config LOAD_ONE_WIRE
 	bool "Load Hardware Information from 1-Wire Chips"
