@@ -132,13 +132,13 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.twtr = 8,
 	.txard = 2,
 	.txards = 8,
-#endif #endif /* Endif of CONFIG_DDR_SPEED_400 */
+#endif /* Endif of CONFIG_DDR_SPEED_400 */
 
 #if defined(CONFIG_DDR_2_GBIT) || defined(CONFIG_DDR_1_GBIT) || defined(CONFIG_DDR_512_MBIT)
 	.trrd = 10,
 #else
 	.trrd = 8,
-#endif #endif /* Endif of CONFIG_DDR_2_GBIT */
+#endif /* Endif of CONFIG_DDR_2_GBIT */
 
 	.twr = 15,
 	.tmrd = 2,
