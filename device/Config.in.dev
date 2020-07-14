@@ -8,6 +8,16 @@ source "device/sama5d2/Config.in.device"
 source "device/sam9x60/Config.in.device"
 endchoice
 
+config SPI_BUS_MAX
+	int
+	default 5 if SAM9A60
+	default 1 if SAMA5D2
+
+config SPI_IOSET_MAX
+	int
+	default 6 if SAM9X60
+	default 3 if SAMA5D2
+
 config QSPI_BUS_MAX
 	int
 	default 0 if SAM9X60
@@ -39,8 +49,7 @@ config AT91SAM9260
 	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_MCI0
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -48,8 +57,7 @@ config AT91SAM9261
 	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_MCI0
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -58,8 +66,7 @@ config AT91SAM9263
 	select CPU_HAS_TWI0
 	select CPU_HAS_MCI0
 	select CPU_HAS_MCI1
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -68,7 +75,7 @@ config AT91SAM9RL
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	select CPU_HAS_SCKC
-	select CPU_HAS_SPI0
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -77,8 +84,7 @@ config AT91SAM9XE
 	select CPU_HAS_TWI0
 	select CPU_HAS_TWI1
 	select CPU_HAS_MCI0
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -86,8 +92,7 @@ config AT91SAM9G10
 	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_MCI0
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -95,8 +100,7 @@ config AT91SAM9G20
 	select CORE_ARM926EJS
 	select CPU_HAS_TWI0
 	select CPU_HAS_MCI0
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -107,8 +111,7 @@ config AT91SAM9G45
 	select CPU_HAS_SCKC
 	select CPU_HAS_HSMCI0
 	select CPU_HAS_HSMCI1
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -122,8 +125,7 @@ config AT91SAM9X5
 	select CPU_HAS_PMECC
 	select CPU_HAS_HSMCI0
 	select CPU_HAS_HSMCI1
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -135,8 +137,7 @@ config AT91SAM9N12
 	select CPU_HAS_PIO3
 	select CPU_HAS_PMECC
 	select CPU_HAS_HSMCI0
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -152,8 +153,7 @@ config SAMA5D3X
 	select CPU_HAS_HSMCI0
 	select CPU_HAS_HSMCI1
 	select CPU_HAS_HSMCI2
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
+	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool
 
@@ -172,7 +172,5 @@ config SAMA5D4
 	select CPU_HAS_TRUSTZONE
 	select CPU_HAS_HSMCI0
 	select CPU_HAS_HSMCI1
-	select CPU_HAS_SPI0
-	select CPU_HAS_SPI1
-	select CPU_HAS_SPI2
+	select CPU_HAS_SPI
 	bool

@@ -22,7 +22,7 @@ choice
 
 config SPI
 	bool "Standard SPI Interface"
-	depends on CPU_HAS_SPI0 || CPU_HAS_SPI1 || CPU_HAS_SPI1
+	depends on CPU_HAS_SPI
 
 config QSPI
 	select SPI_FLASH
@@ -42,65 +42,20 @@ config SMALL_DATAFLASH
 	  at the expense of flexibility in selecting memory sizes.
 
 # ------- SPI boot source -----------------------------------------------------
-choice
-	prompt "SPI Bus Select"
-	default SPI_BUS0
 
+if SPI_BUS_MAX != 0
+config SPI_BUS
+	int "SPI Bus Used for Dataflash"
+	range 0 SPI_BUS_MAX
+	default 0
+endif
 
-config SPI_BUS0
-	bool "SPI Bus 0"
-	depends on CPU_HAS_SPI0
-
-config SPI_BUS1
-	bool "SPI Bus 1"
-	depends on CPU_HAS_SPI1
-
-config SPI_BUS2
-	bool "SPI Bus 2"
-	depends on CPU_HAS_SPI2
-
-endchoice
-
-menu  "SPI IOSET Select"
-	depends on CPU_HAS_PIO4
-
-choice
-	prompt "SPI0 IOSET"
-	depends on SPI_BUS0
-	default	SPI0_IOSET_1
-
-
-config SPI0_IOSET_1
-	depends on CPU_HAS_SPI0_IOSET1
-	bool "SPI0 IOSET 1"
-
-config SPI0_IOSET_2
-	depends on CPU_HAS_SPI0_IOSET2
-	bool "SPI0 IOSET 2"
-
-endchoice
-
-choice
-	prompt "SPI1 IOSET"
-	depends on SPI_BUS1
-	default	SPI1_IOSET_1
-
-
-config SPI1_IOSET_1
-	depends on CPU_HAS_SPI1_IOSET1
-	bool "SPI1 IOSET 1"
-
-config SPI1_IOSET_2
-	depends on CPU_HAS_SPI1_IOSET2
-	bool "SPI1 IOSET 2"
-
-config SPI1_IOSET_3
-	depends on CPU_HAS_SPI1_IOSET3
-	bool "SPI1 IOSET 3"
-
-endchoice
-
-endmenu
+if SPI_IOSET_MAX != 1
+config SPI_IOSET
+	int "SPI IOSET Used for Dataflash"
+	range 1 SPI_IOSET_MAX
+	default 1
+endif
 
 choice
 	prompt "Chip Select"

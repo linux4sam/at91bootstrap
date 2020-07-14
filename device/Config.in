@@ -128,31 +128,7 @@ config CPU_HAS_SDHC1
 	bool
 	default n
 
-config CPU_HAS_SPI0
-	bool
-	default n
-
-config CPU_HAS_SPI1
-	bool
-	default n
-
-config CPU_HAS_SPI0_IOSET1
-	bool
-	default n
-
-config CPU_HAS_SPI0_IOSET2
-	bool
-	default n
-
-config CPU_HAS_SPI1_IOSET1
-	bool
-	default n
-
-config CPU_HAS_SPI1_IOSET2
-	bool
-	default n
-
-config CPU_HAS_SPI1_IOSET3
+config CPU_HAS_SPI
 	bool
 	default n
 
