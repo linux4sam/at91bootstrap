@@ -76,9 +76,32 @@
 #define CONFIG_SYS_SPI_CLOCK	AT91C_SPI_CLK
 #define CONFIG_SYS_SPI_MODE	SPI_MODE3
 
-#if defined(CONFIG_SPI_BUS0)
-#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI0
-#define CONFIG_SYS_ID_SPI	AT91C_ID_SPI0
+#if defined(CONFIG_SPI)
+#if CONFIG_SPI_BUS == 0
+	#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI0
+	#define CONFIG_SYS_ID_SPI	AT91C_ID_SPI0
+	#if CONFIG_SPI_IOSET == 1
+		#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(17)
+	#elif CONFIG_SPI_IOSET == 2
+		#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(30)
+	#else
+		#error "Invalid SPI IOSET was chosen"
+	#endif
+#elif CONFIG_SPI_BUS == 1
+	#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI1
+	#define CONFIG_SYS_ID_SPI	AT91C_ID_SPI1
+	#if CONFIG_SPI_IOSET == 1
+		#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PC(4)
+	#elif CONFIG_SPI_IOSET == 2
+		#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(25)
+	#elif CONFIG_SPI_IOSET == 3
+		#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PD(28)
+	#else
+		#error "Invalid SPI IOSET was chosen"
+	#endif
+#else
+	#error "Invalid SPI BUS was chosen"
+#endif
 #endif
 
 #if defined(CONFIG_QSPI)
