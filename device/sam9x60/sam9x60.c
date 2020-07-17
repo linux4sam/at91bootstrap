@@ -37,6 +37,7 @@
 #include "usart.h"
 #include "debug.h"
 #include "ddramc.h"
+#include "sdramc.h"
 #include "timer.h"
 #include "watchdog.h"
 #include "string.h"
@@ -230,53 +231,6 @@ void wilc_pwrseq()
 	udelay(5000);
 	pio_configure(wilc_en_pins);
 }
-
-#ifdef CONFIG_SDRAM /* For sam9x60_sdr_sip_eb */
-
-static void sdramc_reg_config(struct sdramc_register *sdramc_config)
-{
-	sdramc_config->cr = AT91C_SDRAMC_NC_8
-					| AT91C_SDRAMC_NR_12
-					| AT91C_SDRAMC_CAS_3
-					| AT91C_SDRAMC_NB_4_BANKS
-					| AT91C_SDRAMC_DBW_16_BITS
-					| AT91C_SDRAMC_TWR_3
-					| AT91C_SDRAMC_TRC_11
-					| AT91C_SDRAMC_TRP_3
-					| AT91C_SDRAMC_TRCD_3
-					| AT91C_SDRAMC_TRAS_8
-					| AT91C_SDRAMC_TXSR_12;
-
-	sdramc_config->tr = (MASTER_CLOCK * 7) / 1000000;
-	sdramc_config->mdr = AT91C_SDRAMC_MD_SDRAM
-					| AT91C_SDRAMC_MD_SHIFT_SAMPLING_2_CYCLE;
-
-	sdramc_config->cfr1 = AT91C_SDRAMC_CFR1_TMRD_2 | AT91C_SDRAMC_CFR1_UNAL
-				| AT91C_SDRAMC_CFR1_ADD_DATA_MUX_UNSUPPORTED
-				| AT91C_SDRAMC_CFR1_CMD_MUX_UNSUPPORTED;
-}
-
-static void sdramc_init(void)
-{
-	struct sdramc_register sdramc_reg;
-	unsigned int reg = 0;
-
-	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
-	/*
-	 * We need to also enable AT91C_EBI_NFD0_ON_D16 . Otherwise the DDR will
-	 * not work if NAND lines have been previously used by RomCode
-	 */
-	reg |= (AT91C_EBI_CS1A | AT91C_EBI_NFD0_ON_D16);
-	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
-
-	pmc_enable_periph_clock(AT91C_ID_SDRAMC);
-	pmc_enable_system_clock(AT91C_PMC_DDR);
-
-	sdramc_reg_config(&sdramc_reg);
-
-	sdramc_initialize(&sdramc_reg, AT91C_BASE_CS1);
-}
-#endif /* CONFIG SDRAM */
 
 void hw_init(void)
 {

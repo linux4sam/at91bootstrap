@@ -27,7 +27,10 @@
  */
 #include "hardware.h"
 #include "board.h"
+#include "arch/at91_pmc/pmc.h"
+#include "arch/at91_sfr.h"
 #include "arch/at91_sdramc.h"
+#include "pmc.h"
 #include "sdramc.h"
 
 static inline void sdramc_writel(unsigned int reg, const unsigned int value)
@@ -38,6 +41,50 @@ static inline void sdramc_writel(unsigned int reg, const unsigned int value)
 static inline unsigned int sdramc_readl(unsigned int reg)
 {
 	return readl(reg + AT91C_BASE_SDRAMC);
+}
+
+static void sdramc_reg_config(struct sdramc_register *sdramc_config)
+{
+	sdramc_config->cr = AT91C_SDRAMC_NC_8
+					| AT91C_SDRAMC_NR_12
+					| AT91C_SDRAMC_CAS_3
+					| AT91C_SDRAMC_NB_4_BANKS
+					| AT91C_SDRAMC_DBW_16_BITS
+					| AT91C_SDRAMC_TWR_3
+					| AT91C_SDRAMC_TRC_11
+					| AT91C_SDRAMC_TRP_3
+					| AT91C_SDRAMC_TRCD_3
+					| AT91C_SDRAMC_TRAS_8
+					| AT91C_SDRAMC_TXSR_12;
+
+	sdramc_config->tr = (MASTER_CLOCK * 7) / 1000000;
+	sdramc_config->mdr = AT91C_SDRAMC_MD_SDRAM
+					| AT91C_SDRAMC_MD_SHIFT_SAMPLING_2_CYCLE;
+
+	sdramc_config->cfr1 = AT91C_SDRAMC_CFR1_TMRD_2 | AT91C_SDRAMC_CFR1_UNAL
+				| AT91C_SDRAMC_CFR1_ADD_DATA_MUX_UNSUPPORTED
+				| AT91C_SDRAMC_CFR1_CMD_MUX_UNSUPPORTED;
+}
+
+void sdramc_init(void)
+{
+	struct sdramc_register sdramc_reg;
+	unsigned int reg = 0;
+
+	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
+	/*
+	 * We need to also enable AT91C_EBI_NFD0_ON_D16 . Otherwise the DDR will
+	 * not work if NAND lines have been previously used by RomCode
+	 */
+	reg |= (AT91C_EBI_CS1A | AT91C_EBI_NFD0_ON_D16);
+	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
+
+	pmc_enable_periph_clock(AT91C_ID_SDRAMC);
+	pmc_enable_system_clock(AT91C_PMC_DDR);
+
+	sdramc_reg_config(&sdramc_reg);
+
+	sdramc_initialize(&sdramc_reg, AT91C_BASE_CS1);
 }
 
 int sdramc_initialize(struct sdramc_register *sdramc_config,
