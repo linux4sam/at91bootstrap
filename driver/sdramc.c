@@ -84,7 +84,7 @@ void sdramc_init(void)
 
 	sdramc_reg_config(&sdramc_reg);
 
-	sdramc_initialize(&sdramc_reg, AT91C_BASE_CS1);
+	sdramc_initialize(&sdramc_reg, AT91C_BASE_DDRCS);
 }
 
 int sdramc_initialize(struct sdramc_register *sdramc_config,
