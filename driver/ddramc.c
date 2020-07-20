@@ -82,7 +82,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	bank = AT91C_DDRC2_NB_BANKS_8;
 	ddramc_config->rtr = 0x500;
 #elif defined(CONFIG_DDR_W972GG6KB_9X60)
-/* One DDR2 (W972GG6KB-25-2 Gbits = 16 Mbits x 16 x 8 banks), total 4 Gbits on the SAMA5D2-PTC-EK */
+/* One DDR2 (W972GG6KB-25-2 Gbits = 16 Mbits x 16 x 8 banks), total 2 Gbits on the SAM9X60-EK */
 	type = AT91C_DDRC2_MD_DDR2_SDRAM;
 	dbw = AT91C_DDRC2_DBW_16_BITS;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
@@ -249,7 +249,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	row = AT91C_DDRC2_NR_14;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
 #else
-		bank = AT91C_DDRC2_NB_BANKS_8;
+	bank = AT91C_DDRC2_NB_BANKS_8;
 	row = AT91C_DDRC2_NR_13;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
 #endif /* endif of CONFIG_BANK_4 */
