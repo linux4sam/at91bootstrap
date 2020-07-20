@@ -87,7 +87,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 #else
 	.trfc = 80,
 #endif /* Endif of CONFIG_DDR_1_GBIT */
-/*In case of low-power DDR-SDRAM, this field is equivalent to tXSR timing.*/
+/* In case of low-power DDR-SDRAM, this field is equivalent to tXSR timing. */
 	.txsnr = 200,
 	.txsrd = 0,
 	.tfaw = 0,
@@ -186,7 +186,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.tras = 42,
 	.trcd = 15,
 	.trp = 3,
-#if (defined(CONFIG_BANK_4))
+#if defined(CONFIG_BANK_4)
 	.trc = 57,
 #else
 	.trc = 60,
