@@ -29,19 +29,7 @@
 #include "board_hw_info.h"
 #include "debug.h"
 
-#ifdef CONFIG_SAMA5D2
-/* ICP EK has different EEPROM */
-#define	EK_AT24XX_ADDR		0x50
-#define	MAX_AT24XX_BYTES	128
-#elif defined(CONFIG_SAM9X60)
-#define	EK_AT24XX_ADDR		0x53
-#define	MAX_AT24XX_BYTES	128
-#else
-#define EK_AT24XX_ADDR		0x54
-#define	MAX_AT24XX_BYTES	256
-#endif
-
-#define EK_INFO_OFFSET		(MAX_AT24XX_BYTES - HW_INFO_TOTAL_SIZE)
+#define EK_INFO_OFFSET (CONFIG_EEPROM_SIZE - HW_INFO_TOTAL_SIZE)
 
 static unsigned int at24_get_twi_bus(void)
 {
@@ -81,7 +69,7 @@ static int at24_read(unsigned char device_addr, unsigned char internal_addr,
 
 int load_ek_at24xx(unsigned char *buff, unsigned int length)
 {
-	unsigned char dev_addr = EK_AT24XX_ADDR;
+	unsigned char dev_addr = CONFIG_EEPROM_ADDR;
 	unsigned char offset = EK_INFO_OFFSET;
 	int ret = 0;
 
