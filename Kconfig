@@ -472,6 +472,16 @@ config	EEPROM_ON_TWI3
 
 endchoice
 
+config EEPROM_ADDR
+	hex "EEPROM Device Address"
+	depends on LOAD_EEPROM
+	default 0x50
+
+config EEPROM_SIZE
+	int "EEPROM Size"
+	depends on LOAD_EEPROM
+	default 128
+
 endmenu
 
 config AUTOTWI_BUS
