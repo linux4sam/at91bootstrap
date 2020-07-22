@@ -1,8 +1,8 @@
 choice
-	prompt "Device Type"
+	prompt "MPU Product"
 	default SAMA5D2
 	help
-	  Select which device your board is based on
+	  Select which MPU device your board is based on
 
 source "device/sama5d2/Config.in.device"
 source "device/sam9x60/Config.in.device"

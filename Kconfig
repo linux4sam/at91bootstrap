@@ -15,22 +15,22 @@ source "device/sama5d2/Config.in.con"
 source "device/sam9x60/Config.in.con"
 
 config DEBUG
-	bool "Debug Support"
+	bool "Debug Output"
 	default n
 	help
 	  Output Debug messages
 choice
-	prompt "Debug Level"
+	prompt "Verbosity Level"
 	depends on DEBUG
 
 config DEBUG_INFO
-	bool "General debug information"
+	bool "Informational"
 
 config DEBUG_LOUD
-	bool "Loud debug output"
+	bool "Detailed"
 
 config DEBUG_VERY_LOUD
-	bool "Even louder debug output"
+	bool "Highest Verbosity"
 
 endchoice
 
@@ -154,6 +154,8 @@ config IMAGE_NAME
 	default "u-boot.bin" if LOAD_UBOOT
 	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
 	default "none" if LOAD_NONE
+
+source "device/Config.in.mach"
 
 source "Config.in.secure"
 

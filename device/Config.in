@@ -2,41 +2,6 @@ config	HAVE_DOT_CONFIG
 	bool
 	default y
 
-config MACH_TYPE
-	string
-	default "1099"	if AT91SAM9260
-	default "0x350"	if AT91SAM9261
-	default "0x4B2"	if AT91SAM9263
-	default "1326"	if AT91SAM9RL
-	default "0x44B"	if AT91SAM9XE
-	default "0x86F"	if AT91SAM9G10
-	default "0x658"	if AT91SAM9G20
-	default "1830"	if AT91SAM9G45
-	default "3373"	if AT91SAM9X5
-	default "9999"	if AT91SAM9N12
-	default "3373"	if SAM9X60
-	default "9999"	if SAMA5D3X
-	default "9999"	if SAMA5D4
-	default "9999"	if SAMA5D2
-
-config OVERRIDE_MACH_TYPE
-	bool "Override the default mach type"
-	default n
-	help
-	  This setting will let you choose a custom mach type.
-	  The selected CUSTOM_MACH_TYPE will override the autoselected
-	  MACH_TYPE setting which is based on the selected board.
-
-if OVERRIDE_MACH_TYPE
-
-config CUSTOM_MACH_TYPE
-	string "custom mach type"
-	default MACH_TYPE
-	help
-	  Custom mach type
-
-endif
-
 config LINK_ADDR
 	string
 	default "0x200000" if AT91SAM9260 || AT91SAM9G20 || SAMA5D4  || SAMA5D2
