@@ -1,7 +1,7 @@
-menu "Memory selection"
+menu "DRAM"
 
 choice
-	prompt "SDRAM controller selection"
+	prompt "DRAM controller"
 
 config SDRAM
 	bool "SDRAM"
@@ -42,7 +42,9 @@ config	ALLOW_SDRAM_16BIT
 	bool
 	default n
 
-menu "RAM Configuration"
+source "driver/Config.in.dram" 
+
+menu "Extra parameters"
 
 choice
 	prompt "RAM size"
@@ -139,7 +141,6 @@ endchoice
 
 endmenu
 
-source "driver/Config.in.dram" 
 config SAMA5D2_LPDDR2
 	bool
 	default y if LPDDR2 && SAMA5D2
