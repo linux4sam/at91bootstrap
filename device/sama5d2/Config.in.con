@@ -1,20 +1,19 @@
-
 config CONSOLE_INDEX
-	int "Select the Pins and UART Interface Used as a Console Terminal"
+	int "Console Port"
 	range 0 9
-	default 0
+	default 1
 	depends on SAMA5D2
 	help
-	  Console Terminal for SAMA5D2
+	  Select the peripheral wired to the debug console port:
 	  Value |     Name       |   Description
-	  ------|----------------|--------------------
-	    0   | UART_1_IOSET_1 | Use UART1 IO Set 1
-	    1   | UART_0_IOSET_1 | Use UART0 IO Set 1
-	    2   | UART_1_IOSET_2 | Use UART1 IO Set 2
-	    3   | UART_2_IOSET_1 | Use UART2 IO Set 1
-	    4   | UART_2_IOSET_2 | Use UART2 IO Set 2
-	    5   | UART_2_IOSET_3 | Use UART2 IO Set 3
-	    6   | UART_3_IOSET_1 | Use UART3 IO Set 1
-	    7   | UART_3_IOSET_2 | Use UART3 IO Set 2
-	    8   | UART_3_IOSET_3 | Use UART3 IO Set 3
-	    9   | UART_4_IOSET_1 | Use UART4 IO Set 1
+	  ------|----------------|-----------------------
+	    0   | UART_0_IOSET_1 | Use UART0 on I/O Set 1
+	    1   | UART_1_IOSET_1 | Use UART1 on I/O Set 1
+	    2   | UART_1_IOSET_2 | Use UART1 on I/O Set 2
+	    3   | UART_2_IOSET_1 | Use UART2 on I/O Set 1
+	    4   | UART_2_IOSET_2 | Use UART2 on I/O Set 2
+	    5   | UART_2_IOSET_3 | Use UART2 on I/O Set 3
+	    6   | UART_3_IOSET_1 | Use UART3 on I/O Set 1
+	    7   | UART_3_IOSET_2 | Use UART3 on I/O Set 2
+	    8   | UART_3_IOSET_3 | Use UART3 on I/O Set 3
+	    9   | UART_4_IOSET_1 | Use UART4 on I/O Set 1

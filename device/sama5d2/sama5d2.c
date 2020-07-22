@@ -48,21 +48,21 @@
 #include "arch/tz_matrix.h"
 
 const unsigned int usart_base[] = {
-		AT91C_BASE_UART1, AT91C_BASE_UART0, AT91C_BASE_UART1, AT91C_BASE_UART2,
+		AT91C_BASE_UART0, AT91C_BASE_UART1, AT91C_BASE_UART1, AT91C_BASE_UART2,
 		AT91C_BASE_UART2, AT91C_BASE_UART2, AT91C_BASE_UART3, AT91C_BASE_UART3,
 		AT91C_BASE_UART3, AT91C_BASE_UART4 };
 
 static void at91_dbgu_hw_init(void)
 {
 	const struct pio_desc dbgu_pins[][3] = {
-		{ /* UART1 IO Set 1 */
-			{"RXD1", AT91C_PIN_PD(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
-			{"TXD1", AT91C_PIN_PD(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
-			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A}, 
-		},
 		{ /* UART0 IO Set 1 */
 			{"RXD0", AT91C_PIN_PB(26), 0, PIO_DEFAULT, PIO_PERIPH_C},
 			{"TXD0", AT91C_PIN_PB(27), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A}, 
+		},
+		{ /* UART1 IO Set 1 */
+			{"RXD1", AT91C_PIN_PD(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"TXD1", AT91C_PIN_PD(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
 			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A}, 
 		},
 		{ /* UART1 IO Set 2 */
@@ -107,7 +107,7 @@ static void at91_dbgu_hw_init(void)
 		},
 	};
 	const unsigned int periph_id[] = {
-		AT91C_ID_UART1, AT91C_ID_UART0, AT91C_ID_UART1, AT91C_ID_UART2,
+		AT91C_ID_UART0, AT91C_ID_UART1, AT91C_ID_UART1, AT91C_ID_UART2,
 		AT91C_ID_UART2, AT91C_ID_UART2, AT91C_ID_UART3, AT91C_ID_UART3,
 		AT91C_ID_UART3, AT91C_ID_UART4 };
 

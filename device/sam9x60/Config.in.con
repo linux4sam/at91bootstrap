@@ -1,10 +1,10 @@
 config CONSOLE_INDEX
-	int "Select the Pins and UART Interface Used as a Console Terminal"
+	int "Console Port"
 	range 0 13
 	default 0
 	depends on SAM9X60
 	help
-	  Console Terminal for SAM9X60
+	  Select the peripheral wired to the debug console port:
 	  Value | Name   |   Description
 	  ------|--------|-------------------------
 	    0   | DBGU   | Uses DBGU
