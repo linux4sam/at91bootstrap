@@ -28,11 +28,7 @@
 #ifndef __NAND_H__
 #define __NAND_H__
 
-#ifdef CONFIG_AT91SAM9260EK
-#define MAX_ECC_BYTES		48  /* maximum bytes of ecc */
-#else
 #define MAX_ECC_BYTES		512 /* maximum bytes of ecc */
-#endif
 
 struct nand_ooblayout {
 	unsigned short	badblockpos;

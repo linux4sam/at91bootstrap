@@ -625,7 +625,7 @@ void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
 #ifdef CONFIG_DDR2
 static int ddramc_decodtype_is_seq(unsigned int ddramc_cr)
 {
-#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12) \
+#if defined(CONFIG_AT91SAM9X5) \
 	|| defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
 	|| defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60)
 	if (ddramc_cr & AT91C_DDRC2_DECOD_INTERLEAVED)

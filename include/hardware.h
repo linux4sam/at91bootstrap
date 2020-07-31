@@ -28,44 +28,8 @@
 #ifndef __HARDWARE_H__
 #define __HARDWARE_H__
 
-#ifdef CONFIG_AT91SAM9260
-#include "arch/at91sam9260.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9XE
-#include "arch/at91sam9xe.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9G10
-#include "arch/at91sam9g10.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9G20
-#include "arch/at91sam9g20.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9G45
-#include "arch/at91sam9g45.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9261
-#include "arch/at91sam9261.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9263
-#include "arch/at91sam9263.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9RL
-#include "arch/at91sam9rl.h"
-#endif
-
 #ifdef CONFIG_AT91SAM9X5
 #include "arch/at91sam9x5.h"
-#endif
-
-#ifdef CONFIG_AT91SAM9N12
-#include "arch/at91sam9n12.h"
 #endif
 
 #ifdef CONFIG_SAM9X60

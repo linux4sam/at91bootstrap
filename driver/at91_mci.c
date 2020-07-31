@@ -62,8 +62,7 @@ static int at91_mci_set_clock_blklen(unsigned int clock,
 	reg |= (blklen << 16);
 	mci_writel(MCI_BLKR, reg);
 
-#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12) \
-	|| defined(CONFIG_SAMA5D3X)
+#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_SAMA5D3X)
 	clkdiv -= 2;
 	reg = mci_readl(MCI_MR);
 	reg &= ~((0x01 << 8) - 1);
