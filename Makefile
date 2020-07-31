@@ -168,7 +168,6 @@ MACH_TYPE:=$(strip $(subst ",,$(CONFIG_MACH_TYPE)))
 endif
 
 LINK_ADDR:=$(strip $(subst ",,$(CONFIG_LINK_ADDR)))
-DATA_SECTION_ADDR:=$(strip $(subst ",,$(CONFIG_DATA_SECTION_ADDR)))
 TOP_OF_MEMORY:=$(strip $(subst ",,$(CONFIG_TOP_OF_MEMORY)))
 
 # CRYSTAL is UNUSED
@@ -280,10 +279,6 @@ endif
 #  -lgcc   : 	tells the linker to tie in newlib
 LDFLAGS=-nostartfiles -Map=$(BINDIR)/$(BOOT_NAME).map --cref -static
 LDFLAGS+=-T $(link_script) $(GC_SECTIONS) -Ttext $(LINK_ADDR)
-
-ifneq ($(DATA_SECTION_ADDR),)
-LDFLAGS+=-Tdata $(DATA_SECTION_ADDR)
-endif
 
 REMOVE_SECTIONS=-R .note -R .comment -R .note.gnu.build-id
 

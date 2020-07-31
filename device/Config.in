@@ -8,11 +8,6 @@ config LINK_ADDR
 	default "0x300000"
 
 
-config DATA_SECTION_ADDR
-	string
-	default "0x304000" if AT91SAM9XE
-
-
 config TOP_OF_MEMORY
 	string
 	default "0x308000"	if AT91SAM9X5
