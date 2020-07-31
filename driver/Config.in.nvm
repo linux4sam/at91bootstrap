@@ -106,9 +106,6 @@ endif
 
 config BOOTSTRAP_MAXSIZE
 	string
-	default "4096" if AT91SAM9260
-	default "8192" if AT91SAM9G10 && SDCARD
-	default "12288" if AT91SAM9G10 && !SDCARD
 	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60
 	default "23000"
 

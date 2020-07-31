@@ -571,9 +571,7 @@ config PMC_COMMON
 
 config PMC_V1
 	bool "Power management controller support for first version"
-	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
-		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
-		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2
+	depends on AT91SAM9X5 || SAMA5D4 || SAMA5D3X || SAMA5D2
 	default y
 	help
 	  Enable power management controller support for first version
@@ -591,18 +589,9 @@ config PMC_V3
 	default y
 	help
 	  Enable power management controller support for third version
-
-config PMC_PERIPH_CLK_AT91SAM9
-	bool "PMC peripheral clock control for AT91SAM9 SoCs"
-	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
-		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9RL
-	default y
-	help
-	  Enable peripheral clock for AT91SAM9 related SoCs
-
 config PMC_PERIPH_CLK_SAM9X5
 	bool "PMC peripheral clock control for SAM9X5 SoCs and above"
-	depends on AT91SAM9X5 || AT91SAM9N12 || SAMA5D3X || SAMA5D4 || \
+	depends on AT91SAM9X5 || SAMA5D3X || SAMA5D4 || \
 		SAMA5D2 || SAM9X60 || SAMA7G5
 	default y
 	help
@@ -617,17 +606,14 @@ config PMC_GENERIC_CLK
 
 config PMC_UTMI_CLK
 	bool "PMC UTMI clock control support"
-	depends on AT91SAM9X5 || AT91SAM9G45 || AT91SAM9RL || SAMA5D3X || \
-		SAMA5D4 || SAMA5D2
+	depends on AT91SAM9X5 || SAMA5D3X || SAMA5D4 || SAMA5D2
 	default y
 	help
 	  Enable PMC UTMI clock control
 
 config PMC_PLL_CLK
 	bool "PMC PLL clock control support"
-	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
-		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
-		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2
+	depends on AT91SAM9X5 || SAMA5D4 || SAMA5D3X || SAMA5D2
 	default y
 	help
 	  Enable PMC PLL clock control

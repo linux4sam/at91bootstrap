@@ -209,7 +209,6 @@ config  ALLOW_CPU_CLK_600MHZ
 
 config	DISABLE_CPU_CLK_240MHZ
 	bool
-	default y if AT91SAM9263EK && CRYSTAL_16_36766MHZ
 	default n
 
 choice

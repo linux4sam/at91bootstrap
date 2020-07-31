@@ -34,86 +34,7 @@ config DEVICENAME
 	default "sam9x60" if SAM9X60
 	default "sama5d3" if SAMA5D3_BOARD
 	default "sama5d4" if SAMA5D4_BOARD
-	default "at91sam9rl"	if AT91SAM9RL_BOARD
-	default "at91sam9260"	if AT91SAM9260_BOARD
-	default "at91sam9261"	if AT91SAM9261_BOARD
-	default "at91sam9263"	if AT91SAM9263_BOARD
-	default "at91sam9xe"	if AT91SAM9XE_BOARD
-	default "at91sam9g10"	if AT91SAM9G10_BOARD
-	default "at91sam9g20"	if AT91SAM9G20_BOARD
-	default "at91sam9m10g45" if AT91SAM9M10G45_BOARD
-	default "at91sam9n12"	if AT91SAM9N12_BOARD
 	default "at91sam9x5"	if AT91SAM9X5_BOARD
-
-config AT91SAM9260
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_MCI0
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config AT91SAM9261
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_MCI0
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config AT91SAM9263
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_MCI0
-	select CPU_HAS_MCI1
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config AT91SAM9RL
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_TWI1
-	select CPU_HAS_SCKC
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config AT91SAM9XE
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_TWI1
-	select CPU_HAS_MCI0
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config AT91SAM9G10
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_MCI0
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config AT91SAM9G20
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_MCI0
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config AT91SAM9G45
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_TWI1
-	select CPU_HAS_SCKC
-	select CPU_HAS_HSMCI0
-	select CPU_HAS_HSMCI1
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
 
 config AT91SAM9X5
 	select CORE_ARM926EJS
@@ -125,18 +46,6 @@ config AT91SAM9X5
 	select CPU_HAS_PMECC
 	select CPU_HAS_HSMCI0
 	select CPU_HAS_HSMCI1
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config AT91SAM9N12
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_TWI1
-	select CPU_HAS_SCKC
-	select CPU_HAS_PIO3
-	select CPU_HAS_PMECC
-	select CPU_HAS_HSMCI0
 	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	bool

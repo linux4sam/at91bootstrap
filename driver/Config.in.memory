@@ -78,14 +78,12 @@ endchoice
 
 config MEM_BANK
 	string "Extern Memory Bank Base Address"
-	default "0x70000000" if AT91SAM9G45 && !BOARD_HAS_2_BANKS
 	default "0x60000000" if SAMA7G5
 	default "0x20000000"
 
 config MEM_BANK2
 	depends on BOARD_HAS_2_BANKS
 	string "Extern Memory Bank2 Base Address"
-	default "0x70000000" if AT91SAM9G45 && BOARD_HAS_2_BANKS
 	default "0"
 
 choice

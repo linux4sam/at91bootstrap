@@ -19,7 +19,6 @@ config IMG_SIZE
 
 config JUMP_ADDR
 	string "The External Ram Address to Load Demo-App Image"
-	default "0x70000000" if AT91SAM9G45
 	default "0x20000000"
 	help
 	  The entry point to which the bootstrap will pass control.
