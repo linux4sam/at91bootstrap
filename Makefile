@@ -42,7 +42,7 @@ else
 	DATE := $(shell date)
 endif
 VERSION := 3.10.0
-REVISION := rc1
+REVISION := rc2
 SCMINFO := $(shell ($(TOPDIR)/host-utilities/setlocalversion $(TOPDIR)))
 
 ifeq ($(SCMINFO),)
