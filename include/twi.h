@@ -44,6 +44,6 @@ extern int twi_write(unsigned int twi_no, unsigned char device_addr,
 		unsigned char *data, unsigned int bytes);
 
 extern void twi_init(void);
-extern void twi_bus_init(unsigned int (*at91_twi_hw_init)(void));
+extern int twi_bus_init(unsigned int (*at91_twi_hw_init)(void));
 
 #endif

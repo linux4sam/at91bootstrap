@@ -273,7 +273,7 @@ int twi_write(unsigned int bus, unsigned char device_addr,
 	return 0;
 }
 
-void twi_bus_init(unsigned int (*at91_twi_hw_init)(void))
+int twi_bus_init(unsigned int (*at91_twi_hw_init)(void))
 {
 	unsigned int bus_clock = at91_get_ahb_clock();
 	unsigned int base = at91_twi_hw_init();
@@ -281,7 +281,7 @@ void twi_bus_init(unsigned int (*at91_twi_hw_init)(void))
 
 	bus = at91_twi_register_bus(base);
 	if (bus < 0)
-		return;
+		return bus;
 
 	twi_configure_master_mode(bus, bus_clock, TWI_CLOCK);
 
@@ -291,4 +291,6 @@ void twi_bus_init(unsigned int (*at91_twi_hw_init)(void))
 	at24xx_twi_bus	= 0xff;
 
 	twi_init_done = 1;
+
+	return bus;
 }
