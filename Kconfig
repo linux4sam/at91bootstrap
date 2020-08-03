@@ -441,6 +441,11 @@ config ACT8865
 	select TWI
 	default n
 
+config MCP16502
+	bool "PMIC (MCP16502) Support"
+	select TWI
+	default n
+
 choice
 	prompt "PMIC (ACT8865) on TWI Select"
 	depends on ACT8865 && !AUTOTWI_BUS
