@@ -62,18 +62,23 @@ choice
 	default RAM_64MB
 
 config	RAM_8MB
+	depends on !SAMA7G5
 	bool "8 MB"
 
 config	RAM_32MB
+	depends on !SAMA7G5
 	bool "32 MB"
 
 config	RAM_64MB
+	depends on !SAMA7G5
 	bool "64 MB"
 
 config	RAM_128MB
+	depends on !SAMA7G5
 	bool "128 MB"
 
 config	RAM_256MB
+	depends on !SAMA7G5
 	bool "256 MB"
 
 config	RAM_512MB
