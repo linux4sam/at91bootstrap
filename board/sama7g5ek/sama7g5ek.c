@@ -65,7 +65,7 @@ static void initialize_serial(void)
 #if defined CONFIG_FLEXCOM
 static struct at91_flexcom flexcoms[] = {
 	{AT91C_ID_FLEXCOM0, FLEXCOM_USART, AT91C_BASE_FLEXCOM0}, /* BT serial */
-	{AT91C_ID_FLEXCOM1, FLEXCOM_SPI, AT91C_BASE_FLEXCOM1}, /* Mikrobus SPI */
+	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1}, /* PMIC I2C */
 	{AT91C_ID_FLEXCOM2, FLEXCOM_USART, AT91C_BASE_FLEXCOM2}, /* Unused */
 	{AT91C_ID_FLEXCOM3, FLEXCOM_USART, AT91C_BASE_FLEXCOM3}, /* DBGU */
 };
@@ -91,6 +91,22 @@ unsigned int at91_flexcom3_init(void)
 	flexcom_init(3);
 
 	return flexcom_get_regmap(3);
+}
+
+static unsigned int at91_flexcom1_init(void)
+{
+	const struct pio_desc flx_pins[] = {
+		{"FLX_IO0", AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_F},
+		{"FLX_IO1", AT91C_PIN_PC(10), 0, PIO_DEFAULT, PIO_PERIPH_F},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_F},
+	};
+
+	pio_configure(flx_pins);
+	pmc_enable_periph_clock(AT91C_ID_FLEXCOM1, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	flexcom_init(1);
+
+	return flexcom_get_regmap(1);
 }
 #endif
 
@@ -280,6 +296,17 @@ void at91_sdhc_hw_init(void)
 }
 #endif
 
+#ifdef CONFIG_TWI
+static int twi1_bus_id = -1;
+
+void twi_init()
+{
+#ifdef CONFIG_FLEXCOM
+	twi1_bus_id = twi_bus_init(at91_flexcom1_init);
+#endif
+}
+#endif /* CONFIG_TWI */
+
 void hw_init(void)
 {
 	struct pmc_pll_cfg plla_config;
@@ -355,6 +382,10 @@ void hw_init(void)
 	at91_leds_init();
 
 	initialize_serial();
+
+#ifdef CONFIG_TWI
+	twi_init();
+#endif
 
 	dbg_very_loud("CA7 early uart\n");
 
