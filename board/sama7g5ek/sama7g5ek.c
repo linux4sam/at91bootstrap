@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "common.h"
 #include "flexcom.h"
 #include "usart.h"
 #include "hardware.h"
@@ -35,6 +36,7 @@
 #include "debug.h"
 #include "umctl2.h"
 #include "gpio.h"
+#include "mcp16502.h"
 #include "pmc.h"
 #include "arch/at91_pmc/pmc.h"
 #include "publ.h"
@@ -385,6 +387,15 @@ void hw_init(void)
 
 #ifdef CONFIG_TWI
 	twi_init();
+#ifdef CONFIG_MCP16502
+	/*
+	 * SAMA7G5's SHDWC keeps LPM pin low by default, so there is no need
+	 * to pass pin descriptor to mcp16502_init() for switching to active
+	 * state.
+	 */
+	if (mcp16502_init(twi1_bus_id, 0x5b, NULL, NULL, 0))
+		dbg_very_loud("MCP16502 init failure!");
+#endif
 #endif
 
 	dbg_very_loud("CA7 early uart\n");
