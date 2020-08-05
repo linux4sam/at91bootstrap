@@ -153,8 +153,6 @@ BOOTSTRAP_MAXSIZE := $(strip $(subst ",,$(CONFIG_BOOTSTRAP_MAXSIZE)))
 MEMORY := $(strip $(subst ",,$(CONFIG_MEMORY)))
 IMAGE_NAME:= $(strip $(subst ",,$(CONFIG_IMAGE_NAME)))
 CARD_SUFFIX := $(strip $(subst ",,$(CONFIG_CARD_SUFFIX)))
-MEM_BANK := $(strip $(subst ",,$(CONFIG_MEM_BANK)))
-MEM_BANK2 := $(strip $(subst ",,$(CONFIG_MEM_BANK2)))
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
 LINUX_KERNEL_ARG_STRING_FILE := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING_FILE)))
 
