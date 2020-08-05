@@ -309,6 +309,36 @@ void twi_init()
 }
 #endif /* CONFIG_TWI */
 
+void cpu_voltage_select(void)
+{
+#ifdef CONFIG_MCP16502
+	const struct mcp16502_cfg regulators_cfg[] = {
+		{ .regulator = MCP16502_BUCK4,
+#ifdef CONFIG_CPU_CLK_600MHZ
+		 .uV = 1100000,
+#endif
+#ifdef CONFIG_CPU_CLK_800MHZ
+		 .uV = 1200000,
+#endif
+#ifdef CONFIG_CPU_CLK_1000MHZ
+		 .uV = 1250000,
+#endif
+		 .enable = 1, },
+	};
+
+	/*
+	 * SAMA7G5's SHDWC keeps LPM pin low by default, so there is no need
+	 * to pass pin descriptor to mcp16502_init() for switching to active
+	 * state.
+	 */
+	if (mcp16502_init(twi1_bus_id, 0x5b, NULL, regulators_cfg,
+				ARRAY_SIZE(regulators_cfg)))
+		dbg_printf("MCP16502: init failure");
+	else
+		dbg_printf("MCP16502: CPU VDD @ %umV\n", regulators_cfg[0].uV / 1000);
+#endif /* CONFIG_MCP16502 */
+}
+
 void hw_init(void)
 {
 	struct pmc_pll_cfg plla_config;
@@ -321,6 +351,8 @@ void hw_init(void)
 	int i;
 #endif
 
+	unsigned int mck0_prescaler;
+
 	/* Watchdog might be enabled out of reset. Let's make sure it's off */
 	at91_disable_wdt();
 #ifdef CONFIG_WDTS
@@ -332,15 +364,18 @@ void hw_init(void)
 	/* We need timers in the following steps */
 	timer_init();
 
-	/* Configure & Enable CPU PLL */
-	plla_config.mul = 32;
+	/* Configure & Enable CPU PLL at a safe speed of 600 Mhz*/
+	plla_config.mul = 24; /* 25 * 24 = 600 */
 	plla_config.div = 0;
 	plla_config.count = 0x3f;
-	plla_config.fracr = 0x155556; /* 2^22 / 3 */
+	plla_config.fracr = 0;
 	plla_config.acr = 0x1b040010;
+
+	mck0_prescaler = BOARD_PRESCALER_CPUPLL | AT91C_PMC_MDIV_3;
+
 	pmc_sam9x60_cfg_pll(PLL_ID_CPUPLL, &plla_config);
 
-	pmc_mck_cfg_set(0, BOARD_PRESCALER_CPUPLL,
+	pmc_mck_cfg_set(0, mck0_prescaler,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	/*
@@ -387,15 +422,6 @@ void hw_init(void)
 
 #ifdef CONFIG_TWI
 	twi_init();
-#ifdef CONFIG_MCP16502
-	/*
-	 * SAMA7G5's SHDWC keeps LPM pin low by default, so there is no need
-	 * to pass pin descriptor to mcp16502_init() for switching to active
-	 * state.
-	 */
-	if (mcp16502_init(twi1_bus_id, 0x5b, NULL, NULL, 0))
-		dbg_very_loud("MCP16502 init failure!");
-#endif
 #endif
 
 	dbg_very_loud("CA7 early uart\n");
@@ -457,5 +483,33 @@ void hw_init(void)
 		EXTRAM_CS++;
 		if (!(i % 10000000)) dbg_very_loud("TESTING DDR\n");
 	}
+#endif
+
+	cpu_voltage_select();
+
+#ifdef CONFIG_CPU_CLK_800MHZ
+	plla_config.mul = 32; /* 33 * 24 = 792 */
+	plla_config.div = 0;
+	plla_config.count = 0x3f;
+	plla_config.fracr = 0x155556; /* 2^22 / 3 */
+	plla_config.acr = 0x1b040010;
+
+	mck0_prescaler = BOARD_PRESCALER_CPUPLL | AT91C_PMC_MDIV_4;
+#endif
+#ifdef CONFIG_CPU_CLK_1000MHZ
+	plla_config.mul = 40; /* 41 * 24 = 984 */
+	plla_config.div = 0;
+	plla_config.count = 0x3f;
+	plla_config.fracr = 0x2AAAAB; /* 2^22  * 2 / 3 */
+	plla_config.acr = 0x1b040010;
+
+	mck0_prescaler = BOARD_PRESCALER_CPUPLL | AT91C_PMC_MDIV_5;
+#endif
+
+#ifndef CONFIG_CPU_CLK_600MHZ
+	pmc_sam9x60_cfg_pll(PLL_ID_CPUPLL, &plla_config);
+
+	pmc_mck_cfg_set(0, mck0_prescaler,
+			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 #endif
 }
