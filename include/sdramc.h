@@ -42,4 +42,5 @@ void sdramc_init(void);
 int sdramc_initialize(struct sdramc_register *sdramc_config,
 			unsigned int sdram_address);
 
+unsigned int get_sdram_size(void);
 #endif	/* #ifndef __SDRAMC_H__ */

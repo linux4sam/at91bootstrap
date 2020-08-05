@@ -85,4 +85,6 @@ extern int lpddr1_sdram_initialize(unsigned int base_address,
 
 extern void ddramc_dump_regs(unsigned int base_address);
 
+extern unsigned int get_ddram_size(void);
+
 #endif /* #ifndef __DDRAMC_H__ */
