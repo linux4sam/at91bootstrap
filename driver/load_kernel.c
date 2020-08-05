@@ -32,9 +32,11 @@
 #include "string.h"
 #include "slowclk.h"
 #include "dataflash.h"
+#include "ddramc.h"
 #include "nandflash.h"
 #include "flash.h"
 #include "sdcard.h"
+#include "sdramc.h"
 #include "fdt.h"
 #include "board_hw_info.h"
 #include "mon.h"
@@ -49,14 +51,17 @@ static char *bootargs;
 
 static int setup_dt_blob(void *blob)
 {
-	unsigned int mem_bank = MEM_BANK;
-#ifdef MEM_BANK2
-	unsigned int mem_bank2 = MEM_BANK2;
-#else
+	unsigned int mem_bank = AT91C_BASE_DDRCS;
 	unsigned int mem_bank2 = 0;
-#endif
-	unsigned int mem_size = MEM_SIZE;
+	unsigned int mem_size = 0;
 	int ret;
+#if defined(CONFIG_SDRAM)
+	mem_size = get_sdram_size();
+#elif defined(CONFIG_DDRC)
+	mem_size = get_ddram_size();
+#else
+#error "No DRAM type specified!"
+#endif
 
 	if (check_dt_blob_valid(blob)) {
 		dbg_info("DT: the blob is not a valid fdt\n");
@@ -162,7 +167,7 @@ static void setup_commandline_tag(struct tag_cmdline *params,
 
 static void setup_boot_params(void)
 {
-	unsigned int *params = (unsigned int *)(MEM_BANK + 0x100);
+	unsigned int *params = (unsigned int *)(AT91C_BASE_DDRCS + 0x100);
 
 	struct tag_core *coreparam = (struct tag_core *)params;
 	coreparam->header.tag = TAG_FLAG_CORE;
@@ -178,8 +183,15 @@ static void setup_boot_params(void)
 	memparam->header.tag = TAG_FLAG_MEM;
 	memparam->header.size = TAG_SIZE_MEM32;
 
-	memparam->start = MEM_BANK;
-	memparam->size = MEM_SIZE;
+	memparam->start = AT91C_BASE_DDRCS;
+
+#if defined(CONFIG_SDRAM)
+	memparam->size = get_sdram_size();
+#elif defined(CONFIG_DDRC)
+	memparam->size = get_ddram_size();
+#else
+#error "No DRAM type specified!"
+#endif
 
 	params = (unsigned int *)params + TAG_SIZE_MEM32;
 
@@ -411,7 +423,7 @@ int load_kernel(struct image_info *image)
 	setup_boot_params();
 
 	mach_type = MACH_TYPE;
-	r2 = (unsigned int)(MEM_BANK + 0x100);
+	r2 = (unsigned int)(AT91C_BASE_DDRCS + 0x100);
 #endif
 
 	dbg_info("\nKERNEL: Starting linux kernel ..., machid: %x\n\n",
