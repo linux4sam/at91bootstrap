@@ -47,46 +47,6 @@ source "driver/Config.in.dram"
 menu "Extra parameters"
 
 choice
-	prompt "RAM size"
-	depends on SDRAM || SDDRC || DDRC || UMCTL2
-	default RAM_64MB
-
-config	RAM_8MB
-	depends on !SAMA7G5
-	bool "8 MB"
-
-config	RAM_32MB
-	depends on !SAMA7G5
-	bool "32 MB"
-
-config	RAM_64MB
-	depends on !SAMA7G5
-	bool "64 MB"
-
-config	RAM_128MB
-	depends on !SAMA7G5
-	bool "128 MB"
-
-config	RAM_256MB
-	bool "256 MB"
-
-config	RAM_512MB
-	depends on !(SAMA7G5 && DDR2)
-	bool "512 MB"
-
-endchoice
-
-config MEM_BANK
-	string "Extern Memory Bank Base Address"
-	default "0x60000000" if SAMA7G5
-	default "0x20000000"
-
-config MEM_BANK2
-	depends on BOARD_HAS_2_BANKS
-	string "Extern Memory Bank2 Base Address"
-	default "0"
-
-choice
 	prompt "Extern Memory Clock"
 	depends on UMCTL2
 	default MEM_CLOCK_533 if DDR3 || LPDDR3
