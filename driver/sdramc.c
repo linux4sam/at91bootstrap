@@ -87,6 +87,11 @@ void sdramc_init(void)
 	sdramc_initialize(&sdramc_reg, AT91C_BASE_DDRCS);
 }
 
+unsigned int get_sdram_size(void)
+{
+	return 0x800000;
+}
+
 int sdramc_initialize(struct sdramc_register *sdramc_config,
 			unsigned int sdram_address)
 {

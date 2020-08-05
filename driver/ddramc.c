@@ -44,6 +44,8 @@
 #include "ddr_device.h"
 #endif
 
+static unsigned int ddram_size;
+
 static void ddram_reg_config(struct ddramc_register *ddramc_config)
 {
 	unsigned int type, dbw, col, row, cas, bank;
@@ -345,6 +347,11 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->lpr = 0;
 #endif
 
+	ddram_size = ((1 << (col + 9)) / 8)
+				* (1 << ((row >> 2) + 11))\
+				* (bank == AT91C_DDRC2_NB_BANKS_4 ? 4 : 8)\
+				* (dbw == AT91C_DDRC2_DBW_16_BITS ? 16 : 32);
+
 #if defined(CONFIG_DDR_SET_BY_JEDEC)
 #ifdef CONFIG_BUS_SPEED_116MHZ
 	mck = 116;
@@ -353,6 +360,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #elif CONFIG_BUS_SPEED_164MHZ
 	mck = 164;
 #endif
+
 	/* Refresh Timer is (refresh_window / refresh_cycles) * master_clock */
 	ddramc_config->rtr = CONFIG_REF_WIN * mck * 1000 / CONFIG_REF_CYCLE;
 	ddramc_config->t0pr = ( AT91C_DDRC2_TRAS_(NS2CYCLES(ddr_ddram_timings.tras, mck)) |
@@ -457,6 +465,11 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 							AT91C_DDRC2_TFAW_(CONFIG_DDR_TFAW)
 						  );
 #endif
+}
+
+unsigned int get_ddram_size(void)
+{
+	return ddram_size;
 }
 
 void ddram_init(void)
