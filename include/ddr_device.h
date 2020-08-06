@@ -157,7 +157,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trtp = 2,
 	.tfaw = 8,
 #elif defined(CONFIG_DDR_AD220032D)
-/* LPDDR2 (AD220032D = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit in SiP on the SAMA5D2-WLSOM-EK */
+/* LPDDR2 (AD220032D = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit in SiP on SAMA5D27-WLSOM-EK */
 	.tras = 7,
 	.trcd = 3,
 	.twr = 4,

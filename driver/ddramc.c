@@ -99,6 +99,15 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	cas = AT91C_DDRC2_CAS_3;
 	bank = AT91C_DDRC2_NB_BANKS_8;
 	ddramc_config->rtr = 0x4FF;
+#elif defined(CONFIG_DDR_AD220032D)
+/* LPDDR2 (AD220032D = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit in SiP on SAMA5D27-WLSOM1-EK */
+	type = AT91C_DDRC2_MD_LPDDR2_SDRAM;
+	dbw = AT91C_DDRC2_DBW_32_BITS;
+	col = AT91C_DDRC2_NC_DDR9_SDR8;
+	row = AT91C_DDRC2_NR_14;
+	cas = AT91C_DDRC2_CAS_3;
+	bank = AT91C_DDRC2_NB_BANKS_8;
+	ddramc_config->rtr = AT91C_DDRC2_ENABLE_ADJ_REF | 0x27f;
 #else
 #error "DDR-SDRAM device is not supportted!"
 #endif
