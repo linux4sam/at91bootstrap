@@ -230,6 +230,8 @@ struct publ_regs {
 #define PUBL_DCR_DDRMD_POS			0
 #define PUBL_DCR_DDRMD_DDR3			((0x3UL & PUBL_DCR_DDRMD_MASK) \
 						 << PUBL_DCR_DDRMD_POS)
+#define PUBL_DCR_DDRMD_DDR2			((0x2UL & PUBL_DCR_DDRMD_MASK) \
+						 << PUBL_DCR_DDRMD_POS)
 /* DDR8BNK: DDR 8 Banks */
 #define PUBL_DCR_DDRMD_DDR8BNK			(0x1UL << 3)
 
@@ -334,16 +336,32 @@ struct publ_regs {
 						<< PUBL_DTPR2_TDLLK_POS)
 
 /* -------- PUBL_MR0 : (PUBL Offset: 0x40) PHY Mode Register 0 -------- */
+#ifdef CONFIG_DDR3
+/* DDR3 view of the register */
 /* CL - Cas Latency - mask is not contiguous ! */
 #define PUBL_MR0_CL_MASK			0x1DUL
 #define PUBL_MR0_CL_POS				2
 #define PUBL_MR0_CL(v)				(((v) & PUBL_MR0_CL_MASK) \
 						<< PUBL_MR0_CL_POS)
+#endif
 /* Write Recovery */
 #define PUBL_MR0_WR_MASK			0x7UL
 #define PUBL_MR0_WR_POS				9
 #define PUBL_MR0_WR(v)				(((v) & PUBL_MR0_WR_MASK) \
 						<< PUBL_MR0_WR_POS)
+#ifdef CONFIG_DDR2
+/* DDR2 view of the register */
+/* CL */
+#define PUBL_MR0_CL_MASK			0x7UL
+#define PUBL_MR0_CL_POS				4
+#define PUBL_MR0_CL(v)				(((v) & PUBL_MR0_CL_MASK) \
+						<< PUBL_MR0_CL_POS)
+/* Burst Length */
+#define PUBL_MR0_BL_MASK			0x3UL
+#define PUBL_MR0_BL_POS				0
+#define PUBL_MR0_BL_8				(((3) & PUBL_MR0_BL_MASK) \
+						<< PUBL_MR0_BL_POS)
+#endif
 
 /* -------- PUBL_MR1 : (PUBL Offset: 0x44) PHY Mode Register 1 -------- */
 /* RTT: On Die termination */
@@ -356,7 +374,12 @@ struct publ_regs {
 #define PUBL_MR1_AL_POS				3
 #define PUBL_MR1_AL(v)				(((v) & PUBL_MR1_AL_MASK) \
 						<< PUBL_MR1_AL_POS)
-
+#ifdef CONFIG_DDR2
+#define PUBL_MR1_OCD_MASK			0x7UL
+#define PUBL_MR1_OCD_POS			7
+#define PUBL_MR1_OCD(v)				(((v) & PUBL_MR1_OCD_MASK) \
+						<< PUBL_MR1_OCD_POS)
+#endif
 /* -------- PUBL_MR2 : (PUBL Offset: 0x48) PHY Mode Register 2 -------- */
 /* Cas Write Latency */
 #define PUBL_MR2_CWL_MASK			0x7UL

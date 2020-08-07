@@ -65,20 +65,23 @@ unsigned long tRP;
 unsigned long tRP_ps;
 unsigned long tRCD;
 unsigned long tRCD_ps;
+unsigned long tCCD;
 unsigned long tRAS;
 unsigned long tRASMAX;
 unsigned long tRC_ps;
 unsigned long tFAW;
 unsigned long tPRECKE;
+unsigned long tPOSTCKE;
 unsigned long CL;
 unsigned long CWL;
 unsigned long AL;
 unsigned long TZQOPER;
 unsigned long TZQCS;
+unsigned long MRD;
 
 struct dram_timings timings = {
-	_tRFC, _tREFI, _tWR, _tRP, _tRP_ps, _tRCD, _tRCD_ps, _tRAS, _tRASMAX,
-	_tRC_ps, _tFAW, _tPRECKE, _CL, _CWL, _AL, _TZQOPER, _TZQCS,
+	_tRFC, _tREFI, _tWR, _tRP, _tRP_ps, _tRCD, _tRCD_ps, _tCCD,_tRAS, _tRASMAX,
+	_tRC_ps, _tFAW, _tPRECKE, _tPOSTCKE, _CL, _CWL, _AL, _TZQOPER, _TZQCS, _MRD,
 };
 
 inline static void uddrc_mp_setup()
@@ -426,12 +429,15 @@ inline static void uddrc_selfref_en()
 inline static void uddrc_mstr()
 {
 	/* initialize MSTR - master register */
-	/* DRAM burst length of 8 for DDR3 */
-	UDDRC_REGS->UDDRC_MSTR = UDDRC_MSTR_burst_rdwr(UDDRC_MSTR_burst_rdwr_BL8) |
-	/* use burstchop */
-							UDDRC_MSTR_burstchop |
-	/* device config : DDR3 */
-							UDDRC_MSTR_ddr3
+	/* DRAM burst length of 8 for DDR3/DDR2 */
+	UDDRC_REGS->UDDRC_MSTR = UDDRC_MSTR_burst_rdwr(UDDRC_MSTR_burst_rdwr_BL8)
+	/* use burstchop only for DDR3*/
+#ifdef CONFIG_DDR3
+							| UDDRC_MSTR_burstchop
+#endif
+#ifdef CONFIG_DDR3
+							| UDDRC_MSTR_ddr3
+#endif
 	;
 }
 
@@ -439,8 +445,13 @@ inline static void uddrc_init0()
 {
 	unsigned long pre_cke_x1024 = 1 +
 		DIV_ROUND_UP(NS_TO_CYCLES_UP(tPRECKE), 1024 * 2);
+#ifdef CONFIG_DDR3
 	unsigned long post_cke_x1024 = 1 +
 		DIV_ROUND_UP(NS_TO_CYCLES_UP(TXPR), 1024 * 2);
+#endif
+#ifdef CONFIG_DDR2
+	unsigned long post_cke_x1024 = 2;
+#endif
 
 	/* DRAM init register 0 */
 	UDDRC_REGS->UDDRC_INIT0	=
@@ -487,19 +498,31 @@ inline static void uddrc_init3()
 	 MR0[2].cl.0  	=1'b0   (7)
 	 MR0[1:0].bl   	=2'b00  (8 fixed)
 	 */
-
+#ifdef CONFIG_DDR3
 	UDDRC_REGS->UDDRC_INIT3	= UDDRC_INIT3_mr(
 				(1 << 0) | ((CL - 4) << 4) | (1 << 8) |
 				((WR - 4) << 9)) |
 				UDDRC_INIT3_emr(1 << 6);
+#endif
+#ifdef CONFIG_DDR2
+	UDDRC_REGS->UDDRC_INIT3 = UDDRC_INIT3_mr(
+				((BL == 8) ? (3 << 0) : (2 << 0))
+				 | (CL << 4) | (1 << 8) | ((WR - 1) << 9));
+#endif
 	dbg_very_loud("UMCTL2 INIT 3 %x\n", UDDRC_REGS->UDDRC_INIT3);
 }
 
 inline static void uddrc_init4()
 {
 	/* DRAM init register 4 */
-	UDDRC_REGS->UDDRC_INIT4	= UDDRC_INIT4_emr2(((CWL - 5) << 3)) |
-				UDDRC_INIT4_emr3(0);
+	UDDRC_REGS->UDDRC_INIT4	=
+#ifdef CONFIG_DDR3
+				 UDDRC_INIT4_emr2(((CWL - 5) << 3))
+#endif
+#ifdef CONFIG_DDR2
+				UDDRC_INIT4_emr2(0)
+#endif
+				 | UDDRC_INIT4_emr3(0);
 	dbg_very_loud("UMCTL2 INIT 4 %x\n", UDDRC_REGS->UDDRC_INIT4);
 }
 
@@ -853,16 +876,19 @@ int umctl2_init (struct umctl2_config_state *state)
 	tRP_ps = timings.tRP_ps;
 	tRCD = timings.tRCD;
 	tRCD_ps = timings.tRCD_ps;
+	tCCD = timings.tCCD;
 	tRAS = timings.tRAS;
 	tRASMAX = timings.tRASMAX;
 	tRC_ps = timings.tRC_ps;
 	tFAW = timings.tFAW;
 	tPRECKE = timings.tPRECKE;
+	tPOSTCKE = timings.tPOSTCKE;
 	CL = timings.CL;
 	CWL = timings.CWL;
 	AL = timings.AL;
 	TZQOPER = timings.TZQOPER;
 	TZQCS = timings.TZQCS;
+	MRD = timings.MRD;
 
 #ifdef CONFIG_RSTC
 	/*

@@ -65,16 +65,19 @@ struct dram_timings
 	unsigned long	tRP_ps;		/* Row Precharge command, ps */
 	unsigned long	tRCD;		/* Row to Column delay, ns */
 	unsigned long	tRCD_ps;	/* Row to Column delay, ps */
+	unsigned long	tCCD;		/* Column to Column delay, ns */
 	unsigned long	tRAS;		/* Row Active Strobe, ns */
 	unsigned long	tRASMAX;	/* Row Active Strobe Max value, ns */
 	unsigned long	tRC_ps;		/* Row Cycle, ps */
 	unsigned long	tFAW;		/* Four Activation Window, ns */
 	unsigned long	tPRECKE;
+	unsigned long	tPOSTCKE;
 	unsigned long	CL;		/* CAS Latency, Clock cycles */
 	unsigned long	CWL;		/* CAS Write Latency, Clock cycles */
 	unsigned long	AL;		/* Additive Latency, Clock cycles */
 	unsigned long	TZQOPER;	/* Calibration time, Clock cycles */
 	unsigned long	TZQCS;		/* Calibration time short, Clock cycles */
+	unsigned long	MRD;		/* Mode Register Delay, Clock cycles */
 
 #define TRTP		MAX(4, PS_TO_CYCLES_UP(7500UL))		/* Read to Precharge, Clock Cycles */
 #define TWTR		MAX(4, PS_TO_CYCLES_UP(7500UL))		/* Write to Read, Clock Cycles */
@@ -84,10 +87,10 @@ struct dram_timings
 #define TRRD		MAX(4, NS_TO_CYCLES_UP(10UL))		/* Row to Row Delay, Clock Cycles */
 #define TRC		PS_TO_CYCLES_UP(tRC_ps)			/* Row Cycle, Clock Cycles */
 #define TFAW		NS_TO_CYCLES_UP(tFAW)			/* Four Activation Window, Clock Cycles */
-#define TMRD		4UL					/* Mode Register Delay, Clock Cycles */
-#define TCCD		4UL					/* Column to Column Delay, Clock Cycles */
+#define TMRD		MRD					/* Mode Register Delay, Clock Cycles */
+#define TCCD		NS_TO_CYCLES_UP(tCCD)			/* Column to Column Delay, Clock Cycles */
 #define TMOD		MAX(12, NS_TO_CYCLES_UP(15UL))		/* Mode Update Delay, Clock Cycles */
-#define TRFC		NS_TO_CYCLES_UP(tRFC)			/* Mode Update Delay, Clock Cycles */
+#define TRFC		NS_TO_CYCLES_UP(tRFC)			/* Refresh Counter, Clock Cycles */
 #define TXS		MAX(5, NS_TO_CYCLES_UP(tRFC + 10UL))	/* Self-refresh Exit Delay, Clock Cycles */
 #define TXSDLL		512UL
 #define TXP		MAX(3, PS_TO_CYCLES_UP(7500UL))		/* Power down exit Delay, Clock Cycles */
@@ -98,6 +101,7 @@ struct dram_timings
 #define TCKSRX		MAX(5, NS_TO_CYCLES_UP(10UL))
 #define TCKSRE		MAX(5, NS_TO_CYCLES_UP(10UL))
 #define TDLLK		512UL					/* DLL Lock time, Clock Cycles */
+#define TAOND		2UL					/* ODT Turn-On Delay , Clock Cycles */
 #define BL		8UL					/* Burst Length */
 #define RL		(CL + AL)				/* Read Latency */
 #define WL		(CWL + AL)				/* Write Latency */
