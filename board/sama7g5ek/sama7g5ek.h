@@ -85,6 +85,7 @@
 #define	CONFIG_SYS_ID_SDHC		AT91C_ID_SDMMC1
 #endif
 
+#ifdef CONFIG_MT41K256M16TW_107
 #define _tRFC		350UL		/* Refresh to Refresh, ns */
 #define _tREFI		7800UL		/* Refresh Intervals, ns */
 #define _tWR		15UL		/* Write Recovery, ns */
@@ -92,14 +93,42 @@
 #define _tRP_ps		13125UL		/* Row Precharge command, ps */
 #define _tRCD		14UL		/* Row to Column delay, ns */
 #define _tRCD_ps	13125UL		/* Row to Column delay, ps */
+#define _tCCD		4UL		/* Column to Column delay, ns */
 #define _tRAS		38UL		/* Row Active Strobe, ns */
 #define _tRASMAX	70000UL		/* RAS max, ns */
 #define _tRC_ps		50625UL		/* Row Cycle, ps */
 #define _tFAW		50UL		/* Four Activation Window, ns */
 #define _tPRECKE	500000UL
+#define _tPOSTCKE	0UL		/* Unused with DDR3 */
 #define _CL		7UL		/* CAS Latency, Clock cycles */
 #define _CWL		6UL		/* CAS Write Latency, Clock cycles */
 #define _AL		0UL		/* Additive Latency, Clock cycles */
 #define _TZQOPER	256UL		/* TZQ Long Calibration, Clock cycles */
 #define _TZQCS		64UL		/* TZQ Short Calibration, Clock cycles */
+#define _MRD		4UL		/* Mode Register Delay, Clock cycles */
+#endif
+
+#ifdef CONFIG_MT47H128M16RT_25E_C
+#define _tRFC		195UL		/* Refresh to Refresh, ns */
+#define _tREFI		7800UL		/* Refresh Intervals, ns */
+#define _tWR		15UL		/* Write Recovery, ns */
+#define _tRP		13UL		/* Row Precharge command, ns */
+#define _tRP_ps		12500UL		/* Row Precharge command, ps */
+#define _tRCD		13UL		/* Row to Column delay, ns */
+#define _tRCD_ps	12500UL		/* Row to Column delay, ps */
+#define _tCCD		2UL		/* Column to Column delay, ns */
+#define _tRAS		40UL		/* Row Active Strobe, ns */
+#define _tRASMAX	70000UL		/* RAS max, ns */
+#define _tRC_ps		55000UL		/* Row Cycle, ps */
+#define _tFAW		50UL		/* Four Activation Window, ns */
+#define _tPRECKE	200000UL
+#define _tPOSTCKE	400UL
+#define _CL		5UL		/* CAS Latency, Clock cycles */
+#define _CWL		4UL		/* CAS Write Latency, Clock cycles */
+#define _AL		0UL		/* Additive Latency, Clock cycles */
+#define _TZQOPER	256UL		/* TZQ Long Calibration, Clock cycles */
+#define _TZQCS		64UL		/* TZQ Short Calibration, Clock cycles */
+#define _MRD		2UL		/* Mode Register Delay, Clock cycles */
+#endif
+
 #endif
