@@ -479,6 +479,15 @@ void hw_init(void)
 		console_printf("UMCTL2: Initialization complete.\n");
 	}
 
+#ifdef CONFIG_DDR3
+	dbg_printf("MEMORY: %dMB DDR3 @ %d Mhz\n", MEM_SIZE / 1024 / 1024,
+		   CONFIG_MEM_CLOCK);
+#endif
+#ifdef CONFIG_DDR2
+	dbg_printf("MEMORY: %dMB DDR2 @ %d Mhz\n", MEM_SIZE / 1024 / 1024,
+		   CONFIG_MEM_CLOCK);
+#endif
+
 #if BOOTSTRAP_DEBUG_LEVEL==DEBUG_VERY_LOUD
 	EXTRAM_CS = (unsigned int *) MEM_BANK;
 	for (i = 0; i < MEM_SIZE / 4; i++) {
