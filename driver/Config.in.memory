@@ -78,10 +78,10 @@ config	RAM_128MB
 	bool "128 MB"
 
 config	RAM_256MB
-	depends on !SAMA7G5
 	bool "256 MB"
 
 config	RAM_512MB
+	depends on !(SAMA7G5 && DDR2)
 	bool "512 MB"
 
 endchoice
@@ -89,7 +89,8 @@ endchoice
 choice
 	prompt "DDR-SDRAM device type"
 	depends on DDRC || UMCTL2
-	default DDR2
+	default DDR2 if !UMCTL2
+	default DDR3 if UMCTL2
 
 config LPDDR1
 	depends on DDRC
@@ -104,7 +105,7 @@ config LPDDR3
 	bool "Low-power DDR3-SDRAM"
 
 config DDR2
-	depends on DDRC
+	depends on DDRC || UMCTL2
 	bool "DDR2-SDRAM"
 
 config DDR3
@@ -147,6 +148,26 @@ config MEM_CLOCK_400
 config MEM_CLOCK_533
 	depends on UMCTL2
 	bool "533 MHz Ram Clock"
+
+endchoice
+
+choice
+	prompt "Memory module selection"
+	depends on UMCTL2
+	default MT47H128M16RT_25E_C if DDR2
+	default MT41K256M16TW_107 if DDR3
+
+config MT41K256M16TW_107
+	bool "Micron DDR3 MT41K256M16TW-107"
+	depends on DDR3
+	help
+	  Micron MT41K256M16 DDR3 32 Meg x 16 x 8 banks DDR3-1066
+
+config MT47H128M16RT_25E_C
+	bool "Micron DDR2 MT47H128M16RT-25E:C"
+	depends on DDR2
+	help
+	  Micron MT47H128M16RT-25E:C DDR2 16 Meg x 16 x 8 banks DDR2-800
 
 endchoice
 
