@@ -137,7 +137,12 @@ config MEM_SIZE
 choice
 	prompt "Extern Memory Clock"
 	depends on UMCTL2
-	default MEM_CLOCK_533
+	default MEM_CLOCK_533 if DDR3
+	default MEM_CLOCK_400 if DDR2
+
+config MEM_CLOCK_400
+	depends on UMCTL2
+	bool "400 MHz Ram Clock"
 
 config MEM_CLOCK_533
 	depends on UMCTL2
