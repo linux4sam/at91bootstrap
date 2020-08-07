@@ -427,6 +427,7 @@ void hw_init(void)
 	dbg_very_loud("CA7 early uart\n");
 
 	/* Configure & Enable DDR PLL */
+#if CONFIG_MEM_CLOCK == 533
 	ddrpll_config.mul = 43; /* (43 + 1) * 24 = 1056 */
 	ddrpll_config.div = 1;
 	ddrpll_config.divio = 100;
@@ -434,9 +435,19 @@ void hw_init(void)
 	ddrpll_config.fracr = 0x1aaaab; /* (10/24) * 2^22 to get extra 10 MHz */
 	ddrpll_config.acr = 0x00020033;
 	/* DDRPLL @ 1066 MHz */
+#endif
+#if CONFIG_MEM_CLOCK == 400
+	ddrpll_config.mul = 32; /* (33 + 1) * 24 =  792*/
+	ddrpll_config.div = 1;
+	ddrpll_config.divio = 100;
+	ddrpll_config.count = 0x3f;
+	ddrpll_config.fracr = 0x155556; /* 2^22 / 3 */
+	ddrpll_config.acr = 0x00020033;
+	/* DDRPLL @ 800 MHz */
+#endif
 	pmc_sam9x60_cfg_pll(PLL_ID_DDRPLL, &ddrpll_config);
 
-	/* MCK2 @ 533 MHz */
+	/* MCK2 @ DDRPLL/2 MHz */
 	pmc_mck_cfg_set(2, BOARD_PRESCALER_MCK2,
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
