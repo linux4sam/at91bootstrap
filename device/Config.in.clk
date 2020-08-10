@@ -76,38 +76,12 @@ endmenu
 config ALLOW_CRYSTAL_12_000MHZ
 	bool
 
-config ALLOW_CRYSTAL_16_000MHZ
-	bool
-
-config ALLOW_CRYSTAL_16_36766MHZ
-	bool
-
-config ALLOW_CRYSTAL_18_432MHZ
-	bool
-
 config ALLOW_CRYSTAL_24_000MHZ
 	bool
 
 choice
 	prompt "CPU clock"
-	default CPU_CLK_200MHZ
-
-config	CPU_CLK_166MHZ
-	bool "166 MHz"
-	depends on ALLOW_CPU_CLK_166MHZ
-
-config	CPU_CLK_180MHZ
-	bool "180 MHz"
-	depends on ALLOW_CPU_CLK_180MHZ
-
-config	CPU_CLK_200MHZ
-	bool "200 MHz"
-	depends on ALLOW_CPU_CLK_200MHZ
-
-config	CPU_CLK_240MHZ
-	bool "240 MHz"
-	depends on ALLOW_CPU_CLK_240MHZ
-	depends on !DISABLE_CPU_CLK_240MHZ
+	default CPU_CLK_266MHZ
 
 config	CPU_CLK_266MHZ
 	bool "266 MHz"
@@ -124,10 +98,6 @@ config	CPU_CLK_348MHZ
 config	CPU_CLK_396MHZ
 	bool "396 MHz"
 	depends on ALLOW_CPU_CLK_396MHZ
-
-config	CPU_CLK_400MHZ
-	bool "400 MHz"
-	depends on ALLOW_CPU_CLK_400MHZ
 
 config	CPU_CLK_444MHZ
 	bool "444 MHz"
@@ -159,17 +129,6 @@ config CPU_CLK_600MHZ
 
 endchoice
 
-config	ALLOW_CPU_CLK_166MHZ
-	bool
-
-config	ALLOW_CPU_CLK_180MHZ
-	bool
-
-config	ALLOW_CPU_CLK_200MHZ
-	bool
-
-config	ALLOW_CPU_CLK_240MHZ
-	bool
 
 config	ALLOW_CPU_CLK_266MHZ
 	bool
@@ -213,21 +172,10 @@ config	DISABLE_CPU_CLK_240MHZ
 
 choice
 	prompt "Bus Speed"
-	default BUS_SPEED_133MHZ
+	default BUS_SPEED_116MHZ
 	help
 	  Select the speed of the bus
 
-config BUS_SPEED_83MHZ
-	bool "83 MHz"
-	depends on SUPPORT_BUS_SPEED_83MHZ && CPU_CLK_166MHZ
-
-config BUS_SPEED_90MHZ
-	bool "90 MHz"
-	depends on SUPPORT_BUS_SPEED_90MHZ && CPU_CLK_180MHZ
-
-config BUS_SPEED_100MHZ
-	bool "100 MHz"
-	depends on SUPPORT_BUS_SPEED_100MHZ && (CPU_CLK_200MHZ || CPU_CLK_400MHZ)
 
 config BUS_SPEED_116MHZ
 	bool "116 MHz"
@@ -266,15 +214,6 @@ config BUS_SPEED_200MHZ
 	depends on SUPPORT_BUS_SPEED_200MHZ && CPU_CLK_600MHZ
 
 endchoice
-
-config SUPPORT_BUS_SPEED_83MHZ
-	bool
-
-config SUPPORT_BUS_SPEED_90MHZ
-	bool
-
-config SUPPORT_BUS_SPEED_100MHZ
-	bool
 
 config SUPPORT_BUS_SPEED_116MHZ
 	bool
