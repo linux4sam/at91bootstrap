@@ -1,0 +1,19 @@
+config SPI_BUS_MAX
+	int
+	default 1 if SAMA5D2
+
+config SPI_IOSET_MAX
+	int
+	default 3 if SAMA5D2
+
+config QSPI_BUS_MAX
+	int
+	default 1 if SAMA5D2
+
+config QSPI_IOSET_MAX
+	int
+	default 3 if SAMA5D2
+
+config DEVICENAME
+	string
+	default "sama5d2" if SAMA5D2

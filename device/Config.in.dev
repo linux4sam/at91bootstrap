@@ -8,30 +8,11 @@ source "device/sama5d2/Config.in.device"
 source "device/sam9x60/Config.in.device"
 endchoice
 
-config SPI_BUS_MAX
-	int
-	default 5 if SAM9A60
-	default 1 if SAMA5D2
-
-config SPI_IOSET_MAX
-	int
-	default 6 if SAM9X60
-	default 3 if SAMA5D2
-
-config QSPI_BUS_MAX
-	int
-	default 0 if SAM9X60
-	default 1 if SAMA5D2
-
-config QSPI_IOSET_MAX
-	int
-	default 1 if SAM9X60
-	default 3 if SAMA5D2
+source "device/sama5d2/Config.in"
+source "device/sam9x60/Config.in"
 
 config DEVICENAME
 	string
-	default "sama5d2" if SAMA5D2
-	default "sam9x60" if SAM9X60
 	default "sama5d3" if SAMA5D3_BOARD
 	default "sama5d4" if SAMA5D4_BOARD
 	default "at91sam9x5"	if AT91SAM9X5_BOARD
