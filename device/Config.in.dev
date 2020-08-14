@@ -4,63 +4,15 @@ choice
 	help
 	  Select which MPU device your board is based on
 
-source "device/sama5d2/Config.in.device"
+source "device/sam9x5/Config.in.device"
 source "device/sam9x60/Config.in.device"
+source "device/sama5d2/Config.in.device"
+source "device/sama5d3/Config.in.device"
+source "device/sama5d4/Config.in.device"
 endchoice
 
-source "device/sama5d2/Config.in"
+source "device/sam9x5/Config.in"
 source "device/sam9x60/Config.in"
-
-config DEVICENAME
-	string
-	default "sama5d3" if SAMA5D3_BOARD
-	default "sama5d4" if SAMA5D4_BOARD
-	default "at91sam9x5"	if AT91SAM9X5_BOARD
-
-config AT91SAM9X5
-	select CORE_ARM926EJS
-	select CPU_HAS_TWI0
-	select CPU_HAS_TWI1
-	select CPU_HAS_TWI2
-	select CPU_HAS_SCKC
-	select CPU_HAS_PIO3
-	select CPU_HAS_PMECC
-	select CPU_HAS_HSMCI0
-	select CPU_HAS_HSMCI1
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config SAMA5D3X
-	select CORE_CORTEX_A5
-	select CPU_HAS_TWI0
-	select CPU_HAS_TWI1
-	select CPU_HAS_TWI2
-	select CPU_HAS_AES
-	select CPU_HAS_SCKC
-	select CPU_HAS_PIO3
-	select CPU_HAS_PMECC
-	select CPU_HAS_HSMCI0
-	select CPU_HAS_HSMCI1
-	select CPU_HAS_HSMCI2
-	select CPU_HAS_SPI
-	select CPU_HAS_SCLK_BYPASS
-	bool
-
-config SAMA5D4
-	select CORE_CORTEX_A5
-	select CPU_HAS_TWI0
-	select CPU_HAS_TWI1
-	select CPU_HAS_TWI2
-	select CPU_HAS_TWI3
-	select CPU_HAS_AES
-	select CPU_HAS_L2CC
-	select CPU_HAS_SCKC
-	select CPU_HAS_H32MXDIV
-	select CPU_HAS_PIO3
-	select CPU_HAS_PMECC
-	select CPU_HAS_TRUSTZONE
-	select CPU_HAS_HSMCI0
-	select CPU_HAS_HSMCI1
-	select CPU_HAS_SPI
-	bool
+source "device/sama5d2/Config.in"
+source "device/sama5d3/Config.in"
+source "device/sama5d4/Config.in"

@@ -1,0 +1,17 @@
+config SAMA5D4
+	select CORE_CORTEX_A5
+	select CPU_HAS_TWI0
+	select CPU_HAS_TWI1
+	select CPU_HAS_TWI2
+	select CPU_HAS_TWI3
+	select CPU_HAS_AES
+	select CPU_HAS_L2CC
+	select CPU_HAS_SCKC
+	select CPU_HAS_H32MXDIV
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_TRUSTZONE
+	select CPU_HAS_HSMCI0
+	select CPU_HAS_HSMCI1
+	select CPU_HAS_SPI
+	bool "SAMA5D4"

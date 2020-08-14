@@ -1,0 +1,3 @@
+config DEVICENAME
+	string
+	default "sama5d4" if SAMA5D4
