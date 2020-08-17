@@ -46,6 +46,13 @@ config INIT_AND_STOP
 
 endchoice
 
+config BKPT_NOTIFY_DONE
+	bool
+	help
+	  In order to load code into DRAM from a debugger, a bootstrap is
+	  required to configure the clocks, peripheral I/Os, and memory correctly.
+	  Selecting this option builds an image that can be used for this purpose.
+
 config LOAD_SW
 	bool
 	help
@@ -162,13 +169,6 @@ config LINUX_IMAGE
 	bool
 	help
 	  Select to load linux uImage or zImage to boot
-
-config BKPT_NOTIFY_DONE
-	bool
-	help
-	  In order to load code into DRAM from a debugger, a bootstrap is
-	  required to configure the clocks, pio, and memory correctly.  Selecting
-	  this option builds an image that can be used for this purpose.
 
 #
 # Kernel Image Storage Setup
