@@ -118,10 +118,6 @@ config CPU_HAS_QSPI
 	bool
 	default n
 
-config BOARD_HAS_2_BANKS
-	bool
-	default n
-
 config CPU_HAS_SCLK_BYPASS
 	bool
 	default n
