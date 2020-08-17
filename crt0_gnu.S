@@ -188,7 +188,7 @@ _go:
 /* we endless loop here and not jump to any application
  * if we are configured to not load anything
  */
-#if defined(CONFIG_ENTER_NWD) || defined(CONFIG_LOAD_NONE)
+#if defined(CONFIG_ENTER_NWD) || !defined(CONFIG_JUMP_TO_SW)
 loop:
 #ifdef CONFIG_BKPT_NOTIFY_DONE
 	bkpt

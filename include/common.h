@@ -78,13 +78,17 @@ struct image_info
 
 typedef int (*load_function)(struct image_info *image);
 
+#ifdef CONFIG_LOAD_SW
 extern load_function load_image;
+
 extern void init_load_image(struct image_info *image);
-extern void load_image_done(int retval);
 
 extern int load_kernel(struct image_info *image);
 
 extern int kernel_size(unsigned char *addr);
+#endif
+
+extern void load_image_done(int retval);
 
 static inline unsigned int swap_uint32(unsigned int data)
 {

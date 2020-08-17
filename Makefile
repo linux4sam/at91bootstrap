@@ -189,29 +189,17 @@ endif
 
 ifeq ($(CONFIG_LOAD_LINUX), y)
 TARGET_NAME:=linux-$(or $(subst I,i,$(IMAGE_NAME)),image)
-endif
-
-ifeq ($(CONFIG_LOAD_ANDROID), y)
+else ifeq ($(CONFIG_LOAD_ANDROID), y)
 TARGET_NAME:=android-$(or $(subst I,i,$(IMAGE_NAME)),image)
-endif
-
-ifeq ($(CONFIG_LOAD_UBOOT), y)
+else ifeq ($(CONFIG_LOAD_UBOOT), y)
 TARGET_NAME:=$(or $(subst -,,$(basename $(IMAGE_NAME))),uboot)
-endif
-
-ifeq ($(CONFIG_LOAD_64KB), y)
+else ifeq ($(CONFIG_LOAD_64KB), y)
 TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),softpack)
-endif
-
-ifeq ($(CONFIG_LOAD_1MB), y)
+else ifeq ($(CONFIG_LOAD_1MB), y)
 TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),softpack)
-endif
-
-ifeq ($(CONFIG_LOAD_4MB), y)
+else ifeq ($(CONFIG_LOAD_4MB), y)
 TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),softpack)
-endif
-
-ifeq ($(CONFIG_LOAD_NONE), y)
+else
 TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),none)
 endif
 

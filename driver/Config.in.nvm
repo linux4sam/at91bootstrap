@@ -1,4 +1,5 @@
 menu "Flash Memory"
+	depends on LOAD_SW
 
 choice
 	prompt "Non-volatile memory to load from"
@@ -104,9 +105,9 @@ if NANDFLASH
 	source "driver/Config.in.nandflash"
 endif
 
+endmenu
+
 config BOOTSTRAP_MAXSIZE
 	string
 	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60
 	default "23000"
-
-endmenu

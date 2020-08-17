@@ -33,7 +33,9 @@
 #include "string.h"
 #include "usart.h"
 
+#ifdef CONFIG_LOAD_SW
 load_function load_image;
+#endif
 
 #ifdef CONFIG_SDCARD
 char filename[FILENAME_BUF_LEN];
@@ -46,7 +48,7 @@ char cmdline_args[CMDLINE_BUF_LEN];
 #endif
 #endif
 
-#if !defined(CONFIG_LOAD_NONE)
+#ifdef CONFIG_LOAD_SW
 void init_load_image(struct image_info *image)
 {
 	memset(image,		0, sizeof(*image));
@@ -121,13 +123,13 @@ void init_load_image(struct image_info *image)
 #endif
 #endif
 }
-#endif
+#endif /* CONFIG_LOAD_SW */
 
 void load_image_done(int retval)
 {
 	char *media;
 
-#if defined(CONFIG_LOAD_NONE)
+#ifndef CONFIG_LOAD_SW
 	media = "NONE: ";
 #elif defined(CONFIG_FLASH)
 	media = "FLASH: ";
@@ -145,7 +147,7 @@ void load_image_done(int retval)
 		usart_puts(media);
 
 	if (retval == 0) {
-#if defined(CONFIG_LOAD_NONE)
+#ifndef CONFIG_LOAD_SW
 		usart_puts("AT91Bootstrap completed. Can load application via JTAG and jump.\n");
 #else
 		usart_puts("Done to load image\n");
