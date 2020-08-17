@@ -61,18 +61,18 @@ config PROJECT
 	default "sdcard"	if SDCARD
 
 choice
-	prompt "Image Loading Strategy"
+	prompt "Next Software Type"
 	default LOAD_UBOOT
 
 config LOAD_UBOOT
-	bool "Load U-Boot into last MBYTE of SDRAM"
+	bool "U-Boot"
 	---help---
 	  Use this mode to launch a second level boot monitor
 	  such as U-Boot, placed in the last MByte of SDRAM.
 
 config LOAD_LINUX
 	select LINUX_IMAGE
-	bool "Support loading Linux directly"
+	bool "Linux Kernel"
 	---help---
 	  Boot a Linux kernel image.
 	  No further bootloader required.
@@ -85,7 +85,7 @@ config LOAD_NONE
 
 config LOAD_ANDROID
 	select LINUX_IMAGE
-	bool "Support loading Android directly"
+	bool "Android"
 	---help---
 	  Boot an Android image.
 	  No further bootloader required.
