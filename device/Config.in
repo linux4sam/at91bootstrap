@@ -1,7 +1,3 @@
-config	HAVE_DOT_CONFIG
-	bool
-	default y
-
 config LINK_ADDR
 	string
 	default "0x200000" if SAMA5D4  || SAMA5D2
