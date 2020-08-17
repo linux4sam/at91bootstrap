@@ -1,4 +1,4 @@
-menu "Config target clock"
+menu "Clock Signals"
 
 menu "Main Crystal configuration"
 

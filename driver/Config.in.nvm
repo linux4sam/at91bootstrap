@@ -1,7 +1,7 @@
-menu "NVM boot config"
+menu "Flash Memory"
 
 choice
-	prompt "NVM Boot from"
+	prompt "Non-volatile memory to load from"
 	default DATAFLASH
 	help
 	  Select memory for at91bootstrap

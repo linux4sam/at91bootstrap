@@ -66,15 +66,16 @@ choice
 
 config LOAD_UBOOT
 	bool "Load U-Boot into last MBYTE of SDRAM"
-	help
-	  Use this mode to load an second level boot monitor
-	  like U-boot into the last MB of SDRAM.
+	---help---
+	  Use this mode to launch a second level boot monitor
+	  such as U-Boot, placed in the last MByte of SDRAM.
 
 config LOAD_LINUX
 	select LINUX_IMAGE
 	bool "Support loading Linux directly"
 	---help---
-	   Load Linux kernel directly from storage media
+	  Boot a Linux kernel image.
+	  No further bootloader required.
 
 config LOAD_NONE
 	bool "Do not load any image after bootstrap run"
@@ -85,24 +86,25 @@ config LOAD_NONE
 config LOAD_ANDROID
 	select LINUX_IMAGE
 	bool "Support loading Android directly"
-	help
-	   Load Android image directly from storage media
+	---help---
+	  Boot an Android image.
+	  No further bootloader required.
 
 config LOAD_1MB
 	bool "Load 1 MB into start of SDRAM"
-	help
+	---help---
 	  Use this mode to load an embedded application
 	  which can have a size of up to 1 MByte
 
 config LOAD_4MB
 	bool "Load 4 MB into start of SDRAM"
-	help
+	---help---
 	  Use this mode to load an embedded application
 	  which can have a size of up to 4 MByte
 
 config LOAD_64KB
 	bool "Load 64 kB into the start of SDRAM"
-	help
+	---help---
 	  Use this mode to load an embedded application
 	  which can have max 64 kB Size
 
@@ -149,11 +151,13 @@ source "Config.in.app-image"
 
 config IMAGE_NAME
 	depends on FATFS
-	string "Image Name"
+	string "Next Software Image File Name"
 	default "Image" if LINUX_IMAGE
 	default "u-boot.bin" if LOAD_UBOOT
 	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
 	default "none" if LOAD_NONE
+
+comment "------------------------"
 
 source "device/Config.in.mach"
 
@@ -602,7 +606,7 @@ config PMC_GENERIC_CLK
 	depends on SAMA5D2 || SAM9X60 || SAMA7G5
 	default y
 	help
-	   Enable generic clock control support
+	  Enable generic clock control support
 
 config PMC_UTMI_CLK
 	bool "PMC UTMI clock control support"
