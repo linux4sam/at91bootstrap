@@ -52,6 +52,7 @@
 #define NS_TO_CYCLES_UP(ns)	DIV_ROUND_UP(((ns) * CONFIG_MEM_CLOCK), 1000UL)
 #define NS_TO_CYCLES_DOWN(ns)	DIV_ROUND_DOWN(((ns) * CONFIG_MEM_CLOCK), 1000UL)
 #define PS_TO_CYCLES_UP(ps)	DIV_ROUND_UP(((ps) * CONFIG_MEM_CLOCK), 1000000UL)
+#define PS_TO_CYCLES_DOWN(ps)	DIV_ROUND_DOWN(((ps) * CONFIG_MEM_CLOCK), 1000000UL)
 
 #define MAX(x, y)	((x) > (y) ? (x) : (y))
 #define MIN(x, y)	((x) > (y) ? (y) : (x))
@@ -70,16 +71,26 @@ struct dram_timings
 	unsigned long	tRASMAX;	/* Row Active Strobe Max value, ns */
 	unsigned long	tRC_ps;		/* Row Cycle, ps */
 	unsigned long	tFAW;		/* Four Activation Window, ns */
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long	tPRECKE;
+#endif
 	unsigned long	tPOSTCKE;
+#if defined(CONFIG_LPDDR2)
+	unsigned long	tDQSCK_MIN;
+	unsigned long	tDQSCK_MAX;
+#endif
 	unsigned long	CL;		/* CAS Latency, Clock cycles */
 	unsigned long	CWL;		/* CAS Write Latency, Clock cycles */
 	unsigned long	AL;		/* Additive Latency, Clock cycles */
+#if defined(CONFIG_LPDDR2)
+	unsigned long	RL;		/* Read Latency, Clock cycles, LPDDR2 */
+	unsigned long	WL;		/* Write Latency, Clock cycles, LPDDR2 */
+#endif
 	unsigned long	TZQOPER;	/* Calibration time, Clock cycles */
 	unsigned long	TZQCS;		/* Calibration time short, Clock cycles */
 	unsigned long	MRD;		/* Mode Register Delay, Clock cycles */
 
-#define TRTP		MAX(4, PS_TO_CYCLES_UP(7500UL))		/* Read to Precharge, Clock Cycles */
+#define TRTP		MAX(2, PS_TO_CYCLES_UP(7500UL))		/* Read to Precharge, Clock Cycles */
 #define TWTR		MAX(4, PS_TO_CYCLES_UP(7500UL))		/* Write to Read, Clock Cycles */
 #define TRP		PS_TO_CYCLES_UP(tRP_ps)			/* Row Precharge delay, Clock Cycles */
 #define TRCD		PS_TO_CYCLES_UP(tRCD_ps)		/* Row to Column delay, Clock Cycles */
@@ -88,24 +99,55 @@ struct dram_timings
 #define TRC		PS_TO_CYCLES_UP(tRC_ps)			/* Row Cycle, Clock Cycles */
 #define TFAW		NS_TO_CYCLES_UP(tFAW)			/* Four Activation Window, Clock Cycles */
 #define TMRD		MRD					/* Mode Register Delay, Clock Cycles */
+#define TMRW		5UL					/* Mode Register Wait, Clock Cycles */
 #define TCCD		NS_TO_CYCLES_UP(tCCD)			/* Column to Column Delay, Clock Cycles */
 #define TMOD		MAX(12, NS_TO_CYCLES_UP(15UL))		/* Mode Update Delay, Clock Cycles */
 #define TRFC		NS_TO_CYCLES_UP(tRFC)			/* Refresh Counter, Clock Cycles */
 #define TXS		MAX(5, NS_TO_CYCLES_UP(tRFC + 10UL))	/* Self-refresh Exit Delay, Clock Cycles */
 #define TXSDLL		512UL
+#define TXSR		NS_TO_CYCLES_UP(tRFC + 10UL)
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
 #define TXP		MAX(3, PS_TO_CYCLES_UP(7500UL))		/* Power down exit Delay, Clock Cycles */
 #define TXPDLL		MAX(10, NS_TO_CYCLES_UP(24UL))
+#endif
+#if defined(CONFIG_LPDDR2)
+#define TXP		PS_TO_CYCLES_UP(7500UL)			/* Power down exit Delay, Clock Cycles */
+#endif
 #define TXPR		MAX(5, NS_TO_CYCLES_UP(tRFC + 10))	/* Reset Clock exit time, Clock Cycles */
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
 #define TCKE		MAX(3, NS_TO_CYCLES_UP(5UL))		/* CKE minimum width, Clock Cycles */
 #define TCKESR		(TCKE + 1)
 #define TCKSRX		MAX(5, NS_TO_CYCLES_UP(10UL))
 #define TCKSRE		MAX(5, NS_TO_CYCLES_UP(10UL))
+#endif
+#if defined(CONFIG_LPDDR2)
+#define TCKE		3UL					/* CKE minimum width, Clock Cycles */
+#define TCKESR		NS_TO_CYCLES_UP(15UL)
+#define TCKSRX		2
+#define TCKSRE		2
+#define TCKCSX		(2 + TXP)
+#define TCKDPDX		2
+#define TCKDPDE		2
+#define TCKPDX		2
+#define TCKPDE		2
+#endif
 #define TDLLK		512UL					/* DLL Lock time, Clock Cycles */
 #define TAOND		2UL					/* ODT Turn-On Delay , Clock Cycles */
+#define TDQSCK_MIN	PS_TO_CYCLES_DOWN(tDQSCK_MIN)		/* DQS Output access time */
+#define TDQSCK_MAX	PS_TO_CYCLES_DOWN(tDQSCK_MAX)		/* DQS Output access time */
 #define BL		8UL					/* Burst Length */
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
 #define RL		(CL + AL)				/* Read Latency */
 #define WL		(CWL + AL)				/* Write Latency */
-#define WR		NS_TO_CYCLES_UP(tWR)			/* Write Recovery */
+#endif
+#define TWR		NS_TO_CYCLES_UP(tWR)			/* Write Recovery */
+#define TINIT1		NS_TO_CYCLES_UP(100UL)			/* Clock Cycles */
+#define TINIT2		5UL					/* Clock Cycles */
+#define TINIT4		NS_TO_CYCLES_UP(1000UL)			/* Clock Cycles */
+#define TINIT5		NS_TO_CYCLES_UP(10000UL)		/* Clock Cycles */
+#define TPOSTCKE	NS_TO_CYCLES_UP(tPOSTCKE)		/* Clock Cycles */
+#define TZQINIT		PS_TO_CYCLES_UP(1000000UL)		/* Clock Cycles */
+#define TZQRESET	MAX(3, NS_TO_CYCLES_UP(50UL))		/* Clock Cycles */
 };
 
 #define OFFSETOF(TYPE, ELEMENT) ((unsigned int)&(((TYPE *)0)->ELEMENT))

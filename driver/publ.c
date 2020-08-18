@@ -60,12 +60,24 @@ void publ_init(void * config_data)
 	unsigned long tRAS = timings->tRAS;
 	unsigned long tRC_ps = timings->tRC_ps;
 	unsigned long tFAW = timings->tFAW;
+#ifdef CONFIG_LPDDR2
+	unsigned long tDQSCK_MIN = timings->tDQSCK_MIN;
+	unsigned long tDQSCK_MAX = timings->tDQSCK_MAX;
+#endif
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long CL = timings->CL;
+#endif
 #ifdef CONFIG_DDR3
 	unsigned long CWL = timings->CWL;
 #endif
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long AL = timings->AL;
 	unsigned long MRD = timings->MRD;
+#endif
+#ifdef CONFIG_LPDDR2
+	unsigned long RL = timings->RL;
+	unsigned long WL = timings->WL;
+#endif
 
 	PUBL = (struct publ_regs *) CONFIG_SYS_BASE_PUBL;
 #ifdef CONFIG_DDR3
@@ -74,10 +86,20 @@ void publ_init(void * config_data)
 #ifdef CONFIG_DDR2
 	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_DDR2 | PUBL_DCR_DDRMD_DDR8BNK;
 #endif
+#ifdef CONFIG_LPDDR2
+	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_LPDDR2 | PUBL_DCR_DDRMD_DDR8BNK |
+			PUBL_DCR_DDRTYPE_S4;
+#endif
 	dbg_very_loud("PUBL_DCR %x\n", PUBL->PUBL_DCR);
 
-	PUBL->PUBL_PGCR = PUBL_PGCR_DFTCMP |
-			PUBL_PGCR_CKEN(1) | PUBL_PGCR_CKDV(2) |
+	PUBL->PUBL_PGCR =
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+			PUBL_PGCR_DFTCMP
+#endif
+#if defined(CONFIG_LPDDR2)
+			PUBL_PGCR_DQSCFG
+#endif
+			| PUBL_PGCR_CKEN(1) | PUBL_PGCR_CKDV(2) |
 			PUBL_PGCR_RANKEN(1) | PUBL_PGCR_ZCKSEL(1) |
 			PUBL_PGCR_PDDISDX;
 	dbg_very_loud("PUBL_PGCR %x\n", PUBL->PUBL_PGCR);
@@ -95,6 +117,10 @@ void publ_init(void * config_data)
 	PUBL->PUBL_PTR1 = PUBL_PTR1_TDINIT0(NS_TO_CYCLES_UP(2000UL)) |
 			PUBL_PTR1_TDINIT1(NS_TO_CYCLES_UP(400UL));
 #endif
+#ifdef CONFIG_LPDDR2
+	PUBL->PUBL_PTR1 = PUBL_PTR1_TDINIT0(NS_TO_CYCLES_UP(200000UL)) |
+			PUBL_PTR1_TDINIT1(NS_TO_CYCLES_UP(100UL));
+#endif
 	dbg_very_loud("PUBL_PTR1 %x\n", PUBL->PUBL_PTR1);
 
 #ifdef CONFIG_DDR3
@@ -104,6 +130,10 @@ void publ_init(void * config_data)
 #ifdef CONFIG_DDR2
 	PUBL->PUBL_PTR2 = PUBL_PTR2_TDINIT2(NS_TO_CYCLES_UP(400UL)) |
 			PUBL_PTR2_TDINIT3(534);
+#endif
+#ifdef CONFIG_LPDDR2
+	PUBL->PUBL_PTR2 = PUBL_PTR2_TDINIT2(MAX(5, NS_TO_CYCLES_UP(11000UL))) |
+			PUBL_PTR2_TDINIT3(NS_TO_CYCLES_UP(200000UL));
 #endif
 	dbg_very_loud("PUBL_PTR2 %x\n", PUBL->PUBL_PTR2);
 
@@ -115,6 +145,9 @@ void publ_init(void * config_data)
 	PUBL->PUBL_MR0 = PUBL_MR0_CL(CL) | PUBL_MR0_BL_8 |
 			PUBL_MR0_WR(NS_TO_CYCLES_UP(tWR) - 1) | 1;
 #endif
+#ifdef CONFIG_LPDDR2
+	PUBL->PUBL_MR0 = 0;
+#endif
 	dbg_very_loud("PUBL_MR0 %x\n", PUBL->PUBL_MR0);
 
 #ifdef CONFIG_DDR3
@@ -122,6 +155,9 @@ void publ_init(void * config_data)
 #endif
 #ifdef CONFIG_DDR2
 	PUBL->PUBL_MR1 = PUBL_MR1_RTT1 | PUBL_MR1_AL(AL) | PUBL_MR1_OCD(0);
+#endif
+#ifdef CONFIG_LPDDR2
+	PUBL->PUBL_MR1 = PUBL_MR1_BL(0x3) | PUBL_MR1_NWR(TWR - 2);
 #endif
 	dbg_very_loud("PUBL_MR1 %x\n", PUBL->PUBL_MR1);
 
@@ -131,24 +167,44 @@ void publ_init(void * config_data)
 #ifdef CONFIG_DDR2
 	PUBL->PUBL_MR2 = 0;
 #endif
+#ifdef CONFIG_LPDDR2
+	if (RL == 6 && WL == 3)
+		PUBL->PUBL_MR2 = PUBL_MR2_RLWL_6_3;
+#endif
 	dbg_very_loud("PUBL_MR2 %x\n", PUBL->PUBL_MR2);
 
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	PUBL->PUBL_MR3 = 0;
+#endif
+#ifdef CONFIG_LPDDR2
+	PUBL->PUBL_MR3 = PUBL_MR3_DS_48OHM;
+#endif
 	dbg_very_loud("PUBL_MR3 %x\n", PUBL->PUBL_MR3);
 
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	PUBL->PUBL_ODTCR = PUBL_ODTCR_WRODT0(1);
+#endif
+#if defined(CONFIG_LPDDR2)
+	PUBL->PUBL_ODTCR = 0;
+#endif
 	dbg_very_loud("PUBL_ODTCR %x\n", PUBL->PUBL_ODTCR);
 
 	PUBL->PUBL_DTPR0 =
 #ifdef CONFIG_DDR3
 			PUBL_DTPR0_TMRD(TMRD - 4) |
 #endif
-#ifdef CONFIG_DDR2
+#if defined(CONFIG_DDR2)
 			PUBL_DTPR0_TMRD(TMRD) |
 #endif
 			PUBL_DTPR0_TRTP(MAX(TRTP, 2)) |
 			PUBL_DTPR0_TWTR(MAX(TWTR, 1)) |
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
 			PUBL_DTPR0_TRP(MAX(TRP, 2)) |
+#endif
+#if defined(CONFIG_LPDDR2)
+			PUBL_DTPR0_TRP(MAX(TRP - 1, 2)) | /* PHY adds + 1 back */
+			PUBL_DTPR0_TCCD |
+#endif
 			PUBL_DTPR0_TRCD(MAX(TRCD, 2)) |
 			PUBL_DTPR0_TRAS(MAX(TRAS, 2)) |
 			PUBL_DTPR0_TRRD(TRRD) |
@@ -163,30 +219,66 @@ void publ_init(void * config_data)
 			PUBL_DTPR1_TAOND(TAOND - 2) |
 #endif
 			PUBL_DTPR1_TRFC(TRFC) |
-			PUBL_DTPR1_TDQSCKMIN(1) | PUBL_DTPR1_TDQSCKMAX(1);
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+			PUBL_DTPR1_TDQSCKMIN(1) | PUBL_DTPR1_TDQSCKMAX(1)
+#endif
+#if defined(CONFIG_LPDDR2)
+			PUBL_DTPR1_TDQSCKMIN(TDQSCK_MIN) |
+			PUBL_DTPR1_TDQSCKMAX(TDQSCK_MAX)
+#endif
+			;
 	dbg_very_loud("PUBL_DTPR1 %x\n", PUBL->PUBL_DTPR1);
 
-	PUBL->PUBL_DTPR2 = PUBL_DTPR2_TXS(MAX(TXS, TXSDLL)) |
+	PUBL->PUBL_DTPR2 =
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+			PUBL_DTPR2_TXS(MAX(TXS, TXSDLL)) |
 			PUBL_DTPR2_TXP(MAX(2, MAX(TXP, TXPDLL))) |
 			PUBL_DTPR2_TCKE(MAX(TCKESR, 2)) |
+#endif
+#if defined(CONFIG_LPDDR2)
+			PUBL_DTPR2_TXS(MAX(2, TXSR)) |
+			PUBL_DTPR2_TXP(MAX(2, TXP)) |
+			PUBL_DTPR2_TCKE(MAX(TCKE, 2)) |
+#endif
 			PUBL_DTPR2_TDLLK(MAX(TDLLK, 2));
 	dbg_very_loud("PUBL_DTPR2 %x\n", PUBL->PUBL_DTPR2);
 
 	PUBL->PUBL_DSGCR = PUBL_DSGCR_PUREN | PUBL_DSGCR_BDISEN |
 			PUBL_DSGCR_ZUEN | PUBL_DSGCR_LPIOPD |
-			PUBL_DSGCR_LPDLLPD | PUBL_DSGCR_NOBUB |
+			PUBL_DSGCR_LPDLLPD
+#if defined(CONFIG_LPDDR2)
+			| PUBL_DSGCR_DQSGX(MAX(1, NS_TO_CYCLES_UP(tDQSCK_MAX - tDQSCK_MIN)))
+			| PUBL_DSGCR_DQSGE(MAX(1, NS_TO_CYCLES_UP(tDQSCK_MAX - tDQSCK_MIN)))
+#endif
+			| PUBL_DSGCR_NOBUB |
 			PUBL_DSGCR_FXDLAT | PUBL_DSGCR_NL2OE |
 			PUBL_DSGCR_TPDOE | PUBL_DSGCR_CKOE |
 			PUBL_DSGCR_ODTOE | PUBL_DSGCR_RSTOE |
 			PUBL_DSGCR_CKEOE;
 	dbg_very_loud("PUBL_DSCGR %x\n", PUBL->PUBL_DSGCR);
 
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	PUBL->PUBL_DXCCR = 0;
+#endif
+#if defined(CONFIG_LPDDR2)
+	PUBL->PUBL_DXCCR = PUBL_DXCCR_DQSRES_688OHM | PUBL_DXCCR_DQSNRES_688OHM
+			| PUBL_DXCCR_DQSNRES_PU;
+#endif
 	dbg_very_loud("PUBL_DXCCR %x\n", PUBL->PUBL_DXCCR);
 
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
 	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(11) |
 			PUBL_ZQ0CR1_ZPROG_ODT(1);
+#endif
+#if defined(CONFIG_LPDDR2)
+	/* 48 OHM */
+	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(9) |
+			PUBL_ZQ0CR1_ZPROG_ODT(1);
+#endif
 	dbg_very_loud("PUBL_ZQ0CR1 %x\n", PUBL->PUBL_ZQ0CR1);
+
+	dbg_very_loud("PUBL_ACIOCR %x\n", PUBL->PUBL_ACIOCR);
+	dbg_very_loud("PUBL_DLLGCR %x\n", PUBL->PUBL_DLLGCR);
 }
 
 int publ_idone()
@@ -212,13 +304,15 @@ int publ_train()
 	PUBL->PUBL_PGCR = (PUBL->PUBL_PGCR & ~PUBL_PGCR_RANKEN_MASK) |
 			 PUBL_PGCR_RANKEN(1);
 
-	PUBL->PUBL_DTAR = (0x7FUL << 0) | (0x1FFFUL << 12) | (0x1UL << 28);
+	PUBL->PUBL_DTAR = (0x7F0UL << 0) | (0x1FFFUL << 12) | (0x1UL << 28);
 
 	PUBL->PUBL_PIR = PUBL_PIR_INIT | PUBL_PIR_QSTRN | PUBL_PIR_RVTRN;
 
 	if (publ_idone())
 		return -1;
 
+	dbg_very_loud("PUBL_DCUSR0 %x\n", PUBL->PUBL_DCUSR0);
+	dbg_very_loud("PUBL_DCUSR1 %x\n", PUBL->PUBL_DCUSR1);
 	if (PUBL->PUBL_PGSR & (PUBL_PGSR_DTERR | PUBL_PGSR_DTIERR |
 		PUBL_PGSR_RVERR | PUBL_PGSR_RVEIRR)) {
 		dbg_info("PUBL: Error Training PHY : PGSR = %x\n", PUBL->PUBL_PGSR);

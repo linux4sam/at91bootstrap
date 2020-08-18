@@ -93,7 +93,11 @@ struct publ_regs {
 	/* Data Training Address Register 1 */
 	__IO unsigned int PUBL_DTDR1;
 	/* Unused */
-	__I unsigned int Reserved2[72];
+	__I unsigned int Reserved2[25];
+	__I unsigned int PUBL_DCUSR0;
+	__I unsigned int PUBL_DCUSR1;
+	/* Unused */
+	__I unsigned int Reserved3[45];
 	/* ZQ 0 Impedance Control Register 0 */
 	__IO unsigned int PUBL_ZQ0CR0;
 	/* ZQ 0 Impedance Control Register 1 */
@@ -118,6 +122,8 @@ struct publ_regs {
 /* -------- PUBL_PGCR : (PUBL Offset: 0x8) General Config Register -------- */
 /* ITM DDR Mode */
 #define PUBL_PGCR_ITMDMD			(0x1UL << 0)
+/* DQS Gating Configuration */
+#define PUBL_PGCR_DQSCFG			(0x1UL << 1)
 /* DQS Drift Compensation */
 #define PUBL_PGCR_DFTCMP			(0x1UL << 2)
 /* CK Enable */
@@ -196,6 +202,15 @@ struct publ_regs {
 #define PUBL_PTR2_TDINIT3(v)			(((v) & PUBL_PTR2_TDINIT3_MASK) \
 						<< PUBL_PTR2_TDINIT3_POS)
 
+/* -------- PUBL_DXCCR : (PUBL Offset: 0x28) DATX8 Common Configuration Register -------- */
+/* DQS Resistor */
+#define PUBL_DXCCR_DQSRES_POS			4
+#define PUBL_DXCCR_DQSRES_688OHM		(1UL << PUBL_DXCCR_DQSRES_POS)
+/* DQS# Resistor */
+#define PUBL_DXCCR_DQSNRES_POS			8
+#define PUBL_DXCCR_DQSNRES_688OHM                (1UL << PUBL_DXCCR_DQSNRES_POS)
+#define PUBL_DXCCR_DQSNRES_PU			(1UL << PUBL_DXCCR_DQSNRES_POS << 3)
+
 /* -------- PUBL_DSGCR : (PUBL Offset: 0x2C) System General Configuration Register -------- */
 /* PHY Update Request Enable */
 #define PUBL_DSGCR_PUREN			(1UL << 0)
@@ -207,6 +222,16 @@ struct publ_regs {
 #define PUBL_DSGCR_LPIOPD			(1UL << 3)
 /* Low power DLL Power Down */
 #define PUBL_DSGCR_LPDLLPD			(1UL << 4)
+/* DQS Gating Extension */
+#define PUBL_DSGCR_DQSGX_MASK			0x3UL
+#define PUBL_DSGCR_DQSGX_POS			5
+#define PUBL_DSGCR_DQSGX(v)			(((v) & PUBL_DSGCR_DQSGX_MASK) \
+						<< PUBL_DSGCR_DQSGX_POS)
+/* DQS Gate Early */
+#define PUBL_DSGCR_DQSGE_MASK			0x3UL
+#define PUBL_DSGCR_DQSGE_POS			8
+#define PUBL_DSGCR_DQSGE(v)			(((v) & PUBL_DSGCR_DQSGE_MASK) \
+						<< PUBL_DSGCR_DQSGE_POS)
 /* No Bubbles */
 #define PUBL_DSGCR_NOBUB			(1UL << 11)
 /* Fixed Read Latency */
@@ -232,8 +257,14 @@ struct publ_regs {
 						 << PUBL_DCR_DDRMD_POS)
 #define PUBL_DCR_DDRMD_DDR2			((0x2UL & PUBL_DCR_DDRMD_MASK) \
 						 << PUBL_DCR_DDRMD_POS)
+#define PUBL_DCR_DDRMD_LPDDR2			((0x4UL & PUBL_DCR_DDRMD_MASK) \
+						 << PUBL_DCR_DDRMD_POS)
 /* DDR8BNK: DDR 8 Banks */
 #define PUBL_DCR_DDRMD_DDR8BNK			(0x1UL << 3)
+
+/* LPDDR2 TYPE S4 or S2 */
+#define PUBL_DCR_DDRTYPE_S4			(0x0 << 8)
+#define PUBL_DCR_DDRTYPE_S2			(0x1 << 8)
 
 /* -------- PUBL_DTPR0 : (PUBL Offset: 0x34) DRAM Timing Parameters Register 0  -------- */
 /* tMRD */
@@ -380,12 +411,32 @@ struct publ_regs {
 #define PUBL_MR1_OCD(v)				(((v) & PUBL_MR1_OCD_MASK) \
 						<< PUBL_MR1_OCD_POS)
 #endif
+/* Burst length */
+#ifdef CONFIG_LPDDR2
+#define PUBL_MR1_BL_MASK			0x7UL
+#define PUBL_MR1_BL_POS				0
+#define PUBL_MR1_BL(v)				(((v) & PUBL_MR1_BL_MASK) \
+						<< PUBL_MR1_BL_POS)
+/* Write recovery */
+#define PUBL_MR1_NWR_MASK			0x7UL
+#define PUBL_MR1_NWR_POS			5
+#define PUBL_MR1_NWR(v)				(((v) & PUBL_MR1_NWR_MASK) \
+						<< PUBL_MR1_NWR_POS)
+#endif
+
 /* -------- PUBL_MR2 : (PUBL Offset: 0x48) PHY Mode Register 2 -------- */
 /* Cas Write Latency */
 #define PUBL_MR2_CWL_MASK			0x7UL
 #define PUBL_MR2_CWL_POS			3
 #define PUBL_MR2_CWL(v)				(((v) & PUBL_MR2_CWL_MASK) \
 						<< PUBL_MR2_CWL_POS)
+
+#define PUBL_MR2_RLWL_POS			0
+#define PUBL_MR2_RLWL_6_3			(4 << PUBL_MR2_RLWL_POS)
+
+/* -------- PUBL_MR3 : (PUBL Offset: 0x4C) PHY Mode Register 3 -------- */
+#define PUBL_MR3_DS_40OHM			(0x2 << 0)
+#define PUBL_MR3_DS_48OHM			(0x3 << 0)
 
 /* -------- PUBL_ODTCR : (PUBL Offset: 0x50) ODT Configuration Register -------- */
 #define PUBL_ODTCR_WRODT0_MASK			0xFUL
