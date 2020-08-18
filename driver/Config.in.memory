@@ -126,15 +126,6 @@ config MEM_BANK2
 	default "0x70000000" if AT91SAM9G45 && BOARD_HAS_2_BANKS
 	default "0"
 
-config MEM_SIZE
-	string "Extern Memory Bank Size"
-	default "0x800000" if RAM_8MB
-	default "0x2000000" if RAM_32MB
-	default "0x4000000" if RAM_64MB
-	default "0x8000000" if RAM_128MB
-	default "0x10000000" if RAM_256MB
-	default "0x20000000" if RAM_512MB
-
 choice
 	prompt "Extern Memory Clock"
 	depends on UMCTL2
