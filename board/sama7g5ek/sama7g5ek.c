@@ -487,6 +487,10 @@ void hw_init(void)
 	dbg_printf("MEMORY: %dMB DDR2 @ %d Mhz\n", MEM_SIZE / 1024 / 1024,
 		   CONFIG_MEM_CLOCK);
 #endif
+#ifdef CONFIG_LPDDR2
+	dbg_printf("MEMORY: %dMB LPDDR2 @ %d Mhz\n", MEM_SIZE / 1024 / 1024,
+		   CONFIG_MEM_CLOCK);
+#endif
 
 #if BOOTSTRAP_DEBUG_LEVEL==DEBUG_VERY_LOUD
 	EXTRAM_CS = (unsigned int *) MEM_BANK;
