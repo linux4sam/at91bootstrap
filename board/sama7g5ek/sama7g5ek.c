@@ -495,14 +495,14 @@ void hw_init(void)
 #if BOOTSTRAP_DEBUG_LEVEL==DEBUG_VERY_LOUD
 	EXTRAM_CS = (unsigned int *) MEM_BANK;
 	for (i = 0; i < MEM_SIZE / 4; i++) {
-		*EXTRAM_CS = 0xaaaaaaaa;
+		*EXTRAM_CS = 0xabcdef04;
 		EXTRAM_CS++;
 		if (!(i % 10000000)) dbg_very_loud("WRITING DDR\n");
 	}
 
 	EXTRAM_CS = (unsigned int *) MEM_BANK;
 	for (i = 0; i < MEM_SIZE / 4; i++) {
-		if (*EXTRAM_CS != 0xaaaaaaaa)
+		if (*EXTRAM_CS != 0xabcdef04)
 			dbg_printf("ERRORS IN DDR %x:%x\n", EXTRAM_CS, *EXTRAM_CS);
 		EXTRAM_CS++;
 		if (!(i % 10000000)) dbg_very_loud("TESTING DDR\n");
