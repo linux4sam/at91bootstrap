@@ -101,7 +101,7 @@ config LPDDR2
 	bool "Low-power DDR2-SDRAM"
 
 config LPDDR3
-	depends on DDRC
+	depends on DDRC || UMCTL2
 	bool "Low-power DDR3-SDRAM"
 
 config DDR2
@@ -129,7 +129,7 @@ config MEM_BANK2
 choice
 	prompt "Extern Memory Clock"
 	depends on UMCTL2
-	default MEM_CLOCK_533 if DDR3
+	default MEM_CLOCK_533 if DDR3 || LPDDR3
 	default MEM_CLOCK_400 if DDR2 || LPDDR2
 
 config MEM_CLOCK_400
@@ -148,6 +148,7 @@ choice
 	default MT47H128M16RT_25E_C if DDR2
 	default MT41K256M16TW_107 if DDR3
 	default IS43LD16128B_25BLI if LPDDR2
+	default MT52L256M32D1PF_107_WT_B if LPDDR3
 
 config MT41K256M16TW_107
 	bool "Micron DDR3 MT41K256M16TW-107"
@@ -165,7 +166,14 @@ config IS43LD16128B_25BLI
 	bool "ISSI LPDDR2 IS43LD16128B-25BLI"
 	depends on LPDDR2
 	help
-	  ISSI LPDDR2 IS43LD16128B-25BLI 16M x 16 x 8 banks LPDDR2-800"
+	  ISSI LPDDR2 IS43LD16128B-25BLI 16M x 16 x 8 banks LPDDR2-800
+
+config MT52L256M32D1PF_107_WT_B
+	bool "Micron LPDDR3 MT52L256M32D1PF-107 WT:B"
+	depends on LPDDR3
+	help
+	  Micron LPDDR3 MT52L256M32D1PF-107 WT:B 32M x 32 x 8 banks LPDDR3-1066
+	  With SAMA7G5, only 16 bits will be used, thus half the memory size.
 
 endchoice
 
