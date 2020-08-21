@@ -110,7 +110,7 @@ void lowlevel_clock_init()
 		;
 
 #if !defined(CONFIG_SAMA5D4) && !defined(CONFIG_SAMA5D2) \
-	&& !defined(CONFIG_SAMA7G5)
+	&& !defined(CONFIG_SAMA7G5) && !defined(CONFIG_AT91SAM9N12)
 	/* Disable the 12MHz RC Oscillator */
 	tmp = read_pmc(PMC_MOR);
 	tmp &= (~AT91C_CKGR_MOSCRCEN);
