@@ -157,4 +157,29 @@
 #define _tDQSCK_MAX	5500UL
 #endif
 
+#ifdef CONFIG_MT52L256M32D1PF_107_WT_B
+#define _tRFC		210UL		/* Refresh to Refresh, ns */
+#define _tREFI		3900UL		/* Refresh Intervals, ns */
+#define _tWR		MAX(15UL, 3 * CYCLE_IN_NS)		/* Write Recovery, ns */
+#define _tRP		MAX(21UL, 3 * CYCLE_IN_NS)		/* Row Precharge command, ns */
+#define _tRP_ps		MAX(21000UL, 3 * CYCLE_IN_PS)		/* Row Precharge command, ps */
+#define _tRCD		MAX(18UL, 3 * CYCLE_IN_NS)		/* Row to Column delay, ns */
+#define _tRCD_ps	MAX(18000UL, 3 * CYCLE_IN_PS)		/* Row to Column delay, ps */
+#define _tCCD		4UL		/* Column to Column delay, ns */
+#define _tRAS		MAX(42UL, 3 * CYCLE_IN_NS)		/* Row Active Strobe, ns */
+#define _tRASMAX	70200UL		/* RAS max, ns */
+#define _tRC_ps		((_tRAS + _tRP) * 1000)		/* Row Cycle, ps */
+#define _tFAW		MAX(50UL, 8 * CYCLE_IN_NS)		/* Four Activation Window, ns */
+#define _tPOSTCKE	200000UL	/* Post CKE, ns */
+#define _CL		0UL		/* CAS Latency, Clock cycles, unused in LPDDR2 */
+#define _CWL		0UL		/* CAS Write Latency, Clock cycles, unused in LPDDR2 */
+#define _AL		0UL		/* Additive Latency, Clock cycles */
+#define _RL		8UL		/* For LPDDR3, Read Latency, Clock cycles */
+#define _WL		4UL		/* For LPDDR3, Write Latency, Clock cycles */
+#define _TZQOPER	NS_TO_CYCLES_UP(360UL)		/* TZQ Long Calibration, Clock cycles */
+#define _TZQCS		NS_TO_CYCLES_UP(90UL)		/* TZQ Short Calibration, Clock cycles */
+#define _MRD		MAX(NS_TO_CYCLES_UP(14UL), 10UL)		/* Mode Register Delay, Clock cycles */
+#define _tDQSCK_MIN	2500UL
+#define _tDQSCK_MAX	5500UL
+#endif
 #endif
