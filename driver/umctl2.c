@@ -74,14 +74,14 @@ unsigned long tFAW;
 unsigned long tPRECKE;
 #endif
 unsigned long tPOSTCKE;
-#ifdef CONFIG_LPDDR2
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 unsigned long tDQSCK_MIN;
 unsigned long tDQSCK_MAX;
 #endif
 unsigned long CL;
 unsigned long CWL;
 unsigned long AL;
-#ifdef CONFIG_LPDDR2
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 unsigned long RL;
 unsigned long WL;
 #endif
@@ -96,11 +96,11 @@ struct dram_timings timings = {
 	_tPRECKE,
 #endif
 	_tPOSTCKE,
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	_tDQSCK_MIN, _tDQSCK_MAX,
 #endif
 	_CL, _CWL, _AL,
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	_RL, _WL,
 #endif
 	_TZQOPER, _TZQCS, _MRD,
@@ -463,6 +463,9 @@ inline static void uddrc_mstr()
 #ifdef CONFIG_LPDDR2
 							| UDDRC_MSTR_lpddr2
 #endif
+#ifdef CONFIG_LPDDR3
+							| UDDRC_MSTR_lpddr3
+#endif
 	;
 
 	dbg_very_loud("UMCTL2 MSTR %x\n", UDDRC_REGS->UDDRC_MSTR);
@@ -474,7 +477,7 @@ inline static void uddrc_init0()
 	unsigned long pre_cke_x1024 = 1 +
 		DIV_ROUND_UP(NS_TO_CYCLES_UP(tPRECKE), 1024 * 2);
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long pre_cke_x1024 = 1 + DIV_ROUND_UP(TINIT1, 1024 * 2);
 #endif
 #ifdef CONFIG_DDR3
@@ -484,7 +487,7 @@ inline static void uddrc_init0()
 #ifdef CONFIG_DDR2
 	unsigned long post_cke_x1024 = 2;
 #endif
-#ifdef CONFIG_LPDDR2
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long post_cke_x1024 = 1 + DIV_ROUND_UP(TPOSTCKE, 1024 * 2);
 #endif
 
@@ -506,7 +509,7 @@ inline static void uddrc_init1()
 	unsigned long dram_rstn_x1024 = 1 +
 			DIV_ROUND_UP(NS_TO_CYCLES_UP(200000), 1024 * 2);
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long dram_rstn_x1024 = 0;
 #endif
 	/* DRAM init register 1 */
@@ -522,16 +525,21 @@ inline static void uddrc_init1()
 
 inline static void uddrc_init2()
 {
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long min_stable_clock_x1 = DIV_ROUND_UP(TINIT2, 2);
+#endif
+#if defined(CONFIG_LPDDR2)
 	unsigned long idle_after_reset_x32 = DIV_ROUND_UP(TINIT4, 2 * 32);
 #endif
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	UDDRC_REGS->UDDRC_INIT2 = 0;
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	UDDRC_REGS->UDDRC_INIT2 = UDDRC_INIT2_min_stable_clock_x1(min_stable_clock_x1)
-				| UDDRC_INIT2_idle_after_reset_x32(idle_after_reset_x32 + 1);
+#if defined(CONFIG_LPDDR2)
+				| UDDRC_INIT2_idle_after_reset_x32(idle_after_reset_x32 + 1)
+#endif
+				;
 #endif
 	dbg_very_loud("UMCTL2 INIT 2 %x\n", UDDRC_REGS->UDDRC_INIT2);
 }
@@ -559,7 +567,7 @@ inline static void uddrc_init3()
 				((BL == 8) ? (3 << 0) : (2 << 0))
 				 | (CL << 4) | (1 << 8) | ((TWR - 1) << 9));
 #endif
-#ifdef CONFIG_LPDDR2
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	UDDRC_REGS->UDDRC_INIT3 = UDDRC_INIT3_mr(3 | ((TWR - 2) << 5))
 				| UDDRC_INIT3_emr(RL - 2);
 #endif
@@ -577,7 +585,7 @@ inline static void uddrc_init4()
 #ifdef CONFIG_DDR2
 				UDDRC_INIT4_emr2(0)
 #endif
-#ifdef CONFIG_LPDDR2
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 				UDDRC_INIT4_emr2(3)
 #endif
 				 | UDDRC_INIT4_emr3(0);
@@ -589,14 +597,14 @@ inline static void uddrc_init5()
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long dev_zqinit_x32 = 1 + DIV_ROUND_UP(512, 32*2);
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long dev_zqinit_x32 = 1 + DIV_ROUND_UP(TZQINIT, 32*2);
 	unsigned long max_auto_init_x1024 = 1 + DIV_ROUND_UP(TINIT5, 1024);
 #endif
 	/* DRAM init register 5 */
 	/* initial calibration time */
 	UDDRC_REGS->UDDRC_INIT5	= UDDRC_INIT5_dev_zqinit_x32(dev_zqinit_x32)
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 				| UDDRC_INIT5_max_auto_init_x1024(max_auto_init_x1024)
 #endif
 				;
@@ -606,7 +614,7 @@ inline static void uddrc_init5()
 inline static void uddrc_dramtmg()
 {
 	unsigned long wr2pre = DIV_ROUND_UP(WL + (BL / 2) + TWR
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 		+ 1
 #endif
 		, 2);
@@ -617,7 +625,7 @@ inline static void uddrc_dramtmg()
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long t_xp = DIV_ROUND_UP(TXPDLL, 2);
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long t_xp = DIV_ROUND_UP(TXP, 2);
 #endif
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
@@ -626,21 +634,26 @@ inline static void uddrc_dramtmg()
 #if defined(CONFIG_LPDDR2)
 	unsigned long rd2pre = DIV_ROUND_UP((BL / 2) + MAX(TRTP, 2) - 2, 2);
 #endif
+#if defined(CONFIG_LPDDR3)
+	unsigned long rd2pre = DIV_ROUND_UP((BL / 2) + MAX(TRTP, 4) - 4, 2);
+#endif
 	unsigned long t_rc = DIV_ROUND_UP(TRC, 2);
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long rd2wr = DIV_ROUND_UP(RL + (BL / 2) + 2 - WL, 2);
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long rd2wr = DIV_ROUND_UP(RL + (BL / 2) + TDQSCK_MAX + 1 - WL, 2);
 #endif
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long wr2rd = DIV_ROUND_UP(CWL + (BL / 2) + TWTR, 2);
-	unsigned long t_mrd = DIV_ROUND_UP(TMRD, 2);
 #if defined(CONFIG_DDR3)
 	unsigned long t_mod = DIV_ROUND_UP(TMOD, 2);
 #endif
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
+	unsigned long t_mrd = DIV_ROUND_UP(TMRD, 2);
+#endif
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long wr2rd = DIV_ROUND_UP(WL + (BL / 2) + TWTR, 2);
 #endif
 	unsigned long t_rcd = DIV_ROUND_UP(TRCD - AL, 2);
@@ -655,7 +668,7 @@ inline static void uddrc_dramtmg()
 	unsigned long t_xs_dll_x32 = DIV_ROUND_UP(TXSDLL, 32*2) + 1;
 	unsigned long t_xs_x32 = DIV_ROUND_UP(TXS, 32*2) + 1;
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long t_cke = DIV_ROUND_UP(MAX(TCKE, TCKESR), 2);
 
 	unsigned long t_ckcsx = DIV_ROUND_UP(TCKCSX, 2);
@@ -686,7 +699,7 @@ inline static void uddrc_dramtmg()
 
 	/* tWL - write latency, not required in DDR3. Only for LPDDR2*/
 	UDDRC_REGS->UDDRC_DRAMTMG2 =
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 			UDDRC_DRAMTMG2_write_latency(DIV_ROUND_UP(WL, 2)) |
 	/* tRL - read latency, not required in DDR3. Only for LPDDR2 */
 			UDDRC_DRAMTMG2_read_latency(DIV_ROUND_UP(RL, 2)) |
@@ -698,7 +711,7 @@ inline static void uddrc_dramtmg()
 
 	/* tMRD/2 (cycles to wait after a mode reg write or read) */
 	UDDRC_REGS->UDDRC_DRAMTMG3 =
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
 			UDDRC_DRAMTMG3_t_mrd(t_mrd)
 #endif
 #ifdef CONFIG_LPDDR2
@@ -728,7 +741,7 @@ inline static void uddrc_dramtmg()
 	/* RoundUp(tCKE/2) */
 			UDDRC_DRAMTMG5_t_cke(t_cke);
 
-#ifdef CONFIG_LPDDR2
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	/* LPDDR only */
 	UDDRC_REGS->UDDRC_DRAMTMG6 = UDDRC_DRAMTMG6_t_ckcsx(t_ckcsx) |
 				 UDDRC_DRAMTMG6_t_ckdpdx(t_ckdpdx) |
@@ -745,7 +758,7 @@ inline static void uddrc_dramtmg()
 	/* tXS/2 : exit self refresh to commands not requiring a locked DLL */
 			UDDRC_DRAMTMG8_t_xs_x32(t_xs_x32);
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	UDDRC_REGS->UDDRC_DRAMTMG8 = 0;
 #endif
 
@@ -893,7 +906,7 @@ inline static void uddrc_config_zq_calib()
 	unsigned long t_zq_short_interval_x1024 =
 		DIV_ROUND_UP(NS_TO_CYCLES_UP(128000000UL), 1024*2) + 1;
 #endif
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long t_zq_short_interval_x1024 =
 		DIV_ROUND_UP(NS_TO_CYCLES_UP(4000000UL), 1024*2) + 1;
 #endif
@@ -908,7 +921,7 @@ inline static void uddrc_config_zq_calib()
 
 	UDDRC_REGS->UDDRC_ZQCTL1 =
 			UDDRC_ZQCTL1_t_zq_short_interval_x1024(t_zq_short_interval_x1024)
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 			| UDDRC_ZQCTL1_t_zq_reset_nop(DIV_ROUND_UP(TZQRESET, 2))
 #endif
 			;
@@ -938,7 +951,7 @@ inline static void uddrc_config_odt_timings()
 	UDDRC_REGS->UDDRC_ODTMAP = UDDRC_ODTMAP_rank0_wr_odt | UDDRC_ODTMAP_rank0_rd_odt;
 #endif
 /* LPDDR2 does not use ODT */
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	UDDRC_REGS->UDDRC_ODTCFG = 0;
 	UDDRC_REGS->UDDRC_ODTMAP = 0;
 #endif
@@ -1059,14 +1072,14 @@ int umctl2_init (struct umctl2_config_state *state)
 	tPRECKE = timings.tPRECKE;
 #endif
 	tPOSTCKE = timings.tPOSTCKE;
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	tDQSCK_MIN = timings.tDQSCK_MIN;
 	tDQSCK_MAX = timings.tDQSCK_MAX;
 #endif
 	CL = timings.CL;
 	CWL = timings.CWL;
 	AL = timings.AL;
-#if defined(CONFIG_LPDDR2)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	RL = timings.RL;
 	WL = timings.WL;
 #endif
@@ -1157,7 +1170,10 @@ int umctl2_init (struct umctl2_config_state *state)
 	UDDRC_REGS->UDDRC_PWRCTL = 0;
 #endif
 
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2)
 	UDDRC_REGS->UDDRC_PWRCTL = UDDRC_PWRCTL_en_dfi_dram_clk_disable;
+#endif
+
 	/* STEP 3
 	 * Init PHY
 	 */

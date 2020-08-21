@@ -259,6 +259,8 @@ struct publ_regs {
 						 << PUBL_DCR_DDRMD_POS)
 #define PUBL_DCR_DDRMD_LPDDR2			((0x4UL & PUBL_DCR_DDRMD_MASK) \
 						 << PUBL_DCR_DDRMD_POS)
+#define PUBL_DCR_DDRMD_LPDDR3			((0x5UL & PUBL_DCR_DDRMD_MASK) \
+						 << PUBL_DCR_DDRMD_POS)
 /* DDR8BNK: DDR 8 Banks */
 #define PUBL_DCR_DDRMD_DDR8BNK			(0x1UL << 3)
 
@@ -412,7 +414,7 @@ struct publ_regs {
 						<< PUBL_MR1_OCD_POS)
 #endif
 /* Burst length */
-#ifdef CONFIG_LPDDR2
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 #define PUBL_MR1_BL_MASK			0x7UL
 #define PUBL_MR1_BL_POS				0
 #define PUBL_MR1_BL(v)				(((v) & PUBL_MR1_BL_MASK) \
@@ -433,6 +435,7 @@ struct publ_regs {
 
 #define PUBL_MR2_RLWL_POS			0
 #define PUBL_MR2_RLWL_6_3			(4 << PUBL_MR2_RLWL_POS)
+#define PUBL_MR2_RLWL_8_4			(6 << PUBL_MR2_RLWL_POS)
 
 /* -------- PUBL_MR3 : (PUBL Offset: 0x4C) PHY Mode Register 3 -------- */
 #define PUBL_MR3_DS_40OHM			(0x2 << 0)
