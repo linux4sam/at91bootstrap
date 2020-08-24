@@ -110,6 +110,23 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	cas = AT91C_DDRC2_CAS_3;
 	bank = AT91C_DDRC2_NB_BANKS_8;
 	ddramc_config->rtr = AT91C_DDRC2_ENABLE_ADJ_REF | 0x27f;
+#elif defined(CONFIG_DDR_MT47H128M16)
+/* DDR2 (MT47H128M16 = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit on the SAMA5D3-EK */
+	type = AT91C_DDRC2_MD_DDR2_SDRAM;
+	dbw = AT91C_DDRC2_DBW_32_BITS;
+	col = AT91C_DDRC2_NC_DDR10_SDR9;
+	row = AT91C_DDRC2_NR_14;
+	cas = AT91C_DDRC2_CAS_3;
+	bank = AT91C_DDRC2_NB_BANKS_8;
+#if defined(CONFIG_BUS_SPEED_133MHZ)
+	ddramc_config->rtr = 0x411;
+#elif defined(CONFIG_BUS_SPEED_148MHZ)
+	ddramc_config->rtr = 0x486;
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x500;
+#else
+#error "No CLK setting defined"
+#endif
 #else
 #error "DDR-SDRAM device is not supportted!"
 #endif
@@ -331,7 +348,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 						 row |
 						 bank |
 						 cas |
-
+						 AT91C_DDRC2_NDQS_DISABLED |
 #if defined(CONFIG_LPDDR2)
 						AT91C_DDRC2_ZQ_SHORT |
 #endif

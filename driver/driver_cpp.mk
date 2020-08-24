@@ -50,6 +50,9 @@ endif
 ifeq ($(CONFIG_DDR_AD220032D),y)
 CPPFLAGS += -DCONFIG_LPDDR2
 endif
+ifeq ($(CONFIG_DDR_MT47H128M16),y)
+CPPFLAGS += -DCONFIG_DDR2
+endif
 
 endif
 
