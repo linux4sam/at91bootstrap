@@ -36,6 +36,10 @@
 #include "sama5d2_board.h"
 #endif
 
+#ifdef CONFIG_SAMA5D3X
+#include "sama5d3_board.h"
+#endif
+
 /*
  * Functions Prototype
  */
