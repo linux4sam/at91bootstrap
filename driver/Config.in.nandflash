@@ -1,5 +1,18 @@
 menu  "NAND flash configuration"
 
+choice
+	prompt "NAND Flash IOSET Configuration"
+	default NANDFLASH_IOSET1
+	depends on SAMA5D2
+
+config NANDFLASH_IOSET1
+	bool "NAND Flash IOSET 1"
+
+config NANDFLASH_IOSET2
+	bool "NAND Flash IOSET 2"
+
+endchoice
+
 menu "PMECC Configuration"
 
 choice
