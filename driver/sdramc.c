@@ -79,7 +79,7 @@ void sdramc_init(void)
 	reg |= (AT91C_EBI_CS1A | AT91C_EBI_NFD0_ON_D16);
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 
-	pmc_enable_periph_clock(AT91C_ID_SDRAMC);
+	pmc_enable_periph_clock(AT91C_ID_SDRAMC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 	sdramc_reg_config(&sdramc_reg);

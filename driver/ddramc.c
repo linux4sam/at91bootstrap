@@ -413,7 +413,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #endif
 
 	/* Refresh Timer is (refresh_window / refresh_cycles) * master_clock */
-	ddramc_config->rtr = CONFIG_REF_WIN * mck * 1000 / CONFIG_REF_CYCLE;
+//	ddramc_config->rtr = CONFIG_REF_WIN * mck * 1000 / CONFIG_REF_CYCLE;
 	ddramc_config->t0pr = ( AT91C_DDRC2_TRAS_(NS2CYCLES(ddr_ddram_timings.tras, mck)) |
 							AT91C_DDRC2_TRCD_(NS2CYCLES(ddr_ddram_timings.trcd, mck)) |
 							AT91C_DDRC2_TWR_(NS2CYCLES(ddr_ddram_timings.twr, mck)) |
@@ -530,7 +530,7 @@ void ddram_init(void)
 
 	ddram_reg_config(&ddramc_reg);
 
-	pmc_enable_periph_clock(AT91C_ID_MPDDRC);
+	pmc_enable_periph_clock(AT91C_ID_MPDDRC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_system_clock(AT91C_PMC_DDR);
 
 #if defined(CONFIG_LPDDR1)
@@ -539,7 +539,7 @@ void ddram_init(void)
 	 * the DDR_DQ and DDR_DQS input buffers to always on by setting
 	 * the FDQIEN and FDQSIEN bits in the SFR_DDRCFG register.
 	 */
-	pmc_enable_periph_clock(AT91C_ID_SFR);
+	pmc_enable_periph_clock(AT91C_ID_SFR, PMC_PERIPH_CLK_DIVIDER_NA);
 	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
 	reg |= AT91C_DDRCFG_FDQIEN;
 	reg |= AT91C_DDRCFG_FDQSIEN;
