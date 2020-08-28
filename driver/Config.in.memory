@@ -4,22 +4,22 @@ choice
 	prompt "DRAM controller"
 
 config SDRAM
-	bool "SDRAM"
+	bool "SDRAM Controller (SDRAMC)"
 	depends on CPU_HAS_SDRAMC
 	help
 	  Initialize SDRAM controller before copying
 
 config SDDRC
-	bool "DDR-SDRAM"
+	bool "DDR-SDRAM Controller (DDRSDRC)"
 	depends on CPU_HAS_SDDRC
 	help
-	  Initialize DDR SDRAM controller before copying
+	  Initialize DDR/SDR SDRAM controller before copying
 
 config DDRC
-	bool "DDR2-SDRAM"
+	bool "AHB Multiport DDR-SDRAM Controller (MPDDRC)"
 	depends on CPU_HAS_DDRC
 	help
-	  Initialize DDR-2 SDRAM controller before copying
+	  Initialize Multiport DDR-SDRAM Controller before copying
 
 endchoice
 
