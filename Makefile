@@ -30,7 +30,8 @@ $(error GNU Bash is needed to build Kconfig host tools!)
 endif
 endif
 
-BINDIR:=binaries
+BUILDDIR ?= ./build
+BINDIR:=$(BUILDDIR)/binaries
 SYMLINK ?= at91bootstrap.bin
 SYMLINK_BOOT ?= boot.bin
 
@@ -249,7 +250,7 @@ include	device/device_cpp.mk
 
 include	driver/driver_cpp.mk
 
-OBJS:= $(SOBJS-y) $(COBJS-y)
+OBJS := $(addprefix $(BUILDDIR)/,$(SOBJS-y) $(COBJS-y))
 
 ifeq ($(CONFIG_ENTER_NWD), y)
 link_script:=elf32-littlearm-tz.lds
@@ -314,6 +315,7 @@ PrintFlags:
 	$(info )
 
 $(AT91BOOTSTRAP): $(OBJS) | $(BINDIR)
+	$(Q)$(MKDIR) -p $(dir $@)
 	@echo "  LD        "$(BOOT_NAME).elf
 	$(Q)"$(LD)" $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
 	@"$(OBJCOPY)" --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
@@ -325,11 +327,13 @@ else
 	@cp -l ${BINDIR}/$(BOOT_NAME).bin ${BINDIR}/${SYMLINK_BOOT}
 endif
 
-%.o : %.c .config
+$(BUILDDIR)/%.o : %.c .config
+	$(Q)$(MKDIR) -p $(dir $@)
 	@echo "  CC        "$<
 	@"$(CC)" $(CPPFLAGS) -c -o $@ $<
 
-%.o : %.S .config
+$(BUILDDIR)/%.o : %.S .config
+	$(Q)$(MKDIR) -p $(dir $@)
 	@echo "  AS        "$<
 	@"$(AS)" $(ASFLAGS) -c -o $@ $<
 
@@ -438,7 +442,7 @@ config-clean:
 clean:
 	@echo "  CLEAN        "obj and misc files!
 	$(Q)rm -f $(CONFIG)/.depend
-	$(Q)rm -f $(call rwildcard,.,*.o *.srec *~)
+	$(Q)rm -f $(call rwildcard,$(BUILDDIR),*.o *.srec *~)
 
 distclean: clean config-clean
 #	rm -fr $(BINDIR)
@@ -452,7 +456,7 @@ distclean: clean config-clean
 
 mrproper: distclean
 	@echo "  CLEAN        "binary files!
-	$(Q)rm -fr $(BINDIR)
+	$(Q)rm -fr $(BUILDDIR)
 	$(Q)rm -fr log
 
 PHONY+=distrib config-clean clean distclean mrproper
