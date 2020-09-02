@@ -47,7 +47,7 @@ config DDR_W971GG6SB_9X60
 	comment "DDR2 W971GG6SB 1 Gbit"
 config DDR_AD220032D
 	bool "LPDDR2 AD220032D(SAMA5D2-WLSOM-EK)"
-	comment "LPDDR2 AD220032D 3 Gbit"
+	comment "LPDDR2 AD220032D 2 Gbit"
 endchoice
 
 choice
