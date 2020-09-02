@@ -232,7 +232,13 @@
 /*
  * MCI Settings
  */
-#define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0	
+#if defined(CONFIG_AT91_MCI0)
+#define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI0
+#elif defined(CONFIG_AT91_MCI1)
+#define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI1
+#elif defined(CONFIG_AT91_MCI2)
+#define CONFIG_SYS_BASE_MCI	AT91C_BASE_HSMCI2
+#endif
 
 /*
  * Recovery function

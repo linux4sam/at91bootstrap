@@ -268,7 +268,7 @@ void at91_board_set_dtb_name(char *of_name)
 	strcat(of_name, ".dtb");
 }
 #endif
-
+#if defined(CONFIG_AT91_MCI0)
 void at91_mci0_hw_init(void)
 {
 	const struct pio_desc mci_pins[] = {
@@ -293,6 +293,49 @@ void at91_mci0_hw_init(void)
 	/* Enable the clock */
 	pmc_enable_periph_clock(AT91C_ID_HSMCI0);
 }
+#elif defined(CONFIG_AT91_MCI1)
+void at91_mci1_hw_init(void)
+{
+	const struct pio_desc mci_pins[] = {
+		{"MCCK", AT91C_PIN_PB(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MCCDA", AT91C_PIN_PB(19), 0, PIO_DEFAULT, PIO_PERIPH_A},
+
+		{"MCDA0", AT91C_PIN_PB(20), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MCDA1", AT91C_PIN_PB(21), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MCDA2", AT91C_PIN_PB(22), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MCDA3", AT91C_PIN_PB(23), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	/* Configure the PIO controller */
+	pmc_enable_periph_clock(AT91C_ID_PIOB);
+	pio_configure(mci_pins);
+
+	/* Enable the clock */
+	pmc_enable_periph_clock(AT91C_ID_HSMCI1);
+}
+#elif defined(CONFIG_AT91_MCI2)
+void at91_mci2_hw_init(void)
+{
+	const struct pio_desc mci_pins[] = {
+		{"MCCK", AT91C_PIN_PC(15), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MCCDA", AT91C_PIN_PC(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+
+		{"MCDA0", AT91C_PIN_PC(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MCDA1", AT91C_PIN_PC(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MCDA2", AT91C_PIN_PC(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"MCDA3", AT91C_PIN_PC(14), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	/* Configure the PIO controller */
+	pmc_enable_periph_clock(AT91C_ID_PIOC);
+	pio_configure(mci_pins);
+
+	/* Enable the clock */
+	pmc_enable_periph_clock(AT91C_ID_HSMCI2);
+}
+#endif
 #endif /* #ifdef CONFIG_SDCARD */
 
 #ifdef CONFIG_FLASH
