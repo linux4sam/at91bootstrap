@@ -73,7 +73,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trtp = 4,
 	.tfaw = 7,
 #else
-#error "No CLK setting defined"
+	#error "No CLK setting defined"
 #endif /* Endif of CONFIG_BUS_SPEED_116MHZ */
 #elif defined(CONFIG_DDR_W972GG6KB_D2)
 /* Two DDR2 (W972GG6KB-25-2 Gbits = 16 Mbits x 16 x 8 banks), total 4 Gbits on the SAMA5D2-PTC-EK */
@@ -232,7 +232,48 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trtp = 2,
 	.tfaw = 8,
 #else
-#error "No CLK setting defined"
+	#error "No CLK setting defined"
+#endif
+#elif defined(CONFIG_DDR_MT47H64M16)
+/* DDR2 (MT47H64M16 x 2 = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit on the SAMA5D3-Xplained */
+#if defined(CONFIG_BUS_SPEED_133MHZ)
+	.tras = 6,
+	.trcd = 2,
+	.twr = 2,
+	.trc = 8,
+	.trp = 2,
+	.trrd = 2,
+	.twtr = 2,
+	.tmrd = 2,
+	.trfc = 17,
+	.txsnr = 19,
+	.txsrd = 200,
+	.txp = 2,
+	.txard = 8,
+	.txards = 8,
+	.trpa = 2,
+	.trtp = 2,
+	.tfaw = 6,
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
+	.tras = 8,
+	.trcd = 3,
+	.twr = 3,
+	.trc = 10,
+	.trp = 3,
+	.trrd = 2,
+	.twtr = 2,
+	.tmrd = 2,
+	.trfc = 22,
+	.txsnr = 23,
+	.txsrd = 200,
+	.txp = 2,
+	.txard = 8,
+	.txards = 8,
+	.trpa = 3,
+	.trtp = 2,
+	.tfaw = 8,
+#else
+	#error "No CLK setting defined"
 #endif
 
 #else

@@ -71,7 +71,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 /* Refresh Timer is (64ms / 8k) * 166MHz = 1297(0x511) */
 	ddramc_config->rtr = 0x511;
 #else
-#error "No CLK setting defined"
+	#error "No CLK setting defined"
 #endif
 
 #elif defined(CONFIG_DDR_W972GG6KB_D2)
@@ -125,7 +125,22 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #elif defined(CONFIG_BUS_SPEED_166MHZ)
 	ddramc_config->rtr = 0x500;
 #else
-#error "No CLK setting defined"
+	#error "No CLK setting defined"
+#endif
+#elif defined(CONFIG_DDR_MT47H64M16)
+/* DDR2 (MT47H64M16 x 2 = 8 Mwords x 8 Banks x 16 bits x 2), total 2 Gbit on the SAMA5D3-Xplained */
+	type = AT91C_DDRC2_MD_DDR2_SDRAM;
+	dbw = AT91C_DDRC2_DBW_32_BITS;
+	col = AT91C_DDRC2_NC_DDR10_SDR9;
+	row = AT91C_DDRC2_NR_13;
+	cas = AT91C_DDRC2_CAS_3;
+	bank = AT91C_DDRC2_NB_BANKS_8;
+#if defined(CONFIG_BUS_SPEED_133MHZ)
+	ddramc_config->rtr = 0x40F;
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x510;
+#else
+	#error "No CLK setting defined"
 #endif
 #else
 #error "DDR-SDRAM device is not supportted!"

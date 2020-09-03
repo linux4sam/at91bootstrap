@@ -51,6 +51,9 @@ config DDR_AD220032D
 config DDR_MT47H128M16
 	bool "DDR2 MT47H128M16(SAMA5D3-EK)"
 	comment "DDR2 MT47H128M16 2 Gbit"
+config DDR_MT47H64M16
+	bool "DDR2 MT47H64M16 x 2(SAMA5D3-Xplained)"
+	comment "DDR2 MT47H64M16 1 Gbit x 2"
 endchoice
 
 choice
