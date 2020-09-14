@@ -1,0 +1,11 @@
+config CONSOLE_INDEX
+	int "Console Port"
+	range 0 1
+	default 1
+	depends on SAMA5D4
+	help
+	  Select the peripheral wired to the debug console port:
+	  Value | Name   | Description
+	  ------|--------|-------------
+	    0   | DBGU   | Use DBGU
+	    1   | USART3 | Use USART3
