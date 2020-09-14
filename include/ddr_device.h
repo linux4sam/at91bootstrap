@@ -275,6 +275,83 @@ static const struct ddram_timings ddr_ddram_timings = {
 #else
 	#error "No CLK setting defined"
 #endif
+#elif defined(CONFIG_DDR_MT47H128M8)
+/* DDR2 (MT47H128M8 x 2 = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit on the SAMA5D4-EK */
+#if defined(CONFIG_BUS_SPEED_148MHZ)
+	.tras = 7,
+	.trcd = 3,
+	.twr = 3,
+	.trc = 9,
+	.trp = 3,
+	.trrd = 2,
+	.twtr = 2,
+	.tmrd = 2,
+	.trfc = 30,
+	.txsnr = 31,
+	.txsrd = 200,
+	.txp = 2,
+	.txard = 8,
+	.txards = 8,
+	.trpa = 3,
+	.trtp = 2,
+	.tfaw = 7,
+#elif defined(CONFIG_BUS_SPEED_170MHZ)
+	.tras = 7,
+	.trcd = 3,
+	.twr = 2,
+	.trc = 10,
+	.trp = 3,
+	.trrd = 2,
+	.twtr = 2,
+	.tmrd = 2,
+	.trfc = 22,
+	.txsnr = 24,
+	.txsrd = 200,
+	.txp = 2,
+	.txard = 8,
+	.txards = 2,
+	.trpa = 3,
+	.trtp = 2,
+	.tfaw = 6,
+#elif defined(CONFIG_BUS_SPEED_176MHZ)
+	.tras = 8,
+	.trcd = 3,
+	.twr = 3,
+	.trc = 10,
+	.trp = 3,
+	.trrd = 2,
+	.twtr = 2,
+	.tmrd = 2,
+	.trfc = 23,
+	.txsnr = 25,
+	.txsrd = 200,
+	.txp = 2,
+	.txard = 8,
+	.txards = 2,
+	.trpa = 3,
+	.trtp = 2,
+	.tfaw = 7,
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
+	.tras = 8,
+	.trcd = 3,
+	.twr = 3,
+	.trc = 11,
+	.trp = 3,
+	.trrd = 2,
+	.twtr = 2,
+	.tmrd = 2,
+	.trfc = 26,
+	.txsnr = 28,
+	.txsrd = 200,
+	.txp = 2,
+	.txard = 8,
+	.txards = 2,
+	.trpa = 3,
+	.trtp = 2,
+	.tfaw = 7,
+#else
+	#error "No CLK setting defined"
+#endif
 
 #else
 #error "DDR-SDRAM device is not supported!"
