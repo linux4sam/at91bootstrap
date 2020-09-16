@@ -63,7 +63,7 @@ static int setup_dt_blob(void *blob)
 		return -1;
 	}
 
-	dbg_info("\nUsing device tree in place at %x\n",
+	dbg_info("DT: Using device tree in place at %x\n",
 						(unsigned int)blob);
 
 	/* no point in fixing if we do not have configured bootargs */
@@ -288,20 +288,20 @@ static int boot_image_setup(unsigned char *addr, unsigned int *entry)
 	unsigned int size;
 	unsigned int magic;
 
-	dbg_loud("try zImage magic: %x is found\n", zimage_header->magic);
+	dbg_loud("KERNEL: try as zImage: magic=%x\n", zimage_header->magic);
 	if (zimage_header->magic == LINUX_ZIMAGE_MAGIC) {
 		*entry = ((unsigned int)addr + zimage_header->start);
-		dbg_info("\nBooting zImage ......\n");
+		dbg_info("\nKERNEL: Booting zImage ...\n");
 		return 0;
 	}
 
 	magic = swap_uint32(uimage_header->magic);
-	dbg_loud("try uImage magic: %x is found\n", magic);
+	dbg_loud("KERNEL: try as uImage: magic=%x\n", magic);
 	if (magic == LINUX_UIMAGE_MAGIC) {
-		dbg_info("\nBooting uImage ......\n");
+		dbg_info("\nKERNEL: Booting uImage ...\n");
 
 		if (uimage_header->comp_type != 0) {
-			dbg_info("The uImage compress type not supported\n");
+			dbg_info("KERNEL: No uImage compression is supported!\n");
 			return -1;
 		}
 
@@ -310,17 +310,18 @@ static int boot_image_setup(unsigned char *addr, unsigned int *entry)
 		src = (unsigned int)addr + sizeof(struct linux_uimage_header);
 		*entry = swap_uint32(uimage_header->entry_point);
 
-		dbg_info("Relocating kernel image, dest: %x, src: %x\n",
-				dest, src);
+		dbg_info("KERNEL: Relocating image dest=%x, src=%x\n", dest, src);
 
 		memcpy((void *)dest, (void *)src, size);
 
-		dbg_info(" ...... %x bytes data transferred\n", size);
+		dbg_info("KERNEL: %x bytes relocated\n", size);
 
 		return 0;
 	}
 
-	dbg_info("** Bad uImage magic: %x, zImage magic: %x\n",
+	dbg_info("KERNEL: Got unsupported magic!\n"
+			"\tas uImage magic: %x\n"
+			"\tas zImage magic: %x\n",
 			magic, zimage_header->magic);
 	return -1;
 }
@@ -413,14 +414,14 @@ int load_kernel(struct image_info *image)
 	r2 = (unsigned int)(MEM_BANK + 0x100);
 #endif
 
-	dbg_info("\nStarting linux kernel ..., machid: %x\n\n",
+	dbg_info("\nKERNEL: Starting linux kernel ..., machid: %x\n\n",
 							mach_type);
 #if defined(CONFIG_ENTER_NWD)
 	monitor_init();
 
 	init_loadkernel_args(0, mach_type, r2, (unsigned int)kernel_entry);
 
-	dbg_info("Enter Normal World, Run Kernel at %x\n",
+	dbg_info("KERNEL: Enter Normal World, Run Kernel at %x\n",
 					(unsigned int)kernel_entry);
 
 	enter_normal_world();
