@@ -456,7 +456,7 @@ void hw_init(void)
 	imgpll_config.div = 3;
 	imgpll_config.divio = 3;
 	imgpll_config.count = 0x3f;
-	imgpll_config.fracr = 0x155556; /* (8/24) * 2^22 to get extra 8 MHz */
+	imgpll_config.fracr = 0x155555; /* (8/24) * 2^22 to get extra 8 MHz */
 	imgpll_config.acr = 0x1b040010;
 	/* IMGPLL @ 1064 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_IMGPLL, &imgpll_config);
