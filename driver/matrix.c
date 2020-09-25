@@ -518,7 +518,7 @@ void matrix_read_slave_security(void)
 	}
 }
 
-void matrix_read_periperal_security(void)
+void matrix_read_peripheral_security(void)
 {
 	unsigned int i;
 
