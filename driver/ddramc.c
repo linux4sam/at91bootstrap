@@ -73,6 +73,15 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #else
 	#error "No CLK setting defined"
 #endif
+	/*
+	 * According to the sama5d2 datasheet and the following values:
+	 * T Sens = 0.75%/C, V Sens = 0.2%/mV, T driftrate = 1C/sec and V driftrate = 15 mV/s
+	 * Warning: note that the values T driftrate and V driftrate are dependent on
+	 * the application environment.
+	 * ZQCS period is 1.5 / ((0.75 x 1) + (0.2 x 15)) = 0.4s
+	 * If tref is 7.8us, we have: 400000 / 7.8 = 51282(0xC852)
+	 * */
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
 
 #elif defined(CONFIG_DDR_W972GG6KB_D2)
 /* Two DDR2 (W972GG6KB-25-2 Gbits = 16 Mbits x 16 x 8 banks), total 4 Gbits on the SAMA5D2-PTC-EK */
