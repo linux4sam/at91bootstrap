@@ -116,4 +116,44 @@ config AES_CMAC_KEY_WORD7
 	default "0x00000000"
 	depends on AES_KEY_SIZE_256
 
+config CPU_HAS_OCMS
+	bool
+	default n
+
+choice
+	prompt "Off-Chip Memory Scrambling (OCMS) support"
+	depends on CPU_HAS_OCMS
+	depends on DDRC
+	default OCMS_OFF
+
+config OCMS_OFF
+	bool "OFF"
+	help
+	  No scrambling of the the data bus to external memories.
+	  Data exchanged between the CPU and an off-chip memory can be
+	  recovered by analyzing the package pin levels.
+
+config OCMS_STATIC
+	bool "ON - compile-time key"
+	help
+	  Singe key passed to the bootstrap during compilation.
+	  Complements the secure mode features.
+	  Should be used only in secure mode, when the bootstrap is encrypted.
+
+endchoice
+
+config OCMS_KEY1
+	depends on OCMS_STATIC
+	hex "OCMS Key 1"
+	default "0x00000000"
+	help
+	  First 32 bits of the OCMS key, written into MPDDRC_OCMS_KEY1 reg.
+
+config OCMS_KEY2
+	depends on OCMS_STATIC
+	hex "OCMS Key 2"
+	default "0x00000000"
+	help
+	  Second 32 bits of the OCMS key, written into MPDDRC_OCMS_KEY2 reg.
+
 endmenu

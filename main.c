@@ -55,6 +55,11 @@ int main(void)
 	hw_init();
 #endif
 
+#ifdef CONFIG_OCMS_STATIC
+	ocms_init_keys();
+	ocms_enable();
+#endif
+
 #if defined(CONFIG_SCLK)
 #if !defined(CONFIG_SCLK_BYPASS)
 	slowclk_enable_osc32();
