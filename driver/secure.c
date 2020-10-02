@@ -30,6 +30,8 @@
 #include "aes.h"
 #include "debug.h"
 #include "string.h"
+#include "hardware.h"
+#include "arch/at91_ddrsdrc.h"
 #include "autoconf.h"
 
 static unsigned int cipher_key[8] = {
@@ -68,6 +70,27 @@ static unsigned int iv[AT91_AES_IV_SIZE_WORD] = {
 	CONFIG_AES_IV_WORD2,
 	CONFIG_AES_IV_WORD3,
 };
+
+#if defined(CONFIG_OCMS_STATIC)
+
+static unsigned int OCMS_KEYS[2] = {
+	CONFIG_OCMS_KEY1,
+	CONFIG_OCMS_KEY2,
+};
+
+void ocms_init_keys(void)
+{
+	writel(OCMS_KEYS[0], (AT91C_BASE_MPDDRC + MPDDRC_OCMS_KEY1));
+	writel(OCMS_KEYS[1], (AT91C_BASE_MPDDRC + MPDDRC_OCMS_KEY2));
+	memset(OCMS_KEYS, 0, sizeof(OCMS_KEYS));
+}
+
+void ocms_enable(void)
+{
+	writel(AT91C_MPDDRC_OCMS_ENABLE, (AT91C_BASE_MPDDRC + MPDDRC_OCMS));
+}
+
+#endif /* #if defined(CONFIG_OCMS_STATIC) */
 
 static int secure_decrypt(void *data, unsigned int data_length, int is_signed)
 {

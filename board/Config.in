@@ -200,6 +200,7 @@ config SAMA5D3X
 	select CPU_HAS_SPI0
 	select CPU_HAS_SPI1
 	select CPU_HAS_SCLK_BYPASS
+	select CPU_HAS_OCMS
 	bool
 
 config SAMA5D4
