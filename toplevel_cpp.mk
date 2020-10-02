@@ -24,6 +24,10 @@ ifneq ($(IMAGE_NAME),)
 CPPFLAGS += -DIMAGE_NAME="\"$(IMAGE_NAME)\""
 endif
 
+ifeq ($(CONFIG_OCMS_STATIC), y)
+CPPFLAGS += -DCONFIG_OCMS_STATIC
+endif
+
 ifeq ($(CONFIG_DEBUG),y)
 CPPFLAGS += -DCONFIG_DEBUG
 endif

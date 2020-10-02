@@ -13,6 +13,7 @@ config SAMA5D3X
 	select CPU_HAS_SPI
 	select CPU_HAS_SCLK_BYPASS
 	select CPU_HAS_DDRC
+	select CPU_HAS_OCMS
 	select ALLOW_DATAFLASH
 	select ALLOW_FLASH
 	select ALLOW_NANDFLASH

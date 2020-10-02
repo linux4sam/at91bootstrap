@@ -42,4 +42,9 @@ typedef struct at91_secure_header {
 
 int secure_check(void *data);
 
+#if defined(CONFIG_OCMS_STATIC)
+void ocms_init_keys(void);
+void ocms_enable(void);
+#endif
+
 #endif /* #ifdef __SECURE_H__ */

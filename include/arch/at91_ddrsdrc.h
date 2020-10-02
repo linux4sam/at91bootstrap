@@ -312,4 +312,8 @@
 #define AT91C_DDRC2_WPVS	(0x1UL << 0)
 #define AT91C_DDRC2_WPSRC	(0xFFFFUL << 8)
 
+/* -------- MPDDRC_OCMS : (MPDDRC Offset: 0x38 ) Scrambling Enable/Disable --------*/
+#define AT91C_MPDDRC_OCMS_DISABLE	(0x0UL << 0)
+#define AT91C_MPDDRC_OCMS_ENABLE	(0x1UL << 0)
+
 #endif	/* #ifndef __AT91_DDRSDRC_H__ */
