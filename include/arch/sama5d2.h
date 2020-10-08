@@ -287,6 +287,7 @@
 #define	H64MX_SLAVE_QSPI0		12	/* QSPI0 */
 #define	H64MX_SLAVE_QSPI1		13	/* QSPI1 */
 #define	H64MX_SLAVE_AESB		14	/* AESB */
+#define	H64MX_SLAVE_MAX			15	/* Number of slaves on H64MX */
 
 /* MATRIX1(H32MX) Matrix Slaves */
 #define	H32MX_BRIDGE_TO_H64MX		0	/* Bridge from H32MX to H64MX */
@@ -296,5 +297,6 @@
 #define	H32MX_NFC_CMD_REG		3	/* NFC command Register */
 #define	H32MX_NFC_SRAM			4	/* NFC SRAM */
 #define	H32MX_USB			5
+#define	H32MX_SLAVE_MAX			6	/* Number of slaves on H32MX */
 
 #endif /* #ifndef __SAMA5D2_H__ */

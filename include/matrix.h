@@ -45,7 +45,8 @@ extern int is_usb_hs_secure(void);
 extern int is_usb_host_secure(void);
 extern int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_on, unsigned int *silent);
 
-extern void matrix_read_slave_security(void);
+extern void matrix_read_slave_security(unsigned int matrix_base,
+				       unsigned int nslaves);
 extern void matrix_read_periperal_security(void);
 
 #endif /* #ifndef __MATRIX_H__ */
