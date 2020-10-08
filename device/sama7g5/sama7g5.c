@@ -45,6 +45,8 @@
 #include "timer.h"
 #include "sdhc_cal.h"
 #include "led.h"
+#include "arch/tz_matrix.h"
+#include "matrix.h"
 
 #include "sama7g5_board.h"
 
@@ -408,6 +410,35 @@ static void at91_dbgu_hw_init(void)
 	flexcoms[FLEXCOM_USART_INDEX].addr = usart_base - AT91C_OFFSET_FLEXCOM_USART;
 	flexcom_init(FLEXCOM_USART_INDEX);
 }
+
+#if defined(CONFIG_MATRIX)
+static void matrix_configure_slave(void)
+{
+	unsigned int ssr_setting, sasplit_setting, srtop_setting;
+
+	/* 0: QSPI0 */
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_128M) |
+			MATRIX_SRTOP(1, MATRIX_SRTOP_VALUE_128M);
+	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_128M) |
+			  MATRIX_SASPLIT(1, MATRIX_SASPLIT_VALUE_128M);
+	ssr_setting = MATRIX_LANSECH_NS(0) | MATRIX_LANSECH_NS(1);
+
+	matrix_configure_slave_security(AT91C_BASE_MATRIX, MATRIX_SLAVE_QSPI0,
+					srtop_setting, sasplit_setting,
+					ssr_setting);
+	/* 1: QSPI1 */
+	matrix_configure_slave_security(AT91C_BASE_MATRIX, MATRIX_SLAVE_QSPI1,
+					srtop_setting, sasplit_setting,
+					ssr_setting);
+}
+
+static void matrix_init(void)
+{
+	matrix_write_protect_disable(AT91C_BASE_MATRIX);
+
+	matrix_configure_slave();
+}
+#endif
 
 static void initialize_serial(void)
 {
@@ -1008,10 +1039,17 @@ void hw_init(void)
 	at91_leds_init();
 #endif
 
+#if defined(CONFIG_MATRIX)
+	matrix_init();
+#endif
+
 	initialize_serial();
 
 #ifdef CONFIG_TWI
 	twi_init();
+#endif
+#if defined(CONFIG_MATRIX)
+	matrix_read_slave_security(AT91C_BASE_MATRIX, MATRIX_SLAVE_MAX);
 #endif
 
 	dbg_very_loud("CA7 early uart\n");
