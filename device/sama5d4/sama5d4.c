@@ -290,19 +290,6 @@ static unsigned int security_ps_peri_id[] = {
 	AT91C_ID_SSC1,
 };
 
-static int matrix_config_peripheral(void)
-{
-	unsigned int *peri_id = security_ps_peri_id;
-	unsigned int array_size = sizeof(security_ps_peri_id) / sizeof(unsigned int);
-	int ret;
-
-	ret = matrix_configure_peri_security(peri_id, array_size);
-	if (ret)
-		return -1;
-
-	return 0;
-}
-
 static int matrix_init(void)
 {
 	int ret;
@@ -314,11 +301,8 @@ static int matrix_init(void)
 	if (ret)
 		return -1;
 
-	ret = matrix_config_peripheral();
-	if (ret)
-		return -1;
-
-	return 0;
+	return matrix_configure_peri_security(security_ps_peri_id,
+					      ARRAY_SIZE(security_ps_peri_id));
 }
 #endif	/* #if defined(CONFIG_MATRIX) */
 
