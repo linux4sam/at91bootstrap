@@ -475,7 +475,8 @@ void hw_init(void)
 #if defined(CONFIG_MATRIX)
 	matrix_read_slave_security(AT91C_BASE_MATRIX64, H64MX_SLAVE_MAX);
 	matrix_read_slave_security(AT91C_BASE_MATRIX32, H32MX_SLAVE_MAX);
-	matrix_read_peripheral_security();
+	matrix_read_peripheral_security(AT91C_BASE_MATRIX64);
+	matrix_read_peripheral_security(AT91C_BASE_MATRIX32);
 #endif
 
 	/* Init timer */

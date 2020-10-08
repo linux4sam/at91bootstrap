@@ -54,6 +54,7 @@
 
 /* Security Peripheral Select n Register */
 #define MATRIX_SPSELR(n)	(0x02c0	+ (n) * 4)
+#define MATRIX_SPSELR_COUNT	3
 
 /**************************************************************************/
 /* Write Protect Mode Register (MATRIX_WPMR) */
