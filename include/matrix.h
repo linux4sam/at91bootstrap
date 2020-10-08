@@ -35,8 +35,8 @@ extern void matrix_configure_slave_security(unsigned int matrix_base,
 				unsigned int srtop_setting,
 				unsigned int srsplit_setting,
 				unsigned int ssr_setting);
-extern int matrix_configure_peri_security(unsigned int *peri_id_array,
-					unsigned int size);
+extern int matrix_configure_peri_security(unsigned int *peri_id,
+					  unsigned int size);
 
 extern int is_peripheral_secure(unsigned int periph_id);
 extern int is_sys_clk_secure(unsigned int sys_mask);
