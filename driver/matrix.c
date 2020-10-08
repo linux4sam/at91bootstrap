@@ -554,7 +554,7 @@ static int matrix_set_peri_security(unsigned int matrix_base, unsigned peri_id)
 
 int matrix_configure_peri_security(unsigned int *peri_id, unsigned int size)
 {
-	struct peri_security *periperal_sec;
+	struct peri_security *peripheral_sec;
 	unsigned int i;
 	int ret;
 
@@ -562,15 +562,15 @@ int matrix_configure_peri_security(unsigned int *peri_id, unsigned int size)
 		return -1;
 
 	for (i = 0; i < size; i++) {
-		periperal_sec = get_peri_security(*(peri_id + i));
-		if (periperal_sec == NULL)
+		peripheral_sec = get_peri_security(*(peri_id + i));
+		if (peripheral_sec == NULL)
 			return -1;
 
-		if (periperal_sec->security_type != SECURITY_TYPE_PS)
+		if (peripheral_sec->security_type != SECURITY_TYPE_PS)
 			return -1;
 
-		ret = matrix_set_peri_security(periperal_sec->matrix_base,
-					       periperal_sec->peri_id);
+		ret = matrix_set_peri_security(peripheral_sec->matrix_base,
+					       peripheral_sec->peri_id);
 		if (ret)
 			return -1;
 	}
@@ -588,7 +588,7 @@ int matrix_configure_peri_security(unsigned int *peri_id, unsigned int size)
  */
 int is_peripheral_secure(unsigned int periph_id)
 {
-	struct peri_security *periperal_sec;
+	struct peri_security *peripheral_sec;
 	unsigned int mask;
 
 	if ((periph_id > AT91C_ID_FIQ) && (periph_id < AT91C_ID_COUNTS)) {
@@ -598,16 +598,16 @@ int is_peripheral_secure(unsigned int periph_id)
 		 || (periph_id == AT91C_ID_XDMAC1))
 			return 0;
 
-		periperal_sec = get_peri_security(periph_id);
-		if (periperal_sec == NULL)
+		peripheral_sec = get_peri_security(periph_id);
+		if (peripheral_sec == NULL)
 			return -1;
 
 		/* A base address of value zero is usually assigned to ROM. */
-		if (!periperal_sec->matrix_base)
+		if (!peripheral_sec->matrix_base)
 			return -1;
 
 		mask = 1 << (periph_id % 32);
-		if (matrix_read(periperal_sec->matrix_base,
+		if (matrix_read(peripheral_sec->matrix_base,
 				MATRIX_SPSELR(periph_id / 32)) & mask)
 			return 0;
 
