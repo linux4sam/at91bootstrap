@@ -557,7 +557,6 @@ int matrix_configure_peri_security(unsigned int *peri_id_array,
 {
 	unsigned int i;
 	unsigned int *peri_id_p;
-	unsigned int peri_id;
 	struct peri_security *periperal_sec;
 	int ret;
 
@@ -573,9 +572,8 @@ int matrix_configure_peri_security(unsigned int *peri_id_array,
 		if (periperal_sec->security_type != SECURITY_TYPE_PS)
 			return -1;
 
-		peri_id = *peri_id_p;
 		ret = matrix_set_peri_security(periperal_sec->matrix_base,
-					       peri_id);
+					       periperal_sec->peri_id);
 		if (ret)
 			return -1;
 
