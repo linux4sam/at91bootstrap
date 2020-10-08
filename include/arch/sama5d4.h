@@ -248,6 +248,7 @@
 #define	H64MX_SLAVE_DDR2_PORT_7		10	/* DDR2 Port7 */
 #define	H64MX_SLAVE_INTERNAL_SRAM	11	/* Internal SRAM 128K */
 #define	H64MX_SLAVE_BRIDGE_TO_H32MX	12	/* Bridge from H64MX to H32MX */
+#define	H64MX_SLAVE_MAX			13	/* Number of slaves on H64MX */
 
 /* MATRIX1(H32MX) Matrix Slaves */
 #define	H32MX_BRIDGE_TO_H64MX		0	/* Bridge from H32MX to H64MX */
@@ -262,6 +263,7 @@
  */
 #define	H32MX_USB			5
 #define	H32MX_SMD			6	/* Soft Modem(SMD) */
+#define	H32MX_SLAVE_MAX			7	/* Number of slaves on H32MX */
 
 /*
  * SoC specific defines
