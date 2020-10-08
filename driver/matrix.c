@@ -552,20 +552,17 @@ static int matrix_set_peri_security(unsigned int matrix_base, unsigned peri_id)
 	return 0;
 }
 
-int matrix_configure_peri_security(unsigned int *peri_id_array,
-					unsigned int size)
+int matrix_configure_peri_security(unsigned int *peri_id, unsigned int size)
 {
-	unsigned int i;
-	unsigned int *peri_id_p;
 	struct peri_security *periperal_sec;
+	unsigned int i;
 	int ret;
 
-	if ((peri_id_array == NULL) || (size == 0))
+	if (!peri_id || !size)
 		return -1;
 
-	peri_id_p = peri_id_array;
 	for (i = 0; i < size; i++) {
-		periperal_sec = get_peri_security(*peri_id_p);
+		periperal_sec = get_peri_security(*(peri_id + i));
 		if (periperal_sec == NULL)
 			return -1;
 
@@ -576,8 +573,6 @@ int matrix_configure_peri_security(unsigned int *peri_id_array,
 					       periperal_sec->peri_id);
 		if (ret)
 			return -1;
-
-		peri_id_p++;
 	}
 
 	return 0;
