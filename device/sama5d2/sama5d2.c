@@ -310,24 +310,6 @@ static int matrix_configure_slave(void)
 	return 0;
 }
 
-static unsigned int security_ps_peri_id[] = {
-	0,
-};
-
-static int matrix_config_periheral(void)
-{
-	unsigned int *peri_id = security_ps_peri_id;
-	unsigned int array_size = sizeof(security_ps_peri_id) /
-				  sizeof(unsigned int);
-	int ret;
-
-	ret = matrix_configure_peri_security(peri_id, array_size);
-	if (ret)
-		return -1;
-
-	return 0;
-}
-
 static int matrix_init(void)
 {
 	int ret;
@@ -336,10 +318,6 @@ static int matrix_init(void)
 	matrix_write_protect_disable(AT91C_BASE_MATRIX32);
 
 	ret = matrix_configure_slave();
-	if (ret)
-		return -1;
-
-	ret = matrix_config_periheral();
 	if (ret)
 		return -1;
 
