@@ -71,7 +71,7 @@ static void initialize_dbgu(void)
 }
 
 #ifdef CONFIG_MATRIX
-static int matrix_configure_slave(void)
+static void matrix_configure_slave(void)
 {
 	unsigned int ddr_port;
 	unsigned int ssr_setting, sasplit_setting, srtop_setting;
@@ -210,20 +210,14 @@ static int matrix_configure_slave(void)
 					srtop_setting,
 					sasplit_setting,
 					ssr_setting);
-
-	return 0;
 }
 
 static int matrix_init(void)
 {
-	int ret;
-
 	matrix_write_protect_disable(AT91C_BASE_MATRIX64);
 	matrix_write_protect_disable(AT91C_BASE_MATRIX32);
 
-	ret = matrix_configure_slave();
-	if (ret)
-		return -1;
+	matrix_configure_slave();
 
 	return 0;
 }

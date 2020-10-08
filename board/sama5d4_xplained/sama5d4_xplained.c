@@ -239,7 +239,7 @@ static void ddramc_init(void)
 #endif /* #ifdef CONFIG_DDR2 */
 
 #if defined(CONFIG_MATRIX)
-static int matrix_configure_slave(void)
+static void matrix_configure_slave(void)
 {
 	unsigned int ddr_port;
 	unsigned int ssr_setting, sasplit_setting, srtop_setting;
@@ -399,7 +399,6 @@ static int matrix_configure_slave(void)
 					srtop_setting,
 					sasplit_setting,
 					ssr_setting);
-	return 0;
 }
 
 static unsigned int security_ps_peri_id[] = {
@@ -434,14 +433,10 @@ static unsigned int security_ps_peri_id[] = {
 
 static int matrix_init(void)
 {
-	int ret;
-
 	matrix_write_protect_disable(AT91C_BASE_MATRIX64);
 	matrix_write_protect_disable(AT91C_BASE_MATRIX32);
 
-	ret = matrix_configure_slave();
-	if (ret)
-		return -1;
+	matrix_configure_slave();
 
 	return matrix_configure_peri_security(security_ps_peri_id,
 					      ARRAY_SIZE(security_ps_peri_id));
