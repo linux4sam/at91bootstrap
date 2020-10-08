@@ -47,6 +47,6 @@ extern int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_o
 
 extern void matrix_read_slave_security(unsigned int matrix_base,
 				       unsigned int nslaves);
-extern void matrix_read_periperal_security(void);
+extern void matrix_read_periperal_security(unsigned int matrix_base);
 
 #endif /* #ifndef __MATRIX_H__ */

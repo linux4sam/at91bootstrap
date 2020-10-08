@@ -508,23 +508,16 @@ void matrix_read_slave_security(unsigned int matrix_base, unsigned int nslaves)
 			      i, matrix_read(matrix_base, MATRIX_SSR(i)));
 }
 
-void matrix_read_periperal_security(void)
+void matrix_read_periperal_security(unsigned int matrix_base)
 {
 	unsigned int i;
 
-	unsigned int matrix_base = AT91C_BASE_MATRIX32;
-	dbg_very_loud("\n\nMATRIX32\n");
-	for (i = 0; i < 3; i++) {
-		dbg_very_loud("MATRIX_SPSELR(%d): %x\n",
-				i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
-	}
+	dbg_very_loud("\n\nRead Peripheral security for MATRIX at = %x:\n",
+		      matrix_base);
 
-	matrix_base = AT91C_BASE_MATRIX64;
-	dbg_very_loud("\n\n_MATRIX64\n");
-	for (i = 0; i < 3; i++) {
+	for (i = 0; i < MATRIX_SPSELR_COUNT; i++)
 		dbg_very_loud("MATRIX_SPSELR(%d): %x\n",
-				i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
-	}
+			      i, matrix_read(matrix_base, MATRIX_SPSELR(i)));
 }
 
 static struct peri_security *get_peri_security(unsigned int peri_id)
