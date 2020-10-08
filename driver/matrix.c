@@ -32,17 +32,13 @@
 #include "arch/tz_matrix.h"
 #include "debug.h"
 
-#define MATRIX_AXIMX	1
-#define MATRIX_H64MX	2
-#define MATRIX_H32MX	3
-
 #define SECURITY_TYPE_AS	1
 #define SECURITY_TYPE_NS	2
 #define	SECURITY_TYPE_PS	3
 
 struct peri_security {
 	unsigned int	peri_id;
-	unsigned int	matrix;
+	unsigned int	matrix_base;
 	unsigned int	security_type;
 };
 
@@ -51,409 +47,409 @@ static const struct peri_security peri_security_array[] = {
 	/* SAIC */
 	{
 		.peri_id = AT91C_ID_FIQ,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* SYS */
 	{
 		.peri_id = AT91C_ID_SYS,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* ARM */
 	{
 		.peri_id = AT91C_ID_ARM,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* PIT */
 	{
 		.peri_id = AT91C_ID_PIT,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* WDT */
 	{
 		.peri_id = AT91C_ID_WDT,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* PIOD */
 	{
 		.peri_id = AT91C_ID_PIOD,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* USART0 */
 	{
 		.peri_id = AT91C_ID_USART0,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* USART1 */
 	{
 		.peri_id = AT91C_ID_USART1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* XDMAC0 */
 	{
 		.peri_id = AT91C_ID_XDMAC0,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* ICM */
 	{
 		.peri_id = AT91C_ID_ICM,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* PKCC */
 	{
 		.peri_id = AT91C_ID_PKCC,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* SCI */
 	{
 		.peri_id = AT91C_ID_SCI,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* AES */
 	{
 		.peri_id = AT91C_ID_AES,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* AESB */
 	{
 		.peri_id = AT91C_ID_AESB,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* TDES */
 	{
 		.peri_id = AT91C_ID_TDES,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* SHA */
 	{
 		.peri_id = AT91C_ID_SHA,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* MPDDRC */
 	{
 		.peri_id = AT91C_ID_MPDDRC,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* MATRIX1 */
 	{
 		.peri_id = AT91C_ID_MATRIX1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* MATRIX0 */
 	{
 		.peri_id = AT91C_ID_MATRIX0,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* VDEC */
 	{
 		.peri_id = AT91C_ID_VDEC,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* SECUMOD */
 	{
 		.peri_id = AT91C_ID_SECUMOD,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* MSADCC */
 	{
 		.peri_id = AT91C_ID_MSADCC,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* HSMC */
 	{
 		.peri_id = AT91C_ID_HSMC,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* PIOA*/
 	{
 		.peri_id = AT91C_ID_PIOA,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* PIOB*/
 	{
 		.peri_id = AT91C_ID_PIOB,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* PIOC*/
 	{
 		.peri_id = AT91C_ID_PIOC,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* PIOE*/
 	{
 		.peri_id = AT91C_ID_PIOE,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* UART0 */
 	{
 		.peri_id = AT91C_ID_UART0,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* UART1 */
 	{
 		.peri_id = AT91C_ID_UART1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* USART2 */
 	{
 		.peri_id = AT91C_ID_USART2,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* USART3 */
 	{
 		.peri_id = AT91C_ID_USART3,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* USART4 */
 	{
 		.peri_id = AT91C_ID_USART4,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* TWI0 */
 	{
 		.peri_id = AT91C_ID_TWI0,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* TWI1 */
 	{
 		.peri_id = AT91C_ID_TWI1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* TWI2 */
 	{
 		.peri_id = AT91C_ID_TWI2,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* HSMCI0 */
 	{
 		.peri_id = AT91C_ID_HSMCI0,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* HSMCI1 */
 	{
 		.peri_id = AT91C_ID_HSMCI1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* SPI0 */
 	{
 		.peri_id = AT91C_ID_SPI0,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* SPI1 */
 	{
 		.peri_id = AT91C_ID_SPI1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* SPI2 */
 	{
 		.peri_id = AT91C_ID_SPI2,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* TC0 */
 	{
 		.peri_id = AT91C_ID_TC0,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* TC1 */
 	{
 		.peri_id = AT91C_ID_TC1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* TC2 */
 	{
 		.peri_id = AT91C_ID_TC2,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* PWM */
 	{
 		.peri_id = AT91C_ID_PWM,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* ADC */
 	{
 		.peri_id = AT91C_ID_ADC,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* DBGU */
 	{
 		.peri_id = AT91C_ID_DBGU,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* UHPHS */
 	{
 		.peri_id = AT91C_ID_UHPHS,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* UDPHS */
 	{
 		.peri_id = AT91C_ID_UDPHS,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* SSC0 */
 	{
 		.peri_id = AT91C_ID_SSC0,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* SSC1 */
 	{
 		.peri_id = AT91C_ID_SSC1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* XDMAC1 */
 	{
 		.peri_id = AT91C_ID_XDMAC1,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_NS,
 	},
 	/* LCDC */
 	{
 		.peri_id = AT91C_ID_LCDC,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* ISI */
 	{
 		.peri_id = AT91C_ID_ISI,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* TRNG */
 	{
 		.peri_id = AT91C_ID_TRNG,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* GMAC */
 	{
 		.peri_id = AT91C_ID_GMAC,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* GMAC1 */
 	{
 		.peri_id = AT91C_ID_GMAC1,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* IRQ */
 	{
 		.peri_id = AT91C_ID_IRQ,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_NS,
 	},
 	/* SFC */
 	{
 		.peri_id = AT91C_ID_SFC,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* SECURAM */
 	{
 		.peri_id = AT91C_ID_SECURAM,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* CTB */
 	{
 		.peri_id = AT91C_ID_CTB,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* SMD */
 	{
 		.peri_id = AT91C_ID_SMD,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* TWI3 */
 	{
 		.peri_id = AT91C_ID_TWI3,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_PS,
 	},
 	/* CATB */
 	{
 		.peri_id = AT91C_ID_CATB,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* SFR */
 	{
 		.peri_id = AT91C_ID_SFR,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* AIC */
 	{
 		.peri_id = AT91C_ID_AIC,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_NS,
 	},
 	/* SAIC */
 	{
 		.peri_id = AT91C_ID_SAIC,
-		.matrix = MATRIX_H32MX,
+		.matrix_base = AT91C_BASE_MATRIX32,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* L2CC */
 	{
 		.peri_id = AT91C_ID_L2CC,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_AS,
 	},
 	/* PMC */
 	{
 		.peri_id = AT91C_ID_PMC,
-		.matrix = MATRIX_H64MX,
+		.matrix_base = AT91C_BASE_MATRIX64,
 		.security_type = SECURITY_TYPE_AS,
 	},
 #endif /* CONFIG_SAMA5D4 */
@@ -533,28 +529,25 @@ static struct peri_security *get_peri_security(unsigned int peri_id)
 			NULL : (struct peri_security *)&peri_security_array[i];
 }
 
-static int matrix_set_peri_security(unsigned int matrix, unsigned peri_id)
+static int matrix_set_peri_security(unsigned int matrix_base, unsigned peri_id)
 {
-	unsigned int base;
 	unsigned int spselr;
 	unsigned int idx;
 	unsigned int bit;
+
+	/* A base address of value zero is usually assigned to ROM. */
+	if (!matrix_base)
+		return -1;
 
 	idx = peri_id / 32;
 	if (idx > 3)
 		return -1;
 
 	bit = (0x01 << (peri_id % 32));
-	if (matrix == MATRIX_H32MX)
-		base = AT91C_BASE_MATRIX32;
-	else if (matrix == MATRIX_H64MX)
-		base = AT91C_BASE_MATRIX64;
-	else
-		return -1;
 
-	spselr = matrix_read(base, MATRIX_SPSELR(idx));
+	spselr = matrix_read(matrix_base, MATRIX_SPSELR(idx));
 	spselr |= bit;
-	matrix_write(base, MATRIX_SPSELR(idx), spselr);
+	matrix_write(matrix_base, MATRIX_SPSELR(idx), spselr);
 
 	return 0;
 }
@@ -564,7 +557,6 @@ int matrix_configure_peri_security(unsigned int *peri_id_array,
 {
 	unsigned int i;
 	unsigned int *peri_id_p;
-	unsigned int matrix;
 	unsigned int peri_id;
 	struct peri_security *periperal_sec;
 	int ret;
@@ -581,9 +573,9 @@ int matrix_configure_peri_security(unsigned int *peri_id_array,
 		if (periperal_sec->security_type != SECURITY_TYPE_PS)
 			return -1;
 
-		matrix = periperal_sec->matrix;
 		peri_id = *peri_id_p;
-		ret = matrix_set_peri_security(matrix, peri_id);
+		ret = matrix_set_peri_security(periperal_sec->matrix_base,
+					       peri_id);
 		if (ret)
 			return -1;
 
@@ -604,8 +596,6 @@ int matrix_configure_peri_security(unsigned int *peri_id_array,
 int is_peripheral_secure(unsigned int periph_id)
 {
 	struct peri_security *periperal_sec;
-	unsigned int matrix;
-	unsigned int base;
 	unsigned int mask;
 
 	if ((periph_id > AT91C_ID_FIQ) && (periph_id < AT91C_ID_COUNTS)) {
@@ -619,16 +609,13 @@ int is_peripheral_secure(unsigned int periph_id)
 		if (periperal_sec == NULL)
 			return -1;
 
-		matrix = periperal_sec->matrix;
-		if (matrix == MATRIX_H32MX)
-			base = AT91C_BASE_MATRIX32;
-		else if (matrix == MATRIX_H64MX)
-			base = AT91C_BASE_MATRIX64;
-		else
+		/* A base address of value zero is usually assigned to ROM. */
+		if (!periperal_sec->matrix_base)
 			return -1;
 
 		mask = 1 << (periph_id % 32);
-		if (matrix_read(base, MATRIX_SPSELR(periph_id / 32)) & mask)
+		if (matrix_read(periperal_sec->matrix_base,
+				MATRIX_SPSELR(periph_id / 32)) & mask)
 			return 0;
 
 	}
