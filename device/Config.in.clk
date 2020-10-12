@@ -127,6 +127,14 @@ config CPU_CLK_600MHZ
 	bool "600 MHz"
 	depends on ALLOW_CPU_CLK_600MHZ
 
+config CPU_CLK_800MHZ
+	bool "800 MHz"
+	depends on ALLOW_CPU_CLK_800MHZ
+
+config CPU_CLK_1000MHZ
+	bool "1000 MHz"
+	depends on ALLOW_CPU_CLK_1000MHZ
+
 endchoice
 
 
@@ -164,6 +172,12 @@ config  ALLOW_CPU_CLK_594MHZ
 	bool
 
 config  ALLOW_CPU_CLK_600MHZ
+	bool
+
+config  ALLOW_CPU_CLK_800MHZ
+	bool
+
+config  ALLOW_CPU_CLK_1000MHZ
 	bool
 
 config	DISABLE_CPU_CLK_240MHZ
@@ -211,7 +225,7 @@ config BUS_SPEED_176MHZ
 
 config BUS_SPEED_200MHZ
 	bool "200 MHz"
-	depends on SUPPORT_BUS_SPEED_200MHZ && CPU_CLK_600MHZ
+	depends on SUPPORT_BUS_SPEED_200MHZ && (CPU_CLK_600MHZ || CPU_CLK_800MHZ || CPU_CLK_1000MHZ)
 
 endchoice
 

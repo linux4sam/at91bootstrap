@@ -1,6 +1,7 @@
 config LINK_ADDR
 	string
 	default "0x200000" if SAMA5D4  || SAMA5D2
+	default "0x100000" if SAMA7G5
 	default "0x300000"
 
 
@@ -10,10 +11,15 @@ config TOP_OF_MEMORY
 	default "0x310000"	if SAMA5D3X
 	default "0x210000"	if SAMA5D4
 	default "0x210000"	if SAMA5D2
+	default "0x120000"	if SAMA7G5
 	help
 	    The top address of internal SRAM
 
 config CPU_HAS_TRUSTZONE
+	bool
+	default n
+
+config CPU_HAS_TZC400
 	bool
 	default n
 
@@ -58,6 +64,10 @@ config CORE_ARM926EJS
 	default n
 
 config CORE_CORTEX_A5
+	bool
+	default n
+
+config CORE_CORTEX_A7
 	bool
 	default n
 
