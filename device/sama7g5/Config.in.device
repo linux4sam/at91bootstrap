@@ -1,0 +1,22 @@
+config SAMA7G5
+	select CORE_CORTEX_A7
+	select CPU_HAS_PIO4
+	select CPU_HAS_SCKC
+	select CPU_HAS_SCLK_BYPASS
+	select CPU_HAS_FLEXCOM
+	select CPU_HAS_TRUSTZONE
+	select CPU_HAS_WDT2
+	select CPU_HAS_DWDT
+	select CPU_HAS_SDHC0
+	select CPU_HAS_SDHC1
+	select CPU_V7
+	select UMCTL2
+	select PUBL
+	select FLEXCOM
+	select ALLOW_SDCARD
+	select ALLOW_CPU_CLK_600MHZ
+	select ALLOW_CPU_CLK_800MHZ
+	select ALLOW_CPU_CLK_1000MHZ
+	select ALLOW_CRYSTAL_24_000MHZ
+	select SUPPORT_BUS_SPEED_200MHZ
+	bool "SAMA7G5"

@@ -1,0 +1,3 @@
+config DEVICENAME
+	string
+	default "sama7g5" if SAMA7G5
