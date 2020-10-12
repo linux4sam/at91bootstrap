@@ -44,6 +44,10 @@
 #include "sama5d4_board.h"
 #endif
 
+#ifdef CONFIG_SAMA7G5
+#include "sama7g5_board.h"
+#endif
+
 /*
  * Functions Prototype
  */
