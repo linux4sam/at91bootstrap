@@ -45,7 +45,7 @@
 #include "timer.h"
 #include "sdhc_cal.h"
 
-#include "sama7g5ek.h"
+#include "sama7g5_board.h"
 
 static void ca7_enable_smp()
 {
