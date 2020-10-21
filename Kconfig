@@ -224,7 +224,7 @@ config MATRIX
 config ENTER_NWD
 	select MATRIX
 	bool "Enable Enter the Normal World before Jumping"
-	default y
+	default n
 	help
 	  This interface let you to make the system to enter from the Secure World
 	  to the Non-Secure World before the jumping.
