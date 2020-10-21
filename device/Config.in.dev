@@ -4,14 +4,12 @@ choice
 	help
 	  Select which MPU device your board is based on
 
-source "device/sam9x5/Config.in.device"
 source "device/sam9x60/Config.in.device"
 source "device/sama5d2/Config.in.device"
 source "device/sama5d3/Config.in.device"
 source "device/sama5d4/Config.in.device"
 endchoice
 
-source "device/sam9x5/Config.in"
 source "device/sam9x60/Config.in"
 source "device/sama5d2/Config.in"
 source "device/sama5d3/Config.in"

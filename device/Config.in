@@ -6,7 +6,6 @@ config LINK_ADDR
 
 config TOP_OF_MEMORY
 	string
-	default "0x308000"	if AT91SAM9X5
 	default "0x308000"	if SAM9X60
 	default "0x310000"	if SAMA5D3X
 	default "0x210000"	if SAMA5D4

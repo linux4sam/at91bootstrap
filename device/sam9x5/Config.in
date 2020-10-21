@@ -1,3 +1,0 @@
-config DEVICENAME
-	string
-	default "sam9x5" if AT91SAM9X5

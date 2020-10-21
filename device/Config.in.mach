@@ -1,6 +1,5 @@
 config MACH_TYPE
 	string
-	default "3373"	if AT91SAM9X5
 	default "3373"	if SAM9X60
 	default "9999"	if SAMA5D3X
 	default "9999"	if SAMA5D4
