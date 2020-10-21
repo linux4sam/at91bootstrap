@@ -28,10 +28,6 @@
 #ifndef __HARDWARE_H__
 #define __HARDWARE_H__
 
-#ifdef CONFIG_AT91SAM9X5
-#include "arch/at91sam9x5.h"
-#endif
-
 #ifdef CONFIG_SAM9X60
 #include "arch/sam9x60.h"
 #endif

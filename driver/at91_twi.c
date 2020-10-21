@@ -32,9 +32,7 @@
 #include "debug.h"
 #include "pmc.h"
 
-#if defined(CONFIG_AT91SAM9X5)
-#define TWI_CLK_OFFSET (4)
-#elif defined(CONFIG_SAMA5D2)
+#if defined(CONFIG_SAMA5D2)
 #define TWI_CLK_OFFSET (3) /* TODO: handle GCK case (offset=0) */
 #elif defined(CONFIG_SAMA5D3X)
 #define TWI_CLK_OFFSET (4)

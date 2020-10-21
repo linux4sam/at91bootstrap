@@ -54,8 +54,7 @@ void lowlevel_clock_init()
 	rstc_external_reset();
 #endif
 
-#if defined(CONFIG_AT91SAM9X5) \
-	|| defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
+#if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
 	|| defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) \
 	|| defined(CONFIG_SAMA7G5)
 	/*
@@ -133,12 +132,11 @@ void lowlevel_clock_init()
 
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
 		;
-#endif /* CONFIG_AT91SAM9X5 || CONFIG_SAMA5D3X ||
+#endif /* CONFIG_SAMA5D3X ||
         * CONFIG_SAMA5D4 || CONFIG_SAMA5D2 || CONFIG_SAM9X60 */
 
 	/* After stablization, switch to Main Clock */
-#if defined(CONFIG_AT91SAM9X5) \
-	|| defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
+#if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
 	|| defined(CONFIG_SAMA5D2)
 	pmc_mck_cfg_set(0, AT91C_PMC_CSS_MAIN_CLK | AT91C_PMC_PRES_CLK,
 			AT91C_PMC_CSS | AT91C_PMC_ALT_PRES);
@@ -189,8 +187,7 @@ unsigned int at91_get_ahb_clock(void)
 
 unsigned int pmc_mainck_get_rate(void)
 {
-#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12) || \
-	defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) || \
+#if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) || \
 	defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) || \
 	defined(CONFIG_SAMA7G5)
 	unsigned int val = read_pmc(PMC_MOR);

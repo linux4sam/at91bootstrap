@@ -35,8 +35,7 @@ void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits, unsigned int mask)
 	/*
 	 * Program the PRES field in the PMC_MCKR register
 	 */
-#if defined(CONFIG_AT91SAM9X5) || defined(CONFIG_AT91SAM9N12) \
-	|| defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
+#if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
 	|| defined(CONFIG_SAMA5D2)
 	if (updates & AT91C_PMC_ALT_PRES) {
 		tmp &= (~(0x1 << 13));
