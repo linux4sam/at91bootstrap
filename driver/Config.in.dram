@@ -14,7 +14,7 @@ config BANK_8
 
 choice 
 	prompt "Configuration method"
-	depends on DDRC
+	depends on DDRC || UMCTL2
 	default DDR_SET_BY_JEDEC
 
 config DDR_SET_BY_DEVICE
