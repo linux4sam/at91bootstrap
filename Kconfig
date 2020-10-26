@@ -73,6 +73,7 @@ menu "Console and Debug"
 source "device/sama5d2/Config.in.con"
 source "device/sama5d4/Config.in.con"
 source "device/sam9x60/Config.in.con"
+source "device/sama7g5/Config.in.con"
 
 config DEBUG
 	bool "Debug Output"
