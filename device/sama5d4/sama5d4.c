@@ -51,25 +51,34 @@
 #include "act8865.h"
 #include "twi.h"
 
-const unsigned int usart_base[] = { AT91C_BASE_DBGU, AT91C_BASE_USART3 };
+const unsigned int usart_base =
+#if CONFIG_CONSOLE_INDEX == 0
+	AT91C_BASE_DBGU;
+#elif CONFIG_CONSOLE_INDEX == 1
+	AT91C_BASE_USART3;
+#else
+#error "Invalid CONSOLE_INDEX was chosen"
+#endif
 
 static void at91_dbgu_hw_init(void)
 {
-	const struct pio_desc dbgu_pins[][3] = {
-		{ /* DBGU */
-			{"DRXD", AT91C_PIN_PB(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
-			{"DTXD", AT91C_PIN_PB(25), 0, PIO_DEFAULT, PIO_PERIPH_A},
-			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-		},
-		{ /* USART3 */
-			{"RXD", AT91C_PIN_PE(16), 0, PIO_DEFAULT, PIO_PERIPH_B},
-			{"TXD", AT91C_PIN_PE(17), 0, PIO_DEFAULT, PIO_PERIPH_B},
-			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-		},
+	const struct pio_desc dbgu_pins[3] = {
+#if CONFIG_CONSOLE_INDEX == 0
+		/* DBGU */
+		{"DRXD", AT91C_PIN_PB(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"DTXD", AT91C_PIN_PB(25), 0, PIO_DEFAULT, PIO_PERIPH_A},
+#elif CONFIG_CONSOLE_INDEX == 1
+		/* USART3 */
+		{"RXD", AT91C_PIN_PE(16), 0, PIO_DEFAULT, PIO_PERIPH_B},
+		{"TXD", AT91C_PIN_PE(17), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#else
+#error "Invalid CONSOLE_INDEX was chosen"
+#endif
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 	const unsigned int periph_id[] = { AT91C_ID_DBGU, AT91C_ID_USART3 };
 
-	pio_configure(dbgu_pins[CONFIG_CONSOLE_INDEX]);
+	pio_configure(dbgu_pins);
 	pmc_enable_periph_clock(periph_id[CONFIG_CONSOLE_INDEX], PMC_PERIPH_CLK_DIVIDER_NA);
 }
 

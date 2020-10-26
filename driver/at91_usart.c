@@ -32,8 +32,8 @@
 #ifdef CONFIG_USART
 
 #ifdef CONFIG_CONSOLE_INDEX
-extern const unsigned int usart_base[];
-#define USART_BASE usart_base[CONFIG_CONSOLE_INDEX]
+extern const unsigned int usart_base;
+#define USART_BASE usart_base
 #else
 #define USART_BASE	AT91C_BASE_DBGU
 #endif
