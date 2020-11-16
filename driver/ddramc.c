@@ -52,7 +52,6 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 
 #if defined(CONFIG_DDR_SET_BY_JEDEC) || defined(CONFIG_DDR_SET_BY_TIMING)
 	unsigned int mck;
-	unsigned int win, ref_cycle;
 #endif
 
 #if defined(CONFIG_DDR_SET_BY_DEVICE)
@@ -422,7 +421,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #endif
 
 	/* Refresh Timer is (refresh_window / refresh_cycles) * master_clock */
-//	ddramc_config->rtr = CONFIG_REF_WIN * mck * 1000 / CONFIG_REF_CYCLE;
+	ddramc_config->rtr = CONFIG_REF_WIN * mck * 1000 / CONFIG_REF_CYCLE;
 	ddramc_config->t0pr = ( AT91C_DDRC2_TRAS_(NS2CYCLES(ddr_ddram_timings.tras, mck)) |
 							AT91C_DDRC2_TRCD_(NS2CYCLES(ddr_ddram_timings.trcd, mck)) |
 							AT91C_DDRC2_TWR_(NS2CYCLES(ddr_ddram_timings.twr, mck)) |

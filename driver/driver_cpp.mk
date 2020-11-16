@@ -62,6 +62,25 @@ endif
 
 endif
 
+ifeq ($(CONFIG_DDR_SET_BY_JEDEC),y)
+ifeq ($(CONFIG_REF_WIN_32),y)
+CPPFLAGS += -DCONFIG_REF_WIN=32
+endif
+ifeq ($(CONFIG_REF_WIN_64),y)
+CPPFLAGS += -DCONFIG_REF_WIN=64
+endif
+
+ifeq ($(CONFIG_REF_2048),y)
+CPPFLAGS += -DCONFIG_REF_CYCLE=2048
+endif
+ifeq ($(CONFIG_REF_4096),y)
+CPPFLAGS += -DCONFIG_REF_CYCLE=4096
+endif
+ifeq ($(CONFIG_REF_8192),y)
+CPPFLAGS += -DCONFIG_REF_CYCLE=8192
+endif
+endif
+
 # Dataflash support
 
 ifeq ($(MEMORY),dataflash)
