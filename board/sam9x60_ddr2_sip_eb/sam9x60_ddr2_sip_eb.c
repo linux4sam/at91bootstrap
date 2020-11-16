@@ -151,6 +151,8 @@ static void ddramc_init(void)
 
 	ddramc_dump_regs(AT91C_BASE_MPDDRC);
 }
+#else
+#error "No proper DDR-SDRAM device type provided"
 #endif /* CONFIG DDR2 */
 
 static void at91_green_led_on(void)
