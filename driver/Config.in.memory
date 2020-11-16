@@ -97,6 +97,10 @@ config MT52L256M32D1PF_107_WT_B
 
 endchoice
 
+config NOT_DQS_DISABLED
+	bool "Not DQS is disabled"
+	depends on CPU_HAS_DDRC
+
 endmenu
 
 config SAMA5D2_LPDDR2

@@ -390,7 +390,9 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 						 row |
 						 bank |
 						 cas |
+#if defined(CONFIG_NOT_DQS_DISABLED)
 						 AT91C_DDRC2_NDQS_DISABLED |
+#endif
 #if defined(CONFIG_LPDDR2)
 						AT91C_DDRC2_ZQ_SHORT |
 #endif
