@@ -83,9 +83,16 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				AT91C_DDRC2_NR_13 |
 				AT91C_DDRC2_CAS_3 |
 				AT91C_DDRC2_WEAK_STRENGTH_RZQ7 |
-				AT91C_DDRC2_NB_BANKS_8 |
 				AT91C_DDRC2_DECOD_INTERLEAVED |
 				AT91C_DDRC2_UNAL_SUPPORTED);
+
+#if defined(CONFIG_RAM_128MB)
+	ddramc_config->cr |= AT91C_DDRC2_NB_BANKS_8;
+#elif defined(CONFIG_RAM_64MB)
+	ddramc_config->cr |= AT91C_DDRC2_NB_BANKS_4;
+#else
+#error "No proper DDR2 memory size for SiP provided"
+#endif
 
 	/*
 	 * This value is set for normal operating conditions.
