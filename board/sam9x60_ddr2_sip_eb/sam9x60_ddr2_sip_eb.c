@@ -94,6 +94,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 #error "No proper DDR2 memory size for SiP provided"
 #endif
 
+#if defined(CONFIG_BUS_SPEED_200MHZ)
 	/*
 	 * This value is set for normal operating conditions.
 	 * Change this to :
@@ -121,6 +122,9 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 				| AT91C_DDRC2_TRPA_(4)
 				| AT91C_DDRC2_TXARDS_(8)
 				| AT91C_DDRC2_TXARD_(2));
+#else
+#error "No CLK setting defined for this BUS speed configuration"
+#endif
 }
 
 static void ddramc_init(void)
