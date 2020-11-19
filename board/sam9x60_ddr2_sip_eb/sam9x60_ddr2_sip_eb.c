@@ -126,7 +126,7 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 
 	ddramc_config->t2pr = (AT91C_DDRC2_TFAW_(9)
 				| AT91C_DDRC2_TRTP_(2)
-				| AT91C_DDRC2_TRPA_(4)
+				| AT91C_DDRC2_TRPA_(4)		/* = Trp + 1 */
 				| AT91C_DDRC2_TXARDS_(8)
 				| AT91C_DDRC2_TXARD_(2));
 #else
