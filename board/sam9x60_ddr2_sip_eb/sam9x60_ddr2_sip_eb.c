@@ -105,8 +105,8 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	/*
 	 * This value is set for normal operating conditions.
 	 * Change this to :
-	 * ddramc_config->rtr = 0x30e;
-	 * for temperatures > 85C
+	 * ddramc_config->rtr = 0x30c (3900 ns / 5 ns);
+	 * for temperatures > 85C (at 200 MHz bus speed)
 	 */
 	ddramc_config->rtr = 0x618;
 
