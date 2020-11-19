@@ -110,10 +110,10 @@ static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 	 */
 	ddramc_config->rtr = 0x618;
 
-	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(9)
+	ddramc_config->t0pr = (AT91C_DDRC2_TRAS_(8)
 				| AT91C_DDRC2_TRCD_(3)
 				| AT91C_DDRC2_TWR_(3)
-				| AT91C_DDRC2_TRC_(12)
+				| AT91C_DDRC2_TRC_(11)
 				| AT91C_DDRC2_TRP_(3)
 				| AT91C_DDRC2_TRRD_(2)
 				| AT91C_DDRC2_TWTR_(2)
