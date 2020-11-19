@@ -73,7 +73,14 @@ static void initialize_dbgu(void)
 }
 
 #ifdef CONFIG_DDR2
-
+/*
+ * DDR2 timing configuration for SAM9X60 SiP variants
+ *
+ * CONFIG_RAM_128MB is used to identify SAM9X60D1G
+ *                  it embeds W971GG6SB (25I speed grade)
+ * CONFIG_RAM_64MB  is used to identify SAM9X60D5M
+ *                  it embeds W9751G6KB (25I speed grade)
+ */
 static void ddramc_reg_config(struct ddramc_register *ddramc_config)
 {
 	ddramc_config->mdr = (AT91C_DDRC2_DBW_16_BITS |
