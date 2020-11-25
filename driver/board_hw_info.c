@@ -443,21 +443,7 @@ static unsigned int set_default_sn(void)
 	unsigned int vendor_dm = 0;
 	unsigned int vendor_ek = 0;
 
-#if defined(CONFIG_AT91SAM9X5EK)
-	/* at91sam9x5ek
-	 * CPU Module: SAM9X25-CM, EMBEST
-	 * Display Module: SAM9x5-DM, FLEX
-	 * EK Module: SAM9x5-EK, FLEX
-	 */
-	board_id_cm = BOARD_ID_SAM9X25_CM;
-	board_id_dm = BOARD_ID_SAM9x5_DM;
-	board_id_ek = BOARD_ID_SAM9X5_EK;
-	vendor_cm = VENDOR_EMBEST;
-	vendor_dm = VENDOR_FLEX;
-	vendor_ek = VENDOR_FLEX;
-
-#elif defined(CONFIG_SAMA5D3XEK) || defined(CONFIG_SAMA5D3X_CMP)
-
+#if CONFIG_DEFAULT_HW_INFO == 1
 	/* sama5d3xek
 	 * CPU Module: SAMA5D31-CM, EMBEST
 	 * Display Module: SAMA5D3x-DM, FLEX
@@ -469,7 +455,7 @@ static unsigned int set_default_sn(void)
 	vendor_cm = VENDOR_EMBEST;
 	vendor_dm = VENDOR_FLEX;
 	vendor_ek = VENDOR_FLEX;
-#elif defined(CONFIG_SAMA5D4EK) || defined(CONFIG_SAMA5D4_XPLAINED)
+#elif CONFIG_DEFAULT_HW_INFO == 2
 	/*
 	 * SAMA5D4-EK
 	 * Display Module: SAMA5D3x-DM, FLEX
@@ -479,13 +465,13 @@ static unsigned int set_default_sn(void)
 	board_id_ek = BOARD_ID_SAMA5D4_MB;
 	vendor_cm = VENDOR_EMBEST;
 	vendor_dm = VENDOR_FLEX;
-#elif defined(CONFIG_SAMA5D2_XPLAINED)
+#elif CONFIG_DEFAULT_HW_INFO == 3
 	board_id_ek = BOARD_ID_SAMA5D2_XULT;
 	vendor_ek = VENDOR_ATMEL_RFO;
-#elif defined(CONFIG_SAMA5D2_ICP)
+#elif CONFIG_DEFAULT_HW_INFO == 4
 	board_id_ek = BOARD_ID_SAMA5D2_ICP;
 	vendor_ek = VENDOR_MCHIP_RFO;
-#elif defined(CONFIG_SAM9X60EK) || defined(CONFIG_SAM9X60_DDR2_SIP_EB) || defined(CONFIG_SAM9X60_SDR_SIP_EB)
+#elif CONFIG_DEFAULT_HW_INFO == 5
 	/* sam9x60ek ; sam9x60 ddr2 sip eb and sam9x60 sdr sip eb
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
@@ -511,21 +497,7 @@ static unsigned int set_default_rev(void)
 	unsigned int rev_id_dm;
 	unsigned int rev_id_ek;
 
-#if defined(CONFIG_AT91SAM9X5EK)
-	/* at91sam9x5ek
-	 * CPU Module: 'B', '1'
-	 * Display Module: 'B', '0'
-	 * EK Module: 'B','0'
-	 */
-	rev_cm = 'B';
-	rev_dm = 'B';
-	rev_ek = 'B';
-	rev_id_cm = '1';
-	rev_id_dm = '0';
-	rev_id_ek = '0';
-
-#elif defined(CONFIG_SAMA5D3XEK) || defined(CONFIG_SAMA5D3X_CMP)
-
+#if CONFIG_DEFAULT_HW_INFO == 1
 	/* sama5d3xek
 	 * CPU Module: 'D', '4'
 	 * Display Module: 'B', '2'
@@ -537,7 +509,7 @@ static unsigned int set_default_rev(void)
 	rev_id_cm = '4';
 	rev_id_dm = '2';
 	rev_id_ek = '3';
-#elif defined(CONFIG_SAMA5D4EK) || defined(CONFIG_SAMA5D4_XPLAINED)
+#elif CONFIG_DEFAULT_HW_INFO == 2
 	/*
 	 * SAMA5D4-EK
 	 * Display Module: 'B', '2'
@@ -550,7 +522,7 @@ static unsigned int set_default_rev(void)
 	rev_id_dm = '2';
 	rev_id_ek = '3';
 
-#elif defined(CONFIG_SAMA5D2_XPLAINED)
+#elif CONFIG_DEFAULT_HW_INFO == 3
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
@@ -558,28 +530,14 @@ static unsigned int set_default_rev(void)
 	rev_id_dm = '1';
 	rev_id_ek = '1';
 
-#elif defined(CONFIG_SAMA5D2_ICP)
+#elif CONFIG_DEFAULT_HW_INFO == 4
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
 	rev_id_cm = '1';
 	rev_id_dm = '1';
 	rev_id_ek = '1';
-#elif defined(CONFIG_SAM9X60EK)
-	rev_cm = 'A';
-	rev_dm = 'A';
-	rev_ek = 'A';
-	rev_id_cm = '0';
-	rev_id_dm = '0';
-	rev_id_ek = '0';
-#elif defined(CONFIG_SAM9X60_DDR2_SIP_EB)
-	rev_cm = 'A';
-	rev_dm = 'A';
-	rev_ek = 'A';
-	rev_id_cm = '0';
-	rev_id_dm = '0';
-	rev_id_ek = '0';
-#elif defined(CONFIG_SAM9X60_SDR_SIP_EB)
+#elif CONFIG_DEFAULT_HW_INFO == 5
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
