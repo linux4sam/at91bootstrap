@@ -654,20 +654,38 @@ endmenu
 
 menu "Board Hardware Information Options"
 
+config LOAD_HW_INFO
+	bool "Load Board Hardware Information"
+	default n
+
 choice
-	prompt "Load Board Hardware Information"
-	optional
+	prompt "Select Where to Load Board Hardware Information"
+	depends on LOAD_HW_INFO
 
 config LOAD_ONE_WIRE
-	bool "Load Hardware Information from 1-Wire Chips"
-	select LOAD_HW_INFO
+	bool "1-Wire Chips"
 
 config LOAD_EEPROM
-	bool "Load Hardware Information from EEPROM Chips"
+	bool "EEPROM Chips"
 	select TWI
-	select LOAD_HW_INFO
 
 endchoice
+
+config DEFAULT_HW_INFO
+	int "Using default information"
+	range 0 5
+	default 0
+	depends on LOAD_HW_INFO
+	help
+	  Default information when loading from 1wire/eeprom fails:
+	  Value |  For Boards
+	  ------|----------------------------------------------------
+	    0   | No defined board
+	    1   | SAMA5D3XEK, SAMA5D3X_CMP
+	    2   | SAMA5D4EK, SAMA5D4_XPLAINED
+	    3   | SAMA5D2_XULT
+	    4   | SAMA5D2_ICP
+	    5   | SAM9X60EK, SAM9X60_DDR2_SIP_EB, SAM9X60_SDR_SIP_EB
 
 choice
 	prompt "1-Wire PIO Select"
