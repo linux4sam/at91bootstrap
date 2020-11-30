@@ -377,15 +377,6 @@ unsigned int at91_twi3_hw_init(void)
 
 	return base_addr;
 }
-
-#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
-void at91_board_config_twi_bus(void)
-{
-	hdmi_twi_bus	= 0;
-	wm8904_twi_bus	= 0;
-	act8865_twi_bus	= 0;
-}
-#endif
 #endif
 
 #if defined(CONFIG_ACT8865_SET_VOLTAGE)
@@ -718,9 +709,5 @@ void twi_init()
 	twi_bus_init(at91_twi1_hw_init);
 	twi_bus_init(at91_twi2_hw_init);
 	twi_bus_init(at91_twi3_hw_init);
-#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
-	dbg_loud("Auto-Config the TWI Bus by the board\n");
-	at91_board_config_twi_bus();
-#endif
 }
 #endif

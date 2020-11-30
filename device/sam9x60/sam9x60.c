@@ -197,19 +197,9 @@ void twi_init()
 #if defined(CONFIG_FLEXCOM)
        twi_bus_init(at91_flexcom0_init);
 #endif
-#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
-	dbg_loud("Auto-Config the TWI Bus by the board\n");
-	at91_board_config_twi_bus();
-#endif
 }
 #endif
 
-#if defined(CONFIG_AUTOCONFIG_TWI_BUS)
-void at91_board_config_twi_bus(void)
-{
-	at24xx_twi_bus = 0;
-}
-#endif
 #if defined CONFIG_FLEXCOM
 static struct at91_flexcom flexcoms[] = {
 #if defined CONFIG_TWI

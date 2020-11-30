@@ -312,7 +312,7 @@ config HDMI
 
 choice
 	prompt "HDMI on TWI Select"
-	depends on HDMI && !AUTOTWI_BUS
+	depends on HDMI
 	default HDMI_ON_TWI0
 	help
 	  This interface allow you select which TWI bus for the HDMI to wire on.
@@ -350,7 +350,7 @@ config WM8904
 
 choice
 	prompt "CODEC on TWI Select"
-	depends on WM8904 && !AUTOTWI_BUS
+	depends on WM8904
 	default CODEC_ON_TWI0
 	help
 	  This interface allow you select which TWI bus for the CODEC to wire on.
@@ -441,7 +441,7 @@ config MCP16502
 
 choice
 	prompt "PMIC (ACT8865) on TWI Select"
-	depends on ACT8865 && !AUTOTWI_BUS
+	depends on ACT8865
 	default PMIC_ON_TWI0
 	help
 	  This interface allow you select which TWI bus for the PMIC to wire on.
@@ -487,7 +487,7 @@ endchoice
 
 choice
 	prompt "EEPROM on TWI Select"
-	depends on LOAD_EEPROM && !AUTOTWI_BUS
+	depends on LOAD_EEPROM
 	default EEPROM_ON_TWI0
 	help
 	  This interface allow you select which TWI bus for the EEPROM to wire on.
@@ -525,19 +525,6 @@ config EEPROM_SIZE
 	default 128
 
 endmenu
-
-config AUTOTWI_BUS
-	bool "Auto Configure TWI Bus by Board"
-	depends on TWI
-	select TWI0 if CPU_HAS_TWI0 || CPU_HAS_FLEXCOM
-	select TWI1 if CPU_HAS_TWI1 || CPU_HAS_FLEXCOM
-	select TWI2 if CPU_HAS_TWI2 || CPU_HAS_FLEXCOM
-	select TWI3 if CPU_HAS_TWI3 || CPU_HAS_FLEXCOM
-	default y
-	help
-	  This interface allow the board determines  which TWI bus that
-	  the HDMI, Audio CODEC(wm8904), PMIC(ACT8865) is wired on,
-	  select automatically, no menuconfig selecting to need.
 
 menu "Basic Drivers support"
 
