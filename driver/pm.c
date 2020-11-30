@@ -50,7 +50,7 @@ void at91_board_pm(void)
 #ifdef CONFIG_MACB
 	phys_enter_power_down();
 #endif
-#ifdef CONFIG_PM_PMIC
+#ifdef CONFIG_ACT8865_POWER_SAVING
 	act8865_set_power_saving_mode();
 #endif
 }

@@ -377,10 +377,9 @@ config	CODEC_ON_TWI3
 
 endchoice
 
-config PM_PMIC
-	bool "PMIC (ACT8865)"
-	depends on HAS_PMIC_ACT8865
-	select ACT8865
+config ACT8865_POWER_SAVING
+	bool "PMIC (ACT8865) Power Saving"
+	depends on ACT8865
 	default y
 	help
 	  This interface allow you to select the PMIC(ACT8865) chip on the board

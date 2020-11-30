@@ -151,7 +151,7 @@ int act8865_check_i2c_disabled(void)
 	return act8865_read(SYS_0, &data);
 }
 
-#ifdef CONFIG_PM_PMIC
+#ifdef CONFIG_ACT8865_POWER_SAVING
 static int act8865_set_reg_mode(unsigned char mode_reg, unsigned mode)
 {
 	unsigned char value;
