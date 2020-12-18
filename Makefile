@@ -48,7 +48,7 @@ else
 endif
 endif
 VERSION := 3.10.1
-REVISION := rc1
+REVISION :=
 SCMINFO := $(shell (host-utilities/setlocalversion))
 
 ifeq ($(SCMINFO),)
