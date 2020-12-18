@@ -24,6 +24,7 @@ config DDR_SET_BY_JEDEC
 	bool "JEDEC profile"
 
 config DDR_SET_BY_TIMING
+	depends on DDRC || UMCTL2
 	bool "Customized timings"
 endchoice
 
@@ -32,15 +33,19 @@ choice
 	depends on DDR_SET_BY_DEVICE
 config DDR_MT41K128M16_D2
 	bool "DDR3 MT41K128M16(SAMA5D2 Xplained)"
+	depends on DDRC
 	comment "Two MT41K128M16 4Gbit"
 config DDR_W972GG6KB_9X60
 	bool "DDR2 DDR_W972GG6KB(SAM9X60-EK)"
+	depends on DDRC
 	comment "W972GG6KB 2 Gbits"
 config DDR_W972GG6KB_D2
 	bool "DDR2 W972GG6KB(SAMA5D2-PTC-EK)"
+	depends on DDRC
 	comment "Two W972GG6KB 4 Gbits"
 config DDR_W971GG6SB_D2
 	bool "DDR2 W971GG6SB (SAMA5D2-SOM-EK)"
+	depends on DDRC
 	comment "DDR2 W971GG6SB 1 Gbit"
 config DDR_W9751G6KB
 	bool "DDR2 W971GG6SB (SAM9X60D5M SiP)"
@@ -50,16 +55,50 @@ config DDR_W971GG6SB
 	comment "DDR2 W971GG6SB 1 Gbit"
 config DDR_AD220032D
 	bool "LPDDR2 AD220032D(SAMA5D2-WLSOM-EK)"
+	depends on DDRC
 	comment "LPDDR2 AD220032D 2 Gbit"
 config DDR_MT47H128M16
 	bool "DDR2 MT47H128M16(SAMA5D3-EK)"
+	depends on DDRC
 	comment "DDR2 MT47H128M16 2 Gbit"
 config DDR_MT47H64M16
 	bool "DDR2 MT47H64M16 x 2(SAMA5D3-Xplained)"
+	depends on DDRC
 	comment "DDR2 MT47H64M16 1 Gbit x 2"
 config DDR_MT47H128M8
 	bool "DDR2 MT47H128M8 x 2(SAMA5D4-EK)"
+	depends on DDRC
 	comment "DDR2 MT47H128M8 1 Gbit x 2"
+config DDR_MT41K256M16TW_107
+	bool "DDR3L MT41K256M16TW-107(SAMA7G5-EK)"
+	depends on UMCTL2
+	select CONFIG_DDR_SPEED_1066
+	comment "MT41K256M16 DDR3 32 Meg x 16 x 8 DDR3-1066"
+config DDR_MT41K512M16HA_125
+	bool "DDR3L MT41K512M16HA_125(SAMA7G5-EK)"
+	depends on UMCTL2
+	select CONFIG_DDR_SPEED_1066
+	comment "MT41K512M16HA_125 DDR3L 64 Meg x 8 x 8 DDR3-1066"
+config DDR_MT47H128M16RT_25E_C
+	bool "DDR2 MT47H128M16RT-25E:C(SAMA7G5_DDR2_EB)"
+	depends on UMCTL2
+	select CONFIG_DDR_SPEED_800
+	comment "DDR2 MT47H128M16RT-25E:C 16 Meg x 16 x 8  DDR2-800"
+config DDR_IS43LD16128B_25BLI
+	bool "LPDDR2 IS43LD16128B-25BLI(SAMA7G5-LPDDR2_EB)"
+	depends on UMCTL2
+	select CONFIG_DDR_SPEED_800
+	comment "LPDDR2 IS43LD16128B-25BLI 16M x 16 x 8"
+config DDR_MT52L256M32D1PF_107
+	bool "LPDDR3 MT52L256M32D1PF_107(SAMA7G5_LPDDR3_EB)"
+	depends on UMCTL2
+	select CONFIG_DDR_SPEED_1066
+	comment "LPDDR3 MT52L256M32D1PF 256 Meg x 32"
+config DDR_MT46H128M16LFDD_48
+	bool "LPDDR DDR_MT46H128M16LFDD-48(SAMA7G5_LPDDR_EB)"
+	depends on UMCTL2
+	select CONFIG_DDR_SPEED_400
+	comment "LPDDR MT46H128M16LFDD-48 32 Meg x 16 x 4"
 endchoice
 
 choice
@@ -70,7 +109,7 @@ choice
 	default DDR3 if UMCTL2
 
 config LPDDR1
-	depends on DDRC
+	depends on DDRC || UMCTL2
 	bool "Low-power DDR1-SDRAM"
 
 config LPDDR2
@@ -92,7 +131,7 @@ endchoice
 
 choice
 	prompt "Data bus width"
-	depends on DDR_SET_BY_JEDEC || DDR_SET_BY_TIMING
+	depends on DDRC && (DDR_SET_BY_JEDEC || DDR_SET_BY_TIMING)
 config DBW_16
 	bool "16 bits"
 	help
@@ -123,7 +162,7 @@ config DDR_64_MBIT
 
 config DDR_128_MBIT
 	bool "128M bits"
-	depends on LPDDR1 || DDR2 || LPDDR2
+	depends on DDRC &&(LPDDR1 || DDR2 || LPDDR2)
 	help
 	  128Mb
 
@@ -154,10 +193,15 @@ config DDR_2_GBIT
 	  
 config DDR_4_GBIT
 	bool "4G bits"
-	depends on LPDDR2 
+	depends on DDR2 || DDR3 || LPDDR2 || LPDDR3 
 	help
 	  4Gb
 
+config DDR_8_GBIT
+	bool "8G bits"
+	depends on DDR3 || LPDDR2 || LPDDR3 
+	help
+	  8Gb
 endchoice
 
 choice
@@ -175,19 +219,17 @@ config R13_C11
 endchoice
 
 choice
-	prompt "Number of banks"
-	depends on (DDR_SEL_BANK && DDR_1_GBIT) || ( DDR_SEL_BANK && DDR_2_GBIT)
-config 4B
-	bool "4 banks for LPDDR2 device type S2"
-	select BANK_4
+	prompt "LPDDR type"
+	depends on LPDDR2
+config LPDDR2_S2
+	bool "LPDDR2-S2"
 	help
-	  4-bank memory devices
+	  LPDDR2-S2
 
-config 8B
-	bool "8 banks for LPDDR2 device type S4"
-	select BANK_8
+config LPDDR2_S4
+	bool "LPDDR2-S4"
 	help
-	  8-bank memory devices
+	  LPDDR2-S4
 endchoice
 
 
@@ -202,21 +244,39 @@ config CAS_2
 
 config CAS_3
 	bool "CAS 3"
-	depends on LPDDR1 || DDR2 || LPDDR2 || LPDDR3
+	depends on (DDR2 && UMCTL2) || ((DDR2 || LPDDR1 || LPDDR2 || LPDDR3) && DDRC)
 	help
 	  LPDDR3/DDR2/LPDDR2/LPDDR1 CAS Latency 3
 
+config CAS_4
+	bool "CAS 4"
+	depends on DDR2 && UMCTL2
+	help
+	  CAS Latency 4
+
 config CAS_5
 	bool "CAS 5"
-	depends on DDR3
+	depends on DDRC || (DDR3 && DDR_SPEED_800 && UMCTL2) || (DDR2 && UMCTL2 )
 	help
 	  DDR3 CAS Latency 5
 
 config CAS_6
 	bool "CAS 6"
-	depends on DDR3 || LPDDR3
+	depends on ((DDR3 || LPDDR3)&& DDRC) || (DDR2 && UMCTL2) || (DDR3 && UMCTL2)
 	help
-	  DDR3LPDDR3 CAS Latency 6
+	  CAS Latency 6
+
+config CAS_7
+	bool "CAS 7"
+	depends on DDR3 && UMCTL2
+	help
+	  CAS Latency 7
+
+config CAS_8
+	bool "CAS 8"
+	depends on DDR3 && UMCTL2
+	help
+	  CAS Latency 8
 endchoice
 
 choice
@@ -224,45 +284,42 @@ choice
 	depends on DDR_SET_BY_JEDEC
 config DDR_SPEED_200
 	depends on LPDDR1
-	bool "DDR-200 (memory clock 100MHz)"
+	bool "DDR-200 (clock rate 100MHz)"
 config DDR_SPEED_266
 	depends on LPDDR1
-	bool "DDR-266 (memory clock 133 MHz)"
+	bool "DDR-266 (clock rate 133MHz)"
 config DDR_SPEED_333
-	depends on LPDDR1 || LPDDR2
-	bool "DDR-333 (memory clock 166 MHz)"
+	depends on (LPDDR1 || LPDDR2)
+	bool "DDR-333 (clock rate 166MHz)"
 config DDR_SPEED_370
 	depends on LPDDR1
-	bool "DDR-370 (memory clock 185 MHz)"
+	bool "DDR-370 (clock rate 185MHz)"
 config DDR_SPEED_400
 	depends on LPDDR1 || DDR2 || LPDDR2
-	bool "DDR-400 (memory clock 200 MHz)"
-
+	bool "DDR-400 (clock rate 200MHz)"
 config DDR_SPEED_533
-	depends on DDR2
-	bool "DDR-533 (memory clock 133 MHz)"
-
+	depends on DDR2 || LPDDR2
+	bool "DDR_533 (133MHz, I/O 266MHz, data 533MT/s)"
 config DDR_SPEED_667
-	depends on DDR2
-	bool "DDR-667 (memory clock 166 MHz)"
-	
+	depends on DDR2 || LPDDR2
+	bool "DDR_667 (167MHz, I/O 333MHz, data 677MT/s)"
 config DDR_SPEED_800
-	depends on DDR2 || DDR3
-	bool "DDR-800 (memory clock 200 MHz for DDR2, 100 MHz for DDR3)"
-
+	depends on DDR2 || DDR3 || LPDDR2 || LPDDR3
+	bool "DDR_800 (100|200MHz, I/O 400MHz, data 800MT/s)"
+config DDR_SPEED_933
+	depends on  LPDDR2 && UMCTL2
+	bool "DDR_933 (233MHz, I/O 466MHz, data 933MT/s)"
 config DDR_SPEED_1066
-	depends on DDR3 || LPDDR3 
-	bool "DDR-1066 (memory clock 133)"
-
+	depends on DDR3 || LPDDR2 || LPDDR3 
+	bool "DDR_1066 (133|266MHz, I/O 533MHz, data 1066MT/s)"
 config DDR_SPEED_1333
-	depends on DDR3 || LPDDR3 
-	bool "DDR-1066 (memory clock 166)"
+	depends on (DDR3 || LPDDR3 ) && DDRC
+	bool "DDR3_1333 (166MHz, I/O 667MHz, data 1333MT/s)"
 endchoice
-
 
 choice
 	prompt "Refresh window: tREFW"
-	depends on DDR_SET_BY_JEDEC
+	depends on DDRC && DDR_SET_BY_JEDEC
 config REF_WIN_32
 	bool "32 ms"
 config REF_WIN_64
@@ -272,7 +329,7 @@ endchoice
 
 choice
 	prompt "number of REFRESH commands in every window"
-	depends on DDR_SET_BY_JEDEC
+	depends on DDRC && DDR_SET_BY_JEDEC
 config REF_2048
 	bool "2048"
 config REF_4096
@@ -283,92 +340,221 @@ config REF_8192
 endchoice
 
 config DDR_TRSA
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tRAS - Active to Precharge Delay(tCK)"
 	range 0 15
 	default 0
 config DDR_TRCD
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tRCD - Row to Column Delay(tCK)"
 	range 0 15
 	default 0
 config DDR_TWR
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tWR - Write Recovery Delay(tCK)"
 	range 0 15
 	default 0
 config DDR_TRC
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tRC - Row Cycle Delay(tCK)"
 	range 0 15
 	default 0
 config DDR_TRP
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tRP - Row Precharge Delay(tCK)"
 	range 0 15
 	default 0
 config DDR_TRRD
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tRRD - Active BankA to Active BankB(tCK)"
 	range 0 15
 	default 0
 config DDR_TWTR
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tWTR - Internal Write to Read Delay(tCK)"
 	range 1 7
 	default 1
 config DDR_TMRD
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tMRD - Load Mode Register Command to Activate or Refresh Command(tCK)"
 	range 0 15
 	default 0
 config DDR_TRFC
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tRFC - Row Cycle Delay(tCK)"
 	range 0 127
 	default 0
 config DDR_TXSNR
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tTXSNR - Exit Self-refresh Delay to Non-Read Command(tCK)"
 	range 0 255
 	default 0
 config DDR_TXSRD
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tTXSRD - Exit Self-refresh Delay to Non-Read Command(tCK)"
 	range 0 255
 	default 0
 config DDR_TXP
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tTXP - Exit Power-down Delay to First Command(tCK)"
 	range 0 15
 	default 0
 config DDR_TXARD
-	depends on DDR_SET_BY_TIMING && DDR2
+	depends on DDR_SET_BY_TIMING && DDR2 && DDRC
 	int "tTXARD - Exit Active Power Down Delay to Read Command in Mode Fast Exit(tCK)"
 	range 0 15
 	default 0
 config DDR_TXARDS
-	depends on DDR_SET_BY_TIMING && DDR2
+	depends on DDR_SET_BY_TIMING && DDR2 && DDRC
 	int "tTXARDS - Exit Active Power Down Delay to Read Command in Mode Slow Exit(tCK)"
 	range 0 15
 	default 0
 config DDR_TRPA
-	depends on DDR_SET_BY_TIMING && DDR2
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tTRPA - Row Precharge All Delay(tCK)"
 	range 0 15
 	default 0
 config DDR_TRTP
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tTRTP - Read to Precharge(tCK)"
 	range 0 15
 	default 0
 config DDR_TFAW
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "tTFAW - Four Active Windows(tCK)"
 	range 0 15
 	default 0
 config DDR_RTC
-	depends on DDR_SET_BY_TIMING
+	depends on DDR_SET_BY_TIMING && DDRC
 	int "RTC - MPDDRC Refresh Timer Count"
 	range 0 2048
 	default 0
+
+config UMCTL2_TRFC
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRFC min - time from refresh to refresh or activate (ns)"
+	range 0 500
+	default 198 if DDR2
+	default 300 if DDR3
+	default 210 if (LPDDR2 || LPDDR3)
+
+config UMCTL2_TREFI
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tREFI - Average periodic refresh interval (ns)"
+	range 0 10000
+	default 7800 if (DDR2 || DDR3)
+	default 3900 if (LPDDR2 || LPDDR3)
+
+config UMCTL2_TWR
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tWR - WRITE recovery time (ns)"
+	range 0 30
+	default 15
+
+config UMCTL2_TRP
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRP - Row Precharge command (ns)"
+	range 0 30
+	default 15
+	
+config UMCTL2_TRP_PS
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRP - Row Precharge command (ps)"
+	range 0 30000
+	default 15000
+
+config UMCTL2_TRCD
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRCD - Row to Column delay (ns)"
+	range 0 100
+	default 15 
+
+config UMCTL2_TRCD_PS
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRCD - Row to Column delay (ps)"
+	range 0 30000
+	default 15000
+
+config UMCTL2_TRCCD
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRCCD - Column to Column delay (ns)"
+	range 0 10
+	default 2 if (DDR2 || LPDDR2)
+	default 4 if (DDR3 || LPDDR3)
+
+config UMCTL2_TRAS
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRAS - Row Active Strobe (ns)"
+	range 0 100
+	default 45 if (DDR2)
+	default 38 if (DDR3)
+	default 42 if (LPDDR2 || LPDDR3)
+
+config UMCTL2_TRAS_MAX
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRAS(max) - Row Active Strobe (ns)"
+	range 0 100000
+	default 70000
+
+config UMCTL2_TRC_PS
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tRC - Row Cycle (ps)"
+	range 0 100000
+	default 60000 if (DDR2)
+	default 50625 if (DDR3)
+	default 45000 if (LPDDR2)
+	default 62500 if (LPDDR3)
+
+config UMCTL2_TFAW
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tFAW - Four Activation Window (ns)"
+	range 0 100
+	default 50
+
+config UMCTL2_TPRECKE
+	depends on DDR_SET_BY_TIMING && UMCTL2 && (DDR2 || DDR3)
+	int "tPRECKE - Cycles to wait after reset before driving CKE high to start (ns)"
+	range 0 1000000
+	default 200000 if DDR2
+	default 500000 if DDR3
+
+config UMCTL2_TPOSTCKE
+	depends on DDR_SET_BY_TIMING && UMCTL2 && (DDR2 || LPDDR2 || LPDDR3)
+	int "tPOSTCKE - Cycles to wait after driving CKE high to start (ns)"
+	range 0 1000000
+	default 400 if (DDR2)
+	default 20000 if (LPDDR2 || LPDDR3)
+
+config UMCTL2_RL
+	depends on DDR_SET_BY_TIMING && UMCTL2 && (LPDDR2 || LPDDR3)
+	int "RL - Read Latency, Clock cycles (ns)"
+	range 0 20
+	default 8 
+
+config UMCTL2_WL
+	depends on DDR_SET_BY_TIMING && UMCTL2 && (LPDDR1 || LPDDR2 || LPDDR3)
+	int "WL - Write Latency, Clock cycles (ns)"
+	range 0 20
+	default 4 
+
+config UMCTL2_TZQOPER
+	depends on DDR_SET_BY_TIMING && UMCTL2 && (DDR3 || LPDDR2 || LPDDR3)
+	int "tZQOPER or tZQCL - TZQ Long Calibration Clock cycles (ns)"
+	range 0 1000
+	default 360 
+	
+config UMCTL2_TZQCS
+	depends on DDR_SET_BY_TIMING && UMCTL2 && (DDR3 || LPDDR2 || LPDDR3)
+	int "tZQCS - TZQ Short Calibration Clock cycles (ns)"
+	range 0 200
+	default 90 
+
+config UMCTL2_TMRD
+	depends on DDR_SET_BY_TIMING && UMCTL2
+	int "tMRD - Mode Register Delay (clock cycles)"
+	range 0 40
+	default 2 if DDR2
+	default 4 if DDR3
+	default 0 if LPDDR2
+	default 15 if LPDDR3
+
