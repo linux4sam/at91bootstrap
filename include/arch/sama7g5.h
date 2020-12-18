@@ -80,5 +80,5 @@
 #define AT91C_NUM_PIO		5
 
 #define AT91C_BASE_PIT64BC	AT91C_BASE_PIT64B0
-
+#define AT91C_BASE_DDRCS	0x60000000
 #endif /* #ifndef __SAMA7G5_H__ */
