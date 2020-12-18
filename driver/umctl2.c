@@ -49,6 +49,11 @@
 #include "publ.h"
 #endif
 
+#if defined(CONFIG_DDR_SET_BY_JEDEC)
+#include "umctl2_jedec.h"
+#elif defined(CONFIG_DDR_SET_BY_DEVICE)
+#include "umctl2_device.h"
+#endif
 #include "dram_helpers.h"
 
 #define MP_AXI_PORT_ENABLE(x) (1 << (x))
@@ -81,14 +86,17 @@ unsigned long tDQSCK_MAX;
 unsigned long CL;
 unsigned long CWL;
 unsigned long AL;
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 unsigned long RL;
 unsigned long WL;
 #endif
+#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 unsigned long TZQOPER;
 unsigned long TZQCS;
+#endif
 unsigned long MRD;
 
+#if defined(CONFIG_DDR_SET_BY_JEDEC) || defined(CONFIG_DDR_SET_BY_DEVICE)
 struct dram_timings timings = {
 	_tRFC, _tREFI, _tWR, _tRP, _tRP_ps, _tRCD, _tRCD_ps, _tCCD,_tRAS, _tRASMAX,
 	_tRC_ps, _tFAW,
@@ -100,11 +108,61 @@ struct dram_timings timings = {
 	_tDQSCK_MIN, _tDQSCK_MAX,
 #endif
 	_CL, _CWL, _AL,
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	_RL, _WL,
 #endif
-	_TZQOPER, _TZQCS, _MRD,
+#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	_TZQOPER, _TZQCS,
+#endif
+	_MRD,
 };
+#endif
+
+#if defined(CONFIG_DDR_SET_BY_TIMING)
+struct dram_timings timings = {
+	CONFIG_UMCTL2_TRFC, CONFIG_UMCTL2_TREFI, CONFIG_UMCTL2_TWR, CONFIG_UMCTL2_TRP, 
+	CONFIG_UMCTL2_TRP_PS, CONFIG_UMCTL2_TRCD, CONFIG_UMCTL2_TRCD_PS, CONFIG_UMCTL2_TRCCD, 
+	CONFIG_UMCTL2_TRAS, CONFIG_UMCTL2_TRAS_MAX, CONFIG_UMCTL2_TRC_PS, CONFIG_UMCTL2_TFAW,
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+	CONFIG_UMCTL2_TPRECKE,
+#endif
+#if defined(CONFIG_DDR3)
+	0,
+#else
+	CONFIG_UMCTL2_TPOSTCKE,
+#endif
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	2500UL, 5500UL, 
+#endif
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	0, 0,
+#elif defined(CONFIG_LPDDR1)
+	3, 3,
+#elif defined(CONFIG_CAS_4)
+	4, 3,
+#elif defined(CONFIG_CAS_5)
+	5, 4,
+#elif defined(CONFIG_CAS_6)
+	6, 5,
+#elif defined(CONFIG_CAS_7)
+	7, 6,
+#elif defined(CONFIG_CAS_8)
+	8, 7,
+#endif
+	0,
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	CONFIG_UMCTL2_RL, CONFIG_UMCTL2_WL,
+#endif
+#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	CONFIG_UMCTL2_TZQOPER, CONFIG_UMCTL2_TZQCS,
+#endif
+#if defined(CONFIG_LPDDR2)
+	0,
+#else
+	CONFIG_UMCTL2_TMRD,
+#endif
+};
+#endif
 
 inline static void uddrc_mp_setup()
 {
@@ -415,10 +473,9 @@ inline static void uddrc_mp_setup()
 	UDDRC_MP->UDDRC_PCFGWQOS1_4 = UDDRC_PCFGWQOS1_4_wqos_map_timeout(0x0100);
 	}
 
-	/* SARBASE/SIZE must be chunks of 512MB */
-	UDDRC_MP->UDDRC_SARBASE0 = ((unsigned int) MEM_BANK) /
-				((unsigned int) (512 * 1024 * 1024));
-	UDDRC_MP->UDDRC_SARSIZE0 = (2 * 1024) / (unsigned int) MEM_SIZE - 1;
+	UDDRC_MP->UDDRC_SARBASE0     = AT91C_BASE_DDRCS/(512*1024*1024); //base_addr = 0x6000_0000/512MB = 3
+	UDDRC_MP->UDDRC_SARSIZE0     = 3;                           		//nblocks=(2GB/512MB)-1=3
+
 	dbg_very_loud("sarbase %x, offset = %x\n", UDDRC_MP->UDDRC_SARBASE0,
 			OFFSETOF(struct uddrc_mp, UDDRC_SARBASE0));
 }
@@ -466,6 +523,9 @@ inline static void uddrc_mstr()
 #ifdef CONFIG_LPDDR3
 							| UDDRC_MSTR_lpddr3
 #endif
+#ifdef CONFIG_LPDDR1
+							| UDDRC_MSTR_mobile
+#endif
 	;
 
 	dbg_very_loud("UMCTL2 MSTR %x\n", UDDRC_REGS->UDDRC_MSTR);
@@ -477,7 +537,7 @@ inline static void uddrc_init0()
 	unsigned long pre_cke_x1024 = 1 +
 		DIV_ROUND_UP(NS_TO_CYCLES_UP(tPRECKE), 1024 * 2);
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long pre_cke_x1024 = 1 + DIV_ROUND_UP(TINIT1, 1024 * 2);
 #endif
 #ifdef CONFIG_DDR3
@@ -487,7 +547,7 @@ inline static void uddrc_init0()
 #ifdef CONFIG_DDR2
 	unsigned long post_cke_x1024 = 2;
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long post_cke_x1024 = 1 + DIV_ROUND_UP(TPOSTCKE, 1024 * 2);
 #endif
 
@@ -509,7 +569,7 @@ inline static void uddrc_init1()
 	unsigned long dram_rstn_x1024 = 1 +
 			DIV_ROUND_UP(NS_TO_CYCLES_UP(200000), 1024 * 2);
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long dram_rstn_x1024 = 0;
 #endif
 	/* DRAM init register 1 */
@@ -525,7 +585,7 @@ inline static void uddrc_init1()
 
 inline static void uddrc_init2()
 {
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long min_stable_clock_x1 = DIV_ROUND_UP(TINIT2, 2);
 #endif
 #if defined(CONFIG_LPDDR2)
@@ -534,7 +594,7 @@ inline static void uddrc_init2()
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	UDDRC_REGS->UDDRC_INIT2 = 0;
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	UDDRC_REGS->UDDRC_INIT2 = UDDRC_INIT2_min_stable_clock_x1(min_stable_clock_x1)
 #if defined(CONFIG_LPDDR2)
 				| UDDRC_INIT2_idle_after_reset_x32(idle_after_reset_x32 + 1)
@@ -557,9 +617,25 @@ inline static void uddrc_init3()
 	 MR0[1:0].bl   	=2'b00  (8 fixed)
 	 */
 #ifdef CONFIG_DDR3
+	unsigned int bTWR;
+	if (TWR < 5) {
+		bTWR = 1;
+	}
+	else {
+		if (TWR >= 16)
+			bTWR = 0;
+		if (TWR >= 13 && TWR <= 15)
+			bTWR = 7;
+		if (TWR == 11 || TWR == 12)
+			bTWR = 6;
+		if (TWR == 9 || TWR == 10)
+			bTWR = 5;
+		if (TWR >= 5 && TWR <= 8)
+			bTWR = TWR - 4;
+	}
 	UDDRC_REGS->UDDRC_INIT3	= UDDRC_INIT3_mr(
 				(1 << 0) | ((CL - 4) << 4) | (1 << 8) |
-				((TWR - 4) << 9)) |
+				(bTWR << 9)) |
 				UDDRC_INIT3_emr(1 << 6);
 #endif
 #ifdef CONFIG_DDR2
@@ -571,12 +647,15 @@ inline static void uddrc_init3()
 	UDDRC_REGS->UDDRC_INIT3 = UDDRC_INIT3_mr(3 | ((TWR - 2) << 5))
 				| UDDRC_INIT3_emr(RL - 2);
 #endif
-
+#if defined(CONFIG_LPDDR1)
+	UDDRC_REGS->UDDRC_INIT3 = UDDRC_INIT3_mr(3 | (3 << 4));
+#endif
 	dbg_very_loud("UMCTL2 INIT 3 %x\n", UDDRC_REGS->UDDRC_INIT3);
 }
 
 inline static void uddrc_init4()
 {
+#if !defined(CONFIG_LPDDR1)
 	/* DRAM init register 4 */
 	UDDRC_REGS->UDDRC_INIT4	=
 #ifdef CONFIG_DDR3
@@ -589,11 +668,14 @@ inline static void uddrc_init4()
 				UDDRC_INIT4_emr2(3)
 #endif
 				 | UDDRC_INIT4_emr3(0);
+#endif
 	dbg_very_loud("UMCTL2 INIT 4 %x\n", UDDRC_REGS->UDDRC_INIT4);
 }
 
+
 inline static void uddrc_init5()
 {
+#if !defined(CONFIG_LPDDR1)
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long dev_zqinit_x32 = 1 + DIV_ROUND_UP(512, 32*2);
 #endif
@@ -609,6 +691,7 @@ inline static void uddrc_init5()
 #endif
 				;
 	dbg_very_loud("UMCTL2 INIT 5 %x\n", UDDRC_REGS->UDDRC_INIT5);
+#endif
 }
 
 inline static void uddrc_dramtmg()
@@ -622,43 +705,65 @@ inline static void uddrc_dramtmg()
 	unsigned long t_ras_min = DIV_ROUND_UP(TRAS, 2);
 	unsigned long t_ras_max = DIV_ROUND_DOWN(
 			DIV_ROUND_DOWN(NS_TO_CYCLES_DOWN(tRASMAX), 1024) - 1, 2);
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+#if defined(CONFIG_DDR3)
 	unsigned long t_xp = DIV_ROUND_UP(TXPDLL, 2);
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long t_xp = DIV_ROUND_UP(TXP, 2);
 #endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	unsigned long rd2pre = AL + DIV_ROUND_UP(TRTP, 2);
+
+#if defined(CONFIG_DDR2)
+	/* DDR2: tAL + BL/2 + max(tRTP, 2) - 2 */
+	unsigned long rd2pre = DIV_ROUND_UP(AL + (BL / 2) + MAX(TRTP, 2) - 2, 2);
+#endif
+#if defined(CONFIG_DDR3)
+	/* DDR3: tAL + max (tRTP, 4) */
+	unsigned long rd2pre =  DIV_ROUND_UP(AL + MAX(TRTP, 4), 2);
+#endif
+#if defined(CONFIG_LPDDR1)
+	/* mDDR: BL/2 */
+	unsigned long rd2pre = DIV_ROUND_UP((BL / 2), 2);
 #endif
 #if defined(CONFIG_LPDDR2)
+	/* LPDDR2-S4: BL/2 + max(tRTP,2) - 2. */
 	unsigned long rd2pre = DIV_ROUND_UP((BL / 2) + MAX(TRTP, 2) - 2, 2);
 #endif
 #if defined(CONFIG_LPDDR3)
+	/* - LPDDR3: BL/2 + max(tRTP,4) - 4 */
 	unsigned long rd2pre = DIV_ROUND_UP((BL / 2) + MAX(TRTP, 4) - 4, 2);
 #endif
 	unsigned long t_rc = DIV_ROUND_UP(TRC, 2);
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR1)
+	/* DDR2/3/mDDR: RL + BL/2 + 2 - WL */
 	unsigned long rd2wr = DIV_ROUND_UP(RL + (BL / 2) + 2 - WL, 2);
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	/* LPDDR2/LPDDR3: RL + BL/2 + RU(tDQSCKmax/tCK) + 1 - WL */
 	unsigned long rd2wr = DIV_ROUND_UP(RL + (BL / 2) + TDQSCK_MAX + 1 - WL, 2);
 #endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+	/* DDR2/3/mDDR: CWL + BL/2 + tWTR */
 	unsigned long wr2rd = DIV_ROUND_UP(CWL + (BL / 2) + TWTR, 2);
+#endif
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	/* LPDDR2/3: WL + BL/2 + tWTR + 1 */
+	unsigned long wr2rd = DIV_ROUND_UP(WL + (BL / 2) + TWTR, 2);
+#endif
+
 #if defined(CONFIG_DDR3)
 	unsigned long t_mod = DIV_ROUND_UP(TMOD, 2);
 #endif
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
+
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR3)
 	unsigned long t_mrd = DIV_ROUND_UP(TMRD, 2);
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long wr2rd = DIV_ROUND_UP(WL + (BL / 2) + TWTR, 2);
-#endif
+	/* T_RCD : tRCD - tAL: Minimum time from activate to read or write command to same bank */
 	unsigned long t_rcd = DIV_ROUND_UP(TRCD - AL, 2);
+	/* tCCD: This is the minimum time between two reads or two writes */
 	unsigned long t_ccd = DIV_ROUND_UP(TCCD, 2);
+	/* tRRD: Minimum time between activates from bank "a" to bank "b" */
 	unsigned long t_rrd = DIV_ROUND_UP(TRRD, 2);
+	/* tRP: Minimum time from single-bank precharge to activate of same bank.*/
 	unsigned long t_rp = DIV_ROUND_DOWN(TRP, 2) + 1;
 	unsigned long t_cksrx = DIV_ROUND_UP(TCKSRX, 2);
 	unsigned long t_cksre = DIV_ROUND_UP(TCKSRE, 2);
@@ -668,9 +773,9 @@ inline static void uddrc_dramtmg()
 	unsigned long t_xs_dll_x32 = DIV_ROUND_UP(TXSDLL, 32*2) + 1;
 	unsigned long t_xs_x32 = DIV_ROUND_UP(TXS, 32*2) + 1;
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	/* - LPDDR2/LPDDR3 mode: Set this to the larger of tCKE or tCKESR */
 	unsigned long t_cke = DIV_ROUND_UP(MAX(TCKE, TCKESR), 2);
-
 	unsigned long t_ckcsx = DIV_ROUND_UP(TCKCSX, 2);
 	unsigned long t_ckdpdx = DIV_ROUND_UP(TCKDPDX, 2);
 	unsigned long t_ckdpde = DIV_ROUND_UP(TCKDPDE, 2);
@@ -699,11 +804,12 @@ inline static void uddrc_dramtmg()
 
 	/* tWL - write latency, not required in DDR3. Only for LPDDR2*/
 	UDDRC_REGS->UDDRC_DRAMTMG2 =
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 			UDDRC_DRAMTMG2_write_latency(DIV_ROUND_UP(WL, 2)) |
 	/* tRL - read latency, not required in DDR3. Only for LPDDR2 */
 			UDDRC_DRAMTMG2_read_latency(DIV_ROUND_UP(RL, 2)) |
 #endif
+
 	/* read to write latency = (tRL + BL/2 +2 - tWL )/2 */
 			UDDRC_DRAMTMG2_rd2wr(rd2wr) |
 	/* write to read latency = (Cas write latency CWL + BL/2 + tWTR (internal write to read ))/2 */
@@ -711,11 +817,14 @@ inline static void uddrc_dramtmg()
 
 	/* tMRD/2 (cycles to wait after a mode reg write or read) */
 	UDDRC_REGS->UDDRC_DRAMTMG3 =
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
-			UDDRC_DRAMTMG3_t_mrd(t_mrd)
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR3)
+			UDDRC_DRAMTMG3_t_mrd(t_mrd) 
 #endif
-#ifdef CONFIG_LPDDR2
+#if defined(CONFIG_LPDDR2)
 			UDDRC_DRAMTMG3_t_mrw(DIV_ROUND_UP(TMRW, 2))
+#endif
+#if defined(CONFIG_LPDDR3)
+			| UDDRC_DRAMTMG3_t_mrw(DIV_ROUND_UP(TMRW, 2))
 #endif
 #ifdef CONFIG_DDR3
 	/* tMOD/2 : cycles between load mode command and following non-load mode command */
@@ -739,9 +848,9 @@ inline static void uddrc_dramtmg()
 	/* (tCKE+1)/2 (minimum CKE Low width for self refresh to exit) */
 			UDDRC_DRAMTMG5_t_ckesr(t_ckesr) |
 	/* RoundUp(tCKE/2) */
-			UDDRC_DRAMTMG5_t_cke(t_cke);
+			UDDRC_DRAMTMG5_t_cke(t_cke); 
 
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	/* LPDDR only */
 	UDDRC_REGS->UDDRC_DRAMTMG6 = UDDRC_DRAMTMG6_t_ckcsx(t_ckcsx) |
 				 UDDRC_DRAMTMG6_t_ckdpdx(t_ckdpdx) |
@@ -792,52 +901,559 @@ HIF bit:     -    7+20 7+19 7+18 7+17 7+16 7+15 7+14 7+13 7+12 7+11 7+10 7+9  7+
 =	     -    27   26   25   24   23   22   21   20   19   18   17   16   15   14   13
 
 	 */
-	/* internal base = 4 3 2 for these bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b2(8) |
-				UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-				UDDRC_ADDRMAP1_addrmap_bank_b0(8);
 
-	/* internal base = 5 4 3 2 for these bits */
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b5(0) |
-				UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-				UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-				UDDRC_ADDRMAP2_addrmap_col_b2(0);
-
-	/* internal base = 9 8 7 6 for these bits */
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b9(0) |
-				UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-				UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-				UDDRC_ADDRMAP3_addrmap_col_b6(0);
-
-	/* 31 means unused */
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b11(31)	|
-				UDDRC_ADDRMAP4_addrmap_col_b10(31);
-
-	/* internal base = 17, 7, 6 for these bits, b2_10=15 means we use reg MAP9 */
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b11(7) |
-				UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-				UDDRC_ADDRMAP5_addrmap_row_b1(7) |
-				UDDRC_ADDRMAP5_addrmap_row_b0(7);
-
-	/* 15 = unused, internal base for these bits 19 and 18 */
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b15(15)	|
-#if defined(CONFIG_RAM_512MB)
-				UDDRC_ADDRMAP6_addrmap_row_b14(7) |
+#if defined(CONFIG_DDR_256_MBIT)
+#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)
+	/* 9 column bits, 3 bank bits, 13 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(7) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(7) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(7);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(31);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(6);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(6) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	
+	
+#elif defined(CONFIG_LPDDR1)
+	/* 9 column bits, 2 bank bits, 13 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(7) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(7) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(63);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(31) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(31);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(5) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(5) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(5) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(5);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(5) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	
+#else
+	#error "No SDRAM addressin defined"
 #endif
-#if defined(CONFIG_RAM_256MB)
-				UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+
+#elif defined(CONFIG_DDR_512_MBIT)
+
+#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)
+	/* 10 column bits, 3 bank bits, 13 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) | 
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+
+#elif defined(CONFIG_LPDDR1)
+	/* 10 column bits, 2 bank bits, 13 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(6) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(6) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(63);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(31);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(6);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(6) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+
+#elif defined(CONFIG_DDR3)
+	/* 10 column bits, 3 bank bits, 12 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#else
+	#error "No SDRAM addressin defined"
 #endif
-				UDDRC_ADDRMAP6_addrmap_row_b13(7) |
-				UDDRC_ADDRMAP6_addrmap_row_b12(7);
 
-	/* internal base for these bits 11 10 9 8 */
-	UDDRC_REGS->UDDRC_ADDRMAP9 = 0;
+#elif defined(CONFIG_DDR_1_GBIT)
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || (defined(CONFIG_LPDDR2) && defined CONFIG_BANK_8)
+	/* 10 column bits, 3 bank bits, 13 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#elif (defined(CONFIG_LPDDR2) && defined CONFIG_BANK_4)
+	/* 10 column bits, 3 bank bits, 14 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#elif defined(CONFIG_LPDDR1)
+	/* 10 column bits, 2 bank bits, 14 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(63);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(31);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(6);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(6) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(6) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#else
+	#error "No SDRAM addressing defined"
+#endif
 
-	/* internal base for these bits 15 14 13 12 */
-	UDDRC_REGS->UDDRC_ADDRMAP10 = 0;
+#elif defined(CONFIG_DDR_2_GBIT)
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || (defined(CONFIG_LPDDR2) && defined CONFIG_BANK_8)
+	/* 10 column bits, 3 bank bits, 14 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) | 
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#elif (defined(CONFIG_LPDDR2) && defined CONFIG_BANK_4)
+	/* 10 column bits, 2 bank bits, 15 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(63);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(6) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(6);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(6) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(6) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(6) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	
+#elif defined(CONFIG_LPDDR1)
+	/* 11 column bits, 2 bank bits, 14 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(9) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(9) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(63);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#else
+	#error "No SDRAM addressing defined"
+#endif
 
-	/* internal base for this bit 16 */
-	UDDRC_REGS->UDDRC_ADDRMAP11 = 0;//UDDRC_ADDRMAP11_addrmap_row_b10(7);
+#elif defined(CONFIG_DDR_4_GBIT) 
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) 
+	/* 10 column bits, 3 bank bits, 15 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#elif defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	/* 11 column bits, 3 bank bits, 14 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(9) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(9) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(9);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(0) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(8) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(8) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(8) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(8);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(8) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(8) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#else
+	#error "No SDRAM addressin defined"
+#endif
+
+#elif defined(CONFIG_DDR_8_GBIT)
+#if defined(CONFIG_DDR3)
+	/* 10 column bits, 3 bank bits, 16 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2) 
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(7);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#elif defined(CONFIG_LPDDR2)|| defined(CONFIG_LPDDR3)
+#if 0 // x16 addressing
+	/* 11 column bits, 3 bank bits, 15 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(9) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(9) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(9);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(0) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(8) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(8) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(8) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(8);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(8) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(8) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(8) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#endif
+#if 1 // x32 addressing
+	/* 10 column bits, 3 bank bits, 15 row bits */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
+								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
+	// internal base = 2,3,4 (ba2 unused --> field=31)
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
+								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
+	// internal base = 2,3,4,5
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
+								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
+	// internal base = 6,7,8,9
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
+								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
+	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
+								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
+	// internal base = 6,7,8,17
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b14(7) |
+								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
+	// internal base = 18 (unused rows field=15)
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
+#endif
+#else
+	#error "No SDRAM addressin defined"
+#endif
+#endif
 }
 
 inline static void uddrc_configure_refresh()
@@ -902,7 +1518,7 @@ inline static void uddrc_rank_refresh()
 
 inline static void uddrc_config_zq_calib()
 {
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+#if defined(CONFIG_DDR3)
 	unsigned long t_zq_short_interval_x1024 =
 		DIV_ROUND_UP(NS_TO_CYCLES_UP(128000000UL), 1024*2) + 1;
 #endif
@@ -910,7 +1526,7 @@ inline static void uddrc_config_zq_calib()
 	unsigned long t_zq_short_interval_x1024 =
 		DIV_ROUND_UP(NS_TO_CYCLES_UP(4000000UL), 1024*2) + 1;
 #endif
-
+#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	/* enable generation of auto ZQ calibration by controller */
 	UDDRC_REGS->UDDRC_ZQCTL0 =
 	/* ZQ calibration resistor is not shared between ranks */
@@ -925,6 +1541,7 @@ inline static void uddrc_config_zq_calib()
 			| UDDRC_ZQCTL1_t_zq_reset_nop(DIV_ROUND_UP(TZQRESET, 2))
 #endif
 			;
+#endif
 	dbg_very_loud("ZQCTL0 %x\n", UDDRC_REGS->UDDRC_ZQCTL0);
 	dbg_very_loud("ZQCTL1 %x\n", UDDRC_REGS->UDDRC_ZQCTL1);
 }
@@ -1079,12 +1696,14 @@ int umctl2_init (struct umctl2_config_state *state)
 	CL = timings.CL;
 	CWL = timings.CWL;
 	AL = timings.AL;
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	RL = timings.RL;
 	WL = timings.WL;
 #endif
+#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	TZQOPER = timings.TZQOPER;
 	TZQCS = timings.TZQCS;
+#endif
 	MRD = timings.MRD;
 
 #ifdef CONFIG_RSTC
@@ -1170,7 +1789,7 @@ int umctl2_init (struct umctl2_config_state *state)
 	UDDRC_REGS->UDDRC_PWRCTL = 0;
 #endif
 
-#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2)
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR1)
 	UDDRC_REGS->UDDRC_PWRCTL = UDDRC_PWRCTL_en_dfi_dram_clk_disable;
 #endif
 
