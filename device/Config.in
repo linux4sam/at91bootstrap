@@ -71,6 +71,10 @@ config CORE_CORTEX_A7
 	bool
 	default n
 
+config CPU_HAS_UMCTL2
+	bool
+	default n
+
 config CPU_HAS_DDRC
 	bool
 	default n
