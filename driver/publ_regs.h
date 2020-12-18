@@ -382,7 +382,7 @@ struct publ_regs {
 #define PUBL_MR0_WR_POS				9
 #define PUBL_MR0_WR(v)				(((v) & PUBL_MR0_WR_MASK) \
 						<< PUBL_MR0_WR_POS)
-#ifdef CONFIG_DDR2
+#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR1)
 /* DDR2 view of the register */
 /* CL */
 #define PUBL_MR0_CL_MASK			0x7UL
@@ -434,7 +434,10 @@ struct publ_regs {
 						<< PUBL_MR2_CWL_POS)
 
 #define PUBL_MR2_RLWL_POS			0
+#define PUBL_MR2_RLWL_4_2			(2 << PUBL_MR2_RLWL_POS)
+#define PUBL_MR2_RLWL_5_2			(3 << PUBL_MR2_RLWL_POS)
 #define PUBL_MR2_RLWL_6_3			(4 << PUBL_MR2_RLWL_POS)
+#define PUBL_MR2_RLWL_7_4			(5 << PUBL_MR2_RLWL_POS)
 #define PUBL_MR2_RLWL_8_4			(6 << PUBL_MR2_RLWL_POS)
 
 /* -------- PUBL_MR3 : (PUBL Offset: 0x4C) PHY Mode Register 3 -------- */
