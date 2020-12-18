@@ -21,13 +21,13 @@ config DDRC
 	help
 	  Initialize Multiport DDR-SDRAM Controller before copying
 
-endchoice
-
 config UMCTL2
-	bool
-	default n
+	bool  "Universal DDR Memory Controller (UDDRC)"
+	depends on CPU_HAS_UMCTL2
 	help
 	  Initialize DDR Synopsys controller before copying
+
+endchoice
 
 config PUBL
 	bool
@@ -61,45 +61,6 @@ config MEM_CLOCK_533
 	bool "533 MHz Ram Clock"
 
 endchoice
-
-choice
-	prompt "Memory module selection"
-	depends on UMCTL2
-	default MT47H128M16RT_25E_C if DDR2
-	default MT41K256M16TW_107 if DDR3
-	default IS43LD16128B_25BLI if LPDDR2
-	default MT52L256M32D1PF_107_WT_B if LPDDR3
-
-config MT41K256M16TW_107
-	bool "Micron DDR3 MT41K256M16TW-107"
-	depends on DDR3
-	help
-	  Micron MT41K256M16 DDR3 32 Meg x 16 x 8 banks DDR3-1066
-
-config MT47H128M16RT_25E_C
-	bool "Micron DDR2 MT47H128M16RT-25E:C"
-	depends on DDR2
-	help
-	  Micron MT47H128M16RT-25E:C DDR2 16 Meg x 16 x 8 banks DDR2-800
-
-config IS43LD16128B_25BLI
-	bool "ISSI LPDDR2 IS43LD16128B-25BLI"
-	depends on LPDDR2
-	help
-	  ISSI LPDDR2 IS43LD16128B-25BLI 16M x 16 x 8 banks LPDDR2-800
-
-config MT52L256M32D1PF_107_WT_B
-	bool "Micron LPDDR3 MT52L256M32D1PF-107 WT:B"
-	depends on LPDDR3
-	help
-	  Micron LPDDR3 MT52L256M32D1PF-107 WT:B 32M x 32 x 8 banks LPDDR3-1066
-	  With SAMA7G5, only 16 bits will be used, thus half the memory size.
-
-endchoice
-
-config NOT_DQS_DISABLED
-	bool "Not DQS is disabled"
-	depends on CPU_HAS_DDRC
 
 endmenu
 
