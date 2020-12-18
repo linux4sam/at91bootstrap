@@ -338,7 +338,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #elif defined (CONFIG_DDR_1_GBIT)
 #if defined (CONFIG_DBW_16) || defined (CONFIG_DBW_16_2)
 	/* 16 bit bus width */
-#if defined CONFIG_BANK_4
+#if defined CONFIG_LPDDR2_S2
 	bank = AT91C_DDRC2_NB_BANKS_4;
 	row = AT91C_DDRC2_NR_14;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
@@ -346,10 +346,10 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	bank = AT91C_DDRC2_NB_BANKS_8;
 	row = AT91C_DDRC2_NR_13;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
-#endif /* endif of CONFIG_BANK_4 */
+#endif /* endif of LPDDR2_S2 */
 #else
 	/* 32bit bus width */
-#if defined CONFIG_BANK_4
+#if defined CONFIG_LPDDR2_S2
 	bank = AT91C_DDRC2_NB_BANKS_4;
 	row = AT91C_DDRC2_NR_14;
 	col = AT91C_DDRC2_NC_DDR9_SDR8;
@@ -362,7 +362,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #elif defined (CONFIG_DDR_2_GBIT)
 #if defined (CONFIG_DBW_16) || defined (CONFIG_DBW_16_2)
 	/* 16 bit bus width */
-#if defined CONFIG_BANK_8
+#if defined CONFIG_LPDDR2_S4
 	bank = AT91C_DDRC2_NB_BANKS_8;
 	row = AT91C_DDRC2_NR_14;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
@@ -371,13 +371,13 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #endif
 #else
 	/* 32bit bus width */
-#if defined CONFIG_BANK_8
+#if defined CONFIG_LPDDR2_S4
 	bank = AT91C_DDRC2_NB_BANKS_8;
 	row = AT91C_DDRC2_NR_14;
 	col = AT91C_DDRC2_NC_DDR9_SDR8;
 #else
 #error "LPDDR2 2Gb 32bit width with 4 banks is not supported!"
-#endif /* endif of CONFIG_BANK_8 */
+#endif /* endif of CONFIG_LPDDR2_S4 */
 #endif /* endif of CONFIG_DBW_16 */
 #endif /* endif of CONFIG_DDR_128_MBIT */
 #endif /* endif LPDDR2 */
@@ -440,12 +440,21 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #if defined(CONFIG_DDR_SET_BY_JEDEC)
 #ifdef CONFIG_BUS_SPEED_116MHZ
 	mck = 116;
+#elif CONFIG_BUS_SPEED_133MHZ
+	mck = 133;
+#elif CONFIG_BUS_SPEED_148MHZ
+	mck = 148;
 #elif CONFIG_BUS_SPEED_166MHZ
 	mck = 166;
 #elif CONFIG_BUS_SPEED_164MHZ
 	mck = 164;
+#elif CONFIG_BUS_SPEED_170MHZ
+	mck = 170;
+#elif CONFIG_BUS_SPEED_176MHZ
+	mck = 176;
+#elif CONFIG_BUS_SPEED_200MHZ
+	mck = 200;
 #endif
-
 	/* Refresh Timer is (refresh_window / refresh_cycles) * master_clock */
 	ddramc_config->rtr = CONFIG_REF_WIN * mck * 1000 / CONFIG_REF_CYCLE;
 	ddramc_config->t0pr = ( AT91C_DDRC2_TRAS_(NS2CYCLES(ddr_ddram_timings.tras, mck)) |
@@ -474,18 +483,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->t2pr = ( AT91C_DDRC2_TXARD_(ddr_ddram_timings.txard) |
 							AT91C_DDRC2_TXARDS_(ddr_ddram_timings.txards) |
 #endif
-/* This field is found only in the DDR2-SDRAM devices */
-#if defined(CONFIG_DDR2)
-#if defined(CONFIG_BANK_4)
-/* tRPall = tRP for 4 bank device */
 							AT91C_DDRC2_TRPA_(NS2CYCLES(ddr_ddram_timings.trpa, mck)) |
-#else
-/* tRPall = tRP + 1 x tCK for 8 bank device */
-							AT91C_DDRC2_TRPA_((NS2CYCLES(ddr_ddram_timings.trpa, mck) + 1)) |
-#endif
-#else
-							AT91C_DDRC2_TRPA_(0) |
-#endif
 							AT91C_DDRC2_TRTP_(NS2CYCLES(ddr_ddram_timings.trtp, mck)) |
 							AT91C_DDRC2_TFAW_(NS2CYCLES(ddr_ddram_timings.tfaw,mck))
 						  );
@@ -539,13 +537,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->t2pr = ( AT91C_DDRC2_TXARD_(CONFIG_DDR_TXARD) |
 							AT91C_DDRC2_TXARDS_(CONFIG_DDR_TXARDS) |
 #endif
-/* This field is found only in the DDR2-SDRAM devices */
-#if defined(CONFIG_DDR2)
-/* tRPall = tRP for 4 bank device */
 							AT91C_DDRC2_TRPA_(CONFIG_DDR_TRPA) |
-#else
-							AT91C_DDRC2_TRPA_(0) |
-#endif
 							AT91C_DDRC2_TRTP_(CONFIG_DDR_TRTP) |
 							AT91C_DDRC2_TFAW_(CONFIG_DDR_TFAW)
 						  );
