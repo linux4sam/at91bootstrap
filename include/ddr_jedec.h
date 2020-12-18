@@ -95,6 +95,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.txards = 0,
 	.txp = 25,
 	.trtp = 2,
+	.trpa = 0,
 };
 
 #elif defined(CONFIG_DDR2)
@@ -108,6 +109,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.twtr = 10,
 	.txard = 2,
 	.txards = 6,
+	.trpa = 15,
 #elif defined(CONFIG_DDR_SPEED_533)
 	.tras = 45,
 	.trcd = 12,
@@ -116,6 +118,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.twtr = 8,
 	.txard = 2,
 	.txards = 6,
+	.trpa = 12,
 #elif defined(CONFIG_DDR_SPEED_667)
 	.tras = 45,
 	.trcd = 15,
@@ -124,6 +127,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.twtr = 8,
 	.txard = 2,
 	.txards = 7,
+	.trpa = 12,
 #elif defined(CONFIG_DDR_SPEED_800)
 	.tras = 45,
 	.trcd = 13,
@@ -132,6 +136,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.twtr = 8,
 	.txard = 2,
 	.txards = 8,
+	.trpa = 10,
 #endif /* Endif of CONFIG_DDR_SPEED_400 */
 
 #if defined(CONFIG_DDR_2_GBIT) || defined(CONFIG_DDR_1_GBIT) || defined(CONFIG_DDR_512_MBIT)
@@ -205,6 +210,11 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trfc = 90,
 	.txsnr = 100,
 #endif
+#if defined(CONFIG_LPDDR2_S2)
+	.trpa = 15,
+#else
+	.trpa = 21,
+#endif
 	.txsrd = 0,
 	.txp = 2,
 	.trtp = 8,
@@ -262,6 +272,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.txsrd = 0,
 	.txp = 8,
 	.trtp = 8,
+	.trpa = 0,
 	.tfaw = 50,
 	.txard = 0,
 	.txards = 0,
