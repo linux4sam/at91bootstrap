@@ -638,12 +638,6 @@ void hw_init(void)
 	struct pmc_pll_cfg ddrpll_config;
 	struct pmc_pll_cfg syspll_config;
 	struct pmc_pll_cfg imgpll_config;
-
-#if BOOTSTRAP_DEBUG_LEVEL==DEBUG_VERY_LOUD
-	volatile unsigned int *EXTRAM_CS;
-	int i;
-#endif
-
 	unsigned int mck0_prescaler;
 
 	/* Watchdog might be enabled out of reset. Let's make sure it's off */
@@ -770,40 +764,6 @@ void hw_init(void)
 	} else {
 		console_printf("UMCTL2: Initialization complete.\n");
 	}
-
-#ifdef CONFIG_DDR3
-	dbg_printf("MEMORY: %dMB DDR3 @ %d Mhz\n", MEM_SIZE / 1024 / 1024,
-		   CONFIG_MEM_CLOCK);
-#endif
-#ifdef CONFIG_DDR2
-	dbg_printf("MEMORY: %dMB DDR2 @ %d Mhz\n", MEM_SIZE / 1024 / 1024,
-		   CONFIG_MEM_CLOCK);
-#endif
-#ifdef CONFIG_LPDDR2
-	dbg_printf("MEMORY: %dMB LPDDR2 @ %d Mhz\n", MEM_SIZE / 1024 / 1024,
-		   CONFIG_MEM_CLOCK);
-#endif
-#ifdef CONFIG_LPDDR3
-	dbg_printf("MEMORY: %dMB LPDDR3 @ %d Mhz\n", MEM_SIZE / 1024 / 1024,
-		   CONFIG_MEM_CLOCK);
-#endif
-
-#if BOOTSTRAP_DEBUG_LEVEL==DEBUG_VERY_LOUD
-	EXTRAM_CS = (unsigned int *) MEM_BANK;
-	for (i = 0; i < MEM_SIZE / 4; i++) {
-		*EXTRAM_CS = 0xabcdef04;
-		EXTRAM_CS++;
-		if (!(i % 10000000)) dbg_very_loud("WRITING DDR\n");
-	}
-
-	EXTRAM_CS = (unsigned int *) MEM_BANK;
-	for (i = 0; i < MEM_SIZE / 4; i++) {
-		if (*EXTRAM_CS != 0xabcdef04)
-			dbg_printf("ERRORS IN DDR %x:%x\n", EXTRAM_CS, *EXTRAM_CS);
-		EXTRAM_CS++;
-		if (!(i % 10000000)) dbg_very_loud("TESTING DDR\n");
-	}
-#endif
 
 	cpu_voltage_select();
 
