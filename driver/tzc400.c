@@ -30,6 +30,7 @@
 #include "debug.h"
 #include "hardware.h"
 #include "arch/tzc400.h"
+#include "umctl2.h"
 
 static void tzc400_info(int base)
 {
@@ -77,13 +78,13 @@ static void tzc400_configure(int base)
 #ifdef CONFIG_TZC400_SIMPLE_PROFILE
 	dbg_very_loud("TZC400: creating simple TZC400 Profile\n");
 	dbg_very_loud("TZC400: 1 region comprising full DDR range %x:%x\n",
-			MEM_BANK, (unsigned int)MEM_BANK + (unsigned int)MEM_SIZE);
+			AT91C_BASE_DDRCS, (unsigned int)AT91C_BASE_DDRCS + (unsigned int)get_ddram_size());
 
 	/* Configuring region bounds */
-	write_tzc400(TZC400_REGION_BASE_LOW(1), MEM_BANK);
+	write_tzc400(TZC400_REGION_BASE_LOW(1), AT91C_BASE_DDRCS);
 	write_tzc400(TZC400_REGION_BASE_HIGH(1), 0x0);
 	write_tzc400(TZC400_REGION_TOP_LOW(1),
-		((unsigned int)MEM_BANK + (unsigned int)MEM_SIZE) | 0xFFF);
+		((unsigned int)AT91C_BASE_DDRCS + (unsigned int)get_ddram_size()) | 0xFFF);
 	write_tzc400(TZC400_REGION_TOP_HIGH(1), 0x0);
 
 	/* Allow secure access */
