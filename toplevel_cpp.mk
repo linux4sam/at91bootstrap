@@ -19,36 +19,6 @@ ifneq ($(IMAGE_NAME),)
 CPPFLAGS += -DIMAGE_NAME="\"$(IMAGE_NAME)\""
 endif
 
-ifeq ($(CONFIG_RAM_512MB), y)
-CPPFLAGS += \
-	-DMEM_SIZE=0x20000000
-endif
-
-ifeq ($(CONFIG_RAM_256MB), y)
-CPPFLAGS += \
-	-DMEM_SIZE=0x10000000
-endif
-
-ifeq ($(CONFIG_RAM_128MB), y)
-CPPFLAGS += \
-	-DMEM_SIZE=0x8000000
-endif
-
-ifeq ($(CONFIG_RAM_64MB), y)
-CPPFLAGS += \
-	-DMEM_SIZE=0x4000000
-endif
-
-ifeq ($(CONFIG_RAM_32MB), y)
-CPPFLAGS += \
-	-DMEM_SIZE=0x2000000
-endif
-
-ifeq ($(CONFIG_RAM_8MB), y)
-CPPFLAGS += \
-	-DMEM_SIZE=0x800000
-endif
-
 ifeq ($(CONFIG_DEBUG),y)
 CPPFLAGS += -DCONFIG_DEBUG
 endif
