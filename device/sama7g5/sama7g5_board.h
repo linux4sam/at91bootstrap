@@ -29,6 +29,8 @@
 #ifndef __SAMA7G5EK_H__
 #define __SAMA7G5EK_H__
 
+#define AT91C_BASE_DDRCS 0x60000000
+
 #ifdef CONFIG_FLEXCOM
 #include "flexcom.h"
 #endif
