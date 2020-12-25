@@ -116,7 +116,7 @@ struct umctl2_config_state
 };
 
 int umctl2_init(struct umctl2_config_state *state);
-
+unsigned int get_ddram_size(void);
 #define MP_AXI_PORT_ENABLE(x) (1 << (x))
 
 #endif
