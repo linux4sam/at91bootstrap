@@ -57,7 +57,7 @@ static int setup_dt_blob(void *blob)
 	int ret;
 #if defined(CONFIG_SDRAM)
 	mem_size = get_sdram_size();
-#elif defined(CONFIG_DDRC)
+#elif defined(CONFIG_DDRC) || defined(CONFIG_UMCTL2)
 	mem_size = get_ddram_size();
 #else
 #error "No DRAM type specified!"

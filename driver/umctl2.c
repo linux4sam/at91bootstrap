@@ -1895,3 +1895,23 @@ int umctl2_init (struct umctl2_config_state *state)
 	return ret;
 }
 
+unsigned int get_ddram_size(void)
+{
+#if defined(CONFIG_DDR_8_GBIT)
+	return 0x40000000;
+#elif defined(CONFIG_DDR_4_GBIT)
+	return 0x20000000;
+#elif defined(CONFIG_DDR_2_GBIT)
+	return 0x10000000;
+#elif defined(CONFIG_DDR_1_GBIT)
+	return 0x8000000;
+#elif defined(CONFIG_DDR_512_MBIT)
+	return 0x4000000;
+#elif defined(CONFIG_DDR_256_MBIT)
+	return 0x2000000;
+#elif defined(CONFIG_DDR_128_MBIT)
+	return 0x1000000;
+#elif defined(CONFIG_DDR_64_MBIT)
+	return 0x800000;
+#endif
+}
