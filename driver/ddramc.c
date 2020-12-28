@@ -44,8 +44,6 @@
 #include "ddr_device.h"
 #endif
 
-static unsigned int ddram_size;
-
 static void ddram_reg_config(struct ddramc_register *ddramc_config)
 {
 	unsigned int type, dbw, col, row, cas, bank;
@@ -213,7 +211,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #endif
 
 /* Configure the data Bus Width */
-#if defined(CONFIG_DBW_32) || defined(CONFIG_DBW_16_2)
+#if defined(CONFIG_DBW_32)
 	dbw = AT91C_DDRC2_DBW_32_BITS;
 #else
 	dbw = AT91C_DDRC2_DBW_16_BITS;
@@ -311,7 +309,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #if defined(CONFIG_LPDDR2)
 #if defined (CONFIG_DDR_128_MBIT)
 	bank = AT91C_DDRC2_NB_BANKS_4;
-#if defined (CONFIG_DBW_16) || defined (CONFIG_DBW_16_2)
+#if defined (CONFIG_DBW_16)
 	row = AT91C_DDRC2_NR_12;
 	col = AT91C_DDRC2_NC_DDR9_SDR8;
 #else
@@ -320,7 +318,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 
 #elif defined (CONFIG_DDR_256_MBIT)
 	bank = AT91C_DDRC2_NB_BANKS_4;
-#if defined (CONFIG_DBW_16) || defined (CONFIG_DBW_16_2)
+#if defined (CONFIG_DBW_16)
 	row = AT91C_DDRC2_NR_13;
 	col = AT91C_DDRC2_NC_DDR9_SDR8;
 #else
@@ -328,7 +326,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #endif /* endif of CONFIG_DBW_16 */
 #elif defined (CONFIG_DDR_512_MBIT)
 	bank = AT91C_DDRC2_NB_BANKS_4;
-#if defined (CONFIG_DBW_16) || defined (CONFIG_DBW_16_2)
+#if defined (CONFIG_DBW_16)
 	row = AT91C_DDRC2_NR_13;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
 #else
@@ -336,7 +334,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	col = AT91C_DDRC2_NC_DDR9_SDR8;
 #endif /* endif of CONFIG_DBW_16 */
 #elif defined (CONFIG_DDR_1_GBIT)
-#if defined (CONFIG_DBW_16) || defined (CONFIG_DBW_16_2)
+#if defined (CONFIG_DBW_16)
 	/* 16 bit bus width */
 #if defined CONFIG_LPDDR2_S2
 	bank = AT91C_DDRC2_NB_BANKS_4;
@@ -360,7 +358,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #endif /* endif of CONFIG_DBW_16 */
 #endif
 #elif defined (CONFIG_DDR_2_GBIT)
-#if defined (CONFIG_DBW_16) || defined (CONFIG_DBW_16_2)
+#if defined (CONFIG_DBW_16)
 	/* 16 bit bus width */
 #if defined CONFIG_LPDDR2_S4
 	bank = AT91C_DDRC2_NB_BANKS_8;
@@ -431,11 +429,6 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #if defined(CONFIG_LPDDR1)
 	ddramc_config->lpr = 0;
 #endif
-
-	ddram_size = ((1 << (col + 9)) / 8)
-				* (1 << ((row >> 2) + 11))\
-				* (bank == AT91C_DDRC2_NB_BANKS_4 ? 4 : 8)\
-				* (dbw == AT91C_DDRC2_DBW_16_BITS ? 16 : 32);
 
 #if defined(CONFIG_DDR_SET_BY_JEDEC)
 #ifdef CONFIG_BUS_SPEED_116MHZ
@@ -546,7 +539,23 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 
 unsigned int get_ddram_size(void)
 {
-	return ddram_size;
+#if defined(CONFIG_DDR_8_GBIT)
+	return 0x40000000;
+#elif defined(CONFIG_DDR_4_GBIT)
+	return 0x20000000;
+#elif defined(CONFIG_DDR_2_GBIT)
+	return 0x10000000;
+#elif defined(CONFIG_DDR_1_GBIT)
+	return 0x8000000;
+#elif defined(CONFIG_DDR_512_MBIT)
+	return 0x4000000;
+#elif defined(CONFIG_DDR_256_MBIT)
+	return 0x2000000;
+#elif defined(CONFIG_DDR_128_MBIT)
+	return 0x1000000;
+#elif defined(CONFIG_DDR_64_MBIT)
+	return 0x800000;
+#endif
 }
 
 void ddram_init(void)

@@ -1,6 +1,3 @@
-config DDR_SEL_BANK
-	bool
-	default n
 config DDR_SEL_ADDR
 	bool
 	default n
@@ -137,13 +134,7 @@ config DBW_16
 	help
 	  Data bus width is 16 bits
 
-config DBW_16_2
-	bool "2 x 16 bits"
-	help
-	  Data bus width is 2 x 16 bits
-
 config DBW_32
-	depends on LPDDR1 || LPDDR2
 	bool "32 bits"
 	help
 	  Data bus width is 32 bits
