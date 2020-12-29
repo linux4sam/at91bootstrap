@@ -174,7 +174,7 @@ static void at91_green_led_on(void)
 }
 
 #if defined(CONFIG_FLEXCOM)
-unsigned int at91_flexcom0_init(void)
+unsigned int at91_flexcom0_init(unsigned int index)
 {
 	const struct pio_desc flx_pins[] = {
 		{"FLX_IO0", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -195,7 +195,7 @@ unsigned int at91_flexcom0_init(void)
 void twi_init()
 {
 #if defined(CONFIG_FLEXCOM)
-       twi_bus_init(at91_flexcom0_init);
+       twi_bus_init(at91_flexcom0_init, 0);
 #endif
 }
 #endif

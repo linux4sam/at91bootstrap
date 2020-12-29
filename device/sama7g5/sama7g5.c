@@ -388,7 +388,7 @@ void board_flexcoms_init()
 #endif
 
 #if defined(CONFIG_FLEXCOM)
-static unsigned int at91_flexcom1_init(void)
+static unsigned int at91_flexcom1_init(unsigned int index)
 {
 	const struct pio_desc flx_pins[] = {
 		{"FLX_IO0", AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_F},
@@ -597,7 +597,7 @@ static int twi1_bus_id = -1;
 void twi_init()
 {
 #ifdef CONFIG_FLEXCOM
-	twi1_bus_id = twi_bus_init(at91_flexcom1_init);
+	twi1_bus_id = twi_bus_init(at91_flexcom1_init, 1);
 #endif
 }
 #endif /* CONFIG_TWI */

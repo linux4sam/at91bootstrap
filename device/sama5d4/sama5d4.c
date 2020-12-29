@@ -332,7 +332,7 @@ static int matrix_init(void)
 #endif	/* #if defined(CONFIG_MATRIX) */
 
 #if defined(CONFIG_TWI)
-unsigned int at91_twi0_hw_init(void)
+unsigned int at91_twi0_hw_init(unsigned int index)
 {
 	unsigned int base_addr = AT91C_BASE_TWI0;
 
@@ -350,17 +350,17 @@ unsigned int at91_twi0_hw_init(void)
 	return base_addr;
 }
 
-unsigned int at91_twi1_hw_init(void)
+unsigned int at91_twi1_hw_init(unsigned int index)
 {
 	return 0;
 }
 
-unsigned int at91_twi2_hw_init(void)
+unsigned int at91_twi2_hw_init(unsigned int index)
 {
 	return 0;
 }
 
-unsigned int at91_twi3_hw_init(void)
+unsigned int at91_twi3_hw_init(unsigned int index)
 {
 	unsigned int base_addr = AT91C_BASE_TWI3;
 
@@ -705,9 +705,9 @@ void nandflash_hw_init(void)
 #if defined(CONFIG_TWI)
 void twi_init()
 {
-	twi_bus_init(at91_twi0_hw_init);
-	twi_bus_init(at91_twi1_hw_init);
-	twi_bus_init(at91_twi2_hw_init);
-	twi_bus_init(at91_twi3_hw_init);
+	twi_bus_init(at91_twi0_hw_init, 0);
+	twi_bus_init(at91_twi1_hw_init, 1);
+	twi_bus_init(at91_twi2_hw_init, 2);
+	twi_bus_init(at91_twi3_hw_init, 3);
 }
 #endif
