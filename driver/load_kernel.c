@@ -45,6 +45,7 @@
 
 #include "debug.h"
 
+static char cmdline_buf[256];
 static char *bootargs;
 
 #ifdef CONFIG_OF_LIBFDT
@@ -380,10 +381,57 @@ int load_kernel(struct image_info *image)
 	unsigned int r2;
 	unsigned int mach_type;
 	int ret;
+	unsigned int mem_size;
+
+#if defined(CONFIG_SDRAM)
+	mem_size = get_sdram_size();
+#elif defined(CONFIG_DDRC) || defined(CONFIG_UMCTL2)
+	mem_size = get_ddram_size();
+#else
+#error "No DRAM type specified!"
+#endif
 
 	void (*kernel_entry)(int zero, int arch, unsigned int params);
 
 	bootargs = board_override_cmd_line();
+	if (sizeof(cmdline_buf) < 10 + strlen(bootargs)){
+		dbg_very_loud("\nKERNEL: buffer for bootargs is too small\n\n");
+		return -1;
+	}
+	switch(mem_size){
+		case 0x800000:
+			memcpy(cmdline_buf, "mem=8M ", 7);
+			memcpy(&cmdline_buf[7], bootargs, strlen(bootargs));
+			break;
+		case 0x1000000:
+			memcpy(cmdline_buf, "mem=16M ", 8);
+			memcpy(&cmdline_buf[8], bootargs, strlen(bootargs));
+			break;
+		case 0x2000000:
+			memcpy(cmdline_buf, "mem=32M ", 8);
+			memcpy(&cmdline_buf[8], bootargs, strlen(bootargs));
+			break;
+		case 0x4000000:
+			memcpy(cmdline_buf, "mem=64M ", 8);
+			memcpy(&cmdline_buf[8], bootargs, strlen(bootargs));
+			break;
+		case 0x8000000:
+			memcpy(cmdline_buf, "mem=128M ", 9);
+			memcpy(&cmdline_buf[9], bootargs, strlen(bootargs));
+			break;
+		case 0x10000000:
+			memcpy(cmdline_buf, "mem=256M ", 9);
+			memcpy(&cmdline_buf[9], bootargs, strlen(bootargs));
+			break;
+		case 0x20000000:
+			memcpy(cmdline_buf, "mem=512M ", 9);
+			memcpy(&cmdline_buf[9], bootargs, strlen(bootargs));
+			break;
+		default:
+			dbg_very_loud("\nKERNEL: bootargs incorrect due to the memory size is not a multiple of MB\n\n");
+			break;
+	}
+	bootargs = cmdline_buf;
 
 	ret = load_kernel_image(image);
 	if (ret)
