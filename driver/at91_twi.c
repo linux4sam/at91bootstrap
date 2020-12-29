@@ -271,10 +271,10 @@ int twi_write(unsigned int bus, unsigned char device_addr,
 	return 0;
 }
 
-int twi_bus_init(unsigned int (*at91_twi_hw_init)(void))
+int twi_bus_init(unsigned int (*at91_twi_hw_init)(unsigned int index), unsigned int index)
 {
 	unsigned int bus_clock = at91_get_ahb_clock();
-	unsigned int base = at91_twi_hw_init();
+	unsigned int base = at91_twi_hw_init(index);
 	int bus;
 
 	bus = at91_twi_register_bus(base);
