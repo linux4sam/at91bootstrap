@@ -72,10 +72,57 @@ config CPU_HAS_PIO4
 
 config FLEXCOM
 	bool
-	default y if CPU_HAS_FLEXCOM && TWI && (!(CPU_HAS_TWI0 || CPU_HAS_TWI1 || CPU_HAS_TWI2 || CPU_HAS_TWI3))
+	default y if CPU_HAS_FLEXCOM0
+
+config CPU_HAS_FLEXCOM0
+	bool
 	default n
 
-config CPU_HAS_FLEXCOM
+config CPU_HAS_FLEXCOM1
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM2
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM3
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM4
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM5
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM6
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM7
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM8
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM9
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM10
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM11
+	bool
+	default n
+
+config CPU_HAS_FLEXCOM12
 	bool
 	default n
 

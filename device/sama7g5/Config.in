@@ -1,3 +1,11 @@
 config DEVICENAME
 	string
 	default "sama7g5" if SAMA7G5
+
+config FLEXCOM_TWI_IOSET
+	bool
+	default y if SAMA7G5
+
+config FLEXCOM_TWI_IOSET_MAX
+	int
+	default 5 if SAMA7G5

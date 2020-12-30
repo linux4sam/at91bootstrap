@@ -17,3 +17,19 @@ config QSPI_IOSET_MAX
 config DEVICENAME
 	string
 	default "sama5d2" if SAMA5D2
+
+config TWI_IOSET
+	bool
+	default y if SAMA5D2
+
+config TWI_IOSET_MAX
+	int
+	default 4 if SAMA5D2
+
+config FLEXCOM_TWI_IOSET
+	bool
+	default y if SAMA5D2
+
+config FLEXCOM_TWI_IOSET_MAX
+	int
+	default 2 if SAMA5D2

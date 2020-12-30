@@ -395,9 +395,198 @@ config BACKUP_MODE
 	  use DDR Self Refresh and shutdown the core. Resuming from that state
 	  requires support in the bootloader.
 
-
 menu "Board's Workaround Options"
-	depends on HAS_PMIC_ACT8865
+
+menu "TWI BUS setting"
+
+config TWI0
+	depends on CPU_HAS_TWI0
+	bool "include TWI0 to TWI buses"
+	default n
+
+config TWI0_IOSET
+	depends on TWI0 && TWI_IOSET
+	int "IOSET Used for TWI0"
+	range 1 TWI_IOSET_MAX
+	default 1
+
+config TWI1
+	depends on CPU_HAS_TWI1
+	bool "include TWI1 to TWI buses"
+	default n
+
+config TWI1_IOSET
+	depends on TWI1 && TWI_IOSET
+	int "IOSET Used for TWI1"
+	range 1 TWI_IOSET_MAX
+	default 1
+
+config TWI2
+	depends on CPU_HAS_TWI2
+	bool "include TWI2 to TWI buses"
+	default n
+
+config TWI2_IOSET
+	depends on TWI2 && TWI_IOSET
+	int "IOSET Used for TWI2"
+	range 1 TWI_IOSET_MAX
+	default 1
+
+config TWI3
+	depends on CPU_HAS_TWI3
+	bool "include TWI3 to TWI buses"
+	default n
+
+config TWI3_IOSET
+	depends on TWI3 && TWI_IOSET
+	int "IOSET Used for TWI3"
+	range 1 TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM0
+	depends on CPU_HAS_FLEXCOM0
+	bool "include FLEXCOM0 to TWI buses"
+	default n
+
+config FLEXCOM0_IOSET
+	depends on FLEXCOM0 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM0"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM1
+	depends on CPU_HAS_FLEXCOM1
+	bool "include FLEXCOM1 to TWI buses"
+	default n
+
+config FLEXCOM1_IOSET
+	depends on FLEXCOM1 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM1"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM2
+	depends on CPU_HAS_FLEXCOM2
+	bool "include FLEXCOM2 to TWI buses"
+	default n
+
+config FLEXCOM2_IOSET
+	depends on FLEXCOM2 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM2"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM3
+	depends on CPU_HAS_FLEXCOM3
+	bool "include FLEXCOM3 to TWI buses"
+	default n
+
+config FLEXCOM3_IOSET
+	depends on FLEXCOM3 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM3"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM4
+	depends on CPU_HAS_FLEXCOM4
+	bool "include FLEXCOM4 to TWI buses"
+	default n
+
+config FLEXCOM4_IOSET
+	depends on FLEXCOM4 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM4"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM5
+	depends on CPU_HAS_FLEXCOM5
+	bool "include FLEXCOM5 to TWI buses"
+	default n
+
+config FLEXCOM5_IOSET
+	depends on FLEXCOM5 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM5"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM6
+	depends on CPU_HAS_FLEXCOM6
+	bool "include FLEXCOM6 to TWI buses"
+	default n
+
+config FLEXCOM6_IOSET
+	depends on FLEXCOM6 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM6"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM7
+	depends on CPU_HAS_FLEXCOM7
+	bool "include FLEXCOM7 to TWI buses"
+	default n
+
+config FLEXCOM7_IOSET
+	depends on FLEXCOM7 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM7"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM8
+	depends on CPU_HAS_FLEXCOM8
+	bool "include FLEXCOM8 to TWI buses"
+	default n
+
+config FLEXCOM8_IOSET
+	depends on FLEXCOM8 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM8"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM9
+	depends on CPU_HAS_FLEXCOM9
+	bool "include FLEXCOM9 to TWI buses"
+	default n
+
+config FLEXCOM9_IOSET
+	depends on FLEXCOM9 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM9"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM10
+	depends on CPU_HAS_FLEXCOM10
+	bool "include FLEXCOM10 to TWI buses"
+	default n
+
+config FLEXCOM10_IOSET
+	depends on FLEXCOM10 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM10"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM11
+	depends on CPU_HAS_FLEXCOM11
+	bool "include FLEXCOM11 to TWI buses"
+	default n
+
+config FLEXCOM11_IOSET
+	depends on FLEXCOM11 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM11"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+config FLEXCOM12
+	depends on CPU_HAS_FLEXCOM12
+	bool "include FLEXCOM12 to TWI buses"
+	default n
+
+config FLEXCOM12_IOSET
+	depends on FLEXCOM12 && FLEXCOM_TWI_IOSET
+	int "IOSET Used for FLEXCOM12"
+	range 1 FLEXCOM_TWI_IOSET_MAX
+	default 1
+
+endmenu
 
 config ACT8865_SET_VOLTAGE
 	bool "Set ACT8865 Initial Output Voltage"
