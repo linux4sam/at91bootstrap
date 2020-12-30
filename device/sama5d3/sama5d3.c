@@ -44,6 +44,7 @@
 #include "arch/at91_pio.h"
 #include "arch/at91_ddrsdrc.h"
 #include "sama5d3_board.h"
+#include "twi.h"
 
 static void at91_dbgu_hw_init(void)
 {
@@ -137,6 +138,52 @@ static void at91_special_pio_output_low(void)
 	writel(value, base + PIO_REG_CODR);	/* PIO_CODR */
 }
 
+#ifdef CONFIG_TWI
+#if defined(CONFIG_TWI0) || defined(CONFIG_TWI1) || defined(CONFIG_TWI2)
+static unsigned int at91_twi_hw_init(unsigned int index)
+{
+	const unsigned int id[] = {AT91C_ID_TWI0, AT91C_ID_TWI1, AT91C_ID_TWI2};
+	const unsigned int base_addr[] = {AT91C_BASE_TWI0, AT91C_BASE_TWI1, AT91C_BASE_TWI2};
+	const struct pio_desc twi_pins[][3] = {
+		{
+			{"TWD0", AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"TWCK0", AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+			{"TWD1", AT91C_PIN_PC(26), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"TWCK1", AT91C_PIN_PC(27), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+			{"TWD2", AT91C_PIN_PA(18), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"TWCK2", AT91C_PIN_PA(19), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+	};
+
+	pio_configure(twi_pins[index]);
+
+	pmc_enable_periph_clock(id[index], PMC_PERIPH_CLK_DIVIDER_NA);
+
+	return base_addr[index];
+}
+#endif
+
+void twi_init()
+{
+#if defined(CONFIG_TWI0)
+	twi_bus_init(at91_twi_hw_init, 0);
+#endif
+#if defined(CONFIG_TWI1)
+	twi_bus_init(at91_twi_hw_init, 1);
+#endif
+#if defined(CONFIG_TWI2)
+	twi_bus_init(at91_twi_hw_init, 2);
+#endif
+}
+#endif
+
 static void HDMI_Qt1070_workaround(void)
 {
 	/* For the HDMI and QT1070 shar the irq line
@@ -193,6 +240,10 @@ void hw_init(void)
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 	/* Init the recovery buttons pins */
 	recovery_buttons_hw_init();
+#endif
+
+#if defined(CONFIG_TWI)
+	twi_init();
 #endif
 }
 

@@ -332,51 +332,41 @@ static int matrix_init(void)
 #endif	/* #if defined(CONFIG_MATRIX) */
 
 #if defined(CONFIG_TWI)
-unsigned int at91_twi0_hw_init(unsigned int index)
+#if defined(CONFIG_TWI0) || defined(CONFIG_TWI1) || defined(CONFIG_TWI2) || defined(CONFIG_TWI3)
+static unsigned int at91_twi_hw_init(unsigned int index)
 {
-	unsigned int base_addr = AT91C_BASE_TWI0;
-
-	const struct pio_desc twi_pins[] = {
-		{"TWD0", AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"TWCK0", AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	const unsigned int id[] = {AT91C_ID_TWI0, AT91C_ID_TWI1, AT91C_ID_TWI2, AT91C_ID_TWI3};
+	const unsigned int base_addr[] = {AT91C_BASE_TWI0, AT91C_BASE_TWI1, AT91C_BASE_TWI2, AT91C_BASE_TWI3};
+	const struct pio_desc twi_pins[][3] = {
+		{
+			{"TWD0", AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"TWCK0", AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+			{"TWD1", AT91C_PIN_PE(29), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"TWCK1", AT91C_PIN_PE(30), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+			{"TWD2", AT91C_PIN_PB(29), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"TWCK2", AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+			{"TWD3", AT91C_PIN_PC(25), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"TWCK3", AT91C_PIN_PC(26), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
 	};
 
-	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
-	pio_configure(twi_pins);
+	pio_configure(twi_pins[index]);
 
-	pmc_enable_periph_clock(AT91C_ID_TWI0, PMC_PERIPH_CLK_DIVIDER_NA);
+	pmc_enable_periph_clock(id[index], PMC_PERIPH_CLK_DIVIDER_NA);
 
-	return base_addr;
+	return base_addr[index];
 }
-
-unsigned int at91_twi1_hw_init(unsigned int index)
-{
-	return 0;
-}
-
-unsigned int at91_twi2_hw_init(unsigned int index)
-{
-	return 0;
-}
-
-unsigned int at91_twi3_hw_init(unsigned int index)
-{
-	unsigned int base_addr = AT91C_BASE_TWI3;
-
-	const struct pio_desc twi_pins[] = {
-		{"TWD3", AT91C_PIN_PC(25), 0, PIO_DEFAULT, PIO_PERIPH_B},
-		{"TWCK3", AT91C_PIN_PC(26), 0, PIO_DEFAULT, PIO_PERIPH_B},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
-	pio_configure(twi_pins);
-
-	pmc_enable_periph_clock(AT91C_ID_TWI3, PMC_PERIPH_CLK_DIVIDER_NA);
-
-	return base_addr;
-}
+#endif
 #endif
 
 #if defined(CONFIG_ACT8865_SET_VOLTAGE)
@@ -705,9 +695,17 @@ void nandflash_hw_init(void)
 #if defined(CONFIG_TWI)
 void twi_init()
 {
-	twi_bus_init(at91_twi0_hw_init, 0);
-	twi_bus_init(at91_twi1_hw_init, 1);
-	twi_bus_init(at91_twi2_hw_init, 2);
-	twi_bus_init(at91_twi3_hw_init, 3);
+#if defined(CONFIG_TWI0)
+	twi_bus_init(at91_twi_hw_init, 0);
+#endif
+#if defined(CONFIG_TWI1)
+	twi_bus_init(at91_twi_hw_init, 1);
+#endif
+#if defined(CONFIG_TWI2)
+	twi_bus_init(at91_twi_hw_init, 2);
+#endif
+#if defined(CONFIG_TWI3)
+	twi_bus_init(at91_twi_hw_init, 3);
+#endif
 }
 #endif

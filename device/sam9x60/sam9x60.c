@@ -53,38 +53,25 @@
 #define PLLA_FRACR(_p, _q) \
 	((unsigned int)((((unsigned long)(_p)) << 22) / (_q)))
 
-const unsigned int usart_base =
-#if CONFIG_CONSOLE_INDEX == 0
-		AT91C_BASE_DBGU;
-#elif CONFIG_CONSOLE_INDEX == 1
-		AT91C_BASE_FLEXCOM0;
-#elif CONFIG_CONSOLE_INDEX == 2
-		AT91C_BASE_FLEXCOM1;
-#elif CONFIG_CONSOLE_INDEX == 3
-		AT91C_BASE_FLEXCOM2;
-#elif CONFIG_CONSOLE_INDEX == 4
-		AT91C_BASE_FLEXCOM3;
-#elif CONFIG_CONSOLE_INDEX == 5
-		AT91C_BASE_FLEXCOM4;
-#elif CONFIG_CONSOLE_INDEX == 6
-		AT91C_BASE_FLEXCOM5;
-#elif CONFIG_CONSOLE_INDEX == 7
-		AT91C_BASE_FLEXCOM6;
-#elif CONFIG_CONSOLE_INDEX == 8
-		AT91C_BASE_FLEXCOM7;
-#elif CONFIG_CONSOLE_INDEX == 9
-		AT91C_BASE_FLEXCOM8;
-#elif CONFIG_CONSOLE_INDEX == 10
-		AT91C_BASE_FLEXCOM9;
-#elif CONFIG_CONSOLE_INDEX == 11
-		AT91C_BASE_FLEXCOM10;
-#elif CONFIG_CONSOLE_INDEX == 12
-		AT91C_BASE_FLEXCOM11;
-#elif CONFIG_CONSOLE_INDEX == 13
-		AT91C_BASE_FLEXCOM12;
-#else
-#error "Invalid CONSOLE_INDEX was chosen"
-#endif
+#define FLEXCOM_USART_INDEX 13
+static struct at91_flexcom flexcoms[] = {
+	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0},
+	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1},
+	{AT91C_ID_FLEXCOM2, FLEXCOM_TWI, AT91C_BASE_FLEXCOM2},
+	{AT91C_ID_FLEXCOM3, FLEXCOM_TWI, AT91C_BASE_FLEXCOM3},
+	{AT91C_ID_FLEXCOM4, FLEXCOM_TWI, AT91C_BASE_FLEXCOM4},
+	{AT91C_ID_FLEXCOM5, FLEXCOM_TWI, AT91C_BASE_FLEXCOM5},
+	{AT91C_ID_FLEXCOM6, FLEXCOM_TWI, AT91C_BASE_FLEXCOM6},
+	{AT91C_ID_FLEXCOM7, FLEXCOM_TWI, AT91C_BASE_FLEXCOM7},
+	{AT91C_ID_FLEXCOM8, FLEXCOM_TWI, AT91C_BASE_FLEXCOM8},
+	{AT91C_ID_FLEXCOM9, FLEXCOM_TWI, AT91C_BASE_FLEXCOM9},
+	{AT91C_ID_FLEXCOM10, FLEXCOM_TWI, AT91C_BASE_FLEXCOM10},
+	{AT91C_ID_FLEXCOM11, FLEXCOM_TWI, AT91C_BASE_FLEXCOM11},
+	{AT91C_ID_FLEXCOM12, FLEXCOM_TWI, AT91C_BASE_FLEXCOM12},
+	{0, FLEXCOM_USART, 0}, /* DBGU */
+};
+
+unsigned int usart_base = AT91C_BASE_DBGU;
 
 static void at91_dbgu_hw_init(void)
 {
@@ -150,14 +137,17 @@ static void at91_dbgu_hw_init(void)
 #endif
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
-	const unsigned int periph_id[] = {
-		AT91C_ID_DBGU, AT91C_ID_FLEXCOM0, AT91C_ID_FLEXCOM1, AT91C_ID_FLEXCOM2,
-		AT91C_ID_FLEXCOM3, AT91C_ID_FLEXCOM4, AT91C_ID_FLEXCOM5, AT91C_ID_FLEXCOM6,
-		AT91C_ID_FLEXCOM7, AT91C_ID_FLEXCOM8, AT91C_ID_FLEXCOM9, AT91C_ID_FLEXCOM10,
-		AT91C_ID_FLEXCOM11, AT91C_ID_FLEXCOM12 };
 
 	pio_configure(dbgu_pins);
-	pmc_enable_periph_clock(periph_id[CONFIG_CONSOLE_INDEX], PMC_PERIPH_CLK_DIVIDER_NA);
+#if CONFIG_CONSOLE_INDEX == 0
+	flexcoms[FLEXCOM_USART_INDEX].id = AT91C_ID_DBGU;
+#else
+	usart_base = flexcoms[CONFIG_CONSOLE_INDEX - 1].addr;
+	flexcoms[FLEXCOM_USART_INDEX].id = flexcoms[CONFIG_CONSOLE_INDEX - 1].id;
+	flexcoms[FLEXCOM_USART_INDEX].addr = usart_base - AT91C_OFFSET_FLEXCOM_USART;
+	flexcom_init(FLEXCOM_USART_INDEX);
+#endif
+	pmc_enable_periph_clock(flexcoms[FLEXCOM_USART_INDEX].id, PMC_PERIPH_CLK_DIVIDER_NA);
 }
 
 static void initialize_dbgu(void)
@@ -173,43 +163,138 @@ static void at91_green_led_on(void)
 	pio_set_gpio_output(AT91C_PIN_PB(12), 1);
 }
 
-#if defined(CONFIG_FLEXCOM)
-unsigned int at91_flexcom0_init(unsigned int index)
+#if defined CONFIG_TWI
+#if defined(CONFIG_FLEXCOM0) || defined(CONFIG_FLEXCOM1) || defined(CONFIG_FLEXCOM2) || \
+	defined(CONFIG_FLEXCOM3) || defined(CONFIG_FLEXCOM4) || defined(CONFIG_FLEXCOM5) || \
+	defined(CONFIG_FLEXCOM6) || defined(CONFIG_FLEXCOM7) || defined(CONFIG_FLEXCOM8) || \
+	defined(CONFIG_FLEXCOM9) || defined(CONFIG_FLEXCOM10) || defined(CONFIG_FLEXCOM11) || \
+	defined(CONFIG_FLEXCOM12)
+static unsigned int at91_flexcom_twi_hw_init(unsigned int index)
 {
-	const struct pio_desc flx_pins[] = {
-		{"FLX_IO0", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"FLX_IO1", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	const struct pio_desc flx_pins[][3] = {
+		{ // FLEXCOM0
+			{"FLX_IO0", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM1
+			{"FLX_IO0", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM2
+			{"FLX_IO0", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM3
+			{"FLX_IO0", AT91C_PIN_PC(22), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(23), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM4
+			{"FLX_IO0", AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM5
+			{"FLX_IO0", AT91C_PIN_PA(22), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PA(21), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM6
+			{"FLX_IO0", AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM7
+			{"FLX_IO0", AT91C_PIN_PC(0), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"FLX_IO1", AT91C_PIN_PC(1), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM8
+			{"FLX_IO0", AT91C_PIN_PB(4), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PB(5), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM9
+			{"FLX_IO0", AT91C_PIN_PC(8), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"FLX_IO1", AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM10
+			{"FLX_IO0", AT91C_PIN_PC(16), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"FLX_IO1", AT91C_PIN_PC(17), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM11
+			{"FLX_IO0", AT91C_PIN_PB(19), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"FLX_IO1", AT91C_PIN_PB(20), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM12
+			{"FLX_IO0", AT91C_PIN_PB(21), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"FLX_IO1", AT91C_PIN_PB(22), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
 	};
 
-	pio_configure(flx_pins);
-	pmc_enable_periph_clock(AT91C_ID_FLEXCOM0, PMC_PERIPH_CLK_DIVIDER_NA);
+	if (CONFIG_CONSOLE_INDEX == index + 1) {
+		dbg_very_loud("\nFLEXCOM %d is used in UART mode, config to TWI mode ignored!\n\n", index);
+		return 0;
+	}
 
-	flexcom_init(0);
+	pio_configure(flx_pins[index]);
 
-	return flexcom_get_regmap(0);
+	pmc_enable_periph_clock(flexcoms[index].id, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	flexcom_init(index);
+
+	return flexcom_get_regmap(index);
 }
 #endif
 
-#if defined CONFIG_TWI
 void twi_init()
 {
-#if defined(CONFIG_FLEXCOM)
-       twi_bus_init(at91_flexcom0_init, 0);
+#if CONFIG_FLEXCOM0
+	twi_bus_init(at91_flexcom_twi_hw_init, 0);
 #endif
-}
+#if CONFIG_FLEXCOM1
+	twi_bus_init(at91_flexcom_twi_hw_init, 1);
 #endif
-
-#if defined CONFIG_FLEXCOM
-static struct at91_flexcom flexcoms[] = {
-#if defined CONFIG_TWI
-	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0, 0},
+#if CONFIG_FLEXCOM2
+	twi_bus_init(at91_flexcom_twi_hw_init, 2);
 #endif
-};
-
-void board_flexcoms_init()
-{
-	flexcoms_init(flexcoms);
+#if CONFIG_FLEXCOM3
+	twi_bus_init(at91_flexcom_twi_hw_init, 3);
+#endif
+#if CONFIG_FLEXCOM4
+	twi_bus_init(at91_flexcom_twi_hw_init, 4);
+#endif
+#if CONFIG_FLEXCOM5
+	twi_bus_init(at91_flexcom_twi_hw_init, 5);
+#endif
+#if CONFIG_FLEXCOM6
+	twi_bus_init(at91_flexcom_twi_hw_init, 6);
+#endif
+#if CONFIG_FLEXCOM7
+	twi_bus_init(at91_flexcom_twi_hw_init, 7);
+#endif
+#if CONFIG_FLEXCOM8
+	twi_bus_init(at91_flexcom_twi_hw_init, 8);
+#endif
+#if CONFIG_FLEXCOM9
+	twi_bus_init(at91_flexcom_twi_hw_init, 9);
+#endif
+#if CONFIG_FLEXCOM10
+	twi_bus_init(at91_flexcom_twi_hw_init, 10);
+#endif
+#if CONFIG_FLEXCOM11
+	twi_bus_init(at91_flexcom_twi_hw_init, 11);
+#endif
+#if CONFIG_FLEXCOM12
+	twi_bus_init(at91_flexcom_twi_hw_init, 12);
+#endif
 }
 #endif
 
@@ -260,6 +345,10 @@ void hw_init(void)
 	pmc_mck_cfg_set(0, BOARD_PRESCALER_PLLA,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
+#if defined(CONFIG_TWI) || CONFIG_CONSOLE_INDEX != 0
+	flexcoms_init(flexcoms);
+#endif
+
 	/* Initialize dbgu */
 	initialize_dbgu();
 
@@ -268,10 +357,6 @@ void hw_init(void)
 
 	/* Init timer */
 	timer_init();
-
-#ifdef CONFIG_FLEXCOM
-	board_flexcoms_init();
-#endif
 
 #ifdef CONFIG_TWI
 	twi_init();

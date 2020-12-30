@@ -45,7 +45,21 @@
 #include "arch/at91_rstc.h"
 #include "arch/at91_sfr.h"
 #include "arch/sama5_smc.h"
+#if defined(CONFIG_TWI)
+#include "flexcom.h"
+#include "twi.h"
+#endif
 #include "arch/tz_matrix.h"
+
+#if defined(CONFIG_TWI)
+static struct at91_flexcom flexcoms[] = {
+	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0, 0},
+	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1, 0},
+	{AT91C_ID_FLEXCOM2, FLEXCOM_TWI, AT91C_BASE_FLEXCOM2, 0},
+	{AT91C_ID_FLEXCOM3, FLEXCOM_TWI, AT91C_BASE_FLEXCOM3, 0},
+	{AT91C_ID_FLEXCOM4, FLEXCOM_TWI, AT91C_BASE_FLEXCOM4, 0},
+};
+#endif
 
 const unsigned int usart_base =
 #if CONFIG_CONSOLE_INDEX == 0
@@ -369,6 +383,177 @@ static void sdmmc_cal_setup(void)
 	pmc_disable_periph_clock(AT91C_ID_SDMMC0);
 }
 
+#if defined(CONFIG_TWI)
+#if defined(CONFIG_TWI0) || defined(CONFIG_TWI1)
+static unsigned int at91_twi_hw_init(unsigned int index)
+{
+	const unsigned int id[] = {AT91C_ID_TWI0, AT91C_ID_TWI1};
+	const unsigned int base_addr[] = {AT91C_BASE_TWI0, AT91C_BASE_TWI1};
+	const struct pio_desc twi_pins[][3] = {
+		{
+#if CONFIG_TWI0_IOSET == 1
+			{"TWD0", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_D},
+			{"TWCK0", AT91C_PIN_PC(0), 0, PIO_DEFAULT, PIO_PERIPH_D},
+#elif CONFIG_TWI0_IOSET == 2
+			{"TWD0", AT91C_PIN_PC(27), 0, PIO_DEFAULT, PIO_PERIPH_E},
+			{"TWCK0", AT91C_PIN_PC(28), 0, PIO_DEFAULT, PIO_PERIPH_E},
+#elif CONFIG_TWI0_IOSET == 3
+			{"TWD0", AT91C_PIN_PD(29), 0, PIO_DEFAULT, PIO_PERIPH_E},
+			{"TWCK0", AT91C_PIN_PD(30), 0, PIO_DEFAULT, PIO_PERIPH_E},
+#elif CONFIG_TWI0_IOSET == 4
+			{"TWD0", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"TWCK0", AT91C_PIN_PD(22), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif defined(CONFIG_TWI0)
+#error "Invalid TWI IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+#if CONFIG_TWI1_IOSET == 1
+			{"TWD1", AT91C_PIN_PC(6), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"TWCK1", AT91C_PIN_PC(7), 0, PIO_DEFAULT, PIO_PERIPH_C},
+#elif CONFIG_TWI1_IOSET == 2
+			{"TWD1", AT91C_PIN_PD(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"TWCK1", AT91C_PIN_PD(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+#elif CONFIG_TWI1_IOSET == 3
+			{"TWD1", AT91C_PIN_PD(19), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"TWCK1", AT91C_PIN_PD(20), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif defined(CONFIG_TWI1)
+#error "Invalid TWI IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+	};
+
+	if (index == 0) {
+#if CONFIG_TWI0_IOSET == 1
+		pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
+		pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
+#elif CONFIG_TWI0_IOSET == 2
+		pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
+#else
+		pmc_enable_periph_clock(AT91C_ID_PIOD, PMC_PERIPH_CLK_DIVIDER_NA);
+#endif
+	} else {
+#if CONFIG_TWI1_IOSET == 1
+		pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
+#else
+		pmc_enable_periph_clock(AT91C_ID_PIOD, PMC_PERIPH_CLK_DIVIDER_NA);
+#endif
+	}
+	pio_configure(twi_pins[index]);
+
+	pmc_enable_periph_clock(id[index], PMC_PERIPH_CLK_DIVIDER_NA);
+
+	return base_addr[index];
+}
+#endif
+
+#if defined(CONFIG_FLEXCOM0) || defined(CONFIG_FLEXCOM1) || defined(CONFIG_FLEXCOM2) || defined(CONFIG_FLEXCOM3) || defined(CONFIG_FLEXCOM4)
+static unsigned int at91_flexcom_twi_hw_init(unsigned int index)
+{
+	const unsigned int id[] = {
+	    AT91C_ID_FLEXCOM0, AT91C_ID_FLEXCOM1, AT91C_ID_FLEXCOM2, AT91C_ID_FLEXCOM3,
+	    AT91C_ID_FLEXCOM4};
+	const struct pio_desc flx_pins[][3] = {
+		{
+#if CONFIG_FLEXCOM0_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PB(28), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"FLX_IO1", AT91C_PIN_PB(29), 0, PIO_DEFAULT, PIO_PERIPH_C},
+#elif defined(CONFIG_FLEXCOM0)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+#if CONFIG_FLEXCOM1_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(23), 0, PIO_DEFAULT, PIO_PERIPH_A},
+#elif defined(CONFIG_FLEXCOM1)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+#if CONFIG_FLEXCOM2_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_E},
+			{"FLX_IO1", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_E},
+#elif CONFIG_FLEXCOM2_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PD(26), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"FLX_IO1", AT91C_PIN_PD(27), 0, PIO_DEFAULT, PIO_PERIPH_C},
+#elif defined(CONFIG_FLEXCOM2)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+#if CONFIG_FLEXCOM3_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(15), 0, PIO_DEFAULT, PIO_PERIPH_E},
+			{"FLX_IO1", AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_E},
+#elif CONFIG_FLEXCOM3_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PC(20), 0, PIO_DEFAULT, PIO_PERIPH_E},
+			{"FLX_IO1", AT91C_PIN_PC(19), 0, PIO_DEFAULT, PIO_PERIPH_E},
+#elif CONFIG_FLEXCOM3_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PB(23), 0, PIO_DEFAULT, PIO_PERIPH_E},
+			{"FLX_IO1", AT91C_PIN_PB(22), 0, PIO_DEFAULT, PIO_PERIPH_E},
+#elif defined(CONFIG_FLEXCOM3)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{
+#if CONFIG_FLEXCOM4_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PC(28), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(29), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM4_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PB(12), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PB(13), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM4_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_PERIPH_C},
+			{"FLX_IO1", AT91C_PIN_PD(22), 0, PIO_DEFAULT, PIO_PERIPH_C},
+#elif defined(CONFIG_FLEXCOM4)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		}
+	};
+
+	pio_configure(flx_pins[index]);
+
+	pmc_enable_periph_clock(flexcoms[index].id, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	flexcom_init(index);
+
+	return flexcom_get_regmap(index);
+}
+#endif
+
+void twi_init()
+{
+#if defined(CONFIG_TWI0)
+	twi_bus_init(at91_twi_hw_init, 0);
+#endif
+#if defined(CONFIG_TWI1)
+	twi_bus_init(at91_twi_hw_init, 1);
+#endif
+#if defined(CONFIG_FLEXCOM0)
+	twi_bus_init(at91_flexcom_twi_hw_init, 0);
+#endif
+#if defined(CONFIG_FLEXCOM1)
+	twi_bus_init(at91_flexcom_twi_hw_init, 1);
+#endif
+#if defined(CONFIG_FLEXCOM2)
+	twi_bus_init(at91_flexcom_twi_hw_init, 2);
+#endif
+#if defined(CONFIG_FLEXCOM3)
+	twi_bus_init(at91_flexcom_twi_hw_init, 3);
+#endif
+#if defined(CONFIG_FLEXCOM4)
+	twi_bus_init(at91_flexcom_twi_hw_init, 4);
+#endif
+}
+#endif
+
 void hw_init(void)
 {
 	at91_disable_wdt();
@@ -400,6 +585,11 @@ void hw_init(void)
 	initialize_dbgu();
 
 	timer_init();
+
+#if defined(CONFIG_TWI)
+	flexcoms_init(flexcoms);
+	twi_init();
+#endif
 
 	ddram_init();
 

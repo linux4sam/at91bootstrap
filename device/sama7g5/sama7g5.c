@@ -57,6 +57,29 @@ static void ca7_enable_smp()
 	);
 }
 
+#if defined(CONFIG_TWI)
+	#define FLEXCOM_USART_INDEX 12
+#else
+	#define FLEXCOM_USART_INDEX 0
+#endif
+static struct at91_flexcom flexcoms[] = {
+#if defined(CONFIG_TWI)
+	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0},
+	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1},
+	{AT91C_ID_FLEXCOM2, FLEXCOM_TWI, AT91C_BASE_FLEXCOM2},
+	{AT91C_ID_FLEXCOM3, FLEXCOM_TWI, AT91C_BASE_FLEXCOM3},
+	{AT91C_ID_FLEXCOM4, FLEXCOM_TWI, AT91C_BASE_FLEXCOM4},
+	{AT91C_ID_FLEXCOM5, FLEXCOM_TWI, AT91C_BASE_FLEXCOM5},
+	{AT91C_ID_FLEXCOM6, FLEXCOM_TWI, AT91C_BASE_FLEXCOM6},
+	{AT91C_ID_FLEXCOM7, FLEXCOM_TWI, AT91C_BASE_FLEXCOM7},
+	{AT91C_ID_FLEXCOM8, FLEXCOM_TWI, AT91C_BASE_FLEXCOM8},
+	{AT91C_ID_FLEXCOM9, FLEXCOM_TWI, AT91C_BASE_FLEXCOM9},
+	{AT91C_ID_FLEXCOM10, FLEXCOM_TWI, AT91C_BASE_FLEXCOM10},
+	{AT91C_ID_FLEXCOM11, FLEXCOM_TWI, AT91C_BASE_FLEXCOM11},
+#endif
+	{0, FLEXCOM_USART, 0}, /* DBGU */
+};
+
 const unsigned int usart_base =
 #if CONFIG_CONSOLE_INDEX <= 3
 	(AT91C_BASE_FLEXCOM0 + AT91C_OFFSET_FLEXCOM_USART);
@@ -359,7 +382,9 @@ static void at91_dbgu_hw_init(void)
 	pio_configure(dbgu_pins);
 	pmc_enable_periph_clock(usart_periph_id, PMC_PERIPH_CLK_DIVIDER_NA);
 
-	flexcom_init(3);
+	flexcoms[FLEXCOM_USART_INDEX].id = usart_periph_id;
+	flexcoms[FLEXCOM_USART_INDEX].addr = usart_base - AT91C_OFFSET_FLEXCOM_USART;
+	flexcom_init(FLEXCOM_USART_INDEX);
 }
 
 static void initialize_serial(void)
@@ -369,41 +394,6 @@ static void initialize_serial(void)
 	at91_dbgu_hw_init();
 	usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
 }
-
-#if defined CONFIG_FLEXCOM
-static struct at91_flexcom flexcoms[] = {
-	{AT91C_ID_FLEXCOM0, FLEXCOM_USART, AT91C_BASE_FLEXCOM0}, /* BT serial */
-	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1}, /* PMIC I2C */
-	{AT91C_ID_FLEXCOM2, FLEXCOM_USART, AT91C_BASE_FLEXCOM2}, /* Unused */
-	{AT91C_ID_FLEXCOM3, FLEXCOM_USART, AT91C_BASE_FLEXCOM3}, /* DBGU */
-};
-
-void board_flexcoms_init()
-{
-	flexcoms[3].id = usart_periph_id;
-	flexcoms[3].mode = FLEXCOM_USART;
-	flexcoms[3].addr = usart_base - AT91C_OFFSET_FLEXCOM_USART;
-	flexcoms_init(flexcoms);
-}
-#endif
-
-#if defined(CONFIG_FLEXCOM)
-static unsigned int at91_flexcom1_init(unsigned int index)
-{
-	const struct pio_desc flx_pins[] = {
-		{"FLX_IO0", AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_F},
-		{"FLX_IO1", AT91C_PIN_PC(10), 0, PIO_DEFAULT, PIO_PERIPH_F},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_F},
-	};
-
-	pio_configure(flx_pins);
-	pmc_enable_periph_clock(AT91C_ID_FLEXCOM1, PMC_PERIPH_CLK_DIVIDER_NA);
-
-	flexcom_init(1);
-
-	return flexcom_get_regmap(1);
-}
-#endif
 
 static struct umctl2_config_state umctl2_config;
 
@@ -594,10 +584,313 @@ void at91_sdhc_hw_init(void)
 #ifdef CONFIG_TWI
 static int twi1_bus_id = -1;
 
+#if defined(CONFIG_FLEXCOM0) || defined(CONFIG_FLEXCOM1) || defined(CONFIG_FLEXCOM2) || \
+	defined(CONFIG_FLEXCOM3) || defined(CONFIG_FLEXCOM4) || defined(CONFIG_FLEXCOM5) || \
+	defined(CONFIG_FLEXCOM6) || defined(CONFIG_FLEXCOM7) || defined(CONFIG_FLEXCOM8) || \
+	defined(CONFIG_FLEXCOM9) || defined(CONFIG_FLEXCOM10) || defined(CONFIG_FLEXCOM11)
+static unsigned int at91_flexcom_twi_hw_init(unsigned int index)
+{
+	const struct pio_desc flx_pins[][3] = {
+		{ // FLEXCOM0
+#if CONFIG_FLEXCOM0_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM0_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PD(3), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PD(4), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM0_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PD(10), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(11), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM0_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PE(3), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PE(4), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif defined(CONFIG_FLEXCOM0)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM1
+#if CONFIG_FLEXCOM1_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM1_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PD(12), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PD(13), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM1_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(3), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM1_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(10), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM1)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM2
+#if CONFIG_FLEXCOM2_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PA(8), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM2_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PD(17), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PD(18), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM2_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(4), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM2_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(11), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(12), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM2_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PD(14), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(15), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM2)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM3
+#if CONFIG_FLEXCOM3_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(15), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PA(16), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM3_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PC(0), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(1), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM3_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM3_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(13), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(14), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM3_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PD(16), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(17), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM3)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM4
+#if CONFIG_FLEXCOM4_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(20), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PA(21), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM4_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PC(2), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(3), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM4_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(8), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM4_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(15), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(16), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM4_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PD(18), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(19), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM4)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM5
+#if CONFIG_FLEXCOM5_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PA(28), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PA(29), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM5_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PD(25), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PD(26), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM5_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM5_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(17), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(18), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM5_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PD(20), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(21), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM5)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM6
+#if CONFIG_FLEXCOM6_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PB(2), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PB(1), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM6_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PD(30), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PD(31), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM6_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM6_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(19), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(20), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM6_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PC(21), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(22), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM6)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM7
+#if CONFIG_FLEXCOM7_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PB(23), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PB(24), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM7_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PC(7), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(8), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM7_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(25), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(26), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM7_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PB(28), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PB(29), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM7_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PC(23), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(24), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM7)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM8
+#if CONFIG_FLEXCOM8_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PB(8), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PB(9), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM8_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PC(14), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(13), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM8_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(27), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(28), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM8_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM8_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PD(2), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(3), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM8)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM9
+#if CONFIG_FLEXCOM9_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PB(13), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PB(14), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM9_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PC(18), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(19), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM9_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(29), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PA(30), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM9_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(0), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(1), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM9_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PD(4), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(5), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM9)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM10
+#if CONFIG_FLEXCOM10_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PB(18), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PB(19), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM10_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PC(30), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(31), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM10_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PA(31), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PB(0), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM10_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(2), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(3), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM10_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PD(6), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(7), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM10)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM11
+#if CONFIG_FLEXCOM11_IOSET == 1
+			{"FLX_IO0", AT91C_PIN_PB(3), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PB(4), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM11_IOSET == 2
+			{"FLX_IO0", AT91C_PIN_PD(0), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PD(1), 0, PIO_DEFAULT, PIO_PERIPH_B},
+#elif CONFIG_FLEXCOM11_IOSET == 3
+			{"FLX_IO0", AT91C_PIN_PB(1), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PB(2), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM11_IOSET == 4
+			{"FLX_IO0", AT91C_PIN_PC(4), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PC(5), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif CONFIG_FLEXCOM11_IOSET == 5
+			{"FLX_IO0", AT91C_PIN_PD(8), 0, PIO_DEFAULT, PIO_PERIPH_F},
+			{"FLX_IO1", AT91C_PIN_PD(9), 0, PIO_DEFAULT, PIO_PERIPH_F},
+#elif defined(CONFIG_FLEXCOM11)
+#error "Invalid FLEXCOM IOSET was chosen"
+#endif
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+	};
+
+	if (usart_periph_id == flexcoms[index].id) {
+		dbg_very_loud("\nFLEXCOM %d is used in UART mode, config to TWI mode ignored!\n\n", index);
+		return 0;
+	}
+
+	pio_configure(flx_pins[index]);
+
+	pmc_enable_periph_clock(flexcoms[index].id, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	flexcom_init(index);
+
+	return flexcom_get_regmap(index);
+}
+#endif
+
 void twi_init()
 {
-#ifdef CONFIG_FLEXCOM
-	twi1_bus_id = twi_bus_init(at91_flexcom1_init, 1);
+#if defined(CONFIG_FLEXCOM0)
+	twi_bus_init(at91_flexcom_twi_hw_init, 0);
+#endif
+#if defined(CONFIG_FLEXCOM1)
+	twi_bus_init(at91_flexcom_twi_hw_init, 1);
+#endif
+#if defined(CONFIG_FLEXCOM2)
+	twi_bus_init(at91_flexcom_twi_hw_init, 2);
+#endif
+#if defined(CONFIG_FLEXCOM3)
+	twi_bus_init(at91_flexcom_twi_hw_init, 3);
+#endif
+#if defined(CONFIG_FLEXCOM4)
+	twi_bus_init(at91_flexcom_twi_hw_init, 4);
+#endif
+#if defined(CONFIG_FLEXCOM5)
+	twi_bus_init(at91_flexcom_twi_hw_init, 5);
+#endif
+#if defined(CONFIG_FLEXCOM6)
+	twi_bus_init(at91_flexcom_twi_hw_init, 6);
+#endif
+#if defined(CONFIG_FLEXCOM7)
+	twi_bus_init(at91_flexcom_twi_hw_init, 7);
+#endif
+#if defined(CONFIG_FLEXCOM8)
+	twi_bus_init(at91_flexcom_twi_hw_init, 8);
+#endif
+#if defined(CONFIG_FLEXCOM9)
+	twi_bus_init(at91_flexcom_twi_hw_init, 9);
+#endif
+#if defined(CONFIG_FLEXCOM10)
+	twi_bus_init(at91_flexcom_twi_hw_init, 10);
+#endif
+#if defined(CONFIG_FLEXCOM11)
+	twi_bus_init(at91_flexcom_twi_hw_init, 11);
 #endif
 }
 #endif /* CONFIG_TWI */
@@ -701,7 +994,7 @@ void hw_init(void)
 	pmc_mck_cfg_set(1, BOARD_PRESCALER_MCK1,
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
-	board_flexcoms_init();
+	flexcoms_init(flexcoms);
 	at91_leds_init();
 
 	initialize_serial();
