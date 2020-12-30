@@ -60,23 +60,7 @@
 
 static unsigned int wm8904_get_twi_bus(void)
 {
-	unsigned int bus = 0;
-
-	if (wm8904_twi_bus != 0xff) {
-		bus = wm8904_twi_bus;
-	} else {
-#if defined(CONFIG_CODEC_ON_TWI0)
-		bus = 0;
-#elif defined(CONFIG_CODEC_ON_TWI1)
-		bus = 1;
-#elif defined(CONFIG_CODEC_ON_TWI2)
-		bus = 2;
-#elif defined(CONFIG_CODEC_ON_TWI3)
-		bus = 3;
-#endif
-	}
-
-	return bus;
+	return CONFIG_CODEC_ON_TWI;
 }
 
 static int wm8904_read(unsigned char reg_addr, unsigned short *data)

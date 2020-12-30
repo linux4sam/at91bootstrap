@@ -33,23 +33,7 @@
 
 static unsigned int at24_get_twi_bus(void)
 {
-	unsigned int bus = 0;
-
-	if (at24xx_twi_bus != 0xff) {
-		bus = at24xx_twi_bus;
-	} else {
-#if defined(CONFIG_EEPROM_ON_TWI0)
-		bus = 0;
-#elif defined(CONFIG_EEPROM_ON_TWI1)
-		bus = 1;
-#elif defined(CONFIG_EEPROM_ON_TWI2)
-		bus = 2;
-#elif defined(CONFIG_EEPROM_ON_TWI3)
-		bus = 3;
-#endif
-	}
-
-	return bus;
+	return CONFIG_EEPROM_ON_TWI;
 }
 static int at24_read(unsigned char device_addr, unsigned char internal_addr,
 			unsigned char *buff, unsigned int length)

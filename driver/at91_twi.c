@@ -46,11 +46,6 @@
 
 unsigned int twi_init_done;
 
-unsigned char hdmi_twi_bus;
-unsigned char wm8904_twi_bus;
-unsigned char act8865_twi_bus;
-unsigned char at24xx_twi_bus;
-
 #define AT91_MAX_TWI_SUPPORTED		16
 
 static unsigned int at91_twi_base[AT91_MAX_TWI_SUPPORTED];
@@ -282,11 +277,6 @@ int twi_bus_init(unsigned int (*at91_twi_hw_init)(unsigned int index), unsigned 
 		return bus;
 
 	twi_configure_master_mode(bus, bus_clock, TWI_CLOCK);
-
-	hdmi_twi_bus	= 0xff;
-	wm8904_twi_bus	= 0xff;
-	act8865_twi_bus	= 0xff;
-	at24xx_twi_bus	= 0xff;
 
 	twi_init_done = 1;
 

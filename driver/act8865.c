@@ -39,23 +39,7 @@
 
 static unsigned int act8865_get_twi_bus(void)
 {
-	unsigned int bus = 0;
-
-	if (act8865_twi_bus != 0xff) {
-		bus = act8865_twi_bus;
-	} else {
-#if defined(CONFIG_PMIC_ON_TWI0)
-		bus = 0;
-#elif defined(CONFIG_PMIC_ON_TWI1)
-		bus = 1;
-#elif defined(CONFIG_PMIC_ON_TWI2)
-		bus = 2;
-#elif defined(CONFIG_PMIC_ON_TWI3)
-		bus = 3;
-#endif
-	}
-
-	return bus;
+	return CONFIG_PMIC_ON_TWI;
 }
 
 static int act8865_read(unsigned char reg_addr, unsigned char *data)
