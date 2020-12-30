@@ -32,10 +32,24 @@
 /*
  * Peripheral identifiers/interrupts.
  */
+#define AT91C_ID_PIOA		11	/* Parallel I/O Controller A */
+#define AT91C_ID_PIOB		12	/* Parallel I/O Controller B */
+#define AT91C_ID_PIOC		13	/* Parallel I/O Controller C */
+#define AT91C_ID_PIOD		14	/* Parallel I/O Controller D */
+#define AT91C_ID_PIOE		15	/* Parallel I/O Controller E */
+
 #define AT91C_ID_FLEXCOM0	38
 #define AT91C_ID_FLEXCOM1	39
 #define AT91C_ID_FLEXCOM2	40
 #define AT91C_ID_FLEXCOM3	41
+#define AT91C_ID_FLEXCOM4	42
+#define AT91C_ID_FLEXCOM5	43
+#define AT91C_ID_FLEXCOM6	44
+#define AT91C_ID_FLEXCOM7	45
+#define AT91C_ID_FLEXCOM8	46
+#define AT91C_ID_FLEXCOM9	47
+#define AT91C_ID_FLEXCOM10	48
+#define AT91C_ID_FLEXCOM11	49
 
 #define AT91C_ID_SDMMC0		80
 #define AT91C_ID_SDMMC1		81
@@ -69,6 +83,13 @@
 #define AT91C_BASE_FLEXCOM2	0xe1820000
 #define AT91C_BASE_FLEXCOM3	0xe1824000
 #define AT91C_BASE_FLEXCOM4	0xe2018000
+#define AT91C_BASE_FLEXCOM5	0xe201C000
+#define AT91C_BASE_FLEXCOM6	0xe2020000
+#define AT91C_BASE_FLEXCOM7	0xe2024000
+#define AT91C_BASE_FLEXCOM8	0xe2818000
+#define AT91C_BASE_FLEXCOM9	0xe281C000
+#define AT91C_BASE_FLEXCOM10	0xe2820000
+#define AT91C_BASE_FLEXCOM11	0xe2824000
 
 #define AT91C_BASE_TZC400	0xe3000000
 

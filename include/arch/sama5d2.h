@@ -263,6 +263,7 @@
 
 #define	AT91C_NUM_PIO		4
 #define	AT91C_NUM_TWI		2
+#define	AT91C_NUM_FLEXCOM	5
 
 /* AICREDIR Unlock Key */
 #define	AICREDIR_KEY		0xB6D81C4D
