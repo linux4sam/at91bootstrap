@@ -339,3 +339,50 @@ int act8945a_suspend_charger(void)
 	return 0;
 }
 #endif
+
+#if defined(CONFIG_ACT8865_SET_VOLTAGE)
+struct act8865_tbl {
+	unsigned char reg;
+	unsigned int voltage;
+};
+static const struct act8865_tbl act8865_vol[] = {
+	{0x14, 1100}, {0x18, 1200}, {0x19, 1250}, {0x1b, 1350},
+	{0x24, 1800}, {0x31, 2500}, {0x39, 3300},
+};
+static const struct act8865_tbl act8865_outs[] = {
+	{REG1_0, CONFIG_VOLTAGE_OUT1},
+	{REG2_0, CONFIG_VOLTAGE_OUT2},
+	{REG3_0, CONFIG_VOLTAGE_OUT3},
+	{REG4_0, CONFIG_VOLTAGE_OUT4},
+	{REG5_0, CONFIG_VOLTAGE_OUT5},
+	{REG6_0, CONFIG_VOLTAGE_OUT6},
+	{REG7_0, CONFIG_VOLTAGE_OUT7},
+};
+
+int at91_board_act8865_set_reg_voltage(void)
+{
+	int i, j;
+	int ret = 0;
+
+	/* Check ACT8865 I2C interface */
+	if (act8865_check_i2c_disabled())
+		return 0;
+
+	for (i = 0; i < ARRAY_SIZE(act8865_outs); i++) {
+		if (act8865_outs[i].voltage == 0)
+			continue;
+
+		ret = -1;
+		for (j = 0; j < ARRAY_SIZE(act8865_vol); j++) {
+			if (act8865_vol[j].voltage == act8865_outs[i].voltage) {
+				ret = act8865_set_reg_voltage(act8865_outs[i].reg, act8865_vol[j].reg);
+				break;
+			}
+		}
+		if (ret)
+			console_printf("ACT8865: Failed to make REG%d output %dmV\n", i + 1, act8865_outs[i].voltage);
+	}
+
+	return ret;
+}
+#endif
