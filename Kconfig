@@ -544,17 +544,22 @@ config FLEXCOM12_IOSET
 
 endmenu
 
+config ACT8865
+	bool "PMIC (ACT8865 / ACT8945A) Support"
+	default n
+	select TWI
+
+
 config ACT8865_SET_VOLTAGE
 	bool "Set ACT8865 Initial Output Voltage"
-	select ACT8865
+	depends on ACT8865
 	default n
 	help
 	  This interface let you to set the ACT8865 initial output value
 
 config DISABLE_ACT8865_I2C
 	bool "Disable the ACT8865 I2C interface"
-	depends on HAS_PMIC_ACT8865
-	select ACT8865
+	depends on ACT8865
 	select ACT8865_SET_VOLTAGE
 	default y
 	help
@@ -564,19 +569,11 @@ config DISABLE_ACT8865_I2C
 
 config SUSPEND_ACT8945A_CHARGER
 	bool "Suspend ACT8945A Charger"
-	select ACT8865
+	depends on ACT8865
 	default n
 	help
 	  This interface let you to suspend the ACT8945A charger
 	  function after boot.
-
-endmenu
-
-config ACT8865
-	bool "PMIC (ACT8865) Support"
-	depends on HAS_PMIC_ACT8865
-	select TWI
-	default n
 
 config MCP16502
 	bool "PMIC (MCP16502) Support"
@@ -585,10 +582,75 @@ config MCP16502
 
 config PMIC_ON_TWI
 	int "PMIC on TWI bus (configured in menu \"TWI BUS setting\")"
-	depends on ACT8865
+	depends on ACT8865 || MCP16502
 	default 0
 	help
 	  This interface allow you select which TWI bus for the PMIC to wire on.
+
+config VOLTAGE_OUT1
+	int "Voltage(mV) on PMIC's OUT1"
+	default 0
+	depends on ACT8865_SET_VOLTAGE || MCP16502 
+	help
+	  The voltage on PMIC's OUT1, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+config VOLTAGE_OUT2
+	int "Voltage(mV) on PMIC's OUT2"
+	default 0
+	depends on ACT8865_SET_VOLTAGE || MCP16502 
+	help
+	  The voltage on PMIC's OUT2, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+config VOLTAGE_OUT3
+	int "Voltage(mV) on PMIC's OUT3"
+	default 0
+	depends on ACT8865_SET_VOLTAGE || MCP16502 
+	help
+	  The voltage on PMIC's OUT3, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+config VOLTAGE_OUT4
+	int "Voltage(mV) on PMIC's OUT4"
+	default 0
+	depends on ACT8865_SET_VOLTAGE || MCP16502 
+	help
+	  The voltage on PMIC's OUT4, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+config VOLTAGE_OUT5
+	int "Voltage(mV) on PMIC's OUT5"
+	default 0
+	depends on ACT8865_SET_VOLTAGE
+	help
+	  The voltage on PMIC's OUT5, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+config VOLTAGE_OUT6
+	int "Voltage(mV) on PMIC's OUT6"
+	default 0
+	depends on ACT8865_SET_VOLTAGE
+	help
+	  The voltage on PMIC's OUT6, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+config VOLTAGE_OUT7
+	int "Voltage(mV) on PMIC's OUT7"
+	default 0
+	depends on ACT8865_SET_VOLTAGE
+	help
+	  The voltage on PMIC's OUT7, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+config VOLTAGE_LDO1
+	int "Voltage(mV) on PMIC's LDO1"
+	default 0
+	depends on MCP16502
+	help
+	  The voltage on PMIC's LDO1, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+config VOLTAGE_LDO2
+	int "Voltage(mV) on PMIC's LDO2"
+	default 0
+	depends on MCP16502
+	help
+	  The voltage on PMIC's LDO2, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+
+endmenu
 
 menu "Board Hardware Information Options"
 

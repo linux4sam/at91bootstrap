@@ -18,22 +18,6 @@ config TWI
 	bool
 	default n
 
-config TWI0
-	bool
-	default n
-
-config TWI1
-	bool
-	default n
-
-config TWI2
-	bool
-	default n
-
-config TWI3
-	bool
-	default n
-
 config MACB
 	bool
 	default n
