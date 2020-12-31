@@ -369,34 +369,6 @@ static unsigned int at91_twi_hw_init(unsigned int index)
 #endif
 #endif
 
-#if defined(CONFIG_ACT8865_SET_VOLTAGE)
-int at91_board_act8865_set_reg_voltage(void)
-{
-	unsigned char reg, value;
-	int ret;
-
-	/* Check ACT8865 I2C interface */
-	if (act8865_check_i2c_disabled())
-		return 0;
-
-	/* Enable REG5 output 3.3V */
-	reg = REG5_0;
-	value = ACT8865_3V3;
-	ret = act8865_set_reg_voltage(reg, value);
-	if (ret)
-		console_printf("ACT8865: Failed to make REG5 output 3300mV\n");
-
-	/* Enable REG6 output 1.8V */
-	reg = REG6_0;
-	value = ACT8865_1V8;
-	ret = act8865_set_reg_voltage(reg, value);
-	if (ret)
-		console_printf("ACT8865: Failed to make REG6 output 1800mV\n");
-
-	return 0;
-}
-#endif
-
 #if defined(CONFIG_PM)
 void at91_disable_smd_clock(void)
 {
