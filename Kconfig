@@ -669,6 +669,35 @@ config LOAD_EEPROM
 
 endchoice
 
+choice
+	prompt "1-Wire PIO Select"
+	depends on LOAD_ONE_WIRE
+	default ONE_WIRE_ON_PIOA
+
+config ONE_WIRE_ON_PIOA
+	bool "1-Wire on PIOA"
+
+config ONE_WIRE_ON_PIOB
+	bool "1-Wire on PIOB"
+
+config ONE_WIRE_ON_PIOC
+	bool "1-Wire on PIOC"
+
+config ONE_WIRE_ON_PIOD
+	bool "1-Wire on PIOD"
+
+config ONE_WIRE_ON_PIOE
+	bool "1-Wire on PIOE"
+	depends on PIO_E
+
+endchoice
+
+config ONE_WIRE_PIN
+	int "1-Wire on I/O Line"
+	depends on LOAD_ONE_WIRE
+	range 0 31
+	default 0
+
 config EEPROM_ON_TWI
 	int "EEPROM on TWI bus (configured in menu \"TWI BUS setting\")"
 	depends on LOAD_EEPROM
@@ -751,6 +780,11 @@ config PIO
 	default y
 	help
 	  Programmable I/O support
+
+config PIO_E
+	bool
+	depends on SAMA5D4 || SAMA5D3X || SAMA7G5
+	default y
 
 config PMC_COMMON
 	bool "Common support for power management controller"
