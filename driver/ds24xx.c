@@ -75,19 +75,31 @@ static unsigned char LastDeviceFlag;
 static unsigned char buf[MAX_BUF_LEN];
 static unsigned char cmp[MAX_BUF_LEN];
 
+#if defined(CONFIG_ONE_WIRE_ON_PIOA)
+	#define DS24XX_PIO AT91C_PIN_PA(CONFIG_ONE_WIRE_PIN)
+#elif defined(CONFIG_ONE_WIRE_ON_PIOB)
+	#define DS24XX_PIO AT91C_PIN_PB(CONFIG_ONE_WIRE_PIN)
+#elif defined(CONFIG_ONE_WIRE_ON_PIOC)
+	#define DS24XX_PIO AT91C_PIN_PC(CONFIG_ONE_WIRE_PIN)
+#elif defined(CONFIG_ONE_WIRE_ON_PIOD)
+	#define DS24XX_PIO AT91C_PIN_PD(CONFIG_ONE_WIRE_PIN)
+#elif defined(CONFIG_ONE_WIRE_ON_PIOE)
+	#define DS24XX_PIO AT91C_PIN_PE(CONFIG_ONE_WIRE_PIN)
+#endif
+
 static inline void set_wire_low()
 {
-	pio_set_gpio_output(CONFIG_SYS_ONE_WIRE_PIN, 0);
+	pio_set_gpio_output(DS24XX_PIO, 0);
 }
 
 static inline void set_wire_input()
 {
-	pio_set_gpio_input(CONFIG_SYS_ONE_WIRE_PIN, 0);
+	pio_set_gpio_input(DS24XX_PIO, 0);
 }
 
 static inline int read_wire_bit()
 {
-	return pio_get_value(CONFIG_SYS_ONE_WIRE_PIN);
+	return pio_get_value(DS24XX_PIO);
 }
 
 static unsigned char dscrc_table[] = {
@@ -340,6 +352,27 @@ static int ds24xx_find_next()
 	return ds24xx_search_rom();
 }
 
+static void one_wire_hw_init(void)
+{
+	const struct pio_desc one_wire_pio[] = {
+		{"1-Wire", DS24XX_PIO, 1, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(one_wire_pio);
+#if defined(CONFIG_ONE_WIRE_ON_PIOA)
+	pmc_enable_periph_clock(AT91C_ID_PIOA, PMC_PERIPH_CLK_DIVIDER_NA);
+#elif defined(CONFIG_ONE_WIRE_ON_PIOB)
+	pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
+#elif defined(CONFIG_ONE_WIRE_ON_PIOC)
+	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
+#elif defined(CONFIG_ONE_WIRE_ON_PIOD)
+	pmc_enable_periph_clock(AT91C_ID_PIOD, PMC_PERIPH_CLK_DIVIDER_NA);
+#elif defined(CONFIG_ONE_WIRE_ON_PIOE)
+	pmc_enable_periph_clock(AT91C_ID_PIOE, PMC_PERIPH_CLK_DIVIDER_NA);
+#endif
+}
+
 unsigned int enumerate_all_rom(void)
 {
 	int i;
@@ -347,6 +380,7 @@ unsigned int enumerate_all_rom(void)
 	unsigned int cnt = 0;
 
 	dbg_info("1-Wire: ROM Searching ... ");
+	one_wire_hw_init();
 
 	result = ds24xx_find_first();
 	while (result) {
