@@ -246,9 +246,4 @@
 #define CONFIG_SYS_RECOVERY_BUTTON_PIN	AT91C_PIN_PE(27)
 #define RECOVERY_BUTTON_NAME	"BP3/PB_USER1"
 
-/*
- * One wire pin
- */
-#define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PE(25)
-
 #endif /* #ifndef __DEV_SAMA5D3_H__ */

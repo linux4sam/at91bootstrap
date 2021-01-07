@@ -94,17 +94,6 @@ static void initialize_dbgu(void)
 		usart_init(BAUDRATE(MASTER_CLOCK, baudrate));
 }
 
-static void one_wire_hw_init(void)
-{
-	const struct pio_desc one_wire_pio[] = {
-		{"1-Wire", CONFIG_SYS_ONE_WIRE_PIN, 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pio_configure(one_wire_pio);
-	pmc_enable_periph_clock(AT91C_ID_PIOE, PMC_PERIPH_CLK_DIVIDER_NA);
-}
-
 #if defined(CONFIG_MATRIX)
 static int matrix_configure_slave(void)
 {
@@ -500,9 +489,6 @@ void hw_init(void)
 	timer_init();
 
 	ddram_init();
-
-	/* load one wire information */
-	one_wire_hw_init();
 
 #if defined(CONFIG_HDMI)
 	/* Reset HDMI SiI9022 */

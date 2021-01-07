@@ -224,11 +224,6 @@
 #define RECOVERY_BUTTON_NAME	"BP2/PB_USER1"
 
 /*
- * One wire pin
- */
-#define CONFIG_SYS_ONE_WIRE_PIN		AT91C_PIN_PE(28)
-
-/*
  * Others
  */
 #if defined(CONFIG_HDMI)
