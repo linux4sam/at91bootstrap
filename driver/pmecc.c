@@ -303,15 +303,15 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 #else
 
 		if (sector_size == 512) {
-			pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM
-					+ CONFIG_LOOKUP_TABLE_ALPHA_OFFSET);
-			pmecc_params->index_of = (short *)(AT91C_BASE_ROM
-					+ CONFIG_LOOKUP_TABLE_INDEX_OFFSET);
+			pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM +
+					PMECC_GF_TABLE_512_ALPHA_OFFSET);
+			pmecc_params->index_of = (short *)(AT91C_BASE_ROM +
+					PMECC_GF_TABLE_512_INDEX_OFFSET);
 		} else {
-			pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM
-				+ CONFIG_LOOKUP_TABLE_ALPHA_OFFSET_1024);
-			pmecc_params->index_of = (short *)(AT91C_BASE_ROM
-				+ CONFIG_LOOKUP_TABLE_INDEX_OFFSET_1024);
+			pmecc_params->alpha_to = (short *)(AT91C_BASE_ROM +
+					PMECC_GF_TABLE_1024_ALPHA_OFFSET);
+			pmecc_params->index_of = (short *)(AT91C_BASE_ROM +
+					PMECC_GF_TABLE_1024_INDEX_OFFSET);
 		}
 #endif
 		/* Error Correct Capability */
