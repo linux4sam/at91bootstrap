@@ -256,43 +256,43 @@ static unsigned int at91_flexcom_twi_hw_init(unsigned int index)
 
 void twi_init()
 {
-#if CONFIG_FLEXCOM0
+#ifdef CONFIG_FLEXCOM0
 	twi_bus_init(at91_flexcom_twi_hw_init, 0);
 #endif
-#if CONFIG_FLEXCOM1
+#ifdef CONFIG_FLEXCOM1
 	twi_bus_init(at91_flexcom_twi_hw_init, 1);
 #endif
-#if CONFIG_FLEXCOM2
+#ifdef CONFIG_FLEXCOM2
 	twi_bus_init(at91_flexcom_twi_hw_init, 2);
 #endif
-#if CONFIG_FLEXCOM3
+#ifdef CONFIG_FLEXCOM3
 	twi_bus_init(at91_flexcom_twi_hw_init, 3);
 #endif
-#if CONFIG_FLEXCOM4
+#ifdef CONFIG_FLEXCOM4
 	twi_bus_init(at91_flexcom_twi_hw_init, 4);
 #endif
-#if CONFIG_FLEXCOM5
+#ifdef CONFIG_FLEXCOM5
 	twi_bus_init(at91_flexcom_twi_hw_init, 5);
 #endif
-#if CONFIG_FLEXCOM6
+#ifdef CONFIG_FLEXCOM6
 	twi_bus_init(at91_flexcom_twi_hw_init, 6);
 #endif
-#if CONFIG_FLEXCOM7
+#ifdef CONFIG_FLEXCOM7
 	twi_bus_init(at91_flexcom_twi_hw_init, 7);
 #endif
-#if CONFIG_FLEXCOM8
+#ifdef CONFIG_FLEXCOM8
 	twi_bus_init(at91_flexcom_twi_hw_init, 8);
 #endif
-#if CONFIG_FLEXCOM9
+#ifdef CONFIG_FLEXCOM9
 	twi_bus_init(at91_flexcom_twi_hw_init, 9);
 #endif
-#if CONFIG_FLEXCOM10
+#ifdef CONFIG_FLEXCOM10
 	twi_bus_init(at91_flexcom_twi_hw_init, 10);
 #endif
-#if CONFIG_FLEXCOM11
+#ifdef CONFIG_FLEXCOM11
 	twi_bus_init(at91_flexcom_twi_hw_init, 11);
 #endif
-#if CONFIG_FLEXCOM12
+#ifdef CONFIG_FLEXCOM12
 	twi_bus_init(at91_flexcom_twi_hw_init, 12);
 #endif
 }
