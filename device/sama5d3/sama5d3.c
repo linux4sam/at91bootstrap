@@ -46,6 +46,10 @@
 #include "sama5d3_board.h"
 #include "twi.h"
 
+#ifdef CONFIG_LOAD_ONE_WIRE
+#include "ds24xx.h"
+#endif
+
 static void at91_dbgu_hw_init(void)
 {
 	/* Configure DBGU pin */
@@ -67,17 +71,6 @@ static void initialize_dbgu(void)
 {
 	at91_dbgu_hw_init();
 	usart_init(BAUDRATE(MASTER_CLOCK, 115200));
-}
-
-static void one_wire_hw_init(void)
-{
-	const struct pio_desc one_wire_pio[] = {
-		{"1-Wire", AT91C_PIN_PE(25), 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pmc_enable_periph_clock(AT91C_ID_PIOE, PMC_PERIPH_CLK_DIVIDER_NA);
-	pio_configure(one_wire_pio);
 }
 
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
@@ -232,8 +225,10 @@ void hw_init(void)
 
 	ddram_init();
 
+#ifdef CONFIG_LOAD_ONE_WIRE
 	/* load one wire information */
 	one_wire_hw_init();
+#endif
 
 	HDMI_Qt1070_workaround();
 
