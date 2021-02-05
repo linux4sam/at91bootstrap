@@ -31,5 +31,6 @@
 extern unsigned int enumerate_all_rom(void);
 extern int ds24xx_read_memory(int chip_index, unsigned char addrh,
 				unsigned char addrl, int len, unsigned char *p);
+extern void one_wire_hw_init(void);
 
 #endif

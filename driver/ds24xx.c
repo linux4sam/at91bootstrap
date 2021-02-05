@@ -26,6 +26,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "board.h"
+#include "hardware.h"
+#include "pmc.h"
 #include "gpio.h"
 #include "arch/at91_pio.h"
 #include "debug.h"
@@ -352,7 +354,7 @@ static int ds24xx_find_next()
 	return ds24xx_search_rom();
 }
 
-static void one_wire_hw_init(void)
+void one_wire_hw_init(void)
 {
 	const struct pio_desc one_wire_pio[] = {
 		{"1-Wire", DS24XX_PIO, 1, PIO_DEFAULT, PIO_OUTPUT},
