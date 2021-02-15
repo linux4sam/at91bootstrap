@@ -265,6 +265,7 @@ config SAMA7G5
 	select CPU_HAS_DWDT
 	select CPU_HAS_SDHC0
 	select CPU_HAS_SDHC1
+	select CPU_HAS_SDHC2
 	bool
 
 config MACH_TYPE
