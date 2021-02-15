@@ -9,6 +9,7 @@ config SAMA7G5
 	select CPU_HAS_DWDT
 	select CPU_HAS_SDHC0
 	select CPU_HAS_SDHC1
+	select CPU_HAS_SDHC2
 	select CPU_V7
 	select CPU_HAS_UMCTL2
 	select PUBL
