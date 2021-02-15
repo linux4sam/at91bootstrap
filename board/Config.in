@@ -733,6 +733,10 @@ config CPU_HAS_SDHC1
 	bool
 	default n
 
+config CPU_HAS_SDHC2
+	bool
+	default n
+
 config CPU_HAS_SPI0
 	bool
 	default n

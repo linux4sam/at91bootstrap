@@ -474,6 +474,10 @@ ifeq ($(CONFIG_SDHC1), y)
 CPPFLAGS += -DCONFIG_SDHC1
 endif
 
+ifeq ($(CONFIG_SDHC2), y)
+CPPFLAGS += -DCONFIG_SDHC2
+endif
+
 ifeq ($(CONFIG_SDHC_NODMA), y)
 CPPFLAGS += -DCONFIG_SDHC_NODMA
 endif

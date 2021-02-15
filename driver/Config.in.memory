@@ -258,7 +258,7 @@ endchoice
 
 config SDHC
 	bool
-	depends on CPU_HAS_SDHC0 || CPU_HAS_SDHC1
+	depends on CPU_HAS_SDHC0 || CPU_HAS_SDHC1 || CPU_HAS_SDHC2
 	default y
 
 choice
@@ -275,6 +275,10 @@ config SDHC0
 config SDHC1
 	bool "On SDHC1"
 	depends on CPU_HAS_SDHC1
+
+config SDHC2
+	bool "On SDHC2"
+	depends on CPU_HAS_SDHC2
 
 endchoice
 
