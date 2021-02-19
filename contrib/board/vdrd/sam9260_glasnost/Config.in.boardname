@@ -1,0 +1,2 @@
+config BOARDNAME
+	default "sam9260_glasnost" if SAM9260_GLASNOST
