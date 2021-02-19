@@ -1,0 +1,13 @@
+config	SAM9260_GLASNOST
+	bool "sam9260_glasnost"
+	select AT91SAM9260
+	select SDRAM
+	select ALLOW_DATAFLASH
+	select DATAFLASHCARD_ON_CS0
+	select ALLOW_CPU_CLK_200MHZ
+	select ALLOW_CRYSTAL_18_432MHZ
+	select ALLOW_BOOT_FROM_DATAFLASH_CS0
+	select SUPPORT_BUS_SPEED_100MHZ
+	help
+	    Use the Glasnost SAM9260 Board
+
