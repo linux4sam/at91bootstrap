@@ -67,7 +67,7 @@ static void sdramc_init(void)
 	sdramc_config.cr = AT91C_SDRAMC_NC_9
 		| AT91C_SDRAMC_NR_13 | AT91C_SDRAMC_CAS_2
 		| AT91C_SDRAMC_NB_4_BANKS | AT91C_SDRAMC_DBW_32_BITS
-		| AT91C_SDRAMC_TWR_2 | AT91C_SDRAMC_TRC_7
+		| AT91C_SDRAMC_TWR_2 | AT91C_SDRAMC_TRC_4
 		| AT91C_SDRAMC_TRP_2 | AT91C_SDRAMC_TRCD_2
 		| AT91C_SDRAMC_TRAS_5 | AT91C_SDRAMC_TXSR_8;
 
@@ -88,6 +88,13 @@ static void sdramc_init(void)
 }
 #endif  /* #ifdef CONFIG_SDRAM */
 
+static void at91_blue_led_on(void)
+{
+	pio_set_gpio_output(AT91C_PIN_PC(6), 1); /* Red Led */
+	pio_set_gpio_output(AT91C_PIN_PC(7), 1); /* Green Led */
+	pio_set_gpio_output(AT91C_PIN_PC(9), 0); /* Blue Led */
+}
+
 #if defined(CONFIG_DATAFLASH_RECOVERY)
 static void recovery_buttons_hw_init(void)
 {
@@ -107,6 +114,9 @@ void hw_init(void)
 {
 	/* Disable watchdog */
 	at91_disable_wdt();
+
+    /* Blue Led ON */
+	at91_blue_led_on();
 
 	/*
 	 * At this stage the main oscillator is supposed to be enabled
