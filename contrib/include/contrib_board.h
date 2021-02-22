@@ -65,4 +65,8 @@
 #include "sama5d3_linea.h"
 #endif
 
+#ifdef CONFIG_SAM9260_GLASNOST
+#include "sam9260_glasnost.h"
+#endif
+
 #endif
