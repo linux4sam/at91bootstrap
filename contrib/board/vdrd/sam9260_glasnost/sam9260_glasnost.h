@@ -62,18 +62,9 @@
 #endif
 
 /*
- * NandFlash Settings
- */
-#define CONFIG_SYS_NAND_BASE            AT91C_BASE_CS3
-#define CONFIG_SYS_NAND_MASK_ALE        (1 << 21)
-#define CONFIG_SYS_NAND_MASK_CLE        (1 << 22)
-
-#define CONFIG_SYS_NAND_ENABLE_PIN      AT91C_PIN_PC(14)
-
-/*
  * Recovery Button
  */
 #define CONFIG_SYS_RECOVERY_BUTTON_PIN  AT91C_PIN_PA(31)
 #define RECOVERY_BUTTON_NAME            "BP4"
 
-#endif /* __AT91SAM9260EK_H__ */
+#endif /* __SAM9260_GLASNOST_H__ */
