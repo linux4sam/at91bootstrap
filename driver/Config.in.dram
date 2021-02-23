@@ -32,6 +32,10 @@ config DDR_MT41K128M16_D2
 	bool "DDR3 MT41K128M16(SAMA5D2 Xplained)"
 	depends on DDRC
 	comment "Two MT41K128M16 4Gbit"
+config DDR_W632GU6MB
+	bool "DDR3L SDRAM W632GU6MB (SAMA5D2 ICP)"
+	depends on DDRC
+	comment "DDR3L SDRAM W632GU6MB 2 Gbit x 2"
 config DDR_W972GG6KB_9X60
 	bool "DDR2 DDR_W972GG6KB(SAM9X60-EK)"
 	depends on DDRC

@@ -79,7 +79,20 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	 * If tref is 7.8us, we have: 400000 / 7.8 = 51282(0xC852)
 	 * */
 	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
-
+#elif defined(CONFIG_DDR_W632GU6MB)
+/* Two DDR3L(W632GU6MB-12 = 16 Mbit x 16 x 8 banks), total 4 Gbit on SAMA5D2 ICP*/
+	type = AT91C_DDRC2_MD_DDR3_SDRAM;
+	dbw = AT91C_DDRC2_DBW_32_BITS;
+	col = AT91C_DDRC2_NC_DDR10_SDR9;
+	row = AT91C_DDRC2_NR_14;
+	cas = AT91C_DDRC2_CAS_5;
+	bank = AT91C_DDRC2_NB_BANKS_8;
+#if defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x298;
+#else
+	#error "No CLK setting defined"
+#endif
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0x5355);
 #elif defined(CONFIG_DDR_W972GG6KB_D2)
 /* Two DDR2 (W972GG6KB-25-2 Gbits = 16 Mbits x 16 x 8 banks), total 4 Gbits on the SAMA5D2-PTC-EK */
 	type = AT91C_DDRC2_MD_DDR2_SDRAM;

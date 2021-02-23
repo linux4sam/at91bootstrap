@@ -75,6 +75,29 @@ static const struct ddram_timings ddr_ddram_timings = {
 #else
 	#error "No CLK setting defined"
 #endif /* Endif of CONFIG_BUS_SPEED_116MHZ */
+#elif defined(CONFIG_DDR_W632GU6MB)
+/* Two DDR3L(W632GU6MB-12 = 16 Mbit x 16 x 8 banks), total 4 Gbit on SAMA5D2 ICP*/
+#if defined(CONFIG_BUS_SPEED_166MHZ)
+	.tras = 6,
+	.trcd = 3,
+	.twr = 3,
+	.trc = 9,
+	.trp = 3,
+	.trrd = 4,
+	.twtr = 4,
+	.tmrd = 4,
+	.trfc = 27,
+	.txsnr = 29,
+	.txsrd = 0,
+	.txp = 10,
+	.txard = 0,
+	.txards = 0,
+	.trpa = 0,
+	.trtp = 4,
+	.tfaw = 7,
+#else
+	#error "No CLK setting defined"
+#endif /* Endif of CONFIG_BUS_SPEED_116MHZ */
 #elif defined(CONFIG_DDR_W972GG6KB_D2)
 /* Two DDR2 (W972GG6KB-25-2 Gbits = 16 Mbits x 16 x 8 banks), total 4 Gbits on the SAMA5D2-PTC-EK */
 /* all timings in nCK */
