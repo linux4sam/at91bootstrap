@@ -274,6 +274,10 @@ config CAS_8
 	  CAS Latency 8
 endchoice
 
+config NOT_DQS_DISABLED
+	bool "Not DQS is disabled"
+	depends on CPU_HAS_DDRC
+
 choice
 	prompt "DDR-SDRAM speed grade"
 	depends on DDR_SET_BY_JEDEC
