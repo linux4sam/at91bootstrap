@@ -44,6 +44,9 @@ char of_filename[FILENAME_BUF_LEN];
 char cmdline_file[FILENAME_BUF_LEN];
 char cmdline_args[CMDLINE_BUF_LEN];
 #endif
+#ifdef CONFIG_LOGO
+char logo_filename[FILENAME_BUF_LEN];
+#endif
 #endif
 
 #if !defined(CONFIG_LOAD_NONE)
@@ -102,6 +105,11 @@ void init_load_image(struct image_info *image)
 	image->cmdline_file = cmdline_file;
 	strcpy(image->cmdline_file, CMDLINE_FILE);
 	image->cmdline_args = cmdline_args;
+#endif
+#ifdef CONFIG_LOGO
+	image->logo_filename = logo_filename;
+	strcpy(image->logo_filename, LOGO_NAME);
+	image->logo_dest = (unsigned char *)(TOP_OF_MEMORY + 16);
 #endif
 #endif
 

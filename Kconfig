@@ -697,3 +697,47 @@ config PMC_MCK_CLK_SAMA7G5
 	  Enable PMC master clock support for SAMA7G5 SoCs
 endmenu
 
+menu "Boot logo"
+	depends on CPU_HAS_LCDC
+
+config LOGO
+	bool "Display logo"
+	select LCDC
+	default n
+	help
+	  Display boot logo in AT91bootstrap
+	  8-bit(256 color) and 24-bit bmp image is supported
+
+config LOGO_NAME
+	string "Logo file Name"
+	depends on LOGO && FATFS
+	default "logo.bmp"
+	help
+	  The name of the image file of the logo
+
+config LOGO_RGBDEF
+	string "Background color"
+	depends on LOGO
+	default "0x000000"
+	help
+	  Background color of the logo
+	  Format is 0xRRGGBB
+
+config LOGO_SCALE
+	string "Scaling rate"
+	depends on LOGO
+	default "0"
+	help
+	  Scale the logo if needed
+	  Only up scaling is supported
+	  The step is 0.125 (1/8), 0 means no scaling
+
+config LOGO_BL
+	string "Backlight brightness"
+	depends on LOGO
+	default "255"
+	help
+	  The brightness of backlight
+	  The value is from 0 ~ 255 (off ~ brightest)
+
+endmenu

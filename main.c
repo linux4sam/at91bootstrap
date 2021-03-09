@@ -36,6 +36,7 @@
 #include "backup.h"
 #include "secure.h"
 #include "sfr_aicredir.h"
+#include "lcdc.h"
 
 #ifdef CONFIG_HW_DISPLAY_BANNER
 static void display_banner (void)
@@ -53,6 +54,10 @@ int main(void)
 
 #ifdef CONFIG_HW_INIT
 	hw_init();
+#endif
+
+#ifdef CONFIG_LOGO
+	lcdc_init();
 #endif
 
 #if defined(CONFIG_SCLK)

@@ -29,6 +29,7 @@
 #include "common.h"
 #include "hardware.h"
 #include "board.h"
+#include "lcdc.h"
 
 #include "string.h"
 
@@ -143,6 +144,13 @@ int load_sdcard(struct image_info *image)
 		return -1;
 	}
 
+#ifdef CONFIG_LOGO
+	dbg_info("SD/MMC: Lcdc: Read file %s to %x\n",
+					image->logo_filename, image->logo_dest);
+
+	sdcard_loadimage(image->logo_filename, image->logo_dest);
+#endif
+
 	dbg_info("SD/MMC: Image: Read file %s to %x\n",
 					image->filename, image->dest);
 
@@ -151,6 +159,10 @@ int load_sdcard(struct image_info *image)
 		(void)f_mount(0, NULL);
 		return ret;
 	}
+
+#ifdef CONFIG_LOGO
+	lcdc_display();
+#endif
 
 #ifdef CONFIG_OF_LIBFDT
 	at91_board_set_dtb_name(image->of_filename);
