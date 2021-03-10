@@ -582,7 +582,8 @@ static int df_desc_init(struct dataflash_descriptor *df_desc, unsigned char vend
 	df_desc->family = family;
 
 	switch ( vendor ) {
-		case MANUFACTURER_ID_ATMEL: {
+		case MANUFACTURER_ID_ATMEL:
+		case MANUFACTURER_ID_WINBOND: {
 
 			if ((df_desc->family == DF_FAMILY_AT26F)
 				|| (df_desc->family == DF_FAMILY_AT26DF)) {
@@ -600,7 +601,7 @@ static int df_desc_init(struct dataflash_descriptor *df_desc, unsigned char vend
 		}
 		break;
 
-		case MANUFACTURER_ID_MICRON:{
+		case MANUFACTURER_ID_MICRON: {
 
 			if (df_desc->family == DF_FAMILY_M25P) {
 				ret = df_n25q_desc_init(df_desc);
