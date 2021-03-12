@@ -57,13 +57,35 @@ static void ca7_enable_smp()
 	);
 }
 
-#if defined(CONFIG_TWI)
-	#define FLEXCOM_USART_INDEX 12
-#else
+#if CONFIG_CONSOLE_INDEX <= 3
 	#define FLEXCOM_USART_INDEX 0
+#elif CONFIG_CONSOLE_INDEX <= 7
+	#define FLEXCOM_USART_INDEX 1
+#elif CONFIG_CONSOLE_INDEX <= 12
+	#define FLEXCOM_USART_INDEX 2
+#elif CONFIG_CONSOLE_INDEX <= 17
+	#define FLEXCOM_USART_INDEX 3
+#elif CONFIG_CONSOLE_INDEX <= 22
+	#define FLEXCOM_USART_INDEX 4
+#elif CONFIG_CONSOLE_INDEX <= 27
+	#define FLEXCOM_USART_INDEX 5
+#elif CONFIG_CONSOLE_INDEX <= 32
+	#define FLEXCOM_USART_INDEX 6
+#elif CONFIG_CONSOLE_INDEX <= 37
+	#define FLEXCOM_USART_INDEX 7
+#elif CONFIG_CONSOLE_INDEX <= 42
+	#define FLEXCOM_USART_INDEX 8
+#elif CONFIG_CONSOLE_INDEX <= 47
+	#define FLEXCOM_USART_INDEX 9
+#elif CONFIG_CONSOLE_INDEX <= 52
+	#define FLEXCOM_USART_INDEX 10
+#elif CONFIG_CONSOLE_INDEX <= 57
+	#define FLEXCOM_USART_INDEX 11
+#else
+#error "Invalid CONSOLE_INDEX was chosen"
 #endif
+
 static struct at91_flexcom flexcoms[] = {
-#if defined(CONFIG_TWI)
 	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0},
 	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1},
 	{AT91C_ID_FLEXCOM2, FLEXCOM_TWI, AT91C_BASE_FLEXCOM2},
@@ -76,8 +98,6 @@ static struct at91_flexcom flexcoms[] = {
 	{AT91C_ID_FLEXCOM9, FLEXCOM_TWI, AT91C_BASE_FLEXCOM9},
 	{AT91C_ID_FLEXCOM10, FLEXCOM_TWI, AT91C_BASE_FLEXCOM10},
 	{AT91C_ID_FLEXCOM11, FLEXCOM_TWI, AT91C_BASE_FLEXCOM11},
-#endif
-	{0, FLEXCOM_USART, 0}, /* DBGU */
 };
 
 const unsigned int usart_base =
@@ -383,6 +403,7 @@ static void at91_dbgu_hw_init(void)
 	pmc_enable_periph_clock(usart_periph_id, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	flexcoms[FLEXCOM_USART_INDEX].id = usart_periph_id;
+	flexcoms[FLEXCOM_USART_INDEX].mode = FLEXCOM_USART;
 	flexcoms[FLEXCOM_USART_INDEX].addr = usart_base - AT91C_OFFSET_FLEXCOM_USART;
 	flexcom_init(FLEXCOM_USART_INDEX);
 }

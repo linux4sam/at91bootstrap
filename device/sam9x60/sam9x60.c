@@ -53,7 +53,8 @@
 #define PLLA_FRACR(_p, _q) \
 	((unsigned int)((((unsigned long)(_p)) << 22) / (_q)))
 
-#define FLEXCOM_USART_INDEX 13
+#define FLEXCOM_USART_INDEX (CONFIG_CONSOLE_INDEX - 1)
+
 static struct at91_flexcom flexcoms[] = {
 	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0},
 	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1},
@@ -68,7 +69,6 @@ static struct at91_flexcom flexcoms[] = {
 	{AT91C_ID_FLEXCOM10, FLEXCOM_TWI, AT91C_BASE_FLEXCOM10},
 	{AT91C_ID_FLEXCOM11, FLEXCOM_TWI, AT91C_BASE_FLEXCOM11},
 	{AT91C_ID_FLEXCOM12, FLEXCOM_TWI, AT91C_BASE_FLEXCOM12},
-	{0, FLEXCOM_USART, 0}, /* DBGU */
 };
 
 unsigned int usart_base = AT91C_BASE_DBGU;
@@ -140,14 +140,14 @@ static void at91_dbgu_hw_init(void)
 
 	pio_configure(dbgu_pins);
 #if CONFIG_CONSOLE_INDEX == 0
-	flexcoms[FLEXCOM_USART_INDEX].id = AT91C_ID_DBGU;
+	pmc_enable_periph_clock(AT91C_ID_DBGU, PMC_PERIPH_CLK_DIVIDER_NA);
 #else
-	usart_base = flexcoms[CONFIG_CONSOLE_INDEX - 1].addr;
-	flexcoms[FLEXCOM_USART_INDEX].id = flexcoms[CONFIG_CONSOLE_INDEX - 1].id;
+	usart_base = flexcoms[FLEXCOM_USART_INDEX].addr;
+	flexcoms[FLEXCOM_USART_INDEX].mode = FLEXCOM_USART;
 	flexcoms[FLEXCOM_USART_INDEX].addr = usart_base - AT91C_OFFSET_FLEXCOM_USART;
 	flexcom_init(FLEXCOM_USART_INDEX);
-#endif
 	pmc_enable_periph_clock(flexcoms[FLEXCOM_USART_INDEX].id, PMC_PERIPH_CLK_DIVIDER_NA);
+#endif
 }
 
 static void initialize_dbgu(void)
