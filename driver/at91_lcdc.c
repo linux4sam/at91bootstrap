@@ -259,7 +259,7 @@ static void lcdc_on(void)
 	wait_for_clock_domain_sync();
 	lcdc_writel(LCDC_CFG(6), LCDC_CFG6_PWMCVAL(0) |
 				 LCDC_CFG6_PWMPOL |
-				 LCDC_CFG6_PWMPS(5));
+				 LCDC_CFG6_PWMPS(6));
 
 	wait_for_clock_domain_sync();
 	lcdc_writel(LCDC_EN, LCDC_EN_CLKEN);
