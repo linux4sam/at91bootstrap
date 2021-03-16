@@ -44,9 +44,10 @@ char of_filename[FILENAME_BUF_LEN];
 char cmdline_file[FILENAME_BUF_LEN];
 char cmdline_args[CMDLINE_BUF_LEN];
 #endif
-#ifdef CONFIG_LOGO
-char logo_filename[FILENAME_BUF_LEN];
 #endif
+
+#if defined(CONFIG_LOGO) && defined(CONFIG_SDCARD)
+char logo_filename[FILENAME_BUF_LEN];
 #endif
 
 #if !defined(CONFIG_LOAD_NONE)
@@ -58,6 +59,9 @@ void init_load_image(struct image_info *image)
 #ifdef CONFIG_OF_LIBFDT
 	memset(of_filename,	0, FILENAME_BUF_LEN);
 #endif
+#endif
+#if defined(CONFIG_LOGO) && defined(CONFIG_SDCARD)
+	memset(logo_filename,   0, FILENAME_BUF_LEN);
 #endif
 
 	image->dest = (unsigned char *)JUMP_ADDR;
@@ -106,11 +110,6 @@ void init_load_image(struct image_info *image)
 	strcpy(image->cmdline_file, CMDLINE_FILE);
 	image->cmdline_args = cmdline_args;
 #endif
-#ifdef CONFIG_LOGO
-	image->logo_filename = logo_filename;
-	strcpy(image->logo_filename, LOGO_NAME);
-	image->logo_dest = (unsigned char *)(TOP_OF_MEMORY + 16);
-#endif
 #endif
 
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
@@ -127,6 +126,17 @@ void init_load_image(struct image_info *image)
 #else
 #error "No booting media_str specified!"
 #endif
+#endif
+
+#ifdef CONFIG_LOGO
+#ifdef CONFIG_NANDFLASH
+	image->logo_offset = LOGO_ADDRESS;
+#endif
+#ifdef CONFIG_SDCARD
+	image->logo_filename = logo_filename;
+	strcpy(image->logo_filename, LOGO_NAME);
+#endif
+	image->logo_dest = (unsigned char *)(TOP_OF_MEMORY + 16);
 #endif
 }
 #endif

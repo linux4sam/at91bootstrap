@@ -381,3 +381,14 @@ int lcdc_display(void)
 
 	return 0;
 }
+
+int bmp_size(void *p)
+{
+	struct bmp_desc *bmp = p;
+
+	if ((bmp->bf_type[0] == 'B') && (bmp->bf_type[1] == 'M')) {
+		return bmp->bf_size;
+	}
+
+	return 0;
+}

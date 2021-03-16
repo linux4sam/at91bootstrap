@@ -224,6 +224,7 @@ IMAGE=$(BOOT_NAME).bin
 endif
 
 ifeq ($(CONFIG_LOGO), y)
+LOGO_ADDRESS := $(strip $(subst ",,$(CONFIG_LOGO_ADDRESS)))
 LOGO_NAME := $(strip $(subst ",,$(CONFIG_LOGO_NAME)))
 LOGO_RGBDEF := $(strip $(subst ",,$(CONFIG_LOGO_RGBDEF)))
 LOGO_SCALE := $(strip $(subst ",,$(CONFIG_LOGO_SCALE)))
