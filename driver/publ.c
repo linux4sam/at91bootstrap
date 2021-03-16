@@ -310,15 +310,10 @@ void publ_init(void * config_data)
 #endif
 	dbg_very_loud("PUBL_DXCCR %x\n", PUBL->PUBL_DXCCR);
 
-#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
-	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(11) |
-			PUBL_ZQ0CR1_ZPROG_ODT(1);
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	/* 48 OHM */
+	/* Impedance must match the PCB. 9 means 48 Ohms */
 	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(9) |
 			PUBL_ZQ0CR1_ZPROG_ODT(1);
-#endif
+
 	dbg_very_loud("PUBL_ZQ0CR1 %x\n", PUBL->PUBL_ZQ0CR1);
 
 	dbg_very_loud("PUBL_ACIOCR %x\n", PUBL->PUBL_ACIOCR);
