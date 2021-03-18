@@ -29,6 +29,7 @@
 #include "hardware.h"
 #include "board.h"
 #include "arch/at91_pio.h"
+#include "arch/at91_smc.h"
 #include "gpio.h"
 
 #include "debug.h"
@@ -108,6 +109,11 @@ static unsigned char read_byte(void)
 	return(readb((unsigned long)CONFIG_SYS_NAND_BASE));
 }
 
+static void write_byte(unsigned char data)
+{
+	writeb(data, (unsigned long)CONFIG_SYS_NAND_BASE);
+}
+
 /* 16 bits devices */
 static void nand_command16(unsigned char cmd)
 {
@@ -135,6 +141,7 @@ static void nand_wait_ready(void)
 	unsigned int timeout = 10000;
 
 	nand_command(CMD_STATUS);
+	read_byte(); /* Dummy read, used as delay for tWHR */
 	while ((!(read_byte() & STATUS_READY)) && timeout--)
 		;
 }
@@ -218,11 +225,6 @@ static void config_nand_ooblayout(struct nand_ooblayout *layout,
 #endif /* #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS */
 
 #ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT
-static void write_byte(unsigned char data)
-{
-	writeb(data, (unsigned long)CONFIG_SYS_NAND_BASE);
-}
-
 static void nand_set_feature_on_die_ecc(unsigned char is_enable)
 {
 	unsigned char i;
@@ -305,6 +307,46 @@ static int nand_init_on_die_ecc(void)
 }
 #endif /* #ifdef CONFIG_USE_ON_DIE_ECC_SUPPORT */
 
+static void nand_set_feature_timing_mode(unsigned char mode)
+{
+	unsigned char i;
+
+	nand_cs_enable();
+
+	nand_command(CMD_SET_FEATURE);
+	nand_address(0x01);
+
+	udelay(1);
+	write_byte(mode);
+
+	for (i = 0; i < 3; i++)
+		write_byte(0x00);
+
+	nand_wait_ready();
+	nand_cs_disable();
+}
+
+static unsigned char nand_get_feature_timing_mode(void)
+{
+	unsigned char buffer[4];
+	unsigned char i;
+
+	nand_cs_enable();
+
+	nand_command(CMD_GET_FEATURE);
+	nand_address(0x01);
+	nand_wait_ready();
+	nand_command(CMD_READ_1);
+	udelay(1);
+
+	for (i = 0; i < 4; i++)
+		buffer[i] = read_byte();
+
+	nand_cs_disable();
+
+	return buffer[0];
+}
+
 static void nandflash_read_id(unsigned char *manf_id, unsigned char *dev_id)
 {
 	nand_cs_enable();
@@ -345,6 +387,9 @@ static unsigned short onfi_crc16(unsigned short crc,
 #define		PARAMS_FEATURE_BUSWIDTH		(0x1 << 0)
 #define		PARAMS_FEATURE_EXTENDED_PARAM	(0x1 << 7)
 
+#define PARAMS_OFFSET_OPT_CMD		8
+#define 	PARAMS_OPT_CMD_SET_GET_FEATURES	(0x1 << 2)
+
 #define PARAMS_OFFSET_EXT_PARAM_PAGE_LEN	12
 #define PARAMS_OFFSET_PARAMETER_PAGE		14
 #define PARAMS_OFFSET_PAGESIZE		80
@@ -352,6 +397,14 @@ static unsigned short onfi_crc16(unsigned short crc,
 #define PARAMS_OFFSET_BLOCKSIZE		92
 #define PARAMS_OFFSET_NBBLOCKS		96
 #define PARAMS_OFFSET_ECC_BITS		112
+
+#define PARAMS_OFFSET_TIMING_MODE	129
+#define		PARAMS_TIMING_MODE_1	(0x1 << 1)
+#define		PARAMS_TIMING_MODE_2	(0x1 << 2)
+#define		PARAMS_TIMING_MODE_3	(0x1 << 3)
+#define		PARAMS_TIMING_MODE_4	(0x1 << 4)
+#define		PARAMS_TIMING_MODE_5	(0x1 << 5)
+
 #define PARAMS_OFFSET_CRC		254
 
 #define ONFI_CRC_BASE			0x4F4E
@@ -468,6 +521,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 
 	revision = *(unsigned short *)(p + PARAMS_OFFSET_REVISION);
 	features = *(unsigned short *)(p + PARAMS_OFFSET_FEATURES);
+	chip->opt_cmd = *(unsigned short *)(p + PARAMS_OFFSET_OPT_CMD);
 	ext_page_len = *(unsigned short *)(p +
 					   PARAMS_OFFSET_EXT_PARAM_PAGE_LEN);
 	num_param_page = *(unsigned char *)(p + PARAMS_OFFSET_PARAMETER_PAGE);
@@ -480,6 +534,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	chip->buswidth	= features & PARAMS_FEATURE_BUSWIDTH;
 	chip->eccbits	= *(unsigned char *)(p + PARAMS_OFFSET_ECC_BITS);
 	chip->eccwordsize = 512;
+	chip->timingmode  = *(unsigned short *)(p + PARAMS_OFFSET_TIMING_MODE);
 
 	if ((chip->eccbits == 0xff) &&
 	    (revision & PARAMS_REVISION_2_1) &&
@@ -609,6 +664,40 @@ static int nandflash_get_type(struct nand_info *nand)
 			dbg_info("NAND: Not find support device!\n");
 			return -1;
 		}
+	} else {
+		int mode = 0;
+		unsigned int timing[4];
+
+		if (chip->timingmode & PARAMS_TIMING_MODE_3) {
+			mode = 3;
+			timing[0] = 0x00000002;
+			timing[1] = 0x06030703;
+			timing[2] = 0x00060007;
+			timing[3] = 0x001f0003;
+		}
+
+		if (mode) {
+			if (chip->opt_cmd & PARAMS_OPT_CMD_SET_GET_FEATURES)
+				nand_set_feature_timing_mode(mode);
+
+			writel(timing[0], AT91C_BASE_SMC + SMC_SETUP3);
+			writel(timing[1], AT91C_BASE_SMC + SMC_PULSE3);
+			writel(timing[2], AT91C_BASE_SMC + SMC_CYCLE3);
+			writel(timing[3], AT91C_BASE_SMC + SMC_CTRL3);
+
+			if (chip->opt_cmd & PARAMS_OPT_CMD_SET_GET_FEATURES) {
+				ret = nand_get_feature_timing_mode();
+				if (ret != mode) {
+					dbg_info("NAND: Error! Reset timing mode from %d to 0\n", mode);
+					writel(0x00000004, AT91C_BASE_SMC + SMC_SETUP3);
+					writel(0x140a140a, AT91C_BASE_SMC + SMC_PULSE3);
+					writel(0x00140014, AT91C_BASE_SMC + SMC_CYCLE3);
+					writel(0x001f0003, AT91C_BASE_SMC + SMC_CTRL3);
+
+					nand_set_feature_timing_mode(0);
+				}
+			}
+		}
 	}
 #else
 	if (nandflash_detect_non_onfi(chip)) {
@@ -659,8 +748,9 @@ static int nand_read_status(void)
 	unsigned int timeout = 1000;
 	unsigned char status;
 
+	nand_command(CMD_STATUS);
+	read_byte(); /* Dummy read, used as delay for tWHR */
 	do {
-		nand_command(CMD_STATUS);
 		status = read_byte();
 		if (status & STATUS_READY)
 			break;

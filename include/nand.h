@@ -49,6 +49,8 @@ struct nand_chip {
 	unsigned char	buswidth;
 	unsigned char	eccbits;
 	unsigned int	eccwordsize;
+	unsigned short  opt_cmd;
+	unsigned short  timingmode;
 };
 
 struct nand_info {
