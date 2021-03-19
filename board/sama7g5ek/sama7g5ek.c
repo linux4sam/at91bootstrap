@@ -59,6 +59,18 @@ static void ca7_enable_smp()
 	);
 }
 
+static void axi2ahb_config_outstanding()
+{
+	/*
+	 * AXI2AHB bridge must be limited to 1 outstanding per ID.
+	 * More outstanding can lead to corrupted data transfer.
+	 * Source: sama7g5 Errata
+	 *
+	 */
+	writel(0x3, AT91C_BASE_NICGPV + 0x2008 + (0x1000 * 6));
+	writel(0x3, AT91C_BASE_NICGPV + 0x2008 + (0x1000 * 13));
+};
+
 static void initialize_serial(void)
 {
 	unsigned int baudrate = 115200;
@@ -391,6 +403,8 @@ void hw_init(void)
 #endif
 	/* SMP is needed for L2 cache in cortex A7 */
 	ca7_enable_smp();
+
+	axi2ahb_config_outstanding();
 
 	/* We need timers in the following steps */
 	timer_init();
