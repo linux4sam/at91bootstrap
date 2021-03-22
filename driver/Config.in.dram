@@ -95,11 +95,6 @@ config DDR_MT52L256M32D1PF_107
 	depends on UMCTL2
 	select CONFIG_DDR_SPEED_1066
 	comment "LPDDR3 MT52L256M32D1PF 256 Meg x 32"
-config DDR_MT46H128M16LFDD_48
-	bool "LPDDR DDR_MT46H128M16LFDD-48(SAMA7G5_LPDDR_EB)"
-	depends on UMCTL2
-	select CONFIG_DDR_SPEED_400
-	comment "LPDDR MT46H128M16LFDD-48 32 Meg x 16 x 4"
 endchoice
 
 choice
@@ -110,7 +105,7 @@ choice
 	default DDR3 if UMCTL2
 
 config LPDDR1
-	depends on DDRC || UMCTL2
+	depends on DDRC
 	bool "Low-power DDR1-SDRAM"
 
 config LPDDR2
@@ -531,7 +526,7 @@ config UMCTL2_RL
 	default 8 
 
 config UMCTL2_WL
-	depends on DDR_SET_BY_TIMING && UMCTL2 && (LPDDR1 || LPDDR2 || LPDDR3)
+	depends on DDR_SET_BY_TIMING && UMCTL2 && (LPDDR2 || LPDDR3)
 	int "WL - Write Latency, Clock cycles (ns)"
 	range 0 20
 	default 4 

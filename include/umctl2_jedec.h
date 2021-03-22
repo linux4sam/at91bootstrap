@@ -271,7 +271,10 @@
 	#define _CL		0UL				/* CAS Latency, Clock cycles, unused in LPDDR2 */
 	#define _CWL		0UL			/* CAS Write Latency, Clock cycles, unused in LPDDR2 */
 	#define _AL		0UL				/* Additive Latency, Clock cycles */
-	#if defined(CONFIG_DDR_SPEED_533)
+	#if defined(CONFIG_DDR_SPEED_400)
+		#define _RL		3UL				/* For LPDDR2, Read Latency, Clock cycles */
+		#define _WL		1UL				/* For LPDDR2, Write Latency, Clock cycles */
+	#elif defined(CONFIG_DDR_SPEED_533)
 		#define _RL		4UL				/* For LPDDR2, Read Latency, Clock cycles */
 		#define _WL		2UL				/* For LPDDR2, Write Latency, Clock cycles */
 	#elif defined(CONFIG_DDR_SPEED_667)
@@ -331,66 +334,6 @@
 	#define _MRD		15UL		/* Mode register set command delay */
 	#define _tDQSCK_MIN	2500UL		/* DQS output access time from CK_t/CK_c min */
 	#define _tDQSCK_MAX	5500UL		/* DQS output access time from CK_t/CK_c max */
-
-#elif defined(CONFIG_LPDDR1)
-	#if defined(CONFIG_DDR_64_MBIT) || defined(CONFIG_DDR_128_MBIT) || defined(CONFIG_DDR_256_MBIT)
-		#define _tRFC		80UL		/* Refresh to Refresh, ns */
-	#elif defined(CONFIG_DDR_512_MBIT)
-		#define _tRFC		110UL		/* Refresh to Refresh, ns */
-	#elif defined(CONFIG_DDR_1_GBIT) || defined(CONFIG_DDR_2_GBIT)
-		#define _tRFC		140UL		/* Refresh to Refresh, ns */
-	#endif
-	#if defined(CONFIG_DDR_64_MBIT) || defined(CONFIG_DDR_128_MBIT)
-		#define _tREFI		15600UL			/* Refresh Intervals, ns */
-	#elif defined(CONFIG_DDR_256_MBIT) || defined(CONFIG_DDR_512_MBIT) || defined(CONFIG_DDR_1_GBIT) || defined(CONFIG_DDR_2_GBIT)
-		#define _tREFI		7800UL			/* Refresh Intervals, ns */
-	#endif
-	#define _tWR		15UL			/* Write Recovery, ns */
-	#define _CL			3UL			/* CAS Latency, Clock cycles */
-	#if defined(CONFIG_DDR_SPEED_200) 
-		#define _tRP		30UL		/* Row Precharge command, ns */
-		#define _tRP_ps		30000UL		/* Row Precharge command, ps */
-		#define _tRCD		30UL		/* Row to Column delay, ns */
-		#define _tRCD_ps	30000UL		/* Row to Column delay, ps */
-		#define _tRAS		50UL		/* Row Active Strobe, ns */
-	#elif defined(CONFIG_DDR_SPEED_266) 
-		#define _tRP		23UL		/* Row Precharge command, ns */
-		#define _tRP_ps		22500UL		/* Row Precharge command, ps */
-		#define _tRCD		23UL		/* Row to Column delay, ns */
-		#define _tRCD_ps	22500UL		/* Row to Column delay, ps */
-		#define _tRAS		45UL		/* Row Active Strobe, ns */
-	#elif defined(CONFIG_DDR_SPEED_333) 
-		#define _tRP		18UL		/* Row Precharge command, ns */
-		#define _tRP_ps		18000UL		/* Row Precharge command, ps */
-		#define _tRCD		18UL		/* Row to Column delay, ns */
-		#define _tRCD_ps	18000UL		/* Row to Column delay, ps */
-		#define _tRAS		42UL		/* Row Active Strobe, ns */
-	#elif defined(CONFIG_DDR_SPEED_370) 
-		#define _tRP		17UL		/* Row Precharge command, ns */
-		#define _tRP_ps		16200UL		/* Row Precharge command, ps */
-		#define _tRCD		17UL		/* Row to Column delay, ns */
-		#define _tRCD_ps	16200UL		/* Row to Column delay, ps */
-		#define _tRAS		42UL		/* Row Active Strobe, ns */
-	#elif defined(CONFIG_DDR_SPEED_400) 
-		#define _tRP		15UL		/* Row Precharge command, ns */
-		#define _tRP_ps		15000UL		/* Row Precharge command, ps */
-		#define _tRCD		15UL		/* Row to Column delay, ns */
-		#define _tRCD_ps	15000UL		/* Row to Column delay, ps */
-		#define _tRAS		40UL		/* Row Active Strobe, ns */
-	#endif
-	
-	#define _tCCD		0UL			/* Column to Column delay, ns */
-	#define _tRC_ps		((_tRAS + _tRP) * 1000)	/* Row Cycle, ps */
-	#define _tRASMAX	70000UL		/* RAS max, ns */
-	#define _tFAW		1UL			/* In a 4-bank design, set this register to 0x1 */
-	#define _tPOSTCKE	20000UL		/* LPDDR1 typically requires this to be programmed for a delay of 200 μs */
-	#define _CL			3UL			/* CAS Latency, Clock cycles,  */
-	#define _CWL		0UL			/* CAS Write Latency, Clock cycles */
-	#define _AL			0UL				/* Additive Latency, Clock cycles */
-	#define _RL			3UL			/* For LPDDR, Read Latency, Clock cycles */
-	#define _WL			1UL			/* For LPDDR, Write Latency, Clock cycles */
-	#define _MRD		2UL			/* Mode register set command delay */
 #endif
-
 #endif /* Endif of CONFIG_DDR_SET_JEDEC */
 #endif /* Endif __UMCTL2_JEDET_H__ */

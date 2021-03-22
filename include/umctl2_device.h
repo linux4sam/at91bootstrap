@@ -125,26 +125,5 @@
 #define _tDQSCK_MAX	5500UL
 #endif
 
-#ifdef CONFIG_DDR_MT46H128M16LFDD_48
-#define _tRFC		72UL		/* Refresh to Refresh, ns */
-#define _tREFI		7800UL		/* Refresh Intervals, ns */
-#define _tWR		MAX(15UL, 3 * CYCLE_IN_NS)		/* Write Recovery, ns */
-#define _tRP		15UL							/* Row Precharge command, ns */
-#define _tRP_ps		15000UL							/* Row Precharge command, ps */
-#define _tRCD		15UL							/* Row to Column delay, ns */
-#define _tRCD_ps	15000UL							/* Row to Column delay, ps */
-#define _tCCD		0UL		/* Column to Column delay, ns */
-#define _tRAS		39UL		/* Row Active Strobe, ns */
-#define _tRASMAX	70000UL		/* RAS max, ns */
-#define _tRC_ps		((_tRAS + _tRP) * 1000)		/* Row Cycle, ps */
-#define _tFAW		1UL		/* In a 4-bank design, set this register to 0x1 independent of the 1:1/1:2 frequency mode */
-#define _tPOSTCKE	200000UL	/* Post CKE, ns */
-#define _CL		3UL		/* CAS Latency, Clock cycles, unused in LPDDR2 */
-#define _CWL	0UL		/* CAS Write Latency, Clock cycles, unused in LPDDR2 */
-#define _AL		0UL		/* Additive Latency, Clock cycles */
-#define _RL		3UL		/* For LPDDR, Read Latency, Clock cycles */
-#define _WL		1UL		/* For LPDDR, Write Latency, Clock cycles */
-#define _MRD	2		/* Mode Register Delay, Clock cycles */
-#endif
 #endif
 #endif

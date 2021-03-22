@@ -90,7 +90,7 @@ struct dram_timings
 	unsigned long	CL;		/* CAS Latency, Clock cycles */
 	unsigned long	CWL;		/* CAS Write Latency, Clock cycles */
 	unsigned long	AL;		/* Additive Latency, Clock cycles */
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long	RL;		/* Read Latency, Clock cycles, LPDDR2 */
 	unsigned long	WL;		/* Write Latency, Clock cycles, LPDDR2 */
 #endif
@@ -107,16 +107,8 @@ struct dram_timings
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_DDR2) 
 #define TRTP		MAX(2, PS_TO_CYCLES_UP(7500UL))		/* Read to Precharge, Clock Cycles */
 #endif
-#if defined (CONFIG_LPDDR1)
-#define TRTP		2
-#endif
 
-#if defined (CONFIG_LPDDR1)
-#define TWTR		2
-#else
 #define TWTR		MAX(4, PS_TO_CYCLES_UP(7500UL))		/* Write to Read, Clock Cycles */
-#endif
-
 #define TRP			PS_TO_CYCLES_UP(tRP_ps)				/* Row Precharge delay, Clock Cycles */
 #define TRCD		PS_TO_CYCLES_UP(tRCD_ps)			/* Row to Column delay, Clock Cycles */
 #define TRAS		NS_TO_CYCLES_UP(tRAS)				/* Row Active Strobe, Clock Cycles */
@@ -131,8 +123,6 @@ struct dram_timings
 	#define TRRD		MAX(4, NS_TO_CYCLES_UP(10UL))		/* Row to Row Delay, Clock Cycles */
 #elif defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	#define TRRD		MAX(2, NS_TO_CYCLES_UP(10UL))		/* Row to Row Delay, Clock Cycles */
-#elif defined(CONFIG_LPDDR1)
-	#define TRRD		NS_TO_CYCLES_UP(12UL)				/* Row to Row Delay, Clock Cycles */
 #endif
 
 #define TRC		PS_TO_CYCLES_UP(tRC_ps)			/* Row Cycle, Clock Cycles */
@@ -209,19 +199,6 @@ struct dram_timings
 	#define TCKPDE		2
 #endif
 
-#if defined(CONFIG_LPDDR1)
-	#define TXP			MAX(2, NS_TO_CYCLES_UP(25UL))		/* Power down exit Delay, Clock Cycles */
-	#define TCKSRX		1
-	#define TCKSRE		0
-	#define TCKESR		TRFC
-	#define TCKE		2
-	#define TCKCSX		1
-	#define TCKDPDX		1
-	#define TCKDPDE		0
-	#define TCKPDX		0
-	#define TCKPDE		0
-#endif
-
 #if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
 	#define TDLLK		200UL					/* DLL Lock time, Clock Cycles */
 #else
@@ -239,10 +216,10 @@ struct dram_timings
 #if defined(CONFIG_LPDDR3)
 #define TWR		MAX(4, NS_TO_CYCLES_UP(tWR))		/* Write Recovery */
 #endif
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
 #define TWR		NS_TO_CYCLES_UP(tWR)				/* Write Recovery */
 #endif
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 #define TINIT1		NS_TO_CYCLES_UP(100UL)			/* Clock Cycles */
 #define TINIT2		5UL								/* Clock Cycles */
 #define TINIT4		NS_TO_CYCLES_UP(1000UL)			/* Clock Cycles */

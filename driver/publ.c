@@ -66,7 +66,7 @@ void publ_init(void * config_data)
 	unsigned long tDQSCK_MIN = timings->tDQSCK_MIN;
 	unsigned long tDQSCK_MAX = timings->tDQSCK_MAX;
 #endif
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	unsigned long CL = timings->CL;
 #endif
 #ifdef CONFIG_DDR3
@@ -79,7 +79,7 @@ void publ_init(void * config_data)
 	unsigned long RL = timings->RL;
 	unsigned long WL = timings->WL;
 #endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
 	unsigned long MRD = timings->MRD;
 #endif
 
@@ -89,9 +89,6 @@ void publ_init(void * config_data)
 #endif
 #ifdef CONFIG_DDR2
 	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_DDR2 | PUBL_DCR_DDRMD_DDR8BNK;
-#endif
-#ifdef CONFIG_LPDDR1
-	PUBL->PUBL_DCR = 0;
 #endif
 #ifdef CONFIG_LPDDR2_S2
 	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_LPDDR2 | PUBL_DCR_DDRMD_DDR8BNK |
@@ -132,7 +129,7 @@ void publ_init(void * config_data)
 			PUBL_PTR1_TDINIT1(NS_TO_CYCLES_UP(400UL));
 #endif
 
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	PUBL->PUBL_PTR1 = PUBL_PTR1_TDINIT0(NS_TO_CYCLES_UP(200000UL)) |
 			PUBL_PTR1_TDINIT1(NS_TO_CYCLES_UP(100UL));
 #endif
@@ -146,7 +143,7 @@ void publ_init(void * config_data)
 	PUBL->PUBL_PTR2 = PUBL_PTR2_TDINIT2(NS_TO_CYCLES_UP(400UL)) |
 			PUBL_PTR2_TDINIT3(534);
 #endif
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	PUBL->PUBL_PTR2 = PUBL_PTR2_TDINIT2(MAX(5, NS_TO_CYCLES_UP(11000UL))) |
 			PUBL_PTR2_TDINIT3(NS_TO_CYCLES_UP(1000UL));
 #endif
@@ -171,9 +168,6 @@ void publ_init(void * config_data)
 	PUBL->PUBL_MR0 = PUBL_MR0_CL(CL) | PUBL_MR0_BL_8 |
 			PUBL_MR0_WR(NS_TO_CYCLES_UP(tWR) - 1) | 1;
 #endif
-#ifdef CONFIG_LPDDR1
-	PUBL->PUBL_MR0 = PUBL_MR0_CL(CL) | PUBL_MR0_BL_8;
-#endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	PUBL->PUBL_MR0 = 0;
 #endif
@@ -194,9 +188,6 @@ void publ_init(void * config_data)
 	PUBL->PUBL_MR2 = PUBL_MR2_CWL(CWL - 5);
 #endif
 #ifdef CONFIG_DDR2
-	PUBL->PUBL_MR2 = 0;
-#endif
-#ifdef CONFIG_LPDDR1
 	PUBL->PUBL_MR2 = 0;
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
@@ -236,7 +227,7 @@ void publ_init(void * config_data)
 #ifdef CONFIG_DDR3
 			PUBL_DTPR0_TMRD(TMRD - 4) |
 #endif
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_DDR2)
+#if defined(CONFIG_DDR2)
 			PUBL_DTPR0_TMRD(TMRD) |
 #endif
 #ifdef CONFIG_LPDDR3
@@ -264,7 +255,7 @@ void publ_init(void * config_data)
 			PUBL_DTPR1_TAOND(TAOND - 2) |
 #endif
 			PUBL_DTPR1_TRFC(TRFC) |
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 			PUBL_DTPR1_TDQSCKMIN(1) | PUBL_DTPR1_TDQSCKMAX(1)
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
@@ -284,7 +275,7 @@ void publ_init(void * config_data)
 			PUBL_DTPR2_TXP(MAX(2, TXP)) |
 			PUBL_DTPR2_TCKE(MAX(TCKESR, 2)) |
 #endif
-#if defined(CONFIG_LPDDR1) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 			PUBL_DTPR2_TXS(MAX(2, TXSR)) |
 			PUBL_DTPR2_TXP(MAX(2, TXP)) |
 			PUBL_DTPR2_TCKE(MAX(TCKE, 2)) |
