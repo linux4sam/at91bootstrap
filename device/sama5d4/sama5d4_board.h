@@ -223,11 +223,4 @@
 #define CONFIG_SYS_RECOVERY_BUTTON_PIN	AT91C_PIN_PE(13)
 #define RECOVERY_BUTTON_NAME	"BP2/PB_USER1"
 
-/*
- * Others
- */
-#if defined(CONFIG_HDMI)
-#define CONFIG_SYS_HDMI_RESET_PIN	AT91C_PIN_PB(15)
-#endif
-
 #endif

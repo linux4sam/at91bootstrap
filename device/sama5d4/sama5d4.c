@@ -51,6 +51,8 @@
 #include "act8865.h"
 #include "twi.h"
 
+__attribute__((weak)) void SiI9022_hw_reset(void);
+
 const unsigned int usart_base =
 #if CONFIG_CONSOLE_INDEX == 0
 	AT91C_BASE_DBGU;
@@ -374,16 +376,6 @@ void at91_disable_smd_clock(void)
 }
 #endif
 
-#if defined(CONFIG_HDMI)
-static void SiI9022_hw_reset(void)
-{
-	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 1);
-	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 0);
-	udelay(500);
-	pio_set_gpio_output(CONFIG_SYS_HDMI_RESET_PIN, 1);
-}
-#endif
-
 #if defined(CONFIG_MAC0_PHY)
 unsigned int at91_eth0_hw_init(void)
 {
@@ -490,7 +482,7 @@ void hw_init(void)
 
 	ddram_init();
 
-#if defined(CONFIG_HDMI)
+#if defined(CONFIG_HDMI) && defined(CONFIG_BOARD_QUIRK_SAMA5D4)
 	/* Reset HDMI SiI9022 */
 	SiI9022_hw_reset();
 #endif

@@ -46,6 +46,9 @@
 #include "twi.h"
 #include "flexcom.h"
 #include "board.h"
+#include "led.h"
+
+__attribute__((weak)) void wilc_pwrseq();
 
 #define PLLA_DIV 1
 #define PLLA_COUNT 0x3f
@@ -55,6 +58,7 @@
 
 #define FLEXCOM_USART_INDEX (CONFIG_CONSOLE_INDEX - 1)
 
+#if defined(CONFIG_TWI) || CONFIG_CONSOLE_INDEX != 0
 static struct at91_flexcom flexcoms[] = {
 	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0},
 	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1},
@@ -70,6 +74,7 @@ static struct at91_flexcom flexcoms[] = {
 	{AT91C_ID_FLEXCOM11, FLEXCOM_TWI, AT91C_BASE_FLEXCOM11},
 	{AT91C_ID_FLEXCOM12, FLEXCOM_TWI, AT91C_BASE_FLEXCOM12},
 };
+#endif
 
 unsigned int usart_base = AT91C_BASE_DBGU;
 
@@ -154,13 +159,6 @@ static void initialize_dbgu(void)
 {
 	at91_dbgu_hw_init();
 	usart_init(BAUDRATE(MASTER_CLOCK, BAUD_RATE));
-}
-
-static void at91_green_led_on(void)
-{
-	pio_set_gpio_output(AT91C_PIN_PB(13), 0);
-	pio_set_gpio_output(AT91C_PIN_PB(11), 0);
-	pio_set_gpio_output(AT91C_PIN_PB(12), 1);
 }
 
 #if defined CONFIG_TWI
@@ -298,31 +296,6 @@ void twi_init()
 }
 #endif
 
-void wilc_pwrseq()
-{
-	const struct pio_desc wilc_down_pins[] = {
-		{"WILC_RESETN", AT91C_PIN_PB(25), 0, PIO_DEFAULT, PIO_OUTPUT},
-		{"WILC_EN", AT91C_PIN_PA(29), 0, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	const struct pio_desc wilc_powerup_pins[] = {
-		{"WILC_EN", AT91C_PIN_PA(29), 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	const struct pio_desc wilc_en_pins[] = {
-		{"WILC_RESETN", AT91C_PIN_PB(25), 1, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pio_configure(wilc_down_pins);
-	udelay(5000);
-	pio_configure(wilc_powerup_pins);
-	udelay(5000);
-	pio_configure(wilc_en_pins);
-}
-
 void hw_init(void)
 {
 	unsigned int reg;
@@ -331,8 +304,9 @@ void hw_init(void)
 	/* Disable watchdog */
 	at91_disable_wdt();
 
-	/* Green Led ON */
-	at91_green_led_on();
+#ifdef CONFIG_LED_ON_BOARD
+	at91_leds_init();
+#endif
 
 	/* Configure & Enable PLLA */
 	plla_config.mul = 49;
@@ -379,8 +353,11 @@ void hw_init(void)
 	/* Initialize SDRAM Controller */
 	sdramc_init();
 #endif
+
+#ifdef CONFIG_BOARD_QUIRK_SAM9X60
 	/* Perform the WILC initialization sequence */
 	wilc_pwrseq();
+#endif
 }
 
 #ifdef CONFIG_DATAFLASH

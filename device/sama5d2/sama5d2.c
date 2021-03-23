@@ -50,6 +50,10 @@
 #include "twi.h"
 #endif
 #include "arch/tz_matrix.h"
+#include "led.h"
+
+__attribute__((weak)) void at91_can_stdby_dis(void);
+__attribute__((weak)) void peripherals_hw_reset(void);
 
 #if defined(CONFIG_TWI)
 static struct at91_flexcom flexcoms[] = {
@@ -328,23 +332,6 @@ void at91_init_can_message_ram(void)
 	       (AT91C_BASE_SFR + SFR_CAN));
 }
 
-static void led_hw_init(void)
-{
-	const struct pio_desc led_pins[] = {
-		{"LED_RED", CONFIG_SYS_LED_RED_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
-		{"LED_GREEN", CONFIG_SYS_LED_GREEN_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
-		{"LED_BLUE", CONFIG_SYS_LED_BLUE_PIN, 0, PIO_PULLUP, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A}
-	};
-
-	pio_configure(led_pins);
-}
-
-static void at91_led_on(void)
-{
-	pio_set_gpio_output(CONFIG_SYS_LED_GREEN_PIN, 1);
-}
-
 static void sdmmc_cal_setup(void)
 {
 	unsigned int cidr, exid;
@@ -558,9 +545,9 @@ void hw_init(void)
 {
 	at91_disable_wdt();
 
-	led_hw_init();
-
-	at91_led_on();
+#ifdef CONFIG_LED_ON_BOARD
+	at91_leds_init();
+#endif
 
 	pmc_cfg_plla(PLLA_SETTINGS);
 
@@ -599,6 +586,13 @@ void hw_init(void)
 
 	/* SiP: Implement the VDDSDMMC power supply over-consumption errata */
 	sdmmc_cal_setup();
+
+#ifdef CONFIG_BOARD_QUIRK_SAMA5D2_ICP
+	at91_can_stdby_dis();
+
+	/* Reset peripherals*/
+	peripherals_hw_reset();
+#endif
 }
 
 #if defined(CONFIG_SPI)

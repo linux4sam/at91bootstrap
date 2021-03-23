@@ -177,18 +177,7 @@ void twi_init()
 }
 #endif
 
-static void HDMI_Qt1070_workaround(void)
-{
-	/* For the HDMI and QT1070 shar the irq line
-	 * if the HDMI does not initialize, the irq line is pulled down by HDMI,
-	 * so, the irq line can not used by QT1070
-	 */
-	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
-	udelay(33000);
-	pio_set_gpio_output(AT91C_PIN_PC(31), 0);
-	udelay(33000);
-	pio_set_gpio_output(AT91C_PIN_PC(31), 1);
-}
+__attribute__((weak)) void HDMI_Qt1070_workaround(void);
 
 void hw_init(void)
 {
@@ -230,7 +219,9 @@ void hw_init(void)
 	one_wire_hw_init();
 #endif
 
+#ifdef CONFIG_BOARD_QUIRK_SAMA5D3
 	HDMI_Qt1070_workaround();
+#endif
 
 #if defined(CONFIG_NANDFLASH_RECOVERY) || defined(CONFIG_DATAFLASH_RECOVERY)
 	/* Init the recovery buttons pins */

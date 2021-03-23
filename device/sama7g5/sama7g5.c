@@ -44,6 +44,7 @@
 #include "watchdog.h"
 #include "timer.h"
 #include "sdhc_cal.h"
+#include "led.h"
 
 #include "sama7g5_board.h"
 
@@ -525,18 +526,6 @@ void at91_board_set_dtb_name(char *of_name)
 }
 #endif
 
-void at91_leds_init(void)
-{
-	const struct pio_desc leds_pins[] = {
-		{"RED", AT91C_PIN_PB(8), 0, PIO_DEFAULT, PIO_OUTPUT},
-		{"GREEN", AT91C_PIN_PA(13), 1, PIO_DEFAULT, PIO_OUTPUT},
-		{"BLUE", AT91C_PIN_PD(20), 0, PIO_DEFAULT, PIO_OUTPUT},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
-	};
-
-	pio_configure(leds_pins);
-}
-
 #define ATMEL_SDHC_GCKDIV_VALUE		1
 
 void at91_sdhc_hw_init(void)
@@ -1016,7 +1005,9 @@ void hw_init(void)
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
 	flexcoms_init(flexcoms);
+#ifdef CONFIG_LED_ON_BOARD
 	at91_leds_init();
+#endif
 
 	initialize_serial();
 
