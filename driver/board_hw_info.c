@@ -443,7 +443,7 @@ static unsigned int set_default_sn(void)
 	unsigned int vendor_dm = 0;
 	unsigned int vendor_ek = 0;
 
-#if CONFIG_DEFAULT_HW_INFO == 1
+#if defined(CONFIG_BOARD_QUIRK_SAMA5D3)
 	/* sama5d3xek
 	 * CPU Module: SAMA5D31-CM, EMBEST
 	 * Display Module: SAMA5D3x-DM, FLEX
@@ -455,7 +455,7 @@ static unsigned int set_default_sn(void)
 	vendor_cm = VENDOR_EMBEST;
 	vendor_dm = VENDOR_FLEX;
 	vendor_ek = VENDOR_FLEX;
-#elif CONFIG_DEFAULT_HW_INFO == 2
+#elif defined(CONFIG_BOARD_QUIRK_SAMA5D4)
 	/*
 	 * SAMA5D4-EK
 	 * Display Module: SAMA5D3x-DM, FLEX
@@ -465,13 +465,13 @@ static unsigned int set_default_sn(void)
 	board_id_ek = BOARD_ID_SAMA5D4_MB;
 	vendor_cm = VENDOR_EMBEST;
 	vendor_dm = VENDOR_FLEX;
-#elif CONFIG_DEFAULT_HW_INFO == 3
+#elif defined(CONFIG_BOARD_QUIRK_SAMA5D2_XULT)
 	board_id_ek = BOARD_ID_SAMA5D2_XULT;
 	vendor_ek = VENDOR_ATMEL_RFO;
-#elif CONFIG_DEFAULT_HW_INFO == 4
+#elif defined(CONFIG_BOARD_QUIRK_SAMA5D2_ICP)
 	board_id_ek = BOARD_ID_SAMA5D2_ICP;
 	vendor_ek = VENDOR_MCHIP_RFO;
-#elif CONFIG_DEFAULT_HW_INFO == 5
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X60)
 	/* sam9x60ek ; sam9x60 ddr2 sip eb and sam9x60 sdr sip eb
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
@@ -497,7 +497,7 @@ static unsigned int set_default_rev(void)
 	unsigned int rev_id_dm;
 	unsigned int rev_id_ek;
 
-#if CONFIG_DEFAULT_HW_INFO == 1
+#if defined(CONFIG_BOARD_QUIRK_SAMA5D3)
 	/* sama5d3xek
 	 * CPU Module: 'D', '4'
 	 * Display Module: 'B', '2'
@@ -509,7 +509,7 @@ static unsigned int set_default_rev(void)
 	rev_id_cm = '4';
 	rev_id_dm = '2';
 	rev_id_ek = '3';
-#elif CONFIG_DEFAULT_HW_INFO == 2
+#elif defined(CONFIG_BOARD_QUIRK_SAMA5D4)
 	/*
 	 * SAMA5D4-EK
 	 * Display Module: 'B', '2'
@@ -522,22 +522,15 @@ static unsigned int set_default_rev(void)
 	rev_id_dm = '2';
 	rev_id_ek = '3';
 
-#elif CONFIG_DEFAULT_HW_INFO == 3
+#elif defined(CONFIG_BOARD_QUIRK_SAMA5D2_XULT) || \
+	  defined(CONFIG_BOARD_QUIRK_SAMA5D2_ICP)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
 	rev_id_cm = '1';
 	rev_id_dm = '1';
 	rev_id_ek = '1';
-
-#elif CONFIG_DEFAULT_HW_INFO == 4
-	rev_cm = 'A';
-	rev_dm = 'A';
-	rev_ek = 'A';
-	rev_id_cm = '1';
-	rev_id_dm = '1';
-	rev_id_ek = '1';
-#elif CONFIG_DEFAULT_HW_INFO == 5
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X60)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
