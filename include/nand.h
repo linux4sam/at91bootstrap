@@ -85,6 +85,9 @@ struct nand_info {
 #define CMD_READ_1			0x00
 #define CMD_READ_2			0x30
 
+#define CMD_READ_CACHE_SEQ		0x31
+#define CMD_READ_CACHE_LAST		0x3F
+
 #define CMD_READID			0x90
 
 #define CMD_WRITE_1			0x80

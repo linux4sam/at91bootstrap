@@ -42,6 +42,9 @@
 #include "div.h"
 #include "lcdc.h"
 
+#define CONFIG_TIMING_MODE
+#define CONFIG_READ_CACHE
+
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static struct nand_chip nand_ids[] = {
 	/* Samsung 32MB 8Bit */
@@ -664,19 +667,22 @@ static int nandflash_get_type(struct nand_info *nand)
 			dbg_info("NAND: Not find support device!\n");
 			return -1;
 		}
-	} else {
+	}
+#ifdef CONFIG_TIMING_MODE
+	  else {
 		int mode = 0;
 		unsigned int timing[4];
 
-		if (chip->timingmode & PARAMS_TIMING_MODE_3) {
-			mode = 3;
+		if (chip->timingmode & PARAMS_TIMING_MODE_5) {
+			mode = 5;
 			timing[0] = 0x00000002;
-			timing[1] = 0x06030703;
+			timing[1] = 0x06040703;
 			timing[2] = 0x00060007;
 			timing[3] = 0x001f0003;
 		}
 
 		if (mode) {
+			dbg_info("NAND: Switch to timing mode %d\n", mode);
 			if (chip->opt_cmd & PARAMS_OPT_CMD_SET_GET_FEATURES)
 				nand_set_feature_timing_mode(mode);
 
@@ -699,6 +705,8 @@ static int nandflash_get_type(struct nand_info *nand)
 			}
 		}
 	}
+#endif
+
 #else
 	if (nandflash_detect_non_onfi(chip)) {
 		dbg_info("NAND: Not find support device!\n");
@@ -834,15 +842,18 @@ static int nand_read_sector(struct nand_info *nand,
 	return 0;
 }
 #else /* large blocks */
-static int nand_read_sector(struct nand_info *nand,
+static int nand_read_sectors(struct nand_info *nand,
 				unsigned int row_address,
-				unsigned char *buffer, 
-				unsigned int zone_flag)
+				unsigned char *buffer,
+				unsigned int zone_flag,
+				int count)
 {
 	unsigned int readbytes, i;
 	unsigned int column_address;
 	int ret = 0;
-	unsigned char *pbuf = buffer;
+
+	if (count <= 0)
+		return -1;
 
 #ifdef CONFIG_USE_PMECC
 	unsigned int usepmecc = 0;
@@ -863,7 +874,7 @@ static int nand_read_sector(struct nand_info *nand,
 
 	case ZONE_INFO:
 		readbytes = nand->oobsize;
-		pbuf += nand->pagesize;
+		buffer += nand->pagesize;
 		column_address = nand->pagesize;
 		break;
 
@@ -888,31 +899,57 @@ static int nand_read_sector(struct nand_info *nand,
 	if (nand_read_status())
 		return -1;
 
-	nand->command(CMD_READ_1);
+	if (count == 1)
+		goto READ_ONE;
 
-#ifdef CONFIG_USE_PMECC
-	if (usepmecc)
-		pmecc_start_data_phase();
-#endif
-	/* Read loop */
-	if (nand->buswidth) {
-		for (i = 0; i < readbytes / 2; i++) {
-			*((short *)pbuf) = read_word();
-			pbuf += 2;
-		}
-	} else {
-		for (i = 0; i < readbytes; i++)
-			*pbuf++ = read_byte();
+	while (count > 0) {
+		if (count == 1)
+			nand->command(CMD_READ_CACHE_LAST);
+		else
+			nand->command(CMD_READ_CACHE_SEQ);
+
+		if (nand_read_status())
+			return -1;
+
+READ_ONE:
+		nand->command(CMD_READ_1);
 
 #ifdef CONFIG_USE_PMECC
 		if (usepmecc)
-			ret = pmecc_process(nand, buffer);
+			pmecc_start_data_phase();
 #endif
-	}
+		/* Read loop */
+		if (nand->buswidth) {
+			for (i = 0; i < readbytes / 2; i++)
+				((unsigned short *)buffer)[i] = read_word();
+		} else {
+			for (i = 0; i < readbytes; i++)
+				buffer[i] = read_byte();
+
+#ifdef CONFIG_USE_PMECC
+			if (usepmecc) {
+				ret = pmecc_process(nand, buffer);
+				if (ret)
+					break;
+			}
+#endif
+		}
+
+		buffer += nand->pagesize;
+		count--;
+	};
 
 	nand_cs_disable();
 
 	return ret;
+}
+
+static int nand_read_sector(struct nand_info *nand,
+				unsigned int row_address,
+				unsigned char *buffer,
+				unsigned int zone_flag)
+{
+	return nand_read_sectors(nand, row_address, buffer, zone_flag, 1);
 }
 #endif /* #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS */
 
@@ -949,6 +986,20 @@ static void nand_read_ecc(struct nand_ooblayout *ooblayout,
 }
 #endif
 
+#if defined(CONFIG_READ_CACHE) && !defined(CONFIG_NANDFLASH_SMALL_BLOCKS) \
+				&& !defined(CONFIG_ENABLE_SW_ECC)
+static int nand_read_block(struct nand_info *nand,
+				unsigned int block,
+				unsigned int page,
+				unsigned int zone_flag,
+				unsigned char *buffer,
+				int count)
+{
+	unsigned int row_address = block * nand->pages_block + page;
+
+	return nand_read_sectors(nand, row_address, buffer, ZONE_DATA, count);
+}
+#else
 static int nand_read_page(struct nand_info *nand,
 				unsigned int block,
 				unsigned int page,
@@ -980,6 +1031,7 @@ static int nand_read_page(struct nand_info *nand,
 	return 0;
 #endif /* #ifndef CONFIG_ENABLE_SW_ECC */
 }
+#endif /* #ifdef CONFIG_READ_CACHE */
 
 #ifdef CONFIG_NANDFLASH_RECOVERY
 static int nand_erase_block0(struct nand_info *nand)
@@ -1046,9 +1098,7 @@ static int nand_loadimage(struct nand_info *nand,
 	unsigned char *buffer = dest;
 	unsigned int readsize;
 	unsigned int block = 0;
-	unsigned int page;
 	unsigned int start_page = 0;
-	unsigned int end_page;
 	unsigned int numpages = 0;
 	unsigned int offsetpage = 0;
 	unsigned int block_remaining = nand->blocksize
@@ -1070,8 +1120,6 @@ static int nand_loadimage(struct nand_info *nand,
 		if (offsetpage)
 			numpages++;
 
-		end_page = start_page + numpages;
-
 		/* check the bad block */
 		while (1) {
 			if (nand_check_badblock(nand,
@@ -1084,14 +1132,24 @@ static int nand_loadimage(struct nand_info *nand,
 		}
 
 		/* read pages of a block */
-		for (page = start_page; page < end_page; page++) {
-			ret = nand_read_page(nand, block, page,
+#if defined(CONFIG_READ_CACHE) && !defined(CONFIG_NANDFLASH_SMALL_BLOCKS) \
+				&& !defined(CONFIG_ENABLE_SW_ECC)
+		ret = nand_read_block(nand, block, start_page, ZONE_DATA,
+					buffer, numpages);
+		if (ret)
+			return -1;
+		else
+			buffer += nand->pagesize * numpages;
+#else
+		for (int i = 0; i < numpages; i++) {
+			ret = nand_read_page(nand, block, start_page + i,
 						ZONE_DATA, buffer);
 			if (ret)
 				return -1;
 			else
 				buffer += nand->pagesize;
 		}
+#endif
 		length -= readsize;
 
 		block++;
