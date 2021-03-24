@@ -707,6 +707,7 @@ config LOGO
 	help
 	  Display boot logo in AT91bootstrap
 	  8-bit(256 color) and 24-bit bmp image is supported
+	  The file size limit is 32K-16
 
 config LOGO_NAME
 	string "Logo file name"
