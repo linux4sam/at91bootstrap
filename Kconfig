@@ -353,6 +353,150 @@ config BACKUP_MODE
 
 menu "Board's Workaround Options"
 
+choice
+	prompt "Workaround for Board Quirks"
+	default BOARD_QUIRK_NONE
+
+config BOARD_QUIRK_NONE
+	bool "None Quirks for the board"
+
+config BOARD_QUIRK_SAMA5D3
+	bool "Quirks for SAMA5D3-EK / SAMA5D3-CMP board"
+
+config BOARD_QUIRK_SAMA5D4
+	bool "Quirks for SAMA5D4-EK / SAMA5D4-XPLAINED board"
+
+config BOARD_QUIRK_SAMA5D2_XULT
+	bool "Quirks for SAMA5D2-XULT board"
+
+config BOARD_QUIRK_SAMA5D2_ICP
+	bool "Quirks for SAMA5D2-ICP board"
+
+config BOARD_QUIRK_SAM9X60
+	bool "Quirks for SAM9X60-EK / SAM9X60-SDR-SIP-EB / SAM9X60-DDR2-SIP-EB board"
+
+endchoice
+
+config LED_ON_BOARD
+	bool "There are LEDs on the board"
+	default n
+
+menu "LED setting"
+	depends on LED_ON_BOARD
+
+choice
+	prompt "LED (red) PIO Select"
+	default LED_R_NONE
+
+config LED_R_NONE
+	bool "No Red LED on the board"
+
+config LED_R_ON_PIOA
+	bool "LED on PIOA"
+
+config LED_R_ON_PIOB
+	bool "LED on PIOB"
+
+config LED_R_ON_PIOC
+	bool "LED on PIOC"
+
+config LED_R_ON_PIOD
+	bool "LED on PIOD"
+
+config LED_R_ON_PIOE
+	bool "LED on PIOE"
+	depends on PIO_E
+
+endchoice
+
+config LED_R_PIN
+	depends on !LED_R_NONE
+	int "LED (red) on I/O Line"
+	range 0 31
+	default 0
+
+config LED_R_VALUE
+	depends on !LED_R_NONE
+	int "LED (red) initial value"
+	range 0 1
+	default 0
+
+choice
+	prompt "LED (green) PIO Select"
+	default LED_G_NONE
+
+config LED_G_NONE
+	bool "No Green LED on the board"
+
+config LED_G_ON_PIOA
+	bool "LED on PIOA"
+
+config LED_G_ON_PIOB
+	bool "LED on PIOB"
+
+config LED_G_ON_PIOC
+	bool "LED on PIOC"
+
+config LED_G_ON_PIOD
+	bool "LED on PIOD"
+
+config LED_G_ON_PIOE
+	bool "LED on PIOE"
+	depends on PIO_E
+
+endchoice
+
+config LED_G_PIN
+	depends on !LED_G_NONE
+	int "LED (green) on I/O Line"
+	range 0 31
+	default 0
+
+config LED_G_VALUE
+	depends on !LED_G_NONE
+	int "LED (green) initial value"
+	range 0 1
+	default 1
+
+choice
+	prompt "LED (blue) PIO Select"
+	default LED_B_NONE
+
+config LED_B_NONE
+	bool "No Blue LED on the board"
+
+config LED_B_ON_PIOA
+	bool "LED on PIOA"
+
+config LED_B_ON_PIOB
+	bool "LED on PIOB"
+
+config LED_B_ON_PIOC
+	bool "LED on PIOC"
+
+config LED_B_ON_PIOD
+	bool "LED on PIOD"
+
+config LED_B_ON_PIOE
+	bool "LED on PIOE"
+	depends on PIO_E
+
+endchoice
+
+config LED_B_PIN
+	depends on !LED_B_NONE
+	int "LED (blue) on I/O Line"
+	range 0 31
+	default 0
+
+config LED_B_VALUE
+	depends on !LED_B_NONE
+	int "LED (blue) initial value"
+	range 0 1
+	default 0
+
+endmenu
+
 menu "TWI BUS setting"
 
 config TWI0
@@ -670,22 +814,6 @@ config LOAD_EEPROM
 	select TWI
 
 endchoice
-
-config DEFAULT_HW_INFO
-	int "Using default information"
-	range 0 5
-	default 0
-	depends on LOAD_HW_INFO
-	help
-	  Default information when loading from 1wire/eeprom fails:
-	  Value |  For Boards
-	  ------|----------------------------------------------------
-	    0   | No defined board
-	    1   | SAMA5D3XEK, SAMA5D3X_CMP
-	    2   | SAMA5D4EK, SAMA5D4_XPLAINED
-	    3   | SAMA5D2_XULT
-	    4   | SAMA5D2_ICP
-	    5   | SAM9X60EK, SAM9X60_DDR2_SIP_EB, SAM9X60_SDR_SIP_EB
 
 choice
 	prompt "1-Wire PIO Select"
