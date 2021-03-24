@@ -46,6 +46,8 @@
 #include "sama5d3_board.h"
 #include "twi.h"
 
+__attribute__((weak)) void HDMI_Qt1070_workaround(void);
+
 #ifdef CONFIG_LOAD_ONE_WIRE
 #include "ds24xx.h"
 #endif
@@ -131,6 +133,58 @@ static void at91_special_pio_output_low(void)
 	writel(value, base + PIO_REG_CODR);	/* PIO_CODR */
 }
 
+#if defined(CONFIG_MAC0_PHY)
+unsigned int at91_eth0_hw_init(void)
+{
+	unsigned int base_addr = AT91C_BASE_GMAC;
+
+	const struct pio_desc macb_pins[] = {
+		{"GMDC",	AT91C_PIN_PB(16), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"GMDIO",	AT91C_PIN_PB(17), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(macb_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOB, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	pmc_enable_periph_clock(AT91C_ID_GMAC, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	return base_addr;
+}
+#endif
+
+#if defined(CONFIG_MAC1_PHY)
+unsigned int at91_eth1_hw_init(void)
+{
+	unsigned int base_addr = AT91C_BASE_EMAC;
+
+	const struct pio_desc macb_pins[] = {
+		{"EMDC",	AT91C_PIN_PC(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"EMDIO",	AT91C_PIN_PC(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(macb_pins);
+	pmc_enable_periph_clock(AT91C_ID_PIOC, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	pmc_enable_periph_clock(AT91C_ID_EMAC, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	return base_addr;
+}
+#endif
+
+#if defined(CONFIG_MACB)
+void at91_disable_mac_clock(void)
+{
+#if defined(CONFIG_MAC0_PHY)
+	pmc_disable_periph_clock(AT91C_ID_GMAC);
+#endif
+#if defined(CONFIG_MAC1_PHY)
+	pmc_disable_periph_clock(AT91C_ID_EMAC);
+#endif
+}
+#endif
+
 #ifdef CONFIG_TWI
 #if defined(CONFIG_TWI0) || defined(CONFIG_TWI1) || defined(CONFIG_TWI2)
 static unsigned int at91_twi_hw_init(unsigned int index)
@@ -177,7 +231,21 @@ void twi_init()
 }
 #endif
 
-__attribute__((weak)) void HDMI_Qt1070_workaround(void);
+#if defined(CONFIG_PM)
+void at91_disable_smd_clock(void)
+{
+	/*
+	 * set pin DIBP to pull-up and DIBN to pull-down
+	 * to save power on VDDIOP0
+	 */
+	pmc_enable_system_clock(AT91C_PMC_SMDCK);
+	pmc_set_smd_clock_divider(AT91C_PMC_SMDDIV);
+	pmc_enable_periph_clock(AT91C_ID_SMD, PMC_PERIPH_CLK_DIVIDER_NA);
+	writel(0xF, (0x0C + AT91C_BASE_SMD));
+	pmc_disable_periph_clock(AT91C_ID_SMD);
+	pmc_disable_system_clock(AT91C_PMC_SMDCK);
+}
+#endif
 
 void hw_init(void)
 {
