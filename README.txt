@@ -94,6 +94,7 @@ ARM Toolchain:
 - gcc version 7.3.1 (Linaro GCC 7.2-2018.05)
 - gcc version 7.5.0 (Linaro GCC 7.5-2019.12)
 - gcc version 8.2.0 (Ubuntu 8.2.0-7ubuntu1)
+- gcc version 10.2.1 20201103 (GNU Toolchain for the A-profile Architecture 10.2-2020.11 (arm-10.16))
 
 WARNING: check KNOWN_ISSUES for issues with older gcc versions. We recommend
 using a toolchain newer than 6.0.
