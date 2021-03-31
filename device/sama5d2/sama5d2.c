@@ -52,6 +52,7 @@
 #include "arch/tz_matrix.h"
 #include "led.h"
 
+__attribute__((weak)) void sdmmc_cal_setup(void);
 __attribute__((weak)) void at91_can_stdby_dis(void);
 __attribute__((weak)) void peripherals_hw_reset(void);
 
@@ -168,10 +169,38 @@ static int matrix_configure_slave(void)
 
 	/* 2 ~ 9 DDR2 Port0 ~ 7: Non-Secure */
 	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_128M);
+#ifdef CONFIG_DDR_4_GBIT
+	sasplit_setting = (MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(1, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(2, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(3, MATRIX_SASPLIT_VALUE_128M));
+	ssr_setting = (MATRIX_LANSECH_NS(0)
+			| MATRIX_LANSECH_NS(1)
+			| MATRIX_LANSECH_NS(2)
+			| MATRIX_LANSECH_NS(3)
+			| MATRIX_RDNSECH_NS(0)
+			| MATRIX_RDNSECH_NS(1)
+			| MATRIX_RDNSECH_NS(2)
+			| MATRIX_RDNSECH_NS(3)
+			| MATRIX_WRNSECH_NS(0)
+			| MATRIX_WRNSECH_NS(1)
+			| MATRIX_WRNSECH_NS(2)
+			| MATRIX_WRNSECH_NS(3));
+#elif defined(CONFIG_DDR_2_GBIT)
+	sasplit_setting = (MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_128M)
+				| MATRIX_SASPLIT(1, MATRIX_SASPLIT_VALUE_128M));
+	ssr_setting = (MATRIX_LANSECH_NS(0)
+			| MATRIX_LANSECH_NS(1)
+			| MATRIX_RDNSECH_NS(0)
+			| MATRIX_RDNSECH_NS(1)
+			| MATRIX_WRNSECH_NS(0)
+			| MATRIX_WRNSECH_NS(1));
+#else
 	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_128M);
 	ssr_setting = MATRIX_LANSECH_NS(0) |
 		      MATRIX_RDNSECH_NS(0) |
 		      MATRIX_WRNSECH_NS(0);
+#endif
 	for (ddr_port = 0; ddr_port < 8; ddr_port++) {
 		matrix_configure_slave_security(AT91C_BASE_MATRIX64,
 					(H64MX_SLAVE_DDR2_PORT_0 + ddr_port),
@@ -330,44 +359,6 @@ void at91_init_can_message_ram(void)
 	writel(AT91C_CAN0_MEM_ADDR_(CAN_MESSAGE_RAM_MSB) |
 	       AT91C_CAN1_MEM_ADDR_(CAN_MESSAGE_RAM_MSB),
 	       (AT91C_BASE_SFR + SFR_CAN));
-}
-
-static void sdmmc_cal_setup(void)
-{
-	unsigned int cidr, exid;
-	unsigned int reg;
-
-	/* Identify SAMA5D2 SiP that are concerned by the errata */
-	cidr = readl(AT91C_BASE_CHIPID + CHIPID_CIDR);
-	if ((cidr & 0x7fffffe0) != SAMA5D2_CIDR)
-		return;
-
-	exid = readl(AT91C_BASE_CHIPID + CHIPID_EXID);
-	if (exid != SAMA5D225C_D1M_EXID
-	 && exid != SAMA5D27C_D1G_EXID
-	 && exid != SAMA5D28C_D1G_EXID)
-		return;
-
-	/*
-	 * Even if SDMMC interfaces are not in use, enable the
-	 * calibration analog cell and make it remain powered after
-	 * calibration procedure is done.
-	 * It's needed on SDMMC0 only
-	 */
-	dbg_loud("Applying VDDSDMMC errata to ID: %x\n", exid);
-
-	/* Enable peripheral clock */
-	pmc_enable_periph_clock(AT91C_ID_SDMMC0, PMC_PERIPH_CLK_DIVIDER_NA);
-
-	/* Launch calibration and wait till it's completed */
-	reg = readl(AT91C_BASE_SDHC0 + SDMMC_CALCR);
-	reg |= SDMMC_CALCR_ALWYSON | SDMMC_CALCR_EN;
-	writel(reg, AT91C_BASE_SDHC0 + SDMMC_CALCR);
-	while (readl(AT91C_BASE_SDHC0 + SDMMC_CALCR) & SDMMC_CALCR_EN)
-		;
-
-	/* Disable peripheral clock */
-	pmc_disable_periph_clock(AT91C_ID_SDMMC0);
 }
 
 #if defined(CONFIG_TWI)
@@ -584,8 +575,10 @@ void hw_init(void)
 
 	at91_init_can_message_ram();
 
+#ifdef CONFIG_BOARD_QUIRK_SAMA5D2_SIP
 	/* SiP: Implement the VDDSDMMC power supply over-consumption errata */
 	sdmmc_cal_setup();
+#endif
 
 #ifdef CONFIG_BOARD_QUIRK_SAMA5D2_ICP
 	at91_can_stdby_dis();
@@ -826,7 +819,9 @@ void at91_board_set_dtb_name(char *of_name)
 
 void at91_sdhc_hw_init(void)
 {
+#ifdef CONFIG_BOARD_QUIRK_SAMA5D2_SIP
 	unsigned int reg;
+#endif
 
 #ifdef CONFIG_SDHC0
 	const struct pio_desc sdmmc_pins[] = {
@@ -842,7 +837,9 @@ void at91_sdhc_hw_init(void)
 		{"SDMMC0_DAT7", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC0_RSTN", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC0_VDDSEL", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+#ifndef CONFIG_BOARD_QUIRK_SAMA5D2_XULT
 		{"SDMMC0_WP",   AT91C_PIN_PA(12), 1, PIO_DEFAULT, PIO_PERIPH_A},
+#endif
 		{"SDMMC0_CD",   AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
@@ -860,13 +857,16 @@ void at91_sdhc_hw_init(void)
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #endif
+
+#ifdef CONFIG_BOARD_QUIRK_SAMA5D2_SIP
 	/* First, print status of CAL for VDDSDMMC over-consumption errata */
 	pmc_enable_periph_clock(AT91C_ID_SDMMC0, PMC_PERIPH_CLK_DIVIDER_NA);
 	reg = readl(AT91C_BASE_SDHC0 + SDMMC_CALCR);
 	pmc_disable_periph_clock(AT91C_ID_SDMMC0);
 
 	if (reg & SDMMC_CALCR_ALWYSON)
-		dbg_info("SDHC: fix in place for SAMA5D2 SoM VDDSDMMC over-consumption errata\n");
+		dbg_info("SDHC: fix in place for SAMA5D2 SiP VDDSDMMC over-consumption errata\n");
+#endif
 
 	/* Deal with usual SD/MCC peripheral init sequence */
 	pio_configure(sdmmc_pins);

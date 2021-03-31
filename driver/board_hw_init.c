@@ -29,6 +29,10 @@
 #include "arch/at91_pio.h"
 #include "gpio.h"
 #include "timer.h"
+#include "debug.h"
+#include "hardware.h"
+#include "pmc.h"
+#include "sdhc_cal.h"
 
 #ifdef CONFIG_BOARD_QUIRK_SAMA5D3
 void HDMI_Qt1070_workaround(void)
@@ -55,6 +59,46 @@ void SiI9022_hw_reset(void)
 	pio_set_gpio_output(AT91C_PIN_PB(15), 1);
 }
 #endif
+#endif
+
+#ifdef CONFIG_BOARD_QUIRK_SAMA5D2_SIP
+void sdmmc_cal_setup(void)
+{
+	unsigned int cidr, exid;
+	unsigned int reg;
+
+	/* Identify SAMA5D2 SiP that are concerned by the errata */
+	cidr = readl(AT91C_BASE_CHIPID + CHIPID_CIDR);
+	if ((cidr & 0x7fffffe0) != SAMA5D2_CIDR)
+		return;
+
+	exid = readl(AT91C_BASE_CHIPID + CHIPID_EXID);
+	if (exid != SAMA5D225C_D1M_EXID
+	 && exid != SAMA5D27C_D1G_EXID
+	 && exid != SAMA5D28C_D1G_EXID)
+		return;
+
+	/*
+	 * Even if SDMMC interfaces are not in use, enable the
+	 * calibration analog cell and make it remain powered after
+	 * calibration procedure is done.
+	 * It's needed on SDMMC0 only
+	 */
+	dbg_loud("Applying VDDSDMMC errata to ID: %x\n", exid);
+
+	/* Enable peripheral clock */
+	pmc_enable_periph_clock(AT91C_ID_SDMMC0, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	/* Launch calibration and wait till it's completed */
+	reg = readl(AT91C_BASE_SDHC0 + SDMMC_CALCR);
+	reg |= SDMMC_CALCR_ALWYSON | SDMMC_CALCR_EN;
+	writel(reg, AT91C_BASE_SDHC0 + SDMMC_CALCR);
+	while (readl(AT91C_BASE_SDHC0 + SDMMC_CALCR) & SDMMC_CALCR_EN)
+		;
+
+	/* Disable peripheral clock */
+	pmc_disable_periph_clock(AT91C_ID_SDMMC0);
+}
 #endif
 
 #ifdef CONFIG_BOARD_QUIRK_SAMA5D2_ICP

@@ -372,6 +372,9 @@ config BOARD_QUIRK_SAMA5D2_XULT
 config BOARD_QUIRK_SAMA5D2_ICP
 	bool "Quirks for SAMA5D2-ICP board"
 
+config BOARD_QUIRK_SAMA5D2_SIP
+	bool "Quirks for boards using SAMA5D225C-D1M/SAMA5D27C-D1G/SAMA5D28C-D1G"
+
 config BOARD_QUIRK_SAM9X60_EK
 	bool "Quirks for SAM9X60-EK board"
 
