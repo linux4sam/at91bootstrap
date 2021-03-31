@@ -94,25 +94,23 @@ static u64 pit64b_read_value(void)
 void udelay(unsigned int usec)
 {
 	u64 base = pit64b_read_value();
-	u64 delay = ((u64)(clk_rate >> 10) * usec) >> 10;
+	u64 end = base + (((u64)(clk_rate >> 10) * usec) >> 10);
 	u64 current;
 
 	do {
 		current = (u32)pit64b_read_value();
-		current -= base;
-	} while (current < delay);
+	} while (current < end);
 }
 
 void mdelay(unsigned int msec)
 {
 	u64 base = pit64b_read_value();
-	u64 delay = (clk_rate / 1000) * msec;
+	u64 end = base + (clk_rate / 1000) * msec;
 	u64 current;
 
 	do {
 		current = pit64b_read_value();
-		current -= base;
-	} while (current < delay);
+	} while (current < end);
 }
 
 /* Init a special timer for slow clock switch function */
@@ -127,13 +125,12 @@ int start_interval_timer(void)
 
 int wait_interval_timer(unsigned int msec)
 {
-	u64 delay = (clk_rate / 1000) * msec;
+	u64 end = timer1_base + (clk_rate / 1000) * msec;
 	u64 current;
 
 	do {
 		current = pit64b_read_value();
-		current -= timer1_base;
-	} while (current < delay);
+	} while (current < end);
 
 	return 0;
 }
