@@ -29,6 +29,7 @@
 #include "hardware.h"
 #include "mcp16502.h"
 #include "twi.h"
+#include "div.h"
 
 #define MCP16502_BASE(_i)		(((_i) + 1) << 4)
 #define MCP16502_LOW_SEL		(0x0D)
@@ -78,7 +79,7 @@ int mcp16502_regulator_set_voltage(unsigned int regid, unsigned int uV)
 	if (ret)
 		return ret;
 
-	steps = (uV - regulators[regid].min_uV) / regulators[regid].step_uV;
+	steps = div((uV - regulators[regid].min_uV), regulators[regid].step_uV);
 	selector = (MCP16502_LOW_SEL + steps) & MCP16502_VSEL;
 	val &= ~MCP16502_VSEL;
 	val |= selector;
