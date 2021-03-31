@@ -62,6 +62,16 @@ config MEM_CLOCK_533
 
 endchoice
 
+config DDR_EXT_TEMP_RANGE
+	bool "Enable extended temperature range (85C - 105C)"
+	depends on UMCTL2
+	default n
+	help
+	  Enables the temperature, voltage and current derating
+	  that allows the memory to operate in the Extended Temperature Range
+	  which is above 85C and below 105C (module dependent)
+
+
 endmenu
 
 config SAMA5D2_LPDDR2
