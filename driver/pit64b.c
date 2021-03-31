@@ -58,6 +58,12 @@ static inline void pit64b_writel(unsigned int value, unsigned reg)
 	writel(value, (AT91C_BASE_PIT64BC + reg));
 }
 
+/**
+ * timer_init() - initialize timer to be used for {u, m}delay() operations
+ *
+ * Notice: call this after clocks feeding PIT64B peripheral clock were
+ * 	   initialized
+ */
 int timer_init(void)
 {
 	pmc_enable_periph_clock(AT91C_ID_PIT64B, PMC_PERIPH_CLK_DIVIDER_NA);

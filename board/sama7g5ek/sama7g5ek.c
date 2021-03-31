@@ -405,9 +405,6 @@ void hw_init(void)
 
 	axi2ahb_config_outstanding();
 
-	/* We need timers in the following steps */
-	timer_init();
-
 	/* Configure & Enable CPU PLL at a safe speed of 600 Mhz*/
 	plla_config.mul = 24; /* 25 * 24 = 600 */
 	plla_config.div = 0;
@@ -467,6 +464,9 @@ void hw_init(void)
 #endif
 
 	initialize_serial();
+
+	/* We need timers in the following steps */
+	timer_init();
 
 #ifdef CONFIG_TWI
 	twi_init();
