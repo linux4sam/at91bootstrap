@@ -341,8 +341,6 @@ int publ_start()
 {
 	PUBL->PUBL_PIR = PUBL_PIR_INIT | PUBL_PIR_CTLDINIT;
 
-	publ_idone();
-
 	return publ_idone();
 }
 
