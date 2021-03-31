@@ -39,6 +39,13 @@
 #define dbg_bkp_sf(fmt_str)	do {} while (0)
 #endif
 
+/**
+ * struct at91_pm_bu - PM data saved by Linux
+ * @suspended: true if returning from backup mode
+ * @reserved: reserved
+ * @canary: pointer to data saved by Linux for self-refresh checking
+ * @resume: physical address with resuming code that AT91Bootstrap should
+ * jump to
 static struct at91_pm_bu {
 	int suspended;
 	unsigned long *reserved;
