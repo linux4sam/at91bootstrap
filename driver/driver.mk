@@ -24,6 +24,7 @@ COBJS-$(CONFIG_WDT)		+= $(DRIVERS_SRC)/at91_wdt.o
 COBJS-$(CONFIG_WDT2)		+= $(DRIVERS_SRC)/at91_wdt2.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_usart.o
 COBJS-y				+= $(DRIVERS_SRC)/at91_rstc.o
+COBJS-y				+= $(DRIVERS_SRC)/shdwc.o
 
 COBJS-$(CONFIG_CPU_HAS_L2CC)	+= $(DRIVERS_SRC)/lp310_l2cc.o
 
