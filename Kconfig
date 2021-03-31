@@ -372,8 +372,11 @@ config BOARD_QUIRK_SAMA5D2_XULT
 config BOARD_QUIRK_SAMA5D2_ICP
 	bool "Quirks for SAMA5D2-ICP board"
 
-config BOARD_QUIRK_SAM9X60
-	bool "Quirks for SAM9X60-EK / SAM9X60-SDR-SIP-EB / SAM9X60-DDR2-SIP-EB board"
+config BOARD_QUIRK_SAM9X60_EK
+	bool "Quirks for SAM9X60-EK board"
+
+config BOARD_QUIRK_SAM9X60_EB
+	bool "Quirks for SAM9X60-SDR-SIP-EB / SAM9X60-DDR2-SIP-EB board"
 
 endchoice
 

@@ -471,7 +471,8 @@ static unsigned int set_default_sn(void)
 #elif defined(CONFIG_BOARD_QUIRK_SAMA5D2_ICP)
 	board_id_ek = BOARD_ID_SAMA5D2_ICP;
 	vendor_ek = VENDOR_MCHIP_RFO;
-#elif defined(CONFIG_BOARD_QUIRK_SAM9X60)
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X60_EK) || \
+	  defined(CONFIG_BOARD_QUIRK_SAM9X60_EB)
 	/* sam9x60ek ; sam9x60 ddr2 sip eb and sam9x60 sdr sip eb
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
@@ -530,7 +531,8 @@ static unsigned int set_default_rev(void)
 	rev_id_cm = '1';
 	rev_id_dm = '1';
 	rev_id_ek = '1';
-#elif defined(CONFIG_BOARD_QUIRK_SAM9X60)
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X60_EK) || \
+	  defined(CONFIG_BOARD_QUIRK_SAM9X60_EB)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';

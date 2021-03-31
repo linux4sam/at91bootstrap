@@ -96,7 +96,7 @@ void peripherals_hw_reset(void)
 }
 #endif
 
-#ifdef CONFIG_BOARD_QUIRK_SAM9X60
+#ifdef CONFIG_BOARD_QUIRK_SAM9X60_EK
 void wilc_pwrseq()
 {
 	const struct pio_desc wilc_down_pins[] = {
