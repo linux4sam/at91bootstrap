@@ -1174,6 +1174,9 @@ int umctl2_init (struct umctl2_config_state *state)
 	TZQCS = timings.TZQCS;
 	MRD = timings.MRD;
 
+	rstc_ddr_assert();
+	udelay(100);
+
 #ifdef CONFIG_RSTC
 	/*
 	 * STEP 0: Deassert reset signal DDR PHY. This ensures that the
