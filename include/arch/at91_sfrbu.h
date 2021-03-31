@@ -38,6 +38,6 @@
  */
 
 /*--- SFRBU_DDRMCR: (offset: 0x10) DDR BU Mode Control Register ---*/
-#define AT91C_DDRBUMCR_BUMEN	(0x01	/* Force DDR_DQ Input Buffer Always On */
+#define AT91C_DDRBUMCR_BUMEN	0x01	/* Force DDR_DQ Input Buffer Always On */
 
 #endif /* #ifndef __AT91_SFRBU_H__ */
