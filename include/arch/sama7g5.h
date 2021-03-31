@@ -47,6 +47,9 @@
 /*
  * User Peripherals physical base addresses.
  */
+#define AT91C_BASE_SECURAM	0xe0000000
+#define AT91C_BASE_SECUMOD	0xe0004000
+#define AT91C_BASE_SFRBU	0xe0008000
 #define AT91C_BASE_PIOA		0xe0014000
 #define AT91C_BASE_PIOB		(AT91C_BASE_PIOA + 0x40)
 #define AT91C_BASE_PIOC		(AT91C_BASE_PIOB + 0x40)
@@ -57,6 +60,7 @@
 
 #define AT91C_BASE_WDT		0xe001c000
 #define AT91C_BASE_RSTC		0xe001d000
+#define AT91C_BASE_SHDWC	0xe001d010
 #define AT91C_BASE_WDTS		0xe001d180
 #define AT91C_BASE_SCKCR	0xe001d050
 
