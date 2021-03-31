@@ -582,6 +582,10 @@ ifeq ($(CONFIG_RSTC), y)
 CPPFLAGS += -DCONFIG_RSTC
 endif
 
+ifeq ($(CONFIG_SHDWC), y)
+CPPFLAGS += -DCONFIG_SHDWC
+endif
+
 ifeq ($(CONFIG_TZC400), y)
 CPPFLAGS += -DCONFIG_TZC400
 endif

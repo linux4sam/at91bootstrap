@@ -695,5 +695,12 @@ config PMC_MCK_CLK_SAMA7G5
 	default y
 	help
 	  Enable PMC master clock support for SAMA7G5 SoCs
+
+config SHDWC
+	bool "Shutdown controller support"
+	default n
+	help
+	  Shutdown controller support
+
 endmenu
 
