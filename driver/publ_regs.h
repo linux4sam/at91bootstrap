@@ -93,15 +93,20 @@ struct publ_regs {
 	/* Data Training Address Register 1 */
 	__IO unsigned int PUBL_DTDR1;
 	/* Unused */
-	__I unsigned int Reserved2[25];
+	__I unsigned int Reserved2[24];
+	__IO unsigned int PUBL_DCUAR;
+	__IO unsigned int PUBL_DCUDR;
+	__IO unsigned int PUBL_DCURR;
+	__I unsigned int Reserved3[3];
 	__I unsigned int PUBL_DCUSR0;
 	__I unsigned int PUBL_DCUSR1;
 	/* Unused */
-	__I unsigned int Reserved3[45];
+	__I unsigned int Reserved4[40];
 	/* ZQ 0 Impedance Control Register 0 */
 	__IO unsigned int PUBL_ZQ0CR0;
 	/* ZQ 0 Impedance Control Register 1 */
 	__IO unsigned int PUBL_ZQ0CR1;
+	__IO unsigned int PUBL_ZQ0SR0;
 };
 
 /* PUBL register helpers
@@ -112,12 +117,16 @@ struct publ_regs {
 #define PUBL_PIR_INIT				(0x1UL << 0)
 /* DLL Lock */
 #define PUBL_PIR_DLLLOCK			(0x1UL << 2)
+/* Impedance Calibrate */
+#define PUBL_PIR_ZCAL				(0x1UL << 3)
 /* Read DQS Training */
 #define PUBL_PIR_QSTRN				(0x1UL << 7)
 /* RV Training */
 #define PUBL_PIR_RVTRN				(0x1UL << 8)
 /* Controller DRAM Init */
 #define PUBL_PIR_CTLDINIT			(0x1UL << 18)
+/* Impedance calibration bypass */
+#define PUBL_PIR_ZCALBYP			(0x1UL << 30)
 
 /* -------- PUBL_PGCR : (PUBL Offset: 0x8) General Config Register -------- */
 /* ITM DDR Mode */
@@ -459,6 +468,64 @@ struct publ_regs {
 /* Data Training using MPR */
 #define PUBL_DTAR_DTMPR				(0x1UL << 31)
 
+/* -------- PUBL_DCUAR : (PUBL Offset: 0xC0) DCU Address Register -------- */
+/* Cache Word Address */
+#define PUBL_DCUAR_CWADDR_POS			0
+#define PUBL_DCUAR_CWADDR_MASK			0xFUL
+#define PUBL_DCUAR_CWADDR(v)			(((v) & PUBL_DCUAR_CWADDR_MASK) \
+						<< PUBL_DCUAR_CWADDR_POS)
+
+/* Cache Slice Address */
+#define PUBL_DCUAR_CSADDR_POS			4
+#define PUBL_DCUAR_CSADDR_MASK			0xFUL
+#define PUBL_DCUAR_CSADDR(v)			(((v) & PUBL_DCUAR_CSADDR_MASK) \
+						<< PUBL_DCUAR_CSADDR_POS)
+
+/* Cache select */
+#define PUBL_DCUAR_CSEL_POS			8
+#define PUBL_DCUAR_CSEL_MASK			0x3UL
+#define PUBL_DCUAR_CSEL(v)			(((v) & PUBL_DCUAR_CSEL_MASK) \
+						<< PUBL_DCUAR_CSEL_POS)
+
+/* Increment Address */
+#define PUBL_DCUAR_INCA				(0x1UL << 10)
+
+/* Access Type */
+#define PUBL_DCUAR_ATYPE			(0x1UL << 11)
+
+/* -------- PUBL_DCURR : (PUBL Offset: 0xC8) DCU Run Register -------- */
+/* DCU Instruction */
+#define PUBL_DCURR_DINST_POS			0
+#define PUBL_DCURR_DINST_MASK			0xFUL
+#define PUBL_DCURR_DINST(v)			(((v) & PUBL_DCURR_DINST_MASK) \
+						<< PUBL_DCURR_DINST_POS)
+
+/* Start Address */
+#define PUBL_DCURR_SADDR_POS			4
+#define PUBL_DCURR_SADDR_MASK			0xFUL
+#define PUBL_DCURR_SADDR(v)			(((v) & PUBL_DCURR_SADDR_MASK) \
+						<< PUBL_DCURR_SADDR_POS)
+
+/* End Address */
+#define PUBL_DCURR_EADDR_POS			8
+#define PUBL_DCURR_EADDR_MASK			0xFUL
+#define PUBL_DCURR_EADDR(v)			(((v) & PUBL_DCURR_EADDR_MASK) \
+						<< PUBL_DCURR_EADDR_POS)
+
+/* -------- PUBL_DCUSR0 : (PUBL Offset: 0xD8) DCU Status-0 Register -------- */
+/* Run Done */
+#define PUBL_DCUSR0_RDONE			(0x1UL << 0)
+
+/* -------- PUBL_ZQ0CR0 : (PUBL Offset: 0x180) Impedance Control Register 0 -------- */
+/* ZDATA Impedance over-ride data */
+#define PUBL_ZQ0CR0_ZDATA_MASK			0xFFFFFFFUL
+#define PUBL_ZQ0CR0_ZDATA_POS			0
+#define PUBL_ZQ0CR0_ZDATA(v)			(((v) & PUBL_ZQ0CR0_ZDATA_MASK) \
+						<< PUBL_ZQ0CR0_ZDATA_POS)
+
+/* ZDEN Impedance over-ride enable */
+#define PUBL_ZQ0CR0_ZDEN			(0x1UL << 28)
+
 /* -------- PUBL_ZQ0CR1 : (PUBL Offset: 0x184) Impedance Control Register 1 -------- */
 /* ZPROG Output impedance divide select */
 #define PUBL_ZQ0CR1_ZPROG_OID_MASK		0xFUL
@@ -470,6 +537,10 @@ struct publ_regs {
 #define PUBL_ZQ0CR1_ZPROG_ODT_POS		4
 #define PUBL_ZQ0CR1_ZPROG_ODT(v)		(((v) & PUBL_ZQ0CR1_ZPROG_ODT_MASK) \
 						<< PUBL_ZQ0CR1_ZPROG_ODT_POS)
+
+/* -------- PUBL_ZQ0SR0 : (PUBL Offset: 0x188) Impedance Status Register 0 -------- */
+/* ZERR Impedance calibration error */
+#define PUBL_ZQ0SR0_ZERR			(1 << 30)
 /*
  * }
  */

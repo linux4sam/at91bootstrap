@@ -33,6 +33,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "backup.h"
 #include "board.h"
 #include "debug.h"
 #include "hardware.h"
@@ -55,6 +56,8 @@
 #include "umctl2_device.h"
 #endif
 #include "dram_helpers.h"
+
+#include "arch/at91_sfrbu.h"
 
 #define MP_AXI_PORT_ENABLE(x) (1 << (x))
 
@@ -1520,7 +1523,9 @@ inline static void uddrc_config_dfi()
 	/* clocks to drive on dfi_lp_wakeup when enter power down - 16 cycles should be 0x3 or 0x0 ? */
 			UDDRC_DFILPCFG0_dfi_lp_wakeup_pd(0x7) |
 	/* Enables DFI Low Power interface handshaking during Power Down Entry/Exit */
-			UDDRC_DFILPCFG0_dfi_lp_en_pd;
+			UDDRC_DFILPCFG0_dfi_lp_en_pd |
+			UDDRC_DFILPCFG0_dfi_lp_wakeup_dpd(0x7) |
+			UDDRC_DFILPCFG0_dfi_lp_en_dpd;
 
 	/* enable automatic generation of dfi_ctrlupd_req */
 	UDDRC_REGS->UDDRC_DFIUPD0 =
@@ -1674,6 +1679,13 @@ int umctl2_init (struct umctl2_config_state *state)
 	/* multi-port register settings (urgent bit are not connected in the DESIGN) */
 	uddrc_mp_setup();
 
+	if (backup_resume()) {
+		/* Skip SDRAM init while keeping the controller in self-refresh. */
+		UDDRC_REGS->UDDRC_INIT0 |= UDDRC_INIT0_skip_dram_init(3);
+		UDDRC_REGS->UDDRC_PWRCTL |= UDDRC_PWRCTL_selfref_sw;
+		UDDRC_REGS->UDDRC_DFIMISC &= ~UDDRC_DFIMISC_dfi_init_complete_en;
+	}
+
 #ifdef CONFIG_RSTC
 	/* STEP 2
 	 * Deassert reset signal core_ddrc_rstn ! (mandatory)
@@ -1684,10 +1696,12 @@ int umctl2_init (struct umctl2_config_state *state)
 #endif
 
 #if defined POWER_CYCLE_ON_PHY_INIT
-	UDDRC_REGS->UDDRC_DBG1 = 0;
-	/* power down and power up ? */
-	UDDRC_REGS->UDDRC_PWRCTL &= UDDRC_PWRCTL_powerdown_en;
-	UDDRC_REGS->UDDRC_PWRCTL = 0;
+	if (!backup_resume()) {
+		UDDRC_REGS->UDDRC_DBG1 = 0;
+		/* power down and power up ? */
+		UDDRC_REGS->UDDRC_PWRCTL &= UDDRC_PWRCTL_powerdown_en;
+		UDDRC_REGS->UDDRC_PWRCTL = 0;
+	}
 #endif
 
 #if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2)
@@ -1702,11 +1716,31 @@ int umctl2_init (struct umctl2_config_state *state)
 #else
 	state->phy_init(NULL);
 #endif
+
+	if (backup_resume()) {
+		if (state->phy_bypass_zq_calibration)
+			state->phy_bypass_zq_calibration();
+		else
+			dbg_very_loud("UMCTL2: phy_bypass_zq_calibration() required for backup mode!");
+	}
+
 	/* STEP 4
 	 * Wait PHY init
 	 */
 	if (state->phy_idone())
 		return -1;
+
+	if (backup_resume()) {
+		if (state->phy_override_zq_calibration)
+			state->phy_override_zq_calibration();
+		else
+			dbg_printf("UMCTL2: phy_override_zq_calibration() required for backup mode!");
+
+		if (state->phy_prepare_train_corrupted_data_restore)
+			state->phy_prepare_train_corrupted_data_restore(BL);
+		else
+			dbg_printf("UMCTL2: phy_prepare_train_corrupted_data_restore() required for backup mode!");
+	}
 
 	/* STEP 5
 	 * Enable uMCTL2 dfi init start signal
@@ -1714,6 +1748,17 @@ int umctl2_init (struct umctl2_config_state *state)
 	 */
 	if (state->phy_start())
 		return -1;
+
+	if (backup_resume()) {
+		/* Remove IOs from retention mode. */
+		writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
+		while ((readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR) & AT91C_DDRBUMCR_BUMEN)) ;
+
+		if (state->phy_zq_recalibrate)
+			state->phy_zq_recalibrate();
+		else
+			dbg_very_loud("UMCTL2: phy_sr_exit_phase1() required for backup mode!");
+	}
 
 	/* STEP 6
 	 * Set SWCTL.sw_done to 0 : to enable programming of
@@ -1738,6 +1783,14 @@ int umctl2_init (struct umctl2_config_state *state)
 	 * ONLY AFTER UDDRC_SWCTL_sw_done
 	 */
 	WAIT_WHILE_COND((UDDRC_REGS->UDDRC_SWSTAT != UDDRC_SWSTAT_sw_done_ack), 0xA6);
+
+	if (backup_resume()) {
+		/* Triger self-refresh exit. */
+		UDDRC_REGS->UDDRC_PWRCTL &= ~UDDRC_PWRCTL_selfref_sw;
+
+		WAIT_WHILE_COND (((UDDRC_REGS->UDDRC_STAT & UDDRC_STAT_operating_mode_Msk) !=
+			UDDRC_STAT_operating_mode_Normal), 10000);
+	}
 
 	/* STEP 10
 	 * Check for uMCTL2 in normal mode
@@ -1766,6 +1819,13 @@ int umctl2_init (struct umctl2_config_state *state)
 	ret = state->phy_train();
 	if (ret)
 		return ret;
+
+	if (backup_resume()) {
+		if (state->phy_train_corrupted_data_restore)
+			state->phy_train_corrupted_data_restore();
+		else
+			dbg_very_loud("UMCTL2: phy_train_corrupted_data_restore() required for backup mode!");
+	}
 
 	/* STEP 13
 	 * Revert steps 11 and 11a
