@@ -26,6 +26,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "backup.h"
 #include "common.h"
 #include "flexcom.h"
 #include "usart.h"
@@ -40,6 +41,7 @@
 #include "pmc.h"
 #include "arch/at91_pmc/pmc.h"
 #include "publ.h"
+#include "shdwc.h"
 #include "umctl2.h"
 #include "watchdog.h"
 #include "timer.h"
@@ -559,6 +561,13 @@ static void umctl2_config_state_init()
 	umctl2_config.phy_idone = &publ_idone;
 	umctl2_config.phy_start = &publ_start;
 	umctl2_config.phy_train = &publ_train;
+#ifdef CONFIG_BACKUP_MODE
+	umctl2_config.phy_bypass_zq_calibration = &publ_bypass_zq_calibration;
+	umctl2_config.phy_override_zq_calibration = &publ_override_zq_calibration;
+	umctl2_config.phy_prepare_train_corrupted_data_restore = &publ_prepare_train_corrupted_data_restore;
+	umctl2_config.phy_zq_recalibrate = &publ_zq_recalibrate;
+	umctl2_config.phy_train_corrupted_data_restore = &publ_train_corrupted_data_restore;
+#endif
 }
 
 #if defined(CONFIG_SDCARD)
@@ -983,6 +992,9 @@ void hw_init(void)
 	struct pmc_pll_cfg syspll_config;
 	struct pmc_pll_cfg imgpll_config;
 	unsigned int mck0_prescaler;
+
+	if (backup_resume())
+		shdwc_disable_lpm();
 
 	/* Watchdog might be enabled out of reset. Let's make sure it's off */
 	at91_disable_wdt();
