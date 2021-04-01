@@ -1607,6 +1607,12 @@ int umctl2_init (struct umctl2_config_state *state)
 #endif
 	MRD = timings.MRD;
 
+	/* Make sure IOs are not in retention mode. */
+	if (!backup_resume()) {
+		writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
+		while ((readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR) & AT91C_DDRBUMCR_BUMEN)) ;
+	}
+
 	rstc_ddr_assert();
 	udelay(100);
 
