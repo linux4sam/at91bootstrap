@@ -27,6 +27,7 @@
  */
 
 #include "board.h"
+#include "backup.h"
 #include "debug.h"
 #include "hardware.h"
 #include "arch/tzc400.h"
@@ -105,5 +106,7 @@ void tzc400_init()
 	/* There is one TZC controller at BASE, and another right next to it */
 	tzc400_configure(TZC400_BASE);
 	tzc400_configure(TZC400_BASE + 0x1000);
-	dbg_printf("TZC400: Initialization complete.\n");
+
+	if (!backup_resume())
+		dbg_printf("TZC400: Initialization complete.\n");
 }

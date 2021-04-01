@@ -338,7 +338,7 @@ int publ_train()
 		PUBL_PGSR_RVERR | PUBL_PGSR_RVEIRR)) {
 		dbg_info("PUBL: Error Training PHY : PGSR = %x\n", PUBL->PUBL_PGSR);
 		return -1;
-	} else {
+	} else if (!backup_resume()) {
 		dbg_info("PUBL: Training complete.\n");
 	}
 
