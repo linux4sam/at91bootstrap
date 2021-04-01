@@ -980,7 +980,7 @@ void cpu_voltage_select(void)
 	if (mcp16502_init(CONFIG_PMIC_ON_TWI, 0x5b, NULL, regulators_cfg,
 				ARRAY_SIZE(regulators_cfg)))
 		dbg_printf("MCP16502: init failure");
-	else
+	else if (!backup_resume())
 		dbg_printf("MCP16502: CPU VDD @ %umV\n", regulators_cfg[0].uV / 1000);
 #endif /* CONFIG_MCP16502 */
 }
@@ -1118,7 +1118,8 @@ void hw_init(void)
 	pmc_mck_cfg_set(3, BOARD_PRESCALER_MCK3,
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
-	dbg_printf("MCK: mck domains initialization complete.\n");
+	if (!backup_resume())
+		dbg_printf("MCK: mck domains initialization complete.\n");
 
 	tzc400_init();
 
@@ -1128,7 +1129,7 @@ void hw_init(void)
 	umctl2_config_state_init();
 	if (umctl2_init(&umctl2_config)) {
 		console_printf("UMCTL2: Error initializing.\n");
-	} else {
+	} else if (!backup_resume()) {
 		console_printf("UMCTL2: Initialization complete.\n");
 	}
 
