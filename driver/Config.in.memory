@@ -66,7 +66,6 @@ config	RAM_8MB
 	bool "8 MB"
 
 config	RAM_32MB
-	depends on !SAMA7G5
 	bool "32 MB"
 
 config	RAM_64MB
@@ -174,6 +173,14 @@ config MT52L256M32D1PF_107_WT_B
 	help
 	  Micron LPDDR3 MT52L256M32D1PF-107 WT:B 32M x 32 x 8 banks LPDDR3-1066
 	  With SAMA7G5, only 16 bits will be used, thus half the memory size.
+
+config EDB5432BEBH_1DAAT_F_D
+	bool "Micron Automotive LPDDR2 EDB5432BEBH-1DAAT-F-D"
+	depends on LPDDR2
+	help
+	  Micron Automotive LPDDR2 EDB5432BEBH-1DAAT-F-D  4M x 32 x 4 banks LPDDR2-1066
+	  With SAMA7G5, only 16 bits will be used, thus half the memory size.
+	  This module supports Extended Temperature Range.
 
 endchoice
 
