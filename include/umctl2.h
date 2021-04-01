@@ -40,7 +40,16 @@ struct umctl2_config_state
 	int (*phy_start)(void);
 		/* Pointer to PHY training function */
 	int (*phy_train)(void);
-
+		/* Pointer to ZQ calibration bypass function */
+	int (*phy_bypass_zq_calibration)(void);
+		/* Pointer to ZQ calibration override function */
+	int (*phy_override_zq_calibration)(void);
+		/* Pointer to restore phy training corrupted data prepare function.  */
+	int (*phy_prepare_train_corrupted_data_restore)(unsigned int bl);
+		/* Pointer to ZQ recalibration function. */
+	int (*phy_zq_recalibrate)(void);
+		/* Pointer to phy traning corrupted data restore function. */
+	int (*phy_train_corrupted_data_restore)(void);
 	/* Policies configuration */
 		/* pageclose mechanism: precharge banks only after pageclose_timer
 		expires, after there are no more page hit transactions in CAM.

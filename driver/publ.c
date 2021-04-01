@@ -33,7 +33,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "backup.h"
 #include "board.h"
+#include "common.h"
 #include "debug.h"
 #include "hardware.h"
 #include "timer.h"
@@ -339,6 +341,114 @@ int publ_train()
 	} else {
 		dbg_info("PUBL: Training complete.\n");
 	}
+
+	return 0;
+}
+
+int publ_bypass_zq_calibration(void)
+{
+	if (!backup_resume())
+		return -1;
+
+	PUBL->PUBL_PIR |= PUBL_PIR_ZCALBYP;
+
+	return 0;
+}
+
+int publ_override_zq_calibration(void)
+{
+	unsigned int data[9];
+
+	if (!backup_resume())
+		return -1;
+
+	backup_get_calibration_data(data, ARRAY_SIZE(data));
+	PUBL->PUBL_ZQ0CR0 = PUBL_ZQ0CR0_ZDEN | PUBL_ZQ0CR0_ZDATA(data[0]);
+
+	return 0;
+}
+
+int publ_zq_recalibrate(void)
+{
+	/*
+	 * Back to ZDATA defaut value = 0x14A due to PHY not behaving correctly
+	 * for all calibration codes.
+	 */
+	PUBL->PUBL_ZQ0CR0 = PUBL_ZQ0CR0_ZDEN | PUBL_ZQ0CR0_ZDATA(0x14A);
+	PUBL->PUBL_ZQ0CR0 &= ~PUBL_ZQ0CR0_ZDEN;
+	PUBL->PUBL_PIR = PUBL_PIR_INIT | PUBL_PIR_ZCAL;
+
+	publ_idone();
+
+	if (PUBL->PUBL_ZQ0SR0 & PUBL_ZQ0SR0_ZERR)
+		dbg_very_loud("ZQ calibrate error\n");
+
+	return 0;
+}
+
+static void publ_wr_dcu_cmd_cache(unsigned int data, unsigned int address,
+				  unsigned int bank, unsigned int cmd,
+				  unsigned int dtp, unsigned int repeat)
+{
+	PUBL->PUBL_DCUDR = data;
+	PUBL->PUBL_DCUDR = (address <<  4) |
+			   (bank << 20) |
+			   (cmd << 23) |
+			   ((dtp & 0x07) << 29);
+
+	PUBL->PUBL_DCUDR = (((dtp & 0x18) >> 3) <<  0) | (repeat << 2);
+}
+
+int publ_prepare_train_corrupted_data_restore(unsigned int bl)
+{
+	unsigned int address = 0, bank = 0;
+	unsigned int data[9] = {0};
+
+	backup_get_calibration_data(data, ARRAY_SIZE(data));
+
+	/* Use pointer auto-incrementation */
+	PUBL->PUBL_DCUAR = PUBL_DCUAR_CWADDR(0x0) |
+			   PUBL_DCUAR_CSADDR(0x0) |
+			   PUBL_DCUAR_CSEL(0x0) |
+			   PUBL_DCUAR_INCA | PUBL_DCUAR_ATYPE;
+
+	/* CMD = ACT 6 / DTP = ACT2RW 21 */
+	publ_wr_dcu_cmd_cache(0, address, bank, 6, 21, 0);
+
+	/* CMD = WR 8 / DTP = WR2PRE 23 */
+	publ_wr_dcu_cmd_cache(data[1], address, 0, 8, 23, 0);
+	publ_wr_dcu_cmd_cache(data[2], address, 0, 8, 23, 0);
+
+	address = (bl == 8) ? 0 : 4;
+	publ_wr_dcu_cmd_cache(data[3], address, 0, 8, 23, 0);
+	publ_wr_dcu_cmd_cache(data[4], address, 0, 8, 23, 0);
+
+	address = 8;
+	publ_wr_dcu_cmd_cache(data[5], address, 0, 8, 23, 0);
+	publ_wr_dcu_cmd_cache(data[6], address, 0, 8, 23, 0);
+
+	address = (bl == 8) ? 8 : 12;
+	publ_wr_dcu_cmd_cache(data[7], address, 0, 8, 23, 0);
+	publ_wr_dcu_cmd_cache(data[8], address, 0, 8, 23, 0);
+
+	/* CMD = PRECHARGE ALL 5 / DTP = NONE 0 */
+	publ_wr_dcu_cmd_cache(0, 0, 0, 5, 0, 0);
+
+	return 0;
+}
+
+int publ_train_corrupted_data_restore(void)
+{
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+	PUBL->PUBL_DCURR = PUBL_DCURR_SADDR(0) | PUBL_DCURR_EADDR(9) |
+			   PUBL_DCURR_DINST(1);
+#endif
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	PUBL->PUBL_DCURR = PUBL_DCURR_SADDR(0) | PUBL_DCURR_EADDR(10) |
+			   PUBL_DCURR_DINST(1);
+#endif
+
+	WAIT_WHILE_COND(!(PUBL->PUBL_DCUSR0 & PUBL_DCUSR0_RDONE), 50000);
 
 	return 0;
 }
