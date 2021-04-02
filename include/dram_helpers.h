@@ -86,6 +86,7 @@ struct dram_timings
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	unsigned long	tDQSCK_MIN;
 	unsigned long	tDQSCK_MAX;
+	unsigned long	tTSI;		/* Temperature Sensor Interval, ms */
 #endif
 	unsigned long	CL;		/* CAS Latency, Clock cycles */
 	unsigned long	CWL;		/* CAS Write Latency, Clock cycles */
