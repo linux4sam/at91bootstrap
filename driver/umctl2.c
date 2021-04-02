@@ -77,6 +77,7 @@ unsigned long tPOSTCKE;
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 unsigned long tDQSCK_MIN;
 unsigned long tDQSCK_MAX;
+unsigned long tTSI;
 #endif
 unsigned long CL;
 unsigned long CWL;
@@ -98,6 +99,7 @@ struct dram_timings timings = {
 	_tPOSTCKE,
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	_tDQSCK_MIN, _tDQSCK_MAX,
+	_tTSI_ms,
 #endif
 	_CL, _CWL, _AL,
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
@@ -471,6 +473,33 @@ inline static void uddrc_mstr()
 	dbg_very_loud("UMCTL2 MSTR %x\n", UDDRC_REGS->UDDRC_MSTR);
 }
 
+inline static void uddrc_derate()
+{
+#ifdef CONFIG_DDR_EXT_TEMP_RANGE
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	/* Compute the MR4 read interval, according to below formula: */
+	/* 10C/sec * (ReadInterval + t_tsi + 1 ms) <= 2C */
+	/* <=> ReadInterval + t_tsi + SysRespDelay <= 200 ms */
+	/* <=> ReadInterval <= 200ms - t_tsi - SysRespDelay*/
+
+	unsigned long t_sysrespdelay = 1UL;
+	/* tTSI is in ms */
+	/* Use NS_TO_CYCLES and then multiply by 10^6, to avoid overflow */
+	unsigned long t_readinterval =
+		DIV_ROUND_UP(NS_TO_CYCLES_UP(200 - tTSI - t_sysrespdelay), 2);
+
+	t_readinterval *= 1000000; /* t_readinterval is ms, need to have it ns */
+
+	UDDRC_REGS->UDDRC_DERATEEN = UDDRC_DERATEEN_derate_enable |
+					UDDRC_DERATEEN_derate_value(0) |
+					UDDRC_DERATEEN_derate_byte(0);
+
+	UDDRC_REGS->UDDRC_DERATEINT =
+		UDDRC_DERATEINT_mr4_read_interval(t_readinterval);
+#endif
+#endif
+}
+
 inline static void uddrc_init0()
 {
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
@@ -580,10 +609,23 @@ inline static void uddrc_init4()
 	/* DRAM init register 4 */
 	UDDRC_REGS->UDDRC_INIT4	=
 #ifdef CONFIG_DDR3
-				 UDDRC_INIT4_emr2(((CWL - 5) << 3))
+				 UDDRC_INIT4_emr2(((CWL - 5) << 3)
+	#ifdef CONFIG_DDR_EXT_TEMP_RANGE
+	/* enable SRT bit (2x refresh rate for extended temperature range ) */
+				| (1 << 7)
+	/* enable ASR optional bit for auto self refresh */
+				| (1 << 6)
+	#endif
+
+				)
 #endif
 #ifdef CONFIG_DDR2
+	#ifdef CONFIG_DDR_EXT_TEMP_RANGE
+	/* enable SRT bit (2x refresh rate for extended temperature range ) */
+				UDDRC_INIT4_emr2(1 << 7)
+	#else
 				UDDRC_INIT4_emr2(0)
+	#endif
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 				UDDRC_INIT4_emr2(3)
@@ -1111,6 +1153,8 @@ int umctl2_init (struct umctl2_config_state *state)
 	/* configure master register MSTR - type of DDR, burst length*/
 	uddrc_mstr();
 
+	/* configure automatic temperature derating */
+	uddrc_derate();
 	/* enable hardware low power features */
 	uddrc_ena_hw_lowpwr();
 	/* configure refresh-related parameters */

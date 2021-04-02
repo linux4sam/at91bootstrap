@@ -167,10 +167,18 @@ void publ_init(void * config_data)
 	dbg_very_loud("PUBL_MR1 %x\n", PUBL->PUBL_MR1);
 
 #ifdef CONFIG_DDR3
-	PUBL->PUBL_MR2 = PUBL_MR2_CWL(CWL - 5);
+	PUBL->PUBL_MR2 = PUBL_MR2_CWL(CWL - 5)
+#ifdef CONFIG_DDR_EXT_TEMP_RANGE
+			| PUBL_MR2_ASR | PUBL_MR2_SRT
+#endif
+	;
 #endif
 #ifdef CONFIG_DDR2
-	PUBL->PUBL_MR2 = 0;
+	PUBL->PUBL_MR2 = 0
+#ifdef CONFIG_DDR_EXT_TEMP_RANGE
+			|  PUBL_MR2_SRT
+#endif
+	;
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	if (RL == 6 && WL == 3)

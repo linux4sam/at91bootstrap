@@ -433,6 +433,11 @@ struct publ_regs {
 #define PUBL_MR2_CWL(v)				(((v) & PUBL_MR2_CWL_MASK) \
 						<< PUBL_MR2_CWL_POS)
 
+/* Self refresh temperature */
+#define PUBL_MR2_SRT				(0x1 << 7)
+/* Auto Self refresh */
+#define PUBL_MR2_ASR				(0x1 << 6)
+
 #define PUBL_MR2_RLWL_POS			0
 #define PUBL_MR2_RLWL_6_3			(4 << PUBL_MR2_RLWL_POS)
 #define PUBL_MR2_RLWL_8_4			(6 << PUBL_MR2_RLWL_POS)
