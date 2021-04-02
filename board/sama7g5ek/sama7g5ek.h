@@ -131,6 +131,33 @@
 #define _MRD		2UL		/* Mode Register Delay, Clock cycles */
 #endif
 
+#ifdef CONFIG_EDB5432BEBH_1DAAT_F_D
+#define _tRFC		90UL		/* Refresh to Refresh, ns */
+#define _tREFI		7800UL		/* Refresh Intervals, ns */
+#define _tWR		15UL		/* Write Recovery, ns */
+#define _tRP		21UL		/* Row Precharge command, ns */
+#define _tRP_ps		21000UL		/* Row Precharge command, ps */
+#define _tRCD		18UL		/* Row to Column delay, ns */
+#define _tRCD_ps	18000UL		/* Row to Column delay, ps */
+#define _tCCD		2UL		/* Column to Column delay, ns */
+#define _tRAS		42UL		/* Row Active Strobe, ns */
+#define _tRASMAX	70000UL		/* RAS max, ns */
+#define _tRC_ps		((_tRAS + _tRP)*1000)		/* Row Cycle, ps */
+#define _tFAW		50UL		/* Four Activation Window, ns */
+#define _tPOSTCKE	200000UL	/* Post CKE, ns */
+#define _CL		0UL		/* CAS Latency, Clock cycles, unused in LPDDR2 */
+#define _CWL		0UL		/* CAS Write Latency, Clock cycles, unused in LPDDR2 */
+#define _AL		0UL		/* Additive Latency, Clock cycles */
+#define _RL		8UL		/* For LPDDR2, Read Latency, Clock cycles */
+#define _WL		4UL		/* For LPDDR2, Write Latency, Clock cycles */
+#define _TZQOPER	NS_TO_CYCLES_UP(360UL)		/* TZQ Long Calibration, Clock cycles */
+#define _TZQCS		NS_TO_CYCLES_UP(90UL)		/* TZQ Short Calibration, Clock cycles */
+#define _MRD		0UL		/* Mode Register Delay, Clock cycles , unused in LPDDR2*/
+#define _tDQSCK_MIN	2500UL
+#define _tDQSCK_MAX	5620UL
+#define _tTSI_ms	32UL		/* Temperature Sensor interval, ms */
+#endif
+
 #ifdef CONFIG_IS43LD16128B_25BLI
 #define _tRFC		130UL		/* Refresh to Refresh, ns */
 #define _tREFI		3900UL		/* Refresh Intervals, ns */
@@ -155,6 +182,7 @@
 #define _MRD		0UL		/* Mode Register Delay, Clock cycles , unused in LPDDR2*/
 #define _tDQSCK_MIN	2500UL
 #define _tDQSCK_MAX	5500UL
+#define _tTSI_ms	16UL		/* Temperature Sensor interval, ms */
 #endif
 
 #ifdef CONFIG_MT52L256M32D1PF_107_WT_B
@@ -181,5 +209,6 @@
 #define _MRD		MAX(NS_TO_CYCLES_UP(14UL), 10UL)		/* Mode Register Delay, Clock cycles */
 #define _tDQSCK_MIN	2500UL
 #define _tDQSCK_MAX	5500UL
+#define _tTSI_ms	32UL		/* Temperature Sensor interval, ms */
 #endif
 #endif
