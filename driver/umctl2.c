@@ -820,7 +820,9 @@ inline static void uddrc_dramtmg()
 
 inline static void uddrc_addrmap_init()
 {
-	/* HIF address to bank address:
+	/*
+	For organization with 10 column bits, 3 bank bits, rest row bits
+	 HIF address to bank address:
 	This is explained mapping, need a width of 200 columns for a proper display.
 
 
@@ -834,11 +836,33 @@ HIF bit:     -    7+20 7+19 7+18 7+17 7+16 7+15 7+14 7+13 7+12 7+11 7+10 7+9  7+
 =	     -    27   26   25   24   23   22   21   20   19   18   17   16   15   14   13
 
 	 */
+	/*
+	For organization with 9 column bits, 2 bank bits, rest row bits
+	 HIF address to bank address:
+	This is explained mapping, need a width of 200 columns for a proper display.
+
+
+							   bank address:			bit2 bit1 bit0
+							   col address:						bit11bit10bit9 bit8 bit7 bit6 bit5 bit4 bit3 bit2
+HIF bit:											-    3+7  2+7	-     -        8+0  7+0  6+0  5+0  4+0  3+0  2+0
+=												     10   9	               8    7    6    5    4    3    2
+
+row address: bit15bit14bit13bit12bit11bit10bit9 bit8 bit7 bit6 bit5 bit4 bit3 bit2 bit1 bit0
+HIF bit:     -    -    -    -    -    5+16 5+15 5+14 5+13 5+12 5+11 5+10 5+9  5+8  5+7  5+6
+=	     -    -    -    -    -    21   20   19   18   17   16   15   14   13   12   11
+
+	 */
+
 	/* internal base = 4 3 2 for these bits */
+#if defined(CONFIG_RAM_32MB) /* 4 banks */
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b2(63) | /* unused */
+				UDDRC_ADDRMAP1_addrmap_bank_b1(7) |
+				UDDRC_ADDRMAP1_addrmap_bank_b0(7);
+#else /* 8 banks */
 	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b2(8) |
 				UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
 				UDDRC_ADDRMAP1_addrmap_bank_b0(8);
-
+#endif
 	/* internal base = 5 4 3 2 for these bits */
 	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b5(0) |
 				UDDRC_ADDRMAP2_addrmap_col_b4(0) |
@@ -846,7 +870,12 @@ HIF bit:     -    7+20 7+19 7+18 7+17 7+16 7+15 7+14 7+13 7+12 7+11 7+10 7+9  7+
 				UDDRC_ADDRMAP2_addrmap_col_b2(0);
 
 	/* internal base = 9 8 7 6 for these bits */
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b9(0) |
+	UDDRC_REGS->UDDRC_ADDRMAP3 =
+#if !defined(CONFIG_RAM_32MB) /* 9 bank bits only */
+				UDDRC_ADDRMAP3_addrmap_col_b9(0) |
+#else
+				UDDRC_ADDRMAP3_addrmap_col_b9(31) |
+#endif
 				UDDRC_ADDRMAP3_addrmap_col_b8(0) |
 				UDDRC_ADDRMAP3_addrmap_col_b7(0) |
 				UDDRC_ADDRMAP3_addrmap_col_b6(0);
@@ -855,6 +884,21 @@ HIF bit:     -    7+20 7+19 7+18 7+17 7+16 7+15 7+14 7+13 7+12 7+11 7+10 7+9  7+
 	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b11(31)	|
 				UDDRC_ADDRMAP4_addrmap_col_b10(31);
 
+
+#if defined(CONFIG_RAM_32MB)
+	/* internal base = 17, 7, 6 for these bits, b2_10=15 means we use reg MAP9 */
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b11(15) |
+				UDDRC_ADDRMAP5_addrmap_row_b2_10(5) |
+				UDDRC_ADDRMAP5_addrmap_row_b1(5) |
+				UDDRC_ADDRMAP5_addrmap_row_b0(5);
+
+	/* 15 = unused, internal base for these bits 19 and 18 */
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b15(15)	|
+				UDDRC_ADDRMAP6_addrmap_row_b14(15) |
+				UDDRC_ADDRMAP6_addrmap_row_b13(15) |
+				UDDRC_ADDRMAP6_addrmap_row_b12(15);
+
+#else
 	/* internal base = 17, 7, 6 for these bits, b2_10=15 means we use reg MAP9 */
 	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b11(7) |
 				UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
@@ -871,6 +915,7 @@ HIF bit:     -    7+20 7+19 7+18 7+17 7+16 7+15 7+14 7+13 7+12 7+11 7+10 7+9  7+
 #endif
 				UDDRC_ADDRMAP6_addrmap_row_b13(7) |
 				UDDRC_ADDRMAP6_addrmap_row_b12(7);
+#endif
 
 	/* internal base for these bits 11 10 9 8 */
 	UDDRC_REGS->UDDRC_ADDRMAP9 = 0;
@@ -879,7 +924,7 @@ HIF bit:     -    7+20 7+19 7+18 7+17 7+16 7+15 7+14 7+13 7+12 7+11 7+10 7+9  7+
 	UDDRC_REGS->UDDRC_ADDRMAP10 = 0;
 
 	/* internal base for this bit 16 */
-	UDDRC_REGS->UDDRC_ADDRMAP11 = 0;//UDDRC_ADDRMAP11_addrmap_row_b10(7);
+	UDDRC_REGS->UDDRC_ADDRMAP11 = 0;
 }
 
 inline static void uddrc_configure_refresh()
