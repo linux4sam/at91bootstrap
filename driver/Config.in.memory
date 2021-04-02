@@ -59,28 +59,31 @@ menu "RAM Configuration"
 choice
 	prompt "RAM size"
 	depends on SDRAM || SDDRC || DDRC || UMCTL2
+	default RAM_512MB if !IS43LD16128B_25BLI && !MT47H128M16RT_25E_C && !EDB5432BEBH_1DAAT_F_D
+	default RAM_256MB if !EDB5432BEBH_1DAAT_F_D
+	default RAM_32MB if EDB5432BEBH_1DAAT_F_D
 	default RAM_64MB
 
 config	RAM_8MB
-	depends on !SAMA7G5
 	bool "8 MB"
 
 config	RAM_32MB
 	bool "32 MB"
 
 config	RAM_64MB
-	depends on !SAMA7G5
+	depends on !EDB5432BEBH_1DAAT_F_D
 	bool "64 MB"
 
 config	RAM_128MB
-	depends on !SAMA7G5
+	depends on !EDB5432BEBH_1DAAT_F_D
 	bool "128 MB"
 
 config	RAM_256MB
+	depends on !EDB5432BEBH_1DAAT_F_D
 	bool "256 MB"
 
 config	RAM_512MB
-	depends on !(SAMA7G5 && DDR2)
+	depends on !IS43LD16128B_25BLI && !MT47H128M16RT_25E_C && !EDB5432BEBH_1DAAT_F_D
 	bool "512 MB"
 
 endchoice
