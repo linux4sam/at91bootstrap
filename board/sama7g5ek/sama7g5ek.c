@@ -416,6 +416,7 @@ void hw_init(void)
 	ca7_enable_smp();
 
 	axi2ahb_config_outstanding();
+	matrix_configure_default_qos();
 
 	/* Configure & Enable CPU PLL at a safe speed of 600 Mhz*/
 	plla_config.mul = 24; /* 25 * 24 = 600 */
