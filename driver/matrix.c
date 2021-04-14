@@ -589,3 +589,106 @@ int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_on, unsi
 	}
 }
 #endif /* CONFIG_SAMA5D4 */
+
+#ifdef CONFIG_SAMA7G5
+
+void matrix_configure_default_qos()
+{
+	unsigned int amp_mask = MATRIX_PRAS_M0PR_MASK | MATRIX_PRAS_M1PR_MASK |
+		MATRIX_PRAS_M2PR_MASK | MATRIX_PRAS_M3PR_MASK |
+		MATRIX_PRAS_M4PR_MASK | MATRIX_PRAS_M5PR_MASK |
+		MATRIX_PRAS_M6PR_MASK | MATRIX_PRAS_M7PR_MASK;
+	unsigned int bmp_mask = MATRIX_PRAS_M8PR_MASK | MATRIX_PRAS_M9PR_MASK |
+		MATRIX_PRAS_M10PR_MASK | MATRIX_PRAS_M11PR_MASK |
+		MATRIX_PRAS_M12PR_MASK | MATRIX_PRAS_M13PR_MASK |
+		MATRIX_PRAS_M14PR_MASK;
+	unsigned int amp_val = MATRIX_PRAS_M0PR(RESET_DEFAULT_MASTER_SQOS0) |
+				MATRIX_PRAS_M1PR(RESET_DEFAULT_MASTER_SQOS1) |
+				MATRIX_PRAS_M2PR(RESET_DEFAULT_MASTER_SQOS2) |
+				MATRIX_PRAS_M3PR(RESET_DEFAULT_MASTER_SQOS3) |
+				MATRIX_PRAS_M4PR(RESET_DEFAULT_MASTER_SQOS4) |
+				MATRIX_PRAS_M5PR(RESET_DEFAULT_MASTER_SQOS5) |
+				MATRIX_PRAS_M6PR(RESET_DEFAULT_MASTER_SQOS6) |
+				MATRIX_PRAS_M7PR(RESET_DEFAULT_MASTER_SQOS7);
+	unsigned int bmp_val = MATRIX_PRBS_M8PR (RESET_DEFAULT_MASTER_SQOS8 ) |
+				MATRIX_PRBS_M9PR (RESET_DEFAULT_MASTER_SQOS9 ) |
+				MATRIX_PRBS_M10PR(RESET_DEFAULT_MASTER_SQOS10) |
+				MATRIX_PRBS_M11PR(RESET_DEFAULT_MASTER_SQOS11) |
+				MATRIX_PRBS_M12PR(RESET_DEFAULT_MASTER_SQOS12) |
+				MATRIX_PRBS_M13PR(RESET_DEFAULT_MASTER_SQOS13) |
+				MATRIX_PRBS_M14PR(RESET_DEFAULT_MASTER_SQOS14) |
+				MATRIX_PRBS_M15PR(RESET_DEFAULT_MASTER_SQOS15);
+	unsigned int pras, prbs;
+
+	/* clear the Master Priority fields */
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS0);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS0, pras & ~amp_mask);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS1);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS1, pras & ~amp_mask);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS2);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS2, pras & ~amp_mask);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS3);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS3, pras & ~amp_mask);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS4);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS4, pras & ~amp_mask);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS5);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS5, pras & ~amp_mask);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS6);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS6, pras & ~amp_mask);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS7);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS7, pras & ~amp_mask);
+
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS0);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS0, prbs & ~bmp_mask);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS1);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS1, prbs & ~bmp_mask);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS2);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS2, prbs & ~bmp_mask);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS3);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS3, prbs & ~bmp_mask);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS4);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS4, prbs & ~bmp_mask);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS5);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS5, prbs & ~bmp_mask);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS6);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS6, prbs & ~bmp_mask);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS7);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS7, prbs & ~bmp_mask);
+
+	/* set the Master Priority fields */
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS0);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS0, pras | amp_val);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS1);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS1, pras | amp_val);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS2);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS2, pras | amp_val);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS3);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS3, pras | amp_val);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS4);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS4, pras | amp_val);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS5);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS5, pras | amp_val);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS6);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS6, pras | amp_val);
+	pras = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRAS7);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRAS7, pras | amp_val);
+
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS0);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS0, prbs | bmp_val);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS1);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS1, prbs | bmp_val);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS2);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS2, prbs | bmp_val);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS3);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS3, prbs | bmp_val);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS4);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS4, prbs | bmp_val);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS5);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS5, prbs | bmp_val);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS6);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS6, prbs | bmp_val);
+	prbs = matrix_read(AT91C_BASE_MATRIX, MATRIX_PRBS7);
+	matrix_write(AT91C_BASE_MATRIX, MATRIX_PRBS7, prbs | bmp_val);
+}
+
+#endif /* CONFIG_SAMA7G5 */

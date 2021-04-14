@@ -49,4 +49,8 @@ extern void matrix_read_slave_security(unsigned int matrix_base,
 				       unsigned int nslaves);
 extern void matrix_read_peripheral_security(unsigned int matrix_base);
 
+#ifdef CONFIG_SAMA7G5
+extern void matrix_configure_default_qos();
+#endif
+
 #endif /* #ifndef __MATRIX_H__ */
