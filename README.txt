@@ -1,4 +1,4 @@
-# AT91Bootstrap Project
+# AT91Bootstrap 4 Project
 
 AT91Bootstrap is the 2nd level bootloader for Microchip microprocessors (aka AT91).
 It providing a set of algorithms to manage the hardware initialization such as
@@ -6,6 +6,17 @@ clock speed configuration, PIO settings, DRAM initialization, to download your
 main application from specified boot media: NAND FLASH, serial FLASH (both
 AT25-compatible of DataFlash), serial EEPROM, SD Card, etc. to main memory and
 to start it.
+
+AT91Bootstrap 4 is the next milestone for AT91Bootstrap, which adds the support
+for devices instead of boards, and full implementation for each device's
+external memory support and serial connection.
+
+Supported AT91 Devices:
+- SAM9X60
+- SAMA5D2
+- SAMA5D3
+- SAMA5D4
+- SAMA7G5
 
 1 Host Setup
 ================================================================================
@@ -98,107 +109,87 @@ using a toolchain newer than 6.0.
 3 Compile AT91Bootstrap
 ================================================================================
 
-## 3.1 Compile DataFlashBoot
+Bootstrap configuration files are placed in the configs directory.
 
-Let's use at91sam9x5ek as an example.
+Each configuration is named in the following format:
+\<board name>\<boot media>_\<image to boot>_defconfig
 
-### 3.1.1 Compile booting u-boot image from DataFlash
+Example: sam9x60ekdf_qspi_linux_image_dt_defconfig has
+\<board name> = sam9x60ek
+\<boot media> = df_qspi
+\<image to boot> = linux_image_dt
 
-    $ cd <project directory>
-    $ make mrproper
-    $ make at91sam9x5ekdf_uboot_defconfig
-    $ make
+## 3.1 Compile DataFlash Boot (dataflash is QSPI in this example)
 
-If the building process is successful, the final .bin image can be found under
-binaries/
+Let's use sam9x60ek as an example.
 
-### 3.1.2 Compile booting kernel image from DataFlash
-
-    $ cd <project directory>
-    $ make mrproper
-    $ make at91sam9x5ekdf_linux_defconfig
-    $ make
-
-If the building process is successful, the final .bin image can be found under
-binaries/
-
-### 3.1.3 Compile booting kernel & dt image from DataFlash
+### 3.1.1 Compile booting kernel & dt image from dataflash (QSPI)
 
     $ cd <project directory>
     $ make mrproper
-    $ make at91sam9x5ekdf_linux_dt_defconfig
+    $ make sam9x60ekdf_qspi_linux_image_dt_defconfig
     $ make
 
 If the building process is successful, the final .bin image can be found under
-binaries/
+build/binaries/
 
-## 3.2 Compile NandFlashBoot
-
-Let's use at91sam9m10g45ek as an example.
-
-### 3.2.1 Compile booting u-boot image from NandFlash
+### 3.1.2 Compile booting u-boot image from dataflash (QSPI)
 
     $ cd <project directory>
     $ make mrproper
-    $ make at91sam9m10g45eknf_uboot_defconfig
+    $ make sam9x60ekdf_qspi_uboot_defconfig
     $ make
 
 If the building process is successful, the final .bin image can be found under
-binaries/
+build/binaries/
 
-### 3.2.2 Compile booting kernel image from NandFlash
+## 3.2 Compile NandFlash Boot
+
+Let's use sam9x60ek as an example.
+
+### 3.2.1 Compile booting kernel & dt image from NAND flash
 
     $ cd <project directory>
     $ make mrproper
-    $ make at91sam9m10g45eknf_linux_defconfig
+    $ make sam9x60eknf_linux_image_dt_defconfig
     $ make
 
 If the building process is successful, the final .bin image can be found under
-binaries/
+build/binaries/
 
-### 3.2.3 Compile booting kernel & dt image from NandFlash
+### 3.2.2 Compile booting u-boot image from NAND flash
 
     $ cd <project directory>
     $ make mrproper
-    $ make at91sam9m10g45eknf_linux_dt_defconfig
+    $ make sam9x60eknf_uboot_defconfig
     $ make
 
 If the building process is successful, the final .bin image can be found under
-binaries/
+build/binaries/
 
 ## 3.3 Compile SDCardBoot
 
-Let's use at91sam9m10g45ek as an example,
+Let's use sam9x60ek as an example,
 
-### 3.3.1 Compile booting u-boot image from SDCard
+### 3.3.1 Compile booting kernel & dt image from SDCard
 
     $ cd <project directory>
     $ make mrproper
-    $ make at91sam9m10g45eksd_uboot_defconfig
+    $ make sam9x60eksd_linux_image_dt_defconfig
     $ make
 
 If the building process is successful, the final .bin image can be found under
-binaries/
+build/binaries/
 
 ### 3.3.2 Compile booting linux image from SDCard
 
     $ cd <project directory>
     $ make mrproper
-    $ make at91sam9m10g45eksd_linux_defconfig
+    $ make sam9x60eksd_uboot_dt_defconfig
     $ make
 
 If the building process is successful, the final .bin image can be found under
-binaries/
-
-### 3.3.3 Compile booting linux & dt image from SDCard
-
-    $ cd <project directory>
-    $ make mrproper
-    $ make at91sam9m10g45eksd_linux_dt_defconfig
-    $ make
-
-If the building process is successful, the final .bin image can be found under
-binaries/
+build/binaries/
 
 4 Release
 ================================================================================
@@ -210,44 +201,44 @@ If you plan to release the project, you can use the command as below
 If the command is successful, the .tar.gz tar package can be found under
 the project top directory.
 
-5 Others
+5 Customizing your bootstrap
 ================================================================================
 
-## 5.1 About booting from NOR flash.
+## 5.1 Support for Device
 
-### 5.1.1 ROM Code version
+### 5.1.1 Selecting your device
 
-Booting from the external NOR flash is supported in ROM code v2.1
-for SAMA5D3x. Bootstrap relocates the binary to the internal SRAM and run.
+With AT91Bootstrap you can select your MPU device from the menuconfig.
 
-### 5.1.2 SAM-BA
+### 5.1.2 Selecting your device features
 
-Using SAM-BA to program the binary to the NOR flash is a little different
-from other booting mode. Namely, there is no 'Send Boot File' command for
-NOR flash.
+You can select your device features, for example which of the USART to be used
+as default output for the bootloader. All serial consoles and IOSETs are
+already implemented. You have to pick the one your board uses from menuconfig.
 
-You should use 'Send File' command to send the binary file the same like
-for a normal file, with 'Address' selected to 0.
+You can also select your external memory device according to your board, and
+your external memory timings to match supported memory module, or the
+standard JEDEC timings.
 
 6 Contributing your own board
 ================================================================================
 
 If the system board that you have is not listed, then you will need
-to port AT91Bootstrap to your hardware platform. To do this, follow these
-steps:
+to port AT91Bootstrap to your hardware platform. To do this, you need to
+customize your bootstrap as in chapter 5 of this documentation.
 
-1\. Create a new directory to hold your board specific code under
-  contrib/board/ directory. Add any files you need.  
-  In your board directory, you will need at least the "board.mk",
-  a "<board>.c", "<board>.h", "Config.in.board", and "Config.in.boardname".  
-2\. Create the necessary default configuration files such as
-  "<board>df_uboot_defconfig" in your new board directory.  
-3\. Add(source) your board's "Config.in.board" in "contrib/board/Config.in.board" file.  
-4\. Add(source) your board's "Config.in.boardname" in the "contrib/board/Config.in.boardname" file.  
-5\. Add your board's "<board>.h" in the "contrib/include/contrib_board.h" file.  
-6\. Run "make <board>df_uboot_defconfig" with your new name.  
-7\. Type "make", and you should get the final .bin image can be found under
-  the binaries/ directory.  
+Once you are done customizing, you can do
+
+    $ make savedefconfig
+
+Then you will have a saved 'defconfig' file that can be placed into
+configs/ directory, after you rename it according to the rule described
+in chapter 3.
+
+The configuration file can be send as a patch as described in chapter 7.
+
+You should be able to do the above steps without requiring to write any actual C code.
+However your board may require specific 'board quirks', as some boards do. In this case you will have to implement your quirk into AT91Bootstrap and send this board quirk as a separate patch. Board quirks include for example: resetting of certain devices on the board, reconfiguring specific I/O pins, or blocking the TWI access on some busses.
 
 7 Contributing
 ================================================================================
@@ -256,9 +247,17 @@ To contribute to AT91Bootstrap you should submit the patches for review to
 the github pull-request facility directly or the forum. And don't forget to
 Cc the maintainers.
 
-AT91 Forum:
+Linux4SAM Website:
 
-http://www.at91.com/discussions/
+https://www.linux4sam.org
+
+Linux4SAM Github repository, with interface for opening issues and pull requests:
+
+https://github.com/linux4sam
+
+Microchip Linux for MPUs Forum:
+
+https://www.microchip.com/forums/f542.aspx
 
 Maintainers:
 
