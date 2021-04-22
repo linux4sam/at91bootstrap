@@ -592,7 +592,6 @@ void at91_sdhc_hw_init(void)
 #endif
 
 #ifdef CONFIG_TWI
-static int twi1_bus_id = -1;
 
 #if defined(CONFIG_FLEXCOM0) || defined(CONFIG_FLEXCOM1) || defined(CONFIG_FLEXCOM2) || \
 	defined(CONFIG_FLEXCOM3) || defined(CONFIG_FLEXCOM4) || defined(CONFIG_FLEXCOM5) || \
@@ -927,7 +926,7 @@ void cpu_voltage_select(void)
 	 * to pass pin descriptor to mcp16502_init() for switching to active
 	 * state.
 	 */
-	if (mcp16502_init(twi1_bus_id, 0x5b, NULL, regulators_cfg,
+	if (mcp16502_init(CONFIG_PMIC_ON_TWI, 0x5b, NULL, regulators_cfg,
 				ARRAY_SIZE(regulators_cfg)))
 		dbg_printf("MCP16502: init failure");
 	else
