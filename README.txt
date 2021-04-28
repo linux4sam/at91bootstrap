@@ -1,4 +1,4 @@
-# AT91Bootstrap 4 Project
+# AT91Bootstrap Project
 
 AT91Bootstrap is the 2nd level bootloader for Microchip microprocessors (aka AT91).
 It providing a set of algorithms to manage the hardware initialization such as
@@ -113,12 +113,18 @@ using a toolchain newer than 6.0.
 Bootstrap configuration files are placed in the configs directory.
 
 Each configuration is named in the following format:
-\<board name>\<boot media>_\<image to boot>_defconfig
 
-Example: sam9x60ekdf_qspi_linux_image_dt_defconfig has
-\<board name> = sam9x60ek
-\<boot media> = df_qspi
-\<image to boot> = linux_image_dt
+<i>\<board name>\[-bsr\]\<boot media>_\<image to boot>_defconfig</i>
+
+Example: <i>sam9x60ekdf_qspi_linux_image_dt_defconfig</i> has
+
+\<board name> = **sam9x60ek** : The SAM9X60 EK board
+
+\[-bsr\] = optional , the fact that it's missing, means that CONFIG_BACKUP is not selected for this defconfig
+
+\<boot media> = **df_qspi** : \<df> stands for DataFlash, this means that DataFlash QSPI is used as boot media for next stage
+
+\<image to boot> = **linux_image_dt** : Linux image and device tree blob will be copied from boot media to external RAM
 
 ## 3.1 Compile DataFlash Boot (dataflash is QSPI in this example)
 
