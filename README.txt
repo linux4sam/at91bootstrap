@@ -260,9 +260,9 @@ To contribute to AT91Bootstrap you should submit the patches for review to
 the github pull-request facility directly or the forum. And don't forget to
 Cc the maintainers.
 
-AT91 Forum:
+Microchip Forum:
 
-http://www.at91.com/discussions/
+https://www.microchip.com/forums/f542.aspx
 
 Maintainers:
 
