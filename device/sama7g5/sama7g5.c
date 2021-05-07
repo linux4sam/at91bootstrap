@@ -959,17 +959,24 @@ void cpu_voltage_select(void)
 {
 #ifdef CONFIG_MCP16502
 	const struct mcp16502_cfg regulators_cfg[] = {
-		{ .regulator = MCP16502_BUCK4,
-#ifdef CONFIG_CPU_CLK_600MHZ
-		 .uV = 1100000,
+#if CONFIG_VOLTAGE_OUT1 != 0
+		{.regulator = MCP16502_BUCK1, .uV = CONFIG_VOLTAGE_OUT1 * 1000, .enable = 1, },
 #endif
-#ifdef CONFIG_CPU_CLK_800MHZ
-		 .uV = 1200000,
+#if CONFIG_VOLTAGE_OUT2 != 0
+		{.regulator = MCP16502_BUCK2, .uV = CONFIG_VOLTAGE_OUT2 * 1000, .enable = 1, },
 #endif
-#ifdef CONFIG_CPU_CLK_1000MHZ
-		 .uV = 1250000,
+#if CONFIG_VOLTAGE_OUT3 != 0
+		{.regulator = MCP16502_BUCK3, .uV = CONFIG_VOLTAGE_OUT3 * 1000, .enable = 1, },
 #endif
-		 .enable = 1, },
+#if CONFIG_VOLTAGE_OUT4 != 0
+		{.regulator = MCP16502_BUCK4, .uV = CONFIG_VOLTAGE_OUT4 * 1000, .enable = 1, },
+#endif
+#if CONFIG_VOLTAGE_LDO1 != 0
+		{.regulator = MCP16502_LDO1, .uV = CONFIG_VOLTAGE_LDO1 * 1000, .enable = 1, },
+#endif
+#if CONFIG_VOLTAGE_LDO2 != 0
+		{.regulator = MCP16502_LDO2, .uV = CONFIG_VOLTAGE_LDO2 * 1000, .enable = 1, },
+#endif
 	};
 
 	/*
