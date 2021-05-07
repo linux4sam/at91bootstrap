@@ -283,37 +283,37 @@ choice
 	depends on DDR_SET_BY_JEDEC
 config DDR_SPEED_200
 	depends on LPDDR1
-	bool "DDR-200 (clock rate 100MHz)"
+	bool "DDR-200 (clock 100MHz, data 200MT/s)"
 config DDR_SPEED_266
 	depends on LPDDR1
-	bool "DDR-266 (clock rate 133MHz)"
+	bool "DDR-266 (clock 133MHz, data 266MT/s)"
 config DDR_SPEED_333
 	depends on (LPDDR1 || LPDDR2)
-	bool "DDR-333 (clock rate 166MHz)"
+	bool "DDR-333 (clock 166MHz, data 333MT/s)"
 config DDR_SPEED_370
 	depends on LPDDR1
-	bool "DDR-370 (clock rate 185MHz)"
+	bool "DDR-370 (clock 185MHz, data 370MT/s)"
 config DDR_SPEED_400
 	depends on LPDDR1 || DDR2 || LPDDR2
-	bool "DDR-400 (clock rate 200MHz)"
+	bool "DDR-400 (clock 200MHz, data 400MT/s)"
 config DDR_SPEED_533
 	depends on DDR2 || LPDDR2
-	bool "DDR_533 (133MHz, I/O 266MHz, data 533MT/s)"
+	bool "DDR_533 (clock 266MHz, data 533MT/s)"
 config DDR_SPEED_667
 	depends on DDR2 || LPDDR2
-	bool "DDR_667 (167MHz, I/O 333MHz, data 677MT/s)"
+	bool "DDR_667 (clock 333MHz, data 677MT/s)"
 config DDR_SPEED_800
 	depends on DDR2 || DDR3 || LPDDR2 || LPDDR3
-	bool "DDR_800 (100|200MHz, I/O 400MHz, data 800MT/s)"
+	bool "DDR_800 (clock 400MHz, data 800MT/s)"
 config DDR_SPEED_933
 	depends on  LPDDR2 && UMCTL2
-	bool "DDR_933 (233MHz, I/O 466MHz, data 933MT/s)"
+	bool "DDR_933 (clock 466MHz, data 933MT/s)"
 config DDR_SPEED_1066
 	depends on DDR3 || LPDDR2 || LPDDR3
-	bool "DDR_1066 (133|266MHz, I/O 533MHz, data 1066MT/s)"
+	bool "DDR_1066 (clock 533MHz, data 1066MT/s)"
 config DDR_SPEED_1333
 	depends on (DDR3 || LPDDR3 ) && DDRC
-	bool "DDR3_1333 (166MHz, I/O 667MHz, data 1333MT/s)"
+	bool "DDR3_1333 (clock 667MHz, data 1333MT/s)"
 endchoice
 
 choice
