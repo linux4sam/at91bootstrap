@@ -42,7 +42,7 @@ config	ALLOW_SDRAM_16BIT
 	bool
 	default n
 
-source "driver/Config.in.dram" 
+source "driver/Config.in.dram"
 
 menu "Extra parameters"
 
@@ -70,7 +70,6 @@ config DDR_EXT_TEMP_RANGE
 	  Enables the temperature, voltage and current derating
 	  that allows the memory to operate in the Extended Temperature Range
 	  which is above 85C and below 105C (module dependent)
-
 
 endmenu
 
