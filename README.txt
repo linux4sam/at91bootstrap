@@ -188,7 +188,7 @@ Let's use sam9x60ek as an example,
 If the building process is successful, the final .bin image can be found under
 build/binaries/
 
-### 3.3.2 Compile booting linux image from SDCard
+### 3.3.2 Compile booting u-boot image from SDCard
 
     $ cd <project directory>
     $ make mrproper
