@@ -4,7 +4,7 @@ CONFIG_SDCARD=y
 CONFIG_LOAD_LINUX=y
 CONFIG_OVERRIDE_CMDLINE=y
 CONFIG_LINUX_KERNEL_ARG_STRING="mem=256M console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait rootfstype=ext4 atmel.pm_modes=standby,ulp0 quiet"
-CONFIG_OF_OVERRIDE_DTB_NAME="at91-sam9x60ek.dtb"
+CONFIG_OF_OVERRIDE_DTB_NAME="at91-sam9x60eksd.dtb"
 CONFIG_IMAGE_NAME="zImage"
 CONFIG_THUMB=y
 CONFIG_SCLK_INTRC=y
