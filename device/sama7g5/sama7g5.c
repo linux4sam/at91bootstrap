@@ -1021,7 +1021,7 @@ void hw_init(void)
 	plla_config.div = 0;
 	plla_config.count = 0x3f;
 	plla_config.fracr = 0;
-	plla_config.acr = 0x1b040010;
+	plla_config.acr = 0x00070010;
 
 	mck0_prescaler = BOARD_PRESCALER_CPUPLL | AT91C_PMC_MDIV_3;
 
@@ -1054,7 +1054,7 @@ void hw_init(void)
 	syspll_config.div = 2; /* Feed to PMC 1200/3 = 400 Mhz */
 	syspll_config.count = 0x3f;
 	syspll_config.fracr = 0;
-	syspll_config.acr = 0x1b040010;
+	syspll_config.acr = 0x00070010;
 	/* SYSPLL @ 1200 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_SYSPLL, &syspll_config);
 
@@ -1096,7 +1096,7 @@ void hw_init(void)
 	ddrpll_config.divio = 100;
 	ddrpll_config.count = 0x3f;
 	ddrpll_config.fracr = 0x1aaaab; /* (10/24) * 2^22 to get extra 10 MHz */
-	ddrpll_config.acr = 0x00020033;
+	ddrpll_config.acr = 0x00070010;
 	/* DDRPLL @ 1066 MHz */
 #endif
 #if CONFIG_MEM_CLOCK == 400
@@ -1105,7 +1105,7 @@ void hw_init(void)
 	ddrpll_config.divio = 100;
 	ddrpll_config.count = 0x3f;
 	ddrpll_config.fracr = 0x155556; /* 2^22 / 3 */
-	ddrpll_config.acr = 0x00020033;
+	ddrpll_config.acr = 0x00070010;
 	/* DDRPLL @ 800 MHz */
 #endif
 	pmc_sam9x60_cfg_pll(PLL_ID_DDRPLL, &ddrpll_config);
@@ -1120,7 +1120,7 @@ void hw_init(void)
 	imgpll_config.divio = 3;
 	imgpll_config.count = 0x3f;
 	imgpll_config.fracr = 0x155555; /* (8/24) * 2^22 to get extra 8 MHz */
-	imgpll_config.acr = 0x1b040010;
+	imgpll_config.acr = 0x00070010;
 	/* IMGPLL @ 1064 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_IMGPLL, &imgpll_config);
 
@@ -1150,7 +1150,7 @@ void hw_init(void)
 	plla_config.div = 0;
 	plla_config.count = 0x3f;
 	plla_config.fracr = 0x155556; /* 2^22 / 3 */
-	plla_config.acr = 0x1b040010;
+	plla_config.acr = 0x00070010;
 
 	mck0_prescaler = BOARD_PRESCALER_CPUPLL | AT91C_PMC_MDIV_4;
 #endif
@@ -1159,7 +1159,7 @@ void hw_init(void)
 	plla_config.div = 0;
 	plla_config.count = 0x3f;
 	plla_config.fracr = 0x2AAAAB; /* 2^22  * 2 / 3 */
-	plla_config.acr = 0x1b040010;
+	plla_config.acr = 0x00070010;
 
 	mck0_prescaler = BOARD_PRESCALER_CPUPLL | AT91C_PMC_MDIV_5;
 #endif
