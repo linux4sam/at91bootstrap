@@ -53,6 +53,11 @@
  */
 extern void hw_init(void);
 
+/* Some platforms require a preinit very early in the boot process */
+#ifdef CONFIG_SAMA7G5
+extern void hw_preinit(void);
+#endif
+
 extern void nandflash_hw_init(void);
 
 extern void at91_spi0_hw_init(void);

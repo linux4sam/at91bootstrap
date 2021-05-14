@@ -46,6 +46,15 @@ void lowlevel_clock_init()
 	 */
 	pmc_mck_cfg_set(0, AT91C_PMC_CSS_SLOW_CLK, AT91C_PMC_CSS);
 
+#ifdef CONFIG_SAMA7G5
+	/*
+	 * SAMA7G5 comes with predefined clock scheme from Rom Code.
+	 * To be able to switch correctly to external crystal,
+	 * we must first preinit the MCK domains to a safe clock source.
+	 */
+	hw_preinit();
+#endif
+
 #ifdef CONFIG_SAMA5D3X_CMP
 	/*
 	 * On the sama5d3x_cmp board, a phy is not in the proper reset state

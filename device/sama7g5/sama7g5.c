@@ -992,6 +992,28 @@ void cpu_voltage_select(void)
 #endif /* CONFIG_MCP16502 */
 }
 
+void hw_preinit(void)
+{
+	/*
+	 * Out of Romcode, MCK1 & MCK4 are already configured with SYSPLL
+	 * at unwanted frequencies.
+	 * We cannot reconfigure SYSPLL without first reconfiguring
+	 * MCK1 & MCK4 to different clock source.
+	 * After we complete configuration for SYSPLL,
+	 * we can configure MCK1 & MCK4 accordingly
+	 */
+	pmc_mck_cfg_set(4, BOARD_PRESCALER_MCK4_CLEAN,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
+
+	pmc_mck_cfg_set(1, BOARD_PRESCALER_MCK1_CLEAN,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
+
+	/*
+	 * We are done here cleaning up MCK1 & MCK4, so we can configure
+	 * SYSPLL at cruise speed
+	 */
+}
+
 void hw_init(void)
 {
 	struct pmc_pll_cfg plla_config;
@@ -1029,25 +1051,6 @@ void hw_init(void)
 
 	pmc_mck_cfg_set(0, mck0_prescaler,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
-
-	/*
-	 * Out of Romcode, MCK1 & MCK4 are already configured with SYSPLL
-	 * at unwanted frequencies.
-	 * We cannot reconfigure SYSPLL without first reconfiguring
-	 * MCK1 & MCK4 to different clock source.
-	 * After we complete configuration for SYSPLL,
-	 * we can configure MCK1 & MCK4 accordingly
-	 */
-	pmc_mck_cfg_set(4, BOARD_PRESCALER_MCK4_CLEAN,
-			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
-
-	pmc_mck_cfg_set(1, BOARD_PRESCALER_MCK1_CLEAN,
-			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
-
-	/*
-	 * We are done here cleaning up MCK1 & MCK4, so we can configure
-	 * SYSPLL at cruise speed
-	 */
 
 	/* Configure & Enable SYS PLL */
 	syspll_config.mul = 49; /* (49 + 1) * 24 = 1200 */
