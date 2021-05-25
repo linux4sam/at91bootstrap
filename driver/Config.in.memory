@@ -64,7 +64,7 @@ endchoice
 
 config DDR_EXT_TEMP_RANGE
 	bool "Enable extended temperature range (85C - 105C)"
-	depends on UMCTL2
+	depends on UMCTL2 || (DDRC && DDR_SET_BY_DEVICE)
 	default n
 	help
 	  Enables the temperature, voltage and current derating

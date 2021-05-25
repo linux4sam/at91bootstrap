@@ -161,14 +161,39 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	row = AT91C_DDRC2_NR_14;
 	cas = AT91C_DDRC2_CAS_3;
 	bank = AT91C_DDRC2_NB_BANKS_8;
+#if defined(CONFIG_DDR_EXT_TEMP_RANGE)
+/* The refresh period is 64ms (commercial) or 32ms (industrial and automotive). */
 #if defined(CONFIG_BUS_SPEED_133MHZ)
-	ddramc_config->rtr = 0x411;
+	ddramc_config->rtr = 0x207;
 #elif defined(CONFIG_BUS_SPEED_148MHZ)
-	ddramc_config->rtr = 0x486;
+	ddramc_config->rtr = 0x242;
 #elif defined(CONFIG_BUS_SPEED_166MHZ)
-	ddramc_config->rtr = 0x500;
+	ddramc_config->rtr = 0x288;
+#elif defined(CONFIG_BUS_SPEED_170MHZ)
+	ddramc_config->rtr = 0x298;
+#elif defined(CONFIG_BUS_SPEED_176MHZ)
+	ddramc_config->rtr = 0x2b0;
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
+	ddramc_config->rtr = 0x30e;
 #else
 	#error "No CLK setting defined"
+#endif
+#else
+#if defined(CONFIG_BUS_SPEED_133MHZ)
+	ddramc_config->rtr = 0x40e;
+#elif defined(CONFIG_BUS_SPEED_148MHZ)
+	ddramc_config->rtr = 0x484;
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x510;
+#elif defined(CONFIG_BUS_SPEED_170MHZ)
+	ddramc_config->rtr = 0x530;
+#elif defined(CONFIG_BUS_SPEED_176MHZ)
+	ddramc_config->rtr = 0x55f;
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
+	ddramc_config->rtr = 0x61a;
+#else
+	#error "No CLK setting defined"
+#endif
 #endif
 #elif defined(CONFIG_DDR_MT47H64M16)
 /* DDR2 (MT47H64M16 x 2 = 8 Mwords x 8 Banks x 16 bits x 2), total 2 Gbit on the SAMA5D3-Xplained */
