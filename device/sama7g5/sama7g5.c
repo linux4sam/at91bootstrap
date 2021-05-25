@@ -574,7 +574,7 @@ static void umctl2_config_state_init()
 #if defined(CONFIG_OF_LIBFDT)
 void at91_board_set_dtb_name(char *of_name)
 {
-	strcpy(of_name, "at91-sama7g5ek.dtb");
+	strcpy(of_name, CONFIG_DEVICENAME ".dtb");
 }
 #endif
 

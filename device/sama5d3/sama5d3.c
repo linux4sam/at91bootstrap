@@ -340,6 +340,7 @@ void at91_spi0_hw_init(void)
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
 {
+#ifdef CONFIG_LOAD_HW_INFO
 	/* CPU TYPE*/
 	switch (get_cm_sn()) {
 	case BOARD_ID_SAMA5D31_CM:
@@ -373,6 +374,9 @@ void at91_board_set_dtb_name(char *of_name)
 		strcat(of_name, "_pda7");
 
 	strcat(of_name, ".dtb");
+#else
+	strcpy(of_name, CONFIG_DEVICENAME ".dtb");
+#endif
 }
 #endif
 #if defined(CONFIG_AT91_MCI0)
