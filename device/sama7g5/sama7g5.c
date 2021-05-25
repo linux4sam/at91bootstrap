@@ -1103,13 +1103,13 @@ void hw_init(void)
 	/* DDRPLL @ 1066 MHz */
 #endif
 #if CONFIG_MEM_CLOCK == 400
-	ddrpll_config.mul = 32; /* (33 + 1) * 24 =  792*/
-	ddrpll_config.div = 1;
+	ddrpll_config.mul = 49; /* (49 + 1) * 24 =  1200 MHz */
+	ddrpll_config.div = 2;  /* 1200 / 3 = 400 MHz */
 	ddrpll_config.divio = 100;
 	ddrpll_config.count = 0x3f;
-	ddrpll_config.fracr = 0x155556; /* 2^22 / 3 */
+	ddrpll_config.fracr = 0;
 	ddrpll_config.acr = 0x00070010;
-	/* DDRPLL @ 800 MHz */
+	/* DDRPLL @ 1200 MHz */
 #endif
 	pmc_sam9x60_cfg_pll(PLL_ID_DDRPLL, &ddrpll_config);
 
