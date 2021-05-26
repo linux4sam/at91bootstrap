@@ -1,7 +1,7 @@
 /* ----------------------------------------------------------------------------
  *         ATMEL Microcontroller Software Support
  * ----------------------------------------------------------------------------
- * Copyright (c) 2015, Atmel Corporation
+ * Copyright (c) 2008, Atmel Corporation
  *
  * All rights reserved.
  *
@@ -25,48 +25,60 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef __AT91SAM9G20_FOX_H__
+#define __AT91SAM9G20_FOX_H__
 
-#ifndef __CONTRIB_BOARD_H__
-#define __CONTRIB_BOARD_H__
+/*
+ * PMC Setting
+ *
+ * The main oscillator is enabled as soon as possible in the c_startup
+ * and MCK is switched on the main oscillator.
+ * PLL initialization is done later in the hw_init() function
+ */
+#define MASTER_CLOCK		132096000
 
-#ifdef CONFIG_VINCO
-#include "vinco.h"
+#define PLLA_SETTINGS		0x202A3F01
+
+/* Switch MCK on PLLA output PCK = PLLA/2 = 3 * MCK */
+#define MCKR_SETTINGS		0x1300
+#define MCKR_CSS_SETTINGS	(AT91C_PMC_CSS_PLLA_CLK | MCKR_SETTINGS)
+
+/*
+* DataFlash Settings
+*/
+#define CONFIG_SYS_SPI_CLOCK	AT91C_SPI_CLK
+#define CONFIG_SYS_SPI_MODE	SPI_MODE0
+
+#if defined(CONFIG_SPI_BUS0)
+#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI0
+#elif defined(CONFIG_SPI_BUS1)
+#define CONFIG_SYS_BASE_SPI	AT91C_BASE_SPI1
 #endif
 
-#ifdef CONFIG_AT91SAM9G20_FOX
-#include "at91sam9g20_fox.h"
+#if (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS0_DATAFLASH)
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PA(3)
+#elif (AT91C_SPI_PCS_DATAFLASH == AT91C_SPI_PCS1_DATAFLASH)
+#define CONFIG_SYS_SPI_PCS	AT91C_PIN_PC(11)
 #endif
 
-#ifdef CONFIG_AT91SAM9X5_ARIA
-#include "at91sam9x5_aria.h"
-#endif
+/*
+ * NandFlash Settings
+ */
+#define CONFIG_SYS_NAND_BASE		AT91C_BASE_CS3
+#define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
+#define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
 
-#ifdef CONFIG_AT91SAM9X5_ARIETTA
-#include "at91sam9x5_arietta.h"
-#endif
+#define CONFIG_SYS_NAND_ENABLE_PIN	AT91C_PIN_PC(14)
 
-#ifdef CONFIG_PICOSAM9G45
-#include "pico_sam9g45.h"
-#endif
+/*
+ * MCI Settings
+ */
+#define CONFIG_SYS_BASE_MCI	AT91C_BASE_MCI
 
-#ifdef CONFIG_SAMA5D3_ACQUA
-#include "sama5d3_acqua.h"
-#endif
+/*
+ * Recovery
+ */
+#define CONFIG_SYS_RECOVERY_BUTTON_PIN	AT91C_PIN_PA(31)
+#define RECOVERY_BUTTON_NAME	"BP4"
 
-#ifdef CONFIG_SAMA5D3_STEPHAN
-#include "sama5d3_stephan.h"
-#endif
-
-#ifdef CONFIG_SAMA5D2_ROADRUNNER
-#include "sama5d2_roadrunner.h"
-#endif
-
-#ifdef CONFIG_CORE9G25
-#include "core9g25.h"
-#endif
-
-#ifdef CONFIG_SAMA5D3_LINEA
-#include "sama5d3_linea.h"
-#endif
-
-#endif
+#endif	/* #ifndef __AT91SAM9G20_FOX_H__ */
