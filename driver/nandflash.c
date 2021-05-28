@@ -1216,11 +1216,14 @@ int load_nandflash(struct image_info *image)
 	if (!ret) {
 		int length = bmp_size(image->logo_dest);
 		if (length > nand.pagesize)
-			nand_loadimage(&nand,
+			ret = nand_loadimage(&nand,
 					image->logo_offset + nand.pagesize,
 					length - nand.pagesize,
 					image->logo_dest + nand.pagesize);
 	}
+
+	if (!ret)
+		lcdc_display();
 #endif
 
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
@@ -1238,10 +1241,6 @@ int load_nandflash(struct image_info *image)
 	ret = nand_loadimage(&nand, image->offset, image->length, image->dest);
 	if (ret)
 		return ret;
-
-#ifdef CONFIG_LOGO
-	lcdc_display();
-#endif
 
 #ifdef CONFIG_OF_LIBFDT
 	length = update_image_length(&nand,

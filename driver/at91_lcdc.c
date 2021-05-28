@@ -249,7 +249,7 @@ static void lcdc_on(void)
 				 LCDC_CFG4_PPL(lcdc.width - 1));
 
 	wait_for_clock_domain_sync();
-	lcdc_writel(LCDC_CFG(5), LCDC_CFG5_GUARDTIME(30) |
+	lcdc_writel(LCDC_CFG(5), LCDC_CFG5_GUARDTIME(0) |
 				 LCDC_CFG5_MODE_OUTPUT_24BPP |
 				 LCDC_CFG5_DISPDLY |
 				 LCDC_CFG5_VSPDLYS |
@@ -328,6 +328,7 @@ void lcdc_init(void)
 	at91_lcdc_hw_init();
 	lcdc_off();
 	lcdc_on();
+	lcdc_show_base();
 }
 
 int lcdc_display(void)
@@ -375,7 +376,6 @@ int lcdc_display(void)
 	lcdc.ovr_dma->next = (u32)lcdc.ovr_dma;
 	lcdc.ovr_dma->reserved = 0;
 
-	lcdc_show_base();
 	lcdc_show_heo();
 	lcdc_set_backlight(LOGO_BL);
 
