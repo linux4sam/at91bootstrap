@@ -1,0 +1,39 @@
+# Copyright (C) 2021 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
+config LOAD_OPTEE
+	bool "Install and start OP-TEE Trusted OS"
+	depends on SDCARD
+	help
+	  When enabled, OP-TEE will be loaded from NVM and installed in external
+	  RAM or DRAM.
+	  OP-TEE will run in Secure World and its memory zone will be secured. A
+	  monitor will be installed and handled by OP-TEE to handle NW/SW
+	  switches as well as SMCs. The selected component (Linux/U-Boot) will
+	  be loaded in RAM as well but will run in Normal World after returning
+	  from OP-TEE.
+
+menu "OP-TEE Image Loading Info"
+	depends on LOAD_OPTEE
+
+config OPTEE_IMAGE_NAME
+	string "OP-TEE Image Name"
+	default "tee.bin"
+
+config OPTEE_IMG_SIZE
+	hex "OP-TEE Maximum Image Size"
+	default	"0x1000000"
+	help
+	  When using SDCard, this is the maximum size that will be allowed for
+	  OP-TEE binary.
+
+config OPTEE_JUMP_ADDR
+	hex "External Ram Address For OP-TEE Image"
+	default "0x20000000"
+	help
+	  This address is the entry point to which the bootstrap will pass
+	  control to OP-TEE. OP-TEE must be compiled to run at this address. If
+	  not, an error will be displayed and OP-TEE won't be loaded.
+
+endmenu
