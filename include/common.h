@@ -78,6 +78,8 @@ struct image_info
 
 typedef int (*load_function)(struct image_info *image);
 
+load_function get_image_load_func(void);
+unsigned int get_image_load_offset(unsigned int addr);
 extern load_function load_image;
 extern void init_load_image(struct image_info *image);
 extern void load_image_done(int retval);
