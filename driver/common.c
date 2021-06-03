@@ -26,6 +26,35 @@ char cmdline_args[CMDLINE_BUF_LEN];
 #endif
 
 #ifdef CONFIG_LOAD_SW
+
+load_function get_image_load_func(void)
+{
+#if defined(CONFIG_DATAFLASH)
+	return &load_dataflash;
+#elif defined(CONFIG_FLASH)
+	return &load_norflash;
+#elif defined(CONFIG_NANDFLASH)
+	return &load_nandflash;
+#elif defined(CONFIG_SDCARD)
+	return &load_sdcard;
+#else
+#error "No booting media_str specified!"
+#endif
+}
+
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
+unsigned int get_image_load_offset(unsigned int addr)
+{
+#ifdef CONFIG_FLASH
+	return (addr | 0x10000000);
+#endif
+
+#if defined(CONFIG_NANDFLASH) || defined(CONFIG_DATAFLASH)
+	return addr;
+#endif
+}
+#endif
+
 void init_load_image(struct image_info *image)
 {
 	memset(image,		0, sizeof(*image));
@@ -36,39 +65,22 @@ void init_load_image(struct image_info *image)
 #endif
 #endif
 
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
+
+#if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
+	image->length = IMG_SIZE;
+#endif
+
+	image->offset = get_image_load_offset(IMG_ADDRESS);
+#ifdef CONFIG_OF_LIBFDT
+	image->of_offset = get_image_load_offset(OF_OFFSET);
+#endif
+
+#endif
+
 	image->dest = (unsigned char *)JUMP_ADDR;
 #ifdef CONFIG_OF_LIBFDT
 	image->of_dest = (unsigned char *)OF_ADDRESS;
-#endif
-
-#ifdef CONFIG_FLASH
-	image->offset = IMG_ADDRESS | 0x10000000;
-#if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
-	image->length = IMG_SIZE;
-#endif
-#ifdef CONFIG_OF_LIBFDT
-	image->of_offset = OF_OFFSET | 0x10000000;
-#endif
-#endif
-
-#ifdef CONFIG_NANDFLASH
-	image->offset = IMG_ADDRESS;
-#if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
-	image->length = IMG_SIZE;
-#endif
-#ifdef CONFIG_OF_LIBFDT
-	image->of_offset = OF_OFFSET;
-#endif
-#endif
-
-#ifdef CONFIG_DATAFLASH
-	image->offset = IMG_ADDRESS;
-#if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
-	image->length = IMG_SIZE;
-#endif
-#ifdef CONFIG_OF_LIBFDT
-	image->of_offset = OF_OFFSET;
-#endif
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -87,17 +99,7 @@ void init_load_image(struct image_info *image)
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 	load_image = &load_kernel;
 #else
-#if defined(CONFIG_DATAFLASH)
-	load_image = &load_dataflash;
-#elif defined(CONFIG_FLASH)
-	load_image = &load_norflash;
-#elif defined(CONFIG_NANDFLASH)
-	load_image = &load_nandflash;
-#elif defined(CONFIG_SDCARD)
-	load_image = &load_sdcard;
-#else
-#error "No booting media_str specified!"
-#endif
+	load_image = get_image_load_func();
 #endif
 }
 #endif /* CONFIG_LOAD_SW */

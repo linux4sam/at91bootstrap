@@ -58,6 +58,13 @@ struct image_info
 typedef int (*load_function)(struct image_info *image);
 
 #ifdef CONFIG_LOAD_SW
+
+load_function get_image_load_func(void);
+
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
+unsigned int get_image_load_offset(unsigned int addr);
+#endif
+
 extern load_function load_image;
 
 extern void init_load_image(struct image_info *image);

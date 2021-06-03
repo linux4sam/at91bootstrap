@@ -321,18 +321,9 @@ static int boot_image_setup(unsigned char *addr, unsigned int *entry)
 static int load_kernel_image(struct image_info *image)
 {
 	int ret;
+	load_function load_func = get_image_load_func();
 
-#if defined(CONFIG_DATAFLASH)
-	ret = load_dataflash(image);
-#elif defined(CONFIG_FLASH)
-	ret = load_norflash(image);
-#elif defined(CONFIG_NANDFLASH)
-	ret = load_nandflash(image);
-#elif defined(CONFIG_SDCARD)
-	ret = load_sdcard(image);
-#else
-#error "No booting media specified!"
-#endif
+	ret = load_func(image);
 	if (ret)
 		return ret;
 
