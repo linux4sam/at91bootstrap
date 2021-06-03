@@ -137,6 +137,7 @@ config LOAD_UBOOT
 	  such as U-Boot, placed in the last MByte of SDRAM.
 
 config LOAD_LINUX
+	depends on !LOAD_OPTEE
 	select LINUX_IMAGE
 	bool "Linux Kernel"
 	---help---
@@ -144,6 +145,7 @@ config LOAD_LINUX
 	  No further bootloader required.
 
 config LOAD_ANDROID
+	depends on !LOAD_OPTEE
 	select LINUX_IMAGE
 	bool "Android"
 	---help---
@@ -151,18 +153,21 @@ config LOAD_ANDROID
 	  No further bootloader required.
 
 config LOAD_1MB
+	depends on !LOAD_OPTEE
 	bool "Load 1 MB into start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
 	  which can have a size of up to 1 MByte
 
 config LOAD_4MB
+	depends on !LOAD_OPTEE
 	bool "Load 4 MB into start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
 	  which can have a size of up to 4 MByte
 
 config LOAD_64KB
+	depends on !LOAD_OPTEE
 	bool "Load 64 kB into the start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
@@ -225,7 +230,10 @@ config MATRIX
 	  This interface let you to configure the MATRIX0(H64MX) and
 	  MATRIX1(H32MX) slave security  and to select the APB slave security startup.
 
+source "Config.in.optee"
+
 config ENTER_NWD
+	depends on !LOAD_OPTEE
 	select MATRIX
 	bool "Enable Enter the Normal World before Jumping"
 	default n
@@ -234,6 +242,7 @@ config ENTER_NWD
 	  to the Non-Secure World before the jumping.
 
 config REDIRECT_ALL_INTS_AIC
+	depends on !LOAD_OPTEE
 	bool "Redirect All Peripherals Interrupts to AIC"
 	default y
 	help
