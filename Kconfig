@@ -17,6 +17,8 @@ config PROJECT
 	default "nandflash"	if NANDFLASH
 	default "sdcard"	if SDCARD
 
+source "Config.in.optee"
+
 choice
 	prompt "Image Loading Strategy"
 	default LOAD_UBOOT

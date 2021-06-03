@@ -35,6 +35,8 @@
 #include "act8865.h"
 #include "backup.h"
 #include "secure.h"
+#include "autoconf.h"
+#include "optee.h"
 #include "sfr_aicredir.h"
 
 #ifdef CONFIG_HW_DISPLAY_BANNER
@@ -129,6 +131,10 @@ int main(void)
 #else
 	slowclk_switch_osc32();
 #endif
+#endif
+
+#if defined(CONFIG_LOAD_OPTEE)
+	optee_load();
 #endif
 
 #if defined(CONFIG_ENTER_NWD)

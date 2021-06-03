@@ -1,0 +1,35 @@
+config LOAD_OPTEE
+	bool "Load OP-TEE"
+	help
+	  Use this mode to load OP-TEE before U-Boot
+
+menu "OP-TEE Image Storage Setup"
+	depends on LOAD_OPTEE
+
+config OPTEE_IMAGE_NAME
+	string "OP-TEE Image Name"
+	depends on SDCARD
+	default "tee.bin"
+
+config OPTEE_IMG_ADDRESS
+	string "Flash Offset for OP-TEE"
+	depends on DATAFLASH || FLASH || NANDFLASH
+	default "0x00008000" if FLASH
+	default "0x00008000" if DATAFLASH
+	default "0x00040000" if NANDFLASH
+	default	"0x00000000" if SDCARD
+
+config OPTEE_IMG_SIZE
+	string "OP-TEE Image Size"
+	depends on DATAFLASH || FLASH || NANDFLASH
+	default	"0x000a0000"
+	help
+	  at91bootstrap will copy this size of OP-TEE image
+
+config OPTEE_JUMP_ADDR
+	string "The External Ram Address to Load OP-TEE Image"
+	default "0x20000000"
+	help
+	  The entry point to which the bootstrap will pass control to OP-TEE.
+
+endmenu

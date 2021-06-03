@@ -159,6 +159,12 @@ LINUX_KERNEL_ARG_STRING_FILE := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STR
 # Board definitions
 BOARDNAME:=$(strip $(subst ",,$(CONFIG_BOARDNAME)))
 
+ifeq ($(CONFIG_LOAD_OPTEE), y)
+OPTEE_IMG_ADDRESS := $(strip $(subst ",,$(CONFIG_OPTEE_IMG_ADDRESS)))
+OPTEE_IMG_SIZE := $(strip $(subst ",,$(CONFIG_OPTEE_IMG_SIZE)))
+OPTEE_JUMP_ADDR := $(strip $(subst ",,$(CONFIG_OPTEE_JUMP_ADDR)))
+endif
+
 ifeq ($(CONFIG_OVERRIDE_MACH_TYPE), y)
 MACH_TYPE:=$(strip $(subst ",,$(CONFIG_CUSTOM_MACH_TYPE)))
 else
