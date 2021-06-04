@@ -49,7 +49,7 @@ else
 endif
 endif
 VERSION := 4.0.0
-REVISION := rc2
+REVISION := rc3
 ifdef NIX_SHELL
 SCMINFO := $(shell (host-utilities/setlocalversion))
 endif
