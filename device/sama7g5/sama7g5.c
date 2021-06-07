@@ -955,7 +955,7 @@ void twi_init()
 }
 #endif /* CONFIG_TWI */
 
-void cpu_voltage_select(void)
+void mcp16502_voltage_select(void)
 {
 #ifdef CONFIG_MCP16502
 	const struct mcp16502_cfg regulators_cfg[] = {
@@ -987,8 +987,15 @@ void cpu_voltage_select(void)
 	if (mcp16502_init(CONFIG_PMIC_ON_TWI, 0x5b, NULL, regulators_cfg,
 				ARRAY_SIZE(regulators_cfg)))
 		dbg_printf("MCP16502: init failure");
-	else if (!backup_resume())
-		dbg_printf("MCP16502: CPU VDD @ %umV\n", regulators_cfg[0].uV / 1000);
+	else if (!backup_resume()) {
+		dbg_printf("\n");
+		dbg_printf("MCP16502: OUT1 = %umV\n", regulators_cfg[0].uV / 1000);
+		dbg_printf("MCP16502: OUT2 = %umV\n", regulators_cfg[1].uV / 1000);
+		dbg_printf("MCP16502: OUT3 = %umV\n", regulators_cfg[2].uV / 1000);
+		dbg_printf("MCP16502: OUT4 = %umV\n", regulators_cfg[3].uV / 1000);
+		dbg_printf("MCP16502: LDO1 = %umV\n", regulators_cfg[4].uV / 1000);
+		dbg_printf("MCP16502: LDO2 = %umV\n", regulators_cfg[5].uV / 1000);
+	}
 #endif /* CONFIG_MCP16502 */
 }
 
@@ -1146,7 +1153,7 @@ void hw_init(void)
 		console_printf("UMCTL2: Initialization complete.\n");
 	}
 
-	cpu_voltage_select();
+	mcp16502_voltage_select();
 
 #ifdef CONFIG_CPU_CLK_800MHZ
 	plla_config.mul = 32; /* 33 * 24 = 792 */
