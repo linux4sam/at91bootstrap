@@ -266,7 +266,7 @@ endif
 #    --cref:    add cross reference to map file
 #  -lc 	   : 	tells the linker to tie in newlib
 #  -lgcc   : 	tells the linker to tie in newlib
-LDFLAGS=$(EXTRA_CC_ARGS) -nostartfiles -Map=$(BINDIR)/$(BOOT_NAME).map --cref -static
+LDFLAGS=$(EXTRA_CC_ARGS) -Map=$(BINDIR)/$(BOOT_NAME).map --cref -static
 LDFLAGS+=-T $(link_script) $(GC_SECTIONS) -Ttext $(LINK_ADDR)
 
 REMOVE_SECTIONS=-R .note -R .comment -R .note.gnu.build-id
