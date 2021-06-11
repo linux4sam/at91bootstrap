@@ -1,2 +1,2 @@
 config BOARDNAME
-	default "at91sam9g20_fox"	if AT91SAM9G20_FOX
+	default "at91sam9g20_fox" if AT91SAM9G20_FOX

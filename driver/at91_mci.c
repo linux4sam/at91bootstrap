@@ -103,10 +103,14 @@ static int at91_mci_init(struct sd_card *sdcard)
 	/* enable Read Proof and Write Proof   */
 	mci_writel(MCI_MR, AT91C_MCI_RDPROOF_ENABLE | AT91C_MCI_WRPROOF_ENABLE);
 
+/* Uses B slot if it's a Fox Board G20 */
+#ifdef CONFIG_AT91SAM9G20_FOX
+	/* select Slot B and set bus width 1 bit*/
+	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTB | AT91C_MCI_SCDBUS_1BIT);
+#else
 	/* select Slot A and set bus width 1 bit*/
-	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA
-				| AT91C_MCI_SCDBUS_1BIT);
-
+	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA | AT91C_MCI_SCDBUS_1BIT);
+#endif
 	/* set the Data Timeout Register */
 	mci_writel(MCI_DTOR, 0x7f);
 
@@ -184,7 +188,7 @@ static int at91_mci_read_data(unsigned int *data)
 	do {
 		status = mci_readl(MCI_SR);
 	} while ((!(status & AT91C_MCI_RXRDY))
-			&& (!(status & error_check))); 
+			&& (!(status & error_check)));
 
 	if (status & error_check) {
 		dbg_loud("Error to read data, sr: %x\n", status);
