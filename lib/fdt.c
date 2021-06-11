@@ -183,7 +183,7 @@ static int of_get_token_nextoffset(void *blob,
 			cell++;
 			offset++;
 		} while (*cell != '\0');
-		/* the \0 is part of the node name, hence offset must be updated to the 
+		/* the \0 is part of the node name, hence offset must be updated to the
 		* position past the \0.
 		*/
 		++offset;
@@ -572,7 +572,7 @@ int fixup_chosen_node(void *blob, char *bootargs)
 
 	ret = of_get_node_offset(blob, "chosen", &nodeoffset);
 	if (ret) {
-		dbg_info("DT: doesn't support add node\n");
+		dbg_info("DT: doesn't support add node (chosen)\n");
 		return ret;
 	}
 
@@ -606,7 +606,7 @@ int fixup_memory_node(void *blob,
 
 	ret = of_get_node_offset(blob, "memory", &nodeoffset);
 	if (ret) {
-		dbg_info("DT: doesn't support add node\n");
+		dbg_info("DT: doesn't support add node (memory)\n");
 		return ret;
 	}
 
