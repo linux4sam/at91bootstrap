@@ -109,7 +109,6 @@ static int at91_mci_init(struct sd_card *sdcard)
 	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTB | AT91C_MCI_SCDBUS_1BIT);
 #else
 	/* select Slot A and set bus width 1 bit*/
-    #warning "SLOT A"
 	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA | AT91C_MCI_SCDBUS_1BIT);
 #endif
 
