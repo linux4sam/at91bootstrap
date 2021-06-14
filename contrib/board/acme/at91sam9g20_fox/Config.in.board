@@ -1,0 +1,12 @@
+config	AT91SAM9G20_FOX
+	bool "at91sam9g20_fox"
+	select AT91SAM9G20
+	select SDRAM
+	select ALLOW_SDCARD
+	select MCI_SLOTB
+	select ALLOW_CPU_CLK_400MHZ
+	select ALLOW_CRYSTAL_18_432MHZ
+	select SUPPORT_BUS_SPEED_100MHZ
+	select SUPPORT_BUS_SPEED_133MHZ
+	help
+	    Use the ACME Systems srl Fox Board G20 (AT91SAM9G20) Development board

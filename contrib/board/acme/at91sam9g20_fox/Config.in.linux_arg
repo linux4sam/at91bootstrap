@@ -1,0 +1,2 @@
+config LINUX_KERNEL_ARG_STRING
+	default "mem=64M console=ttyS0,115200 root=/dev/mmcblk0p2 rw rootwait" if AT91SAM9G20_FOX && SDCARD
