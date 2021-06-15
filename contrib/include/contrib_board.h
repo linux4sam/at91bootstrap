@@ -33,6 +33,10 @@
 #include "vinco.h"
 #endif
 
+#ifdef CONFIG_AT91SAM9G20_FOX
+#include "at91sam9g20_fox.h"
+#endif
+
 #ifdef CONFIG_AT91SAM9X5_ARIA
 #include "at91sam9x5_aria.h"
 #endif

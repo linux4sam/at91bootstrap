@@ -2,6 +2,7 @@
 # Config.in.board for the contributed board configuration
 #
 source "contrib/board/l+g/vinco/Config.in.linux_arg"
+source "contrib/board/acme/at91sam9g20_fox/Config.in.linux_arg"
 source "contrib/board/acme/at91sam9x5_aria/Config.in.linux_arg"
 source "contrib/board/acme/at91sam9x5_arietta/Config.in.linux_arg"
 source "contrib/board/acme/sama5d3_acqua/Config.in.linux_arg"
