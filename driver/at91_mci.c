@@ -103,9 +103,13 @@ static int at91_mci_init(struct sd_card *sdcard)
 	/* enable Read Proof and Write Proof   */
 	mci_writel(MCI_MR, AT91C_MCI_RDPROOF_ENABLE | AT91C_MCI_WRPROOF_ENABLE);
 
+#if defined(CONFIG_MCI_SLOTA)
 	/* select Slot A and set bus width 1 bit*/
-	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA
-				| AT91C_MCI_SCDBUS_1BIT);
+	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTA | AT91C_MCI_SCDBUS_1BIT);
+#elif defined(CONFIG_MCI_SLOTB)
+	/* select Slot B and set bus width 1 bit*/
+	mci_writel(MCI_SDCR, AT91C_MCI_SCDSEL_SLOTB | AT91C_MCI_SCDBUS_1BIT);
+#endif
 
 	/* set the Data Timeout Register */
 	mci_writel(MCI_DTOR, 0x7f);

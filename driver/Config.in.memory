@@ -275,6 +275,23 @@ config AT91_MCI2
 
 endchoice
 
+choice
+	prompt "Single SD Card boot slot selection override"
+	depends on AT91_MCI && AT91_MCI0
+	default MCI_SLOTA
+
+config MCI_SLOTA
+	bool "Boot from MCI SLOT A"
+	default y
+	depends on AT91_MCI0
+
+config MCI_SLOTB
+	bool "Boot from MCI SLOT B"
+	default n
+	depends on AT91_MCI0
+
+endchoice
+
 config SDHC
 	bool
 	depends on CPU_HAS_SDHC0 || CPU_HAS_SDHC1 || CPU_HAS_SDHC2
