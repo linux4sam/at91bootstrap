@@ -572,7 +572,7 @@ int fixup_chosen_node(void *blob, char *bootargs)
 
 	ret = of_get_node_offset(blob, "chosen", &nodeoffset);
 	if (ret) {
-		dbg_info("DT: doesn't support add node\n");
+		dbg_info("DT: doesn't support add node (chosen)\n");
 		return ret;
 	}
 
@@ -606,7 +606,7 @@ int fixup_memory_node(void *blob,
 
 	ret = of_get_node_offset(blob, "memory", &nodeoffset);
 	if (ret) {
-		dbg_info("DT: doesn't support add node\n");
+		dbg_info("DT: doesn't support add node (memory)\n");
 		return ret;
 	}
 
