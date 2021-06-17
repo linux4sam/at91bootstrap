@@ -15,51 +15,51 @@ config LINUX_KERNEL_ARG_STRING
 	default "CONFIG_ARG_CONSOLE CONFIG_ARG_PRINTK CONFIG_ARG_MTD CONFIG_ARG_ROOT CONFIG_ARG_MEMTEST CONFIG_ARG_ROOTFSTYPE CONFIG_ARG_DELAY CONFIG_ARG_CMA CONFIG_ARG_RW CONFIG_ARG_ROOTWAIT"
 
 config ARG_CMA
-	string
+	string "Linux bootparam: Contiguous Memory Area support"
 	default " cma=256m" if SAMA7G5
 	default ""
 
 config ARG_CONSOLE
-	string
+	string "Linux bootparam: the serial port after boot"
 	default "console=ttyS0,115200"
 
 config ARG_DELAY
-	string
+	string "Linux bootparam: option to delay before attempting to mount the root fs"
 	default " rootdelay=2"
 
 config ARG_MEMTEST
-	string
+	string "Linux bootparam: option to enable memory test"
 	default " memtest=0" if SAMA7G5
 	default ""
 
 config ARG_MTD
-	string
+	string "Linux bootparam: option about MTD parts"
 	default " mtdparts=atmel_nand:12M(bootstrap/kernel)ro,-(rootfs)" if SDCARD
 	default " mtdparts=atmel_nand:8M(bootstrap/kernel)ro,-(rootfs)" if SDCARD
 	default ""
 
 config ARG_PRINTK
-	string
+	string "Linux bootparam: option to use earlyprintk"
 	default " earlyprintk"
 
 config ARG_ROOT
-	string
+	string "Linux bootparam: the device to be used as the rootfs while booting"
 	default " root=ubi0:rootfs" if !(SDCARD || QSPI)
 	default " root=/dev/mmcblk0p2" if QSPI
 	default " root=/dev/mmcblk1p2" if SDHC1
 	default " root=/dev/mmcblk0p2"
 
 config ARG_ROOTFSTYPE
-	string
+	string "Linux bootparam: the type of the filesystem to load the rootfs"
 	default " rootfstype=ubifs ubi.mtd=1"
 	default " rootfstype=ext4" if SAMA7G5
 
 config ARG_ROOTWAIT
-	string
+	string "Linux bootparam: option to wait for root device to show up"
 	default " rootwait"
 
 config ARG_RW
-	string
+	string "Linux bootparam: mount the rootfs with specified attribute like read-only, read/write, ..."
 	default " rw"
 
 endif
