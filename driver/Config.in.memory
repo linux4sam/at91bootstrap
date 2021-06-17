@@ -282,12 +282,10 @@ choice
 
 config MCI_SLOTA
 	bool "Boot from MCI SLOT A"
-	default y
 	depends on AT91_MCI0
 
 config MCI_SLOTB
 	bool "Boot from MCI SLOT B"
-	default n
 	depends on AT91_MCI0
 
 endchoice
