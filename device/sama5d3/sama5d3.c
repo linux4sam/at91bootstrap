@@ -301,20 +301,6 @@ void hw_init(void)
 #endif
 }
 
-char *board_override_cmd_line(void)
-{
-	char *cmdline = NULL;
-
-#if defined(CONFIG_LOAD_ANDROID)
-	/* Setup Android command-line */
-	if (get_dm_sn() == BOARD_ID_PDA_DM)
-		cmdline = CMDLINE " androidboot.hardware=sama5d3x-pda";
-	else
-		cmdline = CMDLINE " androidboot.hardware=sama5d3x-ek";
-#endif
-	return cmdline;
-}
-
 #ifdef CONFIG_DATAFLASH
 void at91_spi0_hw_init(void)
 {
