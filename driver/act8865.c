@@ -368,7 +368,7 @@ int at91_board_act8865_set_reg_voltage(void)
 	if (act8865_check_i2c_disabled())
 		return 0;
 
-	for (i = 0; i < ARRAY_SIZE(act8865_outs); i++) {
+	for (i = ARRAY_SIZE(act8865_outs) - 1; i >= 0; i--) {
 		if (act8865_outs[i].voltage == 0)
 			continue;
 
