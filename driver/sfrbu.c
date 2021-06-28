@@ -44,3 +44,15 @@ int sfrbu_ddr_is_powered(void)
 	return !(val & AT91C_DDRBUMCR_BUMEN);
 }
 
+/**
+ * sfrbu_set_ddr_power_mode: set DDR power mode
+ * @on:		if 1 set DDR to power mode ON
+ * 		if 0 set DDR to power mode OFF
+ *
+ * Returns:	void
+ */
+void sfrbu_set_ddr_power_mode(int on)
+{
+	writel(!on, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
+}
+

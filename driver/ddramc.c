@@ -729,7 +729,7 @@ void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
 #endif
 
 	/* re-connect DDR Pads to the CPU domain (VCCCORE) */
-	writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
+	sfrbu_set_ddr_power_mode(1);
 	asm volatile ("dmb");
 
 #if defined(DEBUG_BKP_SR_INIT)

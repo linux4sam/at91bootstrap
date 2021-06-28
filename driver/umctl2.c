@@ -1578,8 +1578,8 @@ int umctl2_init (struct umctl2_config_state *state)
 
 	/* Make sure IOs are not in retention mode. */
 	if (!backup_resume()) {
-		writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
-		while ((readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR) & AT91C_DDRBUMCR_BUMEN)) ;
+		sfrbu_set_ddr_power_mode(1);
+		while (!sfrbu_ddr_is_powered()) ;
 	}
 
 	rstc_ddr_assert();
@@ -1726,8 +1726,8 @@ int umctl2_init (struct umctl2_config_state *state)
 
 	if (backup_resume()) {
 		/* Remove IOs from retention mode. */
-		writel(0, AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
-		while ((readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR) & AT91C_DDRBUMCR_BUMEN)) ;
+		sfrbu_set_ddr_power_mode(1);
+		while (!sfrbu_ddr_is_powered()) ;
 
 		if (state->phy_zq_recalibrate)
 			state->phy_zq_recalibrate();

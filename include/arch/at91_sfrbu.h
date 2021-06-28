@@ -32,6 +32,7 @@
 #define AT91C_DDRBUMCR_BUMEN	0x01	/* Force DDR_DQ Input Buffer Always On */
 
 extern void sfrbu_select_ba_power_source(int vddin33);
+extern void sfrbu_set_ddr_power_mode(int on);
 extern int sfrbu_ddr_is_powered(void);
 
 #endif /* #ifndef __AT91_SFRBU_H__ */
