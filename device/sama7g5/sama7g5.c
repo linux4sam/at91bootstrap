@@ -936,25 +936,15 @@ void mcp16502_voltage_select(void)
 {
 #ifdef CONFIG_MCP16502
 	const struct mcp16502_cfg regulators_cfg[] = {
-#if CONFIG_VOLTAGE_OUT1 != 0
 		{.regulator = MCP16502_BUCK1, .uV = CONFIG_VOLTAGE_OUT1 * 1000, .enable = 1, },
-#endif
-#if CONFIG_VOLTAGE_OUT2 != 0
 		{.regulator = MCP16502_BUCK2, .uV = CONFIG_VOLTAGE_OUT2 * 1000, .enable = 1, },
-#endif
-#if CONFIG_VOLTAGE_OUT3 != 0
 		{.regulator = MCP16502_BUCK3, .uV = CONFIG_VOLTAGE_OUT3 * 1000, .enable = 1, },
-#endif
-#if CONFIG_VOLTAGE_OUT4 != 0
 		{.regulator = MCP16502_BUCK4, .uV = CONFIG_VOLTAGE_OUT4 * 1000, .enable = 1, },
-#endif
-#if CONFIG_VOLTAGE_LDO1 != 0
 		{.regulator = MCP16502_LDO1, .uV = CONFIG_VOLTAGE_LDO1 * 1000, .enable = 1, },
-#endif
-#if CONFIG_VOLTAGE_LDO2 != 0
 		{.regulator = MCP16502_LDO2, .uV = CONFIG_VOLTAGE_LDO2 * 1000, .enable = 1, },
-#endif
 	};
+
+	int i;
 
 	/*
 	 * SAMA7G5's SHDWC keeps LPM pin low by default, so there is no need
@@ -965,13 +955,12 @@ void mcp16502_voltage_select(void)
 				ARRAY_SIZE(regulators_cfg)))
 		dbg_printf("MCP16502: init failure");
 	else if (!backup_resume()) {
-		dbg_printf("\n");
-		dbg_printf("MCP16502: OUT1 = %umV\n", regulators_cfg[0].uV / 1000);
-		dbg_printf("MCP16502: OUT2 = %umV\n", regulators_cfg[1].uV / 1000);
-		dbg_printf("MCP16502: OUT3 = %umV\n", regulators_cfg[2].uV / 1000);
-		dbg_printf("MCP16502: OUT4 = %umV\n", regulators_cfg[3].uV / 1000);
-		dbg_printf("MCP16502: LDO1 = %umV\n", regulators_cfg[4].uV / 1000);
-		dbg_printf("MCP16502: LDO2 = %umV\n", regulators_cfg[5].uV / 1000);
+		for (i = 0; i < ARRAY_SIZE(regulators_cfg); i++) {
+			if (regulators_cfg[i].uV)
+				dbg_printf("MCP16502: %s @ %umV\n",
+					   mcp16502_regulator_id_to_name(regulators_cfg[i].regulator),
+					   regulators_cfg[i].uV / 1000);
+		}
 	}
 #endif /* CONFIG_MCP16502 */
 }
