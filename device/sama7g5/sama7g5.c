@@ -16,6 +16,7 @@
 #include "mcp16502.h"
 #include "pmc.h"
 #include "arch/at91_pmc/pmc.h"
+#include "arch/at91_sfrbu.h"
 #include "publ.h"
 #include "shdwc.h"
 #include "umctl2.h"
@@ -1004,6 +1005,9 @@ void hw_init(void)
 	struct pmc_pll_cfg syspll_config;
 	struct pmc_pll_cfg imgpll_config;
 	unsigned int mck0_prescaler;
+
+	/* Switch backup area to VDDIN33. */
+	sfrbu_select_ba_power_source(true);
 
 	if (backup_resume())
 		shdwc_disable_lpm();

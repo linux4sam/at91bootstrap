@@ -1033,5 +1033,11 @@ config SHDWC
 	help
 	  Shutdown controller support
 
+config SFRBU
+	bool "SFRBU support"
+	depends on SAMA5D2 || SAMA7G5
+	default y
+	help
+	  SFRBU support
 endmenu
 

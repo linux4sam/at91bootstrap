@@ -21,6 +21,7 @@
 #include "arch/at91_pmc/pmc.h"
 #include "arch/at91_rstc.h"
 #include "arch/at91_sfr.h"
+#include "arch/at91_sfrbu.h"
 #include "arch/sama5_smc.h"
 #if defined(CONFIG_TWI)
 #include "flexcom.h"
@@ -483,6 +484,9 @@ void twi_init()
 
 void hw_init(void)
 {
+	/* Switch backup area to VDDIN33. */
+	sfrbu_select_ba_power_source(true);
+
 	at91_disable_wdt();
 
 #ifdef CONFIG_LED_ON_BOARD
