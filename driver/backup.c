@@ -62,8 +62,7 @@ static void backup_mode(void)
 	dbg_bkp_sf("enter backup_mode resuming = -1\n");
 	resuming = 0;
 
-	ret = readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
-	if (ret == 0)
+	if (sfrbu_ddr_is_powered())
 		return;
 
 	do {

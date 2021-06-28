@@ -31,3 +31,16 @@ void sfrbu_select_ba_power_source(int vddin33)
 		val = readl(AT91C_BASE_SFRBU + SFRBU_PSWBU);
 }
 
+/**
+ * sfrbu_ddr_is_powered: get DDR power mode
+ *
+ * Returns: 	1 - DDR ON
+ * 		0 - DDR OFF
+ */
+int sfrbu_ddr_is_powered(void)
+{
+	unsigned int val = readl(AT91C_BASE_SFRBU + SFRBU_DDRBUMCR);
+
+	return !(val & AT91C_DDRBUMCR_BUMEN);
+}
+
