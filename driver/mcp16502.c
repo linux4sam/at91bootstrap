@@ -210,6 +210,9 @@ int mcp16502_init(int busid, int addr, const struct pio_desc *lpm_desc,
 
 	/* Setup regulators. */
 	for (i = 0; i < cfgs_no && cfgs; i++) {
+		if (!cfgs[i].uV)
+			continue;
+
 		ret = mcp16502_regulator_set_voltage(cfgs[i].regulator,
 						     cfgs[i].uV);
 		if (ret) {
