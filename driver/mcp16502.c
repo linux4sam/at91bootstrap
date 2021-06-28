@@ -37,6 +37,30 @@ static struct regulator {
 };
 
 /**
+ * mcp16502_regulator_id_to_name()	- set regulator voltage
+ *
+ * @regid:	regulator identifier
+ *
+ * Returns:	regulator's name on success, NULL in case of failure
+ */
+const char * const mcp16502_regulator_id_to_name(unsigned int regid)
+{
+	static const char * const names[] = {
+		[MCP16502_BUCK1] = "OUT1",
+		[MCP16502_BUCK2] = "OUT2",
+		[MCP16502_BUCK3] = "OUT3",
+		[MCP16502_BUCK4] = "OUT4",
+		[MCP16502_LDO1] = "LOUT1",
+		[MCP16502_LDO2] = "LOUT2",
+	};
+
+	if (regid < MCP16502_MIN || regid > MCP16502_MAX)
+		return NULL;
+
+	return names[regid];
+}
+
+/**
  * mcp16502_regulator_set_voltage()	- set regulator voltage
  *
  * @regid:	regulator identifier
