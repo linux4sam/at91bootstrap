@@ -94,6 +94,19 @@ config SDHC_NODMA
 	help
 	  Disable SDHC DMA mode, use PIO mode only
 
+config SDHC_8BIT_SUPPORT
+	bool "Use the full 8 bit bus width for this SDHC"
+	depends on SAMA5D2
+	depends on SDHC0
+	default y
+	help
+	  This SDHC block supports 8 bit bus width. However, if this block
+	  is connected to an SD-Card, the SD-Card can only make use of 4 bits,
+	  thus the other 4 bits can be reused for something else.
+	  In such case, deselect this option such that AT91Bootstrap
+	  will not configure SDHC lines 4-7 in SDHC mode, and they can be
+	  used for another interface.
+
 config FATFS
 	bool
 	depends on SDCARD
