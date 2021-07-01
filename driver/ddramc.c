@@ -154,6 +154,10 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	cas = AT91C_DDRC2_CAS_3;
 	bank = AT91C_DDRC2_NB_BANKS_8;
 	ddramc_config->rtr = AT91C_DDRC2_ENABLE_ADJ_REF | 0x27f;
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xFFFE) |
+				   AT91C_DDRC2_MR4R(0xFFFE);
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(15);
+	ddramc_config->lpddr2_lpr = AT91C_LPDDRC2_DS(0x03);
 #elif defined(CONFIG_DDR_MT47H128M16)
 /* DDR2 (MT47H128M16 = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit on the SAMA5D3-EK */
 	type = AT91C_DDRC2_MD_DDR2_SDRAM;
