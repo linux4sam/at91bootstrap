@@ -28,7 +28,6 @@ static inline void pit_writel(unsigned int value, unsigned reg)
  */
 int timer_init(void)
 {
-	pit_writel((MAX_PIV | AT91C_PIT_PITEN), PIT_MR);
 
 	/* Enable PITC Clock */
 #ifdef AT91C_ID_PIT
@@ -36,6 +35,9 @@ int timer_init(void)
 #else
 	pmc_enable_periph_clock(AT91C_ID_SYS, PMC_PERIPH_CLK_DIVIDER_NA);
 #endif
+
+	pit_writel((MAX_PIV | AT91C_PIT_PITEN), PIT_MR);
+
 	return 0;
 }
 
