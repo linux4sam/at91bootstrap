@@ -194,8 +194,10 @@ static int of_get_token_nextoffset(void *blob,
 		offset += swap_uint32(*plen) + 8;
 	} else if ((tag != OF_DT_TOKEN_NODE_END)
 			&& (tag != OF_DT_TOKEN_NOP)
-			&& (tag != OF_DT_END))
+			&& (tag != OF_DT_END)) {
+		dbg_info("DT: Unrecognized token tag: %u\n", tag);
 		return -1;
+		}
 
 	*nextoffset = OF_ALIGN(offset);
 	*token = tag;
@@ -263,21 +265,29 @@ static int of_get_node_offset(void *blob, const char *name, int *offset)
 
 	/* find the root node*/
 	ret = of_get_token_nextoffset(blob, 0, &start_offset, &token);
+	dbg_info("DT: got no token offset.\n");
 	if (ret)
 		return -1;
 
 	while (1) {
 		ret = of_get_nextnode_offset(blob, start_offset,
 					&nodeoffset, &nextoffset, &depth);
+		dbg_info("DT: of_get_nextnode_offset returned %d\n", ret);
 		if (ret)
 			return ret;
-
+			
+		dbg_info("DT: depth: %d\n", depth);
 		if (depth < 0)
 			return -1;
 
 		nodename = (char *)of_dt_struct_offset(blob,(nodeoffset + 4));
+		dbg_info("DT: nodename: %s\n", nodename);
 		if ((memcmp(nodename, name, namelen) == 0)
-			&& (nodename[namelen] == '\0'))
+			&& (
+				(nodename[namelen] == '\0')
+				|| (nodename[namelen] == '@')
+				)
+			)
 			break;
 
 		start_offset = nextoffset;
@@ -570,6 +580,7 @@ int fixup_chosen_node(void *blob, char *bootargs)
 	int valuelen = strlen(value) + 1;
 	int ret;
 
+	dbg_info("Bootargs:%s\n", bootargs);
 	ret = of_get_node_offset(blob, "chosen", &nodeoffset);
 	if (ret) {
 		dbg_info("DT: doesn't support add node (chosen)\n");
@@ -603,7 +614,9 @@ int fixup_memory_node(void *blob,
 	unsigned int data[4];
 	int valuelen;
 	int ret;
-
+	
+	dbg_info("BANK: %x\nBANK2:%x\nSIZE: %x\n", mem_bank, mem_bank2, mem_size);
+	
 	ret = of_get_node_offset(blob, "memory", &nodeoffset);
 	if (ret) {
 		dbg_info("DT: doesn't support add node (memory)\n");
