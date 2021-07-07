@@ -1,3 +1,7 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
 ifeq ($(CONFIG_CORE_ARM926EJS), y)
 CPPFLAGS += -mcpu=arm926ej-s -mtune=arm926ej-s -mfloat-abi=soft
 ASFLAGS += -mcpu=arm926ej-s -mtune=arm926ej-s -mfloat-abi=soft

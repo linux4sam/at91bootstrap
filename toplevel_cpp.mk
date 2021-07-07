@@ -1,3 +1,7 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
 CPPFLAGS += \
 	-DIMG_ADDRESS=$(IMG_ADDRESS)	\
 	-DIMG_SIZE=$(IMG_SIZE)		\

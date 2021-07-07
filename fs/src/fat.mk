@@ -1,3 +1,7 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
 # Makefile for AT91Bootstrap ./fs/src directory
 # DIRS				+= ./fs/src
 

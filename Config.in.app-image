@@ -1,3 +1,7 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
 menu "Demo Application Image Storage Setup"
 	depends on LOAD_64KB || LOAD_1MB || LOAD_4MB
 

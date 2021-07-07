@@ -1,3 +1,7 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
 config SAMA5D3X
 	select CORE_CORTEX_A5
 	select CPU_HAS_TWI0

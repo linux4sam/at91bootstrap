@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+ *
+ * SPDX-License-Identifier: MIT
+ */
+
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(reset)

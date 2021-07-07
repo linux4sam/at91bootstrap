@@ -1,3 +1,7 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
 ifdef NIX_SHELL
 DATE:=date
 DEV_NULL:=/dev/null

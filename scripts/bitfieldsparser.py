@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
 from __future__ import print_function
 import struct, sys, json
 from pprint import pprint

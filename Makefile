@@ -1,3 +1,7 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
 #
 # Default config file is in configs/$(DEVICE_NAME)*_defconfig
 # First, run xxx_defconfig
