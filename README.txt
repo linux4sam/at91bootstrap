@@ -277,4 +277,11 @@ use something like:
 
     git format-patch -s --subject-prefix='at91bootstrap][PATCH' <origin>
 
+8 License
+================================================================================
+
+AT91Bootstrap is licensed under the MIT license.
+
+License text file is available under LICENSES directory in the source code tree.
+
 -End-
