@@ -92,20 +92,12 @@ AT91Bootstrap section below.
 
 AT91Bootstrap has been compiled and tested under Linux using the following GNU
 ARM Toolchain:
-- gcc version 4.6.3 (Ubuntu/Linaro 4.6.3-1ubuntu5)
-- gcc version 4.7.3 (Sourcery CodeBench Lite 2013.05-24)
-- gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1)
-- gcc version 4.8.3 (Sourcery CodeBench Lite 2014.05-29)
-- gcc version 4.9.3 (Linaro GCC 2014.11)
-- gcc version 5.1.1 (Linaro GCC 5.1-2015.08)
 - gcc version 7.2.1 (Linaro GCC 7.2-2017.11)
 - gcc version 7.3.1 (Linaro GCC 7.2-2018.05)
 - gcc version 7.5.0 (Linaro GCC 7.5-2019.12)
 - gcc version 8.2.0 (Ubuntu 8.2.0-7ubuntu1)
 - gcc version 10.2.1 20201103 (GNU Toolchain for the A-profile Architecture 10.2-2020.11 (arm-10.16))
-
-WARNING: check KNOWN_ISSUES for issues with older gcc versions. We recommend
-using a toolchain newer than 6.0.
+We recommend using a toolchain newer than 6.0
 
 3 Compile AT91Bootstrap
 ================================================================================
