@@ -36,4 +36,4 @@ config FLEXCOM_TWI_IOSET
 
 config FLEXCOM_TWI_IOSET_MAX
 	int
-	default 2 if SAMA5D2
+	default 3 if SAMA5D2
