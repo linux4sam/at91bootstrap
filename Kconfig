@@ -711,6 +711,13 @@ config ACT8865_SET_VOLTAGE
 	help
 	  This interface let you to set the ACT8865 initial output value
 
+config ACT8865_VSEL
+	int "VSEL pin for Step-Down DC/DCs Output Voltage Selection"
+	depends on ACT8865
+	default 0
+	help
+	  This interface lets you choose the ACT8865 VSEL pin input value
+
 config DISABLE_ACT8865_I2C
 	bool "Disable the ACT8865 I2C interface"
 	depends on ACT8865

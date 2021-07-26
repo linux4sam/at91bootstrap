@@ -326,6 +326,8 @@ static const struct act8865_tbl act8865_vol[] = {
 	{0x14, 1100}, {0x18, 1200}, {0x19, 1250}, {0x1b, 1350},
 	{0x24, 1800}, {0x31, 2500}, {0x39, 3300},
 };
+
+#if CONFIG_ACT8865_VSEL == 0
 static const struct act8865_tbl act8865_outs[] = {
 	{REG1_0, CONFIG_VOLTAGE_OUT1},
 	{REG2_0, CONFIG_VOLTAGE_OUT2},
@@ -335,6 +337,19 @@ static const struct act8865_tbl act8865_outs[] = {
 	{REG6_0, CONFIG_VOLTAGE_OUT6},
 	{REG7_0, CONFIG_VOLTAGE_OUT7},
 };
+#endif
+
+#if CONFIG_ACT8865_VSEL == 1
+static const struct act8865_tbl act8865_outs[] = {
+	{REG1_1, CONFIG_VOLTAGE_OUT1},
+	{REG2_1, CONFIG_VOLTAGE_OUT2},
+	{REG3_1, CONFIG_VOLTAGE_OUT3},
+	{REG4_0, CONFIG_VOLTAGE_OUT4},
+	{REG5_0, CONFIG_VOLTAGE_OUT5},
+	{REG6_0, CONFIG_VOLTAGE_OUT6},
+	{REG7_0, CONFIG_VOLTAGE_OUT7},
+};
+#endif
 
 int at91_board_act8865_set_reg_voltage(void)
 {
