@@ -753,49 +753,49 @@ config VOLTAGE_OUT1
 	default 0
 	depends on ACT8865_SET_VOLTAGE || MCP16502 
 	help
-	  The voltage on PMIC's OUT1, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+	  The voltage on PMIC's OUT1, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT2
 	int "Voltage(mV) on PMIC's OUT2"
 	default 0
 	depends on ACT8865_SET_VOLTAGE || MCP16502 
 	help
-	  The voltage on PMIC's OUT2, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+	  The voltage on PMIC's OUT2, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT3
 	int "Voltage(mV) on PMIC's OUT3"
 	default 0
 	depends on ACT8865_SET_VOLTAGE || MCP16502 
 	help
-	  The voltage on PMIC's OUT3, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+	  The voltage on PMIC's OUT3, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT4
 	int "Voltage(mV) on PMIC's OUT4"
 	default 0
 	depends on ACT8865_SET_VOLTAGE || MCP16502 
 	help
-	  The voltage on PMIC's OUT4, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+	  The voltage on PMIC's OUT4, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT5
 	int "Voltage(mV) on PMIC's OUT5"
 	default 0
 	depends on ACT8865_SET_VOLTAGE
 	help
-	  The voltage on PMIC's OUT5, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+	  The voltage on PMIC's OUT5, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT6
 	int "Voltage(mV) on PMIC's OUT6"
 	default 0
 	depends on ACT8865_SET_VOLTAGE
 	help
-	  The voltage on PMIC's OUT6, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+	  The voltage on PMIC's OUT6, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT7
 	int "Voltage(mV) on PMIC's OUT7"
 	default 0
 	depends on ACT8865_SET_VOLTAGE
 	help
-	  The voltage on PMIC's OUT7, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
+	  The voltage on PMIC's OUT7, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_LDO1
 	int "Voltage(mV) on PMIC's LDO1"
