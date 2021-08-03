@@ -380,9 +380,6 @@ static unsigned int at91_twi_hw_init(unsigned int index)
 #if defined(CONFIG_FLEXCOM0) || defined(CONFIG_FLEXCOM1) || defined(CONFIG_FLEXCOM2) || defined(CONFIG_FLEXCOM3) || defined(CONFIG_FLEXCOM4)
 static unsigned int at91_flexcom_twi_hw_init(unsigned int index)
 {
-	const unsigned int id[] = {
-	    AT91C_ID_FLEXCOM0, AT91C_ID_FLEXCOM1, AT91C_ID_FLEXCOM2, AT91C_ID_FLEXCOM3,
-	    AT91C_ID_FLEXCOM4};
 	const struct pio_desc flx_pins[][3] = {
 		{
 #if CONFIG_FLEXCOM0_IOSET == 1
