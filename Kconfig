@@ -738,8 +738,15 @@ config SUSPEND_ACT8945A_CHARGER
 
 config MCP16502
 	bool "PMIC (MCP16502) Support"
-	select TWI
 	default n
+	select TWI
+
+config MCP16502_SET_VOLTAGE
+	bool "Set MCP16502 Initial Output Voltage"
+	depends on MCP16502
+	default n
+	help
+	  This interface let you to set the MCP16502 initial output value
 
 config PMIC_ON_TWI
 	int "PMIC on TWI bus (configured in menu \"TWI BUS setting\")"
@@ -751,28 +758,28 @@ config PMIC_ON_TWI
 config VOLTAGE_OUT1
 	int "Voltage(mV) on PMIC's OUT1"
 	default 0
-	depends on ACT8865_SET_VOLTAGE || MCP16502 
+	depends on ACT8865_SET_VOLTAGE || MCP16502_SET_VOLTAGE
 	help
 	  The voltage on PMIC's OUT1, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT2
 	int "Voltage(mV) on PMIC's OUT2"
 	default 0
-	depends on ACT8865_SET_VOLTAGE || MCP16502 
+	depends on ACT8865_SET_VOLTAGE || MCP16502_SET_VOLTAGE
 	help
 	  The voltage on PMIC's OUT2, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT3
 	int "Voltage(mV) on PMIC's OUT3"
 	default 0
-	depends on ACT8865_SET_VOLTAGE || MCP16502 
+	depends on ACT8865_SET_VOLTAGE || MCP16502_SET_VOLTAGE
 	help
 	  The voltage on PMIC's OUT3, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
 config VOLTAGE_OUT4
 	int "Voltage(mV) on PMIC's OUT4"
 	default 0
-	depends on ACT8865_SET_VOLTAGE || MCP16502 
+	depends on ACT8865_SET_VOLTAGE || MCP16502_SET_VOLTAGE
 	help
 	  The voltage on PMIC's OUT4, valid values: 0, 1100, 1200, 1250, 1300, 1350, 1800, 2500, 3300
 
@@ -800,14 +807,14 @@ config VOLTAGE_OUT7
 config VOLTAGE_LDO1
 	int "Voltage(mV) on PMIC's LDO1"
 	default 0
-	depends on MCP16502
+	depends on MCP16502_SET_VOLTAGE
 	help
 	  The voltage on PMIC's LDO1, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
 
 config VOLTAGE_LDO2
 	int "Voltage(mV) on PMIC's LDO2"
 	default 0
-	depends on MCP16502
+	depends on MCP16502_SET_VOLTAGE
 	help
 	  The voltage on PMIC's LDO2, valid values: 0, 1100, 1200, 1250, 1350, 1800, 2500, 3300
 
