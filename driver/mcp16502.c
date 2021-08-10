@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "board.h"
+#include "backup.h"
 #include "common.h"
 #include "debug.h"
 #include "hardware.h"
@@ -50,8 +51,8 @@ const char * const mcp16502_regulator_id_to_name(unsigned int regid)
 		[MCP16502_BUCK2] = "OUT2",
 		[MCP16502_BUCK3] = "OUT3",
 		[MCP16502_BUCK4] = "OUT4",
-		[MCP16502_LDO1] = "LOUT1",
-		[MCP16502_LDO2] = "LOUT2",
+		[MCP16502_LDO1] = "LDO1",
+		[MCP16502_LDO2] = "LDO2",
 	};
 
 	if (regid < MCP16502_MIN || regid > MCP16502_MAX)
@@ -232,3 +233,35 @@ int mcp16502_init(int busid, int addr, const struct pio_desc *lpm_desc,
 
 	return 0;
 }
+#if defined(CONFIG_MCP16502_SET_VOLTAGE)
+void mcp16502_voltage_select(void)
+{
+	const struct mcp16502_cfg regulators_cfg[] = {
+		{.regulator = MCP16502_BUCK1, .uV = CONFIG_VOLTAGE_OUT1 * 1000, .enable = 1, },
+		{.regulator = MCP16502_BUCK2, .uV = CONFIG_VOLTAGE_OUT2 * 1000, .enable = 1, },
+		{.regulator = MCP16502_BUCK3, .uV = CONFIG_VOLTAGE_OUT3 * 1000, .enable = 1, },
+		{.regulator = MCP16502_BUCK4, .uV = CONFIG_VOLTAGE_OUT4 * 1000, .enable = 1, },
+		{.regulator = MCP16502_LDO1, .uV = CONFIG_VOLTAGE_LDO1 * 1000, .enable = 1, },
+		{.regulator = MCP16502_LDO2, .uV = CONFIG_VOLTAGE_LDO2 * 1000, .enable = 1, },
+	};
+
+	int i;
+	/*
+	 * SAMA7G5's SHDWC keeps LPM pin low by default, so there is no need
+	 * to pass pin descriptor to mcp16502_init() for switching to active
+	 * state.
+	 */
+	if (mcp16502_init(CONFIG_PMIC_ON_TWI, 0x5b, NULL, regulators_cfg,
+				ARRAY_SIZE(regulators_cfg)))
+		dbg_printf("MCP16502: init failure");
+	else {
+		for (i = 0; i < ARRAY_SIZE(regulators_cfg); i++) {
+			if (regulators_cfg[i].uV)
+				dbg_printf("MCP16502: %s = %umV\n",
+					   mcp16502_regulator_id_to_name(regulators_cfg[i].regulator),
+					   regulators_cfg[i].uV / 1000);
+		}
+		dbg_printf("\n");
+	}
+}
+#endif /* CONFIG_MCP16502_SET_VOLTAGE */

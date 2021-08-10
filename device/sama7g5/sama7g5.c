@@ -5,6 +5,7 @@
 #include "backup.h"
 #include "common.h"
 #include "flexcom.h"
+#include "twi.h"
 #include "usart.h"
 #include "hardware.h"
 #include "arch/at91_pio.h"
@@ -13,7 +14,6 @@
 #include "debug.h"
 #include "umctl2.h"
 #include "gpio.h"
-#include "mcp16502.h"
 #include "pmc.h"
 #include "arch/at91_pmc/pmc.h"
 #include "arch/at91_sfrbu.h"
@@ -932,39 +932,6 @@ void twi_init()
 }
 #endif /* CONFIG_TWI */
 
-void mcp16502_voltage_select(void)
-{
-#ifdef CONFIG_MCP16502
-	const struct mcp16502_cfg regulators_cfg[] = {
-		{.regulator = MCP16502_BUCK1, .uV = CONFIG_VOLTAGE_OUT1 * 1000, .enable = 1, },
-		{.regulator = MCP16502_BUCK2, .uV = CONFIG_VOLTAGE_OUT2 * 1000, .enable = 1, },
-		{.regulator = MCP16502_BUCK3, .uV = CONFIG_VOLTAGE_OUT3 * 1000, .enable = 1, },
-		{.regulator = MCP16502_BUCK4, .uV = CONFIG_VOLTAGE_OUT4 * 1000, .enable = 1, },
-		{.regulator = MCP16502_LDO1, .uV = CONFIG_VOLTAGE_LDO1 * 1000, .enable = 1, },
-		{.regulator = MCP16502_LDO2, .uV = CONFIG_VOLTAGE_LDO2 * 1000, .enable = 1, },
-	};
-
-	int i;
-
-	/*
-	 * SAMA7G5's SHDWC keeps LPM pin low by default, so there is no need
-	 * to pass pin descriptor to mcp16502_init() for switching to active
-	 * state.
-	 */
-	if (mcp16502_init(CONFIG_PMIC_ON_TWI, 0x5b, NULL, regulators_cfg,
-				ARRAY_SIZE(regulators_cfg)))
-		dbg_printf("MCP16502: init failure");
-	else if (!backup_resume()) {
-		for (i = 0; i < ARRAY_SIZE(regulators_cfg); i++) {
-			if (regulators_cfg[i].uV)
-				dbg_printf("MCP16502: %s @ %umV\n",
-					   mcp16502_regulator_id_to_name(regulators_cfg[i].regulator),
-					   regulators_cfg[i].uV / 1000);
-		}
-	}
-#endif /* CONFIG_MCP16502 */
-}
-
 void hw_preinit(void)
 {
 	/*
@@ -1132,8 +1099,6 @@ void hw_postinit(void)
 	 *  must be able to raise the VDDCPU voltage to 1250mV
 	 *  as it is recommended in the datasheet.
 	 */
-
-	mcp16502_voltage_select();
 
 #ifdef CONFIG_CPU_CLK_800MHZ
 	plla_config.mul = 32; /* 33 * 24 = 792 */

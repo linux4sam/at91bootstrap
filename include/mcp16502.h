@@ -39,5 +39,5 @@ extern int mcp16502_regulator_set_enable(unsigned int regid,
 			 unsigned int enable);
 extern unsigned int mcp16502_regulator_get_enable(unsigned int regid);
 extern const char * const mcp16502_regulator_id_to_name(unsigned int regid);
-
+extern void mcp16502_voltage_select(void);
 #endif

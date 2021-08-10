@@ -10,6 +10,7 @@
 #include "tz_utils.h"
 #include "pm.h"
 #include "act8865.h"
+#include "mcp16502.h"
 #include "backup.h"
 #include "secure.h"
 #include "sfr_aicredir.h"
@@ -78,6 +79,10 @@ int main(void)
 	act8865_workaround();
 
 	act8945a_suspend_charger();
+#endif
+
+#ifdef CONFIG_MCP16502_SET_VOLTAGE
+	mcp16502_voltage_select();
 #endif
 
 #ifdef CONFIG_SAMA7G5
