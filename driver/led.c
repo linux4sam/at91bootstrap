@@ -43,13 +43,13 @@
 
 void at91_leds_init(void)
 {
-#ifndef LED_R_NONE
+#ifdef LED_R_PIO
 	pio_set_gpio_output(LED_R_PIO, CONFIG_LED_R_VALUE);
 #endif
-#ifndef LED_G_NONE
+#ifdef LED_G_PIO
 	pio_set_gpio_output(LED_G_PIO, CONFIG_LED_G_VALUE);
 #endif
-#ifndef LED_B_NONE
+#ifdef LED_B_PIO
 	pio_set_gpio_output(LED_B_PIO, CONFIG_LED_B_VALUE);
 #endif
 }
