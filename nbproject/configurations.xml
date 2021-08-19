@@ -1,511 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configurationDescriptor version="65">
   <logicalFolder name="root" displayName="root" projectFiles="true">
-    <logicalFolder name="HeaderFiles"
-                   displayName="Header Files"
-                   projectFiles="true">
-      <logicalFolder name="f1" displayName="board" projectFiles="true">
-        <logicalFolder name="f24" displayName="at91sam9260ek" projectFiles="true">
-          <itemPath>board/at91sam9260ek/at91sam9260ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f23" displayName="at91sam9261ek" projectFiles="true">
-          <itemPath>board/at91sam9261ek/at91sam9261ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f22" displayName="at91sam9263ek" projectFiles="true">
-          <itemPath>board/at91sam9263ek/at91sam9263ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f1" displayName="at91sam9g10ek" projectFiles="true">
-          <itemPath>board/at91sam9g10ek/at91sam9g10ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f21" displayName="at91sam9g20ek" projectFiles="true">
-          <itemPath>board/at91sam9g20ek/at91sam9g20ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f20" displayName="at91sam9m10g45ek" projectFiles="true">
-          <itemPath>board/at91sam9m10g45ek/at91sam9m10g45ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f19" displayName="at91sam9n12ek" projectFiles="true">
-          <itemPath>board/at91sam9n12ek/at91sam9n12ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f13" displayName="at91sam9rlek" projectFiles="true">
-          <itemPath>board/at91sam9rlek/at91sam9rlek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f14" displayName="at91sam9x5ek" projectFiles="true">
-          <itemPath>board/at91sam9x5ek/at91sam9x5ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f2" displayName="at91sam9xeek" projectFiles="true">
-          <itemPath>board/at91sam9xeek/at91sam9xeek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f9" displayName="sam9x60_ddr2_sip_eb" projectFiles="true">
-          <itemPath>board/sam9x60_ddr2_sip_eb/sam9x60_ddr2_sip_eb.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f8" displayName="sam9x60_sdr_sip_eb" projectFiles="true">
-          <itemPath>board/sam9x60_sdr_sip_eb/sam9x60_sdr_sip_eb.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f7" displayName="sam9x60ek" projectFiles="true">
-          <itemPath>board/sam9x60ek/sam9x60ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f6" displayName="sama5d27_som1_ek" projectFiles="true">
-          <itemPath>board/sama5d27_som1_ek/sama5d27_som1_ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f5" displayName="sama5d27_wlsom1_ek" projectFiles="true">
-          <itemPath>board/sama5d27_wlsom1_ek/sama5d27_wlsom1_ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f4" displayName="sama5d2_icp" projectFiles="true">
-          <itemPath>board/sama5d2_icp/sama5d2_icp.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f3" displayName="sama5d2_lpddr2sip_vb" projectFiles="true">
-          <itemPath>board/sama5d2_lpddr2sip_vb/sama5d2_lpddr2sip_vb.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f12" displayName="sama5d2_ptc_ek" projectFiles="true">
-          <itemPath>board/sama5d2_ptc_ek/sama5d2_ptc_ek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f11" displayName="sama5d2_xplained" projectFiles="true">
-          <itemPath>board/sama5d2_xplained/sama5d2_xplained.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f10" displayName="sama5d3_xplained" projectFiles="true">
-          <itemPath>board/sama5d3_xplained/sama5d3_xplained.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f18" displayName="sama5d3x_cmp" projectFiles="true">
-          <itemPath>board/sama5d3x_cmp/sama5d3x_cmp.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f17" displayName="sama5d3xek" projectFiles="true">
-          <itemPath>board/sama5d3xek/sama5d3xek.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f16" displayName="sama5d4_xplained" projectFiles="true">
-          <itemPath>board/sama5d4_xplained/sama5d4_xplained.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f15" displayName="sama5d4ek" projectFiles="true">
-          <itemPath>board/sama5d4ek/sama5d4ek.h</itemPath>
-        </logicalFolder>
-      </logicalFolder>
-      <logicalFolder name="f2" displayName="config" projectFiles="true">
-        <logicalFolder name="f1" displayName="lxdialog" projectFiles="true">
-          <itemPath>config/lxdialog/dialog.h</itemPath>
-        </logicalFolder>
-        <itemPath>config/expr.h</itemPath>
-        <itemPath>config/foo.h</itemPath>
-        <itemPath>config/lkc.h</itemPath>
-        <itemPath>config/lkc_proto.h</itemPath>
-        <itemPath>config/qconf.h</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f3" displayName="contrib" projectFiles="true">
-        <logicalFolder name="f1" displayName="board" projectFiles="true">
-          <logicalFolder name="f1" displayName="acme" projectFiles="true">
-            <logicalFolder name="f2" displayName="at91sam9x5_aria" projectFiles="true">
-              <itemPath>contrib/board/acme/at91sam9x5_aria/at91sam9x5_aria.h</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f1" displayName="at91sam9x5_arietta" projectFiles="true">
-              <itemPath>contrib/board/acme/at91sam9x5_arietta/at91sam9x5_arietta.h</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f4" displayName="sama5d2_roadrunner" projectFiles="true">
-              <itemPath>contrib/board/acme/sama5d2_roadrunner/sama5d2_roadrunner.h</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f3" displayName="sama5d3_acqua" projectFiles="true">
-              <itemPath>contrib/board/acme/sama5d3_acqua/sama5d3_acqua.h</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f2" displayName="axentia" projectFiles="true">
-            <logicalFolder name="f1" displayName="sama5d3_linea" projectFiles="true">
-              <itemPath>contrib/board/axentia/sama5d3_linea/sama5d3_linea.h</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f3" displayName="corewind" projectFiles="true">
-            <logicalFolder name="f1" displayName="core9g25" projectFiles="true">
-              <itemPath>contrib/board/corewind/core9g25/core9g25.h</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f4" displayName="l+g" projectFiles="true">
-            <logicalFolder name="f1" displayName="vinco" projectFiles="true">
-              <itemPath>contrib/board/l+g/vinco/vinco.h</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f5" displayName="mini-box" projectFiles="true">
-            <logicalFolder name="f1" displayName="pico_sam9g45" projectFiles="true">
-              <itemPath>contrib/board/mini-box/pico_sam9g45/pico_sam9g45.h</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f6" displayName="stephan" projectFiles="true">
-            <logicalFolder name="f1" displayName="sama5d3_stephan" projectFiles="true">
-              <itemPath>contrib/board/stephan/sama5d3_stephan/sama5d3_stephan.h</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-        </logicalFolder>
-        <logicalFolder name="f2" displayName="include" projectFiles="true">
-        </logicalFolder>
-      </logicalFolder>
-      <logicalFolder name="f4" displayName="driver" projectFiles="true">
-        <logicalFolder name="f1" displayName="pmc" projectFiles="true">
-          <itemPath>driver/pmc/common.h</itemPath>
-        </logicalFolder>
-      </logicalFolder>
-      <logicalFolder name="f5" displayName="fs" projectFiles="true">
-        <logicalFolder name="f1" displayName="include" projectFiles="true">
-          <itemPath>fs/include/diskio.h</itemPath>
-          <itemPath>fs/include/ff.h</itemPath>
-          <itemPath>fs/include/ffconf.h</itemPath>
-          <itemPath>fs/include/integer.h</itemPath>
-          <itemPath>fs/include/media.h</itemPath>
-        </logicalFolder>
-      </logicalFolder>
-      <logicalFolder name="f6" displayName="include" projectFiles="true">
-        <logicalFolder name="f1" displayName="arch" projectFiles="true">
-          <logicalFolder name="f1" displayName="at91_pmc" projectFiles="true">
-            <itemPath>include/arch/at91_pmc/pmc-v1.h</itemPath>
-            <itemPath>include/arch/at91_pmc/pmc-v2.h</itemPath>
-            <itemPath>include/arch/at91_pmc/pmc.h</itemPath>
-          </logicalFolder>
-          <itemPath>include/arch/at91_aes.h</itemPath>
-          <itemPath>include/arch/at91_ccfg.h</itemPath>
-          <itemPath>include/arch/at91_dbgu.h</itemPath>
-          <itemPath>include/arch/at91_ddrsdrc.h</itemPath>
-          <itemPath>include/arch/at91_eefc.h</itemPath>
-          <itemPath>include/arch/at91_matrix.h</itemPath>
-          <itemPath>include/arch/at91_mci.h</itemPath>
-          <itemPath>include/arch/at91_nand_ecc.h</itemPath>
-          <itemPath>include/arch/at91_pio.h</itemPath>
-          <itemPath>include/arch/at91_pit.h</itemPath>
-          <itemPath>include/arch/at91_qspi.h</itemPath>
-          <itemPath>include/arch/at91_rstc.h</itemPath>
-          <itemPath>include/arch/at91_sdramc.h</itemPath>
-          <itemPath>include/arch/at91_sfr.h</itemPath>
-          <itemPath>include/arch/at91_sfrbu.h</itemPath>
-          <itemPath>include/arch/at91_slowclk.h</itemPath>
-          <itemPath>include/arch/at91_smc.h</itemPath>
-          <itemPath>include/arch/at91_spi.h</itemPath>
-          <itemPath>include/arch/at91_twi.h</itemPath>
-          <itemPath>include/arch/at91_wdt.h</itemPath>
-          <itemPath>include/arch/at91_wdt2.h</itemPath>
-          <itemPath>include/arch/at91sam9260.h</itemPath>
-          <itemPath>include/arch/at91sam9261.h</itemPath>
-          <itemPath>include/arch/at91sam9263.h</itemPath>
-          <itemPath>include/arch/at91sam9g10.h</itemPath>
-          <itemPath>include/arch/at91sam9g10_matrix.h</itemPath>
-          <itemPath>include/arch/at91sam9g20.h</itemPath>
-          <itemPath>include/arch/at91sam9g45.h</itemPath>
-          <itemPath>include/arch/at91sam9n12.h</itemPath>
-          <itemPath>include/arch/at91sam9rl.h</itemPath>
-          <itemPath>include/arch/at91sam9x5.h</itemPath>
-          <itemPath>include/arch/at91sam9xe.h</itemPath>
-          <itemPath>include/arch/lp310_l2cc.h</itemPath>
-          <itemPath>include/arch/sam9x60.h</itemPath>
-          <itemPath>include/arch/sama5_smc.h</itemPath>
-          <itemPath>include/arch/sama5d2.h</itemPath>
-          <itemPath>include/arch/sama5d3x.h</itemPath>
-          <itemPath>include/arch/sama5d4.h</itemPath>
-          <itemPath>include/arch/tz_matrix.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f2" displayName="spi_flash" projectFiles="true">
-          <itemPath>include/spi_flash/sfdp.h</itemPath>
-          <itemPath>include/spi_flash/spi_flash.h</itemPath>
-          <itemPath>include/spi_flash/spi_nor.h</itemPath>
-        </logicalFolder>
-        <itemPath>include/act8865.h</itemPath>
-        <itemPath>include/aes.h</itemPath>
-        <itemPath>include/at24xx.h</itemPath>
-        <itemPath>include/atmel_mci.h</itemPath>
-        <itemPath>include/backup.h</itemPath>
-        <itemPath>include/bitops.h</itemPath>
-        <itemPath>include/board.h</itemPath>
-        <itemPath>include/board_hw_info.h</itemPath>
-        <itemPath>include/common.h</itemPath>
-        <itemPath>include/dataflash.h</itemPath>
-        <itemPath>include/ddramc.h</itemPath>
-        <itemPath>include/debug.h</itemPath>
-        <itemPath>include/div.h</itemPath>
-        <itemPath>include/ds24xx.h</itemPath>
-        <itemPath>include/fdt.h</itemPath>
-        <itemPath>include/flash.h</itemPath>
-        <itemPath>include/flexcom.h</itemPath>
-        <itemPath>include/gpio.h</itemPath>
-        <itemPath>include/hamming.h</itemPath>
-        <itemPath>include/hardware.h</itemPath>
-        <itemPath>include/hdmi_SiI9022.h</itemPath>
-        <itemPath>include/l2cc.h</itemPath>
-        <itemPath>include/macb.h</itemPath>
-        <itemPath>include/matrix.h</itemPath>
-        <itemPath>include/mci_media.h</itemPath>
-        <itemPath>include/mon.h</itemPath>
-        <itemPath>include/mon_macros.h</itemPath>
-        <itemPath>include/nand.h</itemPath>
-        <itemPath>include/nandflash.h</itemPath>
-        <itemPath>include/pm.h</itemPath>
-        <itemPath>include/pmc.h</itemPath>
-        <itemPath>include/pmecc.h</itemPath>
-        <itemPath>include/psram.h</itemPath>
-        <itemPath>include/qspi_flash.h</itemPath>
-        <itemPath>include/rstc.h</itemPath>
-        <itemPath>include/sdcard.h</itemPath>
-        <itemPath>include/sdhc.h</itemPath>
-        <itemPath>include/sdhc_cal.h</itemPath>
-        <itemPath>include/sdramc.h</itemPath>
-        <itemPath>include/secure.h</itemPath>
-        <itemPath>include/sfr_aicredir.h</itemPath>
-        <itemPath>include/slowclk.h</itemPath>
-        <itemPath>include/spi.h</itemPath>
-        <itemPath>include/spi_flash.h</itemPath>
-        <itemPath>include/string.h</itemPath>
-        <itemPath>include/svc_mgr.h</itemPath>
-        <itemPath>include/timer.h</itemPath>
-        <itemPath>include/twi.h</itemPath>
-        <itemPath>include/types.h</itemPath>
-        <itemPath>include/tz_utils.h</itemPath>
-        <itemPath>include/usart.h</itemPath>
-        <itemPath>include/watchdog.h</itemPath>
-        <itemPath>include/wm8904.h</itemPath>
-      </logicalFolder>
-    </logicalFolder>
-    <logicalFolder name="LoadableFiles"
-                   displayName="Prebuilt Files"
-                   projectFiles="true">
-    </logicalFolder>
     <logicalFolder name="ScriptFiles"
                    displayName="Script Files"
                    projectFiles="true">
       <itemPath>autoload.py</itemPath>
-    </logicalFolder>
-    <logicalFolder name="SourceFiles"
-                   displayName="Source Files"
-                   projectFiles="true">
-      <logicalFolder name="f1" displayName="board" projectFiles="true">
-        <logicalFolder name="f24" displayName="at91sam9260ek" projectFiles="true">
-          <itemPath>board/at91sam9260ek/at91sam9260ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f23" displayName="at91sam9261ek" projectFiles="true">
-          <itemPath>board/at91sam9261ek/at91sam9261ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f22" displayName="at91sam9263ek" projectFiles="true">
-          <itemPath>board/at91sam9263ek/at91sam9263ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f1" displayName="at91sam9g10ek" projectFiles="true">
-          <itemPath>board/at91sam9g10ek/at91sam9g10ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f21" displayName="at91sam9g20ek" projectFiles="true">
-          <itemPath>board/at91sam9g20ek/at91sam9g20ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f20" displayName="at91sam9m10g45ek" projectFiles="true">
-          <itemPath>board/at91sam9m10g45ek/at91sam9m10g45ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f19" displayName="at91sam9n12ek" projectFiles="true">
-          <itemPath>board/at91sam9n12ek/at91sam9n12ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f13" displayName="at91sam9rlek" projectFiles="true">
-          <itemPath>board/at91sam9rlek/at91sam9rlek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f14" displayName="at91sam9x5ek" projectFiles="true">
-          <itemPath>board/at91sam9x5ek/at91sam9x5ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f2" displayName="at91sam9xeek" projectFiles="true">
-          <itemPath>board/at91sam9xeek/at91sam9xeek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f9" displayName="sam9x60_ddr2_sip_eb" projectFiles="true">
-          <itemPath>board/sam9x60_ddr2_sip_eb/sam9x60_ddr2_sip_eb.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f8" displayName="sam9x60_sdr_sip_eb" projectFiles="true">
-          <itemPath>board/sam9x60_sdr_sip_eb/sam9x60_sdr_sip_eb.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f7" displayName="sam9x60ek" projectFiles="true">
-          <itemPath>board/sam9x60ek/sam9x60ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f6" displayName="sama5d27_som1_ek" projectFiles="true">
-          <itemPath>board/sama5d27_som1_ek/sama5d27_som1_ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f5" displayName="sama5d27_wlsom1_ek" projectFiles="true">
-          <itemPath>board/sama5d27_wlsom1_ek/sama5d27_wlsom1_ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f4" displayName="sama5d2_icp" projectFiles="true">
-          <itemPath>board/sama5d2_icp/sama5d2_icp.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f3" displayName="sama5d2_lpddr2sip_vb" projectFiles="true">
-          <itemPath>board/sama5d2_lpddr2sip_vb/sama5d2_lpddr2sip_vb.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f12" displayName="sama5d2_ptc_ek" projectFiles="true">
-          <itemPath>board/sama5d2_ptc_ek/sama5d2_ptc_ek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f11" displayName="sama5d2_xplained" projectFiles="true">
-          <itemPath>board/sama5d2_xplained/sama5d2_xplained.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f10" displayName="sama5d3_xplained" projectFiles="true">
-          <itemPath>board/sama5d3_xplained/sama5d3_xplained.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f18" displayName="sama5d3x_cmp" projectFiles="true">
-          <itemPath>board/sama5d3x_cmp/sama5d3x_cmp.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f17" displayName="sama5d3xek" projectFiles="true">
-          <itemPath>board/sama5d3xek/sama5d3xek.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f16" displayName="sama5d4_xplained" projectFiles="true">
-          <itemPath>board/sama5d4_xplained/sama5d4_xplained.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f15" displayName="sama5d4ek" projectFiles="true">
-          <itemPath>board/sama5d4ek/sama5d4ek.c</itemPath>
-        </logicalFolder>
-      </logicalFolder>
-      <logicalFolder name="f2" displayName="config" projectFiles="true">
-        <logicalFolder name="f1" displayName="lxdialog" projectFiles="true">
-          <itemPath>config/lxdialog/checklist.c</itemPath>
-          <itemPath>config/lxdialog/inputbox.c</itemPath>
-          <itemPath>config/lxdialog/menubox.c</itemPath>
-          <itemPath>config/lxdialog/textbox.c</itemPath>
-          <itemPath>config/lxdialog/util.c</itemPath>
-          <itemPath>config/lxdialog/yesno.c</itemPath>
-        </logicalFolder>
-        <itemPath>config/expr.c</itemPath>
-        <itemPath>config/conf.c</itemPath>
-        <itemPath>config/confdata.c</itemPath>
-        <itemPath>config/gconf.c</itemPath>
-        <itemPath>config/images.c</itemPath>
-        <itemPath>config/kconfig_load.c</itemPath>
-        <itemPath>config/kxgettext.c</itemPath>
-        <itemPath>config/mconf.c</itemPath>
-        <itemPath>config/menu.c</itemPath>
-        <itemPath>config/qconf.cc</itemPath>
-        <itemPath>config/symbol.c</itemPath>
-        <itemPath>config/util.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f3" displayName="contrib" projectFiles="true">
-        <logicalFolder name="f1" displayName="board" projectFiles="true">
-          <logicalFolder name="f1" displayName="acme" projectFiles="true">
-            <logicalFolder name="f2" displayName="at91sam9x5_aria" projectFiles="true">
-              <itemPath>contrib/board/acme/at91sam9x5_aria/at91sam9x5_aria.c</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f1" displayName="at91sam9x5_arietta" projectFiles="true">
-              <itemPath>contrib/board/acme/at91sam9x5_arietta/at91sam9x5_arietta.c</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f4" displayName="sama5d2_roadrunner" projectFiles="true">
-              <itemPath>contrib/board/acme/sama5d2_roadrunner/sama5d2_roadrunner.c</itemPath>
-            </logicalFolder>
-            <logicalFolder name="f3" displayName="sama5d3_acqua" projectFiles="true">
-              <itemPath>contrib/board/acme/sama5d3_acqua/sama5d3_acqua.c</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f2" displayName="axentia" projectFiles="true">
-            <logicalFolder name="f1" displayName="sama5d3_linea" projectFiles="true">
-              <itemPath>contrib/board/axentia/sama5d3_linea/sama5d3_linea.c</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f3" displayName="corewind" projectFiles="true">
-            <logicalFolder name="f1" displayName="core9g25" projectFiles="true">
-              <itemPath>contrib/board/corewind/core9g25/core9g25.c</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f4" displayName="l+g" projectFiles="true">
-            <logicalFolder name="f1" displayName="vinco" projectFiles="true">
-              <itemPath>contrib/board/l+g/vinco/vinco.c</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f5" displayName="mini-box" projectFiles="true">
-            <logicalFolder name="f1" displayName="pico_sam9g45" projectFiles="true">
-              <itemPath>contrib/board/mini-box/pico_sam9g45/pico_sam9g45.c</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-          <logicalFolder name="f6" displayName="stephan" projectFiles="true">
-            <logicalFolder name="f1" displayName="sama5d3_stephan" projectFiles="true">
-              <itemPath>contrib/board/stephan/sama5d3_stephan/sama5d3_stephan.c</itemPath>
-            </logicalFolder>
-          </logicalFolder>
-        </logicalFolder>
-      </logicalFolder>
-      <logicalFolder name="f4" displayName="driver" projectFiles="true">
-        <logicalFolder name="f2" displayName="monitor" projectFiles="true">
-          <itemPath>driver/monitor/mon_init.S</itemPath>
-          <itemPath>driver/monitor/mon_switch.S</itemPath>
-          <itemPath>driver/monitor/mon_vectors.S</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f1" displayName="pmc" projectFiles="true">
-          <itemPath>driver/pmc/common.c</itemPath>
-          <itemPath>driver/pmc/generic-clk.c</itemPath>
-          <itemPath>driver/pmc/periph-clk-at91sam9.c</itemPath>
-          <itemPath>driver/pmc/periph-clk-sam9x5.c</itemPath>
-          <itemPath>driver/pmc/pll-clk-sam9x60.c</itemPath>
-          <itemPath>driver/pmc/pll-clk.c</itemPath>
-          <itemPath>driver/pmc/utmi-clk.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f3" displayName="spi_flash" projectFiles="true">
-          <itemPath>driver/spi_flash/sfdp.c</itemPath>
-          <itemPath>driver/spi_flash/spi_flash.c</itemPath>
-          <itemPath>driver/spi_flash/spi_nor.c</itemPath>
-          <itemPath>driver/spi_flash/spi_nor_ids.c</itemPath>
-        </logicalFolder>
-        <itemPath>driver/act8865.c</itemPath>
-        <itemPath>driver/at24xx.c</itemPath>
-        <itemPath>driver/at91_aes.c</itemPath>
-        <itemPath>driver/at91_aicredir.c</itemPath>
-        <itemPath>driver/at91_flexcom.c</itemPath>
-        <itemPath>driver/at91_mci.c</itemPath>
-        <itemPath>driver/at91_pio.c</itemPath>
-        <itemPath>driver/at91_pit.c</itemPath>
-        <itemPath>driver/at91_qspi.c</itemPath>
-        <itemPath>driver/at91_rstc.c</itemPath>
-        <itemPath>driver/at91_slowclk.c</itemPath>
-        <itemPath>driver/at91_spi.c</itemPath>
-        <itemPath>driver/at91_twi.c</itemPath>
-        <itemPath>driver/at91_usart.c</itemPath>
-        <itemPath>driver/at91_wdt.c</itemPath>
-        <itemPath>driver/at91_wdt2.c</itemPath>
-        <itemPath>driver/backup.c</itemPath>
-        <itemPath>driver/board_hw_info.c</itemPath>
-        <itemPath>driver/common.c</itemPath>
-        <itemPath>driver/dataflash.c</itemPath>
-        <itemPath>driver/ddramc.c</itemPath>
-        <itemPath>driver/debug.c</itemPath>
-        <itemPath>driver/ds24xx.c</itemPath>
-        <itemPath>driver/flash.c</itemPath>
-        <itemPath>driver/hamming.c</itemPath>
-        <itemPath>driver/hdmi_SiI9022.c</itemPath>
-        <itemPath>driver/load_kernel.c</itemPath>
-        <itemPath>driver/lp310_l2cc.c</itemPath>
-        <itemPath>driver/macb.c</itemPath>
-        <itemPath>driver/matrix.c</itemPath>
-        <itemPath>driver/mci_media.c</itemPath>
-        <itemPath>driver/nandflash.c</itemPath>
-        <itemPath>driver/pm.c</itemPath>
-        <itemPath>driver/pmecc.c</itemPath>
-        <itemPath>driver/sdcard.c</itemPath>
-        <itemPath>driver/sdhc.c</itemPath>
-        <itemPath>driver/sdramc.c</itemPath>
-        <itemPath>driver/secure.c</itemPath>
-        <itemPath>driver/spi_flash.c</itemPath>
-        <itemPath>driver/svc_handler.S</itemPath>
-        <itemPath>driver/svc_mgr.c</itemPath>
-        <itemPath>driver/tz_utils.c</itemPath>
-        <itemPath>driver/wm8904.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f5" displayName="fs" projectFiles="true">
-        <logicalFolder name="f1" displayName="src" projectFiles="true">
-          <logicalFolder name="f1" displayName="option" projectFiles="true">
-            <itemPath>fs/src/option/ccsbcs.c</itemPath>
-          </logicalFolder>
-          <itemPath>fs/src/diskio.c</itemPath>
-          <itemPath>fs/src/ff.c</itemPath>
-        </logicalFolder>
-      </logicalFolder>
-      <logicalFolder name="f6" displayName="lib" projectFiles="true">
-        <itemPath>lib/div.c</itemPath>
-        <itemPath>lib/eabi_utils.c</itemPath>
-        <itemPath>lib/fdt.c</itemPath>
-        <itemPath>lib/string.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f7" displayName="scripts" projectFiles="true">
-        <logicalFolder name="f1" displayName="mpconfig" projectFiles="true">
-          <itemPath>scripts/mpconfig/defconfig.py</itemPath>
-          <itemPath>scripts/mpconfig/events.py</itemPath>
-          <itemPath>scripts/mpconfig/genconfig.py</itemPath>
-          <itemPath>scripts/mpconfig/kconfiglib.py</itemPath>
-          <itemPath>scripts/mpconfig/knodeinfo.py</itemPath>
-          <itemPath>scripts/mpconfig/mpconfig.py</itemPath>
-        </logicalFolder>
-        <itemPath>scripts/addpmecchead.py</itemPath>
-        <itemPath>scripts/bitfieldsparser.py</itemPath>
-        <itemPath>scripts/get_sram_size.sh</itemPath>
-        <itemPath>scripts/pmecc_head.json</itemPath>
-        <itemPath>scripts/pmecc_head.py</itemPath>
-      </logicalFolder>
-      <itemPath>crt0_gnu.S</itemPath>
-      <itemPath>main.c</itemPath>
-    </logicalFolder>
-    <logicalFolder name="ExternalFiles"
-                   displayName="Important Files"
-                   projectFiles="false">
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
@@ -516,23 +15,27 @@
     <conf name="default" type="9">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <targetDevice>ATSAMA5D27</targetDevice>
+        <targetDevice>SAM9X60</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool></platformTool>
+        <platformTool>noID</platformTool>
         <languageToolchain></languageToolchain>
         <languageToolchainVersion></languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="SAMA5D2_DFP" vendor="Microchip" version="1.2.27"/>
-        <pack name="CMSIS" vendor="ARM" version="5.4.0"/>
+        <pack name="SAM9X6_DFP" vendor="Microchip" version="1.5.50"/>
       </packs>
       <ScriptingSettings>
+        <ScriptingSetting key="boot.load_adr" value=""/>
+        <ScriptingSetting key="boot.use" value="false"/>
         <ScriptingSetting key="x.bootstrap.load" value=""/>
         <ScriptingSetting key="x.bootstrap.entry" value=""/>
+        <ScriptingSetting key="boot.entry_adr" value=""/>
         <ScriptingSetting key="x.bootstrap.bin" value=""/>
         <ScriptingSetting key="x.bootstrap.use" value="None"/>
+        <ScriptingSetting key="boot.path" value=""/>
+        <ScriptingSetting key="boot.prj" value=""/>
       </ScriptingSettings>
       <makefileType>
         <makeTool>
@@ -548,6 +51,110 @@
       </makefileType>
       <userMakefileProjectLoading>
       </userMakefileProjectLoading>
+      <Tool>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="boot.entry_adr" value=""/>
+        <property key="boot.load_adr" value=""/>
+        <property key="boot.path" value=""/>
+        <property key="boot.prj" value=""/>
+        <property key="boot.use" value="false"/>
+        <property key="communication.autoselectspeed" value="true"/>
+        <property key="communication.interface" value="4wire"/>
+        <property key="communication.speed" value="4"/>
+        <property key="debugoptions.debug-startup" value="Use system settings"/>
+        <property key="debugoptions.reset-behaviour" value="Use system settings"/>
+        <property key="lastid" value=""/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram" value="true"/>
+        <property key="memories.instruction.ram.end"
+                  value="${memories.instruction.ram.end.value}"/>
+        <property key="memories.instruction.ram.start"
+                  value="${memories.instruction.ram.start.value}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x4fffff"/>
+        <property key="memories.programmemory.start" value="0x300000"/>
+        <property key="programoptions.eraseb4program" value="false"/>
+        <property key="programoptions.preservebootflash" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x4fffff"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x300000"/>
+        <property key="programoptions.resetafterprogram" value="true"/>
+        <property key="script.has_reset" value="true"/>
+        <property key="script.log_level" value="1"/>
+        <property key="script.reset_delay" value="0"/>
+        <property key="script.show_output" value="false"/>
+        <property key="x.bootstrap.bin" value=""/>
+        <property key="x.bootstrap.entry" value=""/>
+        <property key="x.bootstrap.load" value=""/>
+        <property key="x.bootstrap.use" value="None"/>
+      </Tool>
+      <jlink>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="communication.autoselectspeed" value="true"/>
+        <property key="communication.interface" value="4wire"/>
+        <property key="communication.speed" value="4"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram" value="true"/>
+        <property key="memories.instruction.ram.end"
+                  value="${memories.instruction.ram.end.value}"/>
+        <property key="memories.instruction.ram.start"
+                  value="${memories.instruction.ram.start.value}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x4fffff"/>
+        <property key="memories.programmemory.start" value="0x300000"/>
+        <property key="programoptions.eraseb4program" value="false"/>
+        <property key="programoptions.preservebootflash" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x4fffff"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x300000"/>
+        <property key="programoptions.resetafterprogram" value="true"/>
+      </jlink>
+      <samice>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="boot.entry_adr" value=""/>
+        <property key="boot.load_adr" value=""/>
+        <property key="boot.path" value=""/>
+        <property key="boot.prj" value=""/>
+        <property key="boot.use" value="false"/>
+        <property key="communication.autoselectspeed" value="true"/>
+        <property key="communication.interface" value="4wire"/>
+        <property key="communication.speed" value="4"/>
+        <property key="debugoptions.debug-startup" value="Use system settings"/>
+        <property key="debugoptions.reset-behaviour" value="Use system settings"/>
+        <property key="lastid" value=""/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram" value="true"/>
+        <property key="memories.instruction.ram.end"
+                  value="${memories.instruction.ram.end.value}"/>
+        <property key="memories.instruction.ram.start"
+                  value="${memories.instruction.ram.start.value}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.end" value="0x4fffff"/>
+        <property key="memories.programmemory.start" value="0x300000"/>
+        <property key="programoptions.eraseb4program" value="false"/>
+        <property key="programoptions.preservebootflash" value="false"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x4fffff"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x300000"/>
+        <property key="programoptions.resetafterprogram" value="true"/>
+        <property key="script.has_reset" value="true"/>
+        <property key="script.log_level" value="1"/>
+        <property key="script.reset_delay" value="0"/>
+        <property key="script.show_output" value="false"/>
+        <property key="x.bootstrap.bin" value=""/>
+        <property key="x.bootstrap.entry" value=""/>
+        <property key="x.bootstrap.load" value=""/>
+        <property key="x.bootstrap.use" value="None"/>
+      </samice>
     </conf>
   </confs>
 </configurationDescriptor>
