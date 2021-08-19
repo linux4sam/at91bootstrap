@@ -51,7 +51,9 @@ endif
 endif
 VERSION := 3.10.3
 REVISION :=
+ifdef NIX_SHELL
 SCMINFO := $(shell (host-utilities/setlocalversion))
+endif
 
 ifeq ($(SCMINFO),)
 -include scminfo.mk
@@ -249,7 +251,7 @@ include	fs/src/fat.mk
 
 GC_SECTIONS=--gc-sections
 
-NOSTDINC_FLAGS := -nostdinc -isystem "$(shell $(CC) -print-file-name=include)"
+NOSTDINC_FLAGS := -nostdinc -isystem "$(shell "$(CC)" -print-file-name=include)"
 
 CPPFLAGS=$(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-mno-unaligned-access \
@@ -294,7 +296,7 @@ endif
 
 REMOVE_SECTIONS=-R .note -R .comment -R .note.gnu.build-id
 
-gccversion := $(shell $(CC) -dumpversion)
+gccversion := $(shell "$(CC)" -dumpversion)
 
 ifdef YYY   # For other utils
 ifeq ($(CC),gcc) 
@@ -304,11 +306,19 @@ TARGETS=$(AT91BOOTSTRAP) host-utilities .config filesize
 endif
 endif
 
-TARGETS=$(AT91BOOTSTRAP)
+
+TARGETS=CheckCrossCompile PrintFlags $(AT91BOOTSTRAP)
+ifdef NIX_SHELL
+TARGETS+=ChkFileSize
+endif
+
+ifeq ($(CONFIG_NANDFLASH)$(CONFIG_USE_PMECC), yy)
+TARGETS+=${AT91BOOTSTRAP}.pmecc
+endif
 
 PHONY:=all
 
-all: CheckCrossCompile PrintFlags $(AT91BOOTSTRAP) ChkFileSize ${AT91BOOTSTRAP}.pmecc
+all: $(TARGETS)
 
 CheckCrossCompile:
 	$(if $(filter-out arm,$(HOSTARCH)),$(if $(CROSS_COMPILE),, \
@@ -350,17 +360,18 @@ endif
 
 %.o : %.c .config
 	@echo "  CC        "$<
-	@$(CC) $(CPPFLAGS) -c -o $@ $<
+	@"$(CC)" $(CPPFLAGS) -c -o $@ $<
 
 %.o : %.S .config
 	@echo "  AS        "$<
-	@$(AS) $(ASFLAGS)  -c -o $@  $<
+	@"$(AS)" $(ASFLAGS) -c -o $@ $<
 
-$(AT91BOOTSTRAP).pmecc: $(AT91BOOTSTRAP)
-ifeq ($(CONFIG_NANDFLASH), y)
-ifeq ($(CONFIG_USE_PMECC), y)
-	$(Q)./scripts/addpmecchead.py $(AT91BOOTSTRAP) $(AT91BOOTSTRAP).pmecc $(BOARDNAME)
-endif
+$(AT91BOOTSTRAP).pmecc: $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP)
+	$(Q)cat $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP) > $@
+
+$(BINDIR)/pmecc.tmp: .config | $(BINDIR)
+ifdef NIX_SHELL
+	$(Q)./scripts/addpmecchead.py .config $(BINDIR)
 endif
 
 PHONY+= bootstrap
@@ -467,7 +478,8 @@ distclean: clean config-clean
 	$(Q)rm -fr .config .config.cmd .config.old
 	$(Q)rm -fr .auto.deps
 	$(Q)rm -f .installed
-	$(Q)rm -f ..*.tmp
+	$(Q)rm -fr ..make.deps.tmp ..config.tmp
+	$(Q)rm -f $(BINDIR)/pmecc.tmp
 	$(Q)rm -f .configured
 	$(Q)rm -f .prepared
 	$(Q)rm -f $(subst $$,\$$,$(call rwildcard,scripts,*$$py.class))
@@ -484,7 +496,7 @@ distclean: clean config-clean
 
 mplabclean: clean
 	@echo "  CLEAN        "binary files!
-	$(Q)rm -fr $(BUILDDIR)
+	$(Q)rm -fr $(BINDIR)
 	$(Q)rm -fr log
 
 mrproper: distclean
