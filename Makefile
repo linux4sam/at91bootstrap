@@ -460,6 +460,17 @@ distclean: clean config-clean
 	$(Q)rm -f ..*.tmp
 	$(Q)rm -f .configured
 	$(Q)rm -f .prepared
+	$(Q)rm -f $(subst $$,\$$,$(call rwildcard,scripts,*$$py.class))
+	$(Q)rm -fr debug
+	$(Q)rm -f default.config
+	$(Q)rm -f default.config.old
+	$(Q)rm -f nbproject/Makefile-default.mk
+	$(Q)rm -f nbproject/Makefile-genesis.properties
+	$(Q)rm -f nbproject/Makefile-impl.mk
+	$(Q)rm -f nbproject/Makefile-local-default.mk
+	$(Q)rm -f nbproject/Makefile-variables.mk
+	$(Q)rm -f nbproject/Package-default.bash
+	$(Q)rm -fr nbproject/private
 
 mrproper: distclean
 	@echo "  CLEAN        "binary files!

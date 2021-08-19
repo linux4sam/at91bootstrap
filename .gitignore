@@ -7,6 +7,7 @@ config/at91bootstrap-config/
 .auto.deps
 .prepared
 build
+debug
 result
 binaries
 *~
@@ -15,3 +16,6 @@ binaries
 tags
 *.swp
 *.pyc
+scripts/**/*$py.class
+default.config
+default.config.old
