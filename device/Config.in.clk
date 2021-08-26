@@ -45,6 +45,18 @@ config MCK_BYPASS
 	  If this option is disabled, the SoC expects a crystal oscillator
 	  that needs driving on both XIN and XOUT lines.
 
+config MAINOSC_MEASUREMENT
+	bool "Perform a measurement of the external crystal"
+	depends on SAMA7G5 || SAMA5D2
+	default y
+	help
+	  Perform a measurement of the external crystal connected to the device.
+	  This is done by using the monitoring domain slow clock, thus it can be
+	  pretty inaccurate. MHz level measurement should be enough.
+	  This also checks if the MHz measurement is in datasheet range.
+	  AT91Bootstrap will refuse to boot if the measurement is not in this
+	  range. To override this, disable the measurement option.
+
 endmenu
 
 menu "Slow Clock Configuration Options"
