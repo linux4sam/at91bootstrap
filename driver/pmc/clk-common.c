@@ -16,12 +16,20 @@ void lowlevel_clock_init()
 {
 	unsigned long tmp;
 
+#ifdef CONFIG_SAMA7G5
+	/*
+	 * For sama7g5, it is recommended to switch to Main Clock,
+	 * as the main clock is always on and reliable.
+	 */
+	pmc_mck_cfg_set(0, AT91C_PMC_CSS_MAIN_CLK, AT91C_PMC_CSS);
+#else
 	/*
 	 * Switch the master clock to the slow clock without modifying other
 	 * parameters. It is assumed that ROM code set H32MXDIV, PLLADIV2,
 	 * PCK_DIV3.
 	 */
 	pmc_mck_cfg_set(0, AT91C_PMC_CSS_SLOW_CLK, AT91C_PMC_CSS);
+#endif
 
 #ifdef CONFIG_SAMA7G5
 	/*
