@@ -1121,6 +1121,17 @@ void hw_init(void)
 	} else if (!backup_resume()) {
 		console_printf("UMCTL2: Initialization complete.\n");
 	}
+}
+
+void hw_postinit(void)
+{
+	struct pmc_pll_cfg plla_config;
+	unsigned int mck0_prescaler;
+
+	/*  In order to run at 1000MHz CPU clock the board's PMIC
+	 *  must be able to raise the VDDCPU voltage to 1250mV
+	 *  as it is recommended in the datasheet.
+	 */
 
 	mcp16502_voltage_select();
 

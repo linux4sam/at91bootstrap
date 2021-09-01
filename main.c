@@ -80,6 +80,10 @@ int main(void)
 	act8945a_suspend_charger();
 #endif
 
+#ifdef CONFIG_SAMA7G5
+	hw_postinit();
+#endif
+
 #ifdef CONFIG_LOAD_SW
 	init_load_image(&image);
 

@@ -32,9 +32,13 @@
  */
 extern void hw_init(void);
 
-/* Some platforms require a preinit very early in the boot process */
+/* Some platforms require a preinit very early in the boot process,
+   or a postinit after the PMIC voltage selection.
+*/
+
 #ifdef CONFIG_SAMA7G5
 extern void hw_preinit(void);
+extern void hw_postinit(void);
 #endif
 
 extern void nandflash_hw_init(void);
