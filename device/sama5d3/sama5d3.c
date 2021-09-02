@@ -14,7 +14,7 @@
 #include "watchdog.h"
 #include "string.h"
 #include "board_hw_info.h"
-
+#include "led.h"
 #include "arch/at91_pmc/pmc.h"
 #include "arch/at91_rstc.h"
 #include "arch/sama5_smc.h"
@@ -228,6 +228,10 @@ void hw_init(void)
 {
 	/* Disable watchdog */
 	at91_disable_wdt();
+
+#ifdef CONFIG_LED_ON_BOARD
+	at91_leds_init();
+#endif
 
 	/*
 	 * At this stage the main oscillator
