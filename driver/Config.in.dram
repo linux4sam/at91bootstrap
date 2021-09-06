@@ -231,19 +231,18 @@ config LPDDR2_S4
 	  LPDDR2-S4
 endchoice
 
-
 choice
 	prompt "CAS Latency"
 	depends on DDR_SET_BY_JEDEC || DDR_SET_BY_TIMING
 config CAS_2
 	bool "CAS 2"
-	depends on LPDDR1
+	depends on (LPDDR1 && DDRC)
 	help
 	  LPDDR1 CAS Latency 2
 
 config CAS_3
 	bool "CAS 3"
-	depends on (DDR2 && UMCTL2) || ((DDR2 || LPDDR1 || LPDDR2 || LPDDR3) && DDRC)
+	depends on (DDR2 && (DDR_SPEED_400 || DDR_SPEED_533 ) && UMCTL2) || ((DDR2 || LPDDR1 || LPDDR2 || LPDDR3) && DDRC)
 	help
 	  LPDDR3/DDR2/LPDDR2/LPDDR1 CAS Latency 3
 
@@ -255,25 +254,25 @@ config CAS_4
 
 config CAS_5
 	bool "CAS 5"
-	depends on DDRC || (DDR3 && DDR_SPEED_800 && UMCTL2) || (DDR2 && UMCTL2 )
+	depends on (DDR3 && DDRC) || (DDR3 && DDR_SPEED_800 && UMCTL2) || (DDR2 && (DDR_SPEED_667 || DDR_SPEED_800 ) && UMCTL2 )
 	help
 	  DDR3 CAS Latency 5
 
 config CAS_6
 	bool "CAS 6"
-	depends on ((DDR3 || LPDDR3)&& DDRC) || (DDR2 && UMCTL2) || (DDR3 && UMCTL2)
+	depends on ((DDR3 || LPDDR3) && DDRC) || (DDR2 && DDR_SPEED_800 && UMCTL2) || (DDR3 && UMCTL2)
 	help
 	  CAS Latency 6
 
 config CAS_7
 	bool "CAS 7"
-	depends on DDR3 && UMCTL2
+	depends on (DDR3 && (DDR_SPEED_1066 || DDR_SPEED_1333) && UMCTL2)
 	help
 	  CAS Latency 7
 
 config CAS_8
 	bool "CAS 8"
-	depends on DDR3 && UMCTL2
+	depends on (DDR3 && (DDR_SPEED_1066 || DDR_SPEED_1333) && UMCTL2)
 	help
 	  CAS Latency 8
 endchoice
