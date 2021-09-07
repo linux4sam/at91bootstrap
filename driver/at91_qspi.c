@@ -336,7 +336,8 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 		/* Read data. */
 		if (!((unsigned int)(qspi->mem + offset) & 0x3) &&
 		    !((unsigned int)(cmd->rx_data) & 0x3) &&
-		    (cmd->inst == SFLASH_INST_FAST_READ_1_4_4)) { /* Verified with 0xEB */
+		    ((cmd->inst == SFLASH_INST_FAST_READ_1_4_4) || /* Verified with 0xEB */
+		     (cmd->inst == SFLASH_INST_FAST_READ_1_4_4_4B))) { /* Verified with 0xEC */
 			unsigned int *src = qspi->mem + offset;
 			unsigned int *dest = (unsigned int *)cmd->rx_data;
 			unsigned char *src_byte = NULL;
