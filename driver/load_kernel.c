@@ -11,6 +11,7 @@
 #include "dataflash.h"
 #include "ddramc.h"
 #include "nandflash.h"
+#include "optee.h"
 #include "flash.h"
 #include "sdcard.h"
 #include "sdramc.h"
@@ -29,16 +30,18 @@ static char *bootargs;
 
 static int setup_dt_blob(void *blob)
 {
+	int ret;
+#if !defined(CONFIG_LOAD_OPTEE)
 	unsigned int mem_bank = AT91C_BASE_DDRCS;
 	unsigned int mem_bank2 = 0;
 	unsigned int mem_size = 0;
-	int ret;
 #if defined(CONFIG_SDRAM)
 	mem_size = get_sdram_size();
 #elif defined(CONFIG_DDRC) || defined(CONFIG_UMCTL2)
 	mem_size = get_ddram_size();
 #else
 #error "No DRAM type specified!"
+#endif
 #endif
 
 	if (check_dt_blob_valid(blob)) {
@@ -65,9 +68,18 @@ static int setup_dt_blob(void *blob)
 			return ret;
 	}
 
+/*
+ * When using OP-TEE the memory node should match the configuration of the DDR
+ * that has been secured. Since this can't easily be inferred from
+ * at91bootstrap, do not modify the memory node and let the user provide a
+ * correct device tree. Moreover, the memory node in newer device tree is often
+ * already correctly configured.
+ */
+#if !defined(CONFIG_LOAD_OPTEE)
 	ret = fixup_memory_node(blob, &mem_bank, &mem_bank2, &mem_size);
 	if (ret)
 		return ret;
+#endif
 
 	return 0;
 }
@@ -453,6 +465,8 @@ int load_kernel(struct image_info *image)
 					(unsigned int)kernel_entry);
 
 	enter_normal_world();
+#elif defined(CONFIG_LOAD_OPTEE)
+	optee_init_nw_params(kernel_entry, 0, mach_type, r2);
 #else
 	kernel_entry(0, mach_type, r2);
 #endif
