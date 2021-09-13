@@ -109,7 +109,7 @@ config OF_LIBFDT
 	default y
 
 config OF_OVERRIDE_DTB_NAME
-	string "Override Flattended Device Tree Blob filename"
+	string "Override Flattened Device Tree Blob filename"
 	depends on OF_LIBFDT && SDCARD
 
 config OF_OFFSET
