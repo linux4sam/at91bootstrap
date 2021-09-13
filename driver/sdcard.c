@@ -130,32 +130,36 @@ int load_sdcard(struct image_info *image)
 	}
 
 #ifdef CONFIG_OF_LIBFDT
-	at91_board_set_dtb_name(image->of_filename);
+	if (image->of_dest) {
+		at91_board_set_dtb_name(image->of_filename);
 
-	if (strcmp(CONFIG_OF_OVERRIDE_DTB_NAME, "")) {
-                strcpy(image->of_filename, CONFIG_OF_OVERRIDE_DTB_NAME);
-        }
+		if (strcmp(CONFIG_OF_OVERRIDE_DTB_NAME, "")) {
+			strcpy(image->of_filename, CONFIG_OF_OVERRIDE_DTB_NAME);
+		}
 
-	dbg_info("SD/MMC: dt blob: Read file %s to %x\n",
-			image->of_filename, image->of_dest);
+		dbg_info("SD/MMC: dt blob: Read file %s to %x\n",
+				image->of_filename, image->of_dest);
 
-	ret = sdcard_loadimage(image->of_filename, image->of_dest);
-	if (ret) {
-		(void)f_mount(0, NULL);
-		return ret;
+		ret = sdcard_loadimage(image->of_filename, image->of_dest);
+		if (ret) {
+			(void)f_mount(0, NULL);
+			return ret;
+		}
 	}
 
 #endif
 
 #ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
-	dbg_info("SD/MMC: kernel arg string: Read file %s\n",
-			image->cmdline_file);
-
-	ret = sdcard_read_cmd(image->cmdline_file, image->cmdline_args);
 	if (image->cmdline_args) {
-		(void)f_mount(0, NULL);
-		return ret;
-        }
+		dbg_info("SD/MMC: kernel arg string: Read file %s\n",
+				image->cmdline_file);
+
+		ret = sdcard_read_cmd(image->cmdline_file, image->cmdline_args);
+		if (ret) {
+			(void)f_mount(0, NULL);
+			return ret;
+		}
+	}
 
 #endif
 
