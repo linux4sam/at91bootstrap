@@ -137,7 +137,6 @@ config LOAD_UBOOT
 	  such as U-Boot, placed in the last MByte of SDRAM.
 
 config LOAD_LINUX
-	depends on !LOAD_OPTEE
 	select LINUX_IMAGE
 	bool "Linux Kernel"
 	---help---
