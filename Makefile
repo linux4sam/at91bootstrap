@@ -326,7 +326,7 @@ $(AT91BOOTSTRAP): $(OBJS) | $(BINDIR)
 	$(Q)$(MKDIR) -p $(dir $@)
 	@echo "  LD        "$(BOOT_NAME).elf
 	$(Q)"$(LD)" $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
-	@"$(OBJCOPY)" --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
+	$(Q)"$(OBJCOPY)" --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 ifdef NIX_SHELL
 	@ln -sf $(BOOT_NAME).elf ${BINDIR}/${SYMLINK_ELF}
 	@ln -sf $(BOOT_NAME).elf ${BINDIR}/${SYMLINK_ELF_STRIPPED}
@@ -342,12 +342,12 @@ endif
 $(BUILDDIR)/%.o : %.c .config
 	$(Q)$(MKDIR) -p $(dir $@)
 	@echo "  CC        "$<
-	@"$(CC)" $(CPPFLAGS) -c -o $@ $<
+	$(Q)"$(CC)" $(CPPFLAGS) -c -o $@ $<
 
 $(BUILDDIR)/%.o : %.S .config
 	$(Q)$(MKDIR) -p $(dir $@)
 	@echo "  AS        "$<
-	@"$(AS)" $(ASFLAGS) -c -o $@ $<
+	$(Q)"$(AS)" $(ASFLAGS) -c -o $@ $<
 
 $(AT91BOOTSTRAP).pmecc: $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP)
 	$(Q)cat $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP) > $@
