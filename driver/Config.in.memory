@@ -42,10 +42,6 @@ config	ALLOW_PSRAM
 	bool
 	default n
 
-config	ALLOW_SDRAM_16BIT
-	bool
-	default n
-
 source "driver/Config.in.dram"
 
 menu "Extra parameters"
@@ -81,10 +77,6 @@ config SAMA5D2_LPDDR2
 	bool
 	default y if LPDDR2 && SAMA5D2
 	default n
-
-config	SDRAM_16BIT
-	bool "Use 16 bit SDRAM"
-	depends on ALLOW_SDRAM_16BIT
 
 config	PSRAM
 	bool "Enable PSRAM on EBI1"
