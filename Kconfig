@@ -393,6 +393,12 @@ config BOARD_QUIRK_SAM9X60_EK
 config BOARD_QUIRK_SAM9X60_EB
 	bool "Quirks for SAM9X60-SDR-SIP-EB / SAM9X60-DDR2-SIP-EB board"
 
+config BOARD_QUIRK_SAMA7G5_EK
+	bool "Quirks for SAMA7G5-EK board"
+	help
+	  On SAMA7G5 EK board, pin PC15/16 are connected to STBY of the CAN transceivers,
+	  enabling this quirk will put the transceivers to normal mode.
+
 endchoice
 
 config LED_ON_BOARD

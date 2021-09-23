@@ -29,6 +29,8 @@
 
 #include "sama7g5_board.h"
 
+__attribute__((weak)) void at91_can_stdby_dis(void);
+
 static void ca7_enable_smp()
 {
 	/* asm code to enable ACTLR.SMP . this is needed for SCU for L2 cache */
@@ -1088,6 +1090,9 @@ void hw_init(void)
 	} else if (!backup_resume()) {
 		console_printf("UMCTL2: Initialization complete.\n");
 	}
+#ifdef CONFIG_BOARD_QUIRK_SAMA7G5_EK
+	at91_can_stdby_dis();
+#endif
 }
 
 void hw_postinit(void)

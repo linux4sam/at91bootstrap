@@ -142,3 +142,20 @@ void wilc_pwrseq()
 	pio_configure(wilc_en_pins);
 }
 #endif
+
+#ifdef CONFIG_BOARD_QUIRK_SAMA7G5_EK
+/*
+ * Must set PC15 and PC16 to LOW to enable the can transceivers.
+ * This needs to be replaced later with Linux control over these GPIOs
+ */
+void at91_can_stdby_dis(void)
+{
+	const struct pio_desc can_pins[] = {
+		{"CAN_STDBY", AT91C_PIN_PC(15), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{"CAN_STDBY", AT91C_PIN_PC(16), 0, PIO_DEFAULT, PIO_OUTPUT},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
+	};
+
+	pio_configure(can_pins);
+}
+#endif
