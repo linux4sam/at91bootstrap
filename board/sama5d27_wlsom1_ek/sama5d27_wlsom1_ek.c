@@ -290,8 +290,8 @@ static void lpddr2_reg_config(struct ddramc_register *ddramc_config)
 			       AT91C_DDRC2_TMRD_(5));
 
 	ddramc_config->t1pr = (AT91C_DDRC2_TRFC_(21) |		/* = TRFCab */
-				AT91C_DDRC2_TXSNR_(0) |		/* doesn't exist in LPDDR2 */
-				AT91C_DDRC2_TXSRD_(23) |	/* = TRFCab + 10 = TXSRD */
+				AT91C_DDRC2_TXSNR_(23) |	/* = TRFCab + 10 = TXSRD */
+				AT91C_DDRC2_TXSRD_(0) |		/* doesn't exist in LPDDR2 */
 				AT91C_DDRC2_TXP_(2));		/* min needed */
 
 	ddramc_config->t2pr = (AT91C_DDRC2_TXARD_(0) |
