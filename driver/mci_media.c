@@ -47,7 +47,7 @@ static int sd_cmd_send_if_cond(struct sd_card *sdcard)
 	command->resp_type = SD_RESP_TYPE_R1;
 	command->argu = CHECK_PATTERN;
 	command->argu |= (host->caps_voltages
-				&& OCR_VOLTAGE_27_36_MASK) ? (0x01 << 8) : 0;
+				& OCR_VOLTAGE_27_36_MASK) ? (0x01 << 8) : 0;
 
 	ret = host->ops->send_command(command, 0);
 	if (ret)
