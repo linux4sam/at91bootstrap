@@ -33,7 +33,7 @@ void *memcpy(void *dst, const void *src, int cnt)
 	char *d;
 	const char *s;
 	struct chunk {
-		unsigned long long val[2];
+		unsigned long val[2];
 	};
 
 	const struct chunk *csrc = (const struct chunk *) src;
