@@ -117,7 +117,7 @@ exit:
 	return rc;
 }
 
-static void wipe_keys()
+static void __attribute__((optimize("O0"))) wipe_keys()
 {
 	/* Reset keys */
 	memset(cmac_key, 0, sizeof(cmac_key));
