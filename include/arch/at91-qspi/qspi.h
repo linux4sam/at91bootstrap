@@ -49,14 +49,8 @@
 
 /* QSPI_MR */
 #define	QSPI_MR_SMM		(0x1 << 0)	/* Serial Memory Mode */
-#define		QSPI_MR_SMM_SPI		(0x0 << 0)
-#define		QSPI_MR_SMM_MEMORY	(0x1 << 0)
 #define	QSPI_MR_WDRBT		(0x1 << 2)	/* Wait Data Read Before Transfer */
-#define		QSPI_MR_WDRBT_DISABLED		(0x0 << 2)
-#define		QSPI_MR_WDRBT_ENABLED		(0x1 << 2)
 #define	QSPI_MR_SMRM		(0x1 << 3)	/* Serial Memory Register Mode */
-#define		QSPI_MR_SMRM_AHB	(0x0 << 3)
-#define		QSPI_MR_SMRM_APB	(0x1 << 3)
 #define	QSPI_MR_CSMODE		(0x3 << 4)	/* Chip Select Mode */
 #define		QSPI_MR_CSMODE_NOT_RELOADED	(0x0 << 4)
 #define		QSPI_MR_CSMODE_LASTXFER		(0x1 << 4)

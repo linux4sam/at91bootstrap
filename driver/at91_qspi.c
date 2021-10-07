@@ -102,7 +102,7 @@ static int qspi_init(void *priv)
 	qspi_writel(qspi, QSPI_CR, QSPI_CR_QSPIDIS);
 	qspi_writel(qspi, QSPI_CR, QSPI_CR_SWRST);
 
-	qspi_writel(qspi, QSPI_MR, QSPI_MR_SMM_MEMORY);
+	qspi_writel(qspi, QSPI_MR, QSPI_MR_SMM);
 	qspi_writel(qspi, QSPI_SCR, 0);
 
 	qspi_writel(qspi, QSPI_CR, QSPI_CR_QSPIEN);
