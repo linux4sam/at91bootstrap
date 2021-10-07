@@ -7,7 +7,7 @@
 #include "pmc.h"
 #include "div.h"
 #include "string.h"
-#include "arch/at91_qspi.h"
+#include "arch/at91-qspi/qspi.h"
 #include "spi_flash/spi_nor.h"
 #include "debug.h"
 #include "timer.h"
