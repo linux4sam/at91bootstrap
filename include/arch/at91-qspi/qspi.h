@@ -10,6 +10,7 @@
 #if defined(CONFIG_SAMA5D2)
 #include "qspi-sama5d2.h"
 #elif defined(CONFIG_SAM9X60)
+#include "qspi-sam9x60.h"
 #else
 #error "QSPI not supported for this SoC"
 #endif
@@ -27,9 +28,7 @@
 #define	QSPI_IMR	0x1c	/* Interrupt Mask Register */
 #define	QSPI_SCR	0x20	/* Serial Clock Register */
 #define	QSPI_IAR	0x30	/* Instruction Address Register */
-#define	QSPI_WICR	0x34	/* Write Instruction Code Register */
 #define	QSPI_IFR	0x38	/* Instruction Frame Register */
-#define	QSPI_RICR	0x3c	/* Read Instruction Code Register */
 /* 0x3c Reserved */
 #define	QSPI_SMR	0x40	/* Scrambling Mode Register */
 #define	QSPI_SKR	0x44	/* Scrambling Key Register */
