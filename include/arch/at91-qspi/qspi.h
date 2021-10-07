@@ -7,6 +7,13 @@
 #ifndef	__AT91_QSPI_H__
 #define	__AT91_QSPI_H__
 
+#if defined(CONFIG_SAMA5D2)
+#include "qspi-sama5d2.h"
+#elif defined(CONFIG_SAM9X60)
+#else
+#error "QSPI not supported for this SoC"
+#endif
+
 /*
  * Register Definitions
  */
@@ -20,7 +27,6 @@
 #define	QSPI_IMR	0x1c	/* Interrupt Mask Register */
 #define	QSPI_SCR	0x20	/* Serial Clock Register */
 #define	QSPI_IAR	0x30	/* Instruction Address Register */
-#define	QSPI_ICR	0x34	/* Instruction Code Register */
 #define	QSPI_WICR	0x34	/* Write Instruction Code Register */
 #define	QSPI_IFR	0x38	/* Instruction Frame Register */
 #define	QSPI_RICR	0x3c	/* Read Instruction Code Register */
@@ -46,9 +52,6 @@
 #define	QSPI_MR_SMM		(0x1 << 0)	/* Serial Memory Mode */
 #define		QSPI_MR_SMM_SPI		(0x0 << 0)
 #define		QSPI_MR_SMM_MEMORY	(0x1 << 0)
-#define	QSPI_MR_LLB		(0x1 << 1)	/* Local Localback Enable */
-#define		QSPI_MR_LLB_DISABLED	(0x0 << 1)
-#define		QSPI_MR_LLB_ENABLED	(0x1 << 1)
 #define	QSPI_MR_WDRBT		(0x1 << 2)	/* Wait Data Read Before Transfer */
 #define		QSPI_MR_WDRBT_DISABLED		(0x0 << 2)
 #define		QSPI_MR_WDRBT_ENABLED		(0x1 << 2)
@@ -111,7 +114,6 @@
 #define		QSPI_IFR_ADDRL_24_BIT		(0x0 << 10)
 #define		QSPI_IFR_ADDRL_32_BIT		(0x1 << 10)
 #define	QSPI_IFR_TFRTYPE_MEM	(0x1 << 12)
-#define	QSPI_IFR_TFRTYPE_WRITE	(0x1 << 13)
 #define	QSPI_IFR_CRM		(0x1 << 14)	/* Continuous Read Mode */
 #define	QSPI_IFR_NBDUM_(x)	((x) << 16)	/* Number Of Dummy Cycles */
 
