@@ -61,6 +61,15 @@
 #define	QSPI_MR_DLYBCT		(0xff << 16)	/* Delay Between Consecutive Transfers */
 #define	QSPI_MR_DLYCS		(0xff << 24)	/* Minimum Inactive QCS Delay */
 
+#define QSPI_RDR_MASK		0xffff
+#define QSPI_RDR_(x)		((x) & QSPI_RDR_MASK)
+
+#define QSPI_TDR_MASK		0xffff
+#define QSPI_TDR_(x)		((x) & QSPI_TDR_MASK)
+
+#define QSPI_IAR_ADDR_MASK	0xffffffff
+#define QSPI_IAR_ADDR(x)	((x) & QSPI_IAR_ADDR_MASK)
+
 /* QSPI_SR */
 #define	QSPI_SR_RDRF		(0x1 << 0)	/* Receive Data Register Full */
 #define	QSPI_SR_TDRE		(0x1 << 1)	/* Transmit Data Register Empty */
@@ -109,5 +118,19 @@
 #define	QSPI_IFR_TFRTYPE_MEM	(0x1 << 12)
 #define	QSPI_IFR_CRM		(0x1 << 14)	/* Continuous Read Mode */
 #define	QSPI_IFR_NBDUM_(x)	((x) << 16)	/* Number Of Dummy Cycles */
+
+#define QSPI_SMR_SCREN		(0x1 << 0)
+#define QSPI_SMR_RVDIS		(0x1 << 1)
+
+#define QSPI_SKR_MASK		0xffffffff
+#define QSPI_SKR_(x)		((x) & QSPI_SKR_MASK)
+
+#define QSPI_WPMR_WPEN		(0x1 << 0)
+#define QSPI_WPMR_WPKEY		(0xffffff << 8)
+#define QSPI_WPMR_WPKEY_(x)	(((x) << 8) & QSPI_WPMR_WPKEY)
+
+#define QSPI_WPSR_WPVS		(0x1 << 0)
+#define QSPI_WPSR_WPVSRC_MASK	(0xff << 8)
+#define QSPI_WPSR_WPVSRC(x)	(((x) << 8) & QSPI_WPSR_WPVSRC_MASK)
 
 #endif
