@@ -110,12 +110,8 @@
 #define	QSPI_IFR_ADDRL		(0x1 << 10)	/* Address Length */
 #define		QSPI_IFR_ADDRL_24_BIT		(0x0 << 10)
 #define		QSPI_IFR_ADDRL_32_BIT		(0x1 << 10)
-#define	QSPI_IFR_TFRTYPE	(0x3 << 12)	/* Data Transfer Type */
-#define		QSPI_IFR_TFRTYPE_READ		(0x0 << 12)
-#define		QSPI_IFR_TFRTYPE_READ_MEMORY	(0x1 << 12)
-#define		QSPI_IFR_TFRTYPE_WRITE		(0x2 << 12)
-#define		QSPI_IFR_TFRTYPE_WRITE_MEMORY	(0x3 << 12)
-#define QSPI_IFR_TFRTYPE_(x)	(((x) << 12) & QSPI_IFR_TFRTYPE)
+#define	QSPI_IFR_TFRTYPE_MEM	(0x1 << 12)
+#define	QSPI_IFR_TFRTYPE_WRITE	(0x1 << 13)
 #define	QSPI_IFR_CRM		(0x1 << 14)	/* Continuous Read Mode */
 #define	QSPI_IFR_NBDUM_(x)	((x) << 16)	/* Number Of Dummy Cycles */
 

@@ -120,32 +120,10 @@ static int qspi_cleanup(void *priv)
 	return 0;
 }
 
-static int qspi_init_ifr(const struct spi_flash_command *cmd,
-			 unsigned int *ifr)
+static int qspi_set_ifr_width(const struct spi_flash_command *cmd,
+			      unsigned int *ifr)
 {
 	*ifr = 0;
-
-	switch (cmd->flags & SFLASH_TYPE_MASK) {
-	case SFLASH_TYPE_READ:
-		*ifr |= QSPI_IFR_TFRTYPE_READ_MEMORY;
-		break;
-
-	case SFLASH_TYPE_WRITE:
-		*ifr |= QSPI_IFR_TFRTYPE_WRITE_MEMORY;
-		break;
-
-	case SFLASH_TYPE_READ_REG:
-		*ifr |= QSPI_IFR_TFRTYPE_READ;
-		break;
-
-	case SFLASH_TYPE_WRITE_REG:
-	case SFLASH_TYPE_ERASE:
-		*ifr |= QSPI_IFR_TFRTYPE_WRITE;
-		break;
-
-	default:
-		return -1;
-	}
 
 	switch (cmd->proto) {
 	case SFLASH_PROTO_1_1_1:
@@ -195,8 +173,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 	icr = 0;
 	ifr = 0;
 
-	/* Init ifr. */
-	if (qspi_init_ifr(cmd, &ifr))
+	if (qspi_set_ifr_width(cmd, &ifr))
 		return -1;
 
 	/* Compute instruction parameters. */
@@ -276,6 +253,9 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 	if (cmd->data_len) {
 		ifr |= QSPI_IFR_DATAEN;
 
+		if (cmd->addr_len)
+			ifr |= QSPI_IFR_TFRTYPE_MEM;
+
 		/* Special case for Continuous Read Mode. */
 		if (!cmd->tx_data && !cmd->rx_data)
 			ifr |= QSPI_IFR_CRM;
@@ -293,6 +273,10 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 	else
 		qspi_writel(qspi, QSPI_WICR, icr);
 #else
+	if (cmd->data_len &&
+	    ((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_WRITE ||
+	     (cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_WRITE_REG))
+		ifr |= QSPI_IFR_TFRTYPE_WRITE;
 	qspi_writel(qspi, QSPI_ICR, icr);
 #endif
 	qspi_writel(qspi, QSPI_IFR, ifr);
