@@ -10,4 +10,4 @@ struct qspi_priv {
 };
 
 unsigned int qspi_readl(struct qspi_priv *qspi, u32 reg);
-void qspi_writel(struct qspi_priv *qspi, u32 reg, u32 value);
+void qspi_writel(u32 value, struct qspi_priv *qspi, u32 reg);

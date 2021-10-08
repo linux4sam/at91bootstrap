@@ -28,7 +28,7 @@ static int qspi_set_freq(void *priv, u32 clock)
 
 	reg = qspi_readl(qspi, QSPI_SCR);
 	reg = (reg & ~QSPI_SCR_SCBR) | QSPI_SCR_SCBR_(scbr);
-	qspi_writel(qspi, QSPI_SCR, reg);
+	qspi_writel(reg, qspi, QSPI_SCR);
 
 	return 0;
 }
@@ -64,7 +64,7 @@ static int qspi_set_mode(void *priv, u8 mode)
 
 	if ((reg & msk) != val) {
 		reg = (reg & ~msk) | val;
-		qspi_writel(qspi, QSPI_SCR, reg);
+		qspi_writel(reg, qspi, QSPI_SCR);
 	}
 
 	return 0;
@@ -76,13 +76,13 @@ static int qspi_init(void *priv)
 
 	at91_qspi_hw_init();
 
-	qspi_writel(qspi, QSPI_CR, QSPI_CR_QSPIDIS);
-	qspi_writel(qspi, QSPI_CR, QSPI_CR_SWRST);
+	qspi_writel(QSPI_CR_QSPIDIS, qspi, QSPI_CR);
+	qspi_writel(QSPI_CR_SWRST, qspi, QSPI_CR);
 
-	qspi_writel(qspi, QSPI_MR, QSPI_MR_SMM);
-	qspi_writel(qspi, QSPI_SCR, 0);
+	qspi_writel(QSPI_MR_SMM, qspi, QSPI_MR);
+	qspi_writel(0, qspi, QSPI_SCR);
 
-	qspi_writel(qspi, QSPI_CR, QSPI_CR_QSPIEN);
+	qspi_writel(QSPI_CR_QSPIEN, qspi, QSPI_CR);
 
 	return 0;
 }
@@ -91,8 +91,8 @@ static int qspi_cleanup(void *priv)
 {
 	struct qspi_priv *qspi = priv;
 
-	qspi_writel(qspi, QSPI_CR, QSPI_CR_QSPIDIS);
-	qspi_writel(qspi, QSPI_CR, QSPI_CR_SWRST);
+	qspi_writel(QSPI_CR_QSPIDIS, qspi, QSPI_CR);
+	qspi_writel(QSPI_CR_SWRST, qspi, QSPI_CR);
 
 	return 0;
 }
@@ -242,21 +242,21 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 	(void)qspi_readl(qspi, QSPI_SR);
 
 	/* Set QSPI Instruction Frame registers. */
-	qspi_writel(qspi, QSPI_IAR, iar);
+	qspi_writel(iar, qspi, QSPI_IAR);
 #if defined(CONFIG_SAM9X60)
 	if ((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_READ ||
 	    (cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_READ_REG)
-		qspi_writel(qspi, QSPI_RICR, icr);
+		qspi_writel(icr, qspi, QSPI_RICR);
 	else
-		qspi_writel(qspi, QSPI_WICR, icr);
+		qspi_writel(icr, qspi, QSPI_WICR);
 #else
 	if (cmd->data_len &&
 	    ((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_WRITE ||
 	     (cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_WRITE_REG))
 		ifr |= QSPI_IFR_TFRTYPE_WRITE;
-	qspi_writel(qspi, QSPI_ICR, icr);
+	qspi_writel(icr, qspi, QSPI_ICR);
 #endif
-	qspi_writel(qspi, QSPI_IFR, ifr);
+	qspi_writel(ifr, qspi, QSPI_IFR);
 
 	/* Skip to the final steps if there is no data. */
 	if (!cmd->data_len)
@@ -277,7 +277,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 		return 0;
 
 	/* Release the chip-select. */
-	qspi_writel(qspi, QSPI_CR, QSPI_CR_LASTXFER);
+	qspi_writel(QSPI_CR_LASTXFER, qspi, QSPI_CR);
 
 no_data:
 	/* Poll INSTruction End and Chip Select Rise flags. */

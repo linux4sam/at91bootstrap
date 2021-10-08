@@ -24,7 +24,7 @@ unsigned int qspi_readl(struct qspi_priv *qspi, u32 reg)
 	return readl(qspi->reg_base + reg);
 }
 
-void qspi_writel(struct qspi_priv *qspi, u32 reg, u32 value)
+void qspi_writel(u32 value, struct qspi_priv *qspi, u32 reg)
 {
 	writel(value, qspi->reg_base + reg);
 }
