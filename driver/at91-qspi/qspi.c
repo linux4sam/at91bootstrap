@@ -266,7 +266,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 
 	/* Set QSPI Instruction Frame registers. */
 	qspi_writel(qspi, QSPI_IAR, iar);
-#ifdef CONFIG_CPU_HAS_QSPI_RICR_WICR
+#if defined(CONFIG_SAM9X60)
 	if ((cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_READ ||
 	    (cmd->flags & SFLASH_TYPE_MASK) == SFLASH_TYPE_READ_REG)
 		qspi_writel(qspi, QSPI_RICR, icr);

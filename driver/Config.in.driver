@@ -122,9 +122,5 @@ config CPU_HAS_DWDT
 	bool
 	default n
 
-config CPU_HAS_QSPI_RICR_WICR
-	bool
-	default n
-
 source "driver/Config.in.memory"
 source "driver/Config.in.nvm"
