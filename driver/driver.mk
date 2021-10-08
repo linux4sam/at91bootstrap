@@ -55,7 +55,7 @@ COBJS-$(CONFIG_SPI_FLASH)	+= $(DRIVERS_SRC)/spi_flash/spi_nor_ids.o
 
 COBJS-$(CONFIG_SPI)		+= $(DRIVERS_SRC)/at91_spi.o
 COBJS-$(CONFIG_SPI)		+= $(DRIVERS_SRC)/spi_flash.o
-COBJS-$(CONFIG_QSPI)		+= $(DRIVERS_SRC)/at91_qspi.o
+COBJS-$(CONFIG_QSPI)		+= $(DRIVERS_SRC)/at91-qspi/qspi.o
 COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/dataflash.o
 
 COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o
