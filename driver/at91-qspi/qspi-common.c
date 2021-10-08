@@ -116,6 +116,7 @@ int qspi_loadimage(struct image_info *image)
 	memset(&qspi, 0, sizeof(qspi));
 	qspi.reg_base = CONFIG_SYS_BASE_QSPI;
 	qspi.mem = (void *)CONFIG_SYS_BASE_QSPI_MEM;
+	qspi.mmap_size = CONFIG_SYS_QSPI_MEM_SIZE;
 
 	memset(&flash, 0, sizeof(flash));
 	flash.ops = &qspi_ops;

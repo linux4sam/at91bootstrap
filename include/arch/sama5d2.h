@@ -177,6 +177,9 @@
 #define	AT91C_BASE_QSPI1_MEM		0xd8000000
 #define	AT91C_BASE_PERIPH		0xf0000000
 
+#define AT91C_QSPI0_MEM_SIZE		0x8000000
+#define AT91C_QSPI1_MEM_SIZE		0x8000000
+
 /*
  * Internal Memories
  */

@@ -156,6 +156,13 @@ config QSPI_IOSET
 	default 1
 endif
 
+config AT91_QSPI_OCTAL
+	bool "AT91 QSPI instance with Octal Serial Peripheral Interface"
+	depends on SAMA7G5
+	default n
+	help
+	  Should be selected by SAMA7G5 QSPI0
+
 config QSPI_4B_OPCODES
 	bool "Quad SPI NOR flash memory is >16MiB (>128Mib)"
 	default n
