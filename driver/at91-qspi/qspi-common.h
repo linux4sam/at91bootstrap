@@ -2,6 +2,18 @@
 //
 // SPDX-License-Identifier: MIT
 
+#define qspi_readl_poll_timeout(addr, val, cond, timeout_us)	\
+({ \
+	unsigned long timeout = timeout_us; \
+	do { \
+		(val) = readl(addr); \
+		if (cond) \
+			break; \
+		udelay(1); \
+	} while (--timeout); \
+	(cond) ? 0 : -1; \
+})
+
 extern const struct spi_ops qspi_ops;
 
 struct qspi_priv {
