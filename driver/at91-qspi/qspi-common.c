@@ -6,6 +6,7 @@
 #include "board.h"
 #include "pmc.h"
 #include "string.h"
+#include "arch/at91-qspi/qspi.h"
 #include "spi_flash/spi_nor.h"
 #include "debug.h"
 
@@ -19,13 +20,86 @@
 #error "CONFIG_SYS_BASE_QSPI_MEM is not set"
 #endif
 
+#ifdef CONFIG_DEBUG_VERY_LOUD
+static const char *qspi_reg_name(u32 reg)
+{
+	switch (reg) {
+	case QSPI_CR:
+		return "CR";
+	case QSPI_MR:
+		return "MR";
+	case QSPI_RDR:
+		return "RDR";
+	case QSPI_TDR:
+		return "TDR";
+	case QSPI_SR:
+		return "SR";
+	case QSPI_IER:
+		return "IER";
+	case QSPI_IDR:
+		return "IDR";
+	case QSPI_IMR:
+		return "IMR";
+	case QSPI_SCR:
+		return "SCR";
+	case QSPI_IAR:
+		return "IAR";
+#if defined(CONFIG_SAMA5D2)
+	case QSPI_ICR:
+		return "ICR";
+#endif /* CONFIG_SAMA5D2 */
+	case QSPI_IFR:
+		return "IFR";
+#if defined(CONFIG_SAM9X60) || defined(CONFIG_SAMA7G5)
+	case QSPI_WICR:
+		return "WICR";
+	case QSPI_RICR:
+		return "RICR";
+#endif /* CONFIG_SAM9X60 || CONFIG_SAMA7G5 */
+	case QSPI_SMR:
+		return "SMR";
+	case QSPI_SKR:
+		return "SKR";
+#if defined(CONFIG_SAMA7G5)
+	case QSPI_ISR:
+		return "ISR";
+	case QSPI_REFRESH:
+		return "REFRESH";
+	case QSPI_WRACNT:
+		return "WRACNT";
+	case QSPI_DLLCFG:
+		return "DLLCFG";
+	case QSPI_PCALCFG:
+		return "PCALCFG";
+	case QSPI_PCALBP:
+		return "PCALBP";
+	case QSPI_TOUT:
+		return "TOUT";
+#endif /* CONFIG_SAMA7G5 */
+	case QSPI_WPMR:
+		return "WPMR";
+	case QSPI_WPSR:
+		return "WPSR";
+	default:
+		return "UNKNOWN";
+	}
+}
+#endif /* CONFIG_DEBUG_VERY_LOUD */
+
 unsigned int qspi_readl(struct qspi_priv *qspi, u32 reg)
 {
-	return readl(qspi->reg_base + reg);
+	u32 value = readl(qspi->reg_base + reg);
+#ifdef CONFIG_DEBUG_VERY_LOUD
+	dbg_very_loud("read %x from %s\n", value, qspi_reg_name(reg));
+#endif
+	return value;
 }
 
 void qspi_writel(u32 value, struct qspi_priv *qspi, u32 reg)
 {
+#ifdef CONFIG_DEBUG_VERY_LOUD
+	dbg_very_loud("write %x into %s\n", value, qspi_reg_name(reg));
+#endif
 	writel(value, qspi->reg_base + reg);
 }
 
