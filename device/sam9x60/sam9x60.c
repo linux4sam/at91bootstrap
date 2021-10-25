@@ -27,6 +27,7 @@
 #include "led.h"
 
 __attribute__((weak)) void wilc_pwrseq();
+__attribute__((weak)) void at91_can_stdby_dis(void);
 
 #define PLLA_DIV 1
 #define PLLA_COUNT 0x3f
@@ -335,6 +336,10 @@ void hw_init(void)
 #ifdef CONFIG_BOARD_QUIRK_SAM9X60_EK
 	/* Perform the WILC initialization sequence */
 	wilc_pwrseq();
+#endif
+#ifdef CONFIG_BOARD_QUIRK_SAM9X60_CURIOSITY
+        /* Enabling CAN transceiver */
+        at91_can_stdby_dis();
 #endif
 }
 
