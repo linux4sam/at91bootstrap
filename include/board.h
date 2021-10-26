@@ -42,6 +42,7 @@ extern void hw_postinit(void);
 #endif
 
 extern void nandflash_hw_init(void);
+extern void nandflash_set_smc_timing(unsigned int mode);
 
 extern void at91_spi0_hw_init(void);
 
