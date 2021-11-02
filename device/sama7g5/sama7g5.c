@@ -26,6 +26,7 @@
 #include "led.h"
 #include "arch/tz_matrix.h"
 #include "matrix.h"
+#include "arch/at91_sfr.h"
 
 #include "sama7g5_board.h"
 
@@ -659,6 +660,19 @@ void at91_sdhc_hw_init(void)
 }
 #endif
 
+/**
+ * The MSBs [bits 31:16] of the CAN Message RAM for CAN0, CAN1 and CAN2 controllers
+ * are configured in First half of internal SRAM, and CAN3, CAN4, CAN5 controllers are
+ * configured in Second half of internal SRAM.
+ */
+#define CAN_MESSAGE_RAM_SEL	0x38
+
+void at91_init_can_message_ram(void)
+{
+	writel(CAN_MESSAGE_RAM_SEL,
+	       (AT91C_BASE_SFR + SFR_CAN_SRAM));
+}
+
 #ifdef CONFIG_TWI
 
 #if defined(CONFIG_FLEXCOM0) || defined(CONFIG_FLEXCOM1) || defined(CONFIG_FLEXCOM2) || \
@@ -1128,6 +1142,9 @@ void hw_init(void)
 	} else if (!backup_resume()) {
 		console_printf("UMCTL2: Initialization complete.\n");
 	}
+
+	at91_init_can_message_ram();
+
 #ifdef CONFIG_BOARD_QUIRK_SAMA7G5_EK
 	at91_can_stdby_dis();
 #endif
