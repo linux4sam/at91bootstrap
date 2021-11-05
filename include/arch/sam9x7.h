@@ -11,7 +11,7 @@
  * Peripheral identifiers/interrupts.
  */
 #define AT91C_ID_FIQ 			0 /**<  0 Advanced Interrupt Controller (FIQ) */
-#define AT91C_ID_SYSC 			1 /**<  1 Logical-OR interrupt of SYSC, PMC, WDT, PIT, RSTC, RTT, RTC (SYSC) */
+#define AT91C_ID_SYS 			1 /**<  1 Logical-OR interrupt of SYSC, PMC, WDT, PIT, RSTC, RTT, RTC (SYSC) */
 #define AT91C_ID_PIOA 			2 /**<  2 Parallel I/O Controller A (PIOA) */
 #define AT91C_ID_PIOB 			3 /**<  3 Parallel I/O Controller B (PIOB) */
 #define AT91C_ID_PIOC 			4 /**<  4 Parallel I/O Controller C (PIOC) */
@@ -143,8 +143,8 @@
 #define AT91C_BASE_RSTC       0xfffffe00u
 #define AT91C_BASE_SHDWC      0xfffffe10u
 #define AT91C_BASE_RTT        0xfffffe20u
-#define AT91C_BASE_PIT        0xfffffe40u
-#define AT91C_BASE_SCKC       0xfffffe50u
+#define AT91C_BASE_PITC       0xfffffe40u
+#define AT91C_BASE_SCKCR      0xfffffe50u
 #define AT91C_BASE_BSC        0xfffffe54u
 #define AT91C_BASE_GPBR       0xfffffe60u
 #define AT91C_BASE_RTC        0xfffffea8u
@@ -178,7 +178,7 @@
 #define AT91C_BASE_QSPI0_MEM    0x60000000
 #define AT91C_BASE_SDHC0        0x80000000
 #define AT91C_BASE_SDHC1        0x90000000
-#define AT91C_BASE_CSI2DC       0xd0000000
+#define AT91C_BASE_CSI2DC_MEM   0xd0000000
 
 #define AT91C_NUM_PIO		4
 #define AT91C_NUM_TWI		0
