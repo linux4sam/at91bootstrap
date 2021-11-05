@@ -77,6 +77,7 @@ menu "Console and Debug"
 source "device/sama5d2/Config.in.con"
 source "device/sama5d4/Config.in.con"
 source "device/sam9x60/Config.in.con"
+source "device/sam9x7/Config.in.con"
 source "device/sama7g5/Config.in.con"
 
 config DEBUG
@@ -399,7 +400,7 @@ config BOARD_QUIRK_SAMA7G5_EK
 	  On SAMA7G5 EK board, pin PC15/16 are connected to STBY of the CAN transceivers,
 	  enabling this quirk will put the transceivers to normal mode.
 
-config BOARD_QUIRK_SAM9x7_EB
+config BOARD_QUIRK_SAM9X7_EB
 	bool "Quirks for SAM9X7_EB board"
 
 endchoice
@@ -912,7 +913,7 @@ config PIT
 	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
 		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
 		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2 || \
-		SAM9X60
+		SAM9X60 || SAM9X7
 	help
 	  Programmable interrupt timer support
 
@@ -988,7 +989,7 @@ config PMC_V1
 
 config PMC_V2
 	bool "Peripheral management controller support for second version"
-	depends on SAM9X60
+	depends on SAM9X60 || SAM9X7
 	default y
 	help
 	  Enable power management controller support for second version
@@ -1001,14 +1002,14 @@ config PMC_V3
 	  Enable power management controller support for third version
 config PMC_PERIPH_CLK_SAM9X5
 	bool "PMC peripheral clock control for SAM9X5 SoCs and above"
-	depends on SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60 || SAMA7G5
+	depends on SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60 || SAM9X7 || SAMA7G5
 	default y
 	help
 	  Enable peripheral clock control for SAM9X5 SoCs and above
 
 config PMC_GENERIC_CLK
 	bool "PMC generic clock control support"
-	depends on SAMA5D2 || SAM9X60 || SAMA7G5
+	depends on SAMA5D2 || SAM9X60 || SAM9X7 || SAMA7G5
 	default y
 	help
 	  Enable generic clock control support
@@ -1029,7 +1030,7 @@ config PMC_PLL_CLK
 
 config PMC_PLL_CLK_SAM9X60
 	bool "PMC PLL clock control support for SAM9X60 SoCs"
-	depends on SAM9X60 || SAMA7G5
+	depends on SAM9X60 || SAM9X7|| SAMA7G5
 	default y
 	help
 	  Enable PMC PLL clock control for SAM9X60 SoCs
@@ -1039,7 +1040,7 @@ config PMC_MCK_CLK
 	depends on AT91SAM9260 || AT91SAM9261 || AT91SAM9263 || AT91SAM9G10 || \
 		AT91SAM9G20 || AT91SAM9G45 || AT91SAM9N12 || AT91SAM9RL || \
 		AT91SAM9X5 || AT91SAM9XE || SAMA5D4 || SAMA5D3X || SAMA5D2 || \
-		SAM9X60
+		SAM9X60 || SAM9X7
 	default y
 	help
 	  Enable PMC master clock support
