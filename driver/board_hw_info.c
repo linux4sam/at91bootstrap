@@ -97,6 +97,7 @@ static struct {
 	{"SAMA5D2-XULT",BOARD_TYPE_EK,	BOARD_ID_SAMA5D2_XULT},
 	{"SAMA5D2-ICP", BOARD_TYPE_EK,	BOARD_ID_SAMA5D2_ICP},
 	{"SAM9X60-EK",	BOARD_TYPE_EK,	BOARD_ID_SAM9X60_EK},
+	{"SAM9X75-EK",	BOARD_TYPE_EK,	BOARD_ID_SAM9X7_EK},
 	{0,		0,		0},
 };
 
@@ -454,10 +455,12 @@ static unsigned int set_default_sn(void)
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
 	vendor_ek = VENDOR_MCHIP_RDC;
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X7_EB)
+	board_id_ek = BOARD_ID_SAM9X7_EK;
+	vendor_ek = VENDOR_MCHIP_RDC;
 #else
 #error "OneWire: No defined board"
 #endif
-
 	return (board_id_cm & SN_MASK)
 		| ((vendor_cm & VENDOR_MASK) << CM_VENDOR_OFFSET)
 		| ((board_id_dm & SN_MASK) << DM_SN_OFFSET)
@@ -510,6 +513,13 @@ static unsigned int set_default_rev(void)
 	rev_id_ek = '1';
 #elif defined(CONFIG_BOARD_QUIRK_SAM9X60_EK) || \
 	  defined(CONFIG_BOARD_QUIRK_SAM9X60_EB)
+	rev_cm = 'A';
+	rev_dm = 'A';
+	rev_ek = 'A';
+	rev_id_cm = '0';
+	rev_id_dm = '0';
+	rev_id_ek = '0';
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X7_EB)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';

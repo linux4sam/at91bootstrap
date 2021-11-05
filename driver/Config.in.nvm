@@ -130,5 +130,5 @@ endmenu
 
 config BOOTSTRAP_MAXSIZE
 	string
-	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60 || SAMA7G5
+	default "65536"	if SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60 || SAM9X7 || SAMA7G5
 	default "23000"
