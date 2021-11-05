@@ -26,9 +26,10 @@
 #include "board.h"
 #include "led.h"
 
+
 __attribute__((weak)) void wilc_pwrseq();
 
-#define PLLA_DIV 1
+#define PLLA_DIV 0
 #define PLLA_COUNT 0x3f
 #define PLLA_CLOCK 200000000
 #define PLLA_FRACR(_p, _q) \
@@ -61,8 +62,8 @@ static void at91_dbgu_hw_init(void)
 	const struct pio_desc dbgu_pins[3] = {
 #if CONFIG_CONSOLE_INDEX == 0
 		/* DBGU */
-		{"RXD", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"TXD", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"RXD", AT91C_PIN_PA(26), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"TXD", AT91C_PIN_PA(27), 0, PIO_DEFAULT, PIO_PERIPH_A},
 #elif CONFIG_CONSOLE_INDEX == 1
 		/* FLEXCOM0 */
 		{"FLEXCOM0_RXD", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
@@ -273,7 +274,7 @@ void twi_init()
 #endif
 }
 #endif
-
+#define PMC_SR_PCKRDY1 (0x1u << 9)
 void hw_init(void)
 {
 	unsigned int reg;
@@ -319,20 +320,14 @@ void hw_init(void)
 	 * We need to also enable AT91C_EBI_NFD0_ON_D16 . Otherwise the DDR will
 	 * not work if NAND lines have been previously used by RomCode
 	 */
-#ifdef CONFIG_DDR2
+#ifdef CONFIG_DDR3
 	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN | AT91C_EBI_NFD0_ON_D16);
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 	/* Initialize DDRAM Controller */
 	ddram_init();
 #endif
-#ifdef CONFIG_SDRAM
-	reg |= (AT91C_EBI_CS1A | AT91C_EBI_NFD0_ON_D16);
-	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
-	/* Initialize SDRAM Controller */
-	sdramc_init();
-#endif
 
-#ifdef CONFIG_BOARD_QUIRK_SAM9X60_EK
+#ifdef CONFIG_BOARD_QUIRK_SAM9X7_EB
 	/* Perform the WILC initialization sequence */
 	wilc_pwrseq();
 #endif
