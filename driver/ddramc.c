@@ -68,8 +68,11 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	cas = AT91C_DDRC2_CAS_5;
 	bank = AT91C_DDRC2_NB_BANKS_8;
 #if defined(CONFIG_BUS_SPEED_200MHZ)
-	/* Refresh Timer is (64ms / 8k) * 116MHz = 907(0x38b) */
-	ddramc_config->rtr = 0x38b;
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 1562(0x61a) */
+	ddramc_config->rtr = 0x61a;
+#elif defined(CONFIG_BUS_SPEED_266MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 2078(0x81e) */
+	ddramc_config->rtr = 0x81e;
 #else
 	#error "No CLK setting defined"
 #endif
