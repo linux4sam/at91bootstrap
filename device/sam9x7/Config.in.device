@@ -28,8 +28,8 @@ config	SAM9X7
 	select CPU_HAS_QSPI_RICR_WICR
 	select CPU_HAS_DDRC
 	select CPU_HAS_SDRAMC
-	select ALLOW_CPU_CLK_600MHZ #This needs to be updated as it can run at 800 Mhz
+	select ALLOW_CPU_CLK_800MHZ
 	select ALLOW_CRYSTAL_24_000MHZ
-	select SUPPORT_BUS_SPEED_200MHZ #This needs to be updated as it can run at 266 Mhz
+	select SUPPORT_BUS_SPEED_266MHZ
 	bool "SAM9X7"
 
