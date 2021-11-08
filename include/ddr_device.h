@@ -75,6 +75,24 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trpa = 0,
 	.trtp = 4,
 	.tfaw = 8,
+#elif defined(CONFIG_BUS_SPEED_266MHZ)
+	.tras = 10,
+	.trcd = 4,
+	.twr = 4,
+	.trc = 13,
+	.trp = 4,
+	.trrd = 4,
+	.twtr = 4,
+	.tmrd = 4,
+	.trfc = 43,
+	.txsnr = 46,
+	.txsrd = 0,
+	.txp = 10,
+	.txard = 0,
+	.txards = 0,
+	.trpa = 0,
+	.trtp = 4,
+	.tfaw = 11,
 #else
 	#error "No CLK setting defined"
 #endif /* Endif of CONFIG_BUS_SPEED_200MHZ */
