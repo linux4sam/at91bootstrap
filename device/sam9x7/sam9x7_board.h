@@ -14,7 +14,7 @@
  * and MCK is switched on the main oscillator.
  * PLL initialization is done later in the hw_init() function
  */
-#define MASTER_CLOCK	266000000
+#define MASTER_CLOCK	266666666
 
 #define BAUD_RATE	115200
 #define BOARD_MAINOSC	24000000
