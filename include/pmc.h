@@ -23,13 +23,19 @@ enum gck_css_clk {
 	GCK_CSS_IMGPLL_CLK,
 	GCK_CSS_BAUDPLL_CLK,
 	GCK_CSS_ETHPLL_CLK,
+#ifdef CONFIG_PMC_PLLA_DIV2_CLK
+	GCK_CSS_PLLADIV2_CLK,
+#endif
 };
-
 enum pll_ids {
 	PLL_ID_PLLA,
 	PLL_ID_UPLL,
-	#if defined(CONFIG_SAMA5D2)
+	#if defined(CONFIG_SAMA5D2) 
 	PLL_ID_AUDIO,
+	#elif defined (CONFIG_SAM9X7)
+	PLL_ID_AUDIO,
+	PLL_ID_LVDS,
+	PLL_ID_PLLADIV2,
 	#elif  defined(CONFIG_SAMA7G5)
 	PLL_ID_CPUPLL = 0,
 	PLL_ID_SYSPLL,
@@ -54,6 +60,9 @@ struct pmc_pll_cfg {
 extern void pmc_init_pll(unsigned int pmc_pllicpr);
 extern int pmc_cfg_plla(unsigned int pmc_pllar);
 extern void pmc_sam9x60_cfg_pll(unsigned int pll_id, struct pmc_pll_cfg *cfg);
+#ifdef CONFIG_SAM9X7
+extern void pmc_enable_plladiv2clk(void);
+#endif
 extern unsigned int pmc_get_pll_freq(unsigned int pll_id);
 
 extern void pmc_mck_cfg_set(unsigned int mckid, unsigned int bits,
