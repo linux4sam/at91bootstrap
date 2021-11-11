@@ -9,8 +9,26 @@
 #include "pmc.h"
 #include "timer.h"
 #include "arch/at91_pmc/pmc.h"
-
+#include "debug.h"
 static struct pmc_pll_cfg config[PLL_ID_MAX] = { 0 };
+
+#ifdef CONFIG_PMC_PLLA_DIV2_CLK
+void pmc_enable_plladiv2clk(void)
+{
+	unsigned int reg;
+	reg = read_pmc(PMC_PLL_UPDT);
+	reg &= ~(AT91C_PLL_UPDT_STUPTIM
+			| AT91C_PLL_UPDT_UPDATE
+			| AT91C_PLL_UPDT_ID);
+	reg |=  AT91C_PLL_UPDT_ID_(PLL_ID_PLLADIV2);
+	write_pmc(PMC_PLL_UPDT, reg);
+	reg = read_pmc(PMC_PLL_CTRL0);
+	reg &= (~AT91C_PLL_CTRL0_DIVPMC);
+	reg &= (~AT91C_PLL_CTRL0_DIVIO);
+	reg |= AT91C_PLL_CTRL0_ENPLLCK;
+	write_pmc(PMC_PLL_CTRL0, reg);
+}
+#endif
 
 void pmc_sam9x60_cfg_pll(unsigned int pll_id, struct pmc_pll_cfg *cfg)
 {
@@ -132,16 +150,14 @@ unsigned int pmc_get_pll_freq(unsigned int pll_id)
 	unsigned int freq, core_freq, divider = 0, parent_rate = 0;
 	unsigned long long frac_freq;
 	int ret;
-
 	ret = pmc_pll_get_parent_props(pll_id, &parent_rate, &divider);
 	if (ret)
 		return ret;
-
 	core_freq = parent_rate * (config[pll_id].mul + 1);
 	frac_freq = ((parent_rate >> 20) * config[pll_id].fracr) >> 2;
 	core_freq += frac_freq;
 
 	freq = div(core_freq, divider);
-
+	
 	return freq;
 }

@@ -175,7 +175,7 @@ unsigned int pmc_mainck_get_rate(void)
 {
 #if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) || \
 	defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) || \
-	defined(CONFIG_SAMA7G5)
+	defined(CONFIG_SAM9X7) || defined(CONFIG_SAMA7G5)
 	unsigned int val = read_pmc(PMC_MOR);
 
 	if (val & AT91C_CKGR_MOSCSEL)
