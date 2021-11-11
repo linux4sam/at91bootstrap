@@ -294,7 +294,7 @@ void hw_init(void)
 	pmc_sam9x60_cfg_pll(PLL_ID_PLLA, &plla_config);
 	pmc_mck_cfg_set(0, BOARD_PRESCALER_PLLA,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
-
+	pmc_enable_plladiv2clk();
 #if defined(CONFIG_TWI) || CONFIG_CONSOLE_INDEX != 0
 	flexcoms_init(flexcoms);
 #endif
@@ -362,7 +362,7 @@ void at91_board_set_dtb_name(char *of_name)
 }
 #endif
 
-#define ATMEL_SDHC_GCKDIV_VALUE     5
+#define ATMEL_SDHC_GCKDIV_VALUE     3  
 
 void at91_sdhc_hw_init(void)
 {
@@ -389,7 +389,7 @@ void at91_sdhc_hw_init(void)
 
 	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_SDHC,
-				 GCK_CSS_PLLA_CLK,
+				 GCK_CSS_PLLADIV2_CLK,
 				 ATMEL_SDHC_GCKDIV_VALUE);
 #endif
 }
