@@ -1030,10 +1030,17 @@ config PMC_PLL_CLK
 
 config PMC_PLL_CLK_SAM9X60
 	bool "PMC PLL clock control support for SAM9X60 SoCs"
-	depends on SAM9X60 || SAM9X7|| SAMA7G5
+	depends on SAM9X60 || SAM9X7 || SAMA7G5
 	default y
 	help
 	  Enable PMC PLL clock control for SAM9X60 SoCs
+
+config PMC_PLLA_DIV2_CLK
+	bool "PMC PLLA divide 2 clock support for SAM9X7 SoCs"
+	depends on SAM9X7
+	default y
+	help
+	  Enable PMC PLLA devide 2 clock for SAM9X7 SoCs
 
 config PMC_MCK_CLK
 	bool "PMC master clock support"
