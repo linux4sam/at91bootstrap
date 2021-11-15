@@ -491,7 +491,11 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #endif
 						AT91C_DDRC2_DECOD_INTERLEAVED |
 #if defined(CONFIG_DDR3)
+#if defined(CONFIG_BUS_SPEED_266MHZ)
+						AT91C_DDRC2_ENABLE_DLL |
+#else
 						AT91C_DDRC2_DISABLE_DLL |
+#endif
 						AT91C_DDRC2_WEAK_STRENGTH_RZQ7 |
 #endif
 						AT91C_DDRC2_DECOD_INTERLEAVED |
