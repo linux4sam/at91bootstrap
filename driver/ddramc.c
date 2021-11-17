@@ -491,10 +491,11 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #endif
 						AT91C_DDRC2_DECOD_INTERLEAVED |
 #if defined(CONFIG_DDR3)
-#if defined(CONFIG_BUS_SPEED_266MHZ)
-						AT91C_DDRC2_ENABLE_DLL |
-#else
 						AT91C_DDRC2_DISABLE_DLL |
+#if defined(CONFIG_BUS_SPEED_266MHZ)
+						AT91C_DDRC2_CASWR_6 |
+#else
+						AT91C_DDRC2_CASWR_5 |
 #endif
 						AT91C_DDRC2_WEAK_STRENGTH_RZQ7 |
 #endif
@@ -1459,6 +1460,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 			struct ddramc_register *ddramc_config)
 {
 	unsigned int ba_offset;
+	unsigned int cr;
 
 	if (backup_resume()) {
 		ddr3_lpddr2_sdram_bkp_init(base_address, ram_address,
@@ -1541,6 +1543,12 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
 	*((unsigned volatile int *)(ram_address + (0x3 << ba_offset))) = 0;
 
+#if defined(CONFIG_BUS_SPEED_266MHZ)
+	/* Set MPDDRC_CR.DIS_DLL (Disable DLL) to 1 in DLL Off mode, or to 0 in DLL On
+	mode.*/
+	cr = read_ddramc(base_address, HDDRSDRC2_CR);
+	write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_ENABLE_DLL);
+#endif
 	/*
 	 * Step 8: An Extended Mode Register Set (EMRS1) cycle is issued to
 	 * disable and to program O.D.S. (Output Driver Strength).
@@ -1556,7 +1564,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
 	 * Configuration Register (MPDDRC_CR)
 	 */
-#if 0
+#if defined(CONFIG_BUS_SPEED_266MHZ)
 		cr = read_ddramc(base_address, HDDRSDRC2_CR);
 		write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_ENABLE_RESET_DLL);
 #endif
