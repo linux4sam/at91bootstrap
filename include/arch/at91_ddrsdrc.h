@@ -94,6 +94,9 @@
 #define AT91C_DDRC2_OCD		(0x7UL << 12)
 #define 	AT91C_DDRC2_OCD_EXIT		(0x0UL << 12)
 #define 	AT91C_DDRC2_OCD_DEFAULT		(0x7UL << 12)
+#define AT91C_DDRC2_SUPDDR3	(0x1UL << 15)
+#define 	AT91C_DDRC2_SUPDDR3_135V	(0x0UL << 15)
+#define 	AT91C_DDRC2_SUPDDR3_15V		(0x1UL << 15)
 #define AT91C_DDRC2_EBISHARE	(0x1UL << 16)
 #define AT91C_DDRC2_DQMS	(0x1UL << 16)
 #define		AT91C_DDRC2_DQMS_NOT_SHARED	(0x0UL << 16)
@@ -114,7 +117,9 @@
 #define AT91C_DDRC2_UNAL	(0x1UL << 23)	/* Support Unaligned Access(sama5d3x only) */
 #define 	AT91C_DDRC2_UNAL_UNSUPPORTED		(0x0UL << 23)
 #define 	AT91C_DDRC2_UNAL_SUPPORTED		(0x1UL << 23)
-
+#define AT91C_DDRC2_CASWR	(0x7UL << 26)	/* DDR3 CAS write latency (sam9x7 only) */
+#define 	AT91C_DDRC2_CASWR_5		(0x5UL << 26)
+#define 	AT91C_DDRC2_CASWR_6		(0x6UL << 26)
 /* -------- HDDRSDRC2_T0PR : (HDDRSDRC2 Offset: 0xc) Timing0 Register --------*/
 #define AT91C_DDRC2_TRAS	(0xFUL <<  0)
 #define		AT91C_DDRC2_TRAS_(x)		(x & 0x0f)
