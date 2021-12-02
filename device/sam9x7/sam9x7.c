@@ -313,12 +313,9 @@ void hw_init(void)
 #endif
 
 	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
-	/*
-	 * We need to also enable AT91C_EBI_NFD0_ON_D16 . Otherwise the DDR will
-	 * not work if NAND lines have been previously used by RomCode
-	 */
+
 #ifdef CONFIG_DDR3
-	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN | AT91C_EBI_NFD0_ON_D16);
+	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN );
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 	/* Initialize DDRAM Controller */
 	ddram_init();
@@ -425,21 +422,21 @@ void nandflash_hw_init(void)
 	pmc_enable_periph_clock(AT91C_ID_PIOD, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	reg = readl(AT91C_BASE_SFR + SFR_CCFG_EBICSA);
-	reg |= AT91C_EBI_CS3A_SM | AT91C_EBI_NFD0_ON_D16;
+	reg |= AT91C_EBI_CS2A_SM ;
 	reg &= ~AT91C_EBI_DRV;
 	writel(reg, AT91C_BASE_SFR + SFR_CCFG_EBICSA);
 
 	/* Configure SMC CS3 for NAND */
-	writel(AT91C_SMC_NWESETUP_(4), AT91C_BASE_SMC + SMC_SETUP3);
+	writel(AT91C_SMC_NWESETUP_(6), AT91C_BASE_SMC + SMC_SETUP2);
 
-	writel(AT91C_SMC_NWEPULSE_(10) | AT91C_SMC_NCS_WRPULSE_(20) |
-	       AT91C_SMC_NRDPULSE_(10) | AT91C_SMC_NCS_RDPULSE_(20),
-	       AT91C_BASE_SMC + SMC_PULSE3);
+	writel(AT91C_SMC_NWEPULSE_(12) | AT91C_SMC_NCS_WRPULSE_(22) |
+	       AT91C_SMC_NRDPULSE_(12) | AT91C_SMC_NCS_RDPULSE_(22),
+	       AT91C_BASE_SMC + SMC_PULSE2);
 
-	writel(AT91C_SMC_NWECYCLE_(20) | AT91C_SMC_NRDCYCLE_(20),
-	       AT91C_BASE_SMC + SMC_CYCLE3);
+	writel(AT91C_SMC_NWECYCLE_(22) | AT91C_SMC_NRDCYCLE_(22),
+	       AT91C_BASE_SMC + SMC_CYCLE2);
 
 	writel(AT91C_SMC_READMODE | AT91C_SMC_WRITEMODE | AT91C_SMC_TDFEN |
-	       AT91_SMC_TDF_(15), AT91C_BASE_SMC + SMC_CTRL3);
+	       AT91_SMC_TDF_(17), AT91C_BASE_SMC + SMC_CTRL2);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
