@@ -150,6 +150,13 @@ unsigned int pmc_get_pll_freq(unsigned int pll_id)
 	unsigned int freq, core_freq, divider = 0, parent_rate = 0;
 	unsigned long long frac_freq;
 	int ret;
+#ifdef	CONFIG_PMC_PLLA_DIV2_CLK
+	unsigned int plladiv2 = 0; 
+	if (pll_id == PLL_ID_PLLADIV2){
+		pll_id -= PLL_ID_PLLADIV2;
+		plladiv2 = 1;
+	} 
+#endif
 	ret = pmc_pll_get_parent_props(pll_id, &parent_rate, &divider);
 	if (ret)
 		return ret;
@@ -158,6 +165,9 @@ unsigned int pmc_get_pll_freq(unsigned int pll_id)
 	core_freq += frac_freq;
 
 	freq = div(core_freq, divider);
-	
+#ifdef	CONFIG_PMC_PLLA_DIV2_CLK
+	if (plladiv2)
+		freq = freq >> 1;
+#endif
 	return freq;
 }

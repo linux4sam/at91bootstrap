@@ -163,7 +163,7 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 	freq = div(freq, divider);
 #if defined CONFIG_PMC_PLLA_DIV2_CLK
 	if (clock_source == AT91C_PMC_GCKCSS_PLLADIV2_CLK)
-		freq = freq / 2;
+		freq = freq >>1;
 #endif
 	return freq;
 }
