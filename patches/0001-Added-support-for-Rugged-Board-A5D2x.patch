@@ -1,0 +1,742 @@
+From 13c27d390fa329b0f7c0bdf0fbc9cad7db0a31ea Mon Sep 17 00:00:00 2001
+From: Jagannath Sahoo <jagannath.sahoo@live.com>
+Date: Sat, 4 Dec 2021 22:59:58 +0530
+Subject: [at91bootstrap4][PATCH] Added support for Rugged Board A5D2x
+
+defconfig files are created for  Rugged Board A5D2x
+
+Signed-off-by: Jagannath Sahoo <jagannath.sahoo@live.com>
+---
+ .../rugged_board_a5d2xqspi_uboot_defconfig    | 341 +++++++++++++++++
+ configs/rugged_board_a5d2xsd1_uboot_defconfig | 357 ++++++++++++++++++
+ driver/spi_flash/spi_nor_ids.c                |   2 +-
+ 3 files changed, 699 insertions(+), 1 deletion(-)
+ create mode 100644 configs/rugged_board_a5d2xqspi_uboot_defconfig
+ create mode 100644 configs/rugged_board_a5d2xsd1_uboot_defconfig
+
+diff --git a/configs/rugged_board_a5d2xqspi_uboot_defconfig b/configs/rugged_board_a5d2xqspi_uboot_defconfig
+new file mode 100644
+index 00000000..93635581
+--- /dev/null
++++ b/configs/rugged_board_a5d2xqspi_uboot_defconfig
+@@ -0,0 +1,341 @@
++#
++# Automatically generated make config: don't edit
++# Sat Dec  4 22:51:40 2021
++#
++CONFIG_HAVE_DOT_CONFIG=y
++CONFIG_LOAD_AND_JUMP=y
++# CONFIG_DIRECT_JUMP is not set
++# CONFIG_INIT_AND_STOP is not set
++CONFIG_LOAD_SW=y
++CONFIG_JUMP_TO_SW=y
++# CONFIG_SAM9X60 is not set
++CONFIG_SAMA5D2=y
++# CONFIG_SAMA5D3X is not set
++# CONFIG_SAMA5D4 is not set
++# CONFIG_SAMA7G5 is not set
++CONFIG_SPI_BUS_MAX=1
++CONFIG_SPI_IOSET_MAX=3
++CONFIG_QSPI_BUS_MAX=1
++CONFIG_QSPI_IOSET_MAX=3
++CONFIG_DEVICENAME="sama5d2"
++CONFIG_TWI_IOSET=y
++CONFIG_TWI_IOSET_MAX=4
++CONFIG_FLEXCOM_TWI_IOSET=y
++CONFIG_FLEXCOM_TWI_IOSET_MAX=3
++
++#
++# Clock Signals
++#
++
++#
++# Main Crystal configuration
++#
++# CONFIG_CRYSTAL_12_000MHZ is not set
++# CONFIG_CRYSTAL_16_000MHZ is not set
++# CONFIG_CRYSTAL_16_36766MHZ is not set
++# CONFIG_CRYSTAL_18_432MHZ is not set
++CONFIG_CRYSTAL_24_000MHZ=y
++# CONFIG_MCK_BYPASS is not set
++
++#
++# Slow Clock Configuration Options
++#
++CONFIG_SCLK=y
++CONFIG_ALLOW_CRYSTAL_12_000MHZ=y
++CONFIG_ALLOW_CRYSTAL_24_000MHZ=y
++# CONFIG_CPU_CLK_266MHZ is not set
++# CONFIG_CPU_CLK_332MHZ is not set
++# CONFIG_CPU_CLK_348MHZ is not set
++# CONFIG_CPU_CLK_396MHZ is not set
++# CONFIG_CPU_CLK_444MHZ is not set
++CONFIG_CPU_CLK_492MHZ=y
++# CONFIG_CPU_CLK_498MHZ is not set
++# CONFIG_CPU_CLK_510MHZ is not set
++# CONFIG_CPU_CLK_528MHZ is not set
++# CONFIG_CPU_CLK_594MHZ is not set
++# CONFIG_CPU_CLK_600MHZ is not set
++# CONFIG_CPU_CLK_800MHZ is not set
++# CONFIG_CPU_CLK_1000MHZ is not set
++CONFIG_ALLOW_CPU_CLK_492MHZ=y
++CONFIG_ALLOW_CPU_CLK_498MHZ=y
++# CONFIG_DISABLE_CPU_CLK_240MHZ is not set
++# CONFIG_BUS_SPEED_116MHZ is not set
++# CONFIG_BUS_SPEED_124MHZ is not set
++# CONFIG_BUS_SPEED_133MHZ is not set
++# CONFIG_BUS_SPEED_148MHZ is not set
++CONFIG_BUS_SPEED_164MHZ=y
++# CONFIG_BUS_SPEED_166MHZ is not set
++# CONFIG_BUS_SPEED_170MHZ is not set
++# CONFIG_BUS_SPEED_176MHZ is not set
++# CONFIG_BUS_SPEED_200MHZ is not set
++CONFIG_SUPPORT_BUS_SPEED_116MHZ=y
++CONFIG_SUPPORT_BUS_SPEED_164MHZ=y
++CONFIG_SUPPORT_BUS_SPEED_166MHZ=y
++
++#
++# Console and Debug
++#
++CONFIG_CONSOLE_INDEX=1
++CONFIG_DEBUG=y
++CONFIG_DEBUG_INFO=y
++# CONFIG_DEBUG_LOUD is not set
++# CONFIG_DEBUG_VERY_LOUD is not set
++CONFIG_HW_DISPLAY_BANNER=y
++CONFIG_HW_BANNER="\"\\n\\nAT91Bootstrap \" AT91BOOTSTRAP_VERSION \" (\" COMPILE_TIME \")\\n\\n\""
++CONFIG_LINK_ADDR="0x200000"
++CONFIG_TOP_OF_MEMORY="0x210000"
++CONFIG_CPU_HAS_TRUSTZONE=y
++# CONFIG_CPU_HAS_TZC400 is not set
++CONFIG_CPU_V7=y
++# CONFIG_HAS_PMIC_ACT8865 is not set
++# CONFIG_SUPPORT_PM is not set
++# CONFIG_HAS_ONE_WIRE is not set
++# CONFIG_HAS_EEPROM is not set
++# CONFIG_HAS_EHT0_PHY is not set
++# CONFIG_HAS_EHT1_PHY is not set
++# CONFIG_HAS_AUDIO_CODEC is not set
++# CONFIG_HAS_HDMI is not set
++# CONFIG_CORE_ARM926EJS is not set
++CONFIG_CORE_CORTEX_A5=y
++# CONFIG_CORE_CORTEX_A7 is not set
++# CONFIG_CPU_HAS_UMCTL2 is not set
++CONFIG_CPU_HAS_DDRC=y
++# CONFIG_CPU_HAS_SDDRC is not set
++# CONFIG_CPU_HAS_SDRAMC is not set
++CONFIG_CPU_HAS_SCKC=y
++CONFIG_CPU_HAS_H32MXDIV=y
++# CONFIG_CPU_HAS_HSMCI0 is not set
++# CONFIG_CPU_HAS_HSMCI1 is not set
++# CONFIG_CPU_HAS_HSMCI2 is not set
++# CONFIG_CPU_HAS_MCI0 is not set
++# CONFIG_CPU_HAS_MCI1 is not set
++CONFIG_CPU_HAS_SDHC0=y
++CONFIG_CPU_HAS_SDHC1=y
++# CONFIG_CPU_HAS_SDHC2 is not set
++CONFIG_CPU_HAS_SPI=y
++CONFIG_CPU_HAS_QSPI=y
++# CONFIG_CPU_HAS_SCLK_BYPASS is not set
++# CONFIG_CPU_HAS_PIO3 is not set
++CONFIG_CPU_HAS_L2CC=y
++CONFIG_CPU_HAS_PMECC=y
++# CONFIG_HAS_HW_INFO is not set
++# CONFIG_TWI is not set
++# CONFIG_MACB is not set
++# CONFIG_AES is not set
++# CONFIG_LOAD_HW_INFO is not set
++CONFIG_CPU_HAS_TWI0=y
++CONFIG_CPU_HAS_TWI1=y
++# CONFIG_CPU_HAS_TWI2 is not set
++# CONFIG_CPU_HAS_TWI3 is not set
++CONFIG_CPU_HAS_AES=y
++CONFIG_CPU_HAS_PIO4=y
++CONFIG_FLEXCOM=y
++CONFIG_CPU_HAS_FLEXCOM0=y
++CONFIG_CPU_HAS_FLEXCOM1=y
++CONFIG_CPU_HAS_FLEXCOM2=y
++CONFIG_CPU_HAS_FLEXCOM3=y
++CONFIG_CPU_HAS_FLEXCOM4=y
++# CONFIG_CPU_HAS_FLEXCOM5 is not set
++# CONFIG_CPU_HAS_FLEXCOM6 is not set
++# CONFIG_CPU_HAS_FLEXCOM7 is not set
++# CONFIG_CPU_HAS_FLEXCOM8 is not set
++# CONFIG_CPU_HAS_FLEXCOM9 is not set
++# CONFIG_CPU_HAS_FLEXCOM10 is not set
++# CONFIG_CPU_HAS_FLEXCOM11 is not set
++# CONFIG_CPU_HAS_FLEXCOM12 is not set
++# CONFIG_CPU_HAS_WDT2 is not set
++# CONFIG_CPU_HAS_DWDT is not set
++
++#
++# DRAM
++#
++# CONFIG_SDRAM is not set
++# CONFIG_SDDRC is not set
++CONFIG_DDRC=y
++# CONFIG_UMCTL2 is not set
++# CONFIG_PUBL is not set
++# CONFIG_ALLOW_PSRAM is not set
++# CONFIG_DDR_SEL_ADDR is not set
++CONFIG_BANK_4=y
++# CONFIG_BANK_8 is not set
++# CONFIG_DDR_SET_BY_DEVICE is not set
++CONFIG_DDR_SET_BY_JEDEC=y
++# CONFIG_DDR_SET_BY_TIMING is not set
++# CONFIG_LPDDR1 is not set
++# CONFIG_LPDDR2 is not set
++# CONFIG_LPDDR3 is not set
++CONFIG_DDR2=y
++# CONFIG_DDR3 is not set
++CONFIG_DBW_16=y
++# CONFIG_DBW_32 is not set
++# CONFIG_DDR_64_MBIT is not set
++# CONFIG_DDR_128_MBIT is not set
++# CONFIG_DDR_256_MBIT is not set
++CONFIG_DDR_512_MBIT=y
++# CONFIG_DDR_1_GBIT is not set
++# CONFIG_DDR_2_GBIT is not set
++# CONFIG_DDR_4_GBIT is not set
++# CONFIG_DDR_8_GBIT is not set
++# CONFIG_CAS_2 is not set
++CONFIG_CAS_3=y
++# CONFIG_CAS_4 is not set
++# CONFIG_CAS_5 is not set
++# CONFIG_CAS_6 is not set
++# CONFIG_CAS_7 is not set
++# CONFIG_CAS_8 is not set
++# CONFIG_NOT_DQS_DISABLED is not set
++# CONFIG_DDR_SPEED_200 is not set
++# CONFIG_DDR_SPEED_266 is not set
++# CONFIG_DDR_SPEED_333 is not set
++# CONFIG_DDR_SPEED_370 is not set
++CONFIG_DDR_SPEED_400=y
++# CONFIG_DDR_SPEED_533 is not set
++# CONFIG_DDR_SPEED_667 is not set
++# CONFIG_DDR_SPEED_800 is not set
++# CONFIG_DDR_SPEED_933 is not set
++# CONFIG_DDR_SPEED_1066 is not set
++# CONFIG_DDR_SPEED_1333 is not set
++CONFIG_REF_WIN_32=y
++# CONFIG_REF_WIN_64 is not set
++CONFIG_REF_2048=y
++# CONFIG_REF_4096 is not set
++# CONFIG_REF_8192 is not set
++
++#
++# Extra parameters
++#
++# CONFIG_SAMA5D2_LPDDR2 is not set
++
++#
++# Flash Memory
++#
++CONFIG_DATAFLASH=y
++# CONFIG_FLASH is not set
++# CONFIG_NANDFLASH is not set
++# CONFIG_SDCARD is not set
++CONFIG_MEMORY="dataflash"
++CONFIG_SPI_FLASH=y
++CONFIG_SPI_CLK=66000000
++# CONFIG_DATAFLASH_RECOVERY is not set
++# CONFIG_SPI is not set
++CONFIG_QSPI=y
++CONFIG_ALLOW_BOOT_FROM_DATAFLASH_CS0=y
++CONFIG_ALLOW_BOOT_FROM_DATAFLASH_CS1=y
++CONFIG_ALLOW_BOOT_FROM_DATAFLASH_CS2=y
++CONFIG_ALLOW_BOOT_FROM_DATAFLASH_CS3=y
++
++#
++# QSPI Configuration
++#
++CONFIG_QSPI_BUS=1
++CONFIG_QSPI_IOSET=2
++# CONFIG_QSPI_4B_OPCODES is not set
++# CONFIG_QSPI_XIP is not set
++CONFIG_BOOTSTRAP_MAXSIZE="65536"
++CONFIG_PROJECT="dataflash"
++CONFIG_LOAD_UBOOT=y
++# CONFIG_LOAD_LINUX is not set
++# CONFIG_LOAD_ANDROID is not set
++# CONFIG_LOAD_1MB is not set
++# CONFIG_LOAD_4MB is not set
++# CONFIG_LOAD_64KB is not set
++CONFIG_IMG_ADDRESS="0x00020000"
++CONFIG_JUMP_ADDR="0x22000000"
++
++#
++# U-Boot Image Storage Setup
++#
++CONFIG_IMG_SIZE="0x00080000"
++CONFIG_MACH_TYPE="9999"
++# CONFIG_OVERRIDE_MACH_TYPE is not set
++# CONFIG_SECURE is not set
++# CONFIG_THUMB is not set
++CONFIG_DISABLE_WATCHDOG=y
++
++#
++# ARM TrustZone Options
++#
++CONFIG_MATRIX=y
++# CONFIG_ENTER_NWD is not set
++CONFIG_REDIRECT_ALL_INTS_AIC=y
++# CONFIG_TZC400 is not set
++# CONFIG_BACKUP_MODE is not set
++
++#
++# Board's Workaround Options
++#
++# CONFIG_BOARD_QUIRK_NONE is not set
++# CONFIG_BOARD_QUIRK_SAMA5D3 is not set
++# CONFIG_BOARD_QUIRK_SAMA5D4 is not set
++# CONFIG_BOARD_QUIRK_SAMA5D2_XULT is not set
++# CONFIG_BOARD_QUIRK_SAMA5D2_ICP is not set
++CONFIG_BOARD_QUIRK_SAMA5D2_SIP=y
++# CONFIG_BOARD_QUIRK_SAM9X60_EK is not set
++# CONFIG_BOARD_QUIRK_SAM9X60_EB is not set
++# CONFIG_BOARD_QUIRK_SAMA7G5_EK is not set
++# CONFIG_BOARD_QUIRK_SAM9X60_CURIOSITY is not set
++CONFIG_LED_ON_BOARD=y
++
++#
++# LED setting
++#
++# CONFIG_LED_R_NONE is not set
++CONFIG_LED_R_ON_PIOA=y
++# CONFIG_LED_R_ON_PIOB is not set
++# CONFIG_LED_R_ON_PIOC is not set
++# CONFIG_LED_R_ON_PIOD is not set
++# CONFIG_LED_R_ON_PIOE is not set
++CONFIG_LED_R_PIN=10
++CONFIG_LED_R_VALUE=0
++# CONFIG_LED_G_NONE is not set
++# CONFIG_LED_G_ON_PIOA is not set
++CONFIG_LED_G_ON_PIOB=y
++# CONFIG_LED_G_ON_PIOC is not set
++# CONFIG_LED_G_ON_PIOD is not set
++# CONFIG_LED_G_ON_PIOE is not set
++CONFIG_LED_G_PIN=1
++CONFIG_LED_G_VALUE=1
++# CONFIG_LED_B_NONE is not set
++CONFIG_LED_B_ON_PIOA=y
++# CONFIG_LED_B_ON_PIOB is not set
++# CONFIG_LED_B_ON_PIOC is not set
++# CONFIG_LED_B_ON_PIOD is not set
++# CONFIG_LED_B_ON_PIOE is not set
++CONFIG_LED_B_PIN=31
++CONFIG_LED_B_VALUE=0
++
++#
++# TWI BUS setting
++#
++# CONFIG_TWI0 is not set
++# CONFIG_TWI1 is not set
++# CONFIG_FLEXCOM0 is not set
++# CONFIG_FLEXCOM1 is not set
++# CONFIG_FLEXCOM2 is not set
++# CONFIG_FLEXCOM3 is not set
++# CONFIG_FLEXCOM4 is not set
++# CONFIG_ACT8865 is not set
++# CONFIG_MCP16502 is not set
++
++#
++# Board Hardware Information Options
++#
++
++#
++# Basic Drivers support
++#
++CONFIG_PIT=y
++CONFIG_WDT=y
++# CONFIG_WDT2 is not set
++CONFIG_RSTC=y
++CONFIG_USART=y
++CONFIG_PIO=y
++CONFIG_PMC_COMMON=y
++CONFIG_PMC_V1=y
++CONFIG_PMC_PERIPH_CLK_SAM9X5=y
++CONFIG_PMC_GENERIC_CLK=y
++CONFIG_PMC_UTMI_CLK=y
++CONFIG_PMC_PLL_CLK=y
++CONFIG_PMC_MCK_CLK=y
++# CONFIG_SHDWC is not set
++CONFIG_SFRBU=y
+diff --git a/configs/rugged_board_a5d2xsd1_uboot_defconfig b/configs/rugged_board_a5d2xsd1_uboot_defconfig
+new file mode 100644
+index 00000000..e0674778
+--- /dev/null
++++ b/configs/rugged_board_a5d2xsd1_uboot_defconfig
+@@ -0,0 +1,357 @@
++#
++# Automatically generated make config: don't edit
++# Sat Dec  4 15:44:21 2021
++#
++CONFIG_HAVE_DOT_CONFIG=y
++CONFIG_LOAD_AND_JUMP=y
++# CONFIG_DIRECT_JUMP is not set
++# CONFIG_INIT_AND_STOP is not set
++CONFIG_LOAD_SW=y
++CONFIG_JUMP_TO_SW=y
++# CONFIG_SAM9X60 is not set
++CONFIG_SAMA5D2=y
++# CONFIG_SAMA5D3X is not set
++# CONFIG_SAMA5D4 is not set
++# CONFIG_SAMA7G5 is not set
++CONFIG_SPI_BUS_MAX=1
++CONFIG_SPI_IOSET_MAX=3
++CONFIG_QSPI_BUS_MAX=1
++CONFIG_QSPI_IOSET_MAX=3
++CONFIG_DEVICENAME="sama5d2"
++CONFIG_TWI_IOSET=y
++CONFIG_TWI_IOSET_MAX=4
++CONFIG_FLEXCOM_TWI_IOSET=y
++CONFIG_FLEXCOM_TWI_IOSET_MAX=3
++
++#
++# Clock Signals
++#
++
++#
++# Main Crystal configuration
++#
++# CONFIG_CRYSTAL_12_000MHZ is not set
++# CONFIG_CRYSTAL_16_000MHZ is not set
++# CONFIG_CRYSTAL_16_36766MHZ is not set
++# CONFIG_CRYSTAL_18_432MHZ is not set
++CONFIG_CRYSTAL_24_000MHZ=y
++# CONFIG_MCK_BYPASS is not set
++
++#
++# Slow Clock Configuration Options
++#
++CONFIG_SCLK=y
++CONFIG_ALLOW_CRYSTAL_12_000MHZ=y
++CONFIG_ALLOW_CRYSTAL_24_000MHZ=y
++# CONFIG_CPU_CLK_266MHZ is not set
++# CONFIG_CPU_CLK_332MHZ is not set
++# CONFIG_CPU_CLK_348MHZ is not set
++# CONFIG_CPU_CLK_396MHZ is not set
++# CONFIG_CPU_CLK_444MHZ is not set
++CONFIG_CPU_CLK_492MHZ=y
++# CONFIG_CPU_CLK_498MHZ is not set
++# CONFIG_CPU_CLK_510MHZ is not set
++# CONFIG_CPU_CLK_528MHZ is not set
++# CONFIG_CPU_CLK_594MHZ is not set
++# CONFIG_CPU_CLK_600MHZ is not set
++# CONFIG_CPU_CLK_800MHZ is not set
++# CONFIG_CPU_CLK_1000MHZ is not set
++CONFIG_ALLOW_CPU_CLK_492MHZ=y
++CONFIG_ALLOW_CPU_CLK_498MHZ=y
++# CONFIG_DISABLE_CPU_CLK_240MHZ is not set
++# CONFIG_BUS_SPEED_116MHZ is not set
++# CONFIG_BUS_SPEED_124MHZ is not set
++# CONFIG_BUS_SPEED_133MHZ is not set
++# CONFIG_BUS_SPEED_148MHZ is not set
++CONFIG_BUS_SPEED_164MHZ=y
++# CONFIG_BUS_SPEED_166MHZ is not set
++# CONFIG_BUS_SPEED_170MHZ is not set
++# CONFIG_BUS_SPEED_176MHZ is not set
++# CONFIG_BUS_SPEED_200MHZ is not set
++CONFIG_SUPPORT_BUS_SPEED_116MHZ=y
++CONFIG_SUPPORT_BUS_SPEED_164MHZ=y
++CONFIG_SUPPORT_BUS_SPEED_166MHZ=y
++
++#
++# Console and Debug
++#
++CONFIG_CONSOLE_INDEX=1
++CONFIG_DEBUG=y
++CONFIG_DEBUG_INFO=y
++# CONFIG_DEBUG_LOUD is not set
++# CONFIG_DEBUG_VERY_LOUD is not set
++CONFIG_HW_DISPLAY_BANNER=y
++CONFIG_HW_BANNER="\"\\n\\nAT91Bootstrap \" AT91BOOTSTRAP_VERSION \" (\" COMPILE_TIME \")\\n\\n\""
++CONFIG_LINK_ADDR="0x200000"
++CONFIG_TOP_OF_MEMORY="0x210000"
++CONFIG_CPU_HAS_TRUSTZONE=y
++# CONFIG_CPU_HAS_TZC400 is not set
++CONFIG_CPU_V7=y
++# CONFIG_HAS_PMIC_ACT8865 is not set
++# CONFIG_SUPPORT_PM is not set
++# CONFIG_HAS_ONE_WIRE is not set
++# CONFIG_HAS_EEPROM is not set
++# CONFIG_HAS_EHT0_PHY is not set
++# CONFIG_HAS_EHT1_PHY is not set
++# CONFIG_HAS_AUDIO_CODEC is not set
++# CONFIG_HAS_HDMI is not set
++# CONFIG_CORE_ARM926EJS is not set
++CONFIG_CORE_CORTEX_A5=y
++# CONFIG_CORE_CORTEX_A7 is not set
++# CONFIG_CPU_HAS_UMCTL2 is not set
++CONFIG_CPU_HAS_DDRC=y
++# CONFIG_CPU_HAS_SDDRC is not set
++# CONFIG_CPU_HAS_SDRAMC is not set
++CONFIG_CPU_HAS_SCKC=y
++CONFIG_CPU_HAS_H32MXDIV=y
++# CONFIG_CPU_HAS_HSMCI0 is not set
++# CONFIG_CPU_HAS_HSMCI1 is not set
++# CONFIG_CPU_HAS_HSMCI2 is not set
++# CONFIG_CPU_HAS_MCI0 is not set
++# CONFIG_CPU_HAS_MCI1 is not set
++CONFIG_CPU_HAS_SDHC0=y
++CONFIG_CPU_HAS_SDHC1=y
++# CONFIG_CPU_HAS_SDHC2 is not set
++CONFIG_CPU_HAS_SPI=y
++CONFIG_CPU_HAS_QSPI=y
++# CONFIG_CPU_HAS_SCLK_BYPASS is not set
++# CONFIG_CPU_HAS_PIO3 is not set
++CONFIG_CPU_HAS_L2CC=y
++CONFIG_CPU_HAS_PMECC=y
++# CONFIG_HAS_HW_INFO is not set
++# CONFIG_TWI is not set
++# CONFIG_MACB is not set
++# CONFIG_AES is not set
++# CONFIG_LOAD_HW_INFO is not set
++CONFIG_CPU_HAS_TWI0=y
++CONFIG_CPU_HAS_TWI1=y
++# CONFIG_CPU_HAS_TWI2 is not set
++# CONFIG_CPU_HAS_TWI3 is not set
++CONFIG_CPU_HAS_AES=y
++CONFIG_CPU_HAS_PIO4=y
++CONFIG_FLEXCOM=y
++CONFIG_CPU_HAS_FLEXCOM0=y
++CONFIG_CPU_HAS_FLEXCOM1=y
++CONFIG_CPU_HAS_FLEXCOM2=y
++CONFIG_CPU_HAS_FLEXCOM3=y
++CONFIG_CPU_HAS_FLEXCOM4=y
++# CONFIG_CPU_HAS_FLEXCOM5 is not set
++# CONFIG_CPU_HAS_FLEXCOM6 is not set
++# CONFIG_CPU_HAS_FLEXCOM7 is not set
++# CONFIG_CPU_HAS_FLEXCOM8 is not set
++# CONFIG_CPU_HAS_FLEXCOM9 is not set
++# CONFIG_CPU_HAS_FLEXCOM10 is not set
++# CONFIG_CPU_HAS_FLEXCOM11 is not set
++# CONFIG_CPU_HAS_FLEXCOM12 is not set
++# CONFIG_CPU_HAS_WDT2 is not set
++# CONFIG_CPU_HAS_DWDT is not set
++
++#
++# DRAM
++#
++# CONFIG_SDRAM is not set
++# CONFIG_SDDRC is not set
++CONFIG_DDRC=y
++# CONFIG_UMCTL2 is not set
++# CONFIG_PUBL is not set
++# CONFIG_ALLOW_PSRAM is not set
++# CONFIG_DDR_SEL_ADDR is not set
++CONFIG_BANK_4=y
++# CONFIG_BANK_8 is not set
++# CONFIG_DDR_SET_BY_DEVICE is not set
++CONFIG_DDR_SET_BY_JEDEC=y
++# CONFIG_DDR_SET_BY_TIMING is not set
++# CONFIG_DDR_MT41K128M16_D2 is not set
++# CONFIG_DDR_W632GU6MB is not set
++# CONFIG_DDR_W972GG6KB_9X60 is not set
++# CONFIG_DDR_W972GG6KB_D2 is not set
++# CONFIG_DDR_W971GG6SB_D2 is not set
++# CONFIG_DDR_W9712G6KB25I is not set
++# CONFIG_DDR_AD210032F is not set
++# CONFIG_DDR_W9751G6KB is not set
++# CONFIG_DDR_W971GG6SB is not set
++# CONFIG_DDR_AD220032D is not set
++# CONFIG_DDR_MT47H128M16 is not set
++# CONFIG_DDR_MT47H64M16 is not set
++# CONFIG_DDR_MT47H128M8 is not set
++# CONFIG_DDR_MT41K256M16TW_107 is not set
++# CONFIG_DDR_MT41K512M16HA_125 is not set
++# CONFIG_DDR_MT47H128M16RT_25E_C is not set
++# CONFIG_DDR_IS43LD16128B_25BLI is not set
++# CONFIG_DDR_MT52L256M32D1PF_107 is not set
++# CONFIG_DDR_EDB5432BEBH_1DAAT_F_D is not set
++# CONFIG_LPDDR1 is not set
++# CONFIG_LPDDR2 is not set
++# CONFIG_LPDDR3 is not set
++CONFIG_DDR2=y
++# CONFIG_DDR3 is not set
++CONFIG_DBW_16=y
++# CONFIG_DBW_32 is not set
++# CONFIG_DDR_64_MBIT is not set
++CONFIG_DDR_128_MBIT=y
++# CONFIG_DDR_256_MBIT is not set
++# CONFIG_DDR_512_MBIT is not set
++# CONFIG_DDR_1_GBIT is not set
++# CONFIG_DDR_2_GBIT is not set
++# CONFIG_DDR_4_GBIT is not set
++# CONFIG_DDR_8_GBIT is not set
++# CONFIG_CAS_2 is not set
++CONFIG_CAS_3=y
++# CONFIG_CAS_4 is not set
++# CONFIG_CAS_5 is not set
++# CONFIG_CAS_6 is not set
++# CONFIG_CAS_7 is not set
++# CONFIG_CAS_8 is not set
++# CONFIG_NOT_DQS_DISABLED is not set
++# CONFIG_DDR_SPEED_200 is not set
++# CONFIG_DDR_SPEED_266 is not set
++# CONFIG_DDR_SPEED_333 is not set
++# CONFIG_DDR_SPEED_370 is not set
++CONFIG_DDR_SPEED_400=y
++# CONFIG_DDR_SPEED_533 is not set
++# CONFIG_DDR_SPEED_667 is not set
++# CONFIG_DDR_SPEED_800 is not set
++# CONFIG_DDR_SPEED_933 is not set
++# CONFIG_DDR_SPEED_1066 is not set
++# CONFIG_DDR_SPEED_1333 is not set
++CONFIG_REF_WIN_32=y
++# CONFIG_REF_WIN_64 is not set
++CONFIG_REF_2048=y
++# CONFIG_REF_4096 is not set
++# CONFIG_REF_8192 is not set
++
++#
++# Extra parameters
++#
++# CONFIG_SAMA5D2_LPDDR2 is not set
++
++#
++# Flash Memory
++#
++# CONFIG_DATAFLASH is not set
++# CONFIG_FLASH is not set
++# CONFIG_NANDFLASH is not set
++CONFIG_SDCARD=y
++CONFIG_MEMORY="sdcard"
++
++#
++# SD Card Configuration
++#
++CONFIG_SDHC=y
++# CONFIG_SDHC0 is not set
++CONFIG_SDHC1=y
++# CONFIG_SDHC2 is not set
++# CONFIG_SDHC_NODMA is not set
++CONFIG_FATFS=y
++CONFIG_ALLOW_BOOT_FROM_DATAFLASH_CS0=y
++CONFIG_ALLOW_BOOT_FROM_DATAFLASH_CS1=y
++CONFIG_ALLOW_BOOT_FROM_DATAFLASH_CS2=y
++CONFIG_ALLOW_BOOT_FROM_DATAFLASH_CS3=y
++CONFIG_BOOTSTRAP_MAXSIZE="65536"
++CONFIG_PROJECT="sdcard"
++CONFIG_LOAD_UBOOT=y
++# CONFIG_LOAD_LINUX is not set
++# CONFIG_LOAD_ANDROID is not set
++# CONFIG_LOAD_1MB is not set
++# CONFIG_LOAD_4MB is not set
++# CONFIG_LOAD_64KB is not set
++CONFIG_JUMP_ADDR="0x23f00000"
++
++#
++# U-Boot Image Storage Setup
++#
++CONFIG_IMAGE_NAME="u-boot.bin"
++CONFIG_MACH_TYPE="9999"
++# CONFIG_OVERRIDE_MACH_TYPE is not set
++# CONFIG_SECURE is not set
++# CONFIG_THUMB is not set
++CONFIG_DISABLE_WATCHDOG=y
++
++#
++# ARM TrustZone Options
++#
++CONFIG_MATRIX=y
++# CONFIG_LOAD_OPTEE is not set
++# CONFIG_ENTER_NWD is not set
++CONFIG_REDIRECT_ALL_INTS_AIC=y
++# CONFIG_TZC400 is not set
++# CONFIG_BACKUP_MODE is not set
++
++#
++# Board's Workaround Options
++#
++# CONFIG_BOARD_QUIRK_NONE is not set
++# CONFIG_BOARD_QUIRK_SAMA5D3 is not set
++# CONFIG_BOARD_QUIRK_SAMA5D4 is not set
++# CONFIG_BOARD_QUIRK_SAMA5D2_XULT is not set
++# CONFIG_BOARD_QUIRK_SAMA5D2_ICP is not set
++CONFIG_BOARD_QUIRK_SAMA5D2_SIP=y
++# CONFIG_BOARD_QUIRK_SAM9X60_EK is not set
++# CONFIG_BOARD_QUIRK_SAM9X60_EB is not set
++# CONFIG_BOARD_QUIRK_SAMA7G5_EK is not set
++# CONFIG_BOARD_QUIRK_SAM9X60_CURIOSITY is not set
++CONFIG_LED_ON_BOARD=y
++
++#
++# LED setting
++#
++# CONFIG_LED_R_NONE is not set
++CONFIG_LED_R_ON_PIOA=y
++# CONFIG_LED_R_ON_PIOB is not set
++# CONFIG_LED_R_ON_PIOC is not set
++# CONFIG_LED_R_ON_PIOD is not set
++# CONFIG_LED_R_ON_PIOE is not set
++CONFIG_LED_R_PIN=10
++CONFIG_LED_R_VALUE=0
++# CONFIG_LED_G_NONE is not set
++# CONFIG_LED_G_ON_PIOA is not set
++CONFIG_LED_G_ON_PIOB=y
++# CONFIG_LED_G_ON_PIOC is not set
++# CONFIG_LED_G_ON_PIOD is not set
++# CONFIG_LED_G_ON_PIOE is not set
++CONFIG_LED_G_PIN=1
++CONFIG_LED_G_VALUE=1
++# CONFIG_LED_B_NONE is not set
++CONFIG_LED_B_ON_PIOA=y
++# CONFIG_LED_B_ON_PIOB is not set
++# CONFIG_LED_B_ON_PIOC is not set
++# CONFIG_LED_B_ON_PIOD is not set
++# CONFIG_LED_B_ON_PIOE is not set
++CONFIG_LED_B_PIN=31
++CONFIG_LED_B_VALUE=0
++
++#
++# TWI BUS setting
++#
++# CONFIG_TWI0 is not set
++# CONFIG_TWI1 is not set
++# CONFIG_FLEXCOM0 is not set
++# CONFIG_FLEXCOM1 is not set
++# CONFIG_FLEXCOM2 is not set
++# CONFIG_FLEXCOM3 is not set
++# CONFIG_FLEXCOM4 is not set
++# CONFIG_ACT8865 is not set
++# CONFIG_MCP16502 is not set
++
++#
++# Board Hardware Information Options
++#
++
++#
++# Basic Drivers support
++#
++CONFIG_PIT=y
++CONFIG_WDT=y
++# CONFIG_WDT2 is not set
++CONFIG_RSTC=y
++CONFIG_USART=y
++CONFIG_PIO=y
++CONFIG_PMC_COMMON=y
++CONFIG_PMC_V1=y
++CONFIG_PMC_PERIPH_CLK_SAM9X5=y
++CONFIG_PMC_GENERIC_CLK=y
++CONFIG_PMC_UTMI_CLK=y
++CONFIG_PMC_PLL_CLK=y
++CONFIG_PMC_MCK_CLK=y
++# CONFIG_SHDWC is not set
++CONFIG_SFRBU=y
+diff --git a/driver/spi_flash/spi_nor_ids.c b/driver/spi_flash/spi_nor_ids.c
+index baede3c5..0bf15e51 100644
+--- a/driver/spi_flash/spi_nor_ids.c
++++ b/driver/spi_flash/spi_nor_ids.c
+@@ -48,7 +48,7 @@
+ 
+ const struct spi_nor_info spi_nor_ids[] = {
+ 	/* Macronix */
+-	{ MX25("mx25l25635f", 0xc22019,  512), },
++	{ MX25("mx25l25645g", 0xc22019,  512), },
+ 	{ MX66("mx66lm1g45g", 0xc2853b, 2048), },
+ 
+ 	/* Micron */
+-- 
+2.25.1
+
