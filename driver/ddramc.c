@@ -129,6 +129,8 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	 * for temperatures > 85C (at 200 MHz bus speed)
 	 */
 	ddramc_config->rtr = 0x618;
+#elif (CONFIG_DDR_W9751G6KB)
+	ddramc_config->rtr = 0x511;
 #else
 	#error "No CLK setting defined"
 #endif
