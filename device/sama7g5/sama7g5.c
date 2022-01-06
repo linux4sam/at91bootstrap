@@ -989,6 +989,14 @@ void twi_init()
 void hw_preinit(void)
 {
 	/*
+	 * We don't call here backup_resume() as this is using BSS data which is
+	 * not initialized at the moment hw_preinit() is called. The functionality
+	 * will not be affected if executing this code all the time at both boot
+	 * and BSR exit.
+	 */
+	shdwc_disable_lpm();
+
+	/*
 	 * Out of Romcode, MCK1 & MCK4 are already configured with SYSPLL
 	 * at unwanted frequencies.
 	 * We cannot reconfigure SYSPLL without first reconfiguring
@@ -1018,9 +1026,6 @@ void hw_init(void)
 
 	/* Switch backup area to VDDIN33. */
 	sfrbu_select_ba_power_source(true);
-
-	if (backup_resume())
-		shdwc_disable_lpm();
 
 	/* Watchdog might be enabled out of reset. Let's make sure it's off */
 	at91_disable_wdt();
