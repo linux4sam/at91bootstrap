@@ -125,7 +125,6 @@
 #error "No NAND Flash IOSETs defined"
 #endif
 
-#define NO_GALOIS_TABLE_IN_ROM
 #endif
 
 /*
