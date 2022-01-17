@@ -4,6 +4,7 @@
 
 #include "board.h"
 #include "clk-common.h"
+#include "div.h"
 #include "pmc.h"
 #include "types.h"
 #include "arch/at91_pmc/pmc.h"
@@ -41,7 +42,7 @@ static unsigned long pmc_mck_mck0_rate(unsigned int mckr)
 		rate = rate >> (pres >> 4);
 		break;
 	case AT91C_PMC_PRES_CLK_3:
-		rate /= 3;
+		rate = div(rate, 3);
 		break;
 	default:
 		return rate;
@@ -54,10 +55,10 @@ static unsigned long pmc_mck_mck0_rate(unsigned int mckr)
 		rate = rate >> (mdiv >> 8);
 		break;
 	case AT91C_PMC_MDIV_3:
-		rate /= 3;
+		rate = div(rate, 3);
 		break;
 	case AT91C_PMC_MDIV_5:
-		rate /= 5;
+		rate = div(rate, 5);
 		break;
 	default:
 		return rate;
