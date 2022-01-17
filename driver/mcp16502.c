@@ -259,7 +259,7 @@ void mcp16502_voltage_select(void)
 			if (regulators_cfg[i].uV)
 				dbg_printf("MCP16502: %s = %umV\n",
 					   mcp16502_regulator_id_to_name(regulators_cfg[i].regulator),
-					   regulators_cfg[i].uV / 1000);
+					   div(regulators_cfg[i].uV, 1000));
 		}
 		dbg_printf("\n");
 	}
