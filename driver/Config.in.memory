@@ -47,6 +47,29 @@ source "driver/Config.in.dram"
 menu "Extra parameters"
 
 choice
+	prompt "Macronix NOR"
+
+config NONE
+	prompt "None"
+	bool
+	help
+		Set if NOR flash is from Macronix
+
+config MX25l25635F
+	prompt "NOR Flash-mx25l25635f"
+	bool
+	help
+		Select NOR Flash - mx25l25635f
+
+config MX25l25645G
+	prompt "NOR Flash-mx25l25645g"
+	bool
+	help
+		Select NOR Flash - mx25l25645g
+
+endchoice
+
+choice
 	prompt "Extern Memory Clock"
 	depends on UMCTL2
 	default MEM_CLOCK_533 if DDR3 || LPDDR3
