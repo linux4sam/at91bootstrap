@@ -83,7 +83,7 @@ struct dram_timings
 #if defined(CONFIG_LPDDR3) || defined(CONFIG_DDR3)
 #define TRTP		MAX(4, PS_TO_CYCLES_UP(7500UL))		/* Read to Precharge, Clock Cycles */
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_DDR2) 
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_DDR2)
 #define TRTP		MAX(2, PS_TO_CYCLES_UP(7500UL))		/* Read to Precharge, Clock Cycles */
 #endif
 
@@ -91,14 +91,14 @@ struct dram_timings
 #define TRP			PS_TO_CYCLES_UP(tRP_ps)				/* Row Precharge delay, Clock Cycles */
 #define TRCD		PS_TO_CYCLES_UP(tRCD_ps)			/* Row to Column delay, Clock Cycles */
 #define TRAS		NS_TO_CYCLES_UP(tRAS)				/* Row Active Strobe, Clock Cycles */
-#if defined(CONFIG_DDR2) 
+#if defined(CONFIG_DDR2)
 	#if defined(CONFIG_DDR_256_MBIT)
 		#define TRRD		PS_TO_CYCLES_UP(7500UL)			/* Row to Row Delay, Clock Cycles */
-	#elif defined(CONFIG_DDR_512_MBIT) || defined(CONFIG_DDR_1_GBIT)\
+	#elif defined(CONFIG_DDR_512_MBIT) || defined(CONFIG_DDR_1_GBIT) \
 		|| defined(CONFIG_DDR_2_GBIT) || defined(CONFIG_DDR_4_GBIT)
 		#define TRRD		NS_TO_CYCLES_UP(10UL)			/* Row to Row Delay, Clock Cycles */
 	#endif
-#elif defined(CONFIG_DDR3) 
+#elif defined(CONFIG_DDR3)
 	#define TRRD		MAX(4, NS_TO_CYCLES_UP(10UL))		/* Row to Row Delay, Clock Cycles */
 #elif defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	#define TRRD		MAX(2, NS_TO_CYCLES_UP(10UL))		/* Row to Row Delay, Clock Cycles */
@@ -124,7 +124,7 @@ struct dram_timings
 
 #if defined(CONFIG_DDR2)
 	#define TCKE		MAX(3, PS_TO_CYCLES_UP(7500UL))		/* CKE minimum width, Clock Cycles */
-	#define TXP			2							/* Power down exit Delay, Clock Cycles */
+	#define TXP		2					/* Power down exit Delay, Clock Cycles */
 	#define TCKSRX		1
 	#define TCKSRE		1
 	#define TCKESR		TCKE
@@ -145,7 +145,7 @@ struct dram_timings
 		#endif
 	#endif
 	#define TXPR		MAX(5, NS_TO_CYCLES_UP(tRFC + 10))	/* Reset Clock exit time, Clock Cycles */
-	#define TXP			MAX(3, PS_TO_CYCLES_UP(7500UL))		/* Power down exit Delay, Clock Cycles */
+	#define TXP		MAX(3, PS_TO_CYCLES_UP(7500UL))		/* Power down exit Delay, Clock Cycles */
 	#define TXPDLL		MAX(10, NS_TO_CYCLES_UP(24UL))
 	#define TCKSRX		MAX(5, NS_TO_CYCLES_UP(10UL))
 	#define TCKSRE		MAX(5, NS_TO_CYCLES_UP(10UL))
@@ -154,7 +154,7 @@ struct dram_timings
 
 #if defined(CONFIG_LPDDR2)
 	#define TCKE		MAX(3, NS_TO_CYCLES_UP(15UL))		/* CKE minimum width, Clock Cycles */
-	#define TXP			MAX(2, PS_TO_CYCLES_UP(7500UL))		/* Power down exit Delay, Clock Cycles */
+	#define TXP		MAX(2, PS_TO_CYCLES_UP(7500UL))		/* Power down exit Delay, Clock Cycles */
 	#define TCKSRX		2
 	#define TCKSRE		2
 	#define TCKESR		MAX(3, PS_TO_CYCLES_UP(15000UL))	/* CKE minimum width, Clock Cycles */
@@ -167,7 +167,7 @@ struct dram_timings
 
 #if defined(CONFIG_LPDDR3)
 	#define TCKE		MAX(3, PS_TO_CYCLES_UP(7500UL))		/* CKE minimum width, Clock Cycles */
-	#define TXP			MAX(3, PS_TO_CYCLES_UP(7500UL))		/* Power down exit Delay, Clock Cycles */
+	#define TXP		MAX(3, PS_TO_CYCLES_UP(7500UL))		/* Power down exit Delay, Clock Cycles */
 	#define TCKSRX		2
 	#define TCKSRE		2
 	#define TCKESR		MAX(3, PS_TO_CYCLES_UP(15000UL))	/* CKE minimum width, Clock Cycles */
@@ -200,7 +200,7 @@ struct dram_timings
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 #define TINIT1		NS_TO_CYCLES_UP(100UL)			/* Clock Cycles */
-#define TINIT2		5UL								/* Clock Cycles */
+#define TINIT2		5UL					/* Clock Cycles */
 #define TINIT4		NS_TO_CYCLES_UP(1000UL)			/* Clock Cycles */
 #define TINIT5		NS_TO_CYCLES_UP(10000UL)		/* Clock Cycles */
 #define TZQINIT		PS_TO_CYCLES_UP(1000000UL)		/* Clock Cycles */
