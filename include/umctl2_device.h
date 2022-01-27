@@ -8,8 +8,7 @@
 #define __UMCTL2_DEVICE_H__
 
 #if defined(CONFIG_DDR_SET_BY_DEVICE)
-#if defined(CONFIG_DDR_MT41K256M16TW_107) || defined (CONFIG_DDR_MT41K512M16HA_125) || \
-	defined(CONFIG_DDR_AS4C256M16D3LC_12BCNTR)
+#if defined(CONFIG_DDR_MT41K256M16TW_107) || defined (CONFIG_DDR_MT41K512M16HA_125)
 #define _tRFC		350UL		/* Refresh to Refresh, ns */
 #define _tREFI		7800UL		/* Refresh Intervals, ns */
 #define _tWR		15UL		/* Write Recovery, ns */
@@ -22,6 +21,29 @@
 #define _tRASMAX	70000UL		/* RAS max, ns */
 #define _tRC_ps		50625UL		/* Row Cycle, ps */
 #define _tFAW		50UL		/* Four Activation Window, ns */
+#define _tPRECKE	500000UL
+#define _tPOSTCKE	0UL		/* Unused with DDR3 */
+#define _CL		7UL		/* CAS Latency, Clock cycles */
+#define _CWL		6UL		/* CAS Write Latency, Clock cycles */
+#define _AL		0UL		/* Additive Latency, Clock cycles */
+#define _TZQOPER	256UL		/* TZQ Long Calibration, Clock cycles */
+#define _TZQCS		64UL		/* TZQ Short Calibration, Clock cycles */
+#define _MRD		4UL		/* Mode Register Delay, Clock cycles */
+#endif
+
+#if defined(CONFIG_DDR_AS4C256M16D3LC_12BCNTR)
+#define _tRFC		260UL		/* Refresh to Refresh, ns */
+#define _tREFI		7800UL		/* Refresh Intervals, ns */
+#define _tWR		15UL		/* Write Recovery, ns */
+#define _tRP		14UL		/* Row Precharge command, ns */
+#define _tRP_ps		13750UL		/* Row Precharge command, ps */
+#define _tRCD		14UL		/* Row to Column delay, ns */
+#define _tRCD_ps	13750UL		/* Row to Column delay, ps */
+#define _tCCD		4UL		/* Column to Column delay, ns */
+#define _tRAS		35UL		/* Row Active Strobe, ns */
+#define _tRASMAX	70200UL		/* RAS max, ns */
+#define _tRC_ps		48750UL		/* Row Cycle, ps */
+#define _tFAW		40UL		/* Four Activation Window, ns */
 #define _tPRECKE	500000UL
 #define _tPOSTCKE	0UL		/* Unused with DDR3 */
 #define _CL		7UL		/* CAS Latency, Clock cycles */
