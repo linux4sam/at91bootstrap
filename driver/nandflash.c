@@ -83,7 +83,7 @@ static unsigned char read_byte(void)
 	return(readb((unsigned long)CONFIG_SYS_NAND_BASE));
 }
 
-static void write_byte(unsigned char data)
+static __attribute__((unused)) void write_byte(unsigned char data)
 {
 	writeb(data, (unsigned long)CONFIG_SYS_NAND_BASE);
 }
