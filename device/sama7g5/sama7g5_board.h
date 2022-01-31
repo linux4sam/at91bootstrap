@@ -78,4 +78,18 @@
 #endif
 #endif /* CONFIG_QSPI */
 
+/*
+ * NandFlash Settings
+ */
+#ifdef CONFIG_NANDFLASH
+#define CONFIG_SYS_NAND_BASE            AT91C_BASE_CS3
+#define CONFIG_SYS_NAND_MASK_ALE        (1 << 21)
+#define CONFIG_SYS_NAND_MASK_CLE        (1 << 22)
+#define CONFIG_SYS_NAND_OE_PIN		AT91C_PIN_PD(6)
+#define CONFIG_SYS_NAND_WE_PIN		AT91C_PIN_PD(5)
+#define CONFIG_SYS_NAND_ALE_PIN		AT91C_PIN_PD(7)
+#define CONFIG_SYS_NAND_CLE_PIN		AT91C_PIN_PD(8)
+#define CONFIG_SYS_NAND_ENABLE_PIN      AT91C_PIN_PD(4)
+#endif /* CONFIG_NANDFLASH */
+
 #endif
