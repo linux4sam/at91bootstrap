@@ -135,7 +135,15 @@ config CPU_HAS_SPI
 	bool
 	default n
 
+config CPU_HAS_SPI_IOSET
+	bool
+	default n
+
 config CPU_HAS_QSPI
+	bool
+	default n
+
+config CPU_HAS_QSPI_IOSET
 	bool
 	default n
 

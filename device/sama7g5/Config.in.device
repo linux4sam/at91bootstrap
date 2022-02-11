@@ -12,6 +12,7 @@ config SAMA7G5
 	select CPU_HAS_WDT2
 	select CPU_HAS_DWDT
 	select CPU_HAS_QSPI
+	select CPU_HAS_QSPI_IOSET
 	select CPU_HAS_PMECC
 	select CPU_HAS_SDHC0
 	select CPU_HAS_SDHC1

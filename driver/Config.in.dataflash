@@ -54,12 +54,11 @@ config SPI_BUS
 	default 0
 endif
 
-if SPI_IOSET_MAX != 1
 config SPI_IOSET
 	int "SPI IOSET Used for Dataflash"
+	depends on CPU_HAS_SPI_IOSET
 	range 1 SPI_IOSET_MAX
 	default 1
-endif
 
 choice
 	prompt "Chip Select"
@@ -149,12 +148,11 @@ config QSPI_BUS
 	default 0
 endif
 
-if QSPI_IOSET_MAX != 1
 config QSPI_IOSET
 	int "QSPI IOSET Used for Dataflash"
+	depends on CPU_HAS_QSPI_IOSET
 	range 1 QSPI_IOSET_MAX
 	default 1
-endif
 
 config AT91_QSPI_OCTAL
 	bool "AT91 QSPI instance with Octal Serial Peripheral Interface"

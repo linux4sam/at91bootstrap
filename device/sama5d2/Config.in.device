@@ -21,7 +21,9 @@ config SAMA5D2
 	select CPU_HAS_SDHC0
 	select CPU_HAS_SDHC1
 	select CPU_HAS_SPI
+	select CPU_HAS_SPI_IOSET
 	select CPU_HAS_QSPI
+	select CPU_HAS_QSPI_IOSET
 	select CPU_V7
 	select CPU_HAS_DDRC
 	select ALLOW_CPU_CLK_492MHZ

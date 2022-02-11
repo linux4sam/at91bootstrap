@@ -10,6 +10,7 @@ config	SAM9X60
 	select CPU_HAS_SDHC0
 	select CPU_HAS_SDHC1
 	select CPU_HAS_QSPI
+	select CPU_HAS_QSPI_IOSET
 	select CPU_HAS_WDT2
 	select CPU_HAS_SCLK_BYPASS
 	select CPU_HAS_FLEXCOM0
