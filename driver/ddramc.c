@@ -115,22 +115,28 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	row = AT91C_DDRC2_NR_13;
 	cas = AT91C_DDRC2_CAS_3;
 #if defined(CONFIG_DDR_W9751G6KB)
-/* DDR2 (W9751G6KB = 8 Mwords x 4 Banks x 16 bits), total 512 Mbit in SAM9X60D5M SiP */
+/* DDR2 (W9751G6KB = 8 Mwords x 4 Banks x 16 bits), total 512 Mbit in SAM9X60D5M and ATSAMA5D27C-D5M SiP */
 	bank = AT91C_DDRC2_NB_BANKS_4;
 #else // defined(CONFIG_DDR_W971GG6SB)
-/* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SAM9X60D1G SiP */
+/* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SAM9X60D1G and ATSAMA5D27C-D1G SiP */
 	bank = AT91C_DDRC2_NB_BANKS_8;
 #endif
-#if defined(CONFIG_BUS_SPEED_200MHZ)
-	/*
-	 * This value is set for normal operating conditions.
-	 * Change this to :
-	 * ddramc_config->rtr = 0x30c (3900 ns / 5 ns);
-	 * for temperatures > 85C (at 200 MHz bus speed)
-	 */
+#if defined(CONFIG_DDR_EXT_TEMP_RANGE)
+#if defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x2A5;
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
+	ddramc_config->rtr = 0x30c;
+#else
+	#error "No CLK setting defined"
+#endif
+#else
+#if defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x50E;
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
 	ddramc_config->rtr = 0x618;
 #else
 	#error "No CLK setting defined"
+#endif
 #endif
 #elif defined(CONFIG_DDR_AD220032D)
 /* LPDDR2 (AD220032D = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit in SiP on SAMA5D27-WLSOM1-EK */
