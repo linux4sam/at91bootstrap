@@ -732,6 +732,14 @@ void at91_init_can_message_ram(void)
 	       (AT91C_BASE_SFR + SFR_CAN_SRAM));
 }
 
+#define EHCIOHCI_PHYCLK_UTMI0	1
+
+void usb_utmi_clk_fix(void)
+{
+	writel(EHCIOHCI_PHYCLK_UTMI0,
+	       (AT91C_BASE_SFR + SFR_EHCIOCHI));
+}
+
 #ifdef CONFIG_TWI
 
 #if defined(CONFIG_FLEXCOM0) || defined(CONFIG_FLEXCOM1) || defined(CONFIG_FLEXCOM2) || \
@@ -1212,6 +1220,8 @@ void hw_init(void)
 #ifdef CONFIG_BOARD_QUIRK_SAMA7G5_EK
 	at91_can_stdby_dis();
 #endif
+
+	usb_utmi_clk_fix();
 }
 
 void hw_postinit(void)
