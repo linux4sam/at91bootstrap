@@ -123,4 +123,20 @@ config CPU_HAS_DWDT
 	default n
 
 source "driver/Config.in.memory"
+
+config MMU
+	bool "Load software with MMU enabled"
+	depends on LOAD_SW && (SAM9X60 || SAMA5D2 || SAMA5D3X || SAMA5D4)
+	default n
+
+config MMU_TABLE_BASE_ADDR
+	string "Base address (16KB aligned) for MMU Translation Table, occupies 16K bytes memory"
+	depends on MMU
+	default "0x20000000"
+
+config CACHES
+	bool "Load software with caches enabled"
+	depends on MMU
+	default n
+
 source "driver/Config.in.nvm"

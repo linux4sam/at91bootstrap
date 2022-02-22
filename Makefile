@@ -178,6 +178,10 @@ TOP_OF_MEMORY:=$(strip $(subst ",,$(CONFIG_TOP_OF_MEMORY)))
 # CRYSTAL is UNUSED
 CRYSTAL:=$(strip $(subst ",,$(CONFIG_CRYSTAL)))
 
+ifeq ($(CONFIG_MMU), y)
+MMU_TABLE_BASE_ADDR := $(strip $(subst ",,$(CONFIG_MMU_TABLE_BASE_ADDR)))
+endif
+
 # driver definitions
 SPI_CLK:=$(strip $(subst ",,$(CONFIG_SPI_CLK)))
 SPI_BOOT:=$(strip $(subst ",,$(CONFIG_SPI_BOOT)))
