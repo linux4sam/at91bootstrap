@@ -245,3 +245,53 @@ _lp_mon:
 	.word _smon_text
 	.word _emon_text
 #endif
+#if defined(CONFIG_MMU)
+	.arm
+	.global cp15_read_sctlr
+	.type	cp15_read_sctlr, %function
+cp15_read_sctlr:
+	mrc	p15, 0, r0, c1, c0, 0
+	bx	lr
+
+	.global cp15_write_sctlr
+	.type	cp15_write_sctlr, %function
+cp15_write_sctlr:
+	mcr	p15, 0, r0, c1, c0, 0
+	bx	lr
+
+	.global cp15_write_ttbr0
+	.type	cp15_write_ttbr0, %function
+cp15_write_ttbr0:
+	mcr	p15, 0, r0, c2, c0, 0
+	bx	lr
+
+	.global cp15_write_dacr
+	.type	cp15_write_dacr, %function
+cp15_write_dacr:
+	mcr	p15, 0, r0, c3, c0, 0
+	bx	lr
+
+	.global cp15_icache_invalidate
+	.type	cp15_icache_invalidate, %function
+cp15_icache_invalidate:
+	mcr	p15, 0, r0, c7, c5, 0
+	bx	lr
+
+	.global cp15_dcache_invalidate_setway
+	.type	cp15_dcache_invalidate_setway, %function
+cp15_dcache_invalidate_setway:
+	mcr	p15, 0, r0, c7, c6, 2
+	bx	lr
+
+	.global cp15_dcache_clean_setway
+	.type	cp15_dcache_clean_setway, %function
+cp15_dcache_clean_setway:
+	mcr	p15, 0, r0, c7, c10, 2
+	bx	lr
+
+	.global dsb
+	.type	dsb, %function
+dsb:
+	mcr	p15, 0, r0, c7, c10, 4
+	bx	lr
+#endif
