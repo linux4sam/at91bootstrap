@@ -384,7 +384,8 @@ ChkFileSize: $(AT91BOOTSTRAP)
 		exit 2;\
 	  else \
 	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
-		stack_space=`expr $(BOOTSTRAP_MAXSIZE) - $$fsize`; \
+		sram_size=`expr $(BOOTSTRAP_MAXSIZE) \* 2`; \
+		stack_space=`expr $$sram_size - $$fsize`; \
 		echo "[Attention] The space left for stack is $$stack_space bytes"; \
 	  fi )
 endif  # CONFIG_HAVE_DOT_CONFIG
