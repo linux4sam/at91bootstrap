@@ -377,7 +377,7 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	  fi ; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
-		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
+		echo "[Failed***] It's too big to fit into SRAM area. the supported maximum size is $(BOOTSTRAP_MAXSIZE)"; \
 		rm $(BINDIR)/$(BOOT_NAME).bin ;\
 		rm ${BINDIR}/${SYMLINK}; \
 		rm ${BINDIR}/${SYMLINK_BOOT}; \
