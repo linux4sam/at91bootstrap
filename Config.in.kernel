@@ -33,8 +33,7 @@ config ARG_DELAY
 
 config ARG_MEMTEST
 	string "Linux bootparam: option to enable memory test"
-	default " memtest=0" if SAMA7G5
-	default ""
+	default " memtest=16"
 
 config ARG_MTD
 	string "Linux bootparam: option about MTD parts"
