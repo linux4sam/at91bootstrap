@@ -20,7 +20,7 @@ config LINUX_KERNEL_ARG_STRING
 
 config ARG_CMA
 	string "Linux bootparam: Contiguous Memory Area support"
-	default " cma=256m" if SAMA7G5
+	default " cma=192m" if SAMA7G5
 	default ""
 
 config ARG_CONSOLE
