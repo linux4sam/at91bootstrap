@@ -46,6 +46,14 @@
 	.page_size = 256,                       \
 	.flags = SNOR_SECT_4K
 
+#define W25Q(_name, _jedec_id, _n_sectors)	\
+	.name = _name,				\
+	ID5(_jedec_id, 0),                      \
+	.sector_size = 65536U,                  \
+	.n_sectors = (_n_sectors),              \
+	.page_size = 256,                       \
+	.flags = SNOR_SECT_4K
+
 const struct spi_nor_info spi_nor_ids[] = {
 	/* Macronix */
 	{ MX25("mx25l25635f", 0xc22019,  512), },
@@ -71,6 +79,8 @@ const struct spi_nor_info spi_nor_ids[] = {
 	{ SST26("sst26vf064b", 0xbf2643, 2048), },
 	{ SST26("sst26wf040b", 0xbf2654,  128), },
 	{ SST26("sst26wf080b", 0xbf2658,  256), },
+
+	{ W25Q("w25q256", 0xef4019, 512), },
 
 	{}	/* Sentinel */
 };
