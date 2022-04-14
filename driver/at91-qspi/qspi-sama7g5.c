@@ -156,7 +156,7 @@ static int qspi_set_cfg(struct qspi_priv *aq,
 	}
 
 	/* Clear pending interrupts */
-	(void)qspi_readl(aq, QSPI_SR);
+	(void)qspi_readl(aq, QSPI_ISR);
 
 	/* Set QSPI Instruction Frame registers */
 	if (cmd->addr_len && !cmd->data_len)
