@@ -146,6 +146,8 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 	unsigned int sr, imr;
 	unsigned int timeout = 1000000;
 
+	dbg_very_loud("at91-qspi: cmd->inst = %x\n", cmd->inst);
+
 	if (cmd->addr + cmd->data_len > qspi->mmap_size) {
 		dbg_info("QSPI: Address exceeds the MMIO window size\n");
 		return -1;
