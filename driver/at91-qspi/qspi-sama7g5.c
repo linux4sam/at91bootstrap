@@ -109,6 +109,57 @@ static int qspi_update_config(struct qspi_priv *aq)
 	return qspi_reg_sync(aq);
 }
 
+static int qspi_set_mode_bits(const struct spi_flash_command *cmd,
+			      u32 *icr, u32 *ifr)
+{
+	unsigned int mode_cycle_bits, mode_bits;
+
+	*icr |= QSPI_ICR_OPT(cmd->mode);
+	*ifr |= QSPI_IFR_OPTEN;
+
+	switch (*ifr & QSPI_IFR_WIDTH) {
+	case QSPI_IFR_WIDTH_SINGLE_BIT_SPI:
+	case QSPI_IFR_WIDTH_DUAL_OUTPUT:
+	case QSPI_IFR_WIDTH_QUAD_OUTPUT:
+	case QSPI_IFR_WIDTH_OCT_OUTPUT:
+		mode_cycle_bits = 1;
+		break;
+	case QSPI_IFR_WIDTH_DUAL_IO:
+	case QSPI_IFR_WIDTH_DUAL_CMD:
+		mode_cycle_bits = 2;
+		break;
+	case QSPI_IFR_WIDTH_QUAD_IO:
+	case QSPI_IFR_WIDTH_QUAD_CMD:
+		mode_cycle_bits = 4;
+		break;
+	case QSPI_IFR_WIDTH_OCT_IO:
+	case QSPI_IFR_WIDTH_OCT_CMD:
+		mode_cycle_bits = 8;
+	default:
+		return -1;
+	}
+
+	mode_bits = cmd->num_mode_cycles * mode_cycle_bits;
+	switch (mode_bits) {
+	case 1:
+		*ifr |= QSPI_IFR_OPTL_1BIT;
+		break;
+	case 2:
+		*ifr |= QSPI_IFR_OPTL_2BIT;
+		break;
+	case 4:
+		*ifr |= QSPI_IFR_OPTL_4BIT;
+		break;
+	case 8:
+		*ifr |= QSPI_IFR_OPTL_8BIT;
+		break;
+	default:
+		return -1;
+	}
+
+	return 0;
+}
+
 static int qspi_set_cfg(struct qspi_priv *aq,
 			const struct spi_flash_command *cmd, u32 *offset)
 {
@@ -123,6 +174,12 @@ static int qspi_set_cfg(struct qspi_priv *aq,
 	if (mode < 0)
 		return mode;
 	ifr |= qspi_modes[mode].config;
+
+	if (cmd->num_mode_cycles) {
+		ret = qspi_set_mode_bits(cmd, &icr, &ifr);
+		if (ret)
+			return ret;
+	}
 
 	/* Set the number of dummy cycles. */
 	if (cmd->num_wait_states)
