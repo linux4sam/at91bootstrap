@@ -314,6 +314,14 @@ void hw_init(void)
 
 	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
 
+#if defined(CONFIG_DDR3)
+       reg = SFR_CAL1_TEST | SFR_CAL1_CALN(0x6) | SFR_CAL1_CALP(0x8);
+       writel(reg, AT91C_BASE_SFR + SFR_CAL1);
+#elif defined(CONFIG_DDR2)
+       reg = SFR_CAL1_TEST | SFR_CAL1_CALN(0x4) | SFR_CAL1_CALP(0x9);
+       writel(reg, AT91C_BASE_SFR + SFR_CAL1);
+#endif
+
 #ifdef CONFIG_DDR3
 	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN );
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
