@@ -23,6 +23,7 @@
 #define SFR_SN1		0x50	/* Serial Number 1 Register */
 #define SFR_AICREDIR	0x54
 #define SFR_L2CC_HRAMC	0x58
+#define SFR_CAL1	0xB4	/* I/O Calibration 1 Register */
 
 /*
  * Register Fields
@@ -91,5 +92,16 @@
 #define AT91C_CAN0_MEM_ADDR_(addr)	(((addr) & 0xffff) << 0)
 #define AT91C_CAN1_MEM_ADDR	(0xffff << 16)
 #define AT91C_CAN1_MEM_ADDR_(addr)	(((addr) & 0xffff) << 16)
+
+/*---SFR_CAL1: (offset: 0xB4) IO Calibration 1 Register --------*/
+#define SFR_CAL1_CALN_POS	0
+#define SFR_CAL1_CALN_MASK	(0xfu << SFR_CAL1_CALN_POS)
+#define SFR_CAL1_CALN(value)	((SFR_CAL1_CALN_MASK & ((value) << \
+				SFR_CAL1_CALN_POS)))
+#define SFR_CAL1_CALP_POS	4
+#define SFR_CAL1_CALP_MASK	(0xfu << SFR_CAL1_CALP_POS)
+#define SFR_CAL1_CALP(value)	((SFR_CAL1_CALP_MASK & ((value) << \
+				SFR_CAL1_CALP_POS)))
+#define SFR_CAL1_TEST		(0x1u << 8)
 
 #endif /* #ifndef __AT91_SFR_H__ */
