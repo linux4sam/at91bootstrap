@@ -655,7 +655,10 @@ void ddram_init(void)
 #endif
 	writel(reg, AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
 
-
+#ifdef CONFIG_SAM9X60
+	writel(AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES,
+			(AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
+#else
 #if defined(CONFIG_DDR3)
 	writel(AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES,
 			(AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
@@ -663,6 +666,8 @@ void ddram_init(void)
 	writel(AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES,
 			AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH);
 #endif
+#endif /* defined(CONFIG_SAM9X60) */
+
 #if defined(CONFIG_LPDDR1)
 	lpddr1_sdram_initialize(AT91C_BASE_MPDDRC,
 							AT91C_BASE_DDRCS, &ddramc_reg);
