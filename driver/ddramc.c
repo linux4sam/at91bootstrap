@@ -632,8 +632,16 @@ void ddram_init(void)
 
 	/* MPDDRC I/O Calibration Register */
 	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
+
+#ifdef CONFIG_SAM9X60
+	reg &= ~AT91C_MPDDRC_CK_F_RANGE;
+	 /* sam9x60 has the CK_F_RANGE written always with 7 (bits 2:0) */
+	reg |= 0x7;
+#else
 	reg &= ~AT91C_MPDDRC_RDIV;
 	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
+#endif
+
 	reg &= ~AT91C_MPDDRC_TZQIO;
 	/* TZQIO field must be set to 600ns */
 #ifdef CONFIG_BUS_SPEED_116MHZ
