@@ -329,7 +329,7 @@ void hw_init(void)
 	ddram_init();
 #endif
 
-#ifdef CONFIG_BOARD_QUIRK_SAM9X7_EB
+#ifdef CONFIG_BOARD_QUIRK_SAM9X75_EB
 	/* Perform the WILC initialization sequence */
 	wilc_pwrseq();
 #endif
@@ -373,7 +373,7 @@ void at91_sdhc_hw_init(void)
 {
 #ifdef CONFIG_SDHC0
 	const struct pio_desc sdmmc_pins[] = {
-#ifdef CONFIG_BOARD_QUIRK_SAM9X7_EB
+#ifdef CONFIG_BOARD_QUIRK_SAM9X75_EB
 		{"SDMMC0_CMD",	AT91C_PIN_PA(1), 0, PIO_DRVSTR_HI | PIO_SLEWR_CTRL, PIO_PERIPH_A},
 		{"SDMMC0_CK",	AT91C_PIN_PA(2), 0, PIO_DRVSTR_HI | PIO_SLEWR_CTRL, PIO_PERIPH_A},
 		{"SDMMC0_DAT0",	AT91C_PIN_PA(0), 0, PIO_DRVSTR_HI | PIO_SLEWR_CTRL, PIO_PERIPH_A},
@@ -394,7 +394,7 @@ void at91_sdhc_hw_init(void)
 
 #ifdef CONFIG_SDHC1
 	const struct pio_desc sdmmc_pins[] = {
-#ifdef CONFIG_BOARD_QUIRK_SAM9X7_EB
+#ifdef CONFIG_BOARD_QUIRK_SAM9X75_EB
 		{"SDMMC0_CMD",	AT91C_PIN_PA(10), 0, PIO_DRVSTR_HI | PIO_SLEWR_CTRL, PIO_PERIPH_B},
 		{"SDMMC0_CK",	AT91C_PIN_PA(11), 0, PIO_DRVSTR_HI | PIO_SLEWR_CTRL, PIO_PERIPH_B},
 		{"SDMMC0_DAT0",	AT91C_PIN_PA(9), 0, PIO_DRVSTR_HI | PIO_SLEWR_CTRL, PIO_PERIPH_B},

@@ -455,7 +455,7 @@ static unsigned int set_default_sn(void)
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
 	vendor_ek = VENDOR_MCHIP_RDC;
-#elif defined(CONFIG_BOARD_QUIRK_SAM9X7_EB)
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X75_EB)
 	board_id_ek = BOARD_ID_SAM9X75_EB;
 	vendor_ek = VENDOR_MCHIP_RDC;
 #else
@@ -519,7 +519,7 @@ static unsigned int set_default_rev(void)
 	rev_id_cm = '0';
 	rev_id_dm = '0';
 	rev_id_ek = '0';
-#elif defined(CONFIG_BOARD_QUIRK_SAM9X7_EB)
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X75_EB)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';
