@@ -650,6 +650,8 @@ void ddram_init(void)
 	reg |= AT91C_MPDDRC_TZQIO_(100);
 #elif CONFIG_BUS_SPEED_164MHZ
 	reg |= AT91C_MPDDRC_TZQIO_(101);
+#elif CONFIG_BUS_SPEED_200MHZ
+	reg |= AT91C_MPDDRC_TZQIO_(121);
 #else
 	reg |= AT91C_MPDDRC_TZQIO_(100);
 #endif
