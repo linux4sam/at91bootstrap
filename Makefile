@@ -55,7 +55,7 @@ else
 endif
 endif
 VERSION := sam9x7-early-1.0
-REVISION := rc2
+REVISION :=
 ifdef NIX_SHELL
 SCMINFO := $(shell (host-utilities/setlocalversion))
 endif
