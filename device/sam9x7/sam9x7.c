@@ -27,6 +27,7 @@
 #include "led.h"
 
 __attribute__((weak)) void wilc_pwrseq();
+__attribute__((weak)) void at91_can_stdby_dis(void);
 
 #define PLLA_DIV 0
 #define PLLA_COUNT 0x3f
@@ -332,6 +333,7 @@ void hw_init(void)
 #ifdef CONFIG_BOARD_QUIRK_SAM9X75_EB
 	/* Perform the WILC initialization sequence */
 	wilc_pwrseq();
+	at91_can_stdby_dis();
 #endif
 }
 

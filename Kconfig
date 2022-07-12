@@ -402,6 +402,9 @@ config BOARD_QUIRK_SAMA7G5_EK
 
 config BOARD_QUIRK_SAM9X75_EB
 	bool "Quirks for SAM9X75_EB board"
+	help
+	  On SAM9X7 EB board, pin PA24/31 are connected to STBY of the CAN transceivers,
+	  enabling this quirk will put the transceivers to normal mode.
 
 endchoice
 
