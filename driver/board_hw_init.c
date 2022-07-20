@@ -159,20 +159,3 @@ void at91_can_stdby_dis(void)
 	pio_configure(can_pins);
 }
 #endif
-
-#ifdef CONFIG_BOARD_QUIRK_SAM9X60_CURIOSITY
-/*
- * Must set PA4 & PB17 to LOW to enable the can transceivers.
- * This needs to be replaced later with Linux control over this GPIOs
- */
-void at91_can_stdby_dis(void)
-{
-        const struct pio_desc can_pins[] = {
-                {"CAN_STDBY", AT91C_PIN_PA(4), 0, PIO_DEFAULT, PIO_OUTPUT},
-                {"CAN_STDBY", AT91C_PIN_PB(17), 0, PIO_DEFAULT, PIO_OUTPUT},
-                {(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_B},
-        };
-
-        pio_configure(can_pins);
-}
-#endif
