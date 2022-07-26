@@ -623,7 +623,9 @@ void ddram_init(void)
 	 * the DDR_DQ and DDR_DQS input buffers to always on by setting
 	 * the FDQIEN and FDQSIEN bits in the SFR_DDRCFG register.
 	 */
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D4)
 	pmc_enable_periph_clock(AT91C_ID_SFR, PMC_PERIPH_CLK_DIVIDER_NA);
+#endif
 	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
 	reg |= AT91C_DDRCFG_FDQIEN;
 	reg |= AT91C_DDRCFG_FDQSIEN;
