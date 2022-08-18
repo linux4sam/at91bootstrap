@@ -18,6 +18,8 @@ def find_in_file(file, pattern):
 
 def pmecchead(dot_config_path, binaries_path):
     header = os.path.join(binaries_path, "pmecc.tmp")
+    if os.path.isfile(header):
+        os.remove(header)
     if find_in_file(dot_config_path, "CONFIG_NANDFLASH=y"):
         if not (os.path.exists(binaries_path)):
             os.makedirs(binaries_path)

@@ -354,9 +354,7 @@ $(BUILDDIR)/%.o : %.S .config
 	$(Q)"$(AS)" $(ASFLAGS) -c -o $@ $<
 
 $(AT91BOOTSTRAP).pmecc: $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP)
-	$(Q)if [ -f $(BINDIR)/pmecc.tmp ]; then \
-		cat $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP) > $@; \
-	fi
+	$(Q)test -f $< && cat $+ > $@ || rm -f $@
 
 $(BINDIR)/pmecc.tmp: .config | $(BINDIR)
 ifdef NIX_SHELL
