@@ -75,6 +75,6 @@ def on_project_build(e):
     global project_dir
 
     dot_config_path = os.path.join(project_dir, ".config")
-    binaries_path = os.path.join(project_dir, "binaries")
+    binaries_path = os.path.join(project_dir, "build", "binaries")
     addpmecchead.pmecchead(dot_config_path, binaries_path)
 

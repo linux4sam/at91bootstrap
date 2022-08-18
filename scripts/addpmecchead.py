@@ -20,7 +20,7 @@ def pmecchead(dot_config_path, binaries_path):
     header = os.path.join(binaries_path, "pmecc.tmp")
     if find_in_file(dot_config_path, "CONFIG_NANDFLASH=y"):
         if not (os.path.exists(binaries_path)):
-            os.mkdir(binaries_path)
+            os.makedirs(binaries_path)
         if find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_512=y"):
             pagesize = 512
         elif find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_1024=y"):
