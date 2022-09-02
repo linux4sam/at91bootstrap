@@ -1499,14 +1499,14 @@ inline static void uddrc_config_dfi()
 	/* enable automatic generation of dfi_ctrlupd_req */
 	UDDRC_REGS->UDDRC_DFIUPD0 =
 	/* max clocks that dfi_ctrlupd_req can assert */
-			UDDRC_DFIUPD0_dfi_t_ctrlup_max(0x40) |
+			UDDRC_DFIUPD0_dfi_t_ctrlup_max(0x3ff) |
 	/* min clocks that dfi_ctrlupd_req can assert */
 			UDDRC_DFIUPD0_dfi_t_ctrlup_min(0x3);
 
 	/* min number of 1024 clocks between DFI update requests initiated by umctl2 */
-	UDDRC_REGS->UDDRC_DFIUPD1 = UDDRC_DFIUPD1_dfi_t_ctrlupd_interval_min_x1024(0x3) |
+	UDDRC_REGS->UDDRC_DFIUPD1 = UDDRC_DFIUPD1_dfi_t_ctrlupd_interval_min_x1024(0xf0) |
 	/* max number of 1024 clocks between DFI update requests initiated by umctl2 */
-			UDDRC_DFIUPD1_dfi_t_ctrlupd_interval_max_x1024(0x8d);
+			UDDRC_DFIUPD1_dfi_t_ctrlupd_interval_max_x1024(0xff);
 
 	/* enable support for acking phy initiated updates */
 	UDDRC_REGS->UDDRC_DFIUPD2 = UDDRC_DFIUPD2_dfi_phyupd_en;
