@@ -364,11 +364,6 @@ int publ_override_zq_calibration(void)
 
 int publ_zq_recalibrate(void)
 {
-	/*
-	 * Back to ZDATA defaut value = 0x14A due to PHY not behaving correctly
-	 * for all calibration codes.
-	 */
-	PUBL->PUBL_ZQ0CR0 = PUBL_ZQ0CR0_ZDEN | PUBL_ZQ0CR0_ZDATA(0x14A);
 	PUBL->PUBL_ZQ0CR0 &= ~PUBL_ZQ0CR0_ZDEN;
 	PUBL->PUBL_PIR = PUBL_PIR_INIT | PUBL_PIR_ZCAL;
 
