@@ -290,7 +290,7 @@ void publ_init(void * config_data)
 
 	/* Impedance must match the PCB. 9 means 48 Ohms */
 	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(9) |
-			PUBL_ZQ0CR1_ZPROG_ODT(1);
+			PUBL_ZQ0CR1_ZPROG_ODT(2);
 
 	dbg_very_loud("PUBL_ZQ0CR1 %x\n", PUBL->PUBL_ZQ0CR1);
 
