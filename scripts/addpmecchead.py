@@ -42,6 +42,8 @@ def pmecchead(dot_config_path, binaries_path):
                 pagesize = 4096
             elif find_in_file(dot_config_path, "CONFIG_SAM9X60=y"):
                 pagesize = 4096
+            elif find_in_file(dot_config_path, "CONFIG_SAM9X7=y"):
+                pagesize = 2048
             else:
                 return
         if find_in_file(dot_config_path, "CONFIG_PMECC_OOB_16=y"):
@@ -63,6 +65,8 @@ def pmecchead(dot_config_path, binaries_path):
                 oob = 224
             elif find_in_file(dot_config_path, "CONFIG_SAM9X60=y"):
                 oob = 224
+            elif find_in_file(dot_config_path, "CONFIG_SAM9X7=y"):
+                oob = 64
             else:
                 return
         if find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_2=y"):
@@ -86,6 +90,8 @@ def pmecchead(dot_config_path, binaries_path):
                 correct = 8
             elif find_in_file(dot_config_path, "CONFIG_SAM9X60=y"):
                 correct = 8
+            elif find_in_file(dot_config_path, "CONFIG_SAM9X7=y"):
+                correct = 4
             else:
                 return
         if find_in_file(dot_config_path, "CONFIG_PMECC_SECTOR_SIZE_512=y"):
