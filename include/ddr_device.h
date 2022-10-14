@@ -54,6 +54,49 @@ static const struct ddram_timings ddr_ddram_timings = {
 #else
 	#error "No CLK setting defined"
 #endif /* Endif of CONFIG_BUS_SPEED_116MHZ */
+
+#elif defined(CONFIG_DDR_MT41K128M16)
+/* DDR3L(MT41H128M16JT-125-K = 16 Mbit x 16 x 8 banks), total 4Gbit on SAM9X75-DDR2-EB */
+#if defined(CONFIG_BUS_SPEED_200MHZ)
+	.tras = 7,
+	.trcd = 3,
+	.twr = 3,
+	.trc = 10,
+	.trp = 3,
+	.trrd = 4,
+	.twtr = 4,
+	.tmrd = 4,
+	.trfc = 32,
+	.txsnr = 33,
+	.txsrd = 0,
+	.txp = 10,
+	.txard = 0,
+	.txards = 0,
+	.trpa = 0,
+	.trtp = 4,
+	.tfaw = 8,
+#elif defined(CONFIG_BUS_SPEED_266MHZ)
+	.tras = 10,
+	.trcd = 4,
+	.twr = 4,
+	.trc = 13,
+	.trp = 4,
+	.trrd = 4,
+	.twtr = 4,
+	.tmrd = 4,
+	.trfc = 43,
+	.txsnr = 46,
+	.txsrd = 0,
+	.txp = 10,
+	.txard = 0,
+	.txards = 0,
+	.trpa = 0,
+	.trtp = 4,
+	.tfaw = 11,
+#else
+	#error "No CLK setting defined"
+#endif /* Endif of CONFIG_BUS_SPEED_200MHZ */
+
 #elif defined(CONFIG_DDR_W632GU6MB)
 /* Two DDR3L(W632GU6MB-12 = 16 Mbit x 16 x 8 banks), total 4 Gbit on SAMA5D2 ICP*/
 #if defined(CONFIG_BUS_SPEED_166MHZ)

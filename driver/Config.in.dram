@@ -37,6 +37,11 @@ config DDR_MT41K128M16_D2
 	depends on DDRC
 	help
 		Two MT41K128M16 4Gbit
+config DDR_MT41K128M16
+	bool "DDR3 MT41K128M16(SAM9X75-DDR3-EB)"
+	depends on DDRC
+	help
+		MT41K128M16 2Gbit
 config DDR_W632GU6MB
 	bool "DDR3L SDRAM W632GU6MB (SAMA5D2 ICP)"
 	depends on DDRC

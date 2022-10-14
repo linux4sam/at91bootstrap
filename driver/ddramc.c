@@ -58,6 +58,34 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	 * */
 	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
 	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
+
+#elif defined(CONFIG_DDR_MT41K128M16)
+/* DDR3L(MT41H128M16JT-125-K = 16 Mbit x 16 x 8 banks), total 2Gbit on SAM9X75-DDR3-EB */
+	type = AT91C_DDRC2_MD_DDR3_SDRAM;
+	dbw = AT91C_DDRC2_DBW_16_BITS;
+	col = AT91C_DDRC2_NC_DDR10_SDR9;
+	row = AT91C_DDRC2_NR_14;
+	cas = AT91C_DDRC2_CAS_5;
+	bank = AT91C_DDRC2_NB_BANKS_8;
+#if defined(CONFIG_BUS_SPEED_200MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 1562(0x61a) */
+	ddramc_config->rtr = 0x61a;
+#elif defined(CONFIG_BUS_SPEED_266MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 2078(0x81e) */
+	ddramc_config->rtr = 0x81e;
+#else
+	#error "No CLK setting defined"
+#endif
+	/*
+	 * According to the sam9x7 datasheet and the following values:
+	 * T Sens = 0.75%/C, V Sens = 0.2%/mV, T driftrate = 1C/sec and V driftrate = 15 mV/s
+	 * Warning: note that the values T driftrate and V driftrate are dependent on
+	 * the application environment.
+	 * ZQCS period is 1.5 / ((0.75 x 1) + (0.2 x 15)) = 0.4s
+	 * If tref is 7.8us, we have: 400000 / 7.8 = 51282(0xC852)
+	 */
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
 #elif defined(CONFIG_DDR_W632GU6MB)
 /* Two DDR3L(W632GU6MB-12 = 16 Mbit x 16 x 8 banks), total 4 Gbit on SAMA5D2 ICP*/
 	type = AT91C_DDRC2_MD_DDR3_SDRAM;
@@ -470,6 +498,11 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 						AT91C_DDRC2_DECOD_INTERLEAVED |
 #if defined(CONFIG_DDR3)
 						AT91C_DDRC2_DISABLE_DLL |
+#if defined(CONFIG_BUS_SPEED_266MHZ)
+						AT91C_DDRC2_CASWR_6 |
+#else
+						AT91C_DDRC2_CASWR_5 |
+#endif
 						AT91C_DDRC2_WEAK_STRENGTH_RZQ7 |
 #endif
 						AT91C_DDRC2_DECOD_INTERLEAVED |
@@ -721,8 +754,11 @@ void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
 	 * Program the memory device type in the MPDDRC Memory Device Register
 	 */
 	write_ddramc(base_address, HDDRSDRC2_MDR, ddramc_config->mdr);
+#if defined(CONFIG_SAM9X7)
+	asm("" ::: "memory");
+#else
 	asm volatile ("dmb");
-
+#endif
 	/*
 	 * Program features of the DDR3-SDRAM/LPDDR2-SDRAM device in the MPDDRC
 	 * Configuration Register and in the MPDDRC Timing Parameter 0 Register
@@ -766,7 +802,11 @@ void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_NORMAL_CMD);
 	write_ddramc(base_address,
 		     HDDRSDRC2_LPR, AT91C_DDRC2_LPCB_SELFREFRESH);
+#if defined(CONFIG_SAM9X7)
+	asm("" ::: "memory");
+#else
 	asm volatile ("dmb");
+#endif
 
 	while (!(read_ddramc(base_address, HDDRSDRC2_LPR) & AT91C_DDRC2_SELF_DONE));
 #if defined(DEBUG_BKP_SR_INIT)
@@ -775,7 +815,11 @@ void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
 
 	/* re-connect DDR Pads to the CPU domain (VCCCORE) */
 	sfrbu_set_ddr_power_mode(1);
+#if defined(CONFIG_SAM9X7)
+	asm("" ::: "memory");
+#else
 	asm volatile ("dmb");
+#endif
 
 #if defined(DEBUG_BKP_SR_INIT)
 	usart_puts("BKP: pads CX\n");
@@ -790,7 +834,11 @@ void ddr3_lpddr2_sdram_bkp_init(unsigned int base_address,
 	/* switch back to NOLOWPOWER by clearing the Low-power Command Bit */
 	write_ddramc(base_address,
 		     HDDRSDRC2_LPR, AT91C_DDRC2_LPCB_DISABLED);
+#if defined(CONFIG_SAM9X7)
+	asm("" ::: "memory");
+#else
 	asm volatile ("dmb");
+#endif
 	/* make sure to actually perform an access to the DDR chip */
 	*((unsigned volatile int *)ram_address) = 0;
 }
@@ -1435,6 +1483,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 			struct ddramc_register *ddramc_config)
 {
 	unsigned int ba_offset;
+	unsigned int cr;
 
 	if (backup_resume()) {
 		ddr3_lpddr2_sdram_bkp_init(base_address, ram_address,
@@ -1517,6 +1566,14 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	write_ddramc(base_address, HDDRSDRC2_MR, AT91C_DDRC2_MODE_EXT_LMR_CMD);
 	*((unsigned volatile int *)(ram_address + (0x3 << ba_offset))) = 0;
 
+#if defined(CONFIG_BUS_SPEED_266MHZ)
+	/*
+	 * Set MPDDRC_CR.DIS_DLL (Disable DLL) to 1 in DLL Off mode, or to 0 in DLL On
+	 * mode.
+	 */
+	cr = read_ddramc(base_address, HDDRSDRC2_CR);
+	write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_ENABLE_DLL);
+#endif
 	/*
 	 * Step 8: An Extended Mode Register Set (EMRS1) cycle is issued to
 	 * disable and to program O.D.S. (Output Driver Strength).
@@ -1532,7 +1589,7 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	 * Step 9: Write a one to the DLL bit (enable DLL reset) in the MPDDRC
 	 * Configuration Register (MPDDRC_CR)
 	 */
-#if 0
+#if defined(CONFIG_BUS_SPEED_266MHZ)
 		cr = read_ddramc(base_address, HDDRSDRC2_CR);
 		write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_ENABLE_RESET_DLL);
 #endif
