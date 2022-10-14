@@ -31,6 +31,7 @@
 #define	BOARD_ID_SAMA5D2_ICP	    20
 #define	BOARD_ID_SAM9X60_EK	    21
 #define BOARD_ID_SAM9X60_CURIOSITY  22
+#define	BOARD_ID_SAM9X75_EB	    23
 
 /* Vendor id definition */
 #define VENDOR_EMBEST		1
