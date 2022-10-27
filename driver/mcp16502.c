@@ -253,7 +253,7 @@ void mcp16502_voltage_select(void)
 	 */
 	if (mcp16502_init(CONFIG_PMIC_ON_TWI, 0x5b, NULL, regulators_cfg,
 				ARRAY_SIZE(regulators_cfg))) {
-		dbg_printf("MCP16502: init failure");
+		dbg_printf("MCP16502: init failure\n");
 		return;
 	}
 
