@@ -21,11 +21,7 @@
 #define L1_CACHE_WAYS (4)
 
 /** Number of sets of L1 data cache */
-#if defined(CONFIG_SAM9X60)
-#define L1_CACHE_SETS (128)
-#else
 #define L1_CACHE_SETS (256)
-#endif
 
 /** Build a set/way parameter for cache operations */
 #define L1_CACHE_SETWAY(set, way) (((set) << 5) | ((way) << 30))
