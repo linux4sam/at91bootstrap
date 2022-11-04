@@ -544,7 +544,7 @@ void mmu_tlb_init(unsigned int *tlb)
 	tlb[0x003] = TTB_SECT_ADDR(0x00300000)
 	           | TTB_SECT_AP_FULL_ACCESS
 	           | TTB_SECT_DOMAIN(0xf)
-	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_SECT_CACHEABLE_WB
 	           | TTB_SECT_SBO
 	           | TTB_TYPE_SECT;
 
@@ -570,7 +570,7 @@ void mmu_tlb_init(unsigned int *tlb)
 		tlb[addr] = TTB_SECT_ADDR(addr << 20)
 	                  | TTB_SECT_AP_FULL_ACCESS
 	                  | TTB_SECT_DOMAIN(0xf)
-	                  | TTB_SECT_CACHEABLE_WT
+	                  | TTB_SECT_CACHEABLE_WB
 	                  | TTB_SECT_SBO
 	                  | TTB_TYPE_SECT;
 
