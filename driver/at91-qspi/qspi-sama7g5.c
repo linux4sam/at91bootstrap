@@ -391,9 +391,9 @@ static int qspi_set_gclk(struct qspi_priv *aq, u32 hz)
 	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_SYSPLL_CLK, 0);
 	max_gclk_rate = pmc_get_generic_clock(CONFIG_SYS_ID_QSPI);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_SYSPLL_CLK,
-				 ((max_gclk_rate + hz - 1) / hz) - 1);
+				 div((max_gclk_rate + hz - 1), hz) - 1);
 	dbg_very_loud("max_gclk_rate = %u, hz = %u, div = %u\n",
-		      max_gclk_rate, hz, ((max_gclk_rate + hz - 1) / hz) - 1);
+		      max_gclk_rate, hz, div((max_gclk_rate + hz - 1), hz) - 1);
 
 	return 0;
 }
