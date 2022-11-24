@@ -208,7 +208,7 @@ source "device/Config.in.mach"
 source "Config.in.secure"
 
 config THUMB
-	depends on !(SAMA5D3X || SAMA5D4)
+	depends on !SAMA5D4
 	bool "Build in thumb mode"
 	help
 	  Build code in thumb mode
