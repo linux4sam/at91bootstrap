@@ -7,6 +7,12 @@
 #include <hardware.h>
 #include <mon_macros.h>
 
+#if defined(CONFIG_ENTER_NWD)
+#define	STACK_TOP		SVC_STACK_BASE
+#else
+#define	STACK_TOP		TOP_OF_MEMORY
+#endif
+
 .section start
 	.text
 
@@ -68,12 +74,9 @@ reset_vector:
 
 /* Init the stack */
 _init_stack:
-
-#if defined(CONFIG_ENTER_NWD)
-	ldr	sp,=SVC_STACK_BASE
-#else
-	ldr     sp,=TOP_OF_MEMORY
-#endif
+	ldr	sp,=STACK_TOP
+	/* Save BootROM supplied boot source information to stack */
+	push	{r4}
 
 #ifdef CONFIG_FLASH
 /*
@@ -156,10 +159,8 @@ _branch_main:
 
 /* Branch to the application at the end of the bootstrap init */
 _go:
-#ifdef BACKUP_REGISTER_BOOT_MODE_R4
-	ldr	r1, =BACKUP_REGISTER_BOOT_MODE_R4
+	ldr	r1, =(STACK_TOP - 4)
 	ldr	r4, [r1]
-#endif
 	ldr 	r1, =MACH_TYPE
 	mov     lr, pc
 
