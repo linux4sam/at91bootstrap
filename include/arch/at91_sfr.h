@@ -25,6 +25,7 @@
 #define SFR_L2CC_HRAMC	0x58
 #define SFR_EHCIOCHI	0x2020
 #define SFR_CAN_SRAM	0x2030
+#define SFR_CAL1	0xB4	/* I/O Calibration 1 Register */
 
 /*
  * Register Fields
@@ -38,6 +39,9 @@
 #define AT91C_EBI_CS1A		(0x1UL << 1)
 #define		AT91C_EBI_CS1A_SMC	(0x0UL << 1)
 #define		AT91C_EBI_CS1A_SDRAMC	(0x1UL << 1)
+#define AT91C_EBI_CS2A		(0x1UL << 2)
+#define		AT91C_EBI_CS2A_SMC	(0x0UL << 2)
+#define		AT91C_EBI_CS2A_SM	(0x1UL << 2)
 #define AT91C_EBI_CS3A		(0x1UL << 3)
 #define		AT91C_EBI_CS3A_SMC	(0x0UL << 3)
 #define		AT91C_EBI_CS3A_SM	(0x1UL << 3)
@@ -90,5 +94,16 @@
 #define AT91C_CAN0_MEM_ADDR_(addr)	(((addr) & 0xffff) << 0)
 #define AT91C_CAN1_MEM_ADDR	(0xffff << 16)
 #define AT91C_CAN1_MEM_ADDR_(addr)	(((addr) & 0xffff) << 16)
+
+/*---SFR_CAL1: (offset: 0xB4) IO Calibration 1 Register --------*/
+#define SFR_CAL1_CALN_POS	0
+#define SFR_CAL1_CALN_MASK	(0xfu << SFR_CAL1_CALN_POS)
+#define SFR_CAL1_CALN(value)	((SFR_CAL1_CALN_MASK & ((value) << \
+				SFR_CAL1_CALN_POS)))
+#define SFR_CAL1_CALP_POS	4
+#define SFR_CAL1_CALP_MASK	(0xfu << SFR_CAL1_CALP_POS)
+#define SFR_CAL1_CALP(value)	((SFR_CAL1_CALP_MASK & ((value) << \
+				SFR_CAL1_CALP_POS)))
+#define SFR_CAL1_TEST		(0x1u << 8)
 
 #endif /* #ifndef __AT91_SFR_H__ */
