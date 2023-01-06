@@ -86,11 +86,24 @@ static int pmc_pll_get_parent_props(unsigned int pll_id,
 	case PLL_ID_PLLA:
 		*parent_rate = pmc_mainck_get_rate();
 		*divider = config[pll_id].div + 1;
+#ifdef CONFIG_SAM9X7
+		/* PLLA clock is divided by 2 by default(H/W) for sam9x7 */
+		*divider <<= 1;
+#endif
 		break;
 #ifdef BOARD_MAINOSC
 	case PLL_ID_UPLL:
 		*parent_rate = BOARD_MAINOSC;
 		*divider = 2;
+		break;
+#endif
+#ifdef CONFIG_SAM9X7
+	case PLL_ID_PLLADIV2:
+		*parent_rate = pmc_mainck_get_rate();
+		*divider = config[pll_id].div + 1;
+		/* PLLADIV2 has 2 H/W dividers in sam9x7. One for PLLA and
+		 * another for itself */
+		*divider <<= 2;
 		break;
 #endif
 	}
