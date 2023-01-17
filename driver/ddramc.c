@@ -143,22 +143,28 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	row = AT91C_DDRC2_NR_13;
 	cas = AT91C_DDRC2_CAS_3;
 #if defined(CONFIG_DDR_W9751G6KB)
-/* DDR2 (W9751G6KB = 8 Mwords x 4 Banks x 16 bits), total 512 Mbit in SAM9X60D5M SiP */
+/* DDR2 (W9751G6KB = 8 Mwords x 4 Banks x 16 bits), total 512 Mbit in SAM9X60D5M and ATSAMA5D27C-D5M SiP */
 	bank = AT91C_DDRC2_NB_BANKS_4;
 #else // defined(CONFIG_DDR_W971GG6SB)
-/* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SAM9X60D1G SiP */
+/* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SAM9X60D1G and ATSAMA5D27C-D1G SiP */
 	bank = AT91C_DDRC2_NB_BANKS_8;
 #endif
-#if defined(CONFIG_BUS_SPEED_200MHZ)
-	/*
-	 * This value is set for normal operating conditions.
-	 * Change this to :
-	 * ddramc_config->rtr = 0x30c (3900 ns / 5 ns);
-	 * for temperatures > 85C (at 200 MHz bus speed)
-	 */
+#if defined(CONFIG_DDR_EXT_TEMP_RANGE)
+#if defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x2A5;
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
+	ddramc_config->rtr = 0x30c;
+#else
+	#error "No CLK setting defined"
+#endif
+#else
+#if defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x50E;
+#elif defined(CONFIG_BUS_SPEED_200MHZ)
 	ddramc_config->rtr = 0x618;
 #else
 	#error "No CLK setting defined"
+#endif
 #endif
 #elif defined(CONFIG_DDR_AD220032D)
 /* LPDDR2 (AD220032D = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit in SiP on SAMA5D27-WLSOM1-EK */
@@ -650,7 +656,9 @@ void ddram_init(void)
 	 * the DDR_DQ and DDR_DQS input buffers to always on by setting
 	 * the FDQIEN and FDQSIEN bits in the SFR_DDRCFG register.
 	 */
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D4)
 	pmc_enable_periph_clock(AT91C_ID_SFR, PMC_PERIPH_CLK_DIVIDER_NA);
+#endif
 	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
 	reg |= AT91C_DDRCFG_FDQIEN;
 	reg |= AT91C_DDRCFG_FDQSIEN;
@@ -659,8 +667,16 @@ void ddram_init(void)
 
 	/* MPDDRC I/O Calibration Register */
 	reg = readl(AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
+
+#ifdef CONFIG_SAM9X60
+	reg &= ~AT91C_MPDDRC_CK_F_RANGE;
+	 /* sam9x60 has the CK_F_RANGE written always with 7 (bits 2:0) */
+	reg |= 0x7;
+#else
 	reg &= ~AT91C_MPDDRC_RDIV;
 	reg |= AT91C_MPDDRC_RDIV_DDR2_RZQ_50;
+#endif
+
 	reg &= ~AT91C_MPDDRC_TZQIO;
 	/* TZQIO field must be set to 600ns */
 #ifdef CONFIG_BUS_SPEED_116MHZ
@@ -669,12 +685,17 @@ void ddram_init(void)
 	reg |= AT91C_MPDDRC_TZQIO_(100);
 #elif CONFIG_BUS_SPEED_164MHZ
 	reg |= AT91C_MPDDRC_TZQIO_(101);
+#elif CONFIG_BUS_SPEED_200MHZ
+	reg |= AT91C_MPDDRC_TZQIO_(121);
 #else
 	reg |= AT91C_MPDDRC_TZQIO_(100);
 #endif
 	writel(reg, AT91C_BASE_MPDDRC + MPDDRC_IO_CALIBR);
 
-
+#ifdef CONFIG_SAM9X60
+	writel(AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES,
+			(AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
+#else
 #if defined(CONFIG_DDR3)
 	writel(AT91C_MPDDRC_RD_DATA_PATH_TWO_CYCLES,
 			(AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH));
@@ -682,6 +703,8 @@ void ddram_init(void)
 	writel(AT91C_MPDDRC_RD_DATA_PATH_ONE_CYCLES,
 			AT91C_BASE_MPDDRC + MPDDRC_RD_DATA_PATH);
 #endif
+#endif /* defined(CONFIG_SAM9X60) */
+
 #if defined(CONFIG_LPDDR1)
 	lpddr1_sdram_initialize(AT91C_BASE_MPDDRC,
 							AT91C_BASE_DDRCS, &ddramc_reg);

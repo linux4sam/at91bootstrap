@@ -18,9 +18,11 @@ def find_in_file(file, pattern):
 
 def pmecchead(dot_config_path, binaries_path):
     header = os.path.join(binaries_path, "pmecc.tmp")
+    if os.path.isfile(header):
+        os.remove(header)
     if find_in_file(dot_config_path, "CONFIG_NANDFLASH=y"):
         if not (os.path.exists(binaries_path)):
-            os.mkdir(binaries_path)
+            os.makedirs(binaries_path)
         if find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_512=y"):
             pagesize = 512
         elif find_in_file(dot_config_path, "CONFIG_PMECC_PAGESIZE_1024=y"):
@@ -43,7 +45,7 @@ def pmecchead(dot_config_path, binaries_path):
             elif find_in_file(dot_config_path, "CONFIG_SAM9X7=y"):
                 pagesize = 2048
             else:
-                sys.exit("Not support board!")
+                return
         if find_in_file(dot_config_path, "CONFIG_PMECC_OOB_16=y"):
             oob = 16
         elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_32=y"):
@@ -66,7 +68,7 @@ def pmecchead(dot_config_path, binaries_path):
             elif find_in_file(dot_config_path, "CONFIG_SAM9X7=y"):
                 oob = 64
             else:
-                sys.exit("Not support board!")
+                return
         if find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_2=y"):
             correct = 2
         elif find_in_file(dot_config_path, "CONFIG_PMECC_CORRECT_BITS_4=y"):
@@ -91,7 +93,7 @@ def pmecchead(dot_config_path, binaries_path):
             elif find_in_file(dot_config_path, "CONFIG_SAM9X7=y"):
                 correct = 4
             else:
-                sys.exit("Not support board!")
+                return
         if find_in_file(dot_config_path, "CONFIG_PMECC_SECTOR_SIZE_512=y"):
             sector = 512
         elif find_in_file(dot_config_path, "CONFIG_PMECC_SECTOR_SIZE_1024=y"):

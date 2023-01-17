@@ -26,6 +26,8 @@
 #include "led.h"
 #include "arch/tz_matrix.h"
 #include "matrix.h"
+#include "arch/at91_sfr.h"
+#include "arch/sama5_smc.h"
 
 #include "sama7g5_board.h"
 
@@ -423,6 +425,20 @@ static void matrix_configure_slave(void)
 	matrix_configure_slave_security(AT91C_BASE_MATRIX, MATRIX_SLAVE_QSPI1,
 					srtop_setting, sasplit_setting,
 					ssr_setting);
+	/* SMC EBI CS3 */
+	srtop_setting = MATRIX_SRTOP(3, MATRIX_SRTOP_VALUE_128M);
+	sasplit_setting = MATRIX_SASPLIT(3, MATRIX_SASPLIT_VALUE_128M);
+	ssr_setting = MATRIX_LANSECH_NS(3);
+	matrix_configure_slave_security(AT91C_BASE_MATRIX, MATRIX_SLAVE_EBI,
+					srtop_setting, sasplit_setting,
+					ssr_setting);
+	/* NFC RAM */
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_16K);
+	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_16K);
+	ssr_setting = MATRIX_LANSECH_NS(0);
+	matrix_configure_slave_security(AT91C_BASE_MATRIX, MATRIX_SLAVE_NFCRAM,
+					srtop_setting, sasplit_setting,
+					ssr_setting);
 }
 
 static void matrix_init(void)
@@ -549,6 +565,88 @@ static void umctl2_config_state_init()
 #endif
 }
 
+#ifdef CONFIG_DATAFLASH
+#if defined(CONFIG_QSPI)
+void at91_qspi_hw_init(void)
+{
+#if CONFIG_QSPI_BUS == 1
+	const struct pio_desc qspi_pins[] = {
+		{"QSPI1_IO0", AT91C_PIN_PB(25), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI1_IO1", AT91C_PIN_PB(24), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI1_IO2", AT91C_PIN_PB(23), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI1_IO3", AT91C_PIN_PB(22), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI1_CS", AT91C_PIN_PB(26), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI1_SCK", AT91C_PIN_PB(27), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#else
+	const struct pio_desc qspi_pins[] = {
+		{"QSPI0_IO0", AT91C_PIN_PB(12), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_IO1", AT91C_PIN_PB(11), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_IO2", AT91C_PIN_PB(10), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_IO3", AT91C_PIN_PB(9), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_IO4", AT91C_PIN_PB(16), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_IO5", AT91C_PIN_PB(17), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_IO6", AT91C_PIN_PB(18), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_IO7", AT91C_PIN_PB(19), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_CS", AT91C_PIN_PB(13), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_SCK", AT91C_PIN_PB(14), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_SCKN", AT91C_PIN_PB(15), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_DQS", AT91C_PIN_PB(20), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{"QSPI0_INT", AT91C_PIN_PB(21), 0, PIO_DRVSTR_HI, PIO_PERIPH_A},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+#endif
+	pio_configure(qspi_pins);
+}
+
+#endif
+#endif /* CONFIG_DATAFLASH */
+
+#ifdef CONFIG_NANDFLASH
+void nandflash_hw_init(void)
+{
+	const struct pio_desc nand_pins[] = {
+		{"NANDOE", CONFIG_SYS_NAND_OE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"NANDWE", CONFIG_SYS_NAND_WE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"NANDALE", CONFIG_SYS_NAND_ALE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"NANDCLE", CONFIG_SYS_NAND_CLE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"NANDCS", CONFIG_SYS_NAND_ENABLE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"D0", AT91C_PIN_PD(9), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"D1", AT91C_PIN_PD(10), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"D2", AT91C_PIN_PD(11), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"D3", AT91C_PIN_PC(21), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"D4", AT91C_PIN_PC(22), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"D5", AT91C_PIN_PC(23), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"D6", AT91C_PIN_PC(24), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"D7", AT91C_PIN_PD(2), 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+	};
+
+	pio_configure(nand_pins);
+	pmc_enable_periph_clock(AT91C_ID_HSMC, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	/* Configure SMC CS3 for NAND */
+	writel(AT91C_SMC_SETUP_NWE(4), ATMEL_BASE_SMC + SMC_SETUP3);
+
+	writel(AT91C_SMC_PULSE_NWE(10) | AT91C_SMC_PULSE_NCS_WR(20) |
+	       AT91C_SMC_PULSE_NRD(10) | AT91C_SMC_PULSE_NCS_RD(20),
+	       ATMEL_BASE_SMC + SMC_PULSE3);
+
+	writel(AT91C_SMC_CYCLE_NWE(20) | AT91C_SMC_CYCLE_NRD(20),
+	       (ATMEL_BASE_SMC + SMC_CYCLE3));
+
+	writel(AT91C_SMC_TIMINGS_TCLR(4) | AT91C_SMC_TIMINGS_TADL(15) |
+	       AT91C_SMC_TIMINGS_TAR(5) | AT91C_SMC_TIMINGS_TRR(8) |
+	       AT91C_SMC_TIMINGS_TWB(8) | AT91C_SMC_TIMINGS_NFSEL,
+	       ATMEL_BASE_SMC + SMC_TIMINGS3);
+
+	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL |
+	       AT91C_SMC_MODE_WRITEMODE_NWE_CTRL | AT91C_SMC_MODE_TDF_MODE |
+	       AT91C_SMC_MODE_TDF_CYCLES(15), ATMEL_BASE_SMC + SMC_MODE3);
+}
+#endif /* CONFIG_NANDFLASH */
+
 #if defined(CONFIG_SDCARD)
 #if defined(CONFIG_OF_LIBFDT)
 void at91_board_set_dtb_name(char *of_name)
@@ -565,14 +663,14 @@ void at91_sdhc_hw_init(void)
 #if defined(CONFIG_SDHC1)
 	const struct pio_desc sdmmc_pins[] = {
 		{"SDMMC1_CK",   AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC1_CMD",  AT91C_PIN_PB(29), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC1_DAT0", AT91C_PIN_PB(31), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC1_DAT1", AT91C_PIN_PC(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC1_DAT2", AT91C_PIN_PC(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC1_DAT3", AT91C_PIN_PC(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_CMD",  AT91C_PIN_PB(29), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC1_DAT0", AT91C_PIN_PB(31), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC1_DAT1", AT91C_PIN_PC(0), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC1_DAT2", AT91C_PIN_PC(1), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC1_DAT3", AT91C_PIN_PC(2), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"SDMMC1_VDDSEL", AT91C_PIN_PC(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC1_WP",   AT91C_PIN_PC(3), 1, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC1_CD",   AT91C_PIN_PC(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC1_WP",   AT91C_PIN_PC(3), 1, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC1_CD",   AT91C_PIN_PC(4), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"SDMMC1_RST",  AT91C_PIN_PB(28), 0, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
@@ -584,17 +682,17 @@ void at91_sdhc_hw_init(void)
 #if defined(CONFIG_SDHC0)
 	const struct pio_desc sdmmc_pins[] = {
 		{"SDMMC0_CK",   AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_CMD",  AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_CMD",  AT91C_PIN_PA(1), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{"SDMMC0_RST",  AT91C_PIN_PA(2), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_DAT0", AT91C_PIN_PA(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_DAT1", AT91C_PIN_PA(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_DAT2", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_DAT3", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_DAT4", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_DAT5", AT91C_PIN_PA(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_DAT6", AT91C_PIN_PA(9), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_DAT7", AT91C_PIN_PA(10), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"SDMMC0_CD",  AT91C_PIN_PA(14), 0, PIO_DEFAULT, PIO_PERIPH_A},
+		{"SDMMC0_DAT0", AT91C_PIN_PA(3), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC0_DAT1", AT91C_PIN_PA(4), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC0_DAT2", AT91C_PIN_PA(5), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC0_DAT3", AT91C_PIN_PA(6), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC0_DAT4", AT91C_PIN_PA(7), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC0_DAT5", AT91C_PIN_PA(8), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC0_DAT6", AT91C_PIN_PA(9), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC0_DAT7", AT91C_PIN_PA(10), 0, PIO_PULLUP, PIO_PERIPH_A},
+		{"SDMMC0_CD",  AT91C_PIN_PA(14), 0, PIO_PULLUP, PIO_PERIPH_A},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #endif
@@ -620,6 +718,27 @@ void at91_sdhc_hw_init(void)
 		;
 }
 #endif
+
+/**
+ * The MSBs [bits 31:16] of the CAN Message RAM for CAN0, CAN1 and CAN2 controllers
+ * are configured in First half of internal SRAM, and CAN3, CAN4, CAN5 controllers are
+ * configured in Second half of internal SRAM.
+ */
+#define CAN_MESSAGE_RAM_SEL	0x38
+
+void at91_init_can_message_ram(void)
+{
+	writel(CAN_MESSAGE_RAM_SEL,
+	       (AT91C_BASE_SFR + SFR_CAN_SRAM));
+}
+
+#define EHCIOHCI_PHYCLK_UTMI0	1
+
+void usb_utmi_clk_fix(void)
+{
+	writel(EHCIOHCI_PHYCLK_UTMI0,
+	       (AT91C_BASE_SFR + SFR_EHCIOCHI));
+}
 
 #ifdef CONFIG_TWI
 
@@ -937,6 +1056,14 @@ void twi_init()
 void hw_preinit(void)
 {
 	/*
+	 * We don't call here backup_resume() as this is using BSS data which is
+	 * not initialized at the moment hw_preinit() is called. The functionality
+	 * will not be affected if executing this code all the time at both boot
+	 * and BSR exit.
+	 */
+	shdwc_disable_lpm();
+
+	/*
 	 * Out of Romcode, MCK1 & MCK4 are already configured with SYSPLL
 	 * at unwanted frequencies.
 	 * We cannot reconfigure SYSPLL without first reconfiguring
@@ -966,9 +1093,6 @@ void hw_init(void)
 
 	/* Switch backup area to VDDIN33. */
 	sfrbu_select_ba_power_source(true);
-
-	if (backup_resume())
-		shdwc_disable_lpm();
 
 	/* Watchdog might be enabled out of reset. Let's make sure it's off */
 	at91_disable_wdt();
@@ -1090,9 +1214,14 @@ void hw_init(void)
 	} else if (!backup_resume()) {
 		console_printf("UMCTL2: Initialization complete.\n");
 	}
+
+	at91_init_can_message_ram();
+
 #ifdef CONFIG_BOARD_QUIRK_SAMA7G5_EK
 	at91_can_stdby_dis();
 #endif
+
+	usb_utmi_clk_fix();
 }
 
 void hw_postinit(void)

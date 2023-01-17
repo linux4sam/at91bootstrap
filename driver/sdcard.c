@@ -62,8 +62,8 @@ static int sdcard_read_cmd(char *cmdline_file, char *cmdline_args)
 
 	fret = f_open(&file, cmdline_file, FA_OPEN_EXISTING | FA_READ);
 	if (fret != FR_OK) {
-		dbg_info("*** FATFS: f_open, filename: [%s]: error\n", 
-                                                                  cmdline_file);
+		dbg_info("*** FATFS: f_open, filename: [%s]: error %d\n",
+			  cmdline_file, fret);
                 ret = -1;
 		goto open_fail;
 	}

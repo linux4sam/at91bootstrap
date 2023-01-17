@@ -178,6 +178,10 @@ TOP_OF_MEMORY:=$(strip $(subst ",,$(CONFIG_TOP_OF_MEMORY)))
 # CRYSTAL is UNUSED
 CRYSTAL:=$(strip $(subst ",,$(CONFIG_CRYSTAL)))
 
+ifeq ($(CONFIG_MMU), y)
+MMU_TABLE_BASE_ADDR := $(strip $(subst ",,$(CONFIG_MMU_TABLE_BASE_ADDR)))
+endif
+
 # driver definitions
 SPI_CLK:=$(strip $(subst ",,$(CONFIG_SPI_CLK)))
 SPI_BOOT:=$(strip $(subst ",,$(CONFIG_SPI_BOOT)))
@@ -350,7 +354,7 @@ $(BUILDDIR)/%.o : %.S .config
 	$(Q)"$(AS)" $(ASFLAGS) -c -o $@ $<
 
 $(AT91BOOTSTRAP).pmecc: $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP)
-	$(Q)cat $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP) > $@
+	$(Q)test -f $< && cat $+ > $@ || rm -f $@
 
 $(BINDIR)/pmecc.tmp: .config | $(BINDIR)
 ifdef NIX_SHELL
@@ -371,14 +375,15 @@ ChkFileSize: $(AT91BOOTSTRAP)
 	  fi ; \
 	  echo "Size of $(BOOT_NAME).bin is $$fsize bytes"; \
 	  if [ "$$fsize" -gt "$(BOOTSTRAP_MAXSIZE)" ] ; then \
-		echo "[Failed***] It's too big to fit into SRAM area. the support maxium size is $(BOOTSTRAP_MAXSIZE)"; \
+		echo "[Failed***] It's too big to fit into SRAM area. the supported maximum size is $(BOOTSTRAP_MAXSIZE)"; \
 		rm $(BINDIR)/$(BOOT_NAME).bin ;\
 		rm ${BINDIR}/${SYMLINK}; \
 		rm ${BINDIR}/${SYMLINK_BOOT}; \
 		exit 2;\
 	  else \
 	  	echo "[Succeeded] It's OK to fit into SRAM area"; \
-		stack_space=`expr $(BOOTSTRAP_MAXSIZE) - $$fsize`; \
+		sram_size=`expr $(BOOTSTRAP_MAXSIZE) \* 2`; \
+		stack_space=`expr $$sram_size - $$fsize`; \
 		echo "[Attention] The space left for stack is $$stack_space bytes"; \
 	  fi )
 endif  # CONFIG_HAVE_DOT_CONFIG

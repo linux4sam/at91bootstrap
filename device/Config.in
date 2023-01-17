@@ -11,7 +11,7 @@ config LINK_ADDR
 
 config TOP_OF_MEMORY
 	string
-	default "0x308000"	if SAM9X60
+	default "0x310000"	if SAM9X60
 	default "0x308000"	if SAM9X7
 	default "0x310000"	if SAMA5D3X
 	default "0x210000"	if SAMA5D4
@@ -136,7 +136,15 @@ config CPU_HAS_SPI
 	bool
 	default n
 
+config CPU_HAS_SPI_IOSET
+	bool
+	default n
+
 config CPU_HAS_QSPI
+	bool
+	default n
+
+config CPU_HAS_QSPI_IOSET
 	bool
 	default n
 

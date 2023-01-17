@@ -97,6 +97,7 @@ static struct {
 	{"SAMA5D2-XULT",BOARD_TYPE_EK,	BOARD_ID_SAMA5D2_XULT},
 	{"SAMA5D2-ICP", BOARD_TYPE_EK,	BOARD_ID_SAMA5D2_ICP},
 	{"SAM9X60-EK",	BOARD_TYPE_EK,	BOARD_ID_SAM9X60_EK},
+	{"SAM9X60-CURIOSITY",  BOARD_TYPE_EK,  BOARD_ID_SAM9X60_CURIOSITY},
 	{"SAM9X75-EB",	BOARD_TYPE_EK,	BOARD_ID_SAM9X75_EB},
 	{0,		0,		0},
 };
@@ -455,6 +456,11 @@ static unsigned int set_default_sn(void)
 	 */
 	board_id_ek = BOARD_ID_SAM9X60_EK;
 	vendor_ek = VENDOR_MCHIP_RDC;
+#elif defined(CONFIG_BOARD_QUIRK_SAM9X60_CURIOSITY)
+        /* sam9x60_curiosity ; with display module
+         */
+        board_id_ek = BOARD_ID_SAM9X60_CURIOSITY;
+        vendor_ek = VENDOR_MCHIP_RDC;
 #elif defined(CONFIG_BOARD_QUIRK_SAM9X75_EB)
 	board_id_ek = BOARD_ID_SAM9X75_EB;
 	vendor_ek = VENDOR_MCHIP_RDC;
@@ -512,7 +518,8 @@ static unsigned int set_default_rev(void)
 	rev_id_dm = '1';
 	rev_id_ek = '1';
 #elif defined(CONFIG_BOARD_QUIRK_SAM9X60_EK) || \
-	  defined(CONFIG_BOARD_QUIRK_SAM9X60_EB)
+	  defined(CONFIG_BOARD_QUIRK_SAM9X60_EB) || \
+            defined(CONFIG_BOARD_QUIRK_SAM9X60_CURIOSITY)
 	rev_cm = 'A';
 	rev_dm = 'A';
 	rev_ek = 'A';

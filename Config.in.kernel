@@ -16,11 +16,11 @@ if OVERRIDE_CMDLINE
 config LINUX_KERNEL_ARG_STRING
 	depends on LOAD_LINUX
 	string "Linux kernel command-line"
-	default "CONFIG_ARG_CONSOLE CONFIG_ARG_PRINTK CONFIG_ARG_MTD CONFIG_ARG_ROOT CONFIG_ARG_MEMTEST CONFIG_ARG_ROOTFSTYPE CONFIG_ARG_DELAY CONFIG_ARG_CMA CONFIG_ARG_RW CONFIG_ARG_ROOTWAIT"
+	default "CONFIG_ARG_CONSOLE CONFIG_ARG_MTD CONFIG_ARG_ROOT CONFIG_ARG_ROOTFSTYPE CONFIG_ARG_DELAY CONFIG_ARG_CMA CONFIG_ARG_RW CONFIG_ARG_ROOTWAIT"
 
 config ARG_CMA
 	string "Linux bootparam: Contiguous Memory Area support"
-	default " cma=256m" if SAMA7G5
+	default " cma=192m" if SAMA7G5
 	default ""
 
 config ARG_CONSOLE
@@ -33,8 +33,7 @@ config ARG_DELAY
 
 config ARG_MEMTEST
 	string "Linux bootparam: option to enable memory test"
-	default " memtest=0" if SAMA7G5
-	default ""
+	default " memtest=16"
 
 config ARG_MTD
 	string "Linux bootparam: option about MTD parts"

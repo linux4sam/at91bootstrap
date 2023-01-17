@@ -9,6 +9,11 @@
 
 #define MAX_ECC_BYTES		512 /* maximum bytes of ecc */
 
+#define TIMING_MODE_0	0
+#define TIMING_MODE_1	1
+#define TIMING_MODE_2	2
+#define TIMING_MODE_3	3
+
 struct nand_ooblayout {
 	unsigned short	badblockpos;
 	unsigned short	eccbytes;
@@ -24,6 +29,8 @@ struct nand_chip {
 	unsigned char	buswidth;
 	unsigned char	eccbits;
 	unsigned int	eccwordsize;
+	unsigned short  opt_cmd;
+	unsigned short  timingmode;
 };
 
 struct nand_info {

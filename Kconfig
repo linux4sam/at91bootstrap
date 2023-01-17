@@ -209,7 +209,7 @@ source "device/Config.in.mach"
 source "Config.in.secure"
 
 config THUMB
-	depends on !(SAMA5D3X || SAMA5D4)
+	depends on !SAMA5D4
 	bool "Build in thumb mode"
 	help
 	  Build code in thumb mode
@@ -399,6 +399,9 @@ config BOARD_QUIRK_SAMA7G5_EK
 	help
 	  On SAMA7G5 EK board, pin PC15/16 are connected to STBY of the CAN transceivers,
 	  enabling this quirk will put the transceivers to normal mode.
+
+config BOARD_QUIRK_SAM9X60_CURIOSITY
+        bool "Quirks for SAM9X60_CURIOSITY board"
 
 config BOARD_QUIRK_SAM9X75_EB
 	bool "Quirks for SAM9X75_EB board"

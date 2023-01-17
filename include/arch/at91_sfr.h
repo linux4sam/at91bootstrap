@@ -23,6 +23,8 @@
 #define SFR_SN1		0x50	/* Serial Number 1 Register */
 #define SFR_AICREDIR	0x54
 #define SFR_L2CC_HRAMC	0x58
+#define SFR_EHCIOCHI	0x2020
+#define SFR_CAN_SRAM	0x2030
 #define SFR_CAL1	0xB4	/* I/O Calibration 1 Register */
 
 /*

@@ -7,6 +7,12 @@
 #include <hardware.h>
 #include <mon_macros.h>
 
+#if defined(CONFIG_ENTER_NWD)
+#define	STACK_TOP		SVC_STACK_BASE
+#else
+#define	STACK_TOP		TOP_OF_MEMORY
+#endif
+
 .section start
 	.text
 
@@ -68,12 +74,9 @@ reset_vector:
 
 /* Init the stack */
 _init_stack:
-
-#if defined(CONFIG_ENTER_NWD)
-	ldr	sp,=SVC_STACK_BASE
-#else
-	ldr     sp,=TOP_OF_MEMORY
-#endif
+	ldr	sp,=STACK_TOP
+	/* Save BootROM supplied boot source information to stack */
+	push	{r4}
 
 #ifdef CONFIG_FLASH
 /*
@@ -156,10 +159,8 @@ _branch_main:
 
 /* Branch to the application at the end of the bootstrap init */
 _go:
-#ifdef BACKUP_REGISTER_BOOT_MODE_R4
-	ldr	r1, =BACKUP_REGISTER_BOOT_MODE_R4
+	ldr	r1, =(STACK_TOP - 4)
 	ldr	r4, [r1]
-#endif
 	ldr 	r1, =MACH_TYPE
 	mov     lr, pc
 
@@ -244,4 +245,54 @@ _lp_mon:
         .word _emon_dummy
 	.word _smon_text
 	.word _emon_text
+#endif
+#if defined(CONFIG_MMU)
+	.arm
+	.global cp15_read_sctlr
+	.type	cp15_read_sctlr, %function
+cp15_read_sctlr:
+	mrc	p15, 0, r0, c1, c0, 0
+	bx	lr
+
+	.global cp15_write_sctlr
+	.type	cp15_write_sctlr, %function
+cp15_write_sctlr:
+	mcr	p15, 0, r0, c1, c0, 0
+	bx	lr
+
+	.global cp15_write_ttbr0
+	.type	cp15_write_ttbr0, %function
+cp15_write_ttbr0:
+	mcr	p15, 0, r0, c2, c0, 0
+	bx	lr
+
+	.global cp15_write_dacr
+	.type	cp15_write_dacr, %function
+cp15_write_dacr:
+	mcr	p15, 0, r0, c3, c0, 0
+	bx	lr
+
+	.global cp15_icache_invalidate
+	.type	cp15_icache_invalidate, %function
+cp15_icache_invalidate:
+	mcr	p15, 0, r0, c7, c5, 0
+	bx	lr
+
+	.global cp15_dcache_invalidate_setway
+	.type	cp15_dcache_invalidate_setway, %function
+cp15_dcache_invalidate_setway:
+	mcr	p15, 0, r0, c7, c6, 2
+	bx	lr
+
+	.global cp15_dcache_clean_setway
+	.type	cp15_dcache_clean_setway, %function
+cp15_dcache_clean_setway:
+	mcr	p15, 0, r0, c7, c10, 2
+	bx	lr
+
+	.global dsb
+	.type	dsb, %function
+dsb:
+	mcr	p15, 0, r0, c7, c10, 4
+	bx	lr
 #endif

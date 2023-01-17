@@ -757,13 +757,15 @@ static int mmc_bus_width_select(struct sd_card *sdcard, unsigned int buswidth,
 				int ddr)
 {
 	struct sd_host *host = sdcard->host;
-	unsigned char busw;
+	unsigned char busw = MMC_BUS_WIDTH_1;
 	int ret;
 
-	if (!ddr)
-		busw = (buswidth == 8) ? MMC_BUS_WIDTH_8 : MMC_BUS_WIDTH_4;
-	else
-		busw = (buswidth == 8) ? MMC_BUS_WIDTH_8_DDR : MMC_BUS_WIDTH_4_DDR;
+	if (buswidth == 8 || buswidth == 4) {
+		if (!ddr)
+			busw = (buswidth == 8) ? MMC_BUS_WIDTH_8 : MMC_BUS_WIDTH_4;
+		else
+			busw = (buswidth == 8) ? MMC_BUS_WIDTH_8_DDR : MMC_BUS_WIDTH_4_DDR;
+	}
 
 	ret = mmc_cmd_switch_fun(sdcard,
 			MMC_EXT_CSD_ACCESS_WRITE_BYTE,
@@ -832,8 +834,10 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 
 	}
 
-	if (!busw && !len)
+	if (!busw && !len) {
 		dbg_info("MMC: falling back to 1 bit bus width\n");
+		mmc_bus_width_select(sdcard, 1, 0);
+	}
 
 	return 0;
 
@@ -1083,7 +1087,8 @@ static int mmc_initialization(struct sd_card *sdcard)
 	}
 
 	/* we enable here DDR if supported */
-	if (sdcard->ddr_support && sdcard->host->caps_ddr) {
+	if (sdcard->configured_bus_w != 1 && sdcard->ddr_support &&
+	    sdcard->host->caps_ddr) {
 		ret = mmc_bus_width_select(sdcard, sdcard->configured_bus_w, 1);
 		if (ret)
 			console_printf("MMC: DDR mode could not be enabled: %d\n", ret);

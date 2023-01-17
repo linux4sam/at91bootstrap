@@ -15,13 +15,24 @@
 void lowlevel_clock_init()
 {
 	unsigned long tmp;
+#if defined(CONFIG_MAINOSC_MEASUREMENT) && defined(CONFIG_SAMA7G5)
+	unsigned int main_osc_measured;
+#endif
 
+#ifdef CONFIG_SAMA7G5
+	/*
+	 * For sama7g5, it is recommended to switch to Main Clock,
+	 * as the main clock is always on and reliable.
+	 */
+	pmc_mck_cfg_set(0, AT91C_PMC_CSS_MAIN_CLK, AT91C_PMC_CSS);
+#else
 	/*
 	 * Switch the master clock to the slow clock without modifying other
 	 * parameters. It is assumed that ROM code set H32MXDIV, PLLADIV2,
 	 * PCK_DIV3.
 	 */
 	pmc_mck_cfg_set(0, AT91C_PMC_CSS_SLOW_CLK, AT91C_PMC_CSS);
+#endif
 
 #ifdef CONFIG_SAMA7G5
 	/*
@@ -59,7 +70,7 @@ void lowlevel_clock_init()
 	while (!(read_pmc(PMC_SR) & AT91C_PMC_MOSCXTS))
 		;
 
-#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA7G5)
+#if defined(CONFIG_MAINOSC_MEASUREMENT)
 	/* Enable a measurement of the Main Cristal Oscillator */
 	tmp = read_pmc(PMC_MCFR);
 	tmp |= AT91C_CKGR_CCSS_XTAL_OSC;
@@ -69,10 +80,17 @@ void lowlevel_clock_init()
 	while (!(tmp = read_pmc(PMC_MCFR) & AT91C_CKGR_MAINRDY))
 		;
 
-#if defined(CONFIG_SAMA7G5) && 0
-	tmp = (tmp & AT91C_CKGR_MAINF) * 32768 / 16;
-	if (tmp != pmc_mck_get_rate(0))
-		return;
+#if defined(CONFIG_SAMA7G5)
+	/*
+	 * According to datasheet, we need to perform a second read here,
+	 * after the MAINRDY is high
+	 */
+	tmp = read_pmc(PMC_MCFR);
+	main_osc_measured = (tmp & AT91C_CKGR_MAINF) * 32768 / 16;
+
+	/* Panic, outside of supported range */
+	while (main_osc_measured < 10000000 || main_osc_measured > 50000000)
+		;
 #endif
 #endif
 

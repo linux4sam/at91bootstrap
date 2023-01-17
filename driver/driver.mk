@@ -55,7 +55,14 @@ COBJS-$(CONFIG_SPI_FLASH)	+= $(DRIVERS_SRC)/spi_flash/spi_nor_ids.o
 
 COBJS-$(CONFIG_SPI)		+= $(DRIVERS_SRC)/at91_spi.o
 COBJS-$(CONFIG_SPI)		+= $(DRIVERS_SRC)/spi_flash.o
-COBJS-$(CONFIG_QSPI)		+= $(DRIVERS_SRC)/at91_qspi.o
+ifeq ($(CONFIG_QSPI), y)
+COBJS-y				+= $(DRIVERS_SRC)/at91-qspi/qspi-common.o
+ifeq ($(CONFIG_SAMA7G5), y)
+COBJS-y				+= $(DRIVERS_SRC)/at91-qspi/qspi-sama7g5.o
+else
+COBJS-y				+= $(DRIVERS_SRC)/at91-qspi/qspi.o
+endif
+endif
 COBJS-$(CONFIG_DATAFLASH)	+= $(DRIVERS_SRC)/dataflash.o
 
 COBJS-$(CONFIG_FLASH)		+= $(DRIVERS_SRC)/flash.o
@@ -101,3 +108,6 @@ COBJS-$(CONFIG_REDIRECT_ALL_INTS_AIC)	+= $(DRIVERS_SRC)/at91_aicredir.o
 COBJS-$(CONFIG_FLEXCOM)     += $(DRIVERS_SRC)/at91_flexcom.o
 
 COBJS-$(CONFIG_SFRBU)		+= $(DRIVERS_SRC)/sfrbu.o
+
+COBJS-$(CONFIG_CACHES)		+= $(DRIVERS_SRC)/l1cache.o
+COBJS-$(CONFIG_MMU)		+= $(DRIVERS_SRC)/mmu.o
