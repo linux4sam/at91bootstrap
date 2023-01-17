@@ -81,9 +81,7 @@
 #define		AT91C_PMC_GCKCSS_MCK_CLK	(0x3UL << 8)
 #define		AT91C_PMC_GCKCSS_PLLA_CLK	(0x4UL << 8)
 #define		AT91C_PMC_GCKCSS_UPLL_CLK	(0x5UL << 8)
-#ifdef CONFIG_PMC_PLLA_DIV2_CLK
 #define		AT91C_PMC_GCKCSS_PLLADIV2_CLK	(0x8UL << 8)
-#endif
 #define	AT91C_PMC_DIV		(0)
 #define		AT91C_PMC_DIV_(x)		(0)
 #define	AT91C_PMC_GCKDIV	(0xFFUL << 20)

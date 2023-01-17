@@ -58,8 +58,8 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	 * */
 	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
 	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
-	
-#elif defined(CONFIG_DDR_MT41K128M16_9X7)
+
+#elif defined(CONFIG_DDR_MT41K128M16)
 /* DDR3L(MT41H128M16JT-125-K = 16 Mbit x 16 x 8 banks), total 2Gbit on SAM9X75-DDR3-EB */
 	type = AT91C_DDRC2_MD_DDR3_SDRAM;
 	dbw = AT91C_DDRC2_DBW_16_BITS;
@@ -77,13 +77,13 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	#error "No CLK setting defined"
 #endif
 	/*
-	 * According to the sama5d2 datasheet and the following values:
+	 * According to the sam9x7 datasheet and the following values:
 	 * T Sens = 0.75%/C, V Sens = 0.2%/mV, T driftrate = 1C/sec and V driftrate = 15 mV/s
 	 * Warning: note that the values T driftrate and V driftrate are dependent on
 	 * the application environment.
 	 * ZQCS period is 1.5 / ((0.75 x 1) + (0.2 x 15)) = 0.4s
 	 * If tref is 7.8us, we have: 400000 / 7.8 = 51282(0xC852)
-	 * */
+	 */
 	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
 	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
 #elif defined(CONFIG_DDR_W632GU6MB)
@@ -1567,8 +1567,10 @@ int ddr3_sdram_initialize(unsigned int base_address,
 	*((unsigned volatile int *)(ram_address + (0x3 << ba_offset))) = 0;
 
 #if defined(CONFIG_BUS_SPEED_266MHZ)
-	/* Set MPDDRC_CR.DIS_DLL (Disable DLL) to 1 in DLL Off mode, or to 0 in DLL On
-	mode.*/
+	/*
+	 * Set MPDDRC_CR.DIS_DLL (Disable DLL) to 1 in DLL Off mode, or to 0 in DLL On
+	 * mode.
+	 */
 	cr = read_ddramc(base_address, HDDRSDRC2_CR);
 	write_ddramc(base_address, HDDRSDRC2_CR, cr | AT91C_DDRC2_ENABLE_DLL);
 #endif

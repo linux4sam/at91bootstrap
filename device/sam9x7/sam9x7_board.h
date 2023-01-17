@@ -14,7 +14,7 @@
  * and MCK is switched on the main oscillator.
  * PLL initialization is done later in the hw_init() function
  */
-#define MASTER_CLOCK	266666666
+#define MASTER_CLOCK	266666666U
 
 #define BAUD_RATE	115200
 #define BOARD_MAINOSC	24000000
@@ -37,12 +37,6 @@
 #define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI0
 #elif defined(CONFIG_SPI_BUS1)
 #define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI1
-#endif
-
-#if defined(CONFIG_QSPI)
-#define CONFIG_SYS_BASE_QSPI		AT91C_BASE_QSPI0
-#define CONFIG_SYS_BASE_QSPI_MEM	AT91C_BASE_QSPI0_MEM
-#define CONFIG_SYS_ID_QSPI		AT91C_ID_QSPI0
 #endif
 
 /*

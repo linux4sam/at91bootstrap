@@ -9,26 +9,8 @@
 #include "pmc.h"
 #include "timer.h"
 #include "arch/at91_pmc/pmc.h"
-#include "debug.h"
-static struct pmc_pll_cfg config[PLL_ID_MAX] = { 0 };
 
-#ifdef CONFIG_PMC_PLLA_DIV2_CLK
-void pmc_enable_plladiv2clk(void)
-{
-	unsigned int reg;
-	reg = read_pmc(PMC_PLL_UPDT);
-	reg &= ~(AT91C_PLL_UPDT_STUPTIM
-			| AT91C_PLL_UPDT_UPDATE
-			| AT91C_PLL_UPDT_ID);
-	reg |=  AT91C_PLL_UPDT_ID_(PLL_ID_PLLADIV2);
-	write_pmc(PMC_PLL_UPDT, reg);
-	reg = read_pmc(PMC_PLL_CTRL0);
-	reg &= (~AT91C_PLL_CTRL0_DIVPMC);
-	reg &= (~AT91C_PLL_CTRL0_DIVIO);
-	reg |= AT91C_PLL_CTRL0_ENPLLCK;
-	write_pmc(PMC_PLL_CTRL0, reg);
-}
-#endif
+static struct pmc_pll_cfg config[PLL_ID_MAX] = { 0 };
 
 void pmc_sam9x60_cfg_pll(unsigned int pll_id, struct pmc_pll_cfg *cfg)
 {
@@ -104,11 +86,24 @@ static int pmc_pll_get_parent_props(unsigned int pll_id,
 	case PLL_ID_PLLA:
 		*parent_rate = pmc_mainck_get_rate();
 		*divider = config[pll_id].div + 1;
+#ifdef CONFIG_SAM9X7
+		/* PLLA clock is divided by 2 by default(H/W) for sam9x7 */
+		*divider <<= 1;
+#endif
 		break;
 #ifdef BOARD_MAINOSC
 	case PLL_ID_UPLL:
 		*parent_rate = BOARD_MAINOSC;
 		*divider = 2;
+		break;
+#endif
+#ifdef CONFIG_SAM9X7
+	case PLL_ID_PLLADIV2:
+		*parent_rate = pmc_mainck_get_rate();
+		*divider = config[pll_id].div + 1;
+		/* PLLADIV2 has 2 H/W dividers in sam9x7. One for PLLA and
+		 * another for itself */
+		*divider <<= 2;
 		break;
 #endif
 	}
@@ -150,24 +145,16 @@ unsigned int pmc_get_pll_freq(unsigned int pll_id)
 	unsigned int freq, core_freq, divider = 0, parent_rate = 0;
 	unsigned long long frac_freq;
 	int ret;
-#ifdef	CONFIG_PMC_PLLA_DIV2_CLK
-	unsigned int plladiv2 = 0; 
-	if (pll_id == PLL_ID_PLLADIV2){
-		pll_id -= PLL_ID_PLLADIV2;
-		plladiv2 = 1;
-	} 
-#endif
+
 	ret = pmc_pll_get_parent_props(pll_id, &parent_rate, &divider);
 	if (ret)
 		return ret;
+
 	core_freq = parent_rate * (config[pll_id].mul + 1);
 	frac_freq = ((parent_rate >> 20) * config[pll_id].fracr) >> 2;
 	core_freq += frac_freq;
 
 	freq = div(core_freq, divider);
-#ifdef	CONFIG_PMC_PLLA_DIV2_CLK
-	if (plladiv2)
-		freq = freq >> 1;
-#endif
+
 	return freq;
 }

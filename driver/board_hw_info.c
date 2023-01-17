@@ -467,6 +467,7 @@ static unsigned int set_default_sn(void)
 #else
 #error "OneWire: No defined board"
 #endif
+
 	return (board_id_cm & SN_MASK)
 		| ((vendor_cm & VENDOR_MASK) << CM_VENDOR_OFFSET)
 		| ((board_id_dm & SN_MASK) << DM_SN_OFFSET)

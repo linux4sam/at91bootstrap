@@ -1,4 +1,4 @@
-# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+# Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries
 #
 # SPDX-License-Identifier: MIT
 CONFIG_SAM9X7=y
@@ -9,7 +9,7 @@ CONFIG_THUMB=y
 CONFIG_CRYSTAL_24_000MHZ=y
 CONFIG_DDRC=y
 CONFIG_DDR_SET_BY_DEVICE=y
-CONFIG_DDR_MT41K128M16_9X7=y
+CONFIG_DDR_MT41K128M16=y
 CONFIG_LOAD_HW_INFO=y
 CONFIG_LOAD_EEPROM=y
 CONFIG_EEPROM_ADDR=0x50

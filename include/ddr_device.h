@@ -55,7 +55,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	#error "No CLK setting defined"
 #endif /* Endif of CONFIG_BUS_SPEED_116MHZ */
 
-#elif defined(CONFIG_DDR_MT41K128M16_9X7)
+#elif defined(CONFIG_DDR_MT41K128M16)
 /* DDR3L(MT41H128M16JT-125-K = 16 Mbit x 16 x 8 banks), total 4Gbit on SAM9X75-DDR2-EB */
 #if defined(CONFIG_BUS_SPEED_200MHZ)
 	.tras = 7,

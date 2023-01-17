@@ -32,9 +32,7 @@ static const unsigned int css_idx_to_reg[] = {
 	[GCK_CSS_MCK_CLK]	= AT91C_PMC_GCKCSS_MCK_CLK,
 	[GCK_CSS_PLLA_CLK]	= AT91C_PMC_GCKCSS_PLLA_CLK,
 	[GCK_CSS_UPLL_CLK]	= AT91C_PMC_GCKCSS_UPLL_CLK,
-#ifdef CONFIG_PMC_PLLA_DIV2_CLK
-	[GCK_CSS_PLLADIV2_CLK] = AT91C_PMC_GCKCSS_PLLADIV2_CLK,
-#endif
+	[GCK_CSS_PLLADIV2_CLK]	= AT91C_PMC_GCKCSS_PLLADIV2_CLK,
 };
 #define GCK_STATUS_REG(_p)	gcsr[(_p) / 32]
 #define GCK_READY(_s, _p)	((_s) & (1 << ((_p) % 32)))
@@ -64,9 +62,10 @@ int pmc_enable_generic_clock(unsigned int periph_id, unsigned int clk_source,
 {
 	unsigned int regval, status;
 	unsigned int timeout = 1000;
-		
+
 	if (periph_id > 0x7f)
 		return -1;
+
 #ifndef CONFIG_PMC_V1
 	if (periph_id / 32 > ARRAY_SIZE(gcsr)) {
 		dbg_info("GCK: invalid peripheral id!\n");
@@ -96,6 +95,7 @@ int pmc_enable_generic_clock(unsigned int periph_id, unsigned int clk_source,
 		  AT91C_PMC_CMD |
 		  AT91C_PMC_GCKDIV_(div) |
 		  AT91C_PMC_GCKEN;
+
 	write_pmc(PMC_PCR, regval);
 
 	do {
@@ -114,7 +114,7 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 	unsigned int tmp;
 	unsigned int clock_source, divider;
 	unsigned int freq = 0;
-	
+
 	write_pmc(PMC_PCR, periph_id);
 	tmp = read_pmc(PMC_PCR);
 
@@ -144,9 +144,7 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 #else
 	case AT91C_PMC_GCKCSS_PLLA_CLK:
 	case AT91C_PMC_GCKCSS_UPLL_CLK:
-#ifdef CONFIG_PMC_PLLA_DIV2_CLK
 	case AT91C_PMC_GCKCSS_PLLADIV2_CLK:
-#endif
 		tmp = (clock_source - AT91C_PMC_GCKCSS_PLLA_CLK) >> 8;
 		freq = pmc_get_pll_freq(tmp);
 		break;
@@ -161,10 +159,7 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 	}
 
 	freq = div(freq, divider);
-#if defined CONFIG_PMC_PLLA_DIV2_CLK
-	if (clock_source == AT91C_PMC_GCKCSS_PLLADIV2_CLK)
-		freq = freq >>1;
-#endif
+
 	return freq;
 }
 

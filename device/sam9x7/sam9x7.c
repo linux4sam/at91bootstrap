@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Microchip Technology Inc. and its subsidiaries
+// Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries
 //
 // SPDX-License-Identifier: MIT
 
@@ -26,7 +26,7 @@
 #include "board.h"
 #include "led.h"
 
-__attribute__((weak)) void wilc_pwrseq();
+__attribute__((weak)) void wilc_pwrseq(void);
 __attribute__((weak)) void at91_can_stdby_dis(void);
 
 #define PLLA_DIV 0
@@ -215,8 +215,9 @@ static unsigned int at91_flexcom_twi_hw_init(unsigned int index)
 		},
 	};
 
-	if (CONFIG_CONSOLE_INDEX == index + 1) {
-		dbg_very_loud("\nFLEXCOM %d is used in UART mode, config to TWI mode ignored!\n\n", index);
+	if (index + 1 == CONFIG_CONSOLE_INDEX) {
+		dbg_very_loud("\nFLEXCOM %d is used in UART mode, \
+			      config to TWI mode ignored!\n\n", index);
 		return 0;
 	}
 
@@ -230,7 +231,7 @@ static unsigned int at91_flexcom_twi_hw_init(unsigned int index)
 }
 #endif
 
-void twi_init()
+void twi_init(void)
 {
 #ifdef CONFIG_FLEXCOM0
 	twi_bus_init(at91_flexcom_twi_hw_init, 0);
@@ -295,7 +296,10 @@ void hw_init(void)
 	pmc_sam9x60_cfg_pll(PLL_ID_PLLA, &plla_config);
 	pmc_mck_cfg_set(0, BOARD_PRESCALER_PLLA,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
-	pmc_enable_plladiv2clk();
+
+	/* Enable PLLADIV2 */
+	pmc_sam9x60_cfg_pll(PLL_ID_PLLADIV2, &plla_config);
+
 #if defined(CONFIG_TWI) || CONFIG_CONSOLE_INDEX != 0
 	flexcoms_init(flexcoms);
 #endif
@@ -324,7 +328,7 @@ void hw_init(void)
 	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
 
 #ifdef CONFIG_DDR3
-	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN );
+	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN);
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 	/* Initialize DDRAM Controller */
 	ddram_init();
@@ -337,30 +341,6 @@ void hw_init(void)
 #endif
 }
 
-#ifdef CONFIG_DATAFLASH
-
-#if defined(CONFIG_QSPI)
-void at91_qspi_hw_init(void)
-{
-	const struct pio_desc qspi_pins[] = {
-		{"QSPI0_SCK", AT91C_PIN_PB(19), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"QSPI0_CS", AT91C_PIN_PB(20), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"QSPI0_IO0", AT91C_PIN_PB(21), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"QSPI0_IO1", AT91C_PIN_PB(22), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"QSPI0_IO2", AT91C_PIN_PB(23), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{"QSPI0_IO3", AT91C_PIN_PB(24), 0, PIO_DEFAULT, PIO_PERIPH_A},
-		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
-	};
-
-	pio_configure(qspi_pins);
-
-	pmc_enable_system_clock(AT91C_PMC_QSPICLK);
-	pmc_enable_periph_clock(CONFIG_SYS_ID_QSPI, PMC_PERIPH_CLK_DIVIDER_NA);
-}
-#endif  /* #ifdef CONFIG_QSPI */
-
-#endif	/* #ifdef CONFIG_DATAFLASH */
-
 #ifdef CONFIG_SDCARD
 #ifdef CONFIG_OF_LIBFDT
 void at91_board_set_dtb_name(char *of_name)
@@ -369,7 +349,7 @@ void at91_board_set_dtb_name(char *of_name)
 }
 #endif
 
-#define ATMEL_SDHC_GCKDIV_VALUE     3  
+#define ATMEL_SDHC_GCKDIV_VALUE     3
 
 void at91_sdhc_hw_init(void)
 {
@@ -451,9 +431,10 @@ void nandflash_hw_init(void)
 
 	pio_configure(nand_pins);
 	pmc_enable_periph_clock(AT91C_ID_PIOD, PMC_PERIPH_CLK_DIVIDER_NA);
+	pmc_enable_periph_clock(AT91C_ID_PMECC, PMC_PERIPH_CLK_DIVIDER_NA);
 
 	reg = readl(AT91C_BASE_SFR + SFR_CCFG_EBICSA);
-	reg |= AT91C_EBI_CS2A_SM ;
+	reg |= AT91C_EBI_CS2A_SM | AT91C_EBI_NFD0_ON_D16;
 	reg &= ~AT91C_EBI_DRV;
 	writel(reg, AT91C_BASE_SFR + SFR_CCFG_EBICSA);
 

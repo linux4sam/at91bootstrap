@@ -51,9 +51,9 @@ void lowlevel_clock_init()
 	rstc_external_reset();
 #endif
 
-#if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) \
-	|| defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) || defined(CONFIG_SAM9X7) \
-	|| defined(CONFIG_SAMA7G5)
+#if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) || \
+	defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) || \
+	defined(CONFIG_SAM9X7) || defined(CONFIG_SAMA7G5)
 	/*
 	 * Enable the Main Crystal Oscillator
 	 * tST_max = 2ms

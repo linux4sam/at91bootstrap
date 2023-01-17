@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Microchip Technology Inc. and its subsidiaries
+# Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries
 #
 # SPDX-License-Identifier: MIT
 
@@ -32,4 +32,3 @@ config	SAM9X7
 	select ALLOW_CRYSTAL_24_000MHZ
 	select SUPPORT_BUS_SPEED_266MHZ
 	bool "SAM9X7"
-
