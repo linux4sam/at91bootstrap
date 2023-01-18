@@ -11,6 +11,10 @@
 #include "arch/sam9x60.h"
 #endif
 
+#ifdef CONFIG_SAM9X7
+#include "arch/sam9x7.h"
+#endif
+
 #ifdef CONFIG_SAMA5D3X
 #include "arch/sama5d3x.h"
 #endif
