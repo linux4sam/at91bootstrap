@@ -23,6 +23,7 @@ enum gck_css_clk {
 	GCK_CSS_IMGPLL_CLK,
 	GCK_CSS_BAUDPLL_CLK,
 	GCK_CSS_ETHPLL_CLK,
+	GCK_CSS_PLLADIV2_CLK,
 };
 
 enum pll_ids {
@@ -30,6 +31,10 @@ enum pll_ids {
 	PLL_ID_UPLL,
 	#if defined(CONFIG_SAMA5D2)
 	PLL_ID_AUDIO,
+	#elif defined(CONFIG_SAM9X7)
+	PLL_ID_AUDIO,
+	PLL_ID_LVDS,
+	PLL_ID_PLLADIV2,
 	#elif  defined(CONFIG_SAMA7G5)
 	PLL_ID_CPUPLL = 0,
 	PLL_ID_SYSPLL,

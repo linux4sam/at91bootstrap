@@ -32,6 +32,7 @@ static const unsigned int css_idx_to_reg[] = {
 	[GCK_CSS_MCK_CLK]	= AT91C_PMC_GCKCSS_MCK_CLK,
 	[GCK_CSS_PLLA_CLK]	= AT91C_PMC_GCKCSS_PLLA_CLK,
 	[GCK_CSS_UPLL_CLK]	= AT91C_PMC_GCKCSS_UPLL_CLK,
+	[GCK_CSS_PLLADIV2_CLK]	= AT91C_PMC_GCKCSS_PLLADIV2_CLK,
 };
 #define GCK_STATUS_REG(_p)	gcsr[(_p) / 32]
 #define GCK_READY(_s, _p)	((_s) & (1 << ((_p) % 32)))
@@ -143,6 +144,9 @@ unsigned int pmc_get_generic_clock(unsigned int periph_id)
 #else
 	case AT91C_PMC_GCKCSS_PLLA_CLK:
 	case AT91C_PMC_GCKCSS_UPLL_CLK:
+#if defined(CONFIG_PMC_V2)
+	case AT91C_PMC_GCKCSS_PLLADIV2_CLK:
+#endif
 		tmp = (clock_source - AT91C_PMC_GCKCSS_PLLA_CLK) >> 8;
 		freq = pmc_get_pll_freq(tmp);
 		break;
