@@ -5,6 +5,7 @@
 config MACH_TYPE
 	string
 	default "3373"	if SAM9X60
+	default "3373"	if SAM9X7
 	default "9999"	if SAMA5D3X
 	default "9999"	if SAMA5D4
 	default "9999"	if SAMA5D2

@@ -1,0 +1,23 @@
+# Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
+config SPI_BUS_MAX
+	int
+	default 5 if SAM9X7
+
+config SPI_IOSET_MAX
+	int
+	default 6 if SAM9X7
+
+config QSPI_BUS_MAX
+	int
+	default 0 if SAM9X7
+
+config QSPI_IOSET_MAX
+	int
+	default 1 if SAM9X7
+
+config DEVICENAME
+	string
+	default "sam9x7" if SAM9X7

@@ -1,0 +1,33 @@
+# Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
+config	SAM9X7
+	select CORE_ARM926EJS
+	select CPU_HAS_SCKC
+	select CPU_HAS_PIO3
+	select CPU_HAS_PMECC
+	select CPU_HAS_SDHC0
+	select CPU_HAS_SDHC1
+	select CPU_HAS_QSPI
+	select CPU_HAS_WDT2
+	select CPU_HAS_SCLK_BYPASS
+	select CPU_HAS_FLEXCOM0
+	select CPU_HAS_FLEXCOM1
+	select CPU_HAS_FLEXCOM2
+	select CPU_HAS_FLEXCOM3
+	select CPU_HAS_FLEXCOM4
+	select CPU_HAS_FLEXCOM5
+	select CPU_HAS_FLEXCOM6
+	select CPU_HAS_FLEXCOM7
+	select CPU_HAS_FLEXCOM8
+	select CPU_HAS_FLEXCOM9
+	select CPU_HAS_FLEXCOM10
+	select CPU_HAS_FLEXCOM11
+	select CPU_HAS_FLEXCOM12
+	select CPU_HAS_QSPI_RICR_WICR
+	select CPU_HAS_DDRC
+	select ALLOW_CPU_CLK_800MHZ
+	select ALLOW_CRYSTAL_24_000MHZ
+	select SUPPORT_BUS_SPEED_266MHZ
+	bool "SAM9X7"

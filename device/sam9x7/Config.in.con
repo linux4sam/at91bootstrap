@@ -1,0 +1,27 @@
+# Copyright (C) 2022 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
+config CONSOLE_INDEX
+	int "Console Port"
+	range 0 13
+	default 0
+	depends on SAM9X7
+	help
+	  Select the peripheral wired to the debug console port:
+	  Value | Name   |   Description
+	  ------|--------|-------------------------
+	    0   | DBGU   | Uses DBGU
+	    1   | UART0  | Uses FLEXCOM0 UART pins
+	    2   | UART1  | Uses FLEXCOM1 UART pins
+	    3   | UART2  | Uses FLEXCOM2 UART pins
+	    4   | UART3  | Uses FLEXCOM3 UART pins
+	    5   | UART4  | Uses FLEXCOM4 UART pins
+	    6   | UART5  | Uses FLEXCOM5 UART pins
+	    7   | UART6  | Uses FLEXCOM6 UART pins
+	    8   | UART7  | Uses FLEXCOM7 UART pins
+	    9   | UART8  | Uses FLEXCOM8 UART pins
+	    10  | UART9  | Uses FLEXCOM9 UART pins
+	    11  | UART10 | Uses FLEXCOM10 UART pins
+	    12  | UART11 | Uses FLEXCOM11 UART pins
+	    13  | UART12 | Uses FLEXCOM12 UART pins
