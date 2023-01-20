@@ -23,7 +23,7 @@ static inline void isb(void)
 	asm volatile ("" ::: "memory");
 }
 
-#elif defined(CONFIG_CORE_CORTEX_A5)
+#elif defined(CONFIG_CORE_CORTEX_A5) || defined(CONFIG_CORE_CORTEX_A7)
 
 static inline void dmb(void)
 {
