@@ -15,24 +15,24 @@ void dsb(void);
 
 static inline void dmb(void)
 {
-	asm("" ::: "memory");
+	asm volatile ("" ::: "memory");
 }
 
 static inline void isb(void)
 {
-	asm("" ::: "memory");
+	asm volatile ("" ::: "memory");
 }
 
 #elif defined(CONFIG_CORE_CORTEX_A5)
 
 static inline void dmb(void)
 {
-	asm("dmb" ::: "memory");
+	asm volatile ("dmb" ::: "memory");
 }
 
 static inline void isb(void)
 {
-	asm("isb" ::: "memory");
+	asm volatile ("isb" ::: "memory");
 }
 
 #endif
