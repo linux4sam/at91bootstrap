@@ -11,7 +11,7 @@
 #include "qspi-sama5d2.h"
 #elif defined(CONFIG_SAM9X60)
 #include "qspi-sam9x60.h"
-#elif defined(CONFIG_SAMA7G5)
+#elif defined(CONFIG_SAMA7G5) || defined(CONFIG_SAM9X7)
 #include "qspi-sama7g5.h"
 #else
 #error "QSPI not supported for this SoC"
