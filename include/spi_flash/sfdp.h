@@ -58,6 +58,9 @@ struct spi_flash_parameters {
 	struct spi_flash_pp_command	page_programs[SFLASH_CMD_PP_MAX];
 
 	int (*quad_enable)(struct spi_flash *flash);
+#ifdef CONFIG_AT91_QSPI_OCTAL
+	int (*octa_enable)(struct spi_flash *flash);
+#endif
 };
 
 static inline void
