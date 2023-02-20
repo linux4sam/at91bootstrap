@@ -36,8 +36,16 @@
 #define SFLASH_INST_FAST_READ_1_2_2		0xBB
 #define SFLASH_INST_FAST_READ_1_1_4		0x6B
 #define SFLASH_INST_FAST_READ_1_4_4		0xEB
+#ifdef CONFIG_AT91_QSPI_OCTAL
+#define SFLASH_INST_FAST_READ_8_8_8		0xEC
+#define SFLASH_INST_FAST_READ_8D_8D_8D	0xEE
+#endif
 #define SFLASH_INST_READ_SR			0x05
 #define SFLASH_INST_READ_CR			0x35
+#ifdef CONFIG_AT91_QSPI_OCTAL
+#define SFLASH_INST_READ_CR2		0x71
+#define SFLASH_INST_WRITE_CR2		0x72
+#endif
 #define SFLASH_INST_READ_SR2			0x3F
 #define SFLASH_INST_READ_FSR			0x70
 #define SFLASH_INST_READ_VCR			0x85
@@ -134,6 +142,8 @@
 	 SFLASH_PROTO_ADDR(addr_nbits) |			\
 	 SFLASH_PROTO_DATA(data_nbits))
 
+#define SFLASH_PROTO_DTR		(1 << 24)
+
 enum spi_flash_protocol {
 	SFLASH_PROTO_1_1_1 = SFLASH_PROTO(1, 1, 1),
 	SFLASH_PROTO_1_1_2 = SFLASH_PROTO(1, 1, 2),
@@ -142,6 +152,12 @@ enum spi_flash_protocol {
 	SFLASH_PROTO_1_4_4 = SFLASH_PROTO(1, 4, 4),
 	SFLASH_PROTO_2_2_2 = SFLASH_PROTO(2, 2, 2),
 	SFLASH_PROTO_4_4_4 = SFLASH_PROTO(4, 4, 4),
+#ifdef CONFIG_AT91_QSPI_OCTAL
+	SFLASH_PROTO_1_1_8 = SFLASH_PROTO(1, 1, 8),
+	SFLASH_PROTO_1_8_8 = SFLASH_PROTO(1, 8, 8),
+	SFLASH_PROTO_8_8_8 = SFLASH_PROTO(8, 8, 8),
+	SFLASH_PROTO_8D_8D_8D = SFLASH_PROTO(8, 8, 8) | SFLASH_PROTO_DTR,
+#endif
 };
 
 static inline
@@ -163,6 +179,12 @@ u8 spi_flash_protocol_get_data_nbits(enum spi_flash_protocol proto)
 {
 	return ((unsigned long)(proto & SFLASH_PROTO_DATA_MASK)) >>
 		SFLASH_PROTO_DATA_SHIFT;
+}
+
+static inline bool
+spi_flash_protocol_is_dtr(enum spi_flash_protocol proto)
+{
+	return ((proto & SFLASH_PROTO_DTR) == SFLASH_PROTO_DTR);
 }
 
 /**
