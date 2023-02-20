@@ -17,6 +17,9 @@
 #define QSPI_SYNC_TIMEOUT		300000  /* us */
 #define QSPI_DLLCFG_THRESHOLD_FREQ	90000000U
 
+#ifdef CONFIG_AT91_QSPI_OCTAL
+#ifdef CONFIG_SAMA7G5
+
 /**
  * struct qspi_pcal - Pad Calibration Clock Division
  * @pclk_rate: peripheral clock rate.
@@ -28,7 +31,6 @@ struct qspi_pcal {
 	u8 pclk_div;
 };
 
-#ifdef CONFIG_AT91_QSPI_OCTAL
 #define QSPI_PCAL_ARRAY_SIZE     8
 static const struct qspi_pcal pcal[QSPI_PCAL_ARRAY_SIZE] = {
 	{25000000, 0},
@@ -40,6 +42,7 @@ static const struct qspi_pcal pcal[QSPI_PCAL_ARRAY_SIZE] = {
 	{175000000, 6},
 	{200000000, 7},
 };
+#endif
 #endif
 
 struct qspi_mode {
@@ -167,7 +170,14 @@ static int qspi_set_cfg(struct qspi_priv *aq,
 	int mode, ret;
 
 	iar = 0;
-	icr = QSPI_ICR_INST(cmd->inst);
+#ifdef CONFIG_AT91_QSPI_OCTAL
+	if ((cmd->proto == SFLASH_PROTO_8_8_8) || (cmd->proto == SFLASH_PROTO_8D_8D_8D))
+		icr = QSPI_RICR_RDINST(((cmd->inst) << 8) | (0xFF - cmd->inst));
+	else
+		icr = QSPI_RICR_RDINST(cmd->inst);
+#else
+	icr = QSPI_RICR_RDINST(cmd->inst);
+#endif
 	ifr = QSPI_IFR_INSTEN;
 
 	mode = qspi_find_mode(cmd);
@@ -190,6 +200,12 @@ static int qspi_set_cfg(struct qspi_priv *aq,
 		iar = QSPI_IAR_ADDR(cmd->addr);
 	}
 
+	if (spi_flash_protocol_is_dtr(cmd->proto))
+		ifr |= QSPI_IFR_DDREN | QSPI_IFR_DDRCMDEN | QSPI_IFR_END | QSPI_IFR_DQSEN;
+#ifdef CONFIG_AT91_QSPI_OCTAL
+	if ((cmd->proto == SFLASH_PROTO_8_8_8) || (cmd->proto == SFLASH_PROTO_8D_8D_8D))
+		ifr |= QSPI_IFR_PROTTYP_OCTAFLASH;
+#endif
 	/* offset of the data access in the QSPI memory space */
 	*offset = iar;
 
@@ -205,7 +221,7 @@ static int qspi_set_cfg(struct qspi_priv *aq,
 	 * Serial Memory Mode (SMM).
 	 */
 	if (aq->mr != QSPI_MR_SMM) {
-		qspi_writel(QSPI_MR_SMM, aq, QSPI_MR);
+		qspi_writel(QSPI_MR_SMM | QSPI_MR_DQSDLYEN, aq, QSPI_MR);
 		ret = qspi_update_config(aq);
 		if (ret)
 			return ret;
@@ -312,6 +328,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 }
 
 #ifdef CONFIG_AT91_QSPI_OCTAL
+#ifdef CONFIG_SAMA7G5
 static int qspi_set_pad_calibration(struct qspi_priv *aq, u32 hz)
 {
 	u32 status, val;
@@ -361,15 +378,16 @@ static int qspi_set_pad_calibration(struct qspi_priv *aq, u32 hz)
 
 	/* Refresh analogic blocks every 1 ms.*/
 	qspi_writel(QSPI_REFRESH_DELAY_COUNTER(hz / 1000), aq, QSPI_REFRESH);
-
 	return ret;
 }
-#endif /* CONFIG_AT91_QSPI_OCTAL */
+#endif
+#endif
 
 static int qspi_set_gclk(struct qspi_priv *aq, u32 hz)
 {
-	u32 status, val;
 	unsigned int max_gclk_rate;
+#ifdef CONFIG_SAMA7G5
+	u32 status, val;
 	int ret;
 
 	/* Disable DLL before setting GCLK */
@@ -392,6 +410,16 @@ static int qspi_set_gclk(struct qspi_priv *aq, u32 hz)
 	max_gclk_rate = pmc_get_generic_clock(CONFIG_SYS_ID_QSPI);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_SYSPLL_CLK,
 				 div((max_gclk_rate + hz - 1), hz) - 1);
+#endif
+
+#ifdef CONFIG_SAM9X7
+	/* This QSPI GCLK is a 2x clock.*/
+	hz = hz * 2;
+	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_PLLADIV2_CLK, 0);
+	max_gclk_rate = pmc_get_generic_clock(CONFIG_SYS_ID_QSPI);
+	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_PLLADIV2_CLK,
+				 div((max_gclk_rate + hz - 1), hz) - 1);
+#endif
 	dbg_very_loud("max_gclk_rate = %u, hz = %u, div = %u\n",
 		      max_gclk_rate, hz, div((max_gclk_rate + hz - 1), hz) - 1);
 
@@ -408,6 +436,7 @@ static int qspi_set_freq(void *priv, u32 hz)
 	if (ret)
 		return ret;
 
+#ifdef CONFIG_SAMA7G5
 #ifdef CONFIG_AT91_QSPI_OCTAL
 	ret = qspi_set_pad_calibration(priv, hz);
 	if (ret)
@@ -418,9 +447,16 @@ static int qspi_set_freq(void *priv, u32 hz)
 				       val & QSPI_SR_DLOCK,
 				       QSPI_TIMEOUT);
 #endif
+#endif
 
+#ifdef CONFIG_SAM9X7
+#ifdef CONFIG_AT91_QSPI_OCTAL
+	qspi_writel(QSPI_PCALCFG_DIFFPM, aq, QSPI_PCALCFG);
+	qspi_writel(QSPI_REFRESH_DELAY_COUNTER(div(hz, 1000)), aq, QSPI_REFRESH);
+#endif
+#endif
 	/* Set the QSPI controller by default in Serial Memory Mode */
-	qspi_writel(QSPI_MR_SMM, aq, QSPI_MR);
+	qspi_writel(QSPI_MR_SMM | QSPI_MR_DQSDLYEN, aq, QSPI_MR);
 	ret = qspi_update_config(aq);
 	if (ret)
 		return ret;
@@ -436,12 +472,10 @@ static int qspi_set_freq(void *priv, u32 hz)
 				      QSPI_SYNC_TIMEOUT);
 	if (ret)
 		return ret;
-
 #ifdef CONFIG_AT91_QSPI_OCTAL
 	ret = qspi_readl_poll_timeout(aq->reg_base + QSPI_ISR, val,
 				      val & QSPI_ISR_RFRHD, QSPI_TIMEOUT);
 #endif
-
 	qspi_writel(0xffff, aq, QSPI_TOUT);
 
 	return ret;
