@@ -1469,7 +1469,9 @@ int ddr3_sdram_initialize(unsigned int base_address,
 			struct ddramc_register *ddramc_config)
 {
 	unsigned int ba_offset;
+#if defined(CONFIG_BUS_SPEED_266MHZ)
 	unsigned int cr;
+#endif
 
 	if (backup_resume()) {
 		ddr3_lpddr2_sdram_bkp_init(base_address, ram_address,
