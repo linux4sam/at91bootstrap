@@ -30,6 +30,8 @@
 #include "timer.h"
 #include "backup.h"
 
+#define SWITCH_TO_OSC32_EXPECTED_SCKCR_VALUE (AT91C_SLCKSEL_OSCSEL | AT91C_SLCKSEL_OSC32EN)
+
 int slowclk_enable_osc32(void)
 {
 #if !defined(CONFIG_SAMA5D4) && !defined(CONFIG_SAMA5D2)
@@ -39,6 +41,12 @@ int slowclk_enable_osc32(void)
 	 * Enable the 32768 Hz oscillator by setting the bit OSC32EN to 1
 	 */
 	reg = readl(AT91C_BASE_SCKCR);
+
+	/* Do nothing if aleady set. */
+	if (reg & AT91C_SLCKSEL_OSC32EN)
+		return 0;
+		
+
 	reg |= AT91C_SLCKSEL_OSC32EN;
 	writel(reg, AT91C_BASE_SCKCR);
 #endif
@@ -72,6 +80,11 @@ static void slowclk_disable_rc32(void)
 	 * Disable the 32kHz RC oscillator by setting the bit RCEN to 0
 	 */
 	reg = readl(AT91C_BASE_SCKCR);
+
+	/* Do nothing if aleady set. */
+	if ((reg & AT91C_SLCKSEL_RCEN) == 0)
+		return;
+
 	reg &= ~AT91C_SLCKSEL_RCEN;
 	writel(reg, AT91C_BASE_SCKCR);
 }
@@ -107,6 +120,16 @@ static int slowclk_select_osc32(void)
 
 int slowclk_switch_osc32(void)
 {
+	unsigned int reg = readl(AT91C_BASE_SCKCR) & 0xf;
+
+	if ((reg & SWITCH_TO_OSC32_EXPECTED_SCKCR_VALUE) == SWITCH_TO_OSC32_EXPECTED_SCKCR_VALUE)
+		/*
+		 * The slowclk configuration register is already set
+		 * correctly: the osc32 is already selected and running.
+		 * Skip the configuration.
+		 */
+		return 0;
+
 	slowclk_wait_osc32_stable();
 
 	slowclk_select_osc32();
