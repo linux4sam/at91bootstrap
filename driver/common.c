@@ -14,7 +14,7 @@
 load_function load_image;
 #endif
 
-#ifdef CONFIG_SDCARD
+#if defined(CONFIG_SDCARD) && defined(CONFIG_FATFS)
 char filename[FILENAME_BUF_LEN];
 #ifdef CONFIG_OF_LIBFDT
 char of_filename[FILENAME_BUF_LEN];
@@ -42,14 +42,14 @@ load_function get_image_load_func(void)
 #endif
 }
 
-#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH) || (defined(CONFIG_SDCARD) && !defined(CONFIG_FATFS))
 unsigned int get_image_load_offset(unsigned int addr)
 {
 #ifdef CONFIG_FLASH
 	return (addr | 0x10000000);
 #endif
 
-#if defined(CONFIG_NANDFLASH) || defined(CONFIG_DATAFLASH)
+#if defined(CONFIG_NANDFLASH) || defined(CONFIG_DATAFLASH) || defined(CONFIG_SDCARD)
 	return addr;
 #endif
 }
@@ -58,14 +58,14 @@ unsigned int get_image_load_offset(unsigned int addr)
 void init_load_image(struct image_info *image)
 {
 	memset(image,		0, sizeof(*image));
-#ifdef CONFIG_SDCARD
+#if defined(CONFIG_SDCARD) && defined(CONFIG_FATFS)
 	memset(filename,	0, FILENAME_BUF_LEN);
 #ifdef CONFIG_OF_LIBFDT
 	memset(of_filename,	0, FILENAME_BUF_LEN);
 #endif
 #endif
 
-#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH) || (defined(CONFIG_SDCARD) && !defined(CONFIG_FATFS))
 
 #if !defined(CONFIG_LOAD_LINUX) && !defined(CONFIG_LOAD_ANDROID)
 	image->length = IMG_SIZE;
@@ -83,7 +83,7 @@ void init_load_image(struct image_info *image)
 	image->of_dest = (unsigned char *)OF_ADDRESS;
 #endif
 
-#ifdef CONFIG_SDCARD
+#if defined(CONFIG_SDCARD) && defined(CONFIG_FATFS)
 	image->filename = filename;
 	strcpy(image->filename, IMAGE_NAME);
 #ifdef CONFIG_OF_LIBFDT
