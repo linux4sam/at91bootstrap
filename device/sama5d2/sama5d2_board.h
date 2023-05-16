@@ -140,4 +140,12 @@
 #define CONFIG_SYS_ID_SDHC	AT91C_ID_SDMMC1
 #endif
 
+/*
+ * XDMAC Settings
+ */
+#ifdef CONFIG_XDMAC
+#define CONFIG_SYS_BASE_XDMAC	AT91C_BASE_XDMAC0
+#define CONFIG_SYS_ID_XDMAC	AT91C_ID_XDMAC0
+#endif
+
 #endif
