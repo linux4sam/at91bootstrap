@@ -1077,5 +1077,12 @@ config SFRBU
 	default y
 	help
 	  SFRBU support
+
+config XDMAC
+	bool "Xdmac support"
+	depends on CPU_HAS_XDMAC
+	default y
+	help
+	  Xdmac support
 endmenu
 
