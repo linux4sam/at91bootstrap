@@ -122,6 +122,10 @@ config CPU_HAS_DWDT
 	bool
 	default n
 
+config CPU_HAS_XDMAC
+	bool
+	default n
+
 source "driver/Config.in.memory"
 
 config MMU
