@@ -17,6 +17,9 @@
 #include "timer.h"
 #include "fdt.h"
 #include "div.h"
+#ifdef CONFIG_NAND_DMA_SUPPORT
+#include "xdmac.h"
+#endif
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static struct nand_chip nand_ids[] = {
@@ -744,6 +747,40 @@ static int nand_read_status(void)
 	return 0;
 }
 
+#ifdef CONFIG_NAND_DMA_SUPPORT
+static int nand_read_with_dma(unsigned char *buffer,
+			unsigned int len)
+{
+	struct xdmac_hwcfg hwcfg;
+	struct xdmac_cfg cfg;
+	struct xdmac_transfer_cfg transfer_cfg;
+	int ret;
+
+	hwcfg.pid = 0xFF;
+	hwcfg.cid = 0;
+	hwcfg.src_is_periph = 0;
+	hwcfg.dst_is_periph = 0;
+	cfg.data_width = DMA_DATA_WIDTH_BYTE;
+	cfg.chunk_size = DMA_CHUNK_SIZE_1;
+	cfg.burst_size = DMA_MEM_BURST_16;
+	cfg.incr_saddr = 1;
+	cfg.incr_daddr = 1;
+	ret = xdmac_configure_transfer(&hwcfg, &cfg);
+	if (ret)
+		goto dma_stop;
+	transfer_cfg.saddr = (void *)CONFIG_SYS_NAND_BASE;
+	transfer_cfg.daddr = (void *)buffer;
+	transfer_cfg.len = len;
+	ret = xdmac_transfer_start(&hwcfg, &transfer_cfg);
+	if (ret)
+		goto dma_stop;
+	ret = xdmac_transfer_wait_for_completion(&hwcfg);
+dma_stop:
+	xdmac_transfer_stop(&hwcfg);
+	return ret;
+}
+#endif
+
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static int nand_read_sector(struct nand_info *nand, 
 			unsigned int row_address,
@@ -876,9 +913,12 @@ static int nand_read_sector(struct nand_info *nand,
 			pbuf += 2;
 		}
 	} else {
+#ifdef CONFIG_NAND_DMA_SUPPORT
+		nand_read_with_dma(pbuf, readbytes);
+#else
 		for (i = 0; i < readbytes; i++)
 			*pbuf++ = read_byte();
-
+#endif
 #ifdef CONFIG_USE_PMECC
 		if (usepmecc)
 			ret = pmecc_process(nand, buffer);
