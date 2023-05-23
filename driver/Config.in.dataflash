@@ -196,4 +196,9 @@ config QSPI_XIP
 	bool "eXecute In Place"
 	default n
 
+config QSPI_DMA_SUPPORT
+	bool "Support QSPI DMA transfer"
+	default n
+	depends on XDMAC
+
 endmenu
