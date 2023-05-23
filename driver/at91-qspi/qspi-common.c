@@ -11,6 +11,9 @@
 #include "debug.h"
 
 #include "qspi-common.h"
+#ifdef CONFIG_QSPI_DMA_SUPPORT
+#include "xdmac.h"
+#endif
 
 #ifndef CONFIG_SYS_BASE_QSPI
 #error "CONFIG_SYS_BASE_QSPI is not set"
@@ -154,3 +157,47 @@ int qspi_xip(struct spi_flash *flash, void **mem)
 	*mem = qspi->mem;
 	return spi_flash_read(flash, 0, 1, NULL);
 }
+
+
+#define QSPID_XDMA_SIZE_THRESHOLD	32
+void *qspi_memcpy(void *dst, const void *src, int cnt)
+{
+#ifdef CONFIG_QSPI_DMA_SUPPORT
+	struct xdmac_hwcfg hwcfg;
+	struct xdmac_cfg cfg;
+	struct xdmac_transfer_cfg transfer_cfg;
+	int ret;
+
+	if (cnt > QSPID_XDMA_SIZE_THRESHOLD) {
+		hwcfg.pid = 0xFF;
+		hwcfg.cid = 0;
+		hwcfg.src_is_periph = 0;
+		hwcfg.dst_is_periph = 0;
+		cfg.data_width = DMA_DATA_WIDTH_BYTE;
+		cfg.chunk_size = DMA_CHUNK_SIZE_1;
+		cfg.burst_size = DMA_MEM_BURST_16;
+		cfg.incr_saddr = 1;
+		cfg.incr_daddr = 1;
+		ret = xdmac_configure_transfer(&hwcfg, &cfg);
+		if (ret)
+			goto dma_stop;
+		transfer_cfg.saddr = (void *)src;
+		transfer_cfg.daddr = (void *)dst;
+		transfer_cfg.len = cnt;
+		ret = xdmac_transfer_start(&hwcfg, &transfer_cfg);
+		if (ret)
+			goto dma_stop;
+		ret = xdmac_transfer_wait_for_completion(&hwcfg);
+dma_stop:
+		xdmac_transfer_stop(&hwcfg);
+	} else {
+		while (cnt--)
+			*(char *)dst++ = *(char *)src++;
+	}
+#else
+	memcpy(dst, src, cnt);
+#endif
+	return dst;
+}
+
+

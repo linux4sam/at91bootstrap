@@ -270,8 +270,7 @@ static int qspi_transfer(struct qspi_priv *aq,
 
 	/* Send/Receive data. */
 	if (cmd->rx_data) {
-		memcpy(cmd->rx_data, aq->mem + offset, cmd->data_len);
-
+		qspi_memcpy(cmd->rx_data, aq->mem + offset, cmd->data_len);
 		if (cmd->addr_len) {
 			err = qspi_readl_poll_timeout(aq->reg_base + QSPI_SR,
 						      val,
@@ -281,8 +280,7 @@ static int qspi_transfer(struct qspi_priv *aq,
 				return err;
 		}
 	} else if (cmd->tx_data) {
-		memcpy(aq->mem + offset, cmd->tx_data, cmd->data_len);
-
+		qspi_memcpy(aq->mem + offset, cmd->tx_data, cmd->data_len);
 		err = qspi_readl_poll_timeout(aq->reg_base + QSPI_ISR, val,
 					      val & QSPI_ISR_LWRA,
 					      QSPI_TIMEOUT);
