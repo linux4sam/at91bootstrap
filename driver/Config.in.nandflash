@@ -187,7 +187,7 @@ config ONFI_DETECT_SUPPORT
 config NAND_TIMING_MODE
 	bool "Support NAND flash timing mode function"
 	default n
-	depends on SAM9X60 && ONFI_DETECT_SUPPORT
+	depends on (SAM9X60 || SAM9X7 || SAMA7G5) && ONFI_DETECT_SUPPORT
 
 config USE_ON_DIE_ECC_SUPPORT
 	bool "Support to use NAND flash On-Die ECC"
