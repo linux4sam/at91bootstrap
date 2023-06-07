@@ -150,6 +150,50 @@ static int spi_nor_erase(struct spi_flash *flash, size_t offset, size_t len)
 	return ret;
 }
 
+#if defined(CONFIG_QSPI_OCTAL_IO) || defined(CONFIG_QSPI_OCTAL_IO_DTR)
+static int macronix_set_octa_mode(struct spi_flash *flash, u8 mode)
+{
+	int rc;
+	struct spi_flash_command cmd;
+
+	rc = spi_flash_write_enable(flash);
+	if (rc < 0)
+		return rc;
+
+	spi_flash_command_init(&cmd, SFLASH_INST_WRITE_CR2, 4, SFLASH_TYPE_WRITE_REG);
+	cmd.proto = flash->reg_proto;
+	cmd.num_mode_cycles = 0;
+	cmd.data_len = 1;
+	cmd.addr = 0x0;
+	cmd.tx_data = &mode;
+	return spi_flash_exec(flash, &cmd);
+}
+
+static void macronix_octa_enable(struct spi_flash *flash)
+{
+#ifdef CONFIG_QSPI_OCTAL_IO
+	/* Configure 8 I/O*/
+	macronix_set_octa_mode(flash, 0x1);
+	flash->read_proto = SFLASH_PROTO_8_8_8;
+	flash->write_proto = SFLASH_PROTO_8_8_8;
+	flash->read_inst = SFLASH_INST_FAST_READ_8_8_8;
+	flash->num_mode_cycles = 0;
+	flash->num_wait_states = 20;
+	flash->addr_len = 4;
+#endif
+#ifdef CONFIG_QSPI_OCTAL_IO_DTR
+	/* Configure 8 I/O with DTR mode */
+	macronix_set_octa_mode(flash, 0x2);
+	flash->read_proto = SFLASH_PROTO_8D_8D_8D;
+	flash->write_proto = SFLASH_PROTO_8D_8D_8D;
+	flash->read_inst = SFLASH_INST_FAST_READ_8D_8D_8D;
+	flash->num_mode_cycles = 0;
+	flash->num_wait_states = 20;
+	flash->addr_len = 4;
+#endif
+}
+#endif
+
 static int spi_nor_init_params(struct spi_flash *flash,
 			       const struct spi_nor_info *info,
 			       struct spi_flash_parameters *params)
@@ -232,6 +276,19 @@ set_erase_map:
 	if (!info || !(info->flags & SNOR_SKIP_SFDP))
 		spi_flash_parse_sfdp(flash, params);
 
+#if defined(CONFIG_QSPI_OCTAL_IO) || defined(CONFIG_QSPI_OCTAL_IO_DTR)
+	/* The flash does not support SFDP */
+		switch (spi_flash_get_mfr(flash)) {
+		case SFLASH_MFR_MACRONIX:
+			params->octa_enable = macronix_octa_enable;
+			break;
+
+		default:
+			params->octa_enable = NULL;
+			break;
+		}
+		params->octa_enable(flash);
+#endif
 	return 0;
 }
 
@@ -376,7 +433,9 @@ init_params:
 
 	flash->size = params.size;
 	flash->page_size = params.page_size;
-
+#if defined(CONFIG_QSPI_OCTAL_IO) || defined(CONFIG_QSPI_OCTAL_IO_DTR)
+		return 0;
+#endif
 	/*
 	 * Configure the SPI memory:
 	 * - select instructions for (Fast) Read, Page Program and Sector Erase.

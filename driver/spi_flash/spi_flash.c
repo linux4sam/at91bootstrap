@@ -15,7 +15,18 @@ int spi_flash_read_reg(struct spi_flash *flash, u8 inst, u8 *buf, size_t len)
 {
 	struct spi_flash_command cmd;
 
+#ifdef CONFIG_AT91_QSPI_OCTAL
+	if ((flash->reg_proto == SFLASH_PROTO_8_8_8) ||
+			(flash->reg_proto == SFLASH_PROTO_8D_8D_8D))
+		spi_flash_command_init(&cmd, inst, 4, SFLASH_TYPE_READ_REG);
+	else
+		spi_flash_command_init(&cmd, inst, 0, SFLASH_TYPE_READ_REG);
+#if defined(CONFIG_QSPI_OCTAL_IO) || defined(CONFIG_QSPI_OCTAL_IO_DTR)
+	cmd.num_wait_states = flash->num_wait_states;
+#endif
+#else
 	spi_flash_command_init(&cmd, inst, 0, SFLASH_TYPE_READ_REG);
+#endif
 	cmd.proto = flash->reg_proto;
 	cmd.data_len = len;
 	cmd.rx_data = buf;
@@ -27,7 +38,15 @@ int spi_flash_write_reg(struct spi_flash *flash, u8 inst,
 {
 	struct spi_flash_command cmd;
 
+#ifdef CONFIG_AT91_QSPI_OCTAL
+	if (((flash->reg_proto == SFLASH_PROTO_8_8_8) ||
+			(flash->reg_proto == SFLASH_PROTO_8D_8D_8D)) && (len > 0))
+		spi_flash_command_init(&cmd, inst, 4, SFLASH_TYPE_WRITE_REG);
+	else
+		spi_flash_command_init(&cmd, inst, 0, SFLASH_TYPE_WRITE_REG);
+#else
 	spi_flash_command_init(&cmd, inst, 0, SFLASH_TYPE_WRITE_REG);
+#endif
 	cmd.proto = flash->reg_proto;
 	cmd.data_len = len;
 	cmd.tx_data = buf;
