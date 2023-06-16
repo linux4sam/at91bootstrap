@@ -48,6 +48,17 @@ config INIT_AND_STOP
 	  required to configure the clocks, PIOs, and memory correctly. Selecting
 	  this option builds a bootstrap image that can be used for this purpose.
 
+config LOAD_AND_STOP
+	bool "Load and stop"
+	select LOAD_SW
+	select BKPT_NOTIFY_DONE
+	---help---
+	  Configure essential peripherals. Load a software image from external media
+	  to RAM, Once the system is configured, trigger a breakpoint, and enter an
+	  infinite loop. Wait there until a debugger takes control. Resort to the
+	  debugger (attached via JTAG) for taking control and possibly loading/running
+	  asoftware application.
+
 endchoice
 
 config BKPT_NOTIFY_DONE

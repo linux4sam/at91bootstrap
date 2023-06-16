@@ -164,14 +164,16 @@ _go:
 	ldr 	r1, =MACH_TYPE
 	mov     lr, pc
 
-/* we endless loop here and not jump to any application
- * if we are configured to not load anything
- */
-#if defined(CONFIG_ENTER_NWD) || !defined(CONFIG_JUMP_TO_SW)
-loop:
+/* Notifiy the debugger by setting a breakpoint */
 #ifdef CONFIG_BKPT_NOTIFY_DONE
 	bkpt
 #endif
+
+/* we endless loop here and not jump to any application
+ * if we are configured to not load anything
+ */
+#if defined(CONFIG_ENTER_NWD)
+loop:
 	b	loop
 #endif
 
