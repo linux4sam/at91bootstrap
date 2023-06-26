@@ -257,6 +257,25 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trpa = 4,
 	.trtp = 2,
 	.tfaw = 10,
+#elif defined(CONFIG_DDR_AS4C128M32MD2A)
+/* LPDDR2 (AS4C128M32MD2A = 16 Mwords x 8 Banks x 32 bits), total 4 Gbit on the SAMA5D29-Curiosity */
+	.tras = 7,
+	.trcd = 3,
+	.twr = 4,
+	.trc = 11,
+	.trp = 4,
+	.trrd = 2,
+	.twtr = 2,
+	.tmrd = 5,
+	.trfc = 21,
+	.txsnr = 23,
+	.txsrd = 0,
+	.txp = 2,
+	.txard = 0,
+	.txards = 0,
+	.trpa = 4,
+	.trtp = 2,
+	.tfaw = 10,
 #elif defined(CONFIG_DDR_AD210032F)
 /* 4 Mwords x 8 Banks x 32 bits LPDDR2-SDRAM (1 Gbit) on the SAMA5D2 SiP */
 	.tras = 7,

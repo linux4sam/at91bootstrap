@@ -180,6 +180,19 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 				   AT91C_DDRC2_MR4R(0xFFFE);
 	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(15);
 	ddramc_config->lpddr2_lpr = AT91C_LPDDRC2_DS(0x03);
+#elif defined(CONFIG_DDR_AS4C128M32MD2A)
+/* LPDDR2 (AS4C128M32MD2A = 16 Mwords x 8 Banks x 32 bits), total 4 Gbit on the SAMA5D29-Curiosity */
+	type = AT91C_DDRC2_MD_LPDDR2_SDRAM;
+	dbw = AT91C_DDRC2_DBW_32_BITS;
+	col = AT91C_DDRC2_NC_DDR10_SDR9;
+	row = AT91C_DDRC2_NR_14;
+	cas = AT91C_DDRC2_CAS_3;
+	bank = AT91C_DDRC2_NB_BANKS_8;
+	ddramc_config->rtr = AT91C_DDRC2_ENABLE_ADJ_REF | 0x27f;
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xFFFE) |
+				   AT91C_DDRC2_MR4R(0xFFFE);
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(15);
+	ddramc_config->lpddr2_lpr = AT91C_LPDDRC2_DS(0x03);
 #elif defined(CONFIG_DDR_AD210032F)
 /* 4 Mwords x 8 Banks x 32 bits LPDDR2-SDRAM (1 Gbit) on the SAMA5D2 SiP */
 	type = AT91C_DDRC2_MD_LPDDR2_SDRAM;
