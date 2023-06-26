@@ -937,6 +937,14 @@ void mmu_tlb_init(unsigned int *tlb)
 	                  | TTB_SECT_STRONGLY_ORDERED
 	                  | TTB_TYPE_SECT;
 
+	/* 0xd0000000: QSPI0/1 MEM */
+	for (addr = 0xd00; addr < 0xe00; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_TYPE_SECT;
+
 	/* 0xc0000000: NFC Command Register */
 	for (addr = 0xc00; addr < 0xd00; addr++)
 		tlb[addr] = TTB_SECT_ADDR(addr << 20)

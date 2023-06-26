@@ -610,6 +610,15 @@ void mmu_tlb_init(unsigned int *tlb)
 	                  | TTB_SECT_SBO
 	                  | TTB_TYPE_SECT;
 
+	/* 0x70000000: QSPI MEM */
+	for (addr = 0x700; addr < 0x800; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_SECT_SBO
+	                  | TTB_TYPE_SECT;
+
 	/* 0xf0000000: Peripherals */
 	tlb[0xf00] = TTB_SECT_ADDR(0xf0000000)
 	           | TTB_SECT_AP_FULL_ACCESS
