@@ -52,6 +52,8 @@ def pmecchead(dot_config_path, binaries_path):
             oob = 32
         elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_64=y"):
             oob = 64
+        elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_128=y"):
+            oob = 128
         elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_224=y"):
             oob = 224
         elif find_in_file(dot_config_path, "CONFIG_PMECC_OOB_256=y"):

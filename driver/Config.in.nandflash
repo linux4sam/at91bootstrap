@@ -65,6 +65,9 @@ config PMECC_OOB_32
 config PMECC_OOB_64
 	bool "64-byte"
 
+config PMECC_OOB_128
+	bool "128-byte"
+
 config PMECC_OOB_224
 	bool "224-byte"
 
