@@ -1149,7 +1149,9 @@ void hw_init(void)
 	unsigned int mck0_prescaler;
 
 	/* Switch backup area to VDDIN33. */
+#ifdef CONFIG_BACKUP_VDDIN33
 	sfrbu_select_ba_power_source(true);
+#endif
 
 	/* Watchdog might be enabled out of reset. Let's make sure it's off */
 	at91_disable_wdt();

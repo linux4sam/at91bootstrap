@@ -1089,6 +1089,13 @@ config SFRBU
 	help
 	  SFRBU support
 
+config BACKUP_VDDIN33
+	bool "Switch backup area to 3v3 power source"
+	depends on SFRBU
+	default y
+	help
+	  Use VDDIN33 as the source of LDO supply instead of VBAT.
+
 config XDMAC
 	bool "Xdmac support"
 	depends on CPU_HAS_XDMAC

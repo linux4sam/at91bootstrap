@@ -485,8 +485,10 @@ void twi_init()
 
 void hw_init(void)
 {
+#ifdef CONFIG_BACKUP_VDDIN33
 	/* Switch backup area to VDDIN33. */
 	sfrbu_select_ba_power_source(true);
+#endif
 
 	at91_disable_wdt();
 
