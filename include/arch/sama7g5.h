@@ -20,6 +20,7 @@
 #define AT91C_ID_XDMAC0		22
 #define AT91C_ID_XDMAC1		23
 #define AT91C_ID_XDMAC2		24
+#define AT91C_ID_AES		27	/* Advanced Encryption Standard */
 #define AT91C_ID_FLEXCOM0	38
 #define AT91C_ID_FLEXCOM1	39
 #define AT91C_ID_FLEXCOM2	40
@@ -55,6 +56,8 @@
 #define AT91C_BASE_PIOE		(AT91C_BASE_PIOD + 0x40)
 
 #define AT91C_BASE_PMC		0xe0018000
+
+#define AT91C_BASE_AES		0xe1810000
 
 #define AT91C_BASE_WDT		0xe001c000
 #define AT91C_BASE_RSTC		0xe001d000
