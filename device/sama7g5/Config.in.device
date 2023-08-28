@@ -4,6 +4,7 @@
 
 config SAMA7G5
 	select CORE_CORTEX_A7
+	select CPU_HAS_AES
 	select CPU_HAS_PIO4
 	select CPU_HAS_SCKC
 	select CPU_HAS_SCLK_BYPASS
