@@ -9,10 +9,34 @@
 
 #define MAX_ECC_BYTES		512 /* maximum bytes of ecc */
 
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
+    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5)
+#define SMC_BASE	ATMEL_BASE_SMC
+#else
+#define SMC_BASE	AT91C_BASE_SMC
+#endif
+
 #define TIMING_MODE_0	0
 #define TIMING_MODE_1	1
 #define TIMING_MODE_2	2
 #define TIMING_MODE_3	3
+
+struct nand_timing {
+	unsigned int tCS;
+	unsigned int tRC;
+	unsigned int tREH;
+	unsigned int tRHOH;
+	unsigned int tRP;
+	unsigned int tWC;
+	unsigned int tWH;
+	unsigned int tWP;
+	unsigned int tRHZ;
+	unsigned int tCLR;
+	unsigned int tADL;
+	unsigned int tAR;
+	unsigned int tRR;
+	unsigned int tWB;
+};
 
 struct nand_ooblayout {
 	unsigned short	badblockpos;
@@ -90,5 +114,7 @@ struct nand_info {
 /* Feature Operations */
 #define CMD_SET_FEATURE			0xEF
 #define CMD_GET_FEATURE			0xEE
+
+extern void nandflash_smc_conf(unsigned int mode, unsigned int cs);
 
 #endif /* #ifndef __NAND_H__ */

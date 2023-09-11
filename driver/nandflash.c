@@ -6,7 +6,13 @@
 #include "hardware.h"
 #include "board.h"
 #include "arch/at91_pio.h"
+
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
+    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5)
+#include "arch/sama5_smc.h"
+#else
 #include "arch/at91_smc.h"
+#endif
 #include "gpio.h"
 
 #include "debug.h"
@@ -54,6 +60,204 @@ static struct nand_chip nand_ids[] = {
 	{0,}
 };
 #endif
+
+static const struct nand_timing nand_onfi_timings[] = {
+	/* Mode 0 */
+	{
+		.tCS = 70000,
+		.tRC = 100000,
+		.tREH = 30000,
+		.tRHOH = 0,
+		.tRP = 50000,
+		.tWC = 100000,
+		.tWH = 30000,
+		.tWP = 50000,
+		.tRHZ = 200000,
+		.tCLR = 20000,
+		.tADL = 400000,
+		.tAR = 25000,
+		.tRR = 40000,
+		.tWB = 200000,
+	},
+	/* Mode 1 */
+	{
+		.tCS = 35000,
+		.tRC = 50000,
+		.tREH = 15000,
+		.tRHOH = 15000,
+		.tRP = 25000,
+		.tWC = 45000,
+		.tWH = 15000,
+		.tWP = 25000,
+		.tRHZ = 100000,
+		.tCLR = 10000,
+		.tADL = 400000,
+		.tAR = 10000,
+		.tRR = 20000,
+		.tWB = 100000,
+	},
+	/* Mode 2 */
+	{
+		.tCS = 25000,
+		.tRC = 35000,
+		.tREH = 15000,
+		.tRHOH = 15000,
+		.tRP = 17000,
+		.tWC = 35000,
+		.tWH = 15000,
+		.tWP = 17000,
+		.tRHZ = 100000,
+		.tCLR = 10000,
+		.tADL = 400000,
+		.tAR = 10000,
+		.tRR = 20000,
+		.tWB = 100000,
+	},
+	/* Mode 3 */
+	{
+		.tCS = 25000,
+		.tRC = 30000,
+		.tREH = 10000,
+		.tRHOH = 15000,
+		.tRP = 15000,
+		.tWC = 30000,
+		.tWH = 10000,
+		.tWP = 15000,
+		.tRHZ = 100000,
+		.tCLR = 10000,
+		.tADL = 400000,
+		.tAR = 10000,
+		.tRR = 20000,
+		.tWB = 100000,
+	},
+};
+
+#define DIV_ROUND_UP(x, y)	div(((x) + (y) - 1),(y))
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
+    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5)
+static unsigned int smc_timing_encode_ncycles(unsigned int ncycles)
+{
+	unsigned int msb, lsb;
+
+	msb = div(ncycles , 0x40);
+	lsb = ncycles % 0x40;
+	if (lsb > 0x07) {
+		lsb = 0;
+		msb++;
+	}
+	if (msb > 0x01) {
+		msb = 0x01;
+		lsb = 0x07;
+	}
+	return (msb << 3) | lsb;
+}
+#endif
+
+void nandflash_smc_conf(unsigned int mode, unsigned int cs)
+{
+	unsigned int ncycles, mck_ps;
+	unsigned int nwe_setup, nwe_pulse, nwe_hold, nwe_cycle;
+	unsigned int nrd_hold, nrd_pulse, nrd_cycle, tdf;
+	mck_ps = (1000000000 / MASTER_CLOCK) * 1000;
+	/* 
+	  Set write pulse length
+	  NWE_PULSE = tWP 
+	*/
+	nwe_pulse = DIV_ROUND_UP(nand_onfi_timings[mode].tWP, mck_ps);
+	ncycles = nwe_pulse;
+	/* 
+	  set write setup time
+	  NWE_SETUP = tCS - NWE_PULSE 
+	*/
+	nwe_setup = DIV_ROUND_UP(nand_onfi_timings[mode].tCS, mck_ps);
+	nwe_setup = nwe_setup > ncycles ? nwe_setup - ncycles : 0;
+	ncycles += nwe_setup;
+	/* NWE_HOLD = tWH */
+	nwe_hold = DIV_ROUND_UP(nand_onfi_timings[mode].tWH, mck_ps);
+	ncycles += nwe_hold;
+	/* 
+	   Set write cycle.
+	   NWE_CYCLE = max(tWC, NWE_SETUP + NWE_PULSE + NWE_HOLD) 
+	*/
+	nwe_cycle = DIV_ROUND_UP(nand_onfi_timings[mode].tWC, mck_ps);
+	nwe_cycle = max(ncycles, nwe_cycle);
+	/* NRD_HOLD = max(tREH, tRHOH) */
+	nrd_hold = max(nand_onfi_timings[mode].tREH, nand_onfi_timings[mode].tRHOH);
+	nrd_hold = DIV_ROUND_UP(nrd_hold, mck_ps);
+	ncycles = nrd_hold;
+	/*
+	 * TDF = tRHZ - NRD_HOLD
+	 */
+	tdf = DIV_ROUND_UP(nand_onfi_timings[mode].tRHZ, mck_ps);
+	tdf -= nrd_hold;
+	
+	if (tdf > AT91C_SMC_TDF_MAX)
+		tdf = AT91C_SMC_TDF_MAX;
+	else if (tdf < AT91C_SMC_TDF_MIN)
+		tdf = AT91C_SMC_TDF_MIN;
+	tdf = tdf - 1;
+
+	/* 
+	  set NRD pulse length
+	  NRD_PULSE = tRP 
+	*/
+	nrd_pulse = DIV_ROUND_UP(nand_onfi_timings[mode].tRP, mck_ps);
+	ncycles += nrd_pulse;
+
+	/*
+	  set read cycle.
+	  NRD_CYCLE = max(tRC, NRD_PULSE + NRD_HOLD) 
+	*/
+	nrd_cycle = DIV_ROUND_UP(nand_onfi_timings[mode].tRC, mck_ps);
+	nrd_cycle = max(ncycles, nrd_cycle);
+
+	/* NCS_RD_PULSE = NRD_CYCLE */
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
+    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5)
+	writel(AT91C_SMC_SETUP_NWE(nwe_setup), ATMEL_BASE_SMC + SMC_SETUP(cs));
+	writel(AT91C_SMC_PULSE_NWE(nwe_pulse) |
+		       AT91C_SMC_PULSE_NCS_WR(nwe_cycle) |
+		       AT91C_SMC_PULSE_NRD(nrd_pulse) |
+		       AT91C_SMC_PULSE_NCS_RD(nrd_cycle),
+		       ATMEL_BASE_SMC + SMC_PULSE(cs));
+	writel(AT91C_SMC_CYCLE_NWE(nwe_cycle) |
+		       AT91C_SMC_CYCLE_NRD(nrd_cycle),
+		       ATMEL_BASE_SMC + SMC_CYCLE(cs));
+	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL |
+		       AT91C_SMC_MODE_WRITEMODE_NWE_CTRL |
+		       AT91C_SMC_MODE_TDF_MODE |
+		       AT91C_SMC_MODE_TDF_CYCLES(tdf),
+		       ATMEL_BASE_SMC + SMC_MODE(cs));
+		       
+	writel(AT91C_SMC_TIMINGS_TCLR(smc_timing_encode_ncycles(
+		       DIV_ROUND_UP(nand_onfi_timings[mode].tCLR, mck_ps))) |
+		       AT91C_SMC_TIMINGS_TADL(smc_timing_encode_ncycles(
+		       DIV_ROUND_UP(nand_onfi_timings[mode].tADL, mck_ps))) |
+		       AT91C_SMC_TIMINGS_TAR(smc_timing_encode_ncycles(
+		       DIV_ROUND_UP(nand_onfi_timings[mode].tAR, mck_ps)))|
+		       AT91C_SMC_TIMINGS_TRR(smc_timing_encode_ncycles(
+		       DIV_ROUND_UP(nand_onfi_timings[mode].tRR, mck_ps))) |
+		       AT91C_SMC_TIMINGS_TWB(smc_timing_encode_ncycles(
+		       DIV_ROUND_UP(nand_onfi_timings[mode].tWB, mck_ps))) |
+		       AT91C_SMC_TIMINGS_NFSEL,
+		       ATMEL_BASE_SMC + SMC_TIMINGS(cs));
+#else
+	writel(AT91C_SMC_NWESETUP_(nwe_setup), AT91C_BASE_SMC + SMC_SETUP(cs));
+	writel(AT91C_SMC_NWEPULSE_(nwe_pulse) |
+		       AT91C_SMC_NCS_WRPULSE_(nwe_cycle) |
+		       AT91C_SMC_NRDPULSE_(nrd_pulse) |
+		       AT91C_SMC_NCS_RDPULSE_(nrd_cycle),
+		       AT91C_BASE_SMC + SMC_PULSE(cs));
+	writel(AT91C_SMC_NWECYCLE_(nwe_cycle) |
+		       AT91C_SMC_NRDCYCLE_(nrd_cycle),
+		       AT91C_BASE_SMC + SMC_CYCLE(cs));
+	writel(AT91C_SMC_READMODE |
+		       AT91C_SMC_WRITEMODE |
+		       AT91C_SMC_TDFEN |
+		       AT91_SMC_TDF_(tdf),
+		       AT91C_BASE_SMC + SMC_MODE(cs));
+#endif
+}
 
 /* ooblayout */
 static struct nand_ooblayout nand_oob_layout;
@@ -1101,6 +1305,7 @@ static int nand_loadimage(struct nand_info *nand,
 
 		/* read pages of a block */
 		for (page = start_page; page < end_page; page++) {
+
 			ret = nand_read_page(nand, block, page,
 						ZONE_DATA, buffer);
 			if (ret)

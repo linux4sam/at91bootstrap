@@ -29,6 +29,12 @@
 #define SMC_TIMINGS3	0x48	/* Timings Register for CS 3 */
 #define SMC_MODE3	0x4C	/* Mode Register for CS 3 */
 
+#define SMC_SETUP(cs)		(((cs) * 0x14))
+#define SMC_PULSE(cs)		(((cs) * 0x14) + 0x4)
+#define SMC_CYCLE(cs)		(((cs) * 0x14) + 0x8)
+#define SMC_TIMINGS(cs)		(((cs) * 0x14) + 0xc)
+#define SMC_MODE(cs)		(((cs) * 0x14) + 0x10)
+
 #define AT91C_SMC_SETUP_NWE(x)		(x & 0x3f)
 #define AT91C_SMC_SETUP_NCS_WR(x)	((x & 0x3f) << 8)
 #define AT91C_SMC_SETUP_NRD(x)		((x & 0x3f) << 16)
@@ -69,6 +75,8 @@
 #define 	AT91C_SMC_MODE_DBW_16	(0x01 << 12)
 #define AT91C_SMC_MODE_TDF_CYCLES(x)		((x & 0xf) << 16)
 #define AT91C_SMC_MODE_TDF_MODE		(0x01 << 20)
+#define AT91C_SMC_TDF_MAX			16
+#define AT91C_SMC_TDF_MIN			1
 #define 	AT91C_SMC_MODE_TDF_MODE_DISABLED		(0x00 << 20)
 #define 	AT91C_SMC_MODE_TDF_MODE_ENABLED		(0x01 << 20)
 

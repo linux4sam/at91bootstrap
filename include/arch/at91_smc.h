@@ -49,6 +49,11 @@
 #define SMC_DELAY7	0xD8	/* SMC Delay Control Register */
 #define SMC_DELAY8	0xDC	/* SMC Delay Control Register */
 
+#define SMC_SETUP(cs)		(((cs) * 0x10))
+#define SMC_PULSE(cs)		(((cs) * 0x10) + 0x4)
+#define SMC_CYCLE(cs)		(((cs) * 0x10) + 0x8)
+#define SMC_MODE(cs)		(((cs) * 0x10) + 0xc)
+
 /* -------- SMC_SETUP : (SMC Offset: 0x0) Setup Register for CS x --------*/ 
 #define AT91C_SMC_NWESETUP	(0x3FUL << 0)
 #define		AT91C_SMC_NWESETUP_(x)		((x) << 0)
@@ -92,6 +97,8 @@
 #define AT91C_SMC_TDF		(0xFUL << 16)
 #define		AT91_SMC_TDF_(x)		((x) << 16)
 #define AT91C_SMC_TDFEN		(0x1UL << 20)
+#define AT91C_SMC_TDF_MAX	16
+#define AT91C_SMC_TDF_MIN	1
 #define AT91C_SMC_PMEN		(0x1UL << 24)
 #define AT91C_SMC_PS		(0x3UL << 28)
 #define 	AT91C_SMC_PS_SIZE_FOUR_BYTES		(0x0UL << 28)
