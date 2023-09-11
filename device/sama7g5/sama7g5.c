@@ -612,7 +612,7 @@ void nandflash_hw_init(void)
 		{"NANDWE", CONFIG_SYS_NAND_WE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
 		{"NANDALE", CONFIG_SYS_NAND_ALE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
 		{"NANDCLE", CONFIG_SYS_NAND_CLE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
-		{"NANDCS", CONFIG_SYS_NAND_ENABLE_PIN, 0, PIO_DEFAULT, PIO_PERIPH_D},
+		{"NANDCS", CONFIG_SYS_NAND_ENABLE_PIN, 1, PIO_DEFAULT, PIO_OUTPUT},
 		{"D0", AT91C_PIN_PD(9), 0, PIO_DEFAULT, PIO_PERIPH_D},
 		{"D1", AT91C_PIN_PD(10), 0, PIO_DEFAULT, PIO_PERIPH_D},
 		{"D2", AT91C_PIN_PD(11), 0, PIO_DEFAULT, PIO_PERIPH_D},
@@ -630,24 +630,24 @@ void nandflash_hw_init(void)
 	nandflash_set_smc_timing(TIMING_MODE_0);
 }
 
-void nandflash_set_smc_timing(unsigned int mode)
+void nandflash_set_smc_timing(unsigned int timing_mode)
 {
 #ifdef CONFIG_NAND_TIMING_MODE
-	if (mode == TIMING_MODE_3) {
+ 	if (timing_mode == TIMING_MODE_3) {
 		/* Configure SMC CS3 for NAND */
 		writel(AT91C_SMC_SETUP_NWE(2), ATMEL_BASE_SMC + SMC_SETUP3);
 
-		writel(AT91C_SMC_PULSE_NWE(4) | AT91C_SMC_PULSE_NCS_WR(8) |
-		       AT91C_SMC_PULSE_NRD(5) | AT91C_SMC_PULSE_NCS_RD(8),
+		writel(AT91C_SMC_PULSE_NWE(3) | AT91C_SMC_PULSE_NCS_WR(7) |
+		       AT91C_SMC_PULSE_NRD(4) | AT91C_SMC_PULSE_NCS_RD(6),
 		       ATMEL_BASE_SMC + SMC_PULSE3);
 
-		writel(AT91C_SMC_CYCLE_NWE(8) | AT91C_SMC_CYCLE_NRD(8),
+		writel(AT91C_SMC_CYCLE_NWE(7) | AT91C_SMC_CYCLE_NRD(7),
 		      (ATMEL_BASE_SMC + SMC_CYCLE3));
 
 		writel(AT91C_SMC_TIMINGS_TCLR(2) |
-		       AT91C_SMC_TIMINGS_TADL(20) |
+		       AT91C_SMC_TIMINGS_TADL(15) |
 		       AT91C_SMC_TIMINGS_TAR(2) |
-		       AT91C_SMC_TIMINGS_TRR(8) |
+		       AT91C_SMC_TIMINGS_TRR(4) |
 		       AT91C_SMC_TIMINGS_TWB(8) | AT91C_SMC_TIMINGS_NFSEL,
 		       ATMEL_BASE_SMC + SMC_TIMINGS3);
 
@@ -656,7 +656,7 @@ void nandflash_set_smc_timing(unsigned int mode)
 		       AT91C_SMC_MODE_TDF_MODE |
 		       AT91C_SMC_MODE_TDF_CYCLES(15),
 		       ATMEL_BASE_SMC + SMC_MODE3);
-	} else {
+	} else {   
 		/* Configure SMC CS3 for NAND */
 		writel(AT91C_SMC_SETUP_NWE(4), ATMEL_BASE_SMC + SMC_SETUP3);
 
@@ -700,7 +700,7 @@ void nandflash_set_smc_timing(unsigned int mode)
 	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL |
 	       AT91C_SMC_MODE_WRITEMODE_NWE_CTRL | AT91C_SMC_MODE_TDF_MODE |
 	       AT91C_SMC_MODE_TDF_CYCLES(15), ATMEL_BASE_SMC + SMC_MODE3);
-#endif
+#endif /* #ifdef CONFIG_NAND_TIMING_MODE */
 }
 #endif /* CONFIG_NANDFLASH */
 
