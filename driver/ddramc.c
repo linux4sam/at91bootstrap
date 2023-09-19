@@ -77,6 +77,23 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #else
 	#error "No CLK setting defined"
 #endif
+#elif defined(CONFIG_DDR_W632GU6NG)
+/* DDR3L(W632GU6NG = 16 Mbit x 16 x 8 banks), total 2Gbit on SAM9X75D2G */
+	type = AT91C_DDRC2_MD_DDR3_SDRAM;
+	dbw = AT91C_DDRC2_DBW_16_BITS;
+	col = AT91C_DDRC2_NC_DDR10_SDR9;
+	row = AT91C_DDRC2_NR_14;
+	cas = AT91C_DDRC2_CAS_5;
+	bank = AT91C_DDRC2_NB_BANKS_8;
+#if defined(CONFIG_BUS_SPEED_200MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 1562(0x61a) */
+	ddramc_config->rtr = 0x61a;
+#elif defined(CONFIG_BUS_SPEED_266MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 2078(0x81e) */
+	ddramc_config->rtr = 0x81e;
+#else
+	#error "No CLK setting defined"
+#endif
 	/*
 	 * According to the sam9x7 datasheet and the following values:
 	 * T Sens = 0.75%/C, V Sens = 0.2%/mV, T driftrate = 1C/sec and V driftrate = 15 mV/s
