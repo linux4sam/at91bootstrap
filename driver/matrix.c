@@ -567,7 +567,7 @@ int is_switching_clock_forbiden(unsigned int periph_id, unsigned int is_on, unsi
 }
 #endif /* CONFIG_SAMA5D4 */
 
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 
 void matrix_configure_default_qos()
 {

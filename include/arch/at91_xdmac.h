@@ -25,7 +25,7 @@
 #define XDMAC_GSWR	0x38
 #define XDMAC_GSWS	0x3C
 #define XDMAC_GSWF	0x40
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 #define XDMAC_CHAN(i)	(0x60 + ((i) * 0x40))
 #else
 #define XDMAC_CHAN(i)	(0x50 + ((i) * 0x40))
