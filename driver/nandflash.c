@@ -8,7 +8,8 @@
 #include "arch/at91_pio.h"
 
 #if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
-    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5)
+    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5) ||\
+    defined(CONFIG_SAMA7D65)
 #include "arch/sama5_smc.h"
 #else
 #include "arch/at91_smc.h"
@@ -138,7 +139,8 @@ static const struct nand_timing nand_onfi_timings[] = {
 
 #define DIV_ROUND_UP(x, y)	div(((x) + (y) - 1),(y))
 #if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
-    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5)
+    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5) ||\
+    defined(CONFIG_SAMA7D65)
 static unsigned int smc_timing_encode_ncycles(unsigned int ncycles)
 {
 	unsigned int msb, lsb;
@@ -221,7 +223,8 @@ void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 
 	/* NCS_RD_PULSE = NRD_CYCLE */
 #if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
-    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5)
+    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5) ||\
+    defined(CONFIG_SAMA7D65)
 	writel(AT91C_SMC_SETUP_NWE(nwe_setup), ATMEL_BASE_SMC + SMC_SETUP(cs));
 	writel(AT91C_SMC_PULSE_NWE(nwe_pulse) |
 		       AT91C_SMC_PULSE_NCS_WR(nwe_cycle) |

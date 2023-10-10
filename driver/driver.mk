@@ -59,6 +59,8 @@ ifeq ($(CONFIG_QSPI), y)
 COBJS-y				+= $(DRIVERS_SRC)/at91-qspi/qspi-common.o
 ifeq ($(CONFIG_SAMA7G5), y)
 COBJS-y				+= $(DRIVERS_SRC)/at91-qspi/qspi-sama7g5.o
+else ifeq ($(CONFIG_SAMA7D65), y)
+COBJS-y				+= $(DRIVERS_SRC)/at91-qspi/qspi-sama7g5.o
 else ifeq ($(CONFIG_SAM9X7), y)
 COBJS-y				+= $(DRIVERS_SRC)/at91-qspi/qspi-sama7g5.o
 else

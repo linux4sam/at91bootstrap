@@ -10,7 +10,8 @@
 #define MAX_ECC_BYTES		512 /* maximum bytes of ecc */
 
 #if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
-    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5)
+    defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5) ||\
+    defined(CONFIG_SAMA7D65)
 #define SMC_BASE	ATMEL_BASE_SMC
 #else
 #define SMC_BASE	AT91C_BASE_SMC
