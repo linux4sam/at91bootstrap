@@ -1,0 +1,23 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
+config DEVICENAME
+	string
+	default "sama7d65" if SAMA7D65
+
+config FLEXCOM_TWI_IOSET
+	bool
+	default y if SAMA7D65
+
+config FLEXCOM_TWI_IOSET_MAX
+	int
+	default 5 if SAMA7D65
+
+config QSPI_BUS_MAX
+	int
+	default 1 if SAMA7D65
+
+config QSPI_IOSET_MAX
+	int
+	default 1 if SAMA7D65
