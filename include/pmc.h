@@ -35,7 +35,7 @@ enum pll_ids {
 	PLL_ID_AUDIO,
 	PLL_ID_LVDS,
 	PLL_ID_PLLADIV2,
-	#elif  defined(CONFIG_SAMA7G5)
+	#elif  defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	PLL_ID_CPUPLL = 0,
 	PLL_ID_SYSPLL,
 	PLL_ID_DDRPLL,

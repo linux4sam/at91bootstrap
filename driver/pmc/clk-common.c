@@ -15,11 +15,12 @@
 void lowlevel_clock_init()
 {
 	unsigned long tmp;
-#if defined(CONFIG_MAINOSC_MEASUREMENT) && defined(CONFIG_SAMA7G5)
+#if defined(CONFIG_MAINOSC_MEASUREMENT) && \
+	(defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65))
 	unsigned int main_osc_measured;
 #endif
 
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	/*
 	 * For sama7g5, it is recommended to switch to Main Clock,
 	 * as the main clock is always on and reliable.
@@ -34,7 +35,7 @@ void lowlevel_clock_init()
 	pmc_mck_cfg_set(0, AT91C_PMC_CSS_SLOW_CLK, AT91C_PMC_CSS);
 #endif
 
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	/*
 	 * SAMA7G5 comes with predefined clock scheme from Rom Code.
 	 * To be able to switch correctly to external crystal,
@@ -53,7 +54,8 @@ void lowlevel_clock_init()
 
 #if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) || \
 	defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) || \
-	defined(CONFIG_SAM9X7) || defined(CONFIG_SAMA7G5)
+	defined(CONFIG_SAM9X7) || defined(CONFIG_SAMA7G5) || \
+	defined(CONFIG_SAMA7D65)
 	/*
 	 * Enable the Main Crystal Oscillator
 	 * tST_max = 2ms
@@ -80,7 +82,7 @@ void lowlevel_clock_init()
 	while (!(tmp = read_pmc(PMC_MCFR) & AT91C_CKGR_MAINRDY))
 		;
 
-#if defined(CONFIG_SAMA7G5)
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	/*
 	 * According to datasheet, we need to perform a second read here,
 	 * after the MAINRDY is high
@@ -113,7 +115,8 @@ void lowlevel_clock_init()
 		;
 
 #if !defined(CONFIG_SAMA5D4) && !defined(CONFIG_SAMA5D2) \
-	&& !defined(CONFIG_SAMA7G5) && !defined(CONFIG_AT91SAM9N12)
+	&& !defined(CONFIG_SAMA7G5) && !defined(CONFIG_SAMA7D65) \
+	&& !defined(CONFIG_AT91SAM9N12)
 	/* Disable the 12MHz RC Oscillator */
 	tmp = read_pmc(PMC_MOR);
 	tmp &= (~AT91C_CKGR_MOSCRCEN);
@@ -193,7 +196,8 @@ unsigned int pmc_mainck_get_rate(void)
 {
 #if defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) || \
 	defined(CONFIG_SAMA5D2) || defined(CONFIG_SAM9X60) || \
-	defined(CONFIG_SAM9X7) || defined(CONFIG_SAMA7G5)
+	defined(CONFIG_SAM9X7) || defined(CONFIG_SAMA7G5) || \
+	defined(CONFIG_SAMA7D65)
 	unsigned int val = read_pmc(PMC_MOR);
 
 	if (val & AT91C_CKGR_MOSCSEL)

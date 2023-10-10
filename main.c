@@ -96,7 +96,7 @@ int main(void)
 	mcp16502_voltage_select();
 #endif
 
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	hw_postinit();
 #endif
 

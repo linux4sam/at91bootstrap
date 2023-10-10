@@ -90,6 +90,7 @@ source "device/sama5d4/Config.in.con"
 source "device/sam9x60/Config.in.con"
 source "device/sam9x7/Config.in.con"
 source "device/sama7g5/Config.in.con"
+source "device/sama7d65/Config.in.con"
 
 config DEBUG
 	bool "Debug Output"
@@ -411,8 +412,11 @@ config BOARD_QUIRK_SAMA7G5_EK
 	  On SAMA7G5 EK board, pin PC15/16 are connected to STBY of the CAN transceivers,
 	  enabling this quirk will put the transceivers to normal mode.
 
-config BOARD_QUIRK_SAM9X60_CURIOSITY
-        bool "Quirks for SAM9X60_CURIOSITY board"
+config BOARD_QUIRK_OURASI_DDR3_EB
+	bool "Quirks for OURASI_DDR3_EB board"
+	help
+	  On OURASI_DDR3_EB board, pin PD8/9 are connected to STBY of the CAN transceivers,
+	  enabling this quirk will put the transceivers to normal mode.
 
 config BOARD_QUIRK_SAM9X75_EB
 	bool "Quirks for SAM9X75_EB board"
@@ -940,7 +944,7 @@ config PIT
 config PIT64B
 	bool "64-bit Periodic Interval Timer"
 	default y
-	depends on SAMA7G5
+	depends on SAMA7G5 || SAMA7D65
 	help
 	  Enable 64-bit periodic interval timer.
 
@@ -991,7 +995,7 @@ config PIO
 
 config PIO_E
 	bool
-	depends on SAMA5D4 || SAMA5D3X || SAMA7G5
+	depends on SAMA5D4 || SAMA5D3X || SAMA7G5 || SAMA7D65
 	default y
 
 config PMC_COMMON
@@ -1016,20 +1020,20 @@ config PMC_V2
 
 config PMC_V3
 	bool "Peripheral management controller support for third version"
-	depends on SAMA7G5
+	depends on SAMA7G5 || SAMA7D65
 	default y
 	help
 	  Enable power management controller support for third version
 config PMC_PERIPH_CLK_SAM9X5
 	bool "PMC peripheral clock control for SAM9X5 SoCs and above"
-	depends on SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60 || SAM9X7 || SAMA7G5
+	depends on SAMA5D3X || SAMA5D4 || SAMA5D2 || SAM9X60 || SAM9X7 || SAMA7G5 || SAMA7D65
 	default y
 	help
 	  Enable peripheral clock control for SAM9X5 SoCs and above
 
 config PMC_GENERIC_CLK
 	bool "PMC generic clock control support"
-	depends on SAMA5D2 || SAM9X60 || SAM9X7 || SAMA7G5
+	depends on SAMA5D2 || SAM9X60 || SAM9X7 || SAMA7G5 || SAMA7D65
 	default y
 	help
 	  Enable generic clock control support
@@ -1050,7 +1054,7 @@ config PMC_PLL_CLK
 
 config PMC_PLL_CLK_SAM9X60
 	bool "PMC PLL clock control support for SAM9X60 SoCs"
-	depends on SAM9X60 || SAM9X7 || SAMA7G5
+	depends on SAM9X60 || SAM9X7 || SAMA7G5 || SAMA7D65
 	default y
 	help
 	  Enable PMC PLL clock control for SAM9X60 SoCs
@@ -1074,7 +1078,7 @@ config PMC_MCK_CLK
 
 config PMC_MCK_CLK_SAMA7G5
 	bool "PMC master clock support for SAMA7G5 SoCs"
-	depends on SAMA7G5
+	depends on SAMA7G5 || SAMA7D65
 	default y
 	help
 	  Enable PMC master clock support for SAMA7G5 SoCs
@@ -1087,7 +1091,7 @@ config SHDWC
 
 config SFRBU
 	bool "SFRBU support"
-	depends on SAMA5D2 || SAMA7G5
+	depends on SAMA5D2 || SAMA7G5 || SAMA7D65
 	default y
 	help
 	  SFRBU support
