@@ -53,17 +53,17 @@ static const char *qspi_reg_name(u32 reg)
 #endif /* CONFIG_SAMA5D2 */
 	case QSPI_IFR:
 		return "IFR";
-#if defined(CONFIG_SAM9X60) || defined(CONFIG_SAMA7G5)
+#if defined(CONFIG_SAM9X60) || defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	case QSPI_WICR:
 		return "WICR";
 	case QSPI_RICR:
 		return "RICR";
-#endif /* CONFIG_SAM9X60 || CONFIG_SAMA7G5 */
+#endif /* CONFIG_SAM9X60 || CONFIG_SAMA7G5 || CONFIG_SAMA7D65 */
 	case QSPI_SMR:
 		return "SMR";
 	case QSPI_SKR:
 		return "SKR";
-#if defined(CONFIG_SAMA7G5)
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	case QSPI_ISR:
 		return "ISR";
 	case QSPI_REFRESH:
@@ -78,7 +78,7 @@ static const char *qspi_reg_name(u32 reg)
 		return "PCALBP";
 	case QSPI_TOUT:
 		return "TOUT";
-#endif /* CONFIG_SAMA7G5 */
+#endif /* CONFIG_SAMA7G5 || CONFIG_SAMA7D65 */
 	case QSPI_WPMR:
 		return "WPMR";
 	case QSPI_WPSR:

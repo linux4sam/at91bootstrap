@@ -97,7 +97,7 @@
 #define PMERRLOC_ELISR		0x020	/* Error Location Interrupt Status Register */
 /* -------- PMERRLOC_ELISR: (Offset: 0x20) Error Location Interrupt Status Register --------*/
 #define PMERRLOC_ELISR_DONE		(0x1)
-#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA7G5)
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 #define PMERRLOC_ELISR_ERR_CNT		(0x3f << 8)
 #else
 #define PMERRLOC_ELISR_ERR_CNT		(0x1f << 8)
@@ -106,7 +106,7 @@
 /* 0x24 reserved */
 #define PMERRLOC_SIGMA0		0x028	/* PMECC Error Location SIGMA0 Register */
 
-#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA7G5)
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 #define PMERRLOC_EL0		0x0AC	/* PMECC Error Location 0 Register */
 #else
 #define PMERRLOC_EL0		0x08C	/* PMECC Error Location 0 Register */
