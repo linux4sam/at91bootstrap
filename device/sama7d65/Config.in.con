@@ -1,0 +1,43 @@
+# Copyright (C) 2006 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
+config CONSOLE_INDEX
+	int "Console Port"
+	range 0 29
+	default 13
+	depends on SAMA7D65
+	help
+	  Select the peripheral wired to the debug console port:
+	  Value |    Name    | Description
+	  ------|------------|---------------------------------
+	    0   | UART0 IO1  | Uses FLEXCOM0 IOSET 1 USART pins
+	    1   | UART0 IO2  | Uses FLEXCOM0 IOSET 2 USART pins
+	    2   | UART1 IO1  | Uses FLEXCOM1 IOSET 1 USART pins
+	    3   | UART1 IO2  | Uses FLEXCOM1 IOSET 2 USART pins
+	    4   | UART1 IO3  | Uses FLEXCOM1 IOSET 3 USART pins
+	    5   | UART2 IO1  | Uses FLEXCOM2 IOSET 1 USART pins
+	    6   | UART2 IO2  | Uses FLEXCOM2 IOSET 2 USART pins
+	    7   | UART2 IO3  | Uses FLEXCOM2 IOSET 3 USART pins
+	    8   | UART2 IO4  | Uses FLEXCOM2 IOSET 4 USART pins
+	    9   | UART3 IO1  | Uses FLEXCOM3 IOSET 1 USART pins
+	   10   | UART3 IO2  | Uses FLEXCOM3 IOSET 2 USART pins
+	   11   | UART3 IO3  | Uses FLEXCOM3 IOSET 3 USART pins
+	   12   | UART3 IO4  | Uses FLEXCOM3 IOSET 4 USART pins
+	   13   | UART4 IO1  | Uses FLEXCOM4 IOSET 1 USART pins
+	   14   | UART5 IO1  | Uses FLEXCOM5 IOSET 1 USART pins
+	   15   | UART5 IO2  | Uses FLEXCOM5 IOSET 2 USART pins
+	   16   | UART6 IO1  | Uses FLEXCOM6 IOSET 1 USART pins
+	   17   | UART6 IO2  | Uses FLEXCOM6 IOSET 2 USART pins
+	   18   | UART6 IO3  | Uses FLEXCOM6 IOSET 3 USART pins
+	   19   | UART6 IO4  | Uses FLEXCOM6 IOSET 4 USART pins
+	   20   | UART7 IO1  | Uses FLEXCOM7 IOSET 1 USART pins
+	   21   | UART7 IO2  | Uses FLEXCOM7 IOSET 2 USART pins
+	   22   | UART7 IO3  | Uses FLEXCOM7 IOSET 3 USART pins
+	   23   | UART8 IO1  | Uses FLEXCOM8 IOSET 1 USART pins
+	   24   | UART8 IO2  | Uses FLEXCOM8 IOSET 2 USART pins
+	   25   | UART8 IO3  | Uses FLEXCOM8 IOSET 3 USART pins
+	   26   | UART9 IO1  | Uses FLEXCOM9 IOSET 1 USART pins
+	   27   | UART9 IO2  | Uses FLEXCOM9 IOSET 2 USART pins
+	   28   | UART10 IO1 | Uses FLEXCOM10 IOSET 1 USART pins
+	   29   | UART10 IO2 | Uses FLEXCOM10 IOSET 2 USART pins

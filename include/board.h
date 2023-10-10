@@ -31,6 +31,9 @@
 #include "sama7g5_board.h"
 #endif
 
+#ifdef CONFIG_SAMA7D65
+#include "sama7d65_board.h"
+#endif
 /*
  * Functions Prototype
  */
@@ -40,7 +43,7 @@ extern void hw_init(void);
    or a postinit after the PMIC voltage selection.
 */
 
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 extern void hw_preinit(void);
 extern void hw_postinit(void);
 #endif
