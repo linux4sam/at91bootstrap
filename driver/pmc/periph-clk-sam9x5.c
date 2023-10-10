@@ -38,7 +38,7 @@ int pmc_disable_periph_clock(unsigned int periph_id)
 
 unsigned int pmc_periph_clock_get_rate(unsigned int periph_id)
 {
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	unsigned int val, mck_rate, mckid, div;
 
 	write_pmc(PMC_PCR, (periph_id & AT91C_PMC_PID));

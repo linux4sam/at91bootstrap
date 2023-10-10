@@ -20,7 +20,7 @@
 #define AT91C_PSWBU_PSWKEY	(0x4BD20C << 8)
 #define AT9CC_PWSBU_CTRL	(1 << 0)
 #define AT91C_PSWBU_SOFTSWITCH	(1 << 1)
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 #define AT91C_BSWBU_SMCTRL	(0)
 #define AT91C_PSWBU_STATE	(1 << 2)
 #else
