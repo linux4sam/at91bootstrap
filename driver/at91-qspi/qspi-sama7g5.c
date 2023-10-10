@@ -18,7 +18,7 @@
 #define QSPI_DLLCFG_THRESHOLD_FREQ	90000000U
 
 #ifdef CONFIG_AT91_QSPI_OCTAL
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 
 /**
  * struct qspi_pcal - Pad Calibration Clock Division
@@ -326,7 +326,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 }
 
 #ifdef CONFIG_AT91_QSPI_OCTAL
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 static int qspi_set_pad_calibration(struct qspi_priv *aq, u32 hz)
 {
 	u32 status, val;
@@ -384,7 +384,7 @@ static int qspi_set_pad_calibration(struct qspi_priv *aq, u32 hz)
 static int qspi_set_gclk(struct qspi_priv *aq, u32 hz)
 {
 	unsigned int max_gclk_rate;
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	u32 status, val;
 	int ret;
 
@@ -434,7 +434,7 @@ static int qspi_set_freq(void *priv, u32 hz)
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_SAMA7G5
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 #ifdef CONFIG_AT91_QSPI_OCTAL
 	ret = qspi_set_pad_calibration(priv, hz);
 	if (ret)
