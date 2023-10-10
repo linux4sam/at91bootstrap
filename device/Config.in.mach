@@ -10,6 +10,7 @@ config MACH_TYPE
 	default "9999"	if SAMA5D4
 	default "9999"	if SAMA5D2
 	default "9999"	if SAMA7G5
+	default "9999"	if SAMA7D65
 
 config OVERRIDE_MACH_TYPE
 	bool "Override the default mach type"

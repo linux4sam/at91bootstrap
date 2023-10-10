@@ -31,6 +31,10 @@
 #include "arch/sama7g5.h"
 #endif
 
+#ifdef CONFIG_SAMA7D65
+#include "arch/sama7d65.h"
+#endif
+
 /* I/O Function Macro */
 #define writel(value, addr) \
 	(*(volatile unsigned int *)(addr)) = (value)

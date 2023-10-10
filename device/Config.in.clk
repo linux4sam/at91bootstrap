@@ -47,7 +47,7 @@ config MCK_BYPASS
 
 config MAINOSC_MEASUREMENT
 	bool "Perform a measurement of the external crystal"
-	depends on SAMA7G5 || SAMA5D2
+	depends on SAMA7G5 || SAMA5D2 || SAMA7D65
 	default y
 	help
 	  Perform a measurement of the external crystal connected to the device.
