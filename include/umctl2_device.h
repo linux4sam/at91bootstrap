@@ -8,7 +8,9 @@
 #define __UMCTL2_DEVICE_H__
 
 #if defined(CONFIG_DDR_SET_BY_DEVICE)
-#if defined(CONFIG_DDR_MT41K256M16TW_107) || defined (CONFIG_DDR_MT41K512M16HA_125)
+#if defined(CONFIG_DDR_MT41K256M16TW_107) || \
+    defined(CONFIG_DDR_MT41K512M16HA_125) || \
+    defined(CONFIG_DDR_MT41K128M16JT_125)
 #define _tRFC		350UL		/* Refresh to Refresh, ns */
 #define _tREFI		7800UL		/* Refresh Intervals, ns */
 #define _tWR		15UL		/* Write Recovery, ns */
