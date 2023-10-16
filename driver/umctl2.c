@@ -444,12 +444,6 @@ inline static void uddrc_mp_setup()
 	/* timeout for write transactions in the regions */
 	UDDRC_MP->UDDRC_PCFGWQOS1_4 = UDDRC_PCFGWQOS1_4_wqos_map_timeout(0x0100);
 	}
-
-	UDDRC_MP->UDDRC_SARBASE0     = AT91C_BASE_DDRCS/(512*1024*1024); //base_addr = 0x6000_0000/512MB = 3
-	UDDRC_MP->UDDRC_SARSIZE0     = 3;                           		//nblocks=(2GB/512MB)-1=3
-
-	dbg_very_loud("sarbase %x, offset = %x\n", UDDRC_MP->UDDRC_SARBASE0,
-			OFFSETOF(struct uddrc_mp, UDDRC_SARBASE0));
 }
 
 inline static void uddrc_spin_cam_pipeline_empty()
@@ -1636,7 +1630,13 @@ int umctl2_init (struct umctl2_config_state *state)
 	uddrc_init5();
 	/* configure DRAM timings */
 	uddrc_dramtmg();
-	/* configure mapping between HIF addr to bank, column, row
+
+	UDDRC_MP->UDDRC_SARBASE0     = AT91C_BASE_DDRCS/(512*1024*1024); 	//base_addr = 0x6000_0000/512MB = 3
+	UDDRC_MP->UDDRC_SARSIZE0     = 3;                           		//nblocks=(2GB/512MB)-1=3
+
+	dbg_very_loud("sarbase %x, offset = %x\n", UDDRC_MP->UDDRC_SARBASE0,
+			OFFSETOF(struct uddrc_mp, UDDRC_SARBASE0));
+ 	/* configure mapping between HIF addr to bank, column, row
 	 * internal address
 	 */
 	uddrc_addrmap_init();
