@@ -142,6 +142,8 @@ struct dram_timings
 			#define TCKE		MAX(3, PS_TO_CYCLES_UP(7500UL))		/* CKE minimum width, Clock Cycles */
 		#elif defined(CONFIG_DDR_SPEED_1066)
 			#define TCKE		MAX(3, PS_TO_CYCLES_UP(5625UL))		/* CKE minimum width, Clock Cycles */
+		#elif defined(CONFIG_DDR_SPEED_1600)
+			#define TCKE		MAX(3, PS_TO_CYCLES_UP(5000UL))		/* CKE minimum width, Clock Cycles */
 		#endif
 	#endif
 	#define TXPR		MAX(5, NS_TO_CYCLES_UP(tRFC + 10))	/* Reset Clock exit time, Clock Cycles */
