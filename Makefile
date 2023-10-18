@@ -54,7 +54,7 @@ else
 	BUILD_DATE := $(shell $(DATE) "$(DATE_FMT)")
 endif
 endif
-VERSION := 4.0.7
+VERSION := 4.0.8-rc1
 REVISION :=
 ifdef NIX_SHELL
 SCMINFO := $(shell (host-utilities/setlocalversion))
