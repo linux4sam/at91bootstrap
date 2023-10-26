@@ -934,13 +934,13 @@ void hw_init(void)
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	/* Configure & Enable SYS PLL */
-	syspll_config.mul = 32; /* (32+1) * 24 = 792 */
+	syspll_config.mul = 32; /* (32+1) * 24 = 800 */
 	syspll_config.div = 1; 
 	syspll_config.count = 0x3f;
 	syspll_config.fracr = 0x155550;
 	syspll_config.acr = 0x00070010;
 
-	/* SYSPLL @ 1200 MHz */
+	/* SYSPLL @ 800 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_SYSPLL, &syspll_config);
 
 	/* MCK1 @ 200 Mhz (== SYSPLL/2) */
