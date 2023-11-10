@@ -193,9 +193,11 @@ struct publ_regs {
 /* DQS Resistor */
 #define PUBL_DXCCR_DQSRES_POS			4
 #define PUBL_DXCCR_DQSRES_688OHM		(1UL << PUBL_DXCCR_DQSRES_POS)
+#define PUBL_DXCCR_DQSRES_500OHM		(4UL << PUBL_DXCCR_DQSRES_POS)
 /* DQS# Resistor */
 #define PUBL_DXCCR_DQSNRES_POS			8
-#define PUBL_DXCCR_DQSNRES_688OHM                (1UL << PUBL_DXCCR_DQSNRES_POS)
+#define PUBL_DXCCR_DQSNRES_688OHM		(1UL << PUBL_DXCCR_DQSNRES_POS)
+#define PUBL_DXCCR_DQSNRES_500OHM		(4UL << PUBL_DXCCR_DQSNRES_POS)
 #define PUBL_DXCCR_DQSNRES_PU			(1UL << PUBL_DXCCR_DQSNRES_POS << 3)
 
 /* -------- PUBL_DSGCR : (PUBL Offset: 0x2C) System General Configuration Register -------- */
