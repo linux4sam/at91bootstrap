@@ -11,7 +11,7 @@ struct umctl2_config_state
 {
 	/* PHY callbacks to PHY driver */
 		/* Pointer to PHY init function */
-	void (*phy_init)(void *);
+	void (*phy_init)(void);
 		/* Pointer to phy init done function */
 	int (*phy_idone)(void);
 		/* Pointer to PHY start function */

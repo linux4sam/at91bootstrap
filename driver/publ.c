@@ -12,146 +12,123 @@
 #include "publ_regs.h"
 #include "publ.h"
 
+#if defined(CONFIG_DDR_SET_BY_TIMING)
+#include "umctl2_timing.h"
+#else
+#include "umctl2_jedec.h"
+#endif
 #include "dram_helpers.h"
 
 static struct publ_regs		*PUBL;
 
-void publ_init(void * config_data)
+void publ_init(void)
 {
-	struct dram_timings *timings = config_data;
-
-#ifndef CONFIG_SYS_BASE_PUBL
-#error "CONFIG_SYS_BASE_PUBL undefined"
-#endif
-	unsigned long tRFC = timings->tRFC;
-	unsigned long tWR = timings->tWR;
-#ifdef CONFIG_DDR3
-	unsigned long bTWR;
-#endif
-	unsigned long tRP_ps = timings->tRP_ps;
-	unsigned long tRCD_ps = timings->tRCD_ps;
-	unsigned long tRAS = timings->tRAS;
-	unsigned long tRC_ps = timings->tRC_ps;
-	unsigned long tFAW = timings->tFAW;
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long tDQSCK_MIN = timings->tDQSCK_MIN;
-	unsigned long tDQSCK_MAX = timings->tDQSCK_MAX;
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	unsigned long CL = timings->CL;
-#endif
-#ifdef CONFIG_DDR3
-	unsigned long CWL = timings->CWL;
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	unsigned long AL = timings->AL;
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long RL = timings->RL;
-	unsigned long WL = timings->WL;
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
-	unsigned long MRD = timings->MRD;
-#endif
-
 	PUBL = (struct publ_regs *) CONFIG_SYS_BASE_PUBL;
+
+#if 1
 #ifdef CONFIG_DDR3
 	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_DDR3 | PUBL_DCR_DDRMD_DDR8BNK;
 #endif
 #ifdef CONFIG_DDR2
-	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_DDR2 | PUBL_DCR_DDRMD_DDR8BNK;
+	PUBL->PUBL_DCR =
+			PUBL_DCR_DDRMD_DDR2 |\
+			((NB_BANK_BITS == 3) ? PUBL_DCR_DDRMD_DDR8BNK : 0) ;
 #endif
 #ifdef CONFIG_LPDDR2_S2
-	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_LPDDR2 | PUBL_DCR_DDRMD_DDR8BNK |
+	PUBL->PUBL_DCR =
+			PUBL_DCR_DDRMD_LPDDR2 |\
+			((NB_BANK_BITS == 3) ? PUBL_DCR_DDRMD_DDR8BNK : 0) |
 			PUBL_DCR_DDRTYPE_S2;
 #endif
 #ifdef CONFIG_LPDDR2_S4
-	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_LPDDR2 | PUBL_DCR_DDRMD_DDR8BNK |
+	PUBL->PUBL_DCR =
+			PUBL_DCR_DDRMD_LPDDR2 |\
+			((NB_BANK_BITS == 3) ? PUBL_DCR_DDRMD_DDR8BNK : 0) |
 			PUBL_DCR_DDRTYPE_S4;
 #endif
 #ifdef CONFIG_LPDDR3
 	PUBL->PUBL_DCR = PUBL_DCR_DDRMD_LPDDR3 | PUBL_DCR_DDRMD_DDR8BNK;
 #endif
-	dbg_very_loud("PUBL_DCR %x\n", PUBL->PUBL_DCR);
 
 	PUBL->PUBL_PGCR =
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-			PUBL_PGCR_DFTCMP |
-#endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 			PUBL_PGCR_DQSCFG |
 #endif
 			PUBL_PGCR_CKEN(1) | PUBL_PGCR_CKDV(2) |
 			PUBL_PGCR_RANKEN(1) | PUBL_PGCR_ZCKSEL(1) |
 			PUBL_PGCR_PDDISDX;
-	dbg_very_loud("PUBL_PGCR %x\n", PUBL->PUBL_PGCR);
 
-	PUBL->PUBL_PTR0 = PUBL_PTR0_TDLLSRST(MAX(NS_TO_CYCLES_UP(50UL), 8)) |
-			PUBL_PTR0_TDLLLOCK(NS_TO_CYCLES_UP(5120UL)) |
+	PUBL->PUBL_PTR0 =
+	/* Max of 50ns and 8 controller clock cycles, unit is an APB clock cycle */
+			PUBL_PTR0_TDLLSRST(MAX(ROUNDUP(50000, DDR_CLOCK_PERIOD), 8)) |\
+	/* 5.12us, unit is an APB clock cycle */
+			PUBL_PTR0_TDLLLOCK(ROUNDUP(5120000,DDR_CLOCK_PERIOD)) |\
+	/* 8 controller clock cycles, unit is an APB clock cycle */
 			PUBL_PTR0_TITMSRST(8);
 	dbg_very_loud("PUBL_PTR0 %x\n", PUBL->PUBL_PTR0);
 
-#ifdef CONFIG_DDR3
-	PUBL->PUBL_PTR1 = PUBL_PTR1_TDINIT0(NS_TO_CYCLES_UP(520000UL)) |
-			PUBL_PTR1_TDINIT1(MAX(NS_TO_CYCLES_UP(tRFC + 10), 5));
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+	PUBL->PUBL_PTR1 =
+			PUBL_PTR1_TDINIT0(ROUNDUP(TPRECKE, DDR_CLOCK_PERIOD)) |\
+			PUBL_PTR1_TDINIT1(ROUNDUP(TPOSTCKE, DDR_CLOCK_PERIOD));
 #endif
-#ifdef CONFIG_DDR2
-	PUBL->PUBL_PTR1 = PUBL_PTR1_TDINIT0(NS_TO_CYCLES_UP(200000UL)) |
-			PUBL_PTR1_TDINIT1(NS_TO_CYCLES_UP(400UL));
-#endif
-
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	PUBL->PUBL_PTR1 = PUBL_PTR1_TDINIT0(NS_TO_CYCLES_UP(200000UL)) |
-			PUBL_PTR1_TDINIT1(NS_TO_CYCLES_UP(100UL));
+	PUBL->PUBL_PTR1 =
+			PUBL_PTR1_TDINIT0(ROUNDUP(TINIT3, DDR_CLOCK_PERIOD)) |\
+			PUBL_PTR1_TDINIT1(ROUNDUP(TINIT1, DDR_CLOCK_PERIOD));
 #endif
 	dbg_very_loud("PUBL_PTR1 %x\n", PUBL->PUBL_PTR1);
 
-#ifdef CONFIG_DDR3
-	PUBL->PUBL_PTR2 = PUBL_PTR2_TDINIT2(NS_TO_CYCLES_UP(220000UL)) |
-			PUBL_PTR2_TDINIT3(534);
-#endif
-#ifdef CONFIG_DDR2
-	PUBL->PUBL_PTR2 = PUBL_PTR2_TDINIT2(NS_TO_CYCLES_UP(400UL)) |
+
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+	PUBL->PUBL_PTR2 =
+			PUBL_PTR2_TDINIT2(ROUNDUP(200000000, DDR_CLOCK_PERIOD)) |\
 			PUBL_PTR2_TDINIT3(534);
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	PUBL->PUBL_PTR2 = PUBL_PTR2_TDINIT2(MAX(5, NS_TO_CYCLES_UP(11000UL))) |
-			PUBL_PTR2_TDINIT3(NS_TO_CYCLES_UP(1000UL));
+	PUBL->PUBL_PTR2 =
+			PUBL_PTR2_TDINIT2(ROUNDUP(TINIT4 + TINIT5, DDR_CLOCK_PERIOD)) |
+			PUBL_PTR2_TDINIT3(ROUNDUP(TZQINIT, DDR_CLOCK_PERIOD));
 #endif
 	dbg_very_loud("PUBL_PTR2 %x\n", PUBL->PUBL_PTR2);
 
 #ifdef CONFIG_DDR3
-	if (TWR < 5) {
-		bTWR = 1;
-	}
-	else {
-		if (TWR == 11 || TWR == 12)
-			bTWR = 6;
-		if (TWR == 9 || TWR == 10)
-			bTWR = 5;
-		if (TWR >= 5 && TWR <= 8)
-			bTWR = TWR - 4;
-	}
-	PUBL->PUBL_MR0 = PUBL_MR0_CL((CL - 4) << 2 ) |
-			PUBL_MR0_WR(NS_TO_CYCLES_UP(bTWR)) | 1;
+	unsigned int mr_cl, mr_wr;
+	mr_cl = ((CL == 5) ? 2 : (CL == 6) ? 4 : (CL == 7) ? 6 : \
+		(CL == 8) ? 8 : (CL == 9) ? 10 : (CL == 10) ? 12 :\
+		(CL == 11) ? 14 : (CL == 12) ? 1 : (CL == 13) ? 3 :\
+		(CL == 14) ? 5 : (CL == 15) ? 7 : 9);
+
+	mr_wr = ((WR <= 5) ? 1 : (WR == 6) ? 2 : (WR == 7) ? 3 :\
+		(WR == 8) ? 4 : (WR == 10) ? 5 : (WR == 12) ? 6 : 7);
+	PUBL->PUBL_MR0 =
+			PUBL_MR0_BL |\
+			((mr_cl & 0x1) << PUBL_MR0_CL_POS) |\
+			(((mr_cl & 0xE) >> 1) << 4) |\
+			PUBL_MR0_DR |\
+			PUBL_MR0_WR(mr_wr);
 #endif
 #ifdef CONFIG_DDR2
-	PUBL->PUBL_MR0 = PUBL_MR0_CL(CL) | PUBL_MR0_BL_8 |
-			PUBL_MR0_WR(NS_TO_CYCLES_UP(tWR) - 1) | 1;
+	PUBL->PUBL_MR0 =
+			((BL == 8) ? 3 : 2) |\
+			PUBL_MR0_CL(CL) |\
+			PUBL_MR0_DR |\
+			PUBL_MR0_WR(WR - 1);
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	PUBL->PUBL_MR0 = 0;
 #endif
 	dbg_very_loud("PUBL_MR0 %x\n", PUBL->PUBL_MR0);
 
-#ifdef CONFIG_DDR3
-	PUBL->PUBL_MR1 = PUBL_MR1_RTT1 | PUBL_MR1_AL(AL);
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+	PUBL->PUBL_MR1 = PUBL_MR1_RTT0 | PUBL_MR1_AL(AL);
 #endif
-#ifdef CONFIG_DDR2
-	PUBL->PUBL_MR1 = PUBL_MR1_RTT1 | PUBL_MR1_AL(AL) | PUBL_MR1_OCD(0);
+#if defined(CONFIG_LPDDR2)
+	PUBL->PUBL_MR1 = PUBL_MR1_BL(((BL == 16) ? 4 : (BL == 8) ? 3 : 2)) |\
+			 PUBL_MR1_NWR(WR - 2);
 #endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	PUBL->PUBL_MR1 = PUBL_MR1_BL(0x3) | PUBL_MR1_NWR(TWR - 2);
+#if defined(CONFIG_LPDDR3)
+	PUBL->PUBL_MR1 = PUBL_MR1_BL(3) | PUBL_MR1_NWR(WR_SEL - 2);
 #endif
 	dbg_very_loud("PUBL_MR1 %x\n", PUBL->PUBL_MR1);
 
@@ -170,27 +147,16 @@ void publ_init(void * config_data)
 	;
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	if (RL == 4 && WL == 2)
-		PUBL->PUBL_MR2 = PUBL_MR2_RLWL_4_2;
-	if (RL == 5 && WL == 2)
-		PUBL->PUBL_MR2 = PUBL_MR2_RLWL_5_2;
-	if (RL == 6 && WL == 3)
-		PUBL->PUBL_MR2 = PUBL_MR2_RLWL_6_3;
-	if (RL == 7 && WL == 4)
-		PUBL->PUBL_MR2 = PUBL_MR2_RLWL_7_4;
-	if (RL == 8 && WL == 4)
-		PUBL->PUBL_MR2 = PUBL_MR2_RLWL_8_4;
+	PUBL->PUBL_MR2 = RL - 2;
 #endif
 	dbg_very_loud("PUBL_MR2 %x\n", PUBL->PUBL_MR2);
 
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
 	PUBL->PUBL_MR3 = 0;
 #endif
 #ifdef CONFIG_LPDDR2
-	PUBL->PUBL_MR3 = PUBL_MR3_DS_48OHM;
-#endif
-#ifdef CONFIG_LPDDR3
-	PUBL->PUBL_MR3 = 0;
+	PUBL->PUBL_MR3 = PUBL_MR3_DS_40OHM;
 #endif
 	dbg_very_loud("PUBL_MR3 %x\n", PUBL->PUBL_MR3);
 
@@ -205,75 +171,93 @@ void publ_init(void * config_data)
 	PUBL->PUBL_DTPR0 =
 #ifdef CONFIG_DDR3
 			PUBL_DTPR0_TMRD(TMRD - 4) |
+			PUBL_DTPR0_TRP(MIN(MAX(ROUNDUP(TRP,DDR_CLOCK_PERIOD) - 1, 2), 14)) |
 #endif
 #if defined(CONFIG_DDR2)
 			PUBL_DTPR0_TMRD(TMRD) |
+			PUBL_DTPR0_TRP(MIN(MAX(ROUNDUP(TRP,DDR_CLOCK_PERIOD), 2), 14)) |
+#endif
+#ifdef CONFIG_LPDDR2
+			PUBL_DTPR0_TMRD(TMRW - 4) |
+#if(NB_BANK_BITS == 3)
+			PUBL_DTPR0_TRP(MIN(MAX(ROUNDUP(TRPab,DDR_CLOCK_PERIOD)- 1, 2), 14)) |
+#else
+			PUBL_DTPR0_TRP(MIN(MAX(ROUNDUP(TRPab,DDR_CLOCK_PERIOD), 2), 14)) |
+#endif
 #endif
 #ifdef CONFIG_LPDDR3
-			PUBL_DTPR0_TMRD(TMRD - 8) |
+			PUBL_DTPR0_TMRD(ROUNDUP(TMRD,DDR_CLOCK_PERIOD) - 8) |
+			PUBL_DTPR0_TRP(MIN(MAX(ROUNDUP(TRPab,DDR_CLOCK_PERIOD) - 1, 2), 14)) |
 #endif
-			PUBL_DTPR0_TRTP(MAX(TRTP, 2)) |
-			PUBL_DTPR0_TWTR(MAX(TWTR, 1)) |
-#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-			PUBL_DTPR0_TRP(MAX(TRP, 2)) |
+
+			PUBL_DTPR0_TRTP(MIN(MAX(ROUNDUP(TRTP,DDR_CLOCK_PERIOD), 2), 6)) |
+			PUBL_DTPR0_TWTR(MIN(MAX(ROUNDUP(TWTR,DDR_CLOCK_PERIOD), 1), 6)) |
+			PUBL_DTPR0_TRCD(MIN(MAX(ROUNDUP(TRCD,DDR_CLOCK_PERIOD), 2), 15)) |
+			PUBL_DTPR0_TRAS(MIN(MAX(ROUNDUP(TRASMIN,DDR_CLOCK_PERIOD), 2), 31)) |
+			PUBL_DTPR0_TRRD(MIN(MAX(ROUNDUP(TRRD,DDR_CLOCK_PERIOD), 1), 8)) |
+#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+			PUBL_DTPR0_TRC(MIN(MAX(ROUNDUP(TRC,DDR_CLOCK_PERIOD), 2), 42));
 #endif
-#if defined(CONFIG_DDR2)
-			PUBL_DTPR0_TRP(MAX(TRP - 1, 2)) | /* PHY adds + 1 back */
+#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+			PUBL_DTPR0_TRC(MIN(MAX(ROUNDUP(TRCab,DDR_CLOCK_PERIOD), 2), 42));
 #endif
-			PUBL_DTPR0_TRCD(MAX(TRCD, 2)) |
-			PUBL_DTPR0_TRAS(MAX(TRAS, 2)) |
-			PUBL_DTPR0_TRRD(TRRD) |
-			PUBL_DTPR0_TRC(MAX(TRC, 2));
 	dbg_very_loud("PUBL_DTPR0 %x\n", PUBL->PUBL_DTPR0);
 
-	PUBL->PUBL_DTPR1 = PUBL_DTPR1_TFAW(MAX(TFAW, 2)) |
+	PUBL->PUBL_DTPR1 =
+			PUBL_DTPR1_TFAW(MIN(MAX(ROUNDUP(TFAW,DDR_CLOCK_PERIOD), 2), 31)) |
 #ifdef CONFIG_DDR3
-			PUBL_DTPR1_TMOD(TMOD - 12) |
+			PUBL_DTPR1_TMOD(ROUNDUP(TMOD,DDR_CLOCK_PERIOD) - 12) |
 #endif
 #ifdef CONFIG_DDR2
 			PUBL_DTPR1_TAOND(TAOND - 2) |
 #endif
-			PUBL_DTPR1_TRFC(TRFC) |
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
+			PUBL_DTPR1_TRFC(MIN(ROUNDUP(TRFC,DDR_CLOCK_PERIOD), 255)) |
 			PUBL_DTPR1_TDQSCKMIN(1) | PUBL_DTPR1_TDQSCKMAX(1)
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-			PUBL_DTPR1_TDQSCKMIN(TDQSCK_MIN) | PUBL_DTPR1_TDQSCKMAX(TDQSCK_MAX)
+			PUBL_DTPR1_TRFC(MIN(ROUNDUP(TRFCab,DDR_CLOCK_PERIOD), 255)) |
+			PUBL_DTPR1_TDQSCKMIN(MIN(MAX(ROUNDDWN(TDQSCK_MIN,DDR_CLOCK_PERIOD), 0), 7)) |
+			PUBL_DTPR1_TDQSCKMAX(MIN(MAX(ROUNDUP (TDQSCK_MAX,DDR_CLOCK_PERIOD), 1), 7))
 #endif
 			;
 	dbg_very_loud("PUBL_DTPR1 %x\n", PUBL->PUBL_DTPR1);
 
 	PUBL->PUBL_DTPR2 =
 #if defined(CONFIG_DDR3)
-			PUBL_DTPR2_TXS(MAX(TXS, TXSDLL)) |
-			PUBL_DTPR2_TXP(MAX(2, MAX(TXP, TXPDLL))) |
-			PUBL_DTPR2_TCKE(MAX(TCKESR, 2)) |
+			PUBL_DTPR2_TXS( MIN(MAX(MAX(ROUNDUP(TXS,DDR_CLOCK_PERIOD),TXSDLL),2), 1023)) |
+			PUBL_DTPR2_TXP(MIN(MAX(ROUNDUP(MAX(TXP,TXPDLL),DDR_CLOCK_PERIOD), 2), 31)) |
+			PUBL_DTPR2_TCKE(MIN(MAX(ROUNDUP(TCKESR,DDR_CLOCK_PERIOD), 2), 15)) |
+			PUBL_DTPR2_TDLLK(MIN(MAX(TDLLK, 2), 1023))
 #endif
 #if defined(CONFIG_DDR2)
-			PUBL_DTPR2_TXS(MAX(TXS, TXSDLL)) |
-			PUBL_DTPR2_TXP(MAX(2, TXP)) |
-			PUBL_DTPR2_TCKE(MAX(TCKESR, 2)) |
+			PUBL_DTPR2_TXS(MIN(MAX(MAX(ROUNDUP(TXSNR,DDR_CLOCK_PERIOD),TXSRD), 2), 1023)) |
+			PUBL_DTPR2_TXP(MIN(MAX(MAX(TXP,MAX(TXARD,TXARDS)), 2), 31)) |
+			PUBL_DTPR2_TCKE(MIN(MAX(TCKE, 2), 15)) |
+			PUBL_DTPR2_TDLLK(512)
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-			PUBL_DTPR2_TXS(MAX(2, TXSR)) |
-			PUBL_DTPR2_TXP(MAX(2, TXP)) |
-			PUBL_DTPR2_TCKE(MAX(TCKE, 2)) |
+			PUBL_DTPR2_TXS(MIN(MAX(ROUNDUP(TXSR,DDR_CLOCK_PERIOD), 2), 1023)) |
+			PUBL_DTPR2_TXP(MIN(MAX(ROUNDUP(TXP,DDR_CLOCK_PERIOD), 2), 31)) |
+			PUBL_DTPR2_TCKE(MIN(MAX(MAX(TCKE,ROUNDUP(TCKESR,DDR_CLOCK_PERIOD)), 2), 15)) |
+			PUBL_DTPR2_TDLLK(512)
 #endif
-			PUBL_DTPR2_TDLLK(MAX(TDLLK, 2));
+			;
 	dbg_very_loud("PUBL_DTPR2 %x\n", PUBL->PUBL_DTPR2);
 
-	PUBL->PUBL_DSGCR = PUBL_DSGCR_PUREN | PUBL_DSGCR_BDISEN |
-			PUBL_DSGCR_ZUEN
+	PUBL->PUBL_DSGCR =
+			PUBL_DSGCR_PUREN | PUBL_DSGCR_BDISEN |
+			PUBL_DSGCR_ZUEN | PUBL_DSGCR_LPIOPD | PUBL_DSGCR_LPDLLPD |
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-			| PUBL_DSGCR_DQSGX(MAX(1, PS_TO_CYCLES_UP(tDQSCK_MAX - tDQSCK_MIN)))
-			| PUBL_DSGCR_DQSGE(MAX(1, PS_TO_CYCLES_UP(tDQSCK_MAX - tDQSCK_MIN)))
+			PUBL_DSGCR_DQSGX(ROUNDUP(TDQSCK_MAX-TDQSCK_MIN,DDR_CLOCK_PERIOD)) |
+			PUBL_DSGCR_DQSGE(ROUNDUP(TDQSCK_MAX-TDQSCK_MIN,DDR_CLOCK_PERIOD)) |
 #endif
-			| PUBL_DSGCR_NOBUB |
 			PUBL_DSGCR_FXDLAT | PUBL_DSGCR_NL2OE |
 			PUBL_DSGCR_TPDOE | PUBL_DSGCR_CKOE |
 			PUBL_DSGCR_ODTOE | PUBL_DSGCR_RSTOE |
 			PUBL_DSGCR_CKEOE;
 	dbg_very_loud("PUBL_DSCGR %x\n", PUBL->PUBL_DSGCR);
+
 
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	PUBL->PUBL_DXCCR = 0;
@@ -284,14 +268,11 @@ void publ_init(void * config_data)
 #endif
 	dbg_very_loud("PUBL_DXCCR %x\n", PUBL->PUBL_DXCCR);
 
-	/* Impedance must match the PCB. 9 means 48 Ohms */
-	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(9) |
-			PUBL_ZQ0CR1_ZPROG_ODT(2);
+	/* Impedance must match the PCB. 11 means 40 Ohms */
+	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(11) | PUBL_ZQ0CR1_ZPROG_ODT(5);
 
 	dbg_very_loud("PUBL_ZQ0CR1 %x\n", PUBL->PUBL_ZQ0CR1);
-
-	dbg_very_loud("PUBL_ACIOCR %x\n", PUBL->PUBL_ACIOCR);
-	dbg_very_loud("PUBL_DLLGCR %x\n", PUBL->PUBL_DLLGCR);
+#endif
 }
 
 int publ_idone()

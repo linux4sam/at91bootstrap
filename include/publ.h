@@ -7,7 +7,7 @@
 #ifndef __PUBL_H__
 #define __PUBL_H__
 
-void publ_init(void *);
+void publ_init(void);
 int publ_idone(void);
 int publ_start(void);
 int publ_train(void);

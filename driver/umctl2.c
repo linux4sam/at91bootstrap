@@ -12,19 +12,18 @@
 #include "rstc.h"
 #endif
 
+
+#if defined(CONFIG_DDR_SET_BY_TIMING)
+#include "umctl2_timing.h"
+#else
+#include "umctl2_jedec.h"
+#endif
 #include "umctl2_regs.h"
 #include "umctl2.h"
-
+#include "dram_helpers.h"
 #ifdef CONFIG_PUBL
 #include "publ.h"
 #endif
-
-#if defined(CONFIG_DDR_SET_BY_JEDEC)
-#include "umctl2_jedec.h"
-#elif defined(CONFIG_DDR_SET_BY_DEVICE)
-#include "umctl2_device.h"
-#endif
-#include "dram_helpers.h"
 
 #include "arch/at91_sfrbu.h"
 
@@ -35,106 +34,6 @@ static struct umctl2_config_state *umctl2_config;
 static struct uddrc_regs	*UDDRC_REGS;
 static struct uddrc_mp		*UDDRC_MP;
 
-unsigned long tRFC;
-unsigned long tREFI;
-unsigned long tWR;
-unsigned long tRP;
-unsigned long tRP_ps;
-unsigned long tRCD;
-unsigned long tRCD_ps;
-unsigned long tCCD;
-unsigned long tRAS;
-unsigned long tRASMAX;
-unsigned long tRC_ps;
-unsigned long tFAW;
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-unsigned long tPRECKE;
-#endif
-unsigned long tPOSTCKE;
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-unsigned long tDQSCK_MIN;
-unsigned long tDQSCK_MAX;
-unsigned long tTSI;
-#endif
-unsigned long CL;
-unsigned long CWL;
-unsigned long AL;
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-unsigned long RL;
-unsigned long WL;
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-unsigned long TZQOPER;
-unsigned long TZQCS;
-#endif
-unsigned long MRD;
-
-#if defined(CONFIG_DDR_SET_BY_JEDEC) || defined(CONFIG_DDR_SET_BY_DEVICE)
-struct dram_timings timings = {
-	_tRFC, _tREFI, _tWR, _tRP, _tRP_ps, _tRCD, _tRCD_ps, _tCCD,_tRAS, _tRASMAX,
-	_tRC_ps, _tFAW,
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	_tPRECKE,
-#endif
-	_tPOSTCKE,
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	_tDQSCK_MIN, _tDQSCK_MAX,
-	_tTSI_ms,
-#endif
-	_CL, _CWL, _AL,
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	_RL, _WL,
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	_TZQOPER, _TZQCS,
-#endif
-	_MRD,
-};
-#endif
-
-#if defined(CONFIG_DDR_SET_BY_TIMING)
-struct dram_timings timings = {
-	CONFIG_UMCTL2_TRFC, CONFIG_UMCTL2_TREFI, CONFIG_UMCTL2_TWR, CONFIG_UMCTL2_TRP, 
-	CONFIG_UMCTL2_TRP_PS, CONFIG_UMCTL2_TRCD, CONFIG_UMCTL2_TRCD_PS, CONFIG_UMCTL2_TRCCD, 
-	CONFIG_UMCTL2_TRAS, CONFIG_UMCTL2_TRAS_MAX, CONFIG_UMCTL2_TRC_PS, CONFIG_UMCTL2_TFAW,
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	CONFIG_UMCTL2_TPRECKE,
-#endif
-#if defined(CONFIG_DDR3)
-	0,
-#else
-	CONFIG_UMCTL2_TPOSTCKE,
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	2500UL, 5500UL, 
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	0, 0,
-#elif defined(CONFIG_CAS_4)
-	4, 3,
-#elif defined(CONFIG_CAS_5)
-	5, 4,
-#elif defined(CONFIG_CAS_6)
-	6, 5,
-#elif defined(CONFIG_CAS_7)
-	7, 6,
-#elif defined(CONFIG_CAS_8)
-	8, 7,
-#endif
-	0,
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	CONFIG_UMCTL2_RL, CONFIG_UMCTL2_WL,
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	CONFIG_UMCTL2_TZQOPER, CONFIG_UMCTL2_TZQCS,
-#endif
-#if defined(CONFIG_LPDDR2)
-	0,
-#else
-	CONFIG_UMCTL2_TMRD,
-#endif
-};
-#endif
 
 inline static void uddrc_mp_setup()
 {
@@ -148,7 +47,6 @@ inline static void uddrc_mp_setup()
 			(umctl2_config->prefer_write ? UDDRC_SCHED_prefer_write : 0) |
 	/* this is active low, so disabling force low priority */
 			UDDRC_SCHED_force_low_pri_n;
-
 	/* timer for pageclose policy of precharging */
 	UDDRC_REGS->UDDRC_SCHED1 = UDDRC_SCHED1_pageclose_timer(umctl2_config->pageclose_timer);
 
@@ -206,8 +104,8 @@ inline static void uddrc_mp_setup()
 	/* port 0 should always be enabled otherwise CPU can't access DDR */
 	if (umctl2_config->axi_port_bitmap & MP_AXI_PORT_ENABLE(0)) {
 	/* keep read/writes in order ? */
-	UDDRC_MP->UDDRC_PCFGR_0 = (umctl2_config->port_x_rdwr_ordered_en ?
-				UDDRC_PCFGR_0_rdwr_ordered_en : 0) |
+		UDDRC_MP->UDDRC_PCFGR_0 = (umctl2_config->port_x_rdwr_ordered_en ?
+			UDDRC_PCFGR_0_rdwr_ordered_en : 0) |
 	/* enable pagematch feature: keep port granted if same memory page */
 			UDDRC_PCFGR_0_rd_port_pagematch_en |
 	/* enable aging function for the read channel */
@@ -218,14 +116,14 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGR_0_rd_port_priority(0x3FF);
 
 	/* enable pagematch feature: keep port granted if same memory page */
-	UDDRC_MP->UDDRC_PCFGW_0	= UDDRC_PCFGW_0_wr_port_pagematch_en |
+		UDDRC_MP->UDDRC_PCFGW_0 = UDDRC_PCFGW_0_wr_port_pagematch_en |
 	/* enable aging for write on the port */
 			UDDRC_PCFGW_0_wr_port_aging_en |
 	/* initial load value of aging counter for write */
 			UDDRC_PCFGW_0_wr_port_priority(0x3FF);
 
 	/* arqos region mapping */
-	UDDRC_MP->UDDRC_PCFGQOS0_0 =
+		UDDRC_MP->UDDRC_PCFGQOS0_0 =
 			/* end of region 0 mapping */
 			UDDRC_PCFGQOS0_0_rqos_map_level1(umctl2_config->port_x_read_region0_last[0]) |
 			/* region 2 not used as this is single queue */
@@ -238,17 +136,17 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGQOS0_0_rqos_map_region2(2);
 
 	/* timeout for transactions on blue and red queue */
-	UDDRC_MP->UDDRC_PCFGQOS1_0 = UDDRC_PCFGQOS1_0_rqos_map_timeoutb(0x0100) |
+		UDDRC_MP->UDDRC_PCFGQOS1_0 = UDDRC_PCFGQOS1_0_rqos_map_timeoutb(0x0100) |
 			UDDRC_PCFGQOS1_0_rqos_map_timeoutr(0x0100);
 	/* awqos region mapping */
-	UDDRC_MP->UDDRC_PCFGWQOS0_0 =
+		UDDRC_MP->UDDRC_PCFGWQOS0_0 =
 			UDDRC_PCFGWQOS0_0_wqos_map_level1(umctl2_config->port_x_write_region0_last[0]) |
 			UDDRC_PCFGWQOS0_0_wqos_map_level2(umctl2_config->port_x_write_region1_last[0]) |
 			UDDRC_PCFGWQOS0_0_wqos_map_region0(0) |
 			UDDRC_PCFGWQOS0_0_wqos_map_region1(1);
 
 	/* timeout for write transactions in the regions */
-	UDDRC_MP->UDDRC_PCFGWQOS1_0 = UDDRC_PCFGWQOS1_0_wqos_map_timeout(0x0100);
+		UDDRC_MP->UDDRC_PCFGWQOS1_0 = UDDRC_PCFGWQOS1_0_wqos_map_timeout(0x0100);
 	}
 
 	/* if port is enabled */
@@ -268,14 +166,14 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGR_1_rd_port_priority(0x3FF);
 
 	/* enable pagematch feature: keep port granted if same memory page */
-	UDDRC_MP->UDDRC_PCFGW_1	= UDDRC_PCFGW_1_wr_port_pagematch_en |
+		UDDRC_MP->UDDRC_PCFGW_1	= UDDRC_PCFGW_1_wr_port_pagematch_en |
 	/* enable aging for write on the port */
 			UDDRC_PCFGW_1_wr_port_aging_en |
 	/* initial load value of aging counter for write */
 			UDDRC_PCFGW_1_wr_port_priority(0x3FF);
 
 	/* arqos region mapping */
-	UDDRC_MP->UDDRC_PCFGQOS0_1 =
+		UDDRC_MP->UDDRC_PCFGQOS0_1 =
 			/* end of region 0 mapping */
 			UDDRC_PCFGQOS0_1_rqos_map_level1(umctl2_config->port_x_read_region0_last[1]) |
 			/* region 2 not used as this is single queue */
@@ -288,7 +186,7 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGQOS0_1_rqos_map_region2(2);
 
 	/* timeout for transactions on blue and red queue */
-	UDDRC_MP->UDDRC_PCFGQOS1_1 = UDDRC_PCFGQOS1_1_rqos_map_timeoutb(0x040) |
+		UDDRC_MP->UDDRC_PCFGQOS1_1 = UDDRC_PCFGQOS1_1_rqos_map_timeoutb(0x040) |
 			UDDRC_PCFGQOS1_1_rqos_map_timeoutr(0x040);
 	/* awqos region mapping */
 	UDDRC_MP->UDDRC_PCFGWQOS0_1 =
@@ -298,16 +196,15 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGWQOS0_1_wqos_map_region1(1);
 
 	/* timeout for write transactions in the regions */
-	UDDRC_MP->UDDRC_PCFGWQOS1_1 = UDDRC_PCFGWQOS1_1_wqos_map_timeout(0x040);
+		UDDRC_MP->UDDRC_PCFGWQOS1_1 = UDDRC_PCFGWQOS1_1_wqos_map_timeout(0x040);
 	}
-
 	/* if port is enabled */
 	/* port 2 is dual queue, for PSS */
 	if (umctl2_config->axi_port_bitmap & MP_AXI_PORT_ENABLE(2)) {
 
 	/* keep read/writes in order ? */
-	UDDRC_MP->UDDRC_PCFGR_2 = (umctl2_config->port_x_rdwr_ordered_en ?
-				UDDRC_PCFGR_2_rdwr_ordered_en : 0) |
+		UDDRC_MP->UDDRC_PCFGR_2 = (umctl2_config->port_x_rdwr_ordered_en ?
+			UDDRC_PCFGR_2_rdwr_ordered_en : 0) |
 	/* enable pagematch feature: keep port granted if same memory page */
 			UDDRC_PCFGR_2_rd_port_pagematch_en |
 	/* enable aging function for the read channel */
@@ -318,14 +215,14 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGR_2_rd_port_priority(0x3FF);
 
 	/* enable pagematch feature: keep port granted if same memory page */
-	UDDRC_MP->UDDRC_PCFGW_2	= UDDRC_PCFGW_2_wr_port_pagematch_en |
+		UDDRC_MP->UDDRC_PCFGW_2	= UDDRC_PCFGW_2_wr_port_pagematch_en |
 	/* enable aging for write on the port */
 			UDDRC_PCFGW_2_wr_port_aging_en |
 	/* initial load value of aging counter for write */
 			UDDRC_PCFGW_2_wr_port_priority(0x3FF);
 
 	/* arqos region mapping */
-	UDDRC_MP->UDDRC_PCFGQOS0_2 =
+		UDDRC_MP->UDDRC_PCFGQOS0_2 =
 			/* end of region 0 mapping */
 			UDDRC_PCFGQOS0_2_rqos_map_level1(umctl2_config->port_x_read_region0_last[2]) |
 			/* end of region 1 mapping */
@@ -338,24 +235,23 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGQOS0_2_rqos_map_region2(2);
 
 	/* timeout for transactions on blue and red queue */
-	UDDRC_MP->UDDRC_PCFGQOS1_2 = UDDRC_PCFGQOS1_2_rqos_map_timeoutb(0x0200) |
+		UDDRC_MP->UDDRC_PCFGQOS1_2 = UDDRC_PCFGQOS1_2_rqos_map_timeoutb(0x0200) |
 			UDDRC_PCFGQOS1_2_rqos_map_timeoutr(0x0200);
 	/* awqos region mapping */
-	UDDRC_MP->UDDRC_PCFGWQOS0_2 =
+		UDDRC_MP->UDDRC_PCFGWQOS0_2 =
 			UDDRC_PCFGWQOS0_2_wqos_map_level1(umctl2_config->port_x_write_region0_last[2]) |
 			UDDRC_PCFGWQOS0_2_wqos_map_level2(umctl2_config->port_x_write_region1_last[2]) |
 			UDDRC_PCFGWQOS0_2_wqos_map_region0(0) |
 			UDDRC_PCFGWQOS0_2_wqos_map_region1(1);
 
 	/* timeout for write transactions in the regions */
-	UDDRC_MP->UDDRC_PCFGWQOS1_2 = UDDRC_PCFGWQOS1_2_wqos_map_timeout1(0x0200) |
+		UDDRC_MP->UDDRC_PCFGWQOS1_2 = UDDRC_PCFGWQOS1_2_wqos_map_timeout1(0x0200) |
 				UDDRC_PCFGWQOS1_2_wqos_map_timeout2(0x0200);
 	}
-
 	if (umctl2_config->axi_port_bitmap & MP_AXI_PORT_ENABLE(3)) {
 
 	/* keep read/writes in order ? */
-	UDDRC_MP->UDDRC_PCFGR_3 = (umctl2_config->port_x_rdwr_ordered_en ?
+		UDDRC_MP->UDDRC_PCFGR_3 = (umctl2_config->port_x_rdwr_ordered_en ?
 				UDDRC_PCFGR_3_rdwr_ordered_en : 0) |
 	/* enable pagematch feature: keep port granted if same memory page */
 			UDDRC_PCFGR_3_rd_port_pagematch_en |
@@ -367,14 +263,14 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGR_3_rd_port_priority(0x3FF);
 
 	/* enable pagematch feature: keep port granted if same memory page */
-	UDDRC_MP->UDDRC_PCFGW_3	= UDDRC_PCFGW_3_wr_port_pagematch_en |
+		UDDRC_MP->UDDRC_PCFGW_3	= UDDRC_PCFGW_3_wr_port_pagematch_en |
 	/* enable aging for write on the port */
 			UDDRC_PCFGW_3_wr_port_aging_en |
 	/* initial load value of aging counter for write */
 			UDDRC_PCFGW_3_wr_port_priority(0x3FF);
 
 	/* arqos region mapping */
-	UDDRC_MP->UDDRC_PCFGQOS0_3 =
+		UDDRC_MP->UDDRC_PCFGQOS0_3 =
 			/* end of region 0 mapping */
 			UDDRC_PCFGQOS0_3_rqos_map_level1(umctl2_config->port_x_read_region0_last[3]) |
 			UDDRC_PCFGQOS0_3_rqos_map_level2(umctl2_config->port_x_read_region1_last[3]) |
@@ -385,25 +281,25 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGQOS0_3_rqos_map_region2(2);
 
 	/* timeout for transactions on blue and red queue */
-	UDDRC_MP->UDDRC_PCFGQOS1_3 = UDDRC_PCFGQOS1_3_rqos_map_timeoutb(0x0100) |
+		UDDRC_MP->UDDRC_PCFGQOS1_3 = UDDRC_PCFGQOS1_3_rqos_map_timeoutb(0x0100) |
 			UDDRC_PCFGQOS1_3_rqos_map_timeoutr(0x0100);
 	/* awqos region mapping */
-	UDDRC_MP->UDDRC_PCFGWQOS0_3 =
+		UDDRC_MP->UDDRC_PCFGWQOS0_3 =
 			UDDRC_PCFGWQOS0_3_wqos_map_level1(umctl2_config->port_x_write_region0_last[3]) |
 			UDDRC_PCFGWQOS0_3_wqos_map_level2(umctl2_config->port_x_write_region1_last[3]) |
 			UDDRC_PCFGWQOS0_3_wqos_map_region0(0) |
 			UDDRC_PCFGWQOS0_3_wqos_map_region1(1);
 
 	/* timeout for write transactions in the regions */
-	UDDRC_MP->UDDRC_PCFGWQOS1_3 = UDDRC_PCFGWQOS1_3_wqos_map_timeout(0x0100);
+		UDDRC_MP->UDDRC_PCFGWQOS1_3 = UDDRC_PCFGWQOS1_3_wqos_map_timeout(0x0100);
 	}
 
 
 	if (umctl2_config->axi_port_bitmap & MP_AXI_PORT_ENABLE(4)) {
 
 	/* keep read/writes in order ? */
-	UDDRC_MP->UDDRC_PCFGR_4 = (umctl2_config->port_x_rdwr_ordered_en ?
-				UDDRC_PCFGR_4_rdwr_ordered_en : 0) |
+		UDDRC_MP->UDDRC_PCFGR_4 = (umctl2_config->port_x_rdwr_ordered_en ?
+			UDDRC_PCFGR_4_rdwr_ordered_en : 0) |
 	/* enable pagematch feature: keep port granted if same memory page */
 			UDDRC_PCFGR_4_rd_port_pagematch_en |
 	/* enable aging function for the read channel */
@@ -414,14 +310,14 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGR_4_rd_port_priority(0x3FF);
 
 	/* enable pagematch feature: keep port granted if same memory page */
-	UDDRC_MP->UDDRC_PCFGW_4	= UDDRC_PCFGW_4_wr_port_pagematch_en |
+		UDDRC_MP->UDDRC_PCFGW_4	= UDDRC_PCFGW_4_wr_port_pagematch_en |
 	/* enable aging for write on the port */
 			UDDRC_PCFGW_4_wr_port_aging_en |
 	/* initial load value of aging counter for write */
 			UDDRC_PCFGW_4_wr_port_priority(0x3FF);
 
 	/* arqos region mapping */
-	UDDRC_MP->UDDRC_PCFGQOS0_4 =
+		UDDRC_MP->UDDRC_PCFGQOS0_4 =
 			/* end of region 0 mapping */
 			UDDRC_PCFGQOS0_4_rqos_map_level1(umctl2_config->port_x_read_region0_last[4]) |
 			UDDRC_PCFGQOS0_4_rqos_map_level2(umctl2_config->port_x_read_region1_last[4]) |
@@ -432,25 +328,20 @@ inline static void uddrc_mp_setup()
 			UDDRC_PCFGQOS0_4_rqos_map_region2(2);
 
 	/* timeout for transactions on blue and red queue */
-	UDDRC_MP->UDDRC_PCFGQOS1_4 = UDDRC_PCFGQOS1_4_rqos_map_timeoutb(0x0100) |
+		UDDRC_MP->UDDRC_PCFGQOS1_4 = UDDRC_PCFGQOS1_4_rqos_map_timeoutb(0x0100) |
 			UDDRC_PCFGQOS1_4_rqos_map_timeoutr(0x0100);
 	/* awqos region mapping */
-	UDDRC_MP->UDDRC_PCFGWQOS0_4 =
+		UDDRC_MP->UDDRC_PCFGWQOS0_4 =
 			UDDRC_PCFGWQOS0_4_wqos_map_level1(umctl2_config->port_x_write_region0_last[4]) |
 			UDDRC_PCFGWQOS0_4_wqos_map_level2(umctl2_config->port_x_write_region1_last[4]) |
 			UDDRC_PCFGWQOS0_4_wqos_map_region0(0) |
 			UDDRC_PCFGWQOS0_4_wqos_map_region1(1);
 
 	/* timeout for write transactions in the regions */
-	UDDRC_MP->UDDRC_PCFGWQOS1_4 = UDDRC_PCFGWQOS1_4_wqos_map_timeout(0x0100);
+		UDDRC_MP->UDDRC_PCFGWQOS1_4 = UDDRC_PCFGWQOS1_4_wqos_map_timeout(0x0100);
 	}
-
-	UDDRC_MP->UDDRC_SARBASE0     = AT91C_BASE_DDRCS/(512*1024*1024); //base_addr = 0x6000_0000/512MB = 3
-	UDDRC_MP->UDDRC_SARSIZE0     = 3;                           		//nblocks=(2GB/512MB)-1=3
-
-	dbg_very_loud("sarbase %x, offset = %x\n", UDDRC_MP->UDDRC_SARBASE0,
-			OFFSETOF(struct uddrc_mp, UDDRC_SARBASE0));
 }
+
 
 inline static void uddrc_spin_cam_pipeline_empty()
 {
@@ -504,76 +395,89 @@ inline static void uddrc_derate()
 {
 #ifdef CONFIG_DDR_EXT_TEMP_RANGE
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
+	UDDRC_REGS->UDDRC_DERATEEN = UDDRC_DERATEEN_derate_enable |
+					UDDRC_DERATEEN_derate_value(0) |
+					UDDRC_DERATEEN_derate_byte(0);
 	/* Compute the MR4 read interval, according to below formula: */
 	/* 10C/sec * (ReadInterval + t_tsi + 1 ms) <= 2C */
 	/* <=> ReadInterval + t_tsi + SysRespDelay <= 200 ms */
 	/* <=> ReadInterval <= 200ms - t_tsi - SysRespDelay*/
-
-	unsigned long t_sysrespdelay = 1UL;
-	/* tTSI is in ms */
-	/* Use NS_TO_CYCLES and then multiply by 10^6, to avoid overflow */
-	unsigned long t_readinterval =
-		DIV_ROUND_UP(NS_TO_CYCLES_UP(200 - tTSI - t_sysrespdelay), 2);
-
-	t_readinterval *= 1000000; /* t_readinterval is ms, need to have it ns */
-
-	UDDRC_REGS->UDDRC_DERATEEN = UDDRC_DERATEEN_derate_enable |
-					UDDRC_DERATEEN_derate_value(0) |
-					UDDRC_DERATEEN_derate_byte(0);
-
 	UDDRC_REGS->UDDRC_DERATEINT =
-		UDDRC_DERATEINT_mr4_read_interval(t_readinterval);
+		UDDRC_DERATEINT_mr4_read_interval(T_TSI);
 #endif
 #endif
+}
+
+inline static void uddrc_configure_lowpwr()
+{
+	UDDRC_REGS->UDDRC_PWRTMG = UDDRC_PWRTMG_selfref_to_x32(2) |
+	/* minimum deep power down time */
+			UDDRC_PWRTMG_t_dpd_x4096(0xaf) |
+	/* after this many clocks of DDRC idle go to powerdown, multiples of 32 DFI clocks */
+			UDDRC_PWRTMG_powerdown_to_x32(3);
+	dbg_very_loud("PWRTMG %x\n", UDDRC_REGS->UDDRC_PWRTMG);
+}
+
+inline static void uddrc_ena_hw_lowpwr()
+{
+	/* Enable low power control */
+	UDDRC_REGS->UDDRC_HWLPCTL =
+				UDDRC_HWLPCTL_hw_lp_exit_idle_en |
+				UDDRC_HWLPCTL_hw_lp_idle_x32(0x4d);
+}
+
+inline static void uddrc_configure_refresh()
+{
+	/* number of 32 DFI clocks before critical refresh/page timer */
+	UDDRC_REGS->UDDRC_RFSHCTL0 =
+				UDDRC_RFSHCTL0_refresh_margin(0x2) |
+	/* speculative refresh, number of 32 DFI clocks until can run speculative refresh */
+				UDDRC_RFSHCTL0_refresh_to_x32(0x2) |
+	/* how many refresh timeouts can handle before refresh is forced to execute (+1)*/
+				UDDRC_RFSHCTL0_refresh_burst(0);
+	/* not disable refresh on ranks */
+	UDDRC_REGS->UDDRC_RFSHCTL3 = 0;
+	dbg_very_loud("RFSHCTL0 %x\n", UDDRC_REGS->UDDRC_RFSHCTL0);
+	dbg_very_loud("RFSHCTL3 %x\n", UDDRC_REGS->UDDRC_RFSHCTL3);
+}
+
+inline static void uddrc_rank_refresh()
+{
+	UDDRC_REGS->UDDRC_RFSHTMG =
+				UDDRC_RFSHTMG_t_rfc_min(T_RFC_MIN) |
+				UDDRC_RFSHTMG_t_rfc_nom_x32(T_RFC_NOM_X1_X32);
+	dbg_very_loud("RFSHTMG %x\n", UDDRC_REGS->UDDRC_RFSHTMG);
+}
+
+inline static void uddrc_dis_crc_parity()
+{
+	/* do not enable any CRC parity control */
+	UDDRC_REGS->UDDRC_CRCPARCTL0 = 0;
 }
 
 inline static void uddrc_init0()
 {
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	unsigned long pre_cke_x1024 = 1 +
-		DIV_ROUND_UP(NS_TO_CYCLES_UP(tPRECKE), 1024 * 2);
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long pre_cke_x1024 = 1 + DIV_ROUND_UP(TINIT1, 1024 * 2);
-#endif
-#ifdef CONFIG_DDR3
-	unsigned long post_cke_x1024 = 1 +
-		DIV_ROUND_UP(NS_TO_CYCLES_UP(TXPR), 1024 * 2);
-#endif
-#ifdef CONFIG_DDR2
-	unsigned long post_cke_x1024 = 2;
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long post_cke_x1024 = 1 + DIV_ROUND_UP(TPOSTCKE, 1024 * 2);
-#endif
-
 	/* DRAM init register 0 */
-	UDDRC_REGS->UDDRC_INIT0	=
+	UDDRC_REGS->UDDRC_INIT0 =
 	/* wait val * 1024 DFI cycles after CKE is high to start the DRAM init */
 	/* used in step 4) from DDR3 state machine init seq */
-				UDDRC_INIT0_post_cke_x1024(post_cke_x1024) |
+				UDDRC_INIT0_post_cke_x1024(POST_CKE_X1024) |
 	/* wait val * 1024 DFI cycles before CKE is high , to start the DRAM init */
 	/* used in step 3) from DDR3 state machine init seq */
-				UDDRC_INIT0_pre_cke_x1024(pre_cke_x1024)
+				UDDRC_INIT0_pre_cke_x1024(PRE_CKE_X1024)
 	;
 	dbg_very_loud("UMCTL2 INIT 0 %x\n", UDDRC_REGS->UDDRC_INIT0);
 }
 
+
 inline static void uddrc_init1()
 {
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	unsigned long dram_rstn_x1024 = 1 +
-			DIV_ROUND_UP(NS_TO_CYCLES_UP(200000), 1024 * 2);
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long dram_rstn_x1024 = 0;
-#endif
 	/* DRAM init register 1 */
 	/* number of cycles to assert DRAM reset during init sequence - dfi_reset_n */
 	/* used in step 2) from DDR3 state machine init seq */
-	UDDRC_REGS->UDDRC_INIT1	= UDDRC_INIT1_dram_rstn_x1024(dram_rstn_x1024) |
+	UDDRC_REGS->UDDRC_INIT1 = UDDRC_INIT1_dram_rstn_x1024(DRAM_RSTN_X1024) |
 	/* number of 32 DFI clocks to wait before driving OCD (driver calibration?) complete to DRAM */
-				UDDRC_INIT1_pre_ocd_x32(0)
+				UDDRC_INIT1_pre_ocd_x32(PRE_OCD_X32)
 	;
 	dbg_very_loud("UMCTL2 INIT 1 %x\n", UDDRC_REGS->UDDRC_INIT1);
 
@@ -581,296 +485,114 @@ inline static void uddrc_init1()
 
 inline static void uddrc_init2()
 {
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long min_stable_clock_x1 = DIV_ROUND_UP(TINIT2, 2);
-#endif
-#if defined(CONFIG_LPDDR2)
-	unsigned long idle_after_reset_x32 = DIV_ROUND_UP(TINIT4, 2 * 32);
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	UDDRC_REGS->UDDRC_INIT2 = 0;
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	UDDRC_REGS->UDDRC_INIT2 = UDDRC_INIT2_min_stable_clock_x1(min_stable_clock_x1)
-#if defined(CONFIG_LPDDR2)
-				| UDDRC_INIT2_idle_after_reset_x32(idle_after_reset_x32 + 1)
-#endif
-				;
-#endif
+	UDDRC_REGS->UDDRC_INIT2 = UDDRC_INIT2_min_stable_clock_x1(MIN_STABLE_CLOCK_X1)
+				| UDDRC_INIT2_idle_after_reset_x32(IDLE_AFTER_RESET_X32);
 	dbg_very_loud("UMCTL2 INIT 2 %x\n", UDDRC_REGS->UDDRC_INIT2);
 }
 
+
 inline static void uddrc_init3()
 {
-	/* DRAM init register 3 */
-	/* INIT3 : MR1 + MR0 (registers from module)
-	 MR0[11:9].wr		=3'b010 (6)
-	 MR0[8].dr    	=1'b1   (DLL-Reset)
-	 MR0[7].tm    	=1'b0
-	 MR0[6:4].cl.2:1	=3'b010 (6)
-	 MR0[3].bt    	=1'b0   (sequential burst)
-	 MR0[2].cl.0  	=1'b0   (7)
-	 MR0[1:0].bl   	=2'b00  (8 fixed)
-	 */
-#ifdef CONFIG_DDR3
-	unsigned int bTWR;
-	if (TWR < 5) {
-		bTWR = 1;
-	}
-	else {
-		if (TWR >= 16)
-			bTWR = 0;
-		if (TWR >= 13 && TWR <= 15)
-			bTWR = 7;
-		if (TWR == 11 || TWR == 12)
-			bTWR = 6;
-		if (TWR == 9 || TWR == 10)
-			bTWR = 5;
-		if (TWR >= 5 && TWR <= 8)
-			bTWR = TWR - 4;
-	}
-	UDDRC_REGS->UDDRC_INIT3	= UDDRC_INIT3_mr(
-				(1 << 0) | ((CL - 4) << 4) | (1 << 8) |
-				(bTWR << 9)) |
-				UDDRC_INIT3_emr(1 << 6);
-#endif
-#ifdef CONFIG_DDR2
-	UDDRC_REGS->UDDRC_INIT3 = UDDRC_INIT3_mr(
-				((BL == 8) ? (3 << 0) : (2 << 0))
-				 | (CL << 4) | (1 << 8) | ((TWR - 1) << 9));
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	UDDRC_REGS->UDDRC_INIT3 = UDDRC_INIT3_mr(3 | ((TWR - 2) << 5))
-				| UDDRC_INIT3_emr(RL - 2);
-#endif
+	UDDRC_REGS->UDDRC_INIT3 = UDDRC_INIT3_mr(MR) | UDDRC_INIT3_emr(EMR);
+	dbg_very_loud("UMCTL2 INIT 3v %x\n",UDDRC_INIT3_mr(MR) | UDDRC_INIT3_emr(EMR));
 	dbg_very_loud("UMCTL2 INIT 3 %x\n", UDDRC_REGS->UDDRC_INIT3);
 }
 
 inline static void uddrc_init4()
 {
 	/* DRAM init register 4 */
-	UDDRC_REGS->UDDRC_INIT4	=
-#ifdef CONFIG_DDR3
-				 UDDRC_INIT4_emr2(((CWL - 5) << 3)
-	#ifdef CONFIG_DDR_EXT_TEMP_RANGE
-	/* enable SRT bit (2x refresh rate for extended temperature range ) */
-				| (1 << 7)
-	/* enable ASR optional bit for auto self refresh */
-				| (1 << 6)
-	#endif
-
-				)
-#endif
-#ifdef CONFIG_DDR2
-	#ifdef CONFIG_DDR_EXT_TEMP_RANGE
-	/* enable SRT bit (2x refresh rate for extended temperature range ) */
-				UDDRC_INIT4_emr2(1 << 7)
-	#else
-				UDDRC_INIT4_emr2(0)
-	#endif
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-				UDDRC_INIT4_emr2(3)
-#endif
-				 | UDDRC_INIT4_emr3(0);
+	UDDRC_REGS->UDDRC_INIT4 = UDDRC_INIT4_emr2(EMR2) | UDDRC_INIT4_emr3(EMR3);
+	dbg_very_loud("UMCTL2 INIT 4 v %x\n",  UDDRC_INIT4_emr2(EMR2) | UDDRC_INIT4_emr3(EMR3));
 	dbg_very_loud("UMCTL2 INIT 4 %x\n", UDDRC_REGS->UDDRC_INIT4);
 }
 
-
 inline static void uddrc_init5()
 {
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	unsigned long dev_zqinit_x32 = 1 + DIV_ROUND_UP(512, 32*2);
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long dev_zqinit_x32 = 1 + DIV_ROUND_UP(TZQINIT, 32*2);
-	unsigned long max_auto_init_x1024 = 1 + DIV_ROUND_UP(TINIT5, 1024);
-#endif
 	/* DRAM init register 5 */
 	/* initial calibration time */
-	UDDRC_REGS->UDDRC_INIT5	= UDDRC_INIT5_dev_zqinit_x32(dev_zqinit_x32)
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-				| UDDRC_INIT5_max_auto_init_x1024(max_auto_init_x1024)
-#endif
-				;
+	UDDRC_REGS->UDDRC_INIT5 =
+				UDDRC_INIT5_dev_zqinit_x32(DEV_ZQINIT_X32) |
+				UDDRC_INIT5_max_auto_init_x1024(MAX_AUTO_INIT_X1024);
 	dbg_very_loud("UMCTL2 INIT 5 %x\n", UDDRC_REGS->UDDRC_INIT5);
+}
+
+inline static void uddrc_dimmctl()
+{
+	/* do not have address mirroring, do not have multi rank */
+	UDDRC_REGS->UDDRC_DIMMCTL = 0;
 }
 
 inline static void uddrc_dramtmg()
 {
-	unsigned long wr2pre = DIV_ROUND_UP(WL + (BL / 2) + TWR
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-		+ 1
-#endif
-		, 2);
-	unsigned long tfaw = DIV_ROUND_UP(TFAW, 2);
-	unsigned long t_ras_min = DIV_ROUND_UP(TRAS, 2);
-	unsigned long t_ras_max = DIV_ROUND_DOWN(
-			DIV_ROUND_DOWN(NS_TO_CYCLES_DOWN(tRASMAX), 1024) - 1, 2);
-#if defined(CONFIG_DDR3)
-	unsigned long t_xp = DIV_ROUND_UP(TXPDLL, 2);
-#endif
-#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long t_xp = DIV_ROUND_UP(TXP, 2);
-#endif
-
-#if defined(CONFIG_DDR2)
-	/* DDR2: tAL + BL/2 + max(tRTP, 2) - 2 */
-	unsigned long rd2pre = DIV_ROUND_UP(AL + (BL / 2) + MAX(TRTP, 2) - 2, 2);
-#endif
-#if defined(CONFIG_DDR3)
-	/* DDR3: tAL + max (tRTP, 4) */
-	unsigned long rd2pre =  DIV_ROUND_UP(AL + MAX(TRTP, 4), 2);
-#endif
-#if defined(CONFIG_LPDDR2)
-	/* LPDDR2-S4: BL/2 + max(tRTP,2) - 2. */
-	unsigned long rd2pre = DIV_ROUND_UP((BL / 2) + MAX(TRTP, 2) - 2, 2);
-#endif
-#if defined(CONFIG_LPDDR3)
-	/* - LPDDR3: BL/2 + max(tRTP,4) - 4 */
-	unsigned long rd2pre = DIV_ROUND_UP((BL / 2) + MAX(TRTP, 4) - 4, 2);
-#endif
-	unsigned long t_rc = DIV_ROUND_UP(TRC, 2);
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	/* DDR2/3/mDDR: RL + BL/2 + 2 - WL */
-	unsigned long rd2wr = DIV_ROUND_UP(RL + (BL / 2) + 2 - WL, 2);
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	/* LPDDR2/LPDDR3: RL + BL/2 + RU(tDQSCKmax/tCK) + 1 - WL */
-	unsigned long rd2wr = DIV_ROUND_UP(RL + (BL / 2) + TDQSCK_MAX + 1 - WL, 2);
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	/* DDR2/3/mDDR: CWL + BL/2 + tWTR */
-	unsigned long wr2rd = DIV_ROUND_UP(CWL + (BL / 2) + TWTR, 2);
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	/* LPDDR2/3: WL + BL/2 + tWTR + 1 */
-	unsigned long wr2rd = DIV_ROUND_UP(WL + (BL / 2) + TWTR, 2);
-#endif
-
-#if defined(CONFIG_DDR3)
-	unsigned long t_mod = DIV_ROUND_UP(TMOD, 2);
-#endif
-
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
-	unsigned long t_mrd = DIV_ROUND_UP(TMRD, 2);
-#endif
-	/* T_RCD : tRCD - tAL: Minimum time from activate to read or write command to same bank */
-	unsigned long t_rcd = DIV_ROUND_UP(TRCD - AL, 2);
-	/* tCCD: This is the minimum time between two reads or two writes */
-	unsigned long t_ccd = DIV_ROUND_UP(TCCD, 2);
-	/* tRRD: Minimum time between activates from bank "a" to bank "b" */
-	unsigned long t_rrd = DIV_ROUND_UP(TRRD, 2);
-	/* tRP: Minimum time from single-bank precharge to activate of same bank.*/
-	unsigned long t_rp = DIV_ROUND_DOWN(TRP, 2) + 1;
-	unsigned long t_cksrx = DIV_ROUND_UP(TCKSRX, 2);
-	unsigned long t_cksre = DIV_ROUND_UP(TCKSRE, 2);
-	unsigned long t_ckesr = DIV_ROUND_UP(TCKESR, 2);
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	unsigned long t_cke = DIV_ROUND_UP(TCKE, 2);
-	unsigned long t_xs_dll_x32 = DIV_ROUND_UP(TXSDLL, 32*2) + 1;
-	unsigned long t_xs_x32 = DIV_ROUND_UP(TXS, 32*2) + 1;
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	/* - LPDDR2/LPDDR3 mode: Set this to the larger of tCKE or tCKESR */
-	unsigned long t_cke = DIV_ROUND_UP(MAX(TCKE, TCKESR), 2);
-	unsigned long t_ckcsx = DIV_ROUND_UP(TCKCSX, 2);
-	unsigned long t_ckdpdx = DIV_ROUND_UP(TCKDPDX, 2);
-	unsigned long t_ckdpde = DIV_ROUND_UP(TCKDPDE, 2);
-	unsigned long t_ckpdx = DIV_ROUND_UP(TCKPDX, 2);
-	unsigned long t_ckpde = DIV_ROUND_UP(TCKPDE, 2);
-#endif
-
 	/* configure DRAMTMG* registers */
 	/* write to precharge on same bank :
 	 * (WriteLatency + Burstlength/2 + tWR write recovery)/2 - freq ratio 1:2
 	 */
-	UDDRC_REGS->UDDRC_DRAMTMG0 = UDDRC_DRAMTMG0_wr2pre(wr2pre) |
-	/* tFAW/2 (en clock) : valid if 8 or more banks */
-		UDDRC_DRAMTMG0_t_faw(tfaw) |
-	/* tRAS max, max time activate to precharge, in amounts of 1024 clocks */
-		UDDRC_DRAMTMG0_t_ras_max(t_ras_max) |
 	/* tRAS min */
-		UDDRC_DRAMTMG0_t_ras_min(t_ras_min);
-
+	UDDRC_REGS->UDDRC_DRAMTMG0 =
+				UDDRC_DRAMTMG0_t_ras_min(T_RAS_MIN) |\
+	/* tRAS max, max time activate to precharge, in amounts of 1024 clocks */
+				UDDRC_DRAMTMG0_t_ras_max(T_RAS_MAX) |\
+	/* tFAW/2 (en clock) : valid if 8 or more banks */
+				UDDRC_DRAMTMG0_t_faw(T_FAW) |\
+				UDDRC_DRAMTMG0_wr2pre(WR2PRE);
 	/* time from powerdown exit until any operation */
-	UDDRC_REGS->UDDRC_DRAMTMG1 = UDDRC_DRAMTMG1_t_xp(t_xp) |
-	/* read to precharge of same bank, (tAL + max(tRTP,4))/2 */
-			UDDRC_DRAMTMG1_rd2pre(rd2pre) |
 	/* tRC - row cycle ? time between activates to same bank , = tRCD + tWR + tRP = tRAS + tRP */
-			UDDRC_DRAMTMG1_t_rc(t_rc);
-
+	UDDRC_REGS->UDDRC_DRAMTMG1 =
+				UDDRC_DRAMTMG1_t_rc(T_RC) |\
+	/* read to precharge of same bank, (tAL + max(tRTP,4))/2 */
+				UDDRC_DRAMTMG1_rd2pre(RD2PRE) |\
+				UDDRC_DRAMTMG1_t_xp(T_XP);
 	/* tWL - write latency, not required in DDR3. Only for LPDDR2*/
-	UDDRC_REGS->UDDRC_DRAMTMG2 =
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-			UDDRC_DRAMTMG2_write_latency(DIV_ROUND_UP(WL, 2)) |
-	/* tRL - read latency, not required in DDR3. Only for LPDDR2 */
-			UDDRC_DRAMTMG2_read_latency(DIV_ROUND_UP(RL, 2)) |
-#endif
-
-	/* read to write latency = (tRL + BL/2 +2 - tWL )/2 */
-			UDDRC_DRAMTMG2_rd2wr(rd2wr) |
 	/* write to read latency = (Cas write latency CWL + BL/2 + tWTR (internal write to read ))/2 */
-			UDDRC_DRAMTMG2_wr2rd(wr2rd);
-
+	UDDRC_REGS->UDDRC_DRAMTMG2 =
+				UDDRC_DRAMTMG2_wr2rd(WR2RD) |\
+	/* read to write latency = (tRL + BL/2 +2 - tWL )/2 */
+				UDDRC_DRAMTMG2_rd2wr(RD2WR) |\
+	/* tRL - read latency, not required in DDR3. Only for LPDDR2 */
+				UDDRC_DRAMTMG2_read_latency(READ_LATENCY) |\
+				UDDRC_DRAMTMG2_write_latency(WRITE_LATENCY);
 	/* tMRD/2 (cycles to wait after a mode reg write or read) */
 	UDDRC_REGS->UDDRC_DRAMTMG3 =
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2) || defined(CONFIG_LPDDR3)
-			UDDRC_DRAMTMG3_t_mrd(t_mrd) 
-#endif
-#if defined(CONFIG_LPDDR2)
-			UDDRC_DRAMTMG3_t_mrw(DIV_ROUND_UP(TMRW, 2))
-#endif
-#if defined(CONFIG_LPDDR3)
-			| UDDRC_DRAMTMG3_t_mrw(DIV_ROUND_UP(TMRW, 2))
-#endif
-#ifdef CONFIG_DDR3
+				UDDRC_DRAMTMG3_t_mrd(T_MRD) |\
 	/* tMOD/2 : cycles between load mode command and following non-load mode command */
-			| UDDRC_DRAMTMG3_t_mod(t_mod)
-#endif
-			;
-
+				UDDRC_DRAMTMG3_t_mod(T_MOD) |\
+				UDDRC_DRAMTMG3_t_mrw(T_MRW);
 	/* (tRCD - tAL)/2 : row to column delay - activate to read or write to same bank */
-	UDDRC_REGS->UDDRC_DRAMTMG4 = UDDRC_DRAMTMG4_t_rcd(t_rcd) |
-	/* tCCD/2 :  minimum time between two reads or two writes */
-			UDDRC_DRAMTMG4_t_ccd(t_ccd) |
-	/* tRRD/2 : minimum time between activates from bank a to bank b */
-			UDDRC_DRAMTMG4_t_rrd(t_rrd) |
 	/* tRP : minimum time from precharge to activate of the same bank , precharge delay */
-			UDDRC_DRAMTMG4_t_rp(t_rp);
-
+	UDDRC_REGS->UDDRC_DRAMTMG4 =
+				UDDRC_DRAMTMG4_t_rp(T_RP) |\
+	/* tRRD/2 : minimum time between activates from bank a to bank b */
+				UDDRC_DRAMTMG4_t_rrd(T_RRD) |\
+	/* tCCD/2 :  minimum time between two reads or two writes */
+				UDDRC_DRAMTMG4_t_ccd(T_CCD) |\
+				UDDRC_DRAMTMG4_t_rcd(T_RCD);
 	/* TCKSRX/2 (time before self refresh exit that CK is maintained as a valid clock before issuing SRX) */
-	UDDRC_REGS->UDDRC_DRAMTMG5 = UDDRC_DRAMTMG5_t_cksrx(t_cksrx) |
-	/* TCKSRE/2 (time after self refresh down entry that CK is maintained as a valid clock) */
-			UDDRC_DRAMTMG5_t_cksre(t_cksre) |
-	/* (tCKE+1)/2 (minimum CKE Low width for self refresh to exit) */
-			UDDRC_DRAMTMG5_t_ckesr(t_ckesr) |
 	/* RoundUp(tCKE/2) */
-			UDDRC_DRAMTMG5_t_cke(t_cke); 
-
+	UDDRC_REGS->UDDRC_DRAMTMG5 =
+				UDDRC_DRAMTMG5_t_cke(T_CKE) |\
+	/* (tCKE+1)/2 (minimum CKE Low width for self refresh to exit) */
+				UDDRC_DRAMTMG5_t_ckesr(T_CKESR) |\
+	/* TCKSRE/2 (time after self refresh down entry that CK is maintained as a valid clock) */
+				UDDRC_DRAMTMG5_t_cksre(T_CKSRE) |\
+				UDDRC_DRAMTMG5_t_cksrx(T_CKSRX);
+	/* LPDDR only */
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	/* LPDDR only */
-	UDDRC_REGS->UDDRC_DRAMTMG6 = UDDRC_DRAMTMG6_t_ckcsx(t_ckcsx) |
-				 UDDRC_DRAMTMG6_t_ckdpdx(t_ckdpdx) |
-				 UDDRC_DRAMTMG6_t_ckdpde(t_ckdpde);
+	UDDRC_REGS->UDDRC_DRAMTMG6 =
+				UDDRC_DRAMTMG6_t_ckcsx(T_CKCSX) |\
+				UDDRC_DRAMTMG6_t_ckdpdx(T_CKDPDX) |\
+				UDDRC_DRAMTMG6_t_ckdpde(T_CKDPDE);
 
-	/* LPDDR only */
-	UDDRC_REGS->UDDRC_DRAMTMG7 = UDDRC_DRAMTMG7_t_ckpdx(t_ckpdx) |
-				 UDDRC_DRAMTMG7_t_ckpde(t_ckpde);
+	UDDRC_REGS->UDDRC_DRAMTMG7 =
+				UDDRC_DRAMTMG7_t_ckpdx(T_CKPDX) |\
+				UDDRC_DRAMTMG7_t_ckpde(T_CKPDE);
 #endif
-
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
 	/* tXSDLL/2 : exit self refresh to commands requiring a locked DLL */
-	UDDRC_REGS->UDDRC_DRAMTMG8 = UDDRC_DRAMTMG8_t_xs_dll_x32(t_xs_dll_x32) |
 	/* tXS/2 : exit self refresh to commands not requiring a locked DLL */
-			UDDRC_DRAMTMG8_t_xs_x32(t_xs_x32);
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	UDDRC_REGS->UDDRC_DRAMTMG8 = 0;
-#endif
-
-	UDDRC_REGS->UDDRC_DRAMTMG14 = UDDRC_DRAMTMG14_t_xsr(0xA0);
-
+	UDDRC_REGS->UDDRC_DRAMTMG8 =
+				UDDRC_DRAMTMG8_t_xs_x32(T_XS_X32) |\
+				UDDRC_DRAMTMG8_t_xs_dll_x32(T_XS_DLL_X32);
+	//UDDRC_REGS->UDDRC_DRAMTMG14 = UDDRC_DRAMTMG14_t_xsr(T_XSR);
 	dbg_very_loud("DRAMTMG0 %x\n", UDDRC_REGS->UDDRC_DRAMTMG0);
 	dbg_very_loud("DRAMTMG1 %x\n", UDDRC_REGS->UDDRC_DRAMTMG1);
 	dbg_very_loud("DRAMTMG2 %x\n", UDDRC_REGS->UDDRC_DRAMTMG2);
@@ -883,469 +605,182 @@ inline static void uddrc_dramtmg()
 	dbg_very_loud("DRAMTMG14 %x\n", UDDRC_REGS->UDDRC_DRAMTMG14);
 }
 
-inline static void uddrc_addrmap_init()
+inline static void uddrc_config_zq_calib()
 {
-	/* HIF address to bank address:
-	This is explained mapping, need a width of 200 columns for a proper display.
-
-
-							   bank address:			bit2 bit1 bit0
-							   col address:						bit11bit10bit9 bit8 bit7 bit6 bit5 bit4 bit3 bit2
-HIF bit:											4+8  3+8  2+8	-     -   9+0  8+0  7+0  6+0  5+0  4+0  3+0  2+0
-=												12   11   10	          9    8    7    6    5    4    3    2
-
-row address: bit15bit14bit13bit12bit11bit10bit9 bit8 bit7 bit6 bit5 bit4 bit3 bit2 bit1 bit0
-HIF bit:     -    7+20 7+19 7+18 7+17 7+16 7+15 7+14 7+13 7+12 7+11 7+10 7+9  7+8  7+7  7+6
-=	     -    27   26   25   24   23   22   21   20   19   18   17   16   15   14   13
-
-	 */
-
-#if defined(CONFIG_DDR_256_MBIT)
-#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)
-	/* 9 column bits, 3 bank bits, 13 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(7) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(7) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(7);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(31);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(6) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(6) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(6) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(6);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(6) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	
-#else
-	#error "No SDRAM addressin defined"
-#endif
-
-#elif defined(CONFIG_DDR_512_MBIT)
-
-#if defined(CONFIG_DDR2) || defined(CONFIG_LPDDR2)
-	/* 10 column bits, 3 bank bits, 13 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(7) | 
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-
-#elif defined(CONFIG_DDR3)
-	/* 10 column bits, 3 bank bits, 12 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-#else
-	#error "No SDRAM addressin defined"
-#endif
-
-#elif defined(CONFIG_DDR_1_GBIT)
-#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || (defined(CONFIG_LPDDR2) && defined CONFIG_BANK_8)
-	/* 10 column bits, 3 bank bits, 13 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-#elif (defined(CONFIG_LPDDR2) && defined CONFIG_BANK_4)
-	/* 10 column bits, 3 bank bits, 14 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-
-#else
-	#error "No SDRAM addressing defined"
-#endif
-
-#elif defined(CONFIG_DDR_2_GBIT)
-#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || (defined(CONFIG_LPDDR2) && defined CONFIG_BANK_8)
-	/* 10 column bits, 3 bank bits, 14 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(7) | 
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-#elif (defined(CONFIG_LPDDR2) && defined CONFIG_BANK_4)
-	/* 10 column bits, 2 bank bits, 15 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(63);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(6) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(6) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(6) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(6);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(6) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(6) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(6) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-
-#else
-	#error "No SDRAM addressing defined"
-#endif
-
-#elif defined(CONFIG_DDR_4_GBIT) 
-#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) 
-	/* 10 column bits, 3 bank bits, 15 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-#elif defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	/* 11 column bits, 3 bank bits, 14 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(9) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(9) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(9);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(0) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(8) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(8) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(8) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(8);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(8) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(8) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(15) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-#else
-	#error "No SDRAM addressin defined"
-#endif
-
-#elif defined(CONFIG_DDR_8_GBIT)
-#if defined(CONFIG_DDR3)
-	/* 10 column bits, 3 bank bits, 16 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2) 
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(7);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-#elif defined(CONFIG_LPDDR2)|| defined(CONFIG_LPDDR3)
-#if 0 // x16 addressing
-	/* 11 column bits, 3 bank bits, 15 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(9) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(9) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(9);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(0) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(8) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(8) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(8) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(8);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(8) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(8) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(8) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-#endif
-#if 1 // x32 addressing
-	/* 10 column bits, 3 bank bits, 15 row bits */
-	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b1(8) |
-								 UDDRC_ADDRMAP1_addrmap_bank_b2(8);
-	// internal base = 2,3,4 (ba2 unused --> field=31)
-	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b3(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b4(0) |
-								 UDDRC_ADDRMAP2_addrmap_col_b5(0);
-	// internal base = 2,3,4,5
-	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b7(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b8(0) |
-								 UDDRC_ADDRMAP3_addrmap_col_b9(0);
-	// internal base = 6,7,8,9
-	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(31) |
-								 UDDRC_ADDRMAP4_addrmap_col_b11(31);
-	// internal base = 10,11 (unused columns field=31) (b10 is reserved for auto-precharge in DDR2)
-	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b1(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b2_10(7) |
-								 UDDRC_ADDRMAP5_addrmap_row_b11(7);
-	// internal base = 6,7,8,17
-	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b13(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b14(7) |
-								 UDDRC_ADDRMAP6_addrmap_row_b15(15);
-	// internal base = 18 (unused rows field=15)
-	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; // unused because UDDRC_ADDRMAP5_addrmap_row_b2_10!=15
-#endif
-#else
-	#error "No SDRAM addressin defined"
-#endif
-#endif
+	/* enable generation of auto ZQ calibration by controller */
+	/* number of DFI nops to run after ZQ calibration short */
+	UDDRC_REGS->UDDRC_ZQCTL0 =
+				UDDRC_ZQCTL0_t_zq_short_nop(T_ZQ_SHORT_NOP) |\
+	/* ZQ calibration resistor is not shared between ranks */
+	/* number of DFI nops to run after ZQ calibration long */
+				UDDRC_ZQCTL0_t_zq_long_nop(T_ZQ_LONG_NOP);
+	UDDRC_REGS->UDDRC_ZQCTL1 =
+				UDDRC_ZQCTL1_t_zq_short_interval_x1024(T_ZQ_SHORT_INTERVAL_X1024) |
+				UDDRC_ZQCTL1_t_zq_reset_nop(T_ZQ_RESET_NOP);
+	dbg_very_loud("ZQCTL0 %x\n", UDDRC_REGS->UDDRC_ZQCTL0);
+	dbg_very_loud("ZQCTL1 %x\n", UDDRC_REGS->UDDRC_ZQCTL1);
 }
 
-inline static void uddrc_configure_refresh()
+inline static void uddrc_config_dfi()
 {
-	/* after this many clocks of DDRC idle go to selfrefresh, multiples of 32 DFI clocks */
-	UDDRC_REGS->UDDRC_PWRTMG = UDDRC_PWRTMG_selfref_to_x32(2) |
-	/* minimum deep power down time */
-			UDDRC_PWRTMG_t_dpd_x4096(0xaf) |
-	/* after this many clocks of DDRC idle go to powerdown, multiples of 32 DFI clocks */
-			UDDRC_PWRTMG_powerdown_to_x32(3);
+	/* DFI clocks after assert/deassert of signals until PHY-DRAM reflects them */
+	/* clocks from write command to wrdata_en tWRlat*/
+	UDDRC_REGS->UDDRC_DFITMG0 =
+				UDDRC_DFITMG0_dfi_tphy_wrlat(
+				((WLTPHY & 0x1) ? ((WLTPHY - 1) / 2) : ((WLTPHY - 2) / 2))) |\
+	/* clocks from assertion of wrdata_en to write data is driven */
+				UDDRC_DFITMG0_dfi_tphy_wrdata(0) |\
+	/* select to use DFI or DFI PHY clock for dfi signals */
+	/* clocks from assertion of DFI signals until dfi_rddata_en -phy specific*/
+				UDDRC_DFITMG0_dfi_t_rddata_en(
+				((RLTPHY & 0x1) ? ((RLTPHY - 3) / 2) : ((RLTPHY - 2) / 2))) |\
+				UDDRC_DFITMG0_dfi_t_ctrl_delay(2);
+	/* clocks between dfi_cs asserted and dfi_parity_in is driven */
+	/* clocks between dfi_dram-clk_disable asserted until first rising edge to DRAM clock */
+	UDDRC_REGS->UDDRC_DFITMG1 =
+				UDDRC_DFITMG1_dfi_t_dram_clk_enable(2) |\
+	/* clocks between dfi_dram_clk_disable asserted until clock to DRAM maintains low value */
+				UDDRC_DFITMG1_dfi_t_dram_clk_disable(2) |\
+	/* clocks between dfi_wrdata_en asserted and data transfered completed on bus */
+				UDDRC_DFITMG1_dfi_t_wrdata_delay(0);
+	/* clocks for tlp_resp time low power response time - assumed*/
+	UDDRC_REGS->UDDRC_DFILPCFG0 =
+	/* clocks to drive on dfi_lp_wakeup when enter power down - 16 cycles should be 0x3 or 0x0 ? */
+				UDDRC_DFILPCFG0_dfi_lp_wakeup_pd (7) |\
+	/* clocks to drive on dfi_lp_wakeup when enter self refresh - 4096 cycles should be 0x8 or 0x80 ? */
+				UDDRC_DFILPCFG0_dfi_lp_wakeup_sr (7) |\
+				UDDRC_DFILPCFG0_dfi_lp_wakeup_dpd(7)|\
+				UDDRC_DFILPCFG0_dfi_tlp_resp(7);
+	/* enable automatic generation of dfi_ctrlupd_req */
+	/* min clocks that dfi_ctrlupd_req can assert */
+	UDDRC_REGS->UDDRC_DFIUPD0 =
+				UDDRC_DFIUPD0_dfi_t_ctrlup_min(3) |\
+	/* max clocks that dfi_ctrlupd_req can assert */
+				UDDRC_DFIUPD0_dfi_t_ctrlup_max(1023);
+	/* min number of 1024 clocks between DFI update requests initiated by umctl2 */
+	UDDRC_REGS->UDDRC_DFIUPD1 =
+				UDDRC_DFIUPD1_dfi_t_ctrlupd_interval_max_x1024\
+				(255) |\
+				UDDRC_DFIUPD1_dfi_t_ctrlupd_interval_min_x1024\
+				(240);
+	/* enable support for acking phy initiated updates */
+	UDDRC_REGS->UDDRC_DFIUPD2 = UDDRC_DFIUPD2_dfi_phyupd_en;
+	/* enable support for acking phy initiated updates */
+	/* disable PHY master interface */
+	UDDRC_REGS->UDDRC_DFIPHYMSTR = 0;
 
-	/* number of 32 DFI clocks before critical refresh/page timer */
-	UDDRC_REGS->UDDRC_RFSHCTL0 = UDDRC_RFSHCTL0_refresh_margin(0x2) |
-	/* speculative refresh, number of 32 DFI clocks until can run speculative refresh */
-			UDDRC_RFSHCTL0_refresh_to_x32(0x2) |
-	/* how many refresh timeouts can handle before refresh is forced to execute (+1)*/
-			UDDRC_RFSHCTL0_refresh_burst(0);
+	dbg_very_loud("DFITMG0 %x\n", UDDRC_REGS->UDDRC_DFITMG0);
+	dbg_very_loud("DFITMG1 %x\n", UDDRC_REGS->UDDRC_DFITMG1);
+	dbg_very_loud("DFILPCFG0 %x\n", UDDRC_REGS->UDDRC_DFILPCFG0);
+	dbg_very_loud("DFIUPD0 %x\n", UDDRC_REGS->UDDRC_DFIUPD0);
+	dbg_very_loud("DFIUPD1 %x\n", UDDRC_REGS->UDDRC_DFIUPD1);
+}
 
-	/* not disable refresh on ranks */
-	UDDRC_REGS->UDDRC_RFSHCTL3 = 0;
+inline static void uddrc_addrmap_init()
+{
+	unsigned int addrmap_col_b2;
+	unsigned int addrmap_col_b3;
+	unsigned int addrmap_col_b4;
+	unsigned int addrmap_col_b5;
+	unsigned int addrmap_col_b6;
+	unsigned int addrmap_col_b7;
+	unsigned int addrmap_col_b8;
+	unsigned int addrmap_col_b9;
+	unsigned int addrmap_col_b10;
+	unsigned int addrmap_col_b11;
+	unsigned int addrmap_bank_b0;
+	unsigned int addrmap_bank_b1;
+	unsigned int addrmap_bank_b2;
+	unsigned int addrmap_row_b0;
+	unsigned int addrmap_row_b1;
+	unsigned int addrmap_row_b2_10;
+	unsigned int addrmap_row_b11;
+	unsigned int addrmap_row_b12;
+	unsigned int addrmap_row_b13;
+	unsigned int addrmap_row_b14;
+	unsigned int addrmap_row_b15;
 
-	dbg_very_loud("PWRTMG %x\n", UDDRC_REGS->UDDRC_PWRTMG);
-	dbg_very_loud("RFSHCTL0 %x\n", UDDRC_REGS->UDDRC_RFSHCTL0);
-	dbg_very_loud("RFSHCTL3 %x\n", UDDRC_REGS->UDDRC_RFSHCTL3);
+	/* To calculate the pagematch attribute of a port, the XPI needs to
+	know logical to physical address mapping. Logical address is the
+	command address of a transaction as presented on one of the ports.
+	A physical address is the set of bank group, bank, row and column
+	address as presented to the SDRAM memory. The actual conversion
+	from logical to physical address is performed by the DDRC (see
+	ADDRMAPx registers with x=0 to 11). The bank address locations
+	are indicated in the ADDRMAP1 register. The row address locations
+	are indicated in ADDRMAP5, ADDRMAP6, and ADDRMAP7 registers and
+	depending on the value of the ADDRMAP5.addrmap_row_b2_10 field,
+	in ADDRMAP9, ADDRMAP10 and ADDRMAP11 registers (see UMCTL2_REGS
+	Registers). The XPI block uses these registers to determine the
+	pagematch attribute of each DDRC command forwarded to the PA. */
+
+	/* base_addr = 0x6000_0000/512MB = 3 */
+	UDDRC_MP->UDDRC_SARBASE0 = AT91C_BASE_DDRCS / (512 * 1024 * 1024);
+	/* nblocks=(2GB/512MB)-1 = 3 */
+	UDDRC_MP->UDDRC_SARSIZE0 = 3;
+	dbg_very_loud("sarbase %x, offset = %x\n", UDDRC_MP->UDDRC_SARBASE0,
+			OFFSETOF(struct uddrc_mp, UDDRC_SARBASE0));
+
+	addrmap_col_b2  = (NB_COL_BITS >  2) ? 0 : 15; /* internal base = 2  (unused col  = 15)*/
+	addrmap_col_b3  = (NB_COL_BITS >  3) ? 0 : 15; /* internal base = 3  (unused col  = 15)*/
+	addrmap_col_b4  = (NB_COL_BITS >  4) ? 0 : 15; /* internal base = 4  (unused col  = 15)*/
+	addrmap_col_b5  = (NB_COL_BITS >  5) ? 0 : 15; /* internal base = 5  (unused col  = 15)*/
+	addrmap_col_b6  = (NB_COL_BITS >  6) ? 0 : 31; /* internal base = 6  (unused col  = 31)*/
+	addrmap_col_b7  = (NB_COL_BITS >  7) ? 0 : 31; /* internal base = 7  (unused col  = 31)*/
+	addrmap_col_b8  = (NB_COL_BITS >  8) ? 0 : 31; /* internal base = 8  (unused col  = 31)*/
+	addrmap_col_b9  = (NB_COL_BITS >  9) ? 0 : 31; /* internal base = 9  (unused col  = 31)*/
+	addrmap_col_b10 = (NB_COL_BITS > 10) ? 0 : 31; /* internal base = 10 (unused col  = 31)*/
+	addrmap_col_b11 = (NB_COL_BITS > 11) ? 0 : 31; /* internal base = 11 (unused col  = 31)*/
+	addrmap_bank_b0 = (NB_BANK_BITS > 0) ? (NB_COL_BITS - 2) : 63; /* internal base = 2 (unused ba  = 63) */
+	addrmap_bank_b1 = (NB_BANK_BITS > 1) ? (NB_COL_BITS - 2) : 63; /* internal base = 3 (unused ba  = 63) */
+	addrmap_bank_b2 = (NB_BANK_BITS > 2) ? (NB_COL_BITS - 2) : 63; /* internal base = 4 (unused ba  = 63) */
+	addrmap_row_b0  = (NB_ROW_BITS >  0) ? (NB_COL_BITS + NB_BANK_BITS - 6) : 31;
+	/* internal base = 6  (unused row  = 31) */
+	addrmap_row_b1     = (NB_ROW_BITS >  1) ? (NB_COL_BITS + NB_BANK_BITS - 6) : 31;
+	/* internal base = 7  (unused row  = 31) */
+	addrmap_row_b2_10  = (NB_ROW_BITS >  2) ? (NB_COL_BITS + NB_BANK_BITS - 6) : 31;
+	/* internal base = 8  (unused row  = 31) */
+	addrmap_row_b11    = (NB_ROW_BITS > 11) ? (NB_COL_BITS + NB_BANK_BITS - 6) : 31;
+	/* internal base = 17 (unused row  = 31) */
+	addrmap_row_b12    = (NB_ROW_BITS > 12) ? (NB_COL_BITS + NB_BANK_BITS - 6) : 15;
+	/* internal base = 18 (unused row  = 15) */
+	addrmap_row_b13    = (NB_ROW_BITS > 13) ? (NB_COL_BITS + NB_BANK_BITS - 6) : 15;
+	/* internal base = 19 (unused row  = 15) */
+	addrmap_row_b14    = (NB_ROW_BITS > 14) ? (NB_COL_BITS + NB_BANK_BITS - 6) : 15;
+	/* internal base = 20 (unused row  = 15) */
+	addrmap_row_b15    = (NB_ROW_BITS > 15) ? (NB_COL_BITS + NB_BANK_BITS - 6) : 15;
+	/* internal base = 21 (unused row  = 15) */
+
+	UDDRC_REGS->UDDRC_ADDRMAP1 = UDDRC_ADDRMAP1_addrmap_bank_b0(addrmap_bank_b0) |
+					UDDRC_ADDRMAP1_addrmap_bank_b1(addrmap_bank_b1) |
+					UDDRC_ADDRMAP1_addrmap_bank_b2(addrmap_bank_b2);
+	UDDRC_REGS->UDDRC_ADDRMAP2 = UDDRC_ADDRMAP2_addrmap_col_b2(addrmap_col_b2 ) |
+					UDDRC_ADDRMAP2_addrmap_col_b3(addrmap_col_b3 ) |
+					UDDRC_ADDRMAP2_addrmap_col_b4(addrmap_col_b4 ) |
+					UDDRC_ADDRMAP2_addrmap_col_b5(addrmap_col_b5 );
+	UDDRC_REGS->UDDRC_ADDRMAP3 = UDDRC_ADDRMAP3_addrmap_col_b6(addrmap_col_b6 ) |
+					UDDRC_ADDRMAP3_addrmap_col_b7(addrmap_col_b7 ) |
+					UDDRC_ADDRMAP3_addrmap_col_b8(addrmap_col_b8 ) |
+					UDDRC_ADDRMAP3_addrmap_col_b9(addrmap_col_b9 );
+	UDDRC_REGS->UDDRC_ADDRMAP4 = UDDRC_ADDRMAP4_addrmap_col_b10(addrmap_col_b10) |
+					UDDRC_ADDRMAP4_addrmap_col_b11(addrmap_col_b11);
+	UDDRC_REGS->UDDRC_ADDRMAP5 = UDDRC_ADDRMAP5_addrmap_row_b0(addrmap_row_b0) |
+					UDDRC_ADDRMAP5_addrmap_row_b1(addrmap_row_b1) |
+					UDDRC_ADDRMAP5_addrmap_row_b2_10(addrmap_row_b2_10) |
+					UDDRC_ADDRMAP5_addrmap_row_b11(addrmap_row_b11);
+	UDDRC_REGS->UDDRC_ADDRMAP6 = UDDRC_ADDRMAP6_addrmap_row_b12(addrmap_row_b12) |
+					UDDRC_ADDRMAP6_addrmap_row_b13(addrmap_row_b13) |
+					UDDRC_ADDRMAP6_addrmap_row_b14(addrmap_row_b14) |
+					UDDRC_ADDRMAP6_addrmap_row_b15(addrmap_row_b15);
+	UDDRC_REGS->UDDRC_ADDRMAP9   = 0; /* unused because UDDRC_ADDRMAP5_ADDRMAP_ROW_B2_10!=15 */
+	UDDRC_REGS->UDDRC_ADDRMAP10  = 0; /* unused because UDDRC_ADDRMAP5_ADDRMAP_ROW_B2_10!=15 */
+	UDDRC_REGS->UDDRC_ADDRMAP11  = 0; /* unused because UDDRC_ADDRMAP5_ADDRMAP_ROW_B2_10!=15 */
+	dbg_very_loud("UDDRC_REGS->UDDRC_ADDRMAP1 =%x\n",UDDRC_REGS->UDDRC_ADDRMAP1);
+	dbg_very_loud("UDDRC_REGS->UDDRC_ADDRMAP2 =%x\n",UDDRC_REGS->UDDRC_ADDRMAP2);
+	dbg_very_loud("UDDRC_REGS->UDDRC_ADDRMAP3 =%x\n",UDDRC_REGS->UDDRC_ADDRMAP3);
+	dbg_very_loud("UDDRC_REGS->UDDRC_ADDRMAP4 =%x\n",UDDRC_REGS->UDDRC_ADDRMAP4);
+	dbg_very_loud("UDDRC_REGS->UDDRC_ADDRMAP5 =%x\n",UDDRC_REGS->UDDRC_ADDRMAP5);
+	dbg_very_loud("UDDRC_REGS->UDDRC_ADDRMAP6 =%x\n",UDDRC_REGS->UDDRC_ADDRMAP6);
 }
 
 inline static void uddrc_mr1()
@@ -1361,59 +796,6 @@ inline static void uddrc_mr1()
 	dbg_very_loud("MRCTRL1 %x\n", UDDRC_REGS->UDDRC_MRCTRL1);
 }
 
-inline static void uddrc_ena_hw_lowpwr()
-{
-	/* Enable low power control */
-	UDDRC_REGS->UDDRC_HWLPCTL = UDDRC_HWLPCTL_hw_lp_exit_idle_en |
-			UDDRC_HWLPCTL_hw_lp_idle_x32(0x4d);
-}
-
-inline static void uddrc_rank_refresh()
-{
-	unsigned long t_rfc_nom_x32 =
-		DIV_ROUND_DOWN(NS_TO_CYCLES_DOWN(tREFI), 32*2);
-	unsigned long t_rfc_min =
-		DIV_ROUND_UP(NS_TO_CYCLES_UP(tRFC), 2);
-
-	/* tREFI - average time interface between refreshes per rank. tREFI/2 */
-	UDDRC_REGS->UDDRC_RFSHTMG =
-			UDDRC_RFSHTMG_t_rfc_nom_x32(t_rfc_nom_x32) |
-	/* tRFCmin - min time from refresh to refresh or activate (tRFCmin/tCK)/2*/
-			UDDRC_RFSHTMG_t_rfc_min(t_rfc_min);
-
-	dbg_very_loud("RFSHTMG %x\n", UDDRC_REGS->UDDRC_RFSHTMG);
-}
-
-inline static void uddrc_config_zq_calib()
-{
-#if defined(CONFIG_DDR3)
-	unsigned long t_zq_short_interval_x1024 =
-		DIV_ROUND_UP(NS_TO_CYCLES_UP(128000000UL), 1024*2) + 1;
-#endif
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	unsigned long t_zq_short_interval_x1024 =
-		DIV_ROUND_UP(NS_TO_CYCLES_UP(4000000UL), 1024*2) + 1;
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	/* enable generation of auto ZQ calibration by controller */
-	UDDRC_REGS->UDDRC_ZQCTL0 =
-	/* ZQ calibration resistor is not shared between ranks */
-	/* number of DFI nops to run after ZQ calibration long */
-			UDDRC_ZQCTL0_t_zq_long_nop(DIV_ROUND_UP(TZQOPER, 2)) |
-	/* number of DFI nops to run after ZQ calibration short */
-			UDDRC_ZQCTL0_t_zq_short_nop(DIV_ROUND_UP(TZQCS, 2));
-
-	UDDRC_REGS->UDDRC_ZQCTL1 =
-			UDDRC_ZQCTL1_t_zq_short_interval_x1024(t_zq_short_interval_x1024)
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-			| UDDRC_ZQCTL1_t_zq_reset_nop(DIV_ROUND_UP(TZQRESET, 2))
-#endif
-			;
-#endif
-	dbg_very_loud("ZQCTL0 %x\n", UDDRC_REGS->UDDRC_ZQCTL0);
-	dbg_very_loud("ZQCTL1 %x\n", UDDRC_REGS->UDDRC_ZQCTL1);
-}
-
 inline static void uddrc_dis_hw_lowpwr()
 {
 	/* disable hardware low power features */
@@ -1423,15 +805,14 @@ inline static void uddrc_dis_hw_lowpwr()
 inline static void uddrc_config_odt_timings()
 {
 #if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-	/* DFI clocks to hold ODT for a write, 6 is recommended */
-	UDDRC_REGS->UDDRC_ODTCFG = UDDRC_ODTCFG_wr_odt_hold(0x6) |
-	/* DFI clocks to delay between write and setting ODT values , 0 recommended */
-			UDDRC_ODTCFG_wr_odt_delay(0x0) |
-	/* DFI clocks to hold ODT for a read, 6 is recommended */
-			UDDRC_ODTCFG_rd_odt_hold(0x6) |
 	/* DFI clocks to delay between read and setting ODT values , recommended CL - CWL */
-			UDDRC_ODTCFG_rd_odt_delay(CL - CWL);
-
+	UDDRC_REGS->UDDRC_ODTCFG = UDDRC_ODTCFG_rd_odt_delay(RD_ODT_DELAY) |\
+	/* DFI clocks to hold ODT for a read, 6 is recommended */
+				UDDRC_ODTCFG_rd_odt_hold (RD_ODT_HOLD) |\
+	/* DFI clocks to delay between write and setting ODT values , 0 recommended */
+				UDDRC_ODTCFG_wr_odt_delay(WR_ODT_DELAY) |\
+	/* DFI clocks to hold ODT for a write, 6 is recommended */
+				UDDRC_ODTCFG_wr_odt_hold(WR_ODT_HOLD);
 	/* which remote ODTs must be turned on during a read on rank X (we have just rank 0) */
 	UDDRC_REGS->UDDRC_ODTMAP = UDDRC_ODTMAP_rank0_wr_odt | UDDRC_ODTMAP_rank0_rd_odt;
 #endif
@@ -1442,82 +823,6 @@ inline static void uddrc_config_odt_timings()
 #endif
 	dbg_very_loud("ODTCFG %x\n", UDDRC_REGS->UDDRC_ODTCFG);
 	dbg_very_loud("ODTMAP %x\n", UDDRC_REGS->UDDRC_ODTMAP);
-}
-
-inline static void uddrc_dis_crc_parity()
-{
-	/* do not enable any CRC parity control */
-	UDDRC_REGS->UDDRC_CRCPARCTL0 = 0;
-}
-
-inline static void uddrc_dimmctl()
-{
-	/* do not have address mirroring, do not have multi rank */
-	UDDRC_REGS->UDDRC_DIMMCTL = 0;
-}
-
-inline static void uddrc_config_dfi()
-{
-	unsigned long rddata_en = DIV_ROUND_DOWN(RL - 2, 2);
-
-	/* DFI clocks after assert/deassert of signals until PHY-DRAM reflects them */
-	UDDRC_REGS->UDDRC_DFITMG0 = UDDRC_DFITMG0_dfi_t_ctrl_delay(0x3) |
-	/* select to use DFI or DFI PHY clock for dfi signals */
-	/* clocks from assertion of DFI signals until dfi_rddata_en -phy specific*/
-			UDDRC_DFITMG0_dfi_t_rddata_en(rddata_en) |
-	/* clocks from assertion of wrdata_en to write data is driven */
-			UDDRC_DFITMG0_dfi_tphy_wrdata(0x0) |
-	/* clocks from write command to wrdata_en tWRlat*/
-			UDDRC_DFITMG0_dfi_tphy_wrlat(DIV_ROUND_DOWN(WL
-#if defined(CONFIG_DDR3) || defined(CONFIG_DDR2)
-			 - 1
-#endif
-			, 2));
-
-	/* clocks between dfi_cs asserted and dfi_parity_in is driven */
-	UDDRC_REGS->UDDRC_DFITMG1 =
-	/* clocks between dfi_wrdata_en asserted and data transfered completed on bus */
-			UDDRC_DFITMG1_dfi_t_wrdata_delay(0x0)	|
-	/* clocks between dfi_dram_clk_disable asserted until clock to DRAM maintains low value */
-			UDDRC_DFITMG1_dfi_t_dram_clk_disable(0x2) |
-	/* clocks between dfi_dram-clk_disable asserted until first rising edge to DRAM clock */
-			UDDRC_DFITMG1_dfi_t_dram_clk_enable(0x2);
-
-	/* clocks for tlp_resp time low power response time - assumed*/
-	UDDRC_REGS->UDDRC_DFILPCFG0 = UDDRC_DFILPCFG0_dfi_tlp_resp(0x7) |
-	/* clocks to drive on dfi_lp_wakeup when enter self refresh - 4096 cycles should be 0x8 or 0x80 ? */
-			UDDRC_DFILPCFG0_dfi_lp_wakeup_sr(0x7) 	|
-	/* Enables DFI Low Power interface handshaking during Self Refresh Entry/Exit */
-			UDDRC_DFILPCFG0_dfi_lp_en_sr |
-	/* clocks to drive on dfi_lp_wakeup when enter power down - 16 cycles should be 0x3 or 0x0 ? */
-			UDDRC_DFILPCFG0_dfi_lp_wakeup_pd(0x7) |
-	/* Enables DFI Low Power interface handshaking during Power Down Entry/Exit */
-			UDDRC_DFILPCFG0_dfi_lp_en_pd |
-			UDDRC_DFILPCFG0_dfi_lp_wakeup_dpd(0x7) |
-			UDDRC_DFILPCFG0_dfi_lp_en_dpd;
-
-	/* enable automatic generation of dfi_ctrlupd_req */
-	UDDRC_REGS->UDDRC_DFIUPD0 =
-	/* max clocks that dfi_ctrlupd_req can assert */
-			UDDRC_DFIUPD0_dfi_t_ctrlup_max(0x3ff) |
-	/* min clocks that dfi_ctrlupd_req can assert */
-			UDDRC_DFIUPD0_dfi_t_ctrlup_min(0x3);
-
-	/* min number of 1024 clocks between DFI update requests initiated by umctl2 */
-	UDDRC_REGS->UDDRC_DFIUPD1 = UDDRC_DFIUPD1_dfi_t_ctrlupd_interval_min_x1024(0xf0) |
-	/* max number of 1024 clocks between DFI update requests initiated by umctl2 */
-			UDDRC_DFIUPD1_dfi_t_ctrlupd_interval_max_x1024(0xff);
-
-	/* enable support for acking phy initiated updates */
-	UDDRC_REGS->UDDRC_DFIUPD2 = UDDRC_DFIUPD2_dfi_phyupd_en;
-
-	/* disable PHY master interface */
-	UDDRC_REGS->UDDRC_DFIPHYMSTR = 0;
-	dbg_very_loud("DFITMG0 %x\n", UDDRC_REGS->UDDRC_DFITMG0);
-	dbg_very_loud("DFITMG1 %x\n", UDDRC_REGS->UDDRC_DFITMG1);
-	dbg_very_loud("DFILPCFG0 %x\n", UDDRC_REGS->UDDRC_DFILPCFG0);
-	dbg_very_loud("DFIUPD0 %x\n", UDDRC_REGS->UDDRC_DFIUPD0);
-	dbg_very_loud("DFIUPD1 %x\n", UDDRC_REGS->UDDRC_DFIUPD1);
 }
 
 /* Main entry point of the UMCTL2 DRAM driver.
@@ -1542,39 +847,6 @@ int umctl2_init (struct umctl2_config_state *state)
 
 	/* hold a global pointer to the state */
 	umctl2_config = state;
-
-	tRFC = timings.tRFC;
-	tREFI = timings.tREFI;
-	tWR = timings.tWR;
-	tRP = timings.tRP;
-	tRP_ps = timings.tRP_ps;
-	tRCD = timings.tRCD;
-	tRCD_ps = timings.tRCD_ps;
-	tCCD = timings.tCCD;
-	tRAS = timings.tRAS;
-	tRASMAX = timings.tRASMAX;
-	tRC_ps = timings.tRC_ps;
-	tFAW = timings.tFAW;
-#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
-	tPRECKE = timings.tPRECKE;
-#endif
-	tPOSTCKE = timings.tPOSTCKE;
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	tDQSCK_MIN = timings.tDQSCK_MIN;
-	tDQSCK_MAX = timings.tDQSCK_MAX;
-#endif
-	CL = timings.CL;
-	CWL = timings.CWL;
-	AL = timings.AL;
-#if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	RL = timings.RL;
-	WL = timings.WL;
-#endif
-#if defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
-	TZQOPER = timings.TZQOPER;
-	TZQCS = timings.TZQCS;
-#endif
-	MRD = timings.MRD;
 
 	/* Make sure IOs are not in retention mode. */
 	if (!backup_resume()) {
@@ -1602,22 +874,24 @@ int umctl2_init (struct umctl2_config_state *state)
 	 * (Ensure that DFIMISC.dfi_init_complete_en is set to 0)
 	 */
 
+	/* Clear the DFI Miscellaneous Control register */
 	UDDRC_REGS->UDDRC_DFIMISC = 0;
-
 	/* disable dequeuing of rd/wr commands from CAM to DRAM */
 	uddrc_dis_dq();
 	/* configure master register MSTR - type of DDR, burst length*/
 	uddrc_mstr();
-
 	/* configure automatic temperature derating */
 	uddrc_derate();
+	/* Update the Low Power Timing register */
+	uddrc_configure_lowpwr();
 	/* enable hardware low power features */
 	uddrc_ena_hw_lowpwr();
 	/* configure refresh-related parameters */
 	uddrc_configure_refresh();
+	/* configure refresh per rank */
+	uddrc_rank_refresh();
 	/* disable crc parity control */
 	uddrc_dis_crc_parity();
-
 	/* configure INIT0 - clocks to wait before and after CKE is asserted,
 	 * mode of operation after reset is removed
 	 */
@@ -1634,22 +908,20 @@ int umctl2_init (struct umctl2_config_state *state)
 	uddrc_init4();
 	/* configure INIT5 - initial calibration time */
 	uddrc_init5();
-	/* configure DRAM timings */
-	uddrc_dramtmg();
-	/* configure mapping between HIF addr to bank, column, row
-	 * internal address
-	 */
-	uddrc_addrmap_init();
-	/* configure refresh per rank */
-	uddrc_rank_refresh();
-	/* configure zq calibration timing */
-	uddrc_config_zq_calib();
-	/* configure DFI clocks to wait on ODT rd/wr commands */
-	uddrc_config_odt_timings();
 	/* configure DIMM control */
 	uddrc_dimmctl();
+	/* configure DRAM timings */
+	uddrc_dramtmg();
+	/* Update ZQ Control registers 0 and 1 */
+	uddrc_config_zq_calib();
+	/* configure mapping between HIF addr to bank, column, row
+	 internal address */
 	/* configure DFI interface to PHY */
 	uddrc_config_dfi();
+	/* configure mapping between HIF addr to bank, column, row internal address */
+	uddrc_addrmap_init();
+	/* configure DFI clocks to wait on ODT rd/wr commands */
+	uddrc_config_odt_timings();
 
 	/* multi-port register settings (urgent bit are not connected in the DESIGN) */
 	uddrc_mp_setup();
@@ -1680,18 +952,15 @@ int umctl2_init (struct umctl2_config_state *state)
 #endif
 
 #if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) || defined(CONFIG_LPDDR2)
-	UDDRC_REGS->UDDRC_PWRCTL = UDDRC_PWRCTL_en_dfi_dram_clk_disable;
+	//UDDRC_REGS->UDDRC_PWRCTL = UDDRC_PWRCTL_en_dfi_dram_clk_disable;
 #endif
 
 	/* STEP 3
 	 * Init PHY
 	 */
 #if defined CONFIG_PUBL
-	state->phy_init(&timings);
-#else
-	state->phy_init(NULL);
+	state->phy_init();
 #endif
-
 	if (backup_resume()) {
 		if (state->phy_bypass_zq_calibration)
 			state->phy_bypass_zq_calibration();
@@ -1745,7 +1014,7 @@ int umctl2_init (struct umctl2_config_state *state)
 	/* STEP 7
 	 * set DFI init complete to 1
 	 */
-	UDDRC_REGS->UDDRC_DFIMISC = UDDRC_DFIMISC_dfi_init_complete_en;
+	UDDRC_REGS->UDDRC_DFIMISC |= UDDRC_DFIMISC_dfi_init_complete_en;
 
 	/* STEP 8
 	 * Set software done to 1; also,
@@ -1833,6 +1102,7 @@ int umctl2_init (struct umctl2_config_state *state)
 
 unsigned int get_ddram_size(void)
 {
+
 #if defined(CONFIG_DDR_8_GBIT)
 	return 0x40000000;
 #elif defined(CONFIG_DDR_4_GBIT)
