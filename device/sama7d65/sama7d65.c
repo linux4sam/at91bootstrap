@@ -294,10 +294,10 @@ static void matrix_configure_slave(void)
 	matrix_configure_slave_security(AT91C_BASE_MATRIX, MATRIX_SLAVE_QSPI1,
 					srtop_setting, sasplit_setting,
 					ssr_setting);
-	/* SMC EBI CS3 */
-	srtop_setting = MATRIX_SRTOP(3, MATRIX_SRTOP_VALUE_128M);
-	sasplit_setting = MATRIX_SASPLIT(3, MATRIX_SASPLIT_VALUE_128M);
-	ssr_setting = MATRIX_LANSECH_NS(3);
+	/* SMC EBI CS0 */
+	srtop_setting = MATRIX_SRTOP(0, MATRIX_SRTOP_VALUE_128M);
+	sasplit_setting = MATRIX_SASPLIT(0, MATRIX_SASPLIT_VALUE_128M);
+	ssr_setting = MATRIX_LANSECH_NS(0);
 	matrix_configure_slave_security(AT91C_BASE_MATRIX, MATRIX_SLAVE_EBI,
 					srtop_setting, sasplit_setting,
 					ssr_setting);
@@ -500,19 +500,19 @@ void nandflash_hw_init(void)
 
 	writel(AT91C_SMC_PULSE_NWE(10) | AT91C_SMC_PULSE_NCS_WR(20) |
 	       AT91C_SMC_PULSE_NRD(10) | AT91C_SMC_PULSE_NCS_RD(20),
-	       ATMEL_BASE_SMC + SMC_PULSE3);
+	       ATMEL_BASE_SMC + SMC_PULSE0);
 
 	writel(AT91C_SMC_CYCLE_NWE(20) | AT91C_SMC_CYCLE_NRD(20),
-	       (ATMEL_BASE_SMC + SMC_CYCLE3));
+	       (ATMEL_BASE_SMC + SMC_CYCLE0));
 
 	writel(AT91C_SMC_TIMINGS_TCLR(4) | AT91C_SMC_TIMINGS_TADL(15) |
 	       AT91C_SMC_TIMINGS_TAR(5) | AT91C_SMC_TIMINGS_TRR(8) |
 	       AT91C_SMC_TIMINGS_TWB(8) | AT91C_SMC_TIMINGS_NFSEL,
-	       ATMEL_BASE_SMC + SMC_TIMINGS3);
+	       ATMEL_BASE_SMC + SMC_TIMINGS0);
 
 	writel(AT91C_SMC_MODE_READMODE_NRD_CTRL |
 	       AT91C_SMC_MODE_WRITEMODE_NWE_CTRL | AT91C_SMC_MODE_TDF_MODE |
-	       AT91C_SMC_MODE_TDF_CYCLES(15), ATMEL_BASE_SMC + SMC_MODE3);
+	       AT91C_SMC_MODE_TDF_CYCLES(15), ATMEL_BASE_SMC + SMC_MODE0);
 }
 #endif /* CONFIG_NANDFLASH */
 
