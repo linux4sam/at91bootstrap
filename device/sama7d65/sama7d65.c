@@ -1052,6 +1052,10 @@ void hw_init(void)
 	}
 
 	at91_init_can_message_ram();
+
+#ifdef CONFIG_BOARD_QUIRK_OURASI_DDR3_EB
+       at91_can_stdby_dis();
+#endif
 }
 
 void hw_postinit(void)
