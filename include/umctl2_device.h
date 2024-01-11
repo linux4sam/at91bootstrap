@@ -79,6 +79,29 @@
 #define _MRD		4UL		/* Mode Register Delay, Clock cycles */
 #endif
 
+#if defined(CONFIG_DDR_AS4C512M16D3LA_10BIN)
+#define _tRFC   350UL   /* Refresh to Refresh, ns */
+#define _tREFI    7800UL    /* Refresh Intervals, ns */
+#define _tWR    15UL    /* Write Recovery, ns */
+#define _tRP    14UL    /* Row Precharge command, ns */
+#define _tRP_ps   13910UL   /* Row Precharge command, ps */
+#define _tRCD   14UL    /* Row to Column delay, ns */
+#define _tRCD_ps  13910UL   /* Row to Column delay, ps */
+#define _tCCD   4UL   /* Column to Column delay, ns */
+#define _tRAS   34UL    /* Row Active Strobe, ns */
+#define _tRASMAX  70200UL   /* RAS max, ns */
+#define _tRC_ps   47910UL   /* Row Cycle, ps */
+#define _tFAW   35UL    /* Four Activation Window, ns */
+#define _tPRECKE  500000UL
+#define _tPOSTCKE 0UL   /* Unused with DDR3 */
+#define _CL   7UL   /* CAS Latency, Clock cycles */
+#define _CWL    6UL   /* CAS Write Latency, Clock cycles */
+#define _AL   0UL   /* Additive Latency, Clock cycles */
+#define _TZQOPER  256UL   /* TZQ Long Calibration, Clock cycles */
+#define _TZQCS    64UL    /* TZQ Short Calibration, Clock cycles */
+#define _MRD    4UL   /* Mode Register Delay, Clock cycles */
+#endif
+
 #if defined(CONFIG_DDR_W632GU6N12I)
 #define _tRFC		160UL		/* Refresh to Refresh, ns */
 #define _tREFI		7800UL		/* Refresh Intervals, ns 1950@95-125degC 3900@m85-95degC 7800@m40-85degC(Tj)*/
