@@ -168,29 +168,16 @@ config QSPI_4B_OPCODES
 	  Should be selected when the size of SPI NOR flash memory is above
 	  16MiB (128Mib).
 
-choice
-	prompt "I/O Mode selection for OCTAFLASH that does not support SFDP"
-	depends on AT91_QSPI_OCTAL
-	default OCTAFLASH_SINGLE_IO
+config QSPI_OCTAL_IO
+	bool "Enable Octa I/O"
 	help
-	  If octaflash doesn't support SFDP, the flash read mode need to be filled in manually.
+	  Enable Octa I/O mode, if octaflash doesn't support SFDP.
 
-config	QSPI_SINGLE_IO
-	bool "Single I/O read mode"
+config QSPI_DTR_ENABLE
+	bool "Enable DTR (double data rate)"
+	default n
 	help
-	  Single I/O read mode
-
-config	QSPI_OCTAL_IO
-	bool "OCTAL I/O mode"
-	help
-	  octal 8 I/O transfer mode
-
-config	QSPI_OCTAL_IO_DTR
-	bool "OCTAL I/O DTR mode"
-	help
-	  octal 8 I/O (double rate transfer) mode
-
-endchoice
+	  Used to enable the Double Data Rate mode
 
 config QSPI_XIP
 	bool "eXecute In Place"
