@@ -200,11 +200,15 @@ static int qspi_set_cfg(struct qspi_priv *aq,
 		iar = QSPI_IAR_ADDR(cmd->addr);
 	}
 
-	if (spi_flash_protocol_is_dtr(cmd->proto))
-		ifr |= QSPI_IFR_DDREN | QSPI_IFR_DDRCMDEN | QSPI_IFR_END | QSPI_IFR_DQSEN;
 #ifdef CONFIG_AT91_QSPI_OCTAL
-	if ((cmd->proto == SFLASH_PROTO_8_8_8) || (cmd->proto == SFLASH_PROTO_8D_8D_8D))
+	if ((cmd->proto == SFLASH_PROTO_8_8_8) || (cmd->proto == SFLASH_PROTO_8D_8D_8D)){
 		ifr |= QSPI_IFR_PROTTYP_OCTAFLASH;
+		if (spi_flash_protocol_is_dtr(cmd->proto))
+			ifr |= QSPI_IFR_DDREN | QSPI_IFR_DDRCMDEN | QSPI_IFR_END | QSPI_IFR_DQSEN;
+	} else {
+		if (spi_flash_protocol_is_dtr(cmd->proto))
+			ifr |= QSPI_IFR_DDREN;
+	}
 #endif
 	/* offset of the data access in the QSPI memory space */
 	*offset = iar;
