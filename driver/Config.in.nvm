@@ -116,6 +116,31 @@ config FATFS
 	depends on SDCARD
 	default y if SDCARD
 
+choice
+    prompt "MMC partition number"
+	depends on SDCARD
+    default MMC_PART_0
+	help
+	  MMC hardware partition device number on the platform where the
+	  image is stored.  Note that this is not related to any software
+	  defined partition table but instead if we are in the user area, which is
+	  partition 0 or the first boot partition, which is 1 or some other defined
+	  partition.
+
+    config MMC_PART_0
+        bool "User area"
+
+    config MMC_PART_1
+        bool "Boot partition 1"
+
+    config MMC_PART_2
+        bool "Boot partition 2"
+
+	config MMC_PART_CUR
+        bool "Current booting partition"
+
+endchoice
+
 endmenu
 
 if DATAFLASH
