@@ -150,11 +150,13 @@ static int spi_nor_erase(struct spi_flash *flash, size_t offset, size_t len)
 	return ret;
 }
 
-#if defined(CONFIG_QSPI_OCTAL_IO) || defined(CONFIG_QSPI_OCTAL_IO_DTR)
-static int macronix_set_octa_mode(struct spi_flash *flash, u8 mode)
+
+#if defined(CONFIG_QSPI_OCTAL_IO)
+static int macronix_octa_enable(struct spi_flash *flash)
 {
 	int rc;
 	struct spi_flash_command cmd;
+	int mode;
 
 	rc = spi_flash_write_enable(flash);
 	if (rc < 0)
@@ -165,32 +167,15 @@ static int macronix_set_octa_mode(struct spi_flash *flash, u8 mode)
 	cmd.num_mode_cycles = 0;
 	cmd.data_len = 1;
 	cmd.addr = 0x0;
+#ifdef CONFIG_QSPI_DTR_ENABLE
+	mode = 2;
+#else
+	mode = 1;
+#endif
 	cmd.tx_data = &mode;
-	return spi_flash_exec(flash, &cmd);
-}
-
-static void macronix_octa_enable(struct spi_flash *flash)
-{
-#ifdef CONFIG_QSPI_OCTAL_IO
-	/* Configure 8 I/O*/
-	macronix_set_octa_mode(flash, 0x1);
-	flash->read_proto = SFLASH_PROTO_8_8_8;
-	flash->write_proto = SFLASH_PROTO_8_8_8;
-	flash->read_inst = SFLASH_INST_FAST_READ_8_8_8;
-	flash->num_mode_cycles = 0;
-	flash->num_wait_states = 20;
+	spi_flash_exec(flash, &cmd);
 	flash->addr_len = 4;
-#endif
-#ifdef CONFIG_QSPI_OCTAL_IO_DTR
-	/* Configure 8 I/O with DTR mode */
-	macronix_set_octa_mode(flash, 0x2);
-	flash->read_proto = SFLASH_PROTO_8D_8D_8D;
-	flash->write_proto = SFLASH_PROTO_8D_8D_8D;
-	flash->read_inst = SFLASH_INST_FAST_READ_8D_8D_8D;
-	flash->num_mode_cycles = 0;
-	flash->num_wait_states = 20;
-	flash->addr_len = 4;
-#endif
+	return 0;
 }
 #endif
 
@@ -272,11 +257,7 @@ set_erase_map:
 		break;
 	}
 
-	/* Override the parameters with data read from SFDP tables. */
-	if (!info || !(info->flags & SNOR_SKIP_SFDP))
-		spi_flash_parse_sfdp(flash, params);
-
-#if defined(CONFIG_QSPI_OCTAL_IO) || defined(CONFIG_QSPI_OCTAL_IO_DTR)
+#if defined(CONFIG_QSPI_OCTAL_IO)
 	/* The flash does not support SFDP */
 		switch (spi_flash_get_mfr(flash)) {
 		case SFLASH_MFR_MACRONIX:
@@ -287,8 +268,11 @@ set_erase_map:
 			params->octa_enable = NULL;
 			break;
 		}
-		params->octa_enable(flash);
 #endif
+
+	/* Override the parameters with data read from SFDP tables. */
+	if (!info || !(info->flags & SNOR_SKIP_SFDP))
+		spi_flash_parse_sfdp(flash, params);
 	return 0;
 }
 
@@ -433,9 +417,7 @@ init_params:
 
 	flash->size = params.size;
 	flash->page_size = params.page_size;
-#if defined(CONFIG_QSPI_OCTAL_IO) || defined(CONFIG_QSPI_OCTAL_IO_DTR)
-		return 0;
-#endif
+	
 	/*
 	 * Configure the SPI memory:
 	 * - select instructions for (Fast) Read, Page Program and Sector Erase.
