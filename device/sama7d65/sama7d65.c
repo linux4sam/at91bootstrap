@@ -934,13 +934,13 @@ void hw_init(void)
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
 	/* Configure & Enable SYS PLL */
-	syspll_config.mul = 32; /* (32+1) * 24 = 800 */
-	syspll_config.div = 1; 
+	syspll_config.mul = 49; /* (49 + 1) * 24 = 1200 */
+	syspll_config.div = 2; /* Feed to PMC 1200/3 = 400 Mhz */
 	syspll_config.count = 0x3f;
-	syspll_config.fracr = 0x155550;
+	syspll_config.fracr = 0;
 	syspll_config.acr = 0x00070010;
 
-	/* SYSPLL @ 800 MHz */
+	/* SYSPLL @ 400 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_SYSPLL, &syspll_config);
 
 	/* MCK1 @ 200 Mhz (== SYSPLL/2) */
@@ -1026,13 +1026,13 @@ void hw_init(void)
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
 	/* Configure & Enable BAUD PLL */
-	buadpll_config.mul = 36; /* (36 + 1) * 24 = 888 */
-	buadpll_config.div = 2; /* 888 / 3 = 444 MHz */
-	buadpll_config.divio = 2;
+	buadpll_config.mul = 32; /* (32+1) * 24 = 800 */
+	buadpll_config.div = 2; /* 800 / 3 = 266 MHz */
 	buadpll_config.count = 0x3f;
-	buadpll_config.fracr = 0x200000; /* (12/24) * 2^22 to get extra 8 MHz */
+	buadpll_config.fracr = 0x155550;
 	buadpll_config.acr = 0x00070010;
-	/* BUADPLL @ 900 MHz */
+	
+	/* BUADPLL @ 266 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_BAUDPLL, &buadpll_config);
 
 	if (!backup_resume())
