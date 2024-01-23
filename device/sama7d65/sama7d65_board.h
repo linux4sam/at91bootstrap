@@ -127,4 +127,12 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN      AT91C_PIN_PA(13)
 #endif /* CONFIG_NANDFLASH */
 
+/*
+ * XDMAC Settings
+ */
+#ifdef CONFIG_XDMAC
+#define CONFIG_SYS_BASE_XDMAC	AT91C_BASE_XDMAC2
+#define CONFIG_SYS_ID_XDMAC		AT91C_ID_XDMAC2
+#endif
+
 #endif
