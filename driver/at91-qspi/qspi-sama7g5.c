@@ -343,7 +343,7 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 #if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 static int qspi_set_pad_calibration(struct qspi_priv *aq, u32 hz)
 {
-	u32 status, val;
+	u32 status;
 	int i, ret;
 	u8 pclk_div = 0;
 
@@ -380,14 +380,15 @@ static int qspi_set_pad_calibration(struct qspi_priv *aq, u32 hz)
 		    QSPI_PCALCFG_CLKDIV(pclk_div) |
 		    QSPI_PCALCFG_CALCNT(2 * (aq->pclk_rate / 1000000)),
 		    aq, QSPI_PCALCFG);
-
+#if defined(CONFIG_SAMA7G5)
+	u32 val;
 	/* DLL On + start calibration. */
 	qspi_writel(QSPI_CR_DLLON | QSPI_CR_STPCAL, aq, QSPI_CR);
 	ret =  qspi_readl_poll_timeout(aq->reg_base + QSPI_SR, val,
 				       (val & QSPI_SR_DLOCK) &&
 				       !(val & QSPI_SR_CALBSY),
 				       QSPI_TIMEOUT);
-
+#endif
 	/* Refresh analogic blocks every 1 ms.*/
 	qspi_writel(QSPI_REFRESH_DELAY_COUNTER(hz / 1000), aq, QSPI_REFRESH);
 	return ret;
@@ -398,7 +399,7 @@ static int qspi_set_pad_calibration(struct qspi_priv *aq, u32 hz)
 static int qspi_set_gclk(struct qspi_priv *aq, u32 hz)
 {
 	unsigned int max_gclk_rate;
-#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
+#if defined(CONFIG_SAMA7G5)
 	u32 status, val;
 	int ret;
 
@@ -417,7 +418,17 @@ static int qspi_set_gclk(struct qspi_priv *aq, u32 hz)
 		qspi_writel(QSPI_DLLCFG_RANGE, aq, QSPI_DLLCFG);
 	else
 		qspi_writel(0, aq, QSPI_DLLCFG);
+#endif
 
+#ifdef CONFIG_SAMA7D65
+	/* This QSPI GCLK is a 2x clock.*/
+	hz = hz * 2;
+	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_BAUDPLL_CLK, 0);
+	max_gclk_rate = pmc_get_generic_clock(CONFIG_SYS_ID_QSPI);
+	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_BAUDPLL_CLK,
+				 div((max_gclk_rate + hz - 1), hz) - 1);
+#endif
+#ifdef CONFIG_SAMA7G5
 	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_SYSPLL_CLK, 0);
 	max_gclk_rate = pmc_get_generic_clock(CONFIG_SYS_ID_QSPI);
 	pmc_enable_generic_clock(CONFIG_SYS_ID_QSPI, GCK_CSS_SYSPLL_CLK,
