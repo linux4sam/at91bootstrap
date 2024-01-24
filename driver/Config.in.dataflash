@@ -156,7 +156,7 @@ config QSPI_IOSET
 
 config AT91_QSPI_OCTAL
 	bool "AT91 QSPI instance with Octal Serial Peripheral Interface"
-	depends on SAMA7G5 || SAM9X7
+	depends on SAMA7G5 || SAM9X7 || SAMA7D65
 	default n
 	help
 	  Should be selected by SAMA7G5 or SAM9X7 QSPI0
