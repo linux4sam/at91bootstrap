@@ -150,6 +150,8 @@ SIZE=$(CROSS_COMPILE)size
 OBJCOPY=$(CROSS_COMPILE)objcopy
 OBJDUMP=$(CROSS_COMPILE)objdump
 
+SAM-BA=sam-ba
+
 PROJECT := $(strip $(subst ",,$(CONFIG_PROJECT)))
 IMG_ADDRESS := $(strip $(subst ",,$(CONFIG_IMG_ADDRESS)))
 IMG_SIZE := $(strip $(subst ",,$(CONFIG_IMG_SIZE)))
@@ -300,6 +302,15 @@ ifeq ($(CONFIG_NANDFLASH)$(CONFIG_USE_PMECC), yy)
 TARGETS+=${AT91BOOTSTRAP}.pmecc
 endif
 
+ifeq ($(CONFIG_SAMA7D65), y)
+# PTI stands for Plain Text Image mode. Format used for a chip configured
+# in Non-Secure mode. See "Bootstrap Image Format" in product's datasheet.
+PTI:=plaintextimg
+AT91BOOTSTRAP_PTI:=$(BINDIR)/$(BOOT_NAME)-$(PTI).bin
+TARGETS+=${AT91BOOTSTRAP_PTI}
+SYMLINK_PTI_BOOT ?= boot-${PTI}.bin
+endif
+
 PHONY:=all
 
 all: $(TARGETS)
@@ -356,6 +367,12 @@ $(BUILDDIR)/%.o : %.S .config
 $(AT91BOOTSTRAP).pmecc: $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP)
 	$(Q)test -f $< && cat $+ > $@ || rm -f $@
 
+$(AT91BOOTSTRAP_PTI): $(AT91BOOTSTRAP) ChkSamBa
+	$(Q)"$(SAM-BA)" -g:$<:$@::
+ifdef NIX_SHELL
+	@ln -sf $(BOOT_NAME)-$(PTI).bin ${BINDIR}/${SYMLINK_PTI_BOOT}
+endif
+
 $(BINDIR)/pmecc.tmp: .config | $(BINDIR)
 ifdef NIX_SHELL
 	$(Q)./scripts/addpmecchead.py .config $(BINDIR)
@@ -364,6 +381,23 @@ endif
 PHONY+= bootstrap
 
 rebuild: clean all
+
+ChkSamBa:
+	@( $(SAM-BA) -g:test::: > /dev/null 2>&1 ; \
+	  if [ $$? -ne 0 ] ; then \
+		$(SAM-BA) -v ; \
+		if [ $$? -ne 0 ] ; then \
+			echo "[Failed***] SAM-BA tool not installed or not in the \$$PATH"; \
+			exit 2; \
+		else \
+			echo "[Failed***] SAM-BA tool version not able to generate bootable binary"; \
+			exit 3; \
+		fi \
+	  else \
+		echo "[Succeeded] SAM-BA tool generating bootable binary image available"; \
+	  fi )
+
+PHONY+= ChkSamBa
 
 ChkFileSize: $(AT91BOOTSTRAP)
 	@( fsize=`./scripts/get_sram_size.sh $(BINDIR)/$(BOOT_NAME).map`; \
