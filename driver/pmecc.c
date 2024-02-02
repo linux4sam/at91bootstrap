@@ -239,10 +239,6 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 	unsigned int sector_size = nand->ecc_sector_size;
 	unsigned int ecc_bits = nand->ecc_err_bits;
 
-	/* Get PMECC version first */
-	pmecc_params->version = pmecclor_readl(PMERRLOC_VERSION);
-	dbg_loud("PMECC: version is: %x\n", pmecc_params->version);
-
 	if ((nand->pagesize == 2048) || (nand->pagesize == 4096) ||
 			(nand->pagesize == 8192)) {
 		/* Sector Size */
@@ -405,6 +401,7 @@ void pmecc_start_data_phase(void)
 	pmecc_writel(AT91C_PMECC_ENABLE | AT91C_PMECC_DATA, PMECC_CTRL);
 }
 
+#ifdef CONFIG_SAMA5D3X
 static int check_pmecc_ecc_data(struct nand_info *nand,
 				unsigned char *buffer)
 {
@@ -421,6 +418,7 @@ static int check_pmecc_ecc_data(struct nand_info *nand,
 	else
 		return 0;
 }
+#endif
 
 /*
  * \brief Build the pseudo syndromes table
@@ -874,11 +872,10 @@ int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 	/* read corrupted bit status */
 	erris = pmecc_readl(PMECC_ISR);
 	if (erris) {
-		if (PMECC_paramDesc.version < AT91C_PMECC_VERSION_SAMA5D4) {
-			if (check_pmecc_ecc_data(nand, buffer) == -1)
-				return 0;
-		}
-
+#ifdef CONFIG_SAMA5D3X
+		if (check_pmecc_ecc_data(nand, buffer) == -1)
+			return 0;
+#endif
 		/* erris means which sector has errors. for example:
 		 * if erris is 0x9 (0b1001)
 		 *                    ^  ^

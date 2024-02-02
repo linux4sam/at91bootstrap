@@ -112,9 +112,4 @@
 #define PMERRLOC_EL0		0x08C	/* PMECC Error Location 0 Register */
 #endif
 
-#define	PMERRLOC_VERSION	0x1FC	/* PMECC Version Register */
-#define		AT91C_PMECC_VERSION_SAMA5D4	0x113
-#define		AT91C_PMECC_VERSION_SAMA5D3	0x112
-#define		AT91C_PMECC_VERSION_AT91SAM9X5	0x101
-
 #endif /* #ifndef __AT91_NAND_ECC_H__  */

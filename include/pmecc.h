@@ -20,7 +20,6 @@ struct _PMECC_paramDesc_struct {
 	unsigned int eccSizeByte;
 	unsigned int eccStartAddress;
 	unsigned int eccEndAddress;
-	unsigned int version;
 
 	unsigned int nandWR;
 	unsigned int spareEna;
