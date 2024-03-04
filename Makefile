@@ -303,12 +303,14 @@ TARGETS+=${AT91BOOTSTRAP}.pmecc
 endif
 
 ifeq ($(CONFIG_SAMA7D65), y)
+ifneq ($(CONFIG_INIT_AND_STOP)$(CONFIG_LOAD_AND_STOP), y)
 # PTI stands for Plain Text Image mode. Format used for a chip configured
 # in Non-Secure mode. See "Bootstrap Image Format" in product's datasheet.
 PTI:=plaintextimg
 AT91BOOTSTRAP_PTI:=$(BINDIR)/$(BOOT_NAME)-$(PTI).bin
 TARGETS+=${AT91BOOTSTRAP_PTI}
 SYMLINK_PTI_BOOT ?= boot-${PTI}.bin
+endif
 endif
 
 PHONY:=all
