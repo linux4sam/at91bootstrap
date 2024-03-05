@@ -31,6 +31,9 @@ ifeq ($(CROSS_COMPILE),xc32-)
 ifeq ($(CONFIG_SAMA7G5),y)
 CPPFLAGS += -mprocessor=SAMA7G54
 ASFLAGS += -mprocessor=SAMA7G54
+else ifeq ($(CONFIG_SAMA7D65),y)
+CPPFLAGS += -mprocessor=SAMA7D65
+ASFLAGS += -mprocessor=SAMA7D65
 endif
 else
 CPPFLAGS += -mcpu=cortex-a7 -mtune=cortex-a7 -mfpu=vfpv4-d16
