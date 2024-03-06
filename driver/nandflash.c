@@ -76,6 +76,7 @@ static const struct nand_timing nand_onfi_timings[] = {
 		.tCLR = 20000,
 		.tADL = 400000,
 		.tAR = 25000,
+		.tREA = 40000,
 		.tRR = 40000,
 		.tWB = 200000,
 	},
@@ -93,6 +94,7 @@ static const struct nand_timing nand_onfi_timings[] = {
 		.tCLR = 10000,
 		.tADL = 400000,
 		.tAR = 10000,
+		.tREA = 30000,
 		.tRR = 20000,
 		.tWB = 100000,
 	},
@@ -110,6 +112,7 @@ static const struct nand_timing nand_onfi_timings[] = {
 		.tCLR = 10000,
 		.tADL = 400000,
 		.tAR = 10000,
+		.tREA = 25000,
 		.tRR = 20000,
 		.tWB = 100000,
 	},
@@ -127,6 +130,7 @@ static const struct nand_timing nand_onfi_timings[] = {
 		.tCLR = 10000,
 		.tADL = 400000,
 		.tAR = 10000,
+		.tREA = 20000,
 		.tRR = 20000,
 		.tWB = 100000,
 	},
@@ -155,7 +159,7 @@ static unsigned int smc_timing_encode_ncycles(unsigned int ncycles)
 
 void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 {
-	unsigned int ncycles, mck_ps;
+	unsigned int ncycles, mck_ps, pulse;
 	unsigned int nwe_setup, nwe_pulse, nwe_hold, nwe_cycle;
 	unsigned int nrd_hold, nrd_pulse, nrd_cycle, tdf;
 	mck_ps = (1000000000 / MASTER_CLOCK) * 1000;
@@ -199,9 +203,13 @@ void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 
 	/* 
 	  set NRD pulse length
-	  NRD_PULSE = tRP 
+	  NRD_PULSE = max(tRP , tREA)
 	*/
-	nrd_pulse = DIV_ROUND_UP(nand_onfi_timings[mode].tRP, mck_ps);
+	if (mode == TIMING_MODE_3)
+		pulse = max(nand_onfi_timings[mode].tRP, nand_onfi_timings[mode].tREA);
+	else
+		pulse = nand_onfi_timings[mode].tRP;
+	nrd_pulse = DIV_ROUND_UP(pulse, mck_ps);
 	ncycles += nrd_pulse;
 
 	/*

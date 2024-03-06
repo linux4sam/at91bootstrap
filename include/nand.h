@@ -34,6 +34,7 @@ struct nand_timing {
 	unsigned int tCLR;
 	unsigned int tADL;
 	unsigned int tAR;
+	unsigned int tREA;
 	unsigned int tRR;
 	unsigned int tWB;
 };
