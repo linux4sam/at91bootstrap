@@ -81,6 +81,11 @@ endif
 # return: List of paths to the matching files, relative to and including param 1
 rwildcard=$(foreach d,$(wildcard $(1:=/*)),$(strip $(call rwildcard,$d,$2) $(filter $(subst *,%,$2),$d)))
 
+# Function brief: Check if one LD option is supported by linker being used
+# param 1: LD option to check
+# return: LD option being checked if supported
+ldckflags=$(shell $(LD) $(1) -v >$(DEV_NULL) 2>$(DEV_NULL) && echo "$(1)")
+
 noconfig_targets:= menuconfig defconfig $(CONFIG) oldconfig savedefconfig
 
 # Check first if we want to configure at91bootstrap
