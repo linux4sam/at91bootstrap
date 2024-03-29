@@ -364,13 +364,13 @@ int spi_nor_probe(struct spi_flash *flash,
 	if (!flash->ops)
 		return -1;
 
-	/* Set the SPI mode. */
-	ret = spi_flash_set_mode(flash, CONFIG_SYS_SPI_MODE);
+	/* Set the new baudrate. */
+	ret = spi_flash_set_freq(flash, CONFIG_SYS_SPI_CLOCK);
 	if (ret)
 		return -1;
 
-	/* Set the new baudrate. */
-	ret = spi_flash_set_freq(flash, CONFIG_SYS_SPI_CLOCK);
+	/* Set the SPI mode. */
+	ret = spi_flash_set_mode(flash, CONFIG_SYS_SPI_MODE);
 	if (ret)
 		return -1;
 
