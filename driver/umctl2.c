@@ -626,7 +626,7 @@ inline static void uddrc_init3()
 	UDDRC_REGS->UDDRC_INIT3	= UDDRC_INIT3_mr(
 				(1 << 0) | ((CL - 4) << 4) | (1 << 8) |
 				(bTWR << 9)) |
-				UDDRC_INIT3_emr(1 << 6);
+				UDDRC_INIT3_emr(1 << 2);
 #endif
 #ifdef CONFIG_DDR2
 	UDDRC_REGS->UDDRC_INIT3 = UDDRC_INIT3_mr(

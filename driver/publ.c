@@ -145,10 +145,10 @@ void publ_init(void * config_data)
 	dbg_very_loud("PUBL_MR0 %x\n", PUBL->PUBL_MR0);
 
 #ifdef CONFIG_DDR3
-	PUBL->PUBL_MR1 = PUBL_MR1_RTT1 | PUBL_MR1_AL(AL);
+	PUBL->PUBL_MR1 = PUBL_MR1_RTT0 | PUBL_MR1_AL(AL);
 #endif
 #ifdef CONFIG_DDR2
-	PUBL->PUBL_MR1 = PUBL_MR1_RTT1 | PUBL_MR1_AL(AL) | PUBL_MR1_OCD(0);
+	PUBL->PUBL_MR1 = PUBL_MR1_RTT0 | PUBL_MR1_AL(AL) | PUBL_MR1_OCD(0);
 #endif
 #if defined(CONFIG_LPDDR2) || defined(CONFIG_LPDDR3)
 	PUBL->PUBL_MR1 = PUBL_MR1_BL(0x3) | PUBL_MR1_NWR(TWR - 2);
@@ -284,9 +284,10 @@ void publ_init(void * config_data)
 #endif
 	dbg_very_loud("PUBL_DXCCR %x\n", PUBL->PUBL_DXCCR);
 
-	/* Impedance must match the PCB. 9 means 48 Ohms */
-	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(9) |
-			PUBL_ZQ0CR1_ZPROG_ODT(2);
+	/* Impedance must match the PCB. 11 means 40 Ohms */
+	/* For On-die termination Divide Select (ODS), 6 means 60 Ohms */
+	PUBL->PUBL_ZQ0CR1 = PUBL_ZQ0CR1_ZPROG_OID(11) |
+			PUBL_ZQ0CR1_ZPROG_ODT(6);
 
 	dbg_very_loud("PUBL_ZQ0CR1 %x\n", PUBL->PUBL_ZQ0CR1);
 
