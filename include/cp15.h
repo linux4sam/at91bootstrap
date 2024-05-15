@@ -60,5 +60,6 @@ void cp15_write_dacr(unsigned int value);
 void cp15_icache_invalidate(void);
 void cp15_dcache_invalidate_setway(unsigned int setway);
 void cp15_dcache_clean_setway(unsigned int setway);
+void cp15_dcache_invalidate_mva(unsigned int mva);
 
 #endif /* CP15_H_ */
