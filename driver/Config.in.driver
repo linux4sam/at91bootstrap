@@ -130,7 +130,7 @@ source "driver/Config.in.memory"
 
 config MMU
 	bool "Load software with MMU enabled"
-	depends on LOAD_SW && (SAM9X60 || SAMA5D2 || SAMA5D3X || SAMA5D4)
+	depends on LOAD_SW && (SAM9X60 || SAM9X7 || SAMA5D2 || SAMA5D3X || SAMA5D4)
 	default n
 
 config MMU_TABLE_BASE_ADDR
