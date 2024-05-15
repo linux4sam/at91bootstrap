@@ -13,7 +13,8 @@
 #include "cp15.h"
 #include "l1cache.h"
 
-#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) || defined(CONFIG_SAM9X60)
+#if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3X) || defined(CONFIG_SAMA5D4) ||\
+	defined(CONFIG_SAM9X60) || defined(CONFIG_SAM9X7)
 /** L1 data cache line size in bytes */
 #define L1_CACHE_BYTES (32u)
 
@@ -96,3 +97,10 @@ void dcache_clean(void)
 	dsb();
 }
 
+void dcache_invalidate_region(unsigned int start, unsigned int end)
+{
+	unsigned int mva;
+
+	for (mva = start & ~(L1_CACHE_BYTES - 1); mva < end; mva += L1_CACHE_BYTES)
+		cp15_dcache_invalidate_mva(mva);
+}

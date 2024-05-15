@@ -292,6 +292,12 @@ cp15_dcache_clean_setway:
 	mcr	p15, 0, r0, c7, c10, 2
 	bx	lr
 
+	.global cp15_dcache_invalidate_mva
+	.type	cp15_dcache_invalidate_mva, %function
+cp15_dcache_invalidate_mva:
+	mcr	p15, 0, r0, c7, c6, 1
+	bx	lr
+
 	.global dsb
 	.type	dsb, %function
 dsb:
