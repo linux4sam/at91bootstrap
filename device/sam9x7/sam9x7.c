@@ -26,6 +26,9 @@
 #include "led.h"
 #include "nand.h"
 
+#ifdef CONFIG_MMU
+#include "mmu_cp15.h"
+#endif
 __attribute__((weak)) void wilc_pwrseq(void);
 __attribute__((weak)) void at91_can_stdby_dis(void);
 
@@ -472,3 +475,124 @@ void nandflash_set_smc_timing(unsigned int timing_mode)
 	nandflash_smc_conf(timing_mode, 2);
 }
 #endif /* #ifdef CONFIG_NANDFLASH */
+
+#ifdef CONFIG_MMU
+void mmu_tlb_init(unsigned int *tlb)
+{
+	unsigned int addr;
+
+	/* Reset table entries */
+	for (addr = 0; addr < 4096; addr++)
+		tlb[addr] = 0;
+
+	/* 0x00000000: SRAM (Remapped) */
+	tlb[0x000] = TTB_SECT_ADDR(0x00000000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_SECT_SBO
+	           | TTB_TYPE_SECT;
+
+	/* 0x00100000: ROM */
+	tlb[0x001] = TTB_SECT_ADDR(0x00100000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_CACHEABLE_WB
+	           | TTB_SECT_SBO
+	           | TTB_TYPE_SECT;
+
+	/* 0x00300000: SRAM0 */
+	tlb[0x003] = TTB_SECT_ADDR(0x00300000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+			   | TTB_SECT_CACHEABLE_WB
+	           | TTB_SECT_SBO
+	           | TTB_TYPE_SECT;
+
+	/* 0x00400000: SRAM1 */
+	tlb[0x004] = TTB_SECT_ADDR(0x00400000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_SHAREABLE_DEVICE
+	           | TTB_SECT_SBO
+	           | TTB_TYPE_SECT;
+
+	/* 0x10000000: EBI Chip Select 0 */
+	for (addr = 0x100; addr < 0x200; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_SECT_SBO
+	                  | TTB_TYPE_SECT;
+
+	/* 0x20000000: EBI Chip Select 1 / DDR CS */
+	for (addr = 0x200; addr < 0x300; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_CACHEABLE_WB
+	                  | TTB_SECT_SBO
+	                  | TTB_TYPE_SECT;
+
+	/* 0x30000000: EBI Chip Select 2 */
+	for (addr = 0x300; addr < 0x400; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_SECT_SBO
+	                  | TTB_TYPE_SECT;
+
+	/* 0x40000000: EBI Chip Select 3 */
+	for (addr = 0x400; addr < 0x500; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_SECT_SBO
+	                  | TTB_TYPE_SECT;
+
+	/* 0x50000000: EBI Chip Select 4 */
+	for (addr = 0x500; addr < 0x600; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_STRONGLY_ORDERED
+	                  | TTB_SECT_SBO
+	                  | TTB_TYPE_SECT;
+
+	/* 0x60000000: QSPI MEM */
+	for (addr = 0x600; addr < 0x800; addr++)
+		tlb[addr] = TTB_SECT_ADDR(addr << 20)
+	                  | TTB_SECT_AP_FULL_ACCESS
+	                  | TTB_SECT_DOMAIN(0xf)
+	                  | TTB_SECT_CACHEABLE_WB
+	                  | TTB_SECT_SBO
+	                  | TTB_TYPE_SECT;
+
+	/* 0xf0000000: Peripherals */
+	tlb[0xf00] = TTB_SECT_ADDR(0xf0000000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_STRONGLY_ORDERED
+	           | TTB_SECT_SBO
+	           | TTB_TYPE_SECT;
+
+	/* 0xf8000000: Peripherals */
+	tlb[0xf80] = TTB_SECT_ADDR(0xf8000000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_STRONGLY_ORDERED
+	           | TTB_SECT_SBO
+	           | TTB_TYPE_SECT;
+
+	/* 0xfff0000: System Controller */
+	tlb[0xfff] = TTB_SECT_ADDR(0xfff00000)
+	           | TTB_SECT_AP_FULL_ACCESS
+	           | TTB_SECT_DOMAIN(0xf)
+	           | TTB_SECT_STRONGLY_ORDERED
+	           | TTB_SECT_SBO
+	           | TTB_TYPE_SECT;
+}
+#endif /* #ifdef CONFIG_MMU */
