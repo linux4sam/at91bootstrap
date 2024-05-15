@@ -4,6 +4,10 @@
 
 mainmenu "AT91 Bootstrap configuration"
 
+config VERSION
+	string
+	option env="VERSION"
+
 config HAVE_DOT_CONFIG
 	bool
 	default y

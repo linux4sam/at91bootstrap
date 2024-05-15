@@ -294,7 +294,7 @@ void init_main_window(const gchar * glade_file)
                                        */
                                       NULL);
 
-    sprintf(title, _("at91bootstrap v%s Configuration"), getenv("BR2_VERSION"));
+    sprintf(title, _("at91bootstrap v%s Configuration"), getenv("VERSION"));
     gtk_window_set_title(GTK_WINDOW(main_wnd), title);
 
     gtk_widget_show(main_wnd);

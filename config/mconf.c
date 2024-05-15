@@ -249,7 +249,7 @@ static void set_config_filename(const char *config_filename)
 
     struct symbol *sym;
 
-    sym = sym_lookup("BR2_VERSION", 0);
+    sym = sym_lookup("VERSION", 0);
     sym_calc_value(sym);
     size = snprintf(menu_backtitle, sizeof (menu_backtitle),
                     _("%s - at91bootstrap v%s Configuration"),
