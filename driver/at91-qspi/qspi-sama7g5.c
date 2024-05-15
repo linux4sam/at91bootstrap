@@ -10,6 +10,9 @@
 #include "debug.h"
 #include "pmc.h"
 #include "timer.h"
+#ifdef CONFIG_CACHES
+#include "l1cache.h"
+#endif
 
 #include "qspi-common.h"
 
@@ -259,6 +262,7 @@ static int qspi_transfer(struct qspi_priv *aq,
 {
 	int err;
 	u32 val;
+	int ret;
 
 	if (!cmd->data_len) {
 		/* Start the transfer. */
@@ -301,9 +305,15 @@ static int qspi_transfer(struct qspi_priv *aq,
 		return err;
 	qspi_writel(QSPI_CR_LASTXFER, aq, QSPI_CR);
 
-	return qspi_readl_poll_timeout(aq->reg_base + QSPI_ISR, val,
+	ret = qspi_readl_poll_timeout(aq->reg_base + QSPI_ISR, val,
 				       val & QSPI_ISR_CSRA,
 				       QSPI_TIMEOUT);
+#ifdef CONFIG_CACHES
+	if (cmd->rx_data) {
+		dcache_invalidate_region(aq->reg_base, aq->reg_base + 0x20);
+	}
+#endif
+	return ret;
 }
 
 static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
