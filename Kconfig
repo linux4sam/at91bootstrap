@@ -549,6 +549,32 @@ config LED_B_VALUE
 
 endmenu
 
+config DDR_DRIVER_IMPEDANCE
+	int "DDR output impedance select(ohms)"
+	default 40 if DDR_AS4C256M16D3LC_12BCNTR
+	default 40 if DDR_MT41K512M16HA_125
+	default 40 if DDR_MT47H128M16RT_25E_C
+	default 48 if DDR_IS43LD16128B_25BLI
+	default 48 if DDR_MT52L256M32D1PF_107
+	default 48 if DDR_MT41K128M16JT_125
+	default 48 if DDR_AS4C512M16D3LA_10BIN
+	depends on UMCTL2
+	help
+	  The DDR output impedance select ohms: 34,40 for DDR3, 18,24,40,48,60,80 for DDR2 and LPDDR2/3
+
+config DDR_ODT_IMPEDANCE
+	int "DDR on-die impedance select(ohms)"
+	default 60 if DDR_AS4C256M16D3LC_12BCNTR
+	default 60 if DDR_MT41K512M16HA_125
+	default 60 if DDR_MT41K128M16JT_125
+	default 60 if DDR_AS4C512M16D3LA_10BIN
+	default 50 if DDR_MT47H128M16RT_25E_C
+	default 0 if DDR_IS43LD16128B_25BLI
+	default 120 if DDR_MT52L256M32D1PF_107
+	depends on UMCTL2
+	help
+	  DDR on-die impedance select ohms:id values: 40, 60, 120 for DDR3, 50, 75, 150 for DDR2
+
 menu "TWI BUS setting"
 
 config TWI0
