@@ -71,11 +71,11 @@ static u64 pit64b_read_value(void)
 void udelay(unsigned int usec)
 {
 	u64 base = pit64b_read_value();
-	u64 end = base + (((u64)(clk_rate >> 10) * usec) >> 10);
+	u64 end = base + (clk_rate / 1000000) * usec;
 	u64 current;
 
 	do {
-		current = (u32)pit64b_read_value();
+		current = pit64b_read_value();
 	} while (current < end);
 }
 
