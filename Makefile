@@ -379,7 +379,7 @@ $(AT91BOOTSTRAP).pmecc: $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP)
 	$(Q)test -f $< && cat $+ > $@ || rm -f $@
 
 $(AT91BOOTSTRAP_PTI): $(AT91BOOTSTRAP) ChkSamBa
-	$(Q)"$(SAM-BA)" -g:$<:$@::
+	$(Q)"$(SAM-BA)" -u gen_image:$(DEVICENAME):$<:$@::
 ifdef NIX_SHELL
 	@ln -sf $(BOOT_NAME)-$(PTI).bin ${BINDIR}/${SYMLINK_PTI_BOOT}
 endif
@@ -394,13 +394,15 @@ PHONY+= bootstrap
 rebuild: clean all
 
 ChkSamBa:
-	@( $(SAM-BA) -g:test::: > /dev/null 2>&1 ; \
+	@( $(SAM-BA) -u:test::: > /dev/null 2>&1 ; \
 	  if [ $$? -ne 0 ] ; then \
 		$(SAM-BA) -v ; \
 		if [ $$? -ne 0 ] ; then \
 			echo "[Failed***] SAM-BA tool not installed or not in the \$$PATH"; \
 			exit 2; \
 		else \
+			echo "The '-g' option is deprecated and not supported anymore."; \
+			echo "Please upgrade to sam-ba v3.8 for better functionality."; \
 			echo "[Failed***] SAM-BA tool version not able to generate bootable binary"; \
 			exit 3; \
 		fi \
