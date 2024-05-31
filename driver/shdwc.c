@@ -9,6 +9,7 @@
 #include "shdwc.h"
 
 #define SHDWC_CR	(0x0)
+#define SHDWC_SR	(0x8)
 #define SHDWC_CR_LPMDIS	(1 << 22)
 #define SHDWC_CR_KEY	(0xa5 << 24)
 
@@ -28,6 +29,11 @@ void shdwc_disable_lpm(void)
 
 	val |= (SHDWC_CR_KEY | SHDWC_CR_LPMDIS);
 	shdwc_write(SHDWC_CR, val);
+}
+
+unsigned int shdwc_read_status(void)
+{
+	return shdwc_read(SHDWC_SR);
 }
 
 #else

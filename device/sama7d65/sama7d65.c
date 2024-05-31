@@ -1053,6 +1053,9 @@ void hw_init(void)
 
 	at91_init_can_message_ram();
 
+	/* read-clean the SHDWC Status Register */
+	shdwc_read_status();
+
 #ifdef CONFIG_BOARD_QUIRK_OURASI_DDR3_EB
        at91_can_stdby_dis();
 #endif
