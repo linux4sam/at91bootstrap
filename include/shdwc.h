@@ -8,5 +8,6 @@
 #define __SHDWC_H__
 
 extern void shdwc_disable_lpm(void);
+extern unsigned int shdwc_read_status(void);
 
 #endif	/* #ifndef __SHDWC_H__ */
