@@ -42,4 +42,9 @@ void shdwc_disable_lpm(void)
 {
 }
 
+unsigned int shdwc_read_status(void)
+{
+	return 0;
+}
+
 #endif
