@@ -177,6 +177,7 @@ struct sd_card {
 	unsigned int	ddr_support; /* is this card a DDR according to CARDTYPE */
 	unsigned int	read_bl_len;
 	unsigned int	configured_bus_w; /* bus width which we configured */
+	unsigned int	boot_partition; /* MMC boot partition */
 
 	struct sd_host	*host;
 
