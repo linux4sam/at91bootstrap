@@ -400,6 +400,12 @@ config BOARD_QUIRK_SAMA5D2_ICP
 config BOARD_QUIRK_SAMA5D2_SIP
 	bool "Quirks for boards using SAMA5D225C-D1M/SAMA5D27C-D1G/SAMA5D28C-D1G"
 
+config BOARD_QUIRK_SAM9X60_CURIOSITY
+	bool "Quirks for SAM9X60_CURIOSITY board"
+	help
+	  Enabling this quirk will adapt the drive strength and slew rate of SDHCI pins
+	  for the SAM9X60 Curiosity board.
+
 config BOARD_QUIRK_SAM9X60_EK
 	bool "Quirks for SAM9X60-EK board"
 
