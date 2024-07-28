@@ -605,6 +605,7 @@ static int mmc_cmd_send_ext_csd(struct sd_card *sdcard, char *ext_csd)
 #define MMC_EXT_CSD_ACCESS_CLEAR_BITS	0x02
 #define MMC_EXT_CSD_ACCESS_WRITE_BYTE	0x03
 
+#define EXT_CSD_BYTE_BOOT_CONFIG	179
 #define EXT_CSD_BYTE_BUS_WIDTH		183
 #define EXT_CSD_BYTE_HS_TIMING		185
 #define EXT_CSD_BYTE_POWER_CLASS	187
@@ -665,6 +666,9 @@ static int mmc_card_identify(struct sd_card *sdcard)
 		dbg_printf("MMC: highspeed supported\n");
 	if (sdcard->ddr_support)
 		dbg_printf("MMC: Dual Data Rate supported\n");
+
+	sdcard->boot_partition = (ext_csd[EXT_CSD_BYTE_BOOT_CONFIG] >> 3) & 0x07;
+	dbg_printf("MMC: Current boot partition: %d\n", sdcard->boot_partition);
 
 	return 0;
 }
@@ -842,6 +846,30 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 	return 0;
 
 }
+
+#if defined(CONFIG_MMC_PART_1) || defined(CONFIG_MMC_PART_2) || defined(CONFIG_MMC_PART_CUR)
+static int mmc_partition_select(struct sd_card *sdcard, unsigned int partition)
+{
+	int ret;
+	ret = mmc_cmd_switch_fun(sdcard,
+			MMC_EXT_CSD_ACCESS_CLEAR_BITS,
+			EXT_CSD_BYTE_BOOT_CONFIG,
+			0x07);
+	if (ret)
+		return ret;
+
+	ret = mmc_cmd_switch_fun(sdcard,
+			MMC_EXT_CSD_ACCESS_SET_BITS,
+			EXT_CSD_BYTE_BOOT_CONFIG,
+			partition & 0x07);
+	if (ret)
+		return ret;
+
+	dbg_info("MMC: partition %d selected\n", partition & 0x07);
+
+	return 0;
+}
+#endif
 
 /*-----------------------------------------------------------------*/
 
@@ -1094,6 +1122,25 @@ static int mmc_initialization(struct sd_card *sdcard)
 			console_printf("MMC: DDR mode could not be enabled: %d\n", ret);
 	}
 
+#ifdef CONFIG_MMC_PART_1
+	ret = mmc_partition_select(sdcard, 1);
+	if (ret) {
+		console_printf("MMC: Select boot partition 1 failed !\n");
+		return ret;
+	}
+#elif CONFIG_MMC_PART_2
+	ret = mmc_partition_select(sdcard, 2);
+	if (ret) {
+		console_printf("MMC: Select boot partition 2 failed !\n");
+		return ret;
+	}
+#elif CONFIG_MMC_PART_CUR
+	ret = mmc_partition_select(sdcard, sdcard->boot_partition);
+	if (ret) {
+		console_printf("MMC: Select current boot partition failed !\n");
+		return ret;
+	}
+#endif
 	return 0;
 }
 
