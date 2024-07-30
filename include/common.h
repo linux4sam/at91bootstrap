@@ -76,6 +76,17 @@ extern int kernel_size(unsigned char *addr);
 
 extern void load_image_done(int retval);
 
+
+static inline unsigned short swap_uint16(unsigned short data)
+{
+	volatile unsigned int a, b;
+
+	a = ((data) & 0xff00) >> 8;
+	b = ((data) & 0x00ff) << 8;
+
+	return a | b;
+}
+
 static inline unsigned int swap_uint32(unsigned int data)
 {
 	volatile unsigned int a, b, c, d;
