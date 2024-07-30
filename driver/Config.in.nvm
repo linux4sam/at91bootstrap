@@ -98,6 +98,40 @@ config SDHC_NODMA
 	help
 	  Disable SDHC DMA mode, use PIO mode only
 
+config SDHC_18V
+	bool "Support 1.8V signaling"
+	depends on SDHC && SAMA7D65
+	default n
+	select SD_UHS
+	help
+	  Select if board supports 1.8V signaling
+
+config SDHC_UHS
+	bool "Support ultra high speed of SDCard/e.MMC"
+	depends on SDHC_18V
+	default y if SDHC_18V
+	help
+	  SDCard: UHS-I SDR12/SDR25/SDR50/SDR104/DDR50
+	  e.MMC : HS200 HS400
+
+choice
+    prompt "Max SDHC clock speed"
+	depends on SDHC_UHS
+    default SDHC_CLK_200MHZ
+
+config  SDHC_CLK_100MHZ
+    bool "100 MHz"
+
+config  SDHC_CLK_200MHZ
+    bool "200 MHz"
+
+endchoice
+
+config SDHC_SD_DDR200
+	bool "Support SD Card UHS-I DDR200"
+	depends on SDHC_UHS
+	default n
+
 config SDHC_8BIT_SUPPORT
 	bool "Use the full 8 bit bus width for this SDHC"
 	depends on SAMA5D2
@@ -110,6 +144,13 @@ config SDHC_8BIT_SUPPORT
 	  In such case, deselect this option such that AT91Bootstrap
 	  will not configure SDHC lines 4-7 in SDHC mode, and they can be
 	  used for another interface.
+
+config MMC_NONREMOVABLE
+	bool "Device attached to the MMC bus is not removable"
+	default n
+	help
+		the device is non removable, and the card detection procedure
+		using the SDMCC_CD signal is bypassed.
 
 config FATFS
 	bool
