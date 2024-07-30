@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Microchip Technology Inc. and its subsidiaries
+// Copyright (C) 2024 Microchip Technology Inc. and its subsidiaries
 //
 // SPDX-License-Identifier: MIT
 
@@ -13,6 +13,7 @@
 #define DEFAULT_SD_BLOCK_LEN		512
 
 static struct sdcard_register	sdcard_register;
+static struct sdcard_sw_caps	sdcard_sw_caps;
 static struct sd_command	sdcard_command;
 static struct sd_data		sdcard_data;
 static struct sd_card		atmel_sdcard;
@@ -60,6 +61,20 @@ static int sd_cmd_send_if_cond(struct sd_card *sdcard)
 		return 0;
 }
 
+static int sd_cmd_set_uhs_voltage(struct sd_card *sdcard)
+{
+	struct sd_host *host = sdcard->host;
+	struct sd_command *command = sdcard->command;
+	int ret;
+
+	command->cmd = SD_CMD_VOLTAGE_SWITCH;
+	command->resp_type = SD_RESP_TYPE_R1;
+	command->argu = 0;
+
+	ret = host->ops->send_command(command, 0);
+	return ret;
+}
+
 static int sd_cmd_send_app_cmd(struct sd_card *sdcard)
 {
 	struct sd_host *host = sdcard->host;
@@ -92,6 +107,10 @@ static int sd_cmd_app_sd_send_op_cmd(struct sd_card *sdcard,
 	command->resp_type = SD_RESP_TYPE_R3;
 	command->argu = host->caps_voltages
 				& OCR_VOLTAGE_27_36_MASK;
+
+	if (host->caps_voltages | SD_OCR_VDD_165_195)
+		command->argu |= SD_OCR_S18R | SD_OCR_XPC;
+
 	if (capacity_support)
 		command->argu |= OCR_HCR_CCS;
 
@@ -429,6 +448,219 @@ static int switch_check_hs_busy_status_supported(struct sd_card *sdcard,
 	return 0;
 }
 
+
+#ifdef SD_DBG_UHS
+static void dump_sw_status(unsigned short *status)
+{
+	dbg_very_loud("max current \t%x\n\r", swap_uint16(status[0]));
+	dbg_very_loud(
+		"group6 bits \t%x\n\r" "group5 bits \t%x\n\r" "group4 bits \t%x\n\r"
+		"group3 bits \t%x\n\r" "group2 bits \t%x\n\r" "group1 bits \t%x\n\r",
+		swap_uint16(status[1]), swap_uint16(status[2]), swap_uint16(status[3]),
+		swap_uint16(status[4]), swap_uint16(status[5]), swap_uint16(status[6]));
+	dbg_very_loud(
+		"group6 func \t%x\n\r" "group5 func \t%x\n\r" "group4 func \t%x\n\r"
+		"group3 func \t%x\n\r" "group2 func \t%x\n\r" "group1 func \t%x\n\r",
+		swap_uint16(status[7])>>12 & 0xF, swap_uint16(status[7])>>8 & 0xF,
+		swap_uint16(status[7])>>4 & 0xF, swap_uint16(status[7]) & 0xF,
+		swap_uint16(status[8])>>12 & 0xF, swap_uint16(status[8])>>8 & 0xF);
+	dbg_very_loud("struct veri \t%x\n\r", swap_uint16(status[8]) & 0xFF);
+	dbg_very_loud(
+		"group6 busy \t%x\n\r" "group5 busy \t%x\n\r" "group4 busy \t%x\n\r"
+		"group3 busy \t%x\n\r" "group2 busy \t%x\n\r" "group1 busy \t%x\n\r\n\r",
+		swap_uint16(status[9]), swap_uint16(status[10]), swap_uint16(status[11]),
+		swap_uint16(status[12]), swap_uint16(status[13]), swap_uint16(status[14]));
+}
+#endif
+
+static int sd_read_switch(struct sd_card *sdcard)
+{
+	unsigned short status[32];
+	unsigned int version;
+	unsigned int retries = 6;
+	unsigned int i;
+	int ret;
+
+	for (i = 0; i < retries; i++) {
+		/* Mode 0 operation: check function */
+		ret = sd_cmd_switch_fun(sdcard,
+					SD_SWITCH_MODE_CHECK,
+					SD_SWITCH_GRP_ACCESS_MODE,
+					0xF,
+					(void *)status);
+		if (ret)
+			return ret;
+
+		/* Check Data Structure version
+		 * 0x00 - bits 511:376 are defined
+		 * 0x01 - bits 511:272 are defined
+		 */
+		version = swap_uint16(status[8]);
+		if ((version & 0xff) == 0x00)
+			break;
+
+		/* Check Busy Status of functions in groups(1 2 3 4)
+		 * Try again if any function in any group is busy
+		 */
+		if (!swap_uint16(status[14]) &&
+			!swap_uint16(status[13]) &&
+			!swap_uint16(status[12]) &&
+			!swap_uint16(status[11]))
+			break;
+	};
+
+	if (i == retries)
+		return -1;
+#ifdef SD_DBG_UHS
+	dump_sw_status(status);
+#endif
+	if (swap_uint16(status[6]) & SD_MODE_HIGH_SPEED)
+		sdcard->sw_caps->hs_max_dtr = HIGH_SPEED_MAX_DTR;
+	if (sdcard->sd_spec_version == SD_VERSION_3) {
+		sdcard->sw_caps->sd3_bus_mode   = swap_uint16(status[6]);
+		sdcard->sw_caps->sd3_cmd_sys    = swap_uint16(status[5]);
+		sdcard->sw_caps->sd3_drv_type   = swap_uint16(status[4]);
+		sdcard->sw_caps->sd3_curr_limit = swap_uint16(status[3]);
+	}
+
+	return 0;
+}
+
+static int sd_switch_func_uhs(struct sd_card *sdcard)
+{
+	struct sd_host *host = sdcard->host;
+	unsigned short status[32];
+	unsigned int group_no = SD_SWITCH_GRP_ACCESS_MODE;
+	unsigned int drv_type;
+	unsigned int curr_limit;
+	unsigned int bus_mode;
+	unsigned int bus_clock;
+	unsigned int result;
+	int ret;
+
+	/*
+	 * Select driver strength.
+	 * Type A driver is prefered,
+	 * otherwise use the default Type B driver.
+	 */
+	if (sdcard->sw_caps->sd3_drv_type & SD_DRIVER_TYPE_A) {
+		drv_type = SD_SET_DRIVER_TYPE_A;
+
+		/* Set Card driver strength */
+		ret = sd_cmd_switch_fun(sdcard,
+					SD_SWITCH_MODE_SET,
+					SD_SWITCH_GRP_DRV_STRENGTH,
+					drv_type,
+					(void *)status);
+		if (ret)
+			return ret;
+
+		result = swap_uint16(status[7]) & 0xF;
+		if (result != drv_type)
+			return -1;
+	} else {
+		drv_type = SD_SET_DRIVER_TYPE_B;
+	}
+	/* Set Host driver strength */
+	host->ops->set_uhs_driver(sdcard, drv_type);
+
+	/*
+	 * Allowed power consumption for removable cards shall be
+	 * up to 1.80W, so first check 1.80W and then 1.44W,
+	 * otherwise use the default 0.72W.
+	 */
+	if (sdcard->sw_caps->sd3_curr_limit & SD_MAX_CURRENT_500) {
+		curr_limit = SD_SET_CURRENT_LIMIT_500;
+	} else if (sdcard->sw_caps->sd3_curr_limit & SD_MAX_CURRENT_400) {
+		curr_limit = SD_SET_CURRENT_LIMIT_400;
+	} else {
+		curr_limit = SD_SET_CURRENT_LIMIT_200;
+	}
+	/* Set Card current limit if non-default */
+	if (curr_limit != SD_SET_CURRENT_LIMIT_200) {
+		ret = sd_cmd_switch_fun(sdcard,
+					SD_SWITCH_MODE_SET,
+					SD_SWITCH_GRP_CUR_LIMIT,
+					curr_limit,
+					(void *)status);
+		if (ret)
+			return ret;
+
+		result = swap_uint16(status[7]) >> 4 & 0xF;
+		if (result != curr_limit)
+			return -1;
+	}
+
+	/*
+	 * The SDHC host supports all UHS-I bus speed modes,
+	 * therefore select the highest speed mode supported by the SD Card.
+	 */
+#ifdef CONFIG_SDHC_SD_DDR200
+	if (sdcard->sw_caps->sd3_cmd_sys & SD_CMD_SYS_VENDOR) {
+		/* Enable DDR200 if Vendor specific flag is supported */
+		bus_mode  = UHS_DDR200_BUS_SPEED;
+		bus_clock = UHS_DDR200_MAX_DTR;
+		group_no  = SD_SWITCH_GRP_CMD_SYS;
+	} else
+#endif
+	if (sdcard->sw_caps->sd3_bus_mode & SD_MODE_UHS_SDR104) {
+		bus_mode  = UHS_SDR104_BUS_SPEED;
+		bus_clock = UHS_SDR104_MAX_DTR;
+	} else if (sdcard->sw_caps->sd3_bus_mode & SD_MODE_UHS_SDR50) {
+		bus_mode  = UHS_SDR50_BUS_SPEED;
+		bus_clock = UHS_SDR50_MAX_DTR;
+	} else if (sdcard->sw_caps->sd3_bus_mode & SD_MODE_UHS_DDR50) {
+		bus_mode  = UHS_DDR50_BUS_SPEED;
+		bus_clock = UHS_DDR50_MAX_DTR;
+	} else if (sdcard->sw_caps->sd3_bus_mode & SD_MODE_UHS_SDR25) {
+		bus_mode  = UHS_SDR25_BUS_SPEED;
+		bus_clock = UHS_SDR25_MAX_DTR;
+	} else {
+		bus_mode  = UHS_SDR12_BUS_SPEED;
+	}
+	/* Set Card bus speed mode if non-default */
+	if (bus_mode != UHS_SDR12_BUS_SPEED) {
+		ret = sd_cmd_switch_fun(sdcard,
+					SD_SWITCH_MODE_SET,
+					group_no,
+					bus_mode,
+					(void *)status);
+		if (ret)
+			return ret;
+#ifdef SD_DBG_UHS
+		dump_sw_status(status);
+#endif
+		if (group_no == SD_SWITCH_GRP_ACCESS_MODE) {
+			result = swap_uint16(status[8])>>8 & 0xF;
+		} else if (group_no == SD_SWITCH_GRP_CMD_SYS) {
+			result = swap_uint16(status[8])>>12 & 0xF;
+		}
+		if (result != bus_mode)
+			return -1;
+
+		/* Set Host bus speed mode and bus clock */
+		host->ops->set_uhs_mode(sdcard,
+			bus_mode == UHS_DDR200_BUS_SPEED ? UHS_DDR50_BUS_SPEED : bus_mode);
+		if (bus_clock > host->caps_uhs_clock)
+			bus_clock = host->caps_uhs_clock;
+		host->ops->set_clock(sdcard, bus_clock);
+
+		/*
+		 * Sampling clock tuning is required for UHS104 host
+		 * and optional for UHS50 host.
+		 */
+		if (bus_mode == UHS_SDR104_BUS_SPEED) {
+			ret = host->ops->exec_tuning(sdcard, SD_CMD_SEND_TUNING_BLOCK);
+			if (ret) {
+				dbg_info("SD: UHS tuning error\n");
+				return -1;
+			}
+		}
+	}
+
+	return 0;
+}
+
 static int sd_switch_func_high_speed(struct sd_card *sdcard)
 {
 	unsigned int switch_func_status[16];
@@ -484,6 +716,18 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 	}
 
 	return 0;
+}
+
+static bool sd_card_using_v18(struct sd_card *sdcard)
+{
+	/*
+	 * According to the SD spec., the Bus Speed Mode (function group 1) bits
+	 * 2 to 4 are zero if the card is initialized at 3.3V signal level. Thus
+	 * they can be used to determine if the card has already switched to
+	 * 1.8V signaling.
+	 */
+	return sdcard->sw_caps->sd3_bus_mode &
+	       (SD_MODE_UHS_SDR50 | SD_MODE_UHS_SDR104 | SD_MODE_UHS_DDR50);
 }
 
 /*-----------------------------------------------------------------*/
@@ -624,7 +868,7 @@ static int mmc_card_identify(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
-	cardtype = ext_csd[EXT_CSD_BYTE_CARD_TYPE] & 0x07;
+	cardtype = ext_csd[EXT_CSD_BYTE_CARD_TYPE];
 
 	switch(ext_csd[EXT_CSD_BYTE_EXT_CSD_REV]) {
 	case 0:
@@ -659,6 +903,8 @@ static int mmc_card_identify(struct sd_card *sdcard)
 	};
 
 	sdcard->highspeed_card = !!(cardtype & 0x02);
+	sdcard->hs200speed_card = !!(cardtype & 0x10);
+	sdcard->hs400speed_card = !!(cardtype & 0x40);
 	sdcard->ddr_support = !!(cardtype & 0x04);
 
 	if (sdcard->highspeed_card)
@@ -669,18 +915,32 @@ static int mmc_card_identify(struct sd_card *sdcard)
 	return 0;
 }
 
+
+static int _mmc_switch_timing(struct sd_card *sdcard, int timing)
+{
+	int ret;
+
+	if (timing > 3)
+		return -1;
+
+	ret = mmc_cmd_switch_fun(sdcard,
+			MMC_EXT_CSD_ACCESS_WRITE_BYTE,
+			EXT_CSD_BYTE_HS_TIMING,
+			timing);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int mmc_switch_high_speed(struct sd_card *sdcard)
 {
 	char ext_csd[DEFAULT_SD_BLOCK_LEN];
 	int ret;
 
-	ret = mmc_cmd_switch_fun(sdcard,
-			MMC_EXT_CSD_ACCESS_WRITE_BYTE,
-			EXT_CSD_BYTE_HS_TIMING,
-			1);
+	ret = _mmc_switch_timing(sdcard, 1);
 	if (ret)
 		return ret;
-
 	ret = mmc_cmd_send_ext_csd(sdcard, ext_csd);
 	if (ret)
 		return ret;
@@ -688,6 +948,50 @@ static int mmc_switch_high_speed(struct sd_card *sdcard)
 	if (!ext_csd[EXT_CSD_BYTE_HS_TIMING])
 		return -1;
 
+	return 0;
+}
+
+static int mmc_switch_hs200(struct sd_card *sdcard)
+{
+	struct sd_host *host = sdcard->host;
+	char ext_csd[DEFAULT_SD_BLOCK_LEN];
+	int ret;
+
+	ret = _mmc_switch_timing(sdcard, 2);
+	if (ret) {
+		dbg_info("mmc_switch_hs200 failed \n");
+		return ret;
+	}
+
+	if (host->ops->set_hs200)
+		host->ops->set_hs200(sdcard);
+
+	ret = mmc_cmd_send_ext_csd(sdcard, ext_csd);
+	if (ret)
+		return ret;
+	if (ext_csd[EXT_CSD_BYTE_HS_TIMING] != 2)
+		return 1;
+	return 0;
+}
+
+static int mmc_switch_hs400(struct sd_card *sdcard)
+{
+	struct sd_host *host = sdcard->host;
+	char ext_csd[DEFAULT_SD_BLOCK_LEN];
+	int ret;
+
+	ret =_mmc_switch_timing(sdcard, 3);
+	if (ret) {
+		dbg_info("mmc_switch_hs400 failed \n");
+		return ret;
+	}
+	if (host->ops->set_hs400)
+		host->ops->set_hs400(sdcard);
+	ret = mmc_cmd_send_ext_csd(sdcard, ext_csd);
+	if (ret)
+		return ret;
+	if (ext_csd[EXT_CSD_BYTE_HS_TIMING] != 3)
+		return 1;
 	return 0;
 }
 
@@ -840,7 +1144,67 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
 	}
 
 	return 0;
+}
 
+/*
+ * Configure HS200 mode,  set the desired bus width without DDR,
+ * switch to HS200 mode and set the clock to > 52Mhz and <=200MHz
+ */
+static int mmc_select_hs200(struct sd_card *sdcard)
+{
+	int ret;
+	struct sd_host *host = sdcard->host;
+
+	if (host->ops->set_1v8)
+		host->ops->set_1v8(sdcard);
+
+	/* Bustest does not work below 26 Mhz */
+	if (host->ops->set_clock)
+		host->ops->set_clock(sdcard, 26000000);
+
+	ret = mmc_detect_buswidth(sdcard);
+	if (ret) {
+		console_printf("MMC: Bustest failed !\n");
+		return ret;
+	}
+
+	ret = mmc_switch_hs200(sdcard);
+	if (ret)
+		return ret;
+
+	if (host->ops->set_clock)
+		host->ops->set_clock(sdcard, 200000000);
+
+	/* Perform the Tuning Process at the HS200 target operating frequency */
+	ret = host->ops->exec_tuning(sdcard, MMC_CMD_SEND_TUNING_BLOCK);
+	if (ret)
+		return ret;
+
+	if (sdcard->hs400speed_card) {
+		/* switch to High Speed mode and then set the clock frequency to a value not greater than 52 MHz */
+		ret = mmc_switch_high_speed(sdcard);
+		if (ret)
+			return ret;
+
+		/* host to downgrade to HS timing */
+		if (host->ops->set_clock)
+			host->ops->set_clock(sdcard, 50000000);
+
+		/* Set BUS_WIDTH[183] to 0x06 to select the dual data rate x8 bus mode */
+		ret = mmc_bus_width_select(sdcard, 8, 1);
+		if (ret) {
+			console_printf("MMC: select 8 bits with DDR failed !\n");
+			return ret;
+		}
+		console_printf("MMC: switch HS400 mode\n");
+		ret = mmc_switch_hs400(sdcard);
+		if (ret)
+			return ret;
+
+		if (host->ops->set_clock)
+			host->ops->set_clock(sdcard, 200000000);
+	}
+	return 0;
 }
 
 /*-----------------------------------------------------------------*/
@@ -852,6 +1216,8 @@ static int mmc_detect_buswidth(struct sd_card *sdcard)
  */
 static int sdcard_identification(struct sd_card *sdcard)
 {
+	struct sd_host *host = sdcard->host;
+	int timeout;
 	int ret;
 
 	udelay(3000);
@@ -898,6 +1264,52 @@ static int sdcard_identification(struct sd_card *sdcard)
 		return ret;
 
 	sdcard->highcapacity_card = (sdcard->reg->ocr & OCR_HCR_CCS) ? 1 : 0;
+
+	if (host->caps_uhs && (sdcard->reg->ocr & SD_ROCR_S18A)) {
+		ret = sd_cmd_set_uhs_voltage(sdcard);
+		if (ret) {
+			dbg_info("SD: Card 1v8 voltage switch failed\n");
+			return -1;
+		}
+
+		/*
+		 * The card should drive cmd and dat[0:3] low immediately
+		 * after the response of cmd11, but wait 1 ms to be sure
+		 */
+		timeout = 10;
+		while (!host->ops->card_busy(sdcard) && timeout--)
+			udelay(100);
+		if (timeout < 0) {
+			dbg_info("SD: Timeout waiting for card busy\n");
+			return -1;
+		}
+
+		ret = host->ops->set_1v8(sdcard);
+		if (ret) {
+			dbg_info("SD: Host 1v8 voltage switch failed\n");
+			return -1;
+		}
+
+		/*
+		 * Stop the SD clock, and at least 5ms delay here,
+		 * otherwise some SD Cards will never be ready.
+		 */
+		host->ops->set_clock(sdcard, 0);
+		mdelay(5);
+		/* Start the SD clock from SDR12 */
+		host->ops->set_clock(sdcard, UHS_SDR12_MAX_DTR);
+		host->ops->set_uhs_mode(sdcard, UHS_SDR12_BUS_SPEED);
+
+		timeout = 100;
+		while (host->ops->card_busy(sdcard) && timeout--)
+			udelay(100);
+		if (timeout < 0) {
+			dbg_info("SD: Timeout waiting for card ready\n");
+			return -1;
+		}
+
+		dbg_info("SD: Switched to 1v8 voltage\n");
+	}
 
 	if (sdcard->card_type == CARD_TYPE_SD) {
 		dbg_info("SD: Card Capacity: ");
@@ -989,6 +1401,37 @@ static int sd_initialization(struct sd_card *sdcard)
 		dbg_info("1.0 and 1.01\n");
 	}
 
+	if (host->caps_uhs &&
+		(sdcard->sd_spec_version == SD_VERSION_3)) {
+		if (sd_read_switch(sdcard))
+			return -1;
+	}
+
+	if (host->caps_uhs &&
+		(sd_card_using_v18(sdcard))) {
+		if (!sdcard->v1v8) {
+			ret = host->ops->set_1v8(sdcard);
+			if (ret) {
+				dbg_info("SD: Host 1v8 voltage switch failed\n");
+				return -1;
+			}
+			dbg_info("SD: Switched to 1v8 voltage\n");
+		}
+
+		/* Change the bus mode */
+		ret = sd_card_set_bus_width(sdcard);
+		if (ret)
+			return ret;
+
+		/* Select UHS-I mode */
+		ret = sd_switch_func_uhs(sdcard);
+		if (ret)
+			return ret;
+		dbg_info("SD: Switched to UHS-I mode\n");
+
+		return 0;
+	}
+
 	if (host->caps_high_speed) {
 		if (sdcard->sd_spec_version != SD_VERSION_1_0) {
 			ret = sd_switch_func_high_speed(sdcard);
@@ -1058,6 +1501,12 @@ static int mmc_initialization(struct sd_card *sdcard)
 	if (ret)
 		return ret;
 
+	if (sdcard->hs200speed_card){
+		ret = mmc_select_hs200(sdcard);
+		if (!ret)
+			return 0;
+	}
+
 	if (sdcard->host->caps_high_speed) {
 		if (sdcard->sd_spec_version >= MMC_VERSION_4) {
 			ret = mmc_switch_high_speed(sdcard);
@@ -1101,10 +1550,12 @@ static void init_sdcard_struct(struct sd_card *sdcard)
 {
 	memset((char *)sdcard, 0, sizeof(*sdcard));
 	memset((char *)&sdcard_register, 0, sizeof(sdcard_register));
+	memset((char *)&sdcard_sw_caps, 0, sizeof(sdcard_sw_caps));
 	memset((char *)&sdcard_command,	0, sizeof(sdcard_command));
 	memset((char *)&sdcard_data, 0, sizeof(sdcard_data));
 
 	sdcard->reg = &sdcard_register;
+	sdcard->sw_caps = &sdcard_sw_caps;
 	sdcard->command = &sdcard_command;
 	sdcard->data = &sdcard_data;
 }
@@ -1242,7 +1693,8 @@ static int sd_cmd_read_single_block(struct sd_card *sdcard,
 	return 1;
 }
 
-#define SUPPORT_MAX_BLOCKS	16
+#define SUPPORT_MAX_BLOCKS	(ADMA2_MAX_NUM_DESC * ADMA2_MAX_DESC_BLOCKS)
+
 unsigned int sdcard_block_read(unsigned int start,
 				unsigned int block_count,
 				void *buf)
