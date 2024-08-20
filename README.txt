@@ -13,9 +13,11 @@ external memory support and serial connection.
 
 Supported AT91 Devices:
 - SAM9X60
+- SAM9X7
 - SAMA5D2
 - SAMA5D3
 - SAMA5D4
+- SAMA7D65
 - SAMA7G5
 
 1 Host Setup
@@ -97,6 +99,7 @@ ARM Toolchain:
 - gcc version 7.5.0 (Linaro GCC 7.5-2019.12)
 - gcc version 8.2.0 (Ubuntu 8.2.0-7ubuntu1)
 - gcc version 10.2.1 20201103 (GNU Toolchain for the A-profile Architecture 10.2-2020.11 (arm-10.16))
+- gcc version 12.3.0 (Ubuntu 12.3.0-1ubuntu1~23.04)
 We recommend using a toolchain newer than 6.0
 
 3 Compile AT91Bootstrap
@@ -256,11 +259,11 @@ https://github.com/linux4sam
 
 Microchip Linux for MPUs Forum:
 
-https://www.microchip.com/forums/f542.aspx
+https://forum.microchip.com/s/sub-forums?&subForumId=a553l000000J2ruAAC&forumId=a553l000000J2q0AAC&subForumName=Software%20Tools%20for%20MPUs&forumName=Microprocessors
 
 Maintainers:
 
-Eugen Hristev <eugen.hristev@microchip.com>
+Li Bin <bin.li@microchip.com>
 
 Nicolas Ferre <nicolas.ferre@microchip.com>
 
