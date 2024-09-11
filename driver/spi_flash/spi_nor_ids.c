@@ -44,7 +44,7 @@
         .sector_size = 65536U,                  \
         .n_sectors = (_n_sectors),              \
         .page_size = 256,                       \
-        .flags = SNOR_SECT_4K | SNOR_NO_4BAIS
+        .flags = SNOR_SECT_4K
 
 #define MX66(_name, _jedec_id, _n_sectors)      \
 	.name = _name,                          \
