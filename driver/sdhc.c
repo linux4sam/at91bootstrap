@@ -926,13 +926,6 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	if (!timeout)
 		dbg_very_loud("SDHC: Timeout waiting for command complete\n");
 
-	/* clear the status, except for read and write ready.
-	 * those will be cleared by the read/write data routine, which
-	 * bases itself on the fact that the hardware is ready to receive data
-	 * or has data ready to be read
-	 */
-	sdhc_writew(SDMMC_NISTR, normal_status & ~ (SDMMC_NISTR_BWRRDY | SDMMC_NISTR_BRDRDY));
-
 	if ((normal_status & normal_status_mask) == normal_status_mask) {
 		if (sd_cmd->resp_type == SD_RESP_TYPE_R2) {
 			for (i = 0; i < 4; i++)
@@ -973,6 +966,14 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 
 		ret = -1;
 	}
+
+	/* clear the status after command and transfer completed, except for read and write ready.
+	 * those will be cleared by the read/write data routine, which
+	 * bases itself on the fact that the hardware is ready to receive data
+	 * or has data ready to be read
+	 */
+	sdhc_writew(SDMMC_NISTR, normal_status & ~(SDMMC_NISTR_BWRRDY | SDMMC_NISTR_BRDRDY));
+
 	return ret;
 }
 
