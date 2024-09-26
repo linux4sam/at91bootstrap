@@ -100,7 +100,7 @@ config SDHC_NODMA
 
 config SDHC_18V
 	bool "Support 1.8V signaling"
-	depends on SDHC && SAMA7D65
+	depends on SDHC
 	default n
 	select SD_UHS
 	help
@@ -147,6 +147,7 @@ config SDHC_8BIT_SUPPORT
 
 config MMC_NONREMOVABLE
 	bool "Device attached to the MMC bus is not removable"
+	depends on SDHC
 	default n
 	help
 		the device is non removable, and the card detection procedure

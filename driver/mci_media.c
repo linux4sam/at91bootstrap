@@ -603,6 +603,13 @@ static int sd_switch_func_uhs(struct sd_card *sdcard)
 		group_no  = SD_SWITCH_GRP_CMD_SYS;
 	} else
 #endif
+
+/* SAMA7G5 EERATA: SDR104, HS200, HS400 modes are not functional
+   Using mode SDR104, HS200 or HS400 may lead to tuning issues,
+   data read errors or clock switching failures. */
+#ifdef CONFIG_SAMA7G5
+	sdcard->sw_caps->sd3_bus_mode &= (~SD_MODE_UHS_SDR104);
+#endif
 	if (sdcard->sw_caps->sd3_bus_mode & SD_MODE_UHS_SDR104) {
 		bus_mode  = UHS_SDR104_BUS_SPEED;
 		bus_clock = UHS_SDR104_MAX_DTR;
@@ -903,8 +910,14 @@ static int mmc_card_identify(struct sd_card *sdcard)
 	};
 
 	sdcard->highspeed_card = !!(cardtype & 0x02);
+
+/* SAMA7G5 EERATA: SDR104, HS200, HS400 modes are not functional
+   Using mode SDR104, HS200 or HS400 may lead to tuning issues,
+   data read errors or clock switching failures. */
+#ifdef CONFIG_SAMA7D65
 	sdcard->hs200speed_card = !!(cardtype & 0x10);
 	sdcard->hs400speed_card = !!(cardtype & 0x40);
+#endif
 	sdcard->ddr_support = !!(cardtype & 0x04);
 
 	if (sdcard->highspeed_card)
