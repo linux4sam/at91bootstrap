@@ -234,21 +234,15 @@ static int of_get_nextnode_offset(void *blob,
 	return 0;
 }
 
-static int of_get_node_offset(void *blob, const char *name, int *offset)
+static int __of_get_node_offset(void *blob, const char *name, int start_offset, int *offset)
 {
-	int start_offset = 0;
 	int nodeoffset = 0;
 	int nextoffset = 0;
 	int depth = 0;
-	unsigned int token;
 	unsigned int namelen = strlen(name);
 	char *nodename;
 	int ret;
 
-	/* find the root node*/
-	ret = of_get_token_nextoffset(blob, 0, &start_offset, &token);
-	if (ret)
-		return -1;
 
 	while (1) {
 		ret = of_get_nextnode_offset(blob, start_offset,
@@ -271,6 +265,20 @@ static int of_get_node_offset(void *blob, const char *name, int *offset)
 	*offset = nextoffset;
 
 	return 0;
+}
+
+
+static int of_get_node_offset(void *blob, const char *name, int *offset)
+{
+	int ret;
+	int start_offset = 0;
+	unsigned int token;
+	/* find the root node*/
+	ret = of_get_token_nextoffset(blob, 0, &start_offset, &token);
+	if (ret)
+		return -1;
+
+	return __of_get_node_offset(blob, name, start_offset, offset);
 }
 
 /* -------------------------------------------------------- */
@@ -655,3 +663,143 @@ const char *bootargs_from_dt(void *blob)
 
 	return (const char *)fdt_getprop(blob, nodeoffset, "bootargs", NULL);
 }
+
+#ifdef CONFIG_IMG_FIT
+
+struct dt_img_info {
+	unsigned int load;
+	unsigned int entry;
+	const void *data;
+	int data_len;
+	const char *type;
+	const char *desc;
+};
+
+static int get_image_info_from_node(void *blob, int node_offset,  struct dt_img_info *info)
+{
+	const unsigned int *p;
+
+	info->data_len = 0;
+	info->desc = fdt_getprop(blob, node_offset, "description", NULL);
+	info->type = fdt_getprop(blob, node_offset, "type", NULL);
+	info->data = fdt_getprop(blob, node_offset, "data", &info->data_len);
+	p = fdt_getprop(blob, node_offset, "load", NULL);
+	info->load = p ? swap_uint32(*p) : (unsigned int) -1;
+	p = fdt_getprop(blob, node_offset, "entry", NULL);
+	info->entry = p ? swap_uint32(*p) : (unsigned int) -1;
+
+	return 0;
+}
+
+static inline void fast_and_unprecise_memset(unsigned int *dest, unsigned int w, unsigned l)
+{
+	l = l / 16;
+	dest = (unsigned int*)((unsigned int)dest | 3) + 1;
+	while (l--) {
+		dest[0] = w;
+		dest[1] = w;
+		dest[2] = w;
+		dest[3] = w;
+		dest += 4;
+	}
+}
+
+int deploy_fit_image(void *blob, struct image_info *image, const char *configuration_name)
+{
+	int rc;
+	int configurations_node_offset;
+	int images_node_offset;
+	int conf_node_offset;
+	int property_offset = 0;
+	int nextoffset, startoffset;
+	const char *conf_desc;
+	void *fit_addr = image->dest;
+	unsigned int fit_length = image->length;
+
+
+	rc = check_dt_blob_valid(blob);
+	if (rc) {
+		dbg_info("invalid FDT blob\n");
+		return -1;
+	}
+
+	rc = of_get_node_offset(blob, "configurations", &configurations_node_offset);
+	if (rc) {
+		dbg_info("can't find 'configurations' node\n");
+		return -1;
+	}
+
+	rc = of_get_node_offset(blob, "images", &images_node_offset);
+	if (rc) {
+		dbg_info("can't find 'images'' node\n");
+		return -1;
+	}
+
+	if (!configuration_name)
+		configuration_name = fdt_getprop(blob, configurations_node_offset, "default", NULL);
+
+	if (!configuration_name) {
+		dbg_info("No configuration name provided or found in ITB\n");
+		return -1;
+	}
+
+	rc = __of_get_node_offset(blob, configuration_name, configurations_node_offset, &conf_node_offset);
+	if (rc) {
+		dbg_info("can't find configuration node '%s'\n", configuration_name);
+		return -1;
+	}
+
+	conf_desc = fdt_getprop(blob, conf_node_offset, "description", NULL);
+	if (conf_desc)
+		dbg_info("chosen configuration is '%s'\n", conf_desc);
+
+
+	// iterate over all the images found in the selected configuration node
+	nextoffset = conf_node_offset;
+	while ((startoffset = nextoffset) != 0) {
+		struct dt_img_info info;
+		const struct fdt_property *prop;
+		int img_node_offset;
+		rc = of_get_next_property_offset(blob, startoffset,
+					&property_offset, &nextoffset);
+		if (rc)
+			break;
+
+		prop = (const struct fdt_property *)of_dt_struct_offset(blob, property_offset);
+		rc = __of_get_node_offset(blob, prop->data, images_node_offset, &img_node_offset);
+		if (rc) {
+			// not fiding a node may be perfectly fine. it could just be that the
+			// property is a string or whatever. Continue with the next property.
+			continue;
+		}
+
+		get_image_info_from_node(blob, img_node_offset, &info);
+		dbg_loud("description : %s\n", info.desc ? info.desc : "-");
+		dbg_loud("type : %s\n", info.type ? info.type : "-");
+		dbg_loud("data : %x (len %x)\n", info.data, info.data_len);
+		dbg_loud("load : %x\n", info.load);
+		dbg_loud("entry : %x\n", info.entry);
+
+		if (!info.type)
+			continue;
+
+		if (strcmp(info.type, "flat_dt") == 0) {
+			image->of_dest = (void*) info.load;
+			image->of_length = info.data_len;
+		} else if (strcmp(info.type, "kernel") == 0) {
+			image->dest = (void*) info.load;
+			image->length = info.data_len;
+		} else {
+			continue;
+		}
+		dbg_loud("copying '%s' (type: %s): %x -> %x (%x bytes)\n", info.desc ? info.desc : "-", info.type, info.data, info.load, info.data_len);
+		memcpy((void*) info.load, info.data, info.data_len);
+	}
+
+	// Clean-up the FIT image memory just in case it contains some sensitive data (secure boot)
+	dbg_loud("zeroing fit img (%x -> %x)\n", fit_addr, fit_addr + fit_length);
+	fast_and_unprecise_memset(fit_addr, 0, fit_length);
+
+	return 0;
+}
+#endif

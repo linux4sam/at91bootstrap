@@ -420,6 +420,11 @@ int load_kernel(struct image_info *image)
 	image->dest += sizeof(at91_secure_header_t);
 #endif
 
+#ifdef CONFIG_IMG_FIT
+	if (!check_dt_blob_valid(image->dest))
+		deploy_fit_image(image->dest, image, NULL);
+#endif
+
 	int total_bootargs_sz;
 	const char *base_bootargs;
 
