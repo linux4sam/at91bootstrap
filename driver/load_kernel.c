@@ -36,8 +36,9 @@ static char *bootargs;
 
 #ifdef CONFIG_OF_LIBFDT
 
-static int setup_dt_blob(void *blob)
+static int setup_dt_blob(void *blob, struct image_info *image)
 {
+	char *bootargs_start = NULL;
 	int ret;
 #if !defined(CONFIG_LOAD_OPTEE)
 	unsigned int mem_bank = AT91C_BASE_DDRCS;
@@ -71,10 +72,12 @@ static int setup_dt_blob(void *blob)
 		if (*p == '\0')
 			return -1;
 
-		ret = fixup_chosen_node(blob, p);
-		if (ret)
-			return ret;
+		bootargs_start = p;
 	}
+
+	ret = fixup_chosen_node(blob, bootargs_start, image);
+	if (ret)
+		return ret;
 
 /*
  * When using OP-TEE the memory node should match the configuration of the DDR
@@ -470,7 +473,7 @@ int load_kernel(struct image_info *image)
 	kernel_entry = (void (*)(int, int, unsigned int))entry_point;
 
 #ifdef CONFIG_OF_LIBFDT
-	ret = setup_dt_blob((char *)image->of_dest);
+	ret = setup_dt_blob((char *)image->of_dest, image);
 	if (ret)
 		return ret;
 

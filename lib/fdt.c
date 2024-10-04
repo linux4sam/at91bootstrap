@@ -556,9 +556,10 @@ int check_dt_blob_valid(void *blob)
  * property "bootargs": This zero-terminated string is passed
  * as the kernel command line.
  */
-int fixup_chosen_node(void *blob, char *bootargs)
+int fixup_chosen_node(void *blob, char *bootargs, struct image_info *image)
 {
 	int nodeoffset;
+	unsigned int value_u32;
 	char *value = bootargs;
 	int valuelen = strlen(value) + 1;
 	int ret;
@@ -573,12 +574,31 @@ int fixup_chosen_node(void *blob, char *bootargs)
 	 * if the property doesn't exit, add it
 	 * if the property exists, update it.
 	 */
-	ret = of_set_property(blob, nodeoffset, "bootargs", value, valuelen);
-	if (ret) {
-		dbg_info("fail to set bootargs property\n");
-		return ret;
+	if (bootargs) {
+		ret = of_set_property(blob, nodeoffset, "bootargs", value, valuelen);
+		if (ret) {
+			dbg_info("fail to set bootargs property\n");
+			return ret;
+		}
 	}
 
+	if (image->initrd_length) {
+		value_u32 = swap_uint32((unsigned int) image->initrd_dest);
+		ret = of_set_property(blob, nodeoffset, "linux,initrd-start", &value_u32, sizeof(value_u32));
+		if (ret) {
+			dbg_loud("unable to set linux,initrd-start\n");
+			return ret;
+		}
+		dbg_loud("linux,initrd-start = %x\n", value_u32);
+
+		value_u32 = swap_uint32((unsigned int) image->initrd_dest + image->initrd_length);
+		ret = of_set_property(blob, nodeoffset, "linux,initrd-end", &value_u32, sizeof(value_u32));
+		if (ret) {
+			dbg_loud("unable to set linux,initrd-end\n");
+			return ret;
+		}
+		dbg_loud("linux,initrd-end = %x\n", value_u32);
+	}
 	return 0;
 }
 
@@ -789,6 +809,9 @@ int deploy_fit_image(void *blob, struct image_info *image, const char *configura
 		} else if (strcmp(info.type, "kernel") == 0) {
 			image->dest = (void*) info.load;
 			image->length = info.data_len;
+		} else if (strcmp(info.type, "ramdisk") == 0) {
+			image->initrd_dest = (void*) info.load;
+			image->initrd_length = info.data_len;
 		} else {
 			continue;
 		}
