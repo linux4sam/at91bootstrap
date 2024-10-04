@@ -7,6 +7,7 @@
 #ifndef __FDT_H__
 #define __FDT_H__
 
+extern const char *bootargs_from_dt(void *blob);
 extern unsigned int of_get_dt_total_size(void *blob);
 extern int check_dt_blob_valid(void *blob);
 extern int fixup_chosen_node(void *blob, char *bootargs);

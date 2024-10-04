@@ -32,6 +32,13 @@ struct boot_param_header {
 	unsigned int	dt_struct_len;
 };
 
+struct fdt_property {
+	unsigned int be_tag;
+	unsigned int be_len;
+	unsigned int be_nameoff;
+	char data[0];
+};
+
 static inline unsigned int of_get_magic_number(void *blob)
 {
 	struct boot_param_header *header = (struct boot_param_header *)blob;
@@ -616,4 +623,35 @@ int fixup_memory_node(void *blob,
 	}
 
 	return 0;
+}
+
+static const void *fdt_getprop(void *blob, int nodeoffset,
+			const char *name, int *lenp)
+{
+	int rc;
+	int property_offset;
+	const struct fdt_property *prop;
+
+	rc = of_get_property_offset_by_name(blob, nodeoffset,
+					name, &property_offset);
+	if (rc) {
+		dbg_loud("can't find property '%s'\n", name);
+		return NULL;
+	}
+	prop = (struct fdt_property *) of_dt_struct_offset(blob, property_offset);
+	if(lenp)
+		*lenp = swap_uint32(prop->be_len);
+	return prop->data;
+}
+
+const char *bootargs_from_dt(void *blob)
+{
+	int nodeoffset;
+	int ret;
+
+	ret = of_get_node_offset(blob, "chosen", &nodeoffset);
+	if (ret)
+		return NULL;
+
+	return (const char *)fdt_getprop(blob, nodeoffset, "bootargs", NULL);
 }
