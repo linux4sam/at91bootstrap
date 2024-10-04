@@ -23,6 +23,14 @@
 
 #include "debug.h"
 
+#ifdef CONFIG_MMU
+#include "mmu.h"
+#endif
+
+#ifdef CONFIG_CACHES
+#include "l1cache.h"
+#endif
+
 static char cmdline_buf[256];
 static char *bootargs;
 
@@ -452,6 +460,13 @@ int load_kernel(struct image_info *image)
 
 	mach_type = MACH_TYPE;
 	r2 = (unsigned int)(AT91C_BASE_DDRCS + 0x100);
+#endif
+
+#ifdef CONFIG_CACHES
+	dcache_disable();
+#endif
+#ifdef CONFIG_MMU
+	mmu_disable();
 #endif
 
 	dbg_info("\nKERNEL: Starting linux kernel ..., machid: %x\n\n",
