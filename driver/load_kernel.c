@@ -370,6 +370,7 @@ int load_kernel(struct image_info *image)
 	unsigned int mach_type;
 	int ret;
 	unsigned int mem_size;
+	const char *mem_size_str = NULL;
 
 #if defined(CONFIG_SDRAM)
 	mem_size = get_sdram_size();
@@ -381,58 +382,73 @@ int load_kernel(struct image_info *image)
 
 	void (*kernel_entry)(int zero, int arch, unsigned int params);
 
-	bootargs = board_override_cmd_line();
-	if (sizeof(cmdline_buf) < 10 + strlen(bootargs)){
-		dbg_very_loud("\nKERNEL: buffer for bootargs is too small\n\n");
-		return -1;
-	}
 	switch(mem_size){
 		case 0x800000:
-			memcpy(cmdline_buf, "mem=8M ", 7);
-			memcpy(&cmdline_buf[7], bootargs, strlen(bootargs));
+			mem_size_str = "mem=8M";
 			break;
 		case 0x1000000:
-			memcpy(cmdline_buf, "mem=16M ", 8);
-			memcpy(&cmdline_buf[8], bootargs, strlen(bootargs));
+			mem_size_str = "mem=16M";
 			break;
 		case 0x2000000:
-			memcpy(cmdline_buf, "mem=32M ", 8);
-			memcpy(&cmdline_buf[8], bootargs, strlen(bootargs));
+			mem_size_str = "mem=32M";
 			break;
 		case 0x4000000:
-			memcpy(cmdline_buf, "mem=64M ", 8);
-			memcpy(&cmdline_buf[8], bootargs, strlen(bootargs));
+			mem_size_str = "mem=64M";
 			break;
 		case 0x8000000:
-			memcpy(cmdline_buf, "mem=128M ", 9);
-			memcpy(&cmdline_buf[9], bootargs, strlen(bootargs));
+			mem_size_str = "mem=128M";
 			break;
 		case 0x10000000:
-			memcpy(cmdline_buf, "mem=256M ", 9);
-			memcpy(&cmdline_buf[9], bootargs, strlen(bootargs));
+			mem_size_str = "mem=256M";
 			break;
 		case 0x20000000:
-			memcpy(cmdline_buf, "mem=512M ", 9);
-			memcpy(&cmdline_buf[9], bootargs, strlen(bootargs));
+			mem_size_str = "mem=512M";
 			break;
 		default:
 			dbg_very_loud("\nKERNEL: bootargs incorrect due to the memory size is not a multiple of MB\n\n");
 			break;
 	}
-	bootargs = cmdline_buf;
 
 	ret = load_kernel_image(image);
 	if (ret)
 		return ret;
 
-#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
-	bootargs = board_override_cmd_line_ext(image->cmdline_args);
-#endif
 #if defined(CONFIG_SECURE)
 	ret = secure_check(image->dest);
 	if (ret)
 		return ret;
 	image->dest += sizeof(at91_secure_header_t);
+#endif
+
+	int total_bootargs_sz;
+	const char *base_bootargs;
+
+	base_bootargs = board_override_cmd_line();
+	if (strlen(base_bootargs) == 0) {
+		/* look for bootargs in the DT */
+		base_bootargs = bootargs_from_dt(image->of_dest);
+		if (base_bootargs)
+			dbg_loud("Using bootargs from the device-tree\n");
+	}
+
+	total_bootargs_sz = (mem_size_str ? strlen(mem_size_str) + 1 /* for the separator ' ' */ : 0) +
+			     (base_bootargs ? strlen(base_bootargs) : 0) + 1 /* for the terminal '\0' */;
+
+	if (sizeof(cmdline_buf) < total_bootargs_sz ){
+		dbg_info("\nKERNEL: buffer for bootargs is too small\n\n");
+		return -1;
+	}
+
+	if (mem_size_str)
+		strcpy(cmdline_buf, mem_size_str);
+	if (strlen(base_bootargs)) {
+		strcat(cmdline_buf, " ");
+		strcat(cmdline_buf, base_bootargs);
+	}
+	bootargs = cmdline_buf;
+
+#ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
+	bootargs = board_override_cmd_line_ext(image->cmdline_args);
 #endif
 
 #ifdef CONFIG_SCLK
