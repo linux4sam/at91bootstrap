@@ -6,6 +6,30 @@
 #include "arch/at91_sfrbu.h"
 
 /**
+ * sfrbu_auto_ba_power_source: Configure Backup Unit Power Switch
+ * to automatic/hardware mode.
+ *
+ * The Backup Unit Power Switch can be managed either by software or hardware.
+ * Enabling hardware mode allows the automatic transition of power between
+ * VDDANA (or VDDIN33) and VDDBU (or VBAT, respectively), based on the
+ * availability of these power sources.
+ *
+ * Returns:	void
+ */
+void sfrbu_auto_ba_power_source(void)
+{
+	unsigned int val = readl(AT91C_BASE_SFRBU + SFRBU_PSWBU);
+
+	/* Return if nothing to be done. */
+	if (!(val & AT9CC_PWSBU_CTRL))
+		return;
+
+	val &= ~(AT9CC_PWSBU_CTRL);
+	val |= AT91C_PSWBU_PSWKEY;
+	writel(val, AT91C_BASE_SFRBU + SFRBU_PSWBU);
+}
+
+/**
  * sfrbu_select_ba_power_source: select power source for backup area
  * @vddin33:	if 1 switch backup area to 3v3 power source
  * 		if 0 switch backup area to battery
