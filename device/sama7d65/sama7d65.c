@@ -910,6 +910,8 @@ void hw_init(void)
 #ifdef CONFIG_BACKUP_VDDIN33
 	/* Switch backup area to VDDIN33. */
 	sfrbu_select_ba_power_source(true);
+#else
+	sfrbu_auto_ba_power_source();
 #endif
 
 	/* Watchdog might be enabled out of reset. Let's make sure it's off */
