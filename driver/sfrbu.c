@@ -21,10 +21,10 @@ void sfrbu_auto_ba_power_source(void)
 	unsigned int val = readl(AT91C_BASE_SFRBU + SFRBU_PSWBU);
 
 	/* Return if nothing to be done. */
-	if (!(val & AT9CC_PWSBU_CTRL))
+	if (!(val & AT91C_PSWBU_CTRL))
 		return;
 
-	val &= ~(AT9CC_PWSBU_CTRL);
+	val &= ~(AT91C_PSWBU_CTRL);
 	val |= AT91C_PSWBU_PSWKEY;
 	writel(val, AT91C_BASE_SFRBU + SFRBU_PSWBU);
 }
@@ -46,7 +46,7 @@ void sfrbu_select_ba_power_source(int vddin33)
 	if (!(!!vddin33 ^ !!(val & AT91C_PSWBU_STATE)))
 		return;
 
-	val |= (AT9CC_PWSBU_CTRL | softsw | AT91C_PSWBU_PSWKEY);
+	val |= (AT91C_PSWBU_CTRL | softsw | AT91C_PSWBU_PSWKEY);
 	writel(val, AT91C_BASE_SFRBU + SFRBU_PSWBU);
 
 	/* Wait for update. */
