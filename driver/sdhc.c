@@ -341,7 +341,7 @@ static int sdhc_set_clock(struct sd_card *sdcard, unsigned int clock)
 	unsigned int reg;
 	unsigned int timeout;
 
-	timeout = 100000;
+	timeout = 10000000;
 	while ((--timeout) &&
 	       (sdhc_readl(SDMMC_PSR) & (SDMMC_PSR_CMDINHC | SDMMC_PSR_CMDINHD)))
 		;
@@ -553,7 +553,7 @@ static int sdhc_send_tune_command(struct sd_card *sdcard, unsigned int size, uns
 	sdhc_writew(SDMMC_TMR, SDMMC_TMR_DTDSEL_READ);
 	sdhc_writew(SDMMC_BSR, size);
 
-	timeout = 100000;
+	timeout = 10000000;
 	while ((--timeout) &&
 	       (sdhc_readl(SDMMC_PSR) & (SDMMC_PSR_CMDINHC | SDMMC_PSR_CMDINHD))) ;
 	if (!timeout)
@@ -826,7 +826,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	unsigned int blocks_remain;
 	unsigned int offset;
 
-	timeout = 100000;
+	timeout = 0x10000000;
 	while ((--timeout) &&
 	       (sdhc_readl(SDMMC_PSR) & (SDMMC_PSR_CMDINHC | SDMMC_PSR_CMDINHD)))
 		;
@@ -917,7 +917,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 
 	sdhc_writew(SDMMC_CR, cmd_reg);
 
-	timeout = 100000;
+	timeout = 400000;
 	do {
 		normal_status = sdhc_readw(SDMMC_NISTR);
 	} while ((--timeout) &&
