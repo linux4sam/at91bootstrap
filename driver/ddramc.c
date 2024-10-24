@@ -773,7 +773,7 @@ static unsigned int read_ddramc(unsigned int address, unsigned int offset)
 	return readl(address + offset);
 }
 
-#if defined(CONFIG_DDR3) || \
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3) ||\
     (defined(CONFIG_SAMA5D2) && defined(CONFIG_LPDDR2))
 #undef DEBUG_BKP_SR_INIT
 
@@ -877,6 +877,12 @@ int ddr2_sdram_initialize(unsigned int base_address,
 {
 	unsigned int ba_offset;
 	unsigned int cr = 0;
+
+	if (backup_resume()) {
+		ddr3_lpddr2_sdram_bkp_init(base_address, ram_address,
+					   ddramc_config);
+		return 0;
+	}
 
 	/* compute BA[] offset according to CR configuration */
 	ba_offset = (ddramc_config->cr & AT91C_DDRC2_NC) + 9;
