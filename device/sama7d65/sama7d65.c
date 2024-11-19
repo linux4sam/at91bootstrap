@@ -1018,6 +1018,10 @@ void hw_init(void)
 	pmc_enable_periph_clock(AT91C_ID_DDRUMCTL, PMC_PERIPH_CLK_DIVIDER_NA);
 	pmc_enable_periph_clock(AT91C_ID_DDRPUBL, PMC_PERIPH_CLK_DIVIDER_NA);
 
+	/* MCK3 @ DDRPLL_DIV/2 = 266.5 MHz */
+	pmc_mck_cfg_set(3, BOARD_PRESCALER_MCK3,
+			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
+
 	/* Configure & Enable GPU PLL */
 	imgpll_config.mul = 43; /* (43 + 1) * 24 = 1056 */
 	imgpll_config.div = 3; 
@@ -1027,9 +1031,6 @@ void hw_init(void)
 	imgpll_config.acr = 0x00070010;
 	/* GPUPLL @ 1064 MHz */
 	pmc_sam9x60_cfg_pll(PLL_ID_IMGPLL, &imgpll_config);
-	/* MCK3 @ 266 MHz */
-	pmc_mck_cfg_set(3, BOARD_PRESCALER_MCK3,
-			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 
 	/* Configure & Enable BAUD PLL */
 	buadpll_config.mul = 32; /* (32+1) * 24 = 800 */
