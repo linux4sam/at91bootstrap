@@ -999,7 +999,7 @@ void hw_init(void)
 	ddrpll_config.divio = 0;
 	ddrpll_config.count = 0x3f;
 	ddrpll_config.fracr = 0x1aaaab; /* (10/24) * 2^22 to get extra 10 MHz */
-	ddrpll_config.acr = 0;
+	ddrpll_config.acr = 0x00070010;
 	/* DDRPLL @ 1066 MHz */
 #endif
 #if CONFIG_MEM_CLOCK == 400
@@ -1008,7 +1008,7 @@ void hw_init(void)
 	ddrpll_config.divio = 0;
 	ddrpll_config.count = 0x3f;
 	ddrpll_config.fracr = 0;
-	ddrpll_config.acr = 0;
+	ddrpll_config.acr = 0x00070010;
 	/* DDRPLL @ 1200 MHz */
 #endif
 	pmc_sam9x60_cfg_pll(PLL_ID_DDRPLL, &ddrpll_config);
