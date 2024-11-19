@@ -1025,7 +1025,7 @@ void hw_init(void)
 	/* Configure & Enable GPU PLL */
 	imgpll_config.mul = 43; /* (43 + 1) * 24 = 1056 */
 	imgpll_config.div = 3; 
-	imgpll_config.divio = 3;
+	imgpll_config.divio = 0;
 	imgpll_config.count = 0x3f;
 	imgpll_config.fracr = 0x155555; /* (8/24) * 2^22 to get extra 8 MHz */
 	imgpll_config.acr = 0x00070010;
