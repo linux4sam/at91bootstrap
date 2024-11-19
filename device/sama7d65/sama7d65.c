@@ -995,7 +995,7 @@ void hw_init(void)
 	/* Configure & Enable DDR PLL */
 #if CONFIG_MEM_CLOCK == 533
 	ddrpll_config.mul = 43; /* (43 + 1) * 24 = 1056 */
-	ddrpll_config.div = 1; 
+	ddrpll_config.div = 1; /* 1066 / 2 = 533 MHz */
 	ddrpll_config.divio = 0;
 	ddrpll_config.count = 0x3f;
 	ddrpll_config.fracr = 0x1aaaab; /* (10/24) * 2^22 to get extra 10 MHz */
@@ -1012,7 +1012,7 @@ void hw_init(void)
 	/* DDRPLL @ 1200 MHz */
 #endif
 	pmc_sam9x60_cfg_pll(PLL_ID_DDRPLL, &ddrpll_config);
-	/* MCK2 @ DDRPLL/2 MHz = 533 MHz */
+	/* MCK2 @ DDRPLL_DIV/4 = 133.25 MHz */
 	pmc_mck_cfg_set(2, BOARD_PRESCALER_MCK2,
 			AT91C_MCR_DIV | AT91C_MCR_CSS | AT91C_MCR_EN);
 	pmc_enable_periph_clock(AT91C_ID_DDRUMCTL, PMC_PERIPH_CLK_DIVIDER_NA);
