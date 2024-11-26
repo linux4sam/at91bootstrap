@@ -125,7 +125,18 @@ config OF_ADDRESS
 	default "0x61000000" if SAMA7G5
 	default "0x21000000"
 
-
 endmenu
+
+config IMG_FIT
+	depends on LOAD_LINUX && (NANDFLASH || DATAFLASH)
+	select OF_LIBFDT
+	bool "Support loading a FIT image"
+	help
+          A FIT image is a container. It usualy contains the kernel, one or more DTB,
+          and optionnaly a initramfs. It also specifies where each of those images must
+          be loaded in memory.
+          The FIT image is loaded in memory at the address defined by IMG_ADDRESS. Care must
+          taken to select this address so that it does not overlap with the adresses specified
+          in the FIT.
 
 endmenu
