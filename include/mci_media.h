@@ -256,6 +256,16 @@ struct sd_card {
 	unsigned int	sd_spec_version;
 	unsigned int	highcapacity_card;
 	unsigned int	bus_width_support;
+#define SD_SCR_BUS_WIDTH_1  (1<<0)
+#define SD_SCR_BUS_WIDTH_4  (1<<2)
+
+	unsigned int	cmd_support;
+#define SD_SCR_CMD20_SUPPORT  (1<<0)
+#define SD_SCR_CMD23_SUPPORT  (1<<1)
+#define SD_SCR_CMD48_SUPPORT  (1<<2)
+#define SD_SCR_CMD58_SUPPORT  (1<<3)
+#define SD_SCR_ACMD53_SUPPORT (1<<4)
+
 	unsigned int	highspeed_card;  /* is this card a HS according to CARDTYPE */
 	unsigned int	hs200speed_card; /* is this card a HS200 according to CARDTYPE */
 	unsigned int	hs400speed_card; /* is this card a HS400 according to CARDTYPE */

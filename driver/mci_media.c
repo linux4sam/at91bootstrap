@@ -708,7 +708,7 @@ static int sd_card_set_bus_width(struct sd_card *sdcard)
 	unsigned int bus_width;
 	int ret;
 
-	bus_width = (sdcard->bus_width_support & 0x04) ? 4 : 1;
+	bus_width = (sdcard->bus_width_support & SD_SCR_BUS_WIDTH_4) ? 4 : 1;
 
 	ret = sd_set_bus_width(sdcard, bus_width);
 	if (ret)
@@ -1391,6 +1391,7 @@ static int sd_initialization(struct sd_card *sdcard)
 		return ret;
 
 	sdcard->bus_width_support = (sdcard->reg->scr[0] >> 16) & 0x0f;
+	sdcard->cmd_support = sdcard->reg->scr[0] & 0x1f;
 
 	unsigned int version;
 	version = (sdcard->reg->scr[0] >> 24) & 0x0f;
@@ -1495,6 +1496,9 @@ static int mmc_initialization(struct sd_card *sdcard)
 		sdcard->sd_spec_version = MMC_VERSION_1_2;
 		dbg_info("1.2\n");
 	}
+
+	if (version >= 3)
+		sdcard->cmd_support |= SD_SCR_CMD23_SUPPORT;
 
 	/*
 	 * CMD7 is used to select one card and put it into
@@ -1633,6 +1637,24 @@ static int sd_cmd_set_blocklen(struct sd_card *sdcard,
 	return 0;
 }
 
+static int sd_cmd_set_block_count(struct sd_card *sdcard,
+					unsigned int block_count)
+{
+	struct sd_host *host = sdcard->host;
+	struct sd_command *command = sdcard->command;
+	int ret;
+
+	command->cmd = SD_CMD_SET_BLOCK_COUNT;
+	command->resp_type = SD_RESP_TYPE_R1;
+	command->argu = block_count;
+
+	ret = host->ops->send_command(command, 0);
+	if (ret)
+		return ret;
+
+	return 0;
+}
+
 static int sd_cmd_stop_transmission(struct sd_card *sdcard)
 {
 	struct sd_host *host = sdcard->host;
@@ -1736,12 +1758,23 @@ unsigned int sdcard_block_read(unsigned int start,
 					SUPPORT_MAX_BLOCKS : blocks_todo;
 
 		if (blocks > 1) {
+			if (sdcard->cmd_support | SD_SCR_CMD23_SUPPORT) {
+				ret = sd_cmd_set_block_count(sdcard, blocks);
+				if (ret)
+					return ret;
+			}
+
 			blocks_read = sd_cmd_read_multiple_block(sdcard,
 							buf, start, blocks);
 
-			ret = sd_cmd_stop_transmission(sdcard);
-			if (ret)
-				return ret;
+			if (sdcard->cmd_support | SD_SCR_CMD23_SUPPORT) {
+				if (!blocks_read)
+					sd_cmd_stop_transmission(sdcard);
+			} else {
+				ret = sd_cmd_stop_transmission(sdcard);
+				if (ret)
+					return ret;
+			}
 		} else {
 			blocks_read = sd_cmd_read_single_block(sdcard,
 							buf, start);
