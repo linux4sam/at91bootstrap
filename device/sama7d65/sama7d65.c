@@ -952,7 +952,7 @@ void hw_init(void)
 	struct pmc_pll_cfg ddrpll_config;
 	struct pmc_pll_cfg syspll_config;
 	struct pmc_pll_cfg imgpll_config;
-	struct pmc_pll_cfg buadpll_config;
+	struct pmc_pll_cfg baudpll_config;
 	unsigned int mck0_prescaler;
 
 #ifdef CONFIG_BACKUP_VDDIN33
@@ -1081,14 +1081,14 @@ void hw_init(void)
 	pmc_sam9x60_cfg_pll(PLL_ID_IMGPLL, &imgpll_config);
 
 	/* Configure & Enable BAUD PLL */
-	buadpll_config.mul = 32; /* (32+1) * 24 = 800 */
-	buadpll_config.div = 3; /* 800 / 4 = 200 MHz */
-	buadpll_config.count = 0x3f;
-	buadpll_config.fracr = 0;
-	buadpll_config.acr = 0x00070010;
+	baudpll_config.mul = 32; /* (32+1) * 24 = 800 */
+	baudpll_config.div = 3; /* 800 / 4 = 200 MHz */
+	baudpll_config.count = 0x3f;
+	baudpll_config.fracr = 0;
+	baudpll_config.acr = 0x00070010;
 	
-	/* BUADPLL @ 266 MHz */
-	pmc_sam9x60_cfg_pll(PLL_ID_BAUDPLL, &buadpll_config);
+	/* BAUDPLL @ 266 MHz */
+	pmc_sam9x60_cfg_pll(PLL_ID_BAUDPLL, &baudpll_config);
 
 	if (!backup_resume())
 		dbg_printf("MCK: mck domains initialization complete.\n");
