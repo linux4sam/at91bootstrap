@@ -309,7 +309,6 @@ ifeq ($(CONFIG_NANDFLASH)$(CONFIG_USE_PMECC), yy)
 TARGETS+=${AT91BOOTSTRAP}.pmecc
 endif
 
-ifdef NIX_SHELL
 ifeq ($(CONFIG_SAMA7D65), y)
 ifneq ($(CONFIG_INIT_AND_STOP)$(CONFIG_LOAD_AND_STOP), y)
 # PTI stands for Plain Text Image mode. Format used for a chip configured
@@ -319,7 +318,6 @@ DUAL_BOOT_VERSION := $(strip $(subst ",,$(CONFIG_DUAL_BOOT_VERSION)))
 AT91BOOTSTRAP_PTI:=$(BINDIR)/$(BOOT_NAME)-$(PTI).bin
 TARGETS+=${AT91BOOTSTRAP_PTI}
 SYMLINK_PTI_BOOT ?= boot-${PTI}.bin
-endif
 endif
 endif
 
@@ -394,6 +392,7 @@ PHONY+= bootstrap
 
 rebuild: clean all
 
+ifdef NIX_SHELL
 ChkSamBa:
 	@( $(SAM-BA) -u:test::: > /dev/null 2>&1 ; \
 	  if [ $$? -ne 0 ] ; then \
@@ -410,8 +409,12 @@ ChkSamBa:
 	  else \
 		echo "[Succeeded] SAM-BA tool generating bootable binary image available"; \
 	  fi )
-
 PHONY+= ChkSamBa
+else
+ChkSamBa:
+	$(SHELL) /C nbproject\get_sam_ba_version.bat
+PHONY+= ChkSamBa
+endif
 
 ChkFileSize: $(AT91BOOTSTRAP)
 	@( fsize=`./scripts/get_sram_size.sh $(BINDIR)/$(BOOT_NAME).map`; \
