@@ -315,6 +315,7 @@ ifneq ($(CONFIG_INIT_AND_STOP)$(CONFIG_LOAD_AND_STOP), y)
 # PTI stands for Plain Text Image mode. Format used for a chip configured
 # in Non-Secure mode. See "Bootstrap Image Format" in product's datasheet.
 PTI:=plaintextimg
+DUAL_BOOT_VERSION := $(strip $(subst ",,$(CONFIG_DUAL_BOOT_VERSION)))
 AT91BOOTSTRAP_PTI:=$(BINDIR)/$(BOOT_NAME)-$(PTI).bin
 TARGETS+=${AT91BOOTSTRAP_PTI}
 SYMLINK_PTI_BOOT ?= boot-${PTI}.bin
@@ -379,7 +380,7 @@ $(AT91BOOTSTRAP).pmecc: $(BINDIR)/pmecc.tmp $(AT91BOOTSTRAP)
 	$(Q)test -f $< && cat $+ > $@ || rm -f $@
 
 $(AT91BOOTSTRAP_PTI): $(AT91BOOTSTRAP) ChkSamBa
-	$(Q)"$(SAM-BA)" -u gen_image:$(DEVICENAME):$<:$@::
+	$(Q)"$(SAM-BA)" -u gen_image:$(DEVICENAME):$<:$@:$(DUAL_BOOT_VERSION)
 ifdef NIX_SHELL
 	@ln -sf $(BOOT_NAME)-$(PTI).bin ${BINDIR}/${SYMLINK_PTI_BOOT}
 endif

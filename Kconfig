@@ -135,6 +135,17 @@ source "device/Config.in"
 
 source "driver/Config.in.driver"
 
+config DUAL_BOOT_VERSION
+	string "Dual Boot Version Number"
+	depends on SAMA7D65
+	default "0:0"
+	help
+	  Set the version of the binary while generating the bootable image.
+	  Referred as "Bootstrap Version" in the datasheet and used for Dual Boot
+	  or Anti Roll-Back Features.
+	  String has the form <Major Version>:<Minor Version>, for example 4:33 as version 4 major
+	  and 33 minor.
+
 config PROJECT
 	string
 	default "dataflash"	if DATAFLASH
