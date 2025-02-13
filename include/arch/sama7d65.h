@@ -35,6 +35,12 @@
 #define AT91C_ID_FLEXCOM9	43
 #define AT91C_ID_FLEXCOM10	44
 
+#define AT91C_ID_MCAN0      58
+#define AT91C_ID_MCAN1      59
+#define AT91C_ID_MCAN2      60
+#define AT91C_ID_MCAN3      61
+#define AT91C_ID_MCAN4      62
+
 #define AT91C_ID_QSPI0		73
 #define AT91C_ID_QSPI1		74
 #define AT91C_ID_SDMMC0		75

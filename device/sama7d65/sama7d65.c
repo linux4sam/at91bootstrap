@@ -1103,5 +1103,26 @@ void hw_postinit(void)
 	pmc_mck_cfg_set(0, mck0_prescaler,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 #endif
+
+	/*
+	 * Change CAN GCLK source clock from SLW_CLK to MAIN_CLK
+	 * because of timout issue at CAN initialisation in Linux.
+	 * This allows CAN devices to be ready earlier in boot process.
+	 */
+	pmc_enable_generic_clock(AT91C_ID_MCAN0,
+				 GCK_CSS_MAIN_CLK,
+				 2);
+	pmc_enable_generic_clock(AT91C_ID_MCAN1,
+				 GCK_CSS_MAIN_CLK,
+				 2);
+	pmc_enable_generic_clock(AT91C_ID_MCAN2,
+				 GCK_CSS_MAIN_CLK,
+				 2);
+	pmc_enable_generic_clock(AT91C_ID_MCAN3,
+				 GCK_CSS_MAIN_CLK,
+				 2);
+	pmc_enable_generic_clock(AT91C_ID_MCAN4,
+				 GCK_CSS_MAIN_CLK,
+				 2);
 }
 
