@@ -48,6 +48,8 @@ struct image_info
 	unsigned int of_offset;
 	unsigned int of_length;
 #endif
+	void *initrd_dest;
+	unsigned int initrd_length;
 #ifdef CONFIG_SDCARD
 	char *of_filename;
 #endif
