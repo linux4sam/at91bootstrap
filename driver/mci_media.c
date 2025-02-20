@@ -1758,7 +1758,7 @@ unsigned int sdcard_block_read(unsigned int start,
 					SUPPORT_MAX_BLOCKS : blocks_todo;
 
 		if (blocks > 1) {
-			if (sdcard->cmd_support | SD_SCR_CMD23_SUPPORT) {
+			if (sdcard->cmd_support & SD_SCR_CMD23_SUPPORT) {
 				ret = sd_cmd_set_block_count(sdcard, blocks);
 				if (ret)
 					return ret;
@@ -1767,7 +1767,7 @@ unsigned int sdcard_block_read(unsigned int start,
 			blocks_read = sd_cmd_read_multiple_block(sdcard,
 							buf, start, blocks);
 
-			if (sdcard->cmd_support | SD_SCR_CMD23_SUPPORT) {
+			if (sdcard->cmd_support & SD_SCR_CMD23_SUPPORT) {
 				if (!blocks_read)
 					sd_cmd_stop_transmission(sdcard);
 			} else {
