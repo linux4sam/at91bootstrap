@@ -86,7 +86,7 @@ config LINUX_KERNEL_ARG_STRING_FILE
 endif
 
 config IMG_ADDRESS
-	depends on DATAFLASH || FLASH || NANDFLASH
+	depends on DATAFLASH || FLASH || NANDFLASH || (SDCARD && !FATFS)
 	string "Flash Offset for Linux Kernel Image"
 	default "0x00200000" if FLASH
 	default "0x00040000" if DATAFLASH
@@ -109,11 +109,11 @@ config OF_LIBFDT
 
 config OF_OVERRIDE_DTB_NAME
 	string "Override Flattened Device Tree Blob filename"
-	depends on OF_LIBFDT && SDCARD
+	depends on OF_LIBFDT && (SDCARD && !FATFS)
 
 config OF_OFFSET
 	string "The Offset of Flash Device Tree Blob"
-	depends on OF_LIBFDT && (DATAFLASH || FLASH || NANDFLASH)
+	depends on OF_LIBFDT && (DATAFLASH || FLASH || NANDFLASH || (SDCARD && !FATFS))
 	default "0x00008400" if DATAFLASH
 	default "0x00180000" if NANDFLASH
 	default "0x00100000" if FLASH

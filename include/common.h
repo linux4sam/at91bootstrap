@@ -30,11 +30,11 @@ enum {
 /* structure definition */
 struct image_info
 {
-#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH) || (defined(CONFIG_SDCARD) && !defined(CONFIG_FATFS))
 	unsigned int offset;
 	unsigned int length;
 #endif
-#ifdef CONFIG_SDCARD
+#if defined(CONFIG_SDCARD) && defined(CONFIG_FATFS)
 	char *filename;
 #ifdef CONFIG_OVERRIDE_CMDLINE_FROM_EXT_FILE
 	char *cmdline_file;
@@ -44,11 +44,11 @@ struct image_info
 	unsigned char *dest;
 
 #ifdef CONFIG_OF_LIBFDT
-#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH) || (defined(CONFIG_SDCARD) && !defined(CONFIG_FATFS))
 	unsigned int of_offset;
 	unsigned int of_length;
 #endif
-#ifdef CONFIG_SDCARD
+#if defined(CONFIG_SDCARD) && defined(CONFIG_FATFS)
 	char *of_filename;
 #endif
 	unsigned char *of_dest;
@@ -61,7 +61,7 @@ typedef int (*load_function)(struct image_info *image);
 
 load_function get_image_load_func(void);
 
-#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH)
+#if defined(CONFIG_DATAFLASH) || defined(CONFIG_NANDFLASH) || defined(CONFIG_FLASH) || (defined(CONFIG_SDCARD) && !defined(CONFIG_FATFS))
 unsigned int get_image_load_offset(unsigned int addr);
 #endif
 
