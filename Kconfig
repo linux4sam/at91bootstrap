@@ -584,6 +584,7 @@ config DDR_DRIVER_IMPEDANCE
 	default 40 if DDR_AS4C128M16D2A_25BAN
 	default 40 if DDR_EM68D16CBQC_18IH
 	default 48 if DDR_W97AH6NBVA1K
+	default 0 if DDR_SET_BY_JEDEC || DDR_SET_BY_TIMING
 	depends on UMCTL2
 	help
 	  The DDR output impedance select ohms: 34,40 for DDR3, 18,24,40,48,60,80 for DDR2 and LPDDR2/3
@@ -602,6 +603,7 @@ config DDR_ODT_IMPEDANCE
 	default 0 if DDR_IS43LD16128B_25BLI
 	default 0 if DDR_W97AH6NBVA1K
 	default 120 if DDR_MT52L256M32D1PF_107
+	default 0 if DDR_SET_BY_JEDEC || DDR_SET_BY_TIMING
 	depends on UMCTL2
 	help
 	  DDR on-die impedance select ohms:id values: 40, 60, 120 for DDR3, 50, 75, 150 for DDR2
