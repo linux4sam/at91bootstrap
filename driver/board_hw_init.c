@@ -179,9 +179,10 @@ void at91_can_stdby_dis(void)
 
 #ifdef CONFIG_BOARD_QUIRK_SAM9X75_CURIOSITY
 /*
- * Must set PA15 to HIGH and PA16 to LOW for enabling the RIO-0 module
- * in M.2 connector. This needs to be replaced later with Linux control
- * over these GPIOs
+ * Must set PA15 to HIGH and PA16 to LOW for enabling the RIO-0 module with SDIO
+ * over M.2 connector. Reset the RIO-0 module with PA21 after configuring the
+ * strapping pins to configure from SDIO over M.2 connector. This needs to
+ * be replaced later with Linux control over these GPIOs
  */
 void at91_rio0_select(void)
 {
@@ -192,6 +193,10 @@ void at91_rio0_select(void)
 	};
 
 	pio_configure(rio0_pins);
+	pio_set_gpio_output(AT91C_PIN_PA(21), 1);
+        pio_set_gpio_output(AT91C_PIN_PA(21), 0);
+        udelay(500);
+        pio_set_gpio_output(AT91C_PIN_PA(21), 1);
 }
 #endif
 
