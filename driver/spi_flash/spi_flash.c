@@ -337,6 +337,27 @@ int spi_flash_loadimage(struct spi_flash *flash, struct image_info *image)
 	return 0;
 #else /* CONFIG_QSPI_XIP */
 
+#ifdef CONFIG_IMG_FIT
+	length = update_image_length(flash,
+			image->offset, image->dest, DT_BLOB);
+	if (length > 0) {
+		image->length = length;
+
+		dbg_info("SF: Copy FIT %x bytes from %x to %x\n",
+			 image->length, image->offset, image->dest);
+
+		ret = spi_flash_read(flash,
+				image->offset,
+				image->length,
+				image->dest);
+		if (ret) {
+			dbg_info("** SF: Serial flash read error**\n");
+			ret = -1;
+			goto err_exit;
+		}
+	}
+#endif
+
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
 	length = update_image_length(flash,
 				     image->offset,

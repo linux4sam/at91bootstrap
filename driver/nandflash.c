@@ -1362,6 +1362,9 @@ static int update_image_length(struct nand_info *nand,
 
 int load_nandflash(struct image_info *image)
 {
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+	int length;
+#endif
 	struct nand_info nand;
 	int ret;
 
@@ -1384,8 +1387,21 @@ int load_nandflash(struct image_info *image)
 	dbg_info("NAND: Using Software ECC\n");
 #endif
 
+#ifdef CONFIG_IMG_FIT
+	length = update_image_length(&nand,
+			image->offset, image->dest, DT_BLOB);
+	if (length > 0) {
+		image->length = length;
+
+		dbg_info("NAND: FIT image: Loading %x bytes from %x to %x\n",
+			image->length, image->offset, image->dest);
+
+		return nand_loadimage(&nand, image->offset, image->length, image->dest);
+	}
+#endif
+
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
-	int length = update_image_length(&nand,
+	length = update_image_length(&nand,
 				image->offset, image->dest, KERNEL_IMAGE);
 	if (length == -1)
 		return -1;
