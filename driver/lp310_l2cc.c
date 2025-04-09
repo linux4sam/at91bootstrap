@@ -58,8 +58,8 @@ void l2cache_prepare(void)
 	cfg = read_l2cc(L2CC_PCR);
 	/* prefetch offset: TODO find proper values */
 	cfg |= 0x1;
-	cfg |= L2CC_PCR_IDLEN | L2CC_PCR_PDEN | L2CC_PCR_DLEN;
-	cfg |= L2CC_PCR_DATPEN | L2CC_PCR_INSPEN;
+	cfg |= L2CC_PCR_PDEN;
+	cfg |= L2CC_PCR_INSPEN;
 	write_l2cc(L2CC_PCR, cfg);
 
 	/* Power Control */
