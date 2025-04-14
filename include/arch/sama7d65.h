@@ -53,7 +53,7 @@
 /*
  * User Peripherals physical base addresses.
  */
-#define AT91C_BASE_SECURAM	0xe0000800
+#define AT91C_BASE_SECURAM	0xe0000000
 #define AT91C_BASE_SECUMOD	0xe0004000
 #define AT91C_BASE_SFRBU	0xe0008000
 #define AT91C_BASE_PIOA		0xe0014000
