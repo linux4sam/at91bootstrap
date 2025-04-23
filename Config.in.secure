@@ -13,6 +13,11 @@ config SECURE
 menu "Secure Mode Options"
 	depends on SECURE
 
+config SECURE_DMA_SUPPORT
+	bool "Support DMA transfer"
+	default n
+	depends on XDMAC
+
 choice
 	prompt "Key Size"
 	default AES_KEY_SIZE_256

@@ -9,7 +9,10 @@
 #include "debug.h"
 #include "board.h"
 #include "string.h"
-
+#ifdef CONFIG_SECURE_DMA_SUPPORT
+#include "xdmac.h"
+#include "div.h"
+#endif
 #define swab32(x) (			\
 	(((x) & 0x000000ffUL) << 24) |	\
 	(((x) & 0x0000ff00UL) <<  8) |	\
@@ -81,8 +84,11 @@ static inline int at91_aes_set_opmode(at91_aes_operation_t operation,
 				      unsigned int *data_width,
 				      unsigned int *chunk_size)
 {
+#ifdef CONFIG_SECURE_DMA_SUPPORT
+	unsigned int mr = AES_MR_CKEY_PASSWD | AES_MR_SMOD_IDATAR0_START;
+#else
 	unsigned int mr = AES_MR_CKEY_PASSWD | AES_MR_SMOD_AUTO_START;
-
+#endif
 	switch (operation) {
 	case AT91_AES_OP_DECRYPT:
 		mr |= AES_MR_CIPHER_DECRYPT;
@@ -216,7 +222,7 @@ static inline int at91_aes_set_key(at91_aes_key_size_t key_size,
 	return 0;
 }
 
-
+#if !defined (CONFIG_SECURE_DMA_SUPPORT)
 static void at91_aes_compute_pio_long(unsigned int chunk_size,
 				      unsigned int num_blocks,
 				      unsigned int is_mac,
@@ -310,6 +316,59 @@ static void at91_aes_compute_pio(unsigned int data_width,
 		break;
 	}
 }
+#endif
+
+#ifdef CONFIG_SECURE_DMA_SUPPORT
+static int at91_aes_compute_dma(unsigned int data_width,
+				 unsigned int chunk_size,
+				 unsigned int num_blocks,
+				 unsigned int is_mac,
+				 const void *input,
+				 void *output)
+{
+	struct xdmac_hwcfg hwcfg_in, hwcfg_out;
+	struct xdmac_cfg cfg;
+	struct xdmac_transfer_cfg transfer_cfg_in, transfer_cfg_out;
+	int ret;
+
+	cfg.data_width = (data_width == 4) ? DMA_DATA_WIDTH_WORD :\
+					((data_width == 2) ? DMA_DATA_WIDTH_HALF_WORD : DMA_DATA_WIDTH_BYTE);
+	cfg.chunk_size = (chunk_size == 4) ? DMA_CHUNK_SIZE_4 :\
+					((chunk_size == 2) ? DMA_CHUNK_SIZE_2 : DMA_CHUNK_SIZE_1);
+	/* Configure DMA for AES transfer */
+	hwcfg_in.cid = 0;
+	hwcfg_in.txif = AES_XDMA_TXIF;
+	hwcfg_in.src_is_periph = 0;
+	hwcfg_in.dst_is_periph = 1;
+	cfg.incr_saddr = 1;
+	cfg.incr_daddr = 0;
+	transfer_cfg_in.saddr = (void *)input;
+	transfer_cfg_in.daddr = (void *)(AT91C_BASE_AES + AES_IDATAR0);
+	transfer_cfg_in.len = div(num_blocks, 1 << cfg.data_width);
+	xdmac_configure_transfer(&hwcfg_in, &cfg);
+
+	/* Configure DMA for AES receive */
+	hwcfg_out.cid = 1;
+	hwcfg_out.rxif = AES_XDMA_RXIF;
+	hwcfg_out.src_is_periph = 1;
+	hwcfg_out.dst_is_periph = 0;
+	cfg.incr_saddr = 0;
+	cfg.incr_daddr = 1;
+	transfer_cfg_out.saddr = (void *)(AT91C_BASE_AES + AES_ODATAR0);
+	transfer_cfg_out.daddr = (void *)output;
+	transfer_cfg_out.len = div(num_blocks, 1 << cfg.data_width);
+	xdmac_configure_transfer(&hwcfg_out, &cfg);
+
+	xdmac_transfer_start(&hwcfg_in, &transfer_cfg_in);
+	xdmac_transfer_start(&hwcfg_out, &transfer_cfg_out);
+
+	ret = xdmac_transfer_wait_for_completion(&hwcfg_out);
+
+	xdmac_transfer_stop(&hwcfg_in);
+	xdmac_transfer_stop(&hwcfg_out);
+	return ret;
+}
+#endif
 
 static inline unsigned int at91_aes_length2blocks(unsigned int data_length,
 						  unsigned int block_size)
@@ -346,10 +405,13 @@ static inline unsigned int at91_aes_length2blocks(unsigned int data_length,
 	return (data_length >> shift) + ((data_length & mask) ? 1 : 0);
 }
 
+
 static int at91_aes_process(const at91_aes_params_t *params)
 {
 	unsigned int data_width, chunk_size;
+#if !defined (CONFIG_SECURE_DMA_SUPPORT)
 	unsigned int block_size, num_blocks;
+#endif
 	unsigned int is_mac = (params->operation == AT91_AES_OP_MAC);
 
 	/* Reset AES */
@@ -367,12 +429,15 @@ static int at91_aes_process(const at91_aes_params_t *params)
 
 
 	aes_writel(AES_IER, AES_INT_DATRDY);
-
+#ifdef CONFIG_SECURE_DMA_SUPPORT
+	at91_aes_compute_dma(data_width, chunk_size, params->data_length,
+			     is_mac, params->input, params->output);
+#else
 	block_size = data_width * chunk_size;
 	num_blocks = at91_aes_length2blocks(params->data_length, block_size);
 	at91_aes_compute_pio(data_width, chunk_size, num_blocks,
 			     is_mac, params->input, params->output);
-
+#endif
 	if (is_mac) {
 		unsigned int reg, i;
 

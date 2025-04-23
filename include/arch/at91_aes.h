@@ -101,4 +101,17 @@
 #define		AES_INT_WOR_RD_ACCESS		(0x5UL << 12)
 #define	AES_INT_TAGRDY		(0x1UL << 16)	/* GCM Tag Ready */
 
+#if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
+#define AES_XDMA_TXIF	1
+#define AES_XDMA_RXIF	2
+#endif
+#if defined(CONFIG_SAM9X60) || defined(CONFIG_SAM9X7)
+#define AES_XDMA_TXIF	32
+#define AES_XDMA_RXIF	33
+#endif
+#if defined(CONFIG_SAMA5D2)
+#define AES_XDMA_TXIF	26
+#define AES_XDMA_RXIF	27
+#endif
+
 #endif /* #ifndef __AT91_AES_H__ */
