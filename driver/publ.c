@@ -12,12 +12,12 @@
 #include "publ_regs.h"
 #include "publ.h"
 
+#include "dram_helpers.h"
 #if defined(CONFIG_DDR_SET_BY_TIMING)
 #include "umctl2_timing.h"
 #else
 #include "umctl2_jedec.h"
 #endif
-#include "dram_helpers.h"
 
 static struct publ_regs		*PUBL;
 

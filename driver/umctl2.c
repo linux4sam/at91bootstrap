@@ -13,6 +13,7 @@
 #endif
 
 
+#include "dram_helpers.h"
 #if defined(CONFIG_DDR_SET_BY_TIMING)
 #include "umctl2_timing.h"
 #else
@@ -20,7 +21,6 @@
 #endif
 #include "umctl2_regs.h"
 #include "umctl2.h"
-#include "dram_helpers.h"
 #ifdef CONFIG_PUBL
 #include "publ.h"
 #endif
