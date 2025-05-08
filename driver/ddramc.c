@@ -104,6 +104,45 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	 */
 	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
 	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
+
+#elif defined(CONFIG_DDR_W631GU6NG)
+/* DDR3L(W631GU6NG = 8 Mbit x 16 x 8 banks), total 1Gbit on SAM9X75 SIP */
+	type = AT91C_DDRC2_MD_DDR3_SDRAM;
+	dbw = AT91C_DDRC2_DBW_16_BITS;
+	col = AT91C_DDRC2_NC_DDR10_SDR9;
+	row = AT91C_DDRC2_NR_13;
+	cas = AT91C_DDRC2_CAS_5;
+	bank = AT91C_DDRC2_NB_BANKS_8;
+#if defined(CONFIG_BUS_SPEED_200MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 1562(0x61a) */
+	ddramc_config->rtr = 0x61a;
+#elif defined(CONFIG_BUS_SPEED_266MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 2078(0x81e) */
+	ddramc_config->rtr = 0x81e;
+#else
+	#error "No CLK setting defined"
+#endif
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
+#elif defined(CONFIG_DDR_W9751G6NB)
+/* DDR2(W9751G6NB = 8 Mbit x 16 x 4 banks), total 512M bit on SAM9X75 SIP */
+	type = AT91C_DDRC2_MD_DDR2_SDRAM;
+	dbw = AT91C_DDRC2_DBW_16_BITS;
+	col = AT91C_DDRC2_NC_DDR10_SDR9;
+	row = AT91C_DDRC2_NR_13;
+	cas = AT91C_DDRC2_CAS_3;
+	bank = AT91C_DDRC2_NB_BANKS_4;
+#if defined(CONFIG_BUS_SPEED_200MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 1562(0x61a) */
+	ddramc_config->rtr = 0x61a;
+#elif defined(CONFIG_BUS_SPEED_266MHZ)
+	/* Refresh Timer is (64ms / 8k) * 116MHz = 2078(0x81e) */
+	ddramc_config->rtr = 0x81e;
+#else
+	#error "No CLK setting defined"
+#endif
+	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
+	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
 #elif defined(CONFIG_DDR_W632GU6MB)
 /* Two DDR3L(W632GU6MB-12 = 16 Mbit x 16 x 8 banks), total 4 Gbit on SAMA5D2 ICP*/
 	type = AT91C_DDRC2_MD_DDR3_SDRAM;
