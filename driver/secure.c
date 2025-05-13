@@ -125,21 +125,35 @@ static void __attribute__((optimize("O0"))) wipe_keys()
 	memset(iv, 0, sizeof(iv));
 }
 
-int secure_check(void *data)
+int secure_check(struct image_info *image)
 {
 	const at91_secure_header_t *header;
 	void *file;
 	int ret = -1;
 
-	if (secure_decrypt(data, sizeof(*header), 0))
+	if (secure_decrypt(image->dest, sizeof(*header), 0))
 		goto secure_wipe_keys;
 
-	header = (const at91_secure_header_t *)data;
+	header = (const at91_secure_header_t *)image->dest;
 	if (header->magic != AT91_SECURE_MAGIC)
 		goto secure_wipe_keys;
 
-	file = (unsigned char *)data + sizeof(*header);
+	file = (unsigned char *)image->dest + sizeof(*header);
 	ret = secure_decrypt(file, header->file_size, 1);
+
+#ifdef CONFIG_SECURE_FDT
+	if (secure_decrypt(image->of_dest, sizeof(*header), 0)) {
+		goto secure_wipe_keys;
+	}
+
+	header = (const at91_secure_header_t *)image->of_dest;
+	if (header->magic != AT91_SECURE_MAGIC) {
+		goto secure_wipe_keys;
+	}
+
+	file = (unsigned char *)image->of_dest + sizeof(*header);
+	ret = secure_decrypt(file, header->file_size, 1);
+#endif
 
 secure_wipe_keys:
 	wipe_keys();

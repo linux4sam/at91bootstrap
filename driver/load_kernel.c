@@ -421,7 +421,7 @@ int load_kernel(struct image_info *image)
 	bootargs = board_override_cmd_line_ext(image->cmdline_args);
 #endif
 #if defined(CONFIG_SECURE)
-	ret = secure_check(image->dest);
+	ret = secure_check(image);
 	if (ret)
 		return ret;
 	image->dest += sizeof(at91_secure_header_t);
@@ -441,6 +441,11 @@ int load_kernel(struct image_info *image)
 	kernel_entry = (void (*)(int, int, unsigned int))entry_point;
 
 #ifdef CONFIG_OF_LIBFDT
+
+#if defined(CONFIG_SECURE_FDT)
+	image->of_dest += sizeof(at91_secure_header_t);
+#endif
+
 	ret = setup_dt_blob((char *)image->of_dest);
 	if (ret)
 		return ret;

@@ -127,7 +127,7 @@ int main(void)
 
 #if defined(CONFIG_SECURE)
 	if (!ret)
-		ret = secure_check(image.dest);
+		ret = secure_check(&image);
 	image.dest += sizeof(at91_secure_header_t);
 #endif
 

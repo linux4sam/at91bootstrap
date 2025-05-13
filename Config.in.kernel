@@ -107,6 +107,12 @@ config OF_LIBFDT
 	bool "Flattened Device Tree Support"
 	default y
 
+if SECURE
+config SECURE_FDT
+	bool "Decrypt and verify Flattended Device Tree Blob"
+	default n
+endif
+
 config OF_OVERRIDE_DTB_NAME
 	string "Override Flattened Device Tree Blob filename"
 	depends on OF_LIBFDT && SDCARD

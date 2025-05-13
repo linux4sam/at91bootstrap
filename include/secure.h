@@ -19,7 +19,7 @@ typedef struct at91_secure_header {
 	unsigned int		reserved[2];
 } at91_secure_header_t;
 
-int secure_check(void *data);
+int secure_check(struct image_info *image);
 
 #if defined(CONFIG_OCMS_STATIC)
 void ocms_init_keys(void);
