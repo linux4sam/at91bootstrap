@@ -105,7 +105,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	ddramc_config->cal_mr4r = AT91C_DDRC2_COUNT_CAL(0xC852);
 	ddramc_config->tim_calr = AT91C_DDRC2_ZQCS(64);
 
-#elif defined(CONFIG_DDR_W631GU6NG)
+#elif defined(CONFIG_DDR_W631GU6NB12I)
 /* DDR3L(W631GU6NG = 8 Mbit x 16 x 8 banks), total 1Gbit on SAM9X75 SIP */
 	type = AT91C_DDRC2_MD_DDR3_SDRAM;
 	dbw = AT91C_DDRC2_DBW_16_BITS;
