@@ -77,8 +77,8 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #else
 	#error "No CLK setting defined"
 #endif
-#elif defined(CONFIG_DDR_W632GU6NG)
-/* DDR3L(W632GU6NG = 16 Mbit x 16 x 8 banks), total 2Gbit on SAM9X75D2G */
+#elif defined(CONFIG_DDR_W632GU6NB12I)
+/* DDR3L(W632GU6NB12I = 16 Mbit x 16 x 8 banks), total 2Gbit on SAM9X75D2G */
 	type = AT91C_DDRC2_MD_DDR3_SDRAM;
 	dbw = AT91C_DDRC2_DBW_16_BITS;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
