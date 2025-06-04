@@ -33,10 +33,74 @@
 #define CONFIG_SYS_SPI_CLOCK    AT91C_SPI_CLK
 #define CONFIG_SYS_SPI_MODE     SPI_MODE0
 
-#if defined(CONFIG_SPI_BUS0)
-#define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI0
-#elif defined(CONFIG_SPI_BUS1)
-#define CONFIG_SYS_BASE_SPI     AT91C_BASE_SPI1
+#if defined(CONFIG_SPI)
+#include "flexcom.h"
+#define CONFIG_SYS_BASE_SPI     flexcom_get_regmap(CONFIG_SPI_BUS)
+#if CONFIG_SPI_BUS == 0
+#if defined(CONFIG_SPI_BOOT_CS0)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(3)
+#elif defined(CONFIG_SPI_BOOT_CS1)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(2)
+#else
+#error "Invalid SPI chip select configuration!"
+#endif
+#elif CONFIG_SPI_BUS == 1
+#if defined(CONFIG_SPI_BOOT_CS0)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PC(28)
+#elif defined(CONFIG_SPI_BOOT_CS1)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PC(27)
+#else
+#error "Invalid SPI chip select configuration!"
+#endif
+#elif CONFIG_SPI_BUS == 2
+#if defined(CONFIG_SPI_BOOT_CS0)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PB(1)
+#elif defined(CONFIG_SPI_BOOT_CS1)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PB(0)
+#else
+#error "Invalid SPI chip select configuration!"
+#endif
+#elif CONFIG_SPI_BUS == 3
+#if defined(CONFIG_SPI_BOOT_CS0)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PC(25)
+#elif defined(CONFIG_SPI_BOOT_CS1)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PC(24)
+#else
+#error "Invalid SPI chip select configuration!"
+#endif
+#elif CONFIG_SPI_BUS == 4
+#if defined(CONFIG_SPI_BOOT_CS0)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(14)
+#elif defined(CONFIG_SPI_BOOT_CS1) && CONFIG_SPI_IOSET == 1
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(7)
+#elif defined(CONFIG_SPI_BOOT_CS1) && CONFIG_SPI_IOSET == 2
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(0)
+#elif defined(CONFIG_SPI_BOOT_CS2) && CONFIG_SPI_IOSET == 1
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(1)
+#elif defined(CONFIG_SPI_BOOT_CS2) && CONFIG_SPI_IOSET == 2
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(8)
+#elif defined(CONFIG_SPI_BOOT_CS3)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PB(3)
+#else
+#error "Invalid SPI chip select configuration!"
+#endif
+#elif CONFIG_SPI_BUS == 5
+#if defined(CONFIG_SPI_BOOT_CS0)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(8)
+#elif defined(CONFIG_SPI_BOOT_CS1) && CONFIG_SPI_IOSET == 1
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(0)
+#elif defined(CONFIG_SPI_BOOT_CS1) && CONFIG_SPI_IOSET == 2
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(7)
+#elif defined(CONFIG_SPI_BOOT_CS2)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(31)
+#elif defined(CONFIG_SPI_BOOT_CS3)
+#define CONFIG_SYS_SPI_PCS AT91C_PIN_PA(30)
+#else
+#error "Invalid SPI chip select configuration!"
+#endif
+#else
+#error "Invalid SPI bus configuration!"
+#endif
 #endif
 
 #if defined(CONFIG_QSPI)
