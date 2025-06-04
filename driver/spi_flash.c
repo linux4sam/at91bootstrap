@@ -24,6 +24,7 @@
 #define MANUFACTURER_ID_ATMEL		0x1f
 #define MANUFACTURER_ID_MICRON		0x20
 #define MANUFACTURER_ID_WINBOND		0xef
+#define MANUFACTURER_ID_ISSI		0x9d
 
 /* Family Code */
 #define DF_FAMILY_AT26F			0x00
@@ -32,6 +33,10 @@
 
 #define DF_FAMILY_N25Q			0xA0
 #define DF_FAMILY_M25P			0x20
+
+#define DF_FAMILY_IS25LP		0x60
+#define DF_FAMILY_IS25WP		0x70
+#define DF_FAMILY_IS25LQ		0x40
 
 /* AT45 Density Code */
 #define DENSITY_AT45DB011D		0x0C
@@ -559,8 +564,8 @@ static int df_desc_init(struct dataflash_descriptor *df_desc, unsigned char vend
 	df_desc->family = family;
 
 	switch ( vendor ) {
-		case MANUFACTURER_ID_ATMEL: {
 
+		case MANUFACTURER_ID_ATMEL: {
 			if ((df_desc->family == DF_FAMILY_AT26F)
 				|| (df_desc->family == DF_FAMILY_AT26DF)) {
 				ret = df_at25_desc_init(df_desc);
@@ -588,6 +593,27 @@ static int df_desc_init(struct dataflash_descriptor *df_desc, unsigned char vend
 				if (ret)
 					return ret;
 			} else {
+				dbg_info("SF: Unsupported SerialFlash family %x\n", family);
+				return -1;
+			}
+		}
+		break;
+
+		case MANUFACTURER_ID_ISSI:{
+
+			if (df_desc->family == DF_FAMILY_IS25LP) {
+				ret = df_n25q_desc_init(df_desc);
+				if (ret)
+					return ret;
+			} else if (df_desc->family == DF_FAMILY_IS25WP) {
+				ret = df_n25q_desc_init(df_desc);
+				if (ret)
+					return ret;
+			} else if (df_desc->family == DF_FAMILY_IS25LQ) {
+				ret = df_n25q_desc_init(df_desc);
+				if (ret)
+					return ret;
+			}else {
 				dbg_info("SF: Unsupported SerialFlash family %x\n", family);
 				return -1;
 			}
@@ -625,7 +651,8 @@ static int dataflash_probe_atmel(struct dataflash_descriptor *df_desc)
 
 	if (dev_id[0] != MANUFACTURER_ID_ATMEL &&
 	    dev_id[0] != MANUFACTURER_ID_WINBOND &&
-	    dev_id[0] != MANUFACTURER_ID_MICRON) {
+	    dev_id[0] != MANUFACTURER_ID_MICRON &&
+		dev_id[0] != MANUFACTURER_ID_ISSI) {
 		dbg_info("Not supported spi flash Manufactorer ID: %x\n",
 			 dev_id[0]);
 		return -1;
