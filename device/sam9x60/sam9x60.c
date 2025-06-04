@@ -41,7 +41,7 @@ __attribute__((weak)) void wilc_pwrseq();
 
 #define FLEXCOM_USART_INDEX (CONFIG_CONSOLE_INDEX - 1)
 
-#if defined(CONFIG_TWI) || CONFIG_CONSOLE_INDEX != 0
+#if defined(CONFIG_TWI) || CONFIG_CONSOLE_INDEX != 0 || defined(CONFIG_SPI)
 static struct at91_flexcom flexcoms[] = {
 	{AT91C_ID_FLEXCOM0, FLEXCOM_TWI, AT91C_BASE_FLEXCOM0},
 	{AT91C_ID_FLEXCOM1, FLEXCOM_TWI, AT91C_BASE_FLEXCOM1},
@@ -279,6 +279,68 @@ void twi_init()
 }
 #endif
 
+#if defined CONFIG_SPI
+void at91_spi0_hw_init()
+{
+	const struct pio_desc flx_pins[][5] = {
+		{ // FLEXCOM0
+			{"FLX_IO0", AT91C_PIN_PA(0), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(1), 0, PIO_DEFAULT, PIO_PERIPH_A},
+            {"FLX_IO2", AT91C_PIN_PA(4), 0, PIO_DEFAULT, PIO_PERIPH_A},
+            {"FLX_IO3", CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM1
+			{"FLX_IO0", AT91C_PIN_PA(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(6), 0, PIO_DEFAULT, PIO_PERIPH_A},
+            {"FLX_IO2", AT91C_PIN_PC(29), 0, PIO_DEFAULT, PIO_PERIPH_C},
+            {"FLX_IO3", CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM2
+			{"FLX_IO0", AT91C_PIN_PA(7), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(8), 0, PIO_DEFAULT, PIO_PERIPH_A},
+            {"FLX_IO2", AT91C_PIN_PB(2), 0, PIO_DEFAULT, PIO_PERIPH_B},
+            {"FLX_IO3", CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM3
+			{"FLX_IO0", AT91C_PIN_PC(22), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PC(23), 0, PIO_DEFAULT, PIO_PERIPH_B},
+            {"FLX_IO2", AT91C_PIN_PC(26), 0, PIO_DEFAULT, PIO_PERIPH_B},
+            {"FLX_IO3", CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM4
+			{"FLX_IO0", AT91C_PIN_PA(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+			{"FLX_IO1", AT91C_PIN_PA(11), 0, PIO_DEFAULT, PIO_PERIPH_A},
+            {"FLX_IO2", AT91C_PIN_PA(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+            {"FLX_IO3", CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		},
+		{ // FLEXCOM5
+			{"FLX_IO0", AT91C_PIN_PA(22), 0, PIO_DEFAULT, PIO_PERIPH_B},
+			{"FLX_IO1", AT91C_PIN_PA(21), 0, PIO_DEFAULT, PIO_PERIPH_B},
+            {"FLX_IO2", AT91C_PIN_PA(23), 0, PIO_DEFAULT, PIO_PERIPH_B},
+            {"FLX_IO3", CONFIG_SYS_SPI_PCS, 1, PIO_DEFAULT, PIO_OUTPUT},
+			{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+		}
+	};
+
+	if (CONFIG_CONSOLE_INDEX == CONFIG_SPI_BUS + 1) {
+		dbg_very_loud("\nFLEXCOM %d is used in UART mode, config to SPI mode ignored!\n\n", CONFIG_SPI_BUS);
+		return;
+	}
+
+	pio_configure(flx_pins[CONFIG_SPI_BUS]);
+
+	pmc_enable_periph_clock(flexcoms[CONFIG_SPI_BUS].id, PMC_PERIPH_CLK_DIVIDER_NA);
+
+	flexcoms[CONFIG_SPI_BUS].mode = FLEXCOM_SPI;
+	flexcom_init(CONFIG_SPI_BUS);
+}
+#endif
+
 void hw_init(void)
 {
 	unsigned int reg;
@@ -302,7 +364,7 @@ void hw_init(void)
 	pmc_mck_cfg_set(0, BOARD_PRESCALER_PLLA,
 			AT91C_PMC_PRES | AT91C_PMC_MDIV | AT91C_PMC_CSS);
 
-#if defined(CONFIG_TWI) || CONFIG_CONSOLE_INDEX != 0
+#if defined(CONFIG_TWI) || CONFIG_CONSOLE_INDEX != 0 || defined(CONFIG_SPI)
 	flexcoms_init(flexcoms);
 #endif
 
