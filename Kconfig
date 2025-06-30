@@ -230,6 +230,7 @@ config IMAGE_NAME
 	default "u-boot.bin" if LOAD_UBOOT
 	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
 
+source "fast-boot/Config.in.fastboot"
 
 source "device/Config.in.mach"
 

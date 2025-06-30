@@ -5,6 +5,15 @@
 menu "Flash Memory"
 	depends on LOAD_SW
 
+config FAST_BOOT
+	bool "Enable Fast Boot"
+	depends on SAMA5D2 || SAMA7G5 || SAMA7D65
+	default n
+	help
+	  Enables "Fast Boot". Starting with sama5d2, sama7g5 and sama7d65, the
+	  purpose is to restore a Linux context from a cold boot (power-up).
+	  Resuming from that state requires support in the AT91Bootstrap.
+
 choice
 	prompt "Non-volatile memory to load from"
 	default DATAFLASH
@@ -15,6 +24,7 @@ config	DATAFLASH
 	bool "Dataflash"
 
 config	FLASH
+	depends on !FAST_BOOT
 	bool "Parallel NOR flash(supported from ROM Code v2.1)"
 	help
 	  Before you select it, please check the ROM Code if it supports
