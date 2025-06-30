@@ -1675,7 +1675,7 @@ static int sd_cmd_stop_transmission(struct sd_card *sdcard)
 	return 0;
 }
 
-static int sd_cmd_read_multiple_block(struct sd_card *sdcard,
+static int sd_cmd_read_blocks(struct sd_card *sdcard,
 				void *buf,
 				unsigned int start,
 				unsigned int block_count)
@@ -1687,6 +1687,7 @@ static int sd_cmd_read_multiple_block(struct sd_card *sdcard,
 	int ret;
 
 	command->cmd = SD_CMD_READ_MULTIPLE_BLOCK;
+	command->cmd = block_count > 1 ? SD_CMD_READ_MULTIPLE_BLOCK : SD_CMD_READ_SINGLE_BLOCK;
 	command->resp_type = SD_RESP_TYPE_R1;
 	command->argu = (sdcard->highcapacity_card) ? start : start * block_len;
 
@@ -1702,32 +1703,6 @@ static int sd_cmd_read_multiple_block(struct sd_card *sdcard,
 	return block_count;
 }
 
-static int sd_cmd_read_single_block(struct sd_card *sdcard,
-				void *buf,
-				unsigned int start)
-{
-	unsigned short block_len = sdcard->read_bl_len;
-	struct sd_host *host = sdcard->host;
-	struct sd_command *command = sdcard->command;
-	struct sd_data *data = sdcard->data;
-	int ret;
-
-	command->cmd = SD_CMD_READ_SINGLE_BLOCK;
-	command->resp_type = SD_RESP_TYPE_R1;
-	command->argu = (sdcard->highcapacity_card) ? start : start * block_len;
-
-	data->buff = (unsigned char *)buf;
-	data->direction = SD_DATA_DIR_RD;
-	data->blocksize = block_len;
-	data->blocks = 1;
-
-	ret = host->ops->send_command(command, data);
-	if (ret)
-		return 0;
-
-	return 1;
-}
-
 #define SUPPORT_MAX_BLOCKS	(ADMA2_MAX_NUM_DESC * ADMA2_MAX_DESC_BLOCKS)
 
 unsigned int sdcard_block_read(unsigned int start,
@@ -1739,8 +1714,10 @@ unsigned int sdcard_block_read(unsigned int start,
 	unsigned int blocks;
 	unsigned int block_len = sdcard->read_bl_len;
 	unsigned int blocks_read;
+	unsigned char *read_buf;
 	int ret;
 
+	read_buf = (unsigned char *)buf;
 	/*
 	 * Refer to the at91sam9g20 datasheet:
 	 * Figure 35-10. Read Function Flow Diagram
@@ -1763,9 +1740,8 @@ unsigned int sdcard_block_read(unsigned int start,
 				if (ret)
 					return ret;
 			}
-
-			blocks_read = sd_cmd_read_multiple_block(sdcard,
-							buf, start, blocks);
+			blocks_read = sd_cmd_read_blocks(sdcard,
+							(void *)read_buf, start, blocks);
 
 			if (sdcard->cmd_support & SD_SCR_CMD23_SUPPORT) {
 				if (!blocks_read)
@@ -1776,8 +1752,8 @@ unsigned int sdcard_block_read(unsigned int start,
 					return ret;
 			}
 		} else {
-			blocks_read = sd_cmd_read_single_block(sdcard,
-							buf, start);
+			blocks_read = sd_cmd_read_blocks(sdcard,
+							(void *)read_buf, start, 1);
 		}
 
 		if (blocks_read != blocks)
@@ -1785,8 +1761,75 @@ unsigned int sdcard_block_read(unsigned int start,
 
 		blocks_todo -= blocks;
 		start += blocks;
-		buf += blocks * block_len;
+		read_buf += blocks * block_len;
 	}
 
 	return block_count;
 }
+
+#ifdef CONFIG_FAST_BOOT
+static int sd_cmd_write_blocks(struct sd_card *sdcard,
+				const void *buf,
+				unsigned int start,
+				unsigned int block_count)
+{
+	unsigned short block_len = sdcard->read_bl_len;
+	struct sd_host *host = sdcard->host;
+	struct sd_command *command = sdcard->command;
+	struct sd_data *data = sdcard->data;
+	int ret;
+
+	command->cmd = block_count > 1 ? SD_CMD_WRITE_MULTIPLE_BLOCK : SD_CMD_WRITE_SINGLE_BLOCK;
+	command->resp_type = SD_RESP_TYPE_R1;
+	command->argu = (sdcard->highcapacity_card) ? start : start * block_len;
+
+	data->buff = (unsigned char *)buf;
+	data->direction = SD_DATA_DIR_WR;
+	data->blocksize = block_len;
+	data->blocks = block_count;
+
+	ret = host->ops->send_command(command, data);
+	if (ret)
+		return 0;
+
+	return block_count;
+}
+
+unsigned int sdcard_block_write(unsigned int start,
+				unsigned int block_count,
+				const void *buf)
+{
+	struct sd_card *sdcard = &atmel_sdcard;
+	unsigned int blocks_todo = block_count;
+	unsigned int blocks;
+	unsigned int block_len = sdcard->read_bl_len;
+	unsigned int blocks_written;
+	unsigned char *write_buf;
+	int ret;
+
+	write_buf = (unsigned char *)buf;
+	if (!sdcard->ddr) {
+		/* Send SET_BLOCKLEN command */
+		ret = sd_cmd_set_blocklen(sdcard, block_len);
+		if (ret)
+			return 0;
+	}
+	for (blocks_todo = block_count; blocks_todo > 0; ) {
+		blocks = (blocks_todo > SUPPORT_MAX_BLOCKS) ?
+					SUPPORT_MAX_BLOCKS : blocks_todo;
+		blocks_written = sd_cmd_write_blocks(sdcard,
+					(void *)write_buf, start, blocks);
+		if (blocks > 1) {
+			ret = sd_cmd_stop_transmission(sdcard);
+			if (ret)
+				return 0;
+		}
+		if (blocks_written != blocks)
+			return 0;
+		blocks_todo -= blocks;
+		start += blocks;
+		write_buf += blocks * block_len;
+	}
+	return block_count;
+}
+#endif
