@@ -128,3 +128,11 @@ void backup_get_calibration_data(unsigned int *data, unsigned int len)
 		data[i] = pm_bu->ddr_phy_calibration[i];
 }
 #endif
+
+#ifdef CONFIG_FAST_BOOT
+int backup_get_resume(void)
+{
+	pm_bu = (struct at91_pm_bu *)AT91C_BASE_SECURAM;
+	return pm_bu->resume;
+}
+#endif

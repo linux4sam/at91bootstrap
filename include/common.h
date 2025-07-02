@@ -53,6 +53,7 @@ struct image_info
 #endif
 	unsigned char *of_dest;
 #endif
+	unsigned int jump_addr;
 };
 
 typedef int (*load_function)(struct image_info *image);

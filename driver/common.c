@@ -101,6 +101,7 @@ void init_load_image(struct image_info *image)
 #else
 	load_image = get_image_load_func();
 #endif
+	image->jump_addr = JUMP_ADDR;
 }
 #endif /* CONFIG_LOAD_SW */
 

@@ -57,6 +57,7 @@ int main(void)
 
 #ifdef CONFIG_BACKUP_MODE
 	ret = backup_mode_resume();
+#ifndef CONFIG_FAST_BOOT
 	if (ret) {
 		/* Backup+Self-Refresh mode detected... */
 #ifdef CONFIG_REDIRECT_ALL_INTS_AIC
@@ -68,6 +69,7 @@ int main(void)
 		return ret;
 	}
 	usart_puts("Backup mode enabled\n");
+#endif
 #endif
 
 #ifdef CONFIG_HW_DISPLAY_BANNER
@@ -103,10 +105,11 @@ int main(void)
 #ifdef CONFIG_LOAD_SW
 	init_load_image(&image);
 
-#if defined(CONFIG_SECURE)
+#if defined(CONFIG_SECURE) && !defined(CONFIG_FASTBOOT_SECURE_ENABLE)
 	image.dest -= sizeof(at91_secure_header_t);
 #endif
 
+#if !defined(CONFIG_FAST_BOOT)
 #ifdef CONFIG_MMU
 	mmu_tlb_init(tlb);
 	mmu_configure(tlb);
@@ -116,7 +119,9 @@ int main(void)
 	icache_enable();
 	dcache_enable();
 #endif
+#endif
 	ret = (*load_image)(&image);
+#if !defined(CONFIG_FAST_BOOT)
 #ifdef CONFIG_CACHES
 	icache_disable();
 	dcache_disable();
@@ -125,7 +130,8 @@ int main(void)
 	mmu_disable();
 #endif
 
-#if defined(CONFIG_SECURE)
+#endif
+#if defined(CONFIG_SECURE) && !defined(CONFIG_FASTBOOT_SECURE_ENABLE)
 	if (!ret)
 		ret = secure_check(&image);
 	image.dest += sizeof(at91_secure_header_t);
@@ -154,7 +160,7 @@ int main(void)
 #endif
 
 #ifdef CONFIG_JUMP_TO_SW
-	return JUMP_ADDR;
+	return image.jump_addr;
 #else
 	return 0;
 #endif
