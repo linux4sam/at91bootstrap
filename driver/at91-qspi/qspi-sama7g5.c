@@ -278,7 +278,12 @@ static int qspi_transfer(struct qspi_priv *aq,
 
 	/* Send/Receive data. */
 	if (cmd->rx_data) {
-		qspi_memcpy(cmd->rx_data, aq->mem + offset, cmd->data_len);
+#ifdef CONFIG_AT91_QSPI_OCTAL
+		if (cmd->proto == SFLASH_PROTO_8D_8D_8D)
+			qspi_memcpy(cmd->rx_data, aq->mem + offset, cmd->data_len, true);
+		else
+#endif
+			qspi_memcpy(cmd->rx_data, aq->mem + offset, cmd->data_len, false);
 		if (cmd->addr_len) {
 			err = qspi_readl_poll_timeout(aq->reg_base + QSPI_SR,
 						      val,
@@ -288,7 +293,12 @@ static int qspi_transfer(struct qspi_priv *aq,
 				return err;
 		}
 	} else if (cmd->tx_data) {
-		qspi_memcpy(aq->mem + offset, cmd->tx_data, cmd->data_len);
+#ifdef CONFIG_AT91_QSPI_OCTAL
+		if (cmd->proto == SFLASH_PROTO_8D_8D_8D)
+			qspi_memcpy(aq->mem + offset, cmd->tx_data, cmd->data_len, true);
+		else
+#endif
+			qspi_memcpy(aq->mem + offset, cmd->tx_data, cmd->data_len, false);
 		err = qspi_readl_poll_timeout(aq->reg_base + QSPI_ISR, val,
 					      val & QSPI_ISR_LWRA,
 					      QSPI_TIMEOUT);
