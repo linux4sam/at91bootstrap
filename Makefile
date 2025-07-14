@@ -170,6 +170,17 @@ CARD_SUFFIX := $(strip $(subst ",,$(CONFIG_CARD_SUFFIX)))
 LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING)))
 LINUX_KERNEL_ARG_STRING_FILE := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING_FILE)))
 
+ifeq ($(CONFIG_FAST_BOOT), y)
+LIB_PATH =fast-boot
+ifeq ($(CONFIG_SDCARD), y)
+LIB_NAME =fastboot_sd
+else ifeq ($(CONFIG_QSPI), y)
+LIB_NAME =fastboot_qspi
+else ifeq ($(CONFIG_NANDFLASH), y)
+LIB_NAME =fastboot_nand
+endif
+endif
+
 # Device definitions
 DEVICENAME:=$(strip $(subst ",,$(CONFIG_DEVICENAME)))
 
@@ -257,7 +268,7 @@ NOSTDINC_FLAGS := -nostdinc -isystem "$(shell "$(CC)" $(EXTRA_CC_ARGS) -print-fi
 CPPFLAGS=$(EXTRA_CC_ARGS) $(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-mno-unaligned-access \
 	-fno-stack-protector -fno-common -fno-builtin -fno-jump-tables -fno-pie \
-	-I$(INCL) -Iinclude -Ifs/include \
+	-I$(INCL) -Iinclude -Ifs/include -Ifast-boot\
 	-I$(CONFIG)/at91bootstrap-config \
 	-include $(CONFIG)/at91bootstrap-config/autoconf.h \
 	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(BUILD_DATE)\""
@@ -350,7 +361,11 @@ PrintFlags:
 $(AT91BOOTSTRAP): $(OBJS) | $(BINDIR)
 	$(Q)$(MKDIR) -p $(dir $@)
 	@echo "  LD        "$(BOOT_NAME).elf
+ifeq ($(CONFIG_FAST_BOOT), y)
+	$(Q)"$(LD)" $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS) -L$(LIB_PATH) -l$(LIB_NAME)
+else
 	$(Q)"$(LD)" $(LDFLAGS) -n -o $(BINDIR)/$(BOOT_NAME).elf $(OBJS)
+endif
 	$(Q)"$(OBJCOPY)" --strip-all $(REMOVE_SECTIONS) $(BINDIR)/$(BOOT_NAME).elf -O binary $@
 ifdef NIX_SHELL
 	@ln -sf $(BOOT_NAME).elf ${BINDIR}/${SYMLINK_ELF}
