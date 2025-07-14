@@ -175,6 +175,11 @@ static int macronix_octa_enable(struct spi_flash *flash)
 	cmd.tx_data = &mode;
 	spi_flash_exec(flash, &cmd);
 	flash->addr_len = 4;
+#ifdef CONFIG_QSPI_DTR_ENABLE
+	flash->reg_proto = SFLASH_PROTO_8D_8D_8D;
+#else
+	flash->reg_proto = SFLASH_PROTO_8_8_8;
+#endif
 	return 0;
 }
 #endif
