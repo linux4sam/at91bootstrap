@@ -16,7 +16,9 @@
 #include "autoconf.h"
 #include "optee.h"
 #include "sfr_aicredir.h"
-
+#ifdef CONFIG_FAST_BOOT
+#include "fast_boot.h"
+#endif
 #ifdef CONFIG_CACHES
 #include "l1cache.h"
 #endif
@@ -100,6 +102,10 @@ int main(void)
 
 #if defined(CONFIG_SAMA7G5) || defined(CONFIG_SAMA7D65)
 	hw_postinit();
+#endif
+
+#ifdef CONFIG_FAST_BOOT
+	init_fast_boot();
 #endif
 
 #ifdef CONFIG_LOAD_SW

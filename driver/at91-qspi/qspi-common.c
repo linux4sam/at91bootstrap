@@ -14,6 +14,9 @@
 #ifdef CONFIG_QSPI_DMA_SUPPORT
 #include "xdmac.h"
 #endif
+#ifdef CONFIG_FAST_BOOT
+#include "fast_boot.h"
+#endif
 
 #ifndef CONFIG_SYS_BASE_QSPI
 #error "CONFIG_SYS_BASE_QSPI is not set"
@@ -140,6 +143,10 @@ int qspi_loadimage(struct image_info *image)
 		return -1;
 	}
 
+#ifdef CONFIG_FAST_BOOT
+	if (qspi_fast_boot(&flash, image))
+		return 0;
+#endif
 	return spi_flash_loadimage(&flash, image);
 }
 

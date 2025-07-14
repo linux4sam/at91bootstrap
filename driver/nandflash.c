@@ -27,6 +27,9 @@
 #ifdef CONFIG_NAND_DMA_SUPPORT
 #include "xdmac.h"
 #endif
+#ifdef CONFIG_FAST_BOOT
+#include "fast_boot.h"
+#endif
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static struct nand_chip nand_ids[] = {
@@ -1482,6 +1485,11 @@ int load_nandflash(struct image_info *image)
 
 #ifdef CONFIG_ENABLE_SW_ECC
 	dbg_info("NAND: Using Software ECC\n");
+#endif
+
+#ifdef CONFIG_FAST_BOOT
+	if (nandflash_fast_boot(&nand, image))
+		return 0;
 #endif
 
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
