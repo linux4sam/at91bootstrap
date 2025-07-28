@@ -12,10 +12,10 @@ source "driver/Config.in.driver"
 
 config PROJECT
 	string
-	default "dataflash"	if DATAFLASH
-	default "flash"		if FLASH
+	default "df"		if DATAFLASH
+	default "fl"		if FLASH
 	default "nandflash"	if NANDFLASH
-	default "sdcard"	if SDCARD
+	default "sd"		if SDCARD
 
 choice
 	prompt "Image Loading Strategy"
