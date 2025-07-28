@@ -1,0 +1,53 @@
+name: Build and release
+
+on:
+  push:
+    tags:
+      - '*' 
+
+jobs:
+  build-configs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [glasnost_m9g10, glasnost_m9g20]
+        medium: [df, sd]
+    continue-on-error: true
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up ARM Toolchain
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: '14.2.Rel1'
+
+      - name: Build ${{ matrix.target }} ${{ matrix.medium }}
+        run: |
+          echo "Starting build for Target: ${{ matrix.target }}, Medium: ${{ matrix.medium }}, Version: ${{ env.VERSION }}"
+          make CROSS_COMPILE=arm-none-eabi- ${{ matrix.target }}${{matrix.medium}}_uboot_defconfig
+          make VERSION=${{ github.ref_name }} CROSS_COMPILE=arm-none-eabi- -j$(nproc) 
+          echo "Build completed for Target: ${{ matrix.target }}, Config: ${{ matrix.medium }}"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}_${{ matrix.medium }}_${{ env.VERSION }}.bin
+          path: binaries/boot.bin
+  create-release:
+    needs: build-configs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/*
+          name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.ref }}
+          prerelease: false

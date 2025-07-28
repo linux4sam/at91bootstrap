@@ -1,0 +1,36 @@
+name: Dev Build
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build-configs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [glasnost_m9g10, glasnost_m9g20]
+        medium: [df, sd]
+    continue-on-error: true
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up ARM Toolchain
+        uses: carlosperate/arm-none-eabi-gcc-action@v1
+        with:
+          release: '14.2.Rel1'
+
+      - name: Build ${{ matrix.target }} ${{ matrix.medium }}
+        run: |
+          echo "Starting build for Target: ${{ matrix.target }}, Medium: ${{ matrix.medium }}"
+          make CROSS_COMPILE=arm-none-eabi- ${{ matrix.target }}${{matrix.medium}}_uboot_defconfig
+          make CROSS_COMPILE=arm-none-eabi- -j$(nproc)
+          echo "Build completed for Target: ${{ matrix.target }}, Config: ${{ matrix.medium }}"
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}_${{ matrix.medium }}.bin
+          path: binaries/boot.bin
+          retention-days: 7

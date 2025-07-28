@@ -42,14 +42,14 @@ ifeq ($(origin BUILD_DATE), undefined)
 # Automatically escape '%' symbols when recipes are implemented as batch files
 PERCENT := $(if $(findstring %%_dummy_,$(shell echo %%_dummy_)),%,%%)
 # see https://reproducible-builds.org/docs/source-date-epoch/#makefile
-DATE_FMT = +$(PERCENT)Y-$(PERCENT)m-$(PERCENT)d $(PERCENT)H:$(PERCENT)M:$(PERCENT)S
+DATE_FMT = +$(PERCENT)d-$(PERCENT)m-$(PERCENT)Y $(PERCENT)H:$(PERCENT)M
 ifdef SOURCE_DATE_EPOCH
 	BUILD_DATE := $(shell $(DATE) -u -d "@$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>$(DEV_NULL) || $(DATE) -u -r "$(SOURCE_DATE_EPOCH)" "$(DATE_FMT)" 2>$(DEV_NULL) || $(DATE) -u "$(DATE_FMT)")
 else
 	BUILD_DATE := $(shell $(DATE) "$(DATE_FMT)")
 endif
 endif
-VERSION := 3.10.4
+VERSION := 3.99.x
 REVISION :=
 ifdef NIX_SHELL
 SCMINFO := $(shell (host-utilities/setlocalversion))
@@ -331,15 +331,15 @@ PrintFlags:
 	$(info )
 	$(info as FLAGS)
 	$(info ========)
-	$(info $(ASFLAGS))
+	$(foreach flag,$(ASFLAGS),$(info $(flag)))
 	$(info )
 	$(info gcc FLAGS)
 	$(info =========)
-	$(info $(CPPFLAGS))
+	$(foreach flag,$(CPPFLAGS),$(info $(flag)))
 	$(info )
 	$(info ld FLAGS)
 	$(info ========)
-	$(info $(LDFLAGS))
+	$(foreach flag,$(LDFLAGS),$(info $(flag)))
 	$(info )
 
 $(AT91BOOTSTRAP): $(OBJS) | $(BINDIR)
