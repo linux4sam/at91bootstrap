@@ -32,7 +32,8 @@ jobs:
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.target }}_${{ matrix.medium }}_${{ env.VERSION }}.bin
+
+          name: ${{ matrix.target }}_${{ matrix.medium }}.bin
           path: binaries/boot.bin
   create-release:
     needs: build-configs
@@ -44,10 +45,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          merge-multiple: true
       - name: Create Release and Upload Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/*
-          name: Release ${{ github.ref_name }}
-          tag_name: ${{ github.ref }}
-          prerelease: false
+          files: |
+            artifacts/*
