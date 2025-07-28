@@ -1,0 +1,2 @@
+config BOARDNAME
+	default "glasnost_m9g10" if GLASNOST_M9G10
