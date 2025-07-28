@@ -80,6 +80,15 @@ config SKIP_COPY_IMAGE
 	  should be located. It relies on a different way of loading the
 	  image to DRAM. For example it can be copied using the boot
 	  assistant SAM-BA or JTAG.
+config LONG_FILENAME
+	bool "Enable Long FileName Support"
+	help
+	  Enable support for long file names (VFAT) when accessing filesystems
+	  such as FAT32 during image loading. This allows the AT91Bootstrap SPL
+	  to handle file names longer than the standard 8.3 format. Enabling this
+	  option increases code size slightly. This option is enabled by default.
+	  If your device has 8kB or less of SRAM, it is better to disable this option.
+	default y
 
 config BKPT_NOTIFY_DONE
 	depends on LOAD_NONE
