@@ -158,6 +158,13 @@ choice
 	depends on LOAD_SW || JUMP_TO_SW
 	default LOAD_UBOOT
 
+config LOAD_OPTEE
+	bool "OP-TEE OS"
+	select LOAD_OPTEE_OS
+	---help---
+	  Boot OP-TEE OS in Secure World and U-Boot will be loaded
+	  and run in Normal World.
+
 config LOAD_UBOOT
 	bool "U-Boot"
 	---help---
@@ -172,7 +179,6 @@ config LOAD_LINUX
 	  No further bootloader required.
 
 config LOAD_ANDROID
-	depends on !LOAD_OPTEE
 	select LINUX_IMAGE
 	bool "Android"
 	---help---
@@ -180,21 +186,18 @@ config LOAD_ANDROID
 	  No further bootloader required.
 
 config LOAD_1MB
-	depends on !LOAD_OPTEE
 	bool "Load 1 MB into start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
 	  which can have a size of up to 1 MByte
 
 config LOAD_4MB
-	depends on !LOAD_OPTEE
 	bool "Load 4 MB into start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
 	  which can have a size of up to 4 MByte
 
 config LOAD_64KB
-	depends on !LOAD_OPTEE
 	bool "Load 64 kB into the start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
@@ -225,9 +228,16 @@ source "Config.in.app-image"
 
 config IMAGE_NAME
 	string "Next Software Image File Name"
-	depends on LOAD_SW && FATFS
+	depends on LOAD_SW && FATFS && !LOAD_OPTEE
 	default "Image" if LINUX_IMAGE
 	default "u-boot.bin" if LOAD_UBOOT
+	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
+
+config IMAGE_NAME
+	string "Software Image File Name (after OP-TEE OS)"
+	depends on LOAD_SW && FATFS && LOAD_OPTEE
+	default "Image" if LINUX_IMAGE
+	default "u-boot.bin" if LOAD_UBOOT || LOAD_OPTEE
 	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
 
 source "fast-boot/Config.in.fastboot"

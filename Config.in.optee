@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-config LOAD_OPTEE
+config LOAD_OPTEE_OS
 	bool "Install and start OP-TEE Trusted OS"
-	depends on SDCARD
+	depends on SDCARD && LOAD_OPTEE
 	help
 	  When enabled, OP-TEE will be loaded from NVM and installed in external
 	  RAM or DRAM.

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 
 menu "U-Boot Image Storage Setup"
-	depends on LOAD_UBOOT
+	depends on LOAD_UBOOT || LOAD_OPTEE
 
 config IMG_ADDRESS
 	string "Flash Offset for U-Boot"
