@@ -205,59 +205,6 @@ config LOAD_64KB
 
 endchoice
 
-config LINUX_IMAGE
-	depends on LOAD_LINUX || LOAD_ANDROID
-	bool
-	help
-	  Select to load linux uImage or zImage to boot
-
-#
-# Kernel Image Storage Setup
-#
-source "Config.in.kernel"
-
-#
-# U-Boot Image Storage Setup
-#
-source "Config.in.u-boot"
-
-#
-# Demo App Image Storage Setup
-#
-source "Config.in.app-image"
-
-config IMAGE_NAME
-	string "Next Software Image File Name"
-	depends on LOAD_SW && FATFS && !LOAD_OPTEE
-	default "Image" if LINUX_IMAGE
-	default "u-boot.bin" if LOAD_UBOOT
-	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
-
-config IMAGE_NAME
-	string "Software Image File Name (after OP-TEE OS)"
-	depends on LOAD_SW && FATFS && LOAD_OPTEE
-	default "Image" if LINUX_IMAGE
-	default "u-boot.bin" if LOAD_UBOOT || LOAD_OPTEE
-	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
-
-source "fast-boot/Config.in.fastboot"
-
-source "device/Config.in.mach"
-
-source "Config.in.secure"
-
-config THUMB
-	depends on !SAMA5D4
-	bool "Build in thumb mode"
-	help
-	  Build code in thumb mode
-
-config DISABLE_WATCHDOG
-	bool "Disable Watchdog"
-	default y
-	help
-	  Disable the watchdog in the boostrap
-
 menu "ARM TrustZone Options"
 	depends on CPU_HAS_TRUSTZONE
 
@@ -320,6 +267,59 @@ config TZC400_SIMPLE_PROFILE
 endchoice
 
 endmenu
+
+config LINUX_IMAGE
+	depends on LOAD_LINUX || LOAD_ANDROID
+	bool
+	help
+	  Select to load linux uImage or zImage to boot
+
+#
+# Kernel Image Storage Setup
+#
+source "Config.in.kernel"
+
+#
+# U-Boot Image Storage Setup
+#
+source "Config.in.u-boot"
+
+#
+# Demo App Image Storage Setup
+#
+source "Config.in.app-image"
+
+config IMAGE_NAME
+	string "Next Software Image File Name"
+	depends on LOAD_SW && FATFS && !LOAD_OPTEE
+	default "Image" if LINUX_IMAGE
+	default "u-boot.bin" if LOAD_UBOOT
+	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
+
+config IMAGE_NAME
+	string "Software Image File Name (after OP-TEE OS)"
+	depends on LOAD_SW && FATFS && LOAD_OPTEE
+	default "Image" if LINUX_IMAGE
+	default "u-boot.bin" if LOAD_UBOOT || LOAD_OPTEE
+	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
+
+source "fast-boot/Config.in.fastboot"
+
+source "device/Config.in.mach"
+
+source "Config.in.secure"
+
+config THUMB
+	depends on !SAMA5D4
+	bool "Build in thumb mode"
+	help
+	  Build code in thumb mode
+
+config DISABLE_WATCHDOG
+	bool "Disable Watchdog"
+	default y
+	help
+	  Disable the watchdog in the boostrap
 
 config PM
 	bool "Power Management Options"
