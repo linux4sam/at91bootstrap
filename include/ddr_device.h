@@ -202,22 +202,22 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.tfaw = 8,
 #elif defined(CONFIG_BUS_SPEED_266MHZ)
 	.tras = 12,
-	.trcd = 3,
+	.trcd = 4,
 	.twr = 4,
 	.trc = 15,
-	.trp = 3,
+	.trp = 4,
 	.trrd = 3,
 	.twtr = 2,
 	.tmrd = 2,
 	.trfc = 28,
-	.txsnr = 38,
+	.txsnr = 31,
 	.txsrd = 200,
 	.txp = 2,
 	.txard = 2,
-	.txards = 6,
-	.trpa = 3,
+	.txards = 8,
+	.trpa = 5,
 	.trtp = 2,
-	.tfaw = 10,
+	.tfaw = 12,
 #endif
 #elif defined(CONFIG_DDR_W632GU6MB)
 /* Two DDR3L(W632GU6MB-12 = 16 Mbit x 16 x 8 banks), total 4 Gbit on SAMA5D2 ICP*/

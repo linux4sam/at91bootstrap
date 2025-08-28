@@ -130,12 +130,13 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	dbw = AT91C_DDRC2_DBW_16_BITS;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
 	row = AT91C_DDRC2_NR_13;
-	cas = AT91C_DDRC2_CAS_3;
 	bank = AT91C_DDRC2_NB_BANKS_4;
 #if defined(CONFIG_BUS_SPEED_200MHZ)
+	cas = AT91C_DDRC2_CAS_3;
 	/* Refresh Timer is (64ms / 8k) * 116MHz = 1562(0x61a) */
 	ddramc_config->rtr = 0x61a;
 #elif defined(CONFIG_BUS_SPEED_266MHZ)
+	cas = AT91C_DDRC2_CAS_5;
 	/* Refresh Timer is (64ms / 8k) * 116MHz = 2078(0x81e) */
 	ddramc_config->rtr = 0x81e;
 #else

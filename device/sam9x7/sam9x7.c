@@ -331,7 +331,7 @@ void hw_init(void)
 
 	reg = readl(AT91C_BASE_SFR + SFR_DDRCFG);
 
-#ifdef CONFIG_DDR3
+#if defined(CONFIG_DDR2) || defined(CONFIG_DDR3)
 	reg |= (AT91C_EBI_CS1A | AT91C_EBI_DDR_MP_EN);
 	writel(reg, (AT91C_BASE_SFR + SFR_DDRCFG));
 	/* Initialize DDRAM Controller */
