@@ -42,8 +42,11 @@ typedef signed long long s64;
 typedef unsigned long size_t;
 typedef signed long ssize_t;
 
+/* bool, false and true are predefined since C23. */
+#if __STDC_VERSION__ < 202311L
 typedef unsigned char bool;
 #define false	0U
 #define true	1U
+#endif
 
 #endif /* TYPES_H_ */
