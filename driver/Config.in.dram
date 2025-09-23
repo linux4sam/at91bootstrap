@@ -33,13 +33,13 @@ choice
 	prompt "DRAM parts"
 	depends on DDR_SET_BY_DEVICE
 config DDR_MT41K128M16_D2
-	bool "DDR3 MT41K128M16(SAMA5D2 Xplained)"
+	bool "DDR3 MT41K128M16 (SAMA5D2 Xplained)"
 	depends on DDRC
 	help
 		Two MT41K128M16 4Gbit
 
 config DDR_MT41K128M16
-	bool "DDR3 MT41K128M16(SAM9X75-DDR3-EB)"
+	bool "DDR3 MT41K128M16 (SAM9X75_DDR3_EB)"
 	depends on DDRC
 	help
 		MT41K128M16 2Gbit
@@ -51,13 +51,13 @@ config DDR_W632GU6MB
 		DDR3L SDRAM W632GU6MB 2 Gbit x 2
 
 config DDR_W972GG6KB_9X60
-	bool "DDR2 DDR_W972GG6KB(SAM9X60-EK)"
+	bool "DDR2 DDR_W972GG6KB (SAM9X60-EK)"
 	depends on DDRC
 	help
 		W972GG6KB 2 Gbits
 
 config DDR_W972GG6KB_D2
-	bool "DDR2 W972GG6KB(SAMA5D2-PTC-EK)"
+	bool "DDR2 W972GG6KB (SAMA5D2-PTC-EK)"
 	depends on DDRC
 	help
 		Two W972GG6KB 4 Gbits
@@ -93,83 +93,83 @@ config DDR_W971GG6SB
 		DDR2 W971GG6SB 1 Gbit
 
 config DDR_W9751G6NB
-	bool "DDR2 W9751G6NB (SAM9X75|SAMA7D65-512M SiP)"
+	bool "DDR2 W9751G6NB (SAM9X75 | SAMA7D65-512M SiP)"
 	help
 		DDR2 W9751G6NB 512M bit
 
 config DDR_AD220032D
-	bool "LPDDR2 AD220032D(SAMA5D2-WLSOM-EK)"
+	bool "LPDDR2 AD220032D (SAMA5D2-WLSOM-EK)"
 	depends on DDRC
 	help
 		LPDDR2 AD220032D 2 Gbit
 
 config DDR_AS4C128M32MD2A
-	bool "LPDDR2 AS4C128M32MD2A(SAMA5D29-Curiosity)"
+	bool "LPDDR2 AS4C128M32MD2A (SAMA5D29 Curiosity)"
 	depends on DDRC
 	help
 		LPDDR2 AS4C128M32MD2A 4 Gbit
 
 config DDR_MT47H128M16
-	bool "DDR2 MT47H128M16(SAMA5D3-EK)"
+	bool "DDR2 MT47H128M16 (SAMA5D3-EK)"
 	depends on DDRC
 	help
 		DDR2 MT47H128M16 2 Gbit
 
 config DDR_MT47H64M16
-	bool "DDR2 MT47H64M16 x 2(SAMA5D3-Xplained)"
+	bool "DDR2 MT47H64M16 x 2 (SAMA5D3 Xplained)"
 	depends on DDRC
 	help
 		DDR2 MT47H64M16 1 Gbit x 2
 
 config DDR_MT47H128M8
-	bool "DDR2 MT47H128M8 x 2(SAMA5D4-EK)"
+	bool "DDR2 MT47H128M8 x 2 (SAMA5D4-EK)"
 	depends on DDRC
 	help
 		DDR2 MT47H128M8 1 Gbit x 2
 
 config DDR_MT41K256M16TW_107
-	bool "DDR3L MT41K256M16TW-107(SAMA7G5-DDR3_EK rev.1)"
+	bool "DDR3L MT41K256M16TW-107 (SAMA7G5-DDR3_EK rev.1)"
 	depends on UMCTL2
 	help
 		MT41K256M16 DDR3 32 Meg x 16 x 8 DDR3-1066
 
 config DDR_MT41K512M16HA_125
-	bool "DDR3L MT41K512M16HA_125(SAMA7G5-DDR3_EB)"
+	bool "DDR3L MT41K512M16HA_125 (SAMA7G5-DDR3_EB)"
 	depends on UMCTL2
 	help
 		MT41K512M16HA_125 DDR3L 64 Meg x 8 x 8 DDR3-1066
 
 config DDR_MT41K128M16JT_125
-	bool "DDR3L DDR_MT41K128M16JT_125(OURASI-DDR3_EB)"
+	bool "DDR3L DDR_MT41K128M16JT_125 (SAMA7D65_DDR3_EB)"
 	depends on UMCTL2
 	help
 		DDR_MT41K128M16JT_125 DDR3L 16 Meg x 16 x 8 DDR3-1600
 
 config DDR_W97AH6NBVA1K
-	bool "LPDDR2 W97AH6NBVA1K(OURASI-LPDDR2_EB)"
+	bool "LPDDR2 W97AH6NBVA1K (SAMA7D65_LPDDR2_EB)"
 	depends on UMCTL2
 	help
 		LPDDR2 DDR_W97AH6NBVA1K 8M x 16 x 8
 
 config DDR_AS4C256M16D3LC_12BCNTR
-	bool "DDR3L AS4C256M16D3LC_12BCNTR(SAMA7G5-EK)"
+	bool "DDR3L AS4C256M16D3LC_12BCNTR (SAMA7G5-EK)"
 	depends on UMCTL2
 	help
 		DDR3L AS4C256M16D3LC_12BCNTR 32 Meg x 16 x 8 DDR3-1600
 
 config DDR_AS4C512M16D3LA_10BIN
-	bool "DDR3L AS4C512M16D3LA_10BIN(SAMA7D65-CURIOSITY)"
+	bool "DDR3L AS4C512M16D3LA_10BIN (SAMA7D65 Curiosity)"
 	depends on UMCTL2
 	help
 		DDR3L AS4C512M16D3LA_10BIN 64 Meg x 16 x 8 DDR3-1066
 
 config DDR_W631GU6NB12I
-	bool "DDR3L W631GU6NB12I((SAM9X75/SAMA7G54/SAMA7D65 1G-SIP))"
+	bool "DDR3L W631GU6NB12I (SAM9X75 | SAMA7G54 | SAMA7D65 1G-SIP)"
 	help
 		DDR3L W631GU6NB12I 8 Meg x 16 x 8 DDR3-1600
 
 config DDR_W632GU6NB12I
-	bool "DDR3L W632GU6NB12I(SAM9X75|SAMA7G54|SAMA7D65 2G-SIP)"
+	bool "DDR3L W632GU6NB12I (SAM9X75 | SAMA7G54 | SAMA7D65 2G-SIP)"
 	help
 		DDR3L W632GU6N12I 16 Meg x 16 x 8 DDR3L-1600
 
@@ -180,33 +180,33 @@ config DDR_W634GU6NB12I
 		DDR3L W634GU6NB12I 32 Meg x 16 x 8 DDR3L-1600
 
 config DDR_W638GU6QB12
-	bool "DDR3L W638GU6QB12 (SAMA7D65 CURIOSITY PRO rev.X1)"
+	bool "DDR3L W638GU6QB12 (SAMA7D65 Curiosity Pro rev.X1)"
 	depends on UMCTL2
 	help
 		DDR3L W638GU6QB12 64 Meg x 16 x 8 DDR3L-1600
 		Soldered on older X1 revision of SAMA7D65 Curiosity Pro
 
 config DDR_W638GU6RB11
-	bool "DDR3L W638GU6RB11 (SAMA7D65 CURIOSITY PRO)"
+	bool "DDR3L W638GU6RB11 (SAMA7D65 Curiosity Pro)"
 	depends on UMCTL2
 	help
 		DDR3L W638GU6RB11 64 Meg x 16 x 8 DDR3L-1866
 		Soldered on official revision of SAMA7D65 Curiosity Pro
 
 config DDR_MT47H128M16RT_25E_C
-	bool "DDR2 MT47H128M16RT-25E:C(SAMA7G5_DDR2_EB)"
+	bool "DDR2 MT47H128M16RT-25E:C (SAMA7G5_DDR2_EB)"
 	depends on UMCTL2
 	help
 		DDR2 MT47H128M16RT-25E:C 16 Meg x 16 x 8  DDR2-800
 
 config DDR_IS43LD16128B_25BLI
-	bool "LPDDR2 IS43LD16128B-25BLI(SAMA7G5-LPDDR2_EB)"
+	bool "LPDDR2 IS43LD16128B-25BLI (SAMA7G5_LPDDR2_EB)"
 	depends on UMCTL2
 	help
 		LPDDR2 IS43LD16128B-25BLI 16M x 16 x 8
 
 config DDR_MT52L256M32D1PF_107
-	bool "LPDDR3 MT52L256M32D1PF_107(SAMA7G5_LPDDR3_EB, OURASI_LPDDR3_EB)"
+	bool "LPDDR3 MT52L256M32D1PF_107 (SAMA7G5_LPDDR3_EB | SAMA7D65_LPDDR3_EB)"
 	depends on UMCTL2
 	help
 		LPDDR3 MT52L256M32D1PF 256 Meg x 32
@@ -218,13 +218,13 @@ config DDR_EDB5432BEBH_1DAAT_F_D
 		LPDDR2 EDB5432BEBH-1DAAT-F-D 4M x 32 x 4
 
 config DDR_AS4C128M16D2A_25BAN
-	bool "DDR2 AS4C128M16D2A_25BAN(OURASI_DDR2_EB)"
+	bool "DDR2 AS4C128M16D2A_25BAN (SAMA7D65_DDR2_EB)"
 	depends on UMCTL2
 	help
 		DDR2 AS4C128M16D2A_25BAN 128 Meg x 16  DDR2-800
 
 config DDR_EM68D16CBQC_18IH
-	bool "DDR2 EM68D16CBQC_18IH(OURASI_DDR2_EB)"
+	bool "DDR2 EM68D16CBQC_18IH (SAMA7D65_DDR2_EB)"
 	depends on UMCTL2
 	help
 		DDR2 EM68D16CBQC_18IH 128 Meg x 16  DDR2-1066
@@ -587,87 +587,87 @@ endchoice
 
 config DDR_TRSA
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tRAS - Active to Precharge Delay(tCK)"
+	int "tRAS - Active to Precharge Delay (tCK)"
 	range 0 15
 	default 0
 config DDR_TRCD
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tRCD - Row to Column Delay(tCK)"
+	int "tRCD - Row to Column Delay (tCK)"
 	range 0 15
 	default 0
 config DDR_TWR
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tWR - Write Recovery Delay(tCK)"
+	int "tWR - Write Recovery Delay (tCK)"
 	range 0 15
 	default 0
 config DDR_TRC
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tRC - Row Cycle Delay(tCK)"
+	int "tRC - Row Cycle Delay (tCK)"
 	range 0 15
 	default 0
 config DDR_TRP
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tRP - Row Precharge Delay(tCK)"
+	int "tRP - Row Precharge Delay (tCK)"
 	range 0 15
 	default 0
 config DDR_TRRD
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tRRD - Active BankA to Active BankB(tCK)"
+	int "tRRD - Active BankA to Active BankB (tCK)"
 	range 0 15
 	default 0
 config DDR_TWTR
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tWTR - Internal Write to Read Delay(tCK)"
+	int "tWTR - Internal Write to Read Delay (tCK)"
 	range 1 7
 	default 1
 config DDR_TMRD
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tMRD - Load Mode Register Command to Activate or Refresh Command(tCK)"
+	int "tMRD - Load Mode Register Command to Activate or Refresh Command (tCK)"
 	range 0 15
 	default 0
 config DDR_TRFC
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tRFC - Row Cycle Delay(tCK)"
+	int "tRFC - Row Cycle Delay (tCK)"
 	range 0 127
 	default 0
 config DDR_TXSNR
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tTXSNR - Exit Self-refresh Delay to Non-Read Command(tCK)"
+	int "tTXSNR - Exit Self-refresh Delay to Non-Read Command (tCK)"
 	range 0 255
 	default 0
 config DDR_TXSRD
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tTXSRD - Exit Self-refresh Delay to Non-Read Command(tCK)"
+	int "tTXSRD - Exit Self-refresh Delay to Non-Read Command (tCK)"
 	range 0 255
 	default 0
 config DDR_TXP
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tTXP - Exit Power-down Delay to First Command(tCK)"
+	int "tTXP - Exit Power-down Delay to First Command (tCK)"
 	range 0 15
 	default 0
 config DDR_TXARD
 	depends on DDR_SET_BY_TIMING && DDR2 && DDRC
-	int "tTXARD - Exit Active Power Down Delay to Read Command in Mode Fast Exit(tCK)"
+	int "tTXARD - Exit Active Power Down Delay to Read Command in Mode Fast Exit (tCK)"
 	range 0 15
 	default 0
 config DDR_TXARDS
 	depends on DDR_SET_BY_TIMING && DDR2 && DDRC
-	int "tTXARDS - Exit Active Power Down Delay to Read Command in Mode Slow Exit(tCK)"
+	int "tTXARDS - Exit Active Power Down Delay to Read Command in Mode Slow Exit (tCK)"
 	range 0 15
 	default 0
 config DDR_TRPA
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tTRPA - Row Precharge All Delay(tCK)"
+	int "tTRPA - Row Precharge All Delay (tCK)"
 	range 0 15
 	default 0
 config DDR_TRTP
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tTRTP - Read to Precharge(tCK)"
+	int "tTRTP - Read to Precharge (tCK)"
 	range 0 15
 	default 0
 config DDR_TFAW
 	depends on DDR_SET_BY_TIMING && DDRC
-	int "tTFAW - Four Active Windows(tCK)"
+	int "tTFAW - Four Active Windows (tCK)"
 	range 0 15
 	default 0
 config DDR_RTC
@@ -712,31 +712,31 @@ config UMCTL2_TRFC
 
 config UMCTL2_TRRD
 	depends on DDR_SET_BY_TIMING && UMCTL2 && (DDR2 || DDR3)
-	int "tRRD - Active BankA to Active BankB(ps)"
+	int "tRRD - Active BankA to Active BankB (ps)"
 	range 100 50000
 	default 10000
 
 config UMCTL2_TWTR
 	depends on DDR_SET_BY_TIMING && UMCTL2 && (DDR2 || LPDDR2)
-	int "tWTR - Internal Write to Read Delay(ps)"
+	int "tWTR - Internal Write to Read Delay (ps)"
 	range 1000 50000
 	default 10000
 
 config UMCTL2_TXP
 	depends on DDR_SET_BY_TIMING && UMCTL2 && DDR2
-	int "tTXP - Exit Power-down Delay to First Command(tCK)"
+	int "tTXP - Exit Power-down Delay to First Command (tCK)"
 	range 0 15
 	default 2
 
 config UMCTL2_TXARD
 	depends on DDR_SET_BY_TIMING && UMCTL2 && DDR2
-	int "tTXARD - Exit Active Power Down Delay to Read Command in Mode Fast Exit(tCK)"
+	int "tTXARD - Exit Active Power Down Delay to Read Command in Mode Fast Exit (tCK)"
 	range 0 15
 	default 8
 
 config UMCTL2_TXARDS
 	depends on DDR_SET_BY_TIMING && UMCTL2 && DDR2
-	int "tTXARDS - Exit Active Power Down Delay to Read Command in slow Exit(tCK)"
+	int "tTXARDS - Exit Active Power Down Delay to Read Command in slow Exit (tCK)"
 	range 0 15
 	default 6
 	
@@ -803,13 +803,13 @@ config UMCTL2_WR_ODT_HOLD
 
 config UMCTL2_TREFI
 	depends on DDR_SET_BY_TIMING && UMCTL2 && (LPDDR2 || LPDDR3)
-	int "tREFI - refresh timer tREFI(ps)"
+	int "tREFI - refresh timer tREFI (ps)"
 	range 0 100000000
 	default 3900000
 
 config UMCTL2_TREFIPB
 	depends on DDR_SET_BY_TIMING && UMCTL2 && (LPDDR2 || LPDDR3)
-	int "tREFIpb - average time between REFRESH commands(ps)"
+	int "tREFIpb - average time between REFRESH commands (ps)"
 	range 0 100000000
 	default 1000000
 
