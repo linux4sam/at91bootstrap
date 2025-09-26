@@ -55,7 +55,6 @@ else
 endif
 endif
 export VERSION := 4.0.12
-REVISION :=
 ifdef NIX_SHELL
 SCMINFO := $(shell (host-utilities/setlocalversion))
 endif
@@ -65,9 +64,9 @@ ifeq ($(SCMINFO),)
 SCMINFO=$(RECORD_SCMINFO)
 endif
 
-TARBALL_NAME=AT91Bootstrap-$(VERSION)$(REV)$(SCMINFO).tar.gz
+TARBALL_NAME=AT91Bootstrap-$(VERSION)$(SCMINFO).tar.gz
 TARBALL_DIR=../tarball_dir
-TARBALL_PREFIX=at91bootstrap-$(VERSION)$(REV)/
+TARBALL_PREFIX=at91bootstrap-$(VERSION)/
 
 # Use 'make V=1' for the verbose mode
 ifneq ("$(origin V)", "command line")
@@ -204,12 +203,6 @@ endif
 SPI_CLK:=$(strip $(subst ",,$(CONFIG_SPI_CLK)))
 SPI_BOOT:=$(strip $(subst ",,$(CONFIG_SPI_BOOT)))
 
-ifeq ($(REVISION),)
-REV:=
-else
-REV:=-$(strip $(subst ",,$(REVISION)))
-endif
-
 ifeq ($(CONFIG_OF_LIBFDT), y)
 BLOB:=-dt
 else
@@ -235,9 +228,9 @@ TARGET_NAME:=$(or $(basename $(IMAGE_NAME)),none)
 endif
 
 ifneq ($(TARGET_NAME), none)
-BOOT_NAME=$(DEVICENAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
+BOOT_NAME=$(DEVICENAME)-$(PROJECT)$(CARD_SUFFIX)boot-$(TARGET_NAME)$(BLOB)-$(VERSION)
 else
-BOOT_NAME=$(DEVICENAME)-boot-$(TARGET_NAME)$(BLOB)-$(VERSION)$(REV)
+BOOT_NAME=$(DEVICENAME)-boot-$(TARGET_NAME)$(BLOB)-$(VERSION)
 endif
 AT91BOOTSTRAP:=$(BINDIR)/$(BOOT_NAME).bin
 
@@ -273,7 +266,7 @@ CPPFLAGS=$(EXTRA_CC_ARGS) $(NOSTDINC_FLAGS) -ffunction-sections -g -Os -Wall \
 	-I$(INCL) -Iinclude -Ifs/include -Ifast-boot\
 	-I$(CONFIG)/at91bootstrap-config \
 	-include $(CONFIG)/at91bootstrap-config/autoconf.h \
-	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(REV)$(SCMINFO)\" -DCOMPILE_TIME="\"$(BUILD_DATE)\""
+	-DAT91BOOTSTRAP_VERSION=\"$(VERSION)$(SCMINFO)\" -DCOMPILE_TIME="\"$(BUILD_DATE)\""
 
 ASFLAGS=$(EXTRA_CC_ARGS) -g -Os -Wall -I$(INCL) -Iinclude -include $(CONFIG)/at91bootstrap-config/autoconf.h
 
@@ -475,7 +468,7 @@ prepare: .prepared | $(CONFIG)/at91bootstrap-config $(BINDIR)
 	@echo AT91BOOTSTRAP_BIN = $(BINDIR)/$(SYMLINK) >> $@
 ifneq ($(CONFIG_HAVE_DOT_CONFIG),)
 	@echo AT91BOOTSTRAP_MAP = $(BINDIR)/$(BOOT_NAME).map >> $@
-	@echo AT91BOOTSTRAP_VERSIONEXTD = $(VERSION)$(REV)$(SCMINFO) >> $@
+	@echo AT91BOOTSTRAP_VERSIONEXTD = $(VERSION)$(SCMINFO) >> $@
 	@echo AT91BOOTSTRAP_TARBALL = $(TARBALL_NAME) >> $@
 	@echo AT91BOOTSTRAP_BOARDDIR = $(BOARD_LOCATE) >> $@
 endif
