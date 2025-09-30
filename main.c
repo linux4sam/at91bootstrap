@@ -166,7 +166,11 @@ int main(void)
 #endif
 
 #ifdef CONFIG_JUMP_TO_SW
+#ifdef CONFIG_LOAD_SW
 	return image.jump_addr;
+#else
+	return JUMP_ADDR;
+#endif
 #else
 	return 0;
 #endif

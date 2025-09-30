@@ -96,7 +96,7 @@ config IMG_ADDRESS
 
 config JUMP_ADDR
 	string "The External Ram Address to Load Kernel Image"
-	default "0x62000000" if SAMA7G5
+	default "0x62000000" if SAMA7G5 || SAMA7D65
 	default "0x22000000"
 	help
 	  The entry point to which the bootstrap will pass control.

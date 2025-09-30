@@ -24,6 +24,7 @@ config IMG_SIZE
 config JUMP_ADDR
 	string "The External Ram Address to Load U-Boot Image"
 	default "0x26F00000" if SAMA5D3X || SAMA5D4 || SAMA5D2
+	default "0x66f00000" if SAMA7G5 || SAMA7D65
 	default "0x23F00000"
 	help
 	  The entry point to which the bootstrap will pass control.
