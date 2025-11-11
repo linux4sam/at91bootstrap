@@ -1170,7 +1170,7 @@ static int nand_read_sector(struct nand_info *nand,
 #endif
 #ifdef CONFIG_USE_PMECC
 		if (usepmecc)
-			ret = pmecc_process(nand, buffer, poob);
+			ret = pmecc_process(nand, buffer, oob);
 #endif
 	}
 
