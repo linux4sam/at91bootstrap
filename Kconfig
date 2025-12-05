@@ -171,6 +171,12 @@ config LOAD_UBOOT
 	  Use this mode to launch a second level boot monitor
 	  such as U-Boot, placed in the last MByte of SDRAM.
 
+config LOAD_ZEPHYR
+	bool "Zephyr"
+	depends on SAMA7G5 || SAMA7D65
+	---help---
+	  Boot a Zephyr image
+
 config LOAD_LINUX
 	select LINUX_IMAGE
 	bool "Linux Kernel"
@@ -285,6 +291,11 @@ source "Config.in.kernel"
 source "Config.in.u-boot"
 
 #
+# Zephyr Image Storage Setup
+#
+source "Config.in.zephyr"
+
+#
 # Demo App Image Storage Setup
 #
 source "Config.in.app-image"
@@ -294,6 +305,7 @@ config IMAGE_NAME
 	depends on LOAD_SW && FATFS && !LOAD_OPTEE
 	default "Image" if LINUX_IMAGE
 	default "u-boot.bin" if LOAD_UBOOT
+	default "zephyr.bin" if LOAD_ZEPHYR
 	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
 
 config IMAGE_NAME
