@@ -894,7 +894,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 			sd_cmd->cmd == SD_CMD_WRITE_MULTIPLE_BLOCK)) {
 			/* prepare descriptor table */
 			if (data->blocks > ADMA2_MAX_NUM_DESC * ADMA2_MAX_DESC_BLOCKS)
-				dbg_printf("too many blocks requested at once, error\n");
+				dbg_info("SDHC: too many blocks requested at once, error\n");
 			blocks_remain = data->blocks;
 			offset = 0;
 			for (i = 0;; i++) {
@@ -928,7 +928,8 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 		 ((normal_status & normal_status_mask) != normal_status_mask));
 
 	if (!timeout)
-		dbg_very_loud("SDHC: Timeout waiting for command complete\n");
+		dbg_info("SDHC: Timeout waiting for command %d complete\n",
+				sd_cmd->cmd);
 
 	if ((normal_status & normal_status_mask) == normal_status_mask) {
 		if (sd_cmd->resp_type == SD_RESP_TYPE_R2) {
@@ -954,7 +955,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 				udelay(1);
 			} while (--timeout && !(normal_status & SDMMC_NISTR_TRFC));
 			if (!timeout)
-				console_printf("SDHC: Timeout waiting for ADMA\n");
+				dbg_info("SDHC: Timeout waiting for ADMA\n");
 
 			sdhc_writew(SDMMC_NISTR, SDMMC_NISTR_TRFC);
 			error_status = sdhc_readw(SDMMC_EISTR);

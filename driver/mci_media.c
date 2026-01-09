@@ -1727,7 +1727,7 @@ unsigned int sdcard_block_read(unsigned int start,
 		/* Send SET_BLOCKLEN command */
 		ret = sd_cmd_set_blocklen(sdcard, block_len);
 		if (ret)
-			return ret;
+			return 0;
 	}
 
 	for (blocks_todo = block_count; blocks_todo > 0; ) {
@@ -1738,7 +1738,7 @@ unsigned int sdcard_block_read(unsigned int start,
 			if (sdcard->cmd_support & SD_SCR_CMD23_SUPPORT) {
 				ret = sd_cmd_set_block_count(sdcard, blocks);
 				if (ret)
-					return ret;
+					return 0;
 			}
 			blocks_read = sd_cmd_read_blocks(sdcard,
 							(void *)read_buf, start, blocks);
@@ -1749,11 +1749,11 @@ unsigned int sdcard_block_read(unsigned int start,
 			} else {
 				ret = sd_cmd_stop_transmission(sdcard);
 				if (ret)
-					return ret;
+					return 0;
 			}
 		} else {
 			blocks_read = sd_cmd_read_blocks(sdcard,
-							(void *)read_buf, start, 1);
+							(void *)read_buf, start, blocks);
 		}
 
 		if (blocks_read != blocks)
@@ -1817,12 +1817,28 @@ unsigned int sdcard_block_write(unsigned int start,
 	for (blocks_todo = block_count; blocks_todo > 0; ) {
 		blocks = (blocks_todo > SUPPORT_MAX_BLOCKS) ?
 					SUPPORT_MAX_BLOCKS : blocks_todo;
-		blocks_written = sd_cmd_write_blocks(sdcard,
-					(void *)write_buf, start, blocks);
+
 		if (blocks > 1) {
-			ret = sd_cmd_stop_transmission(sdcard);
-			if (ret)
-				return 0;
+			if (sdcard->cmd_support & SD_SCR_CMD23_SUPPORT) {
+				ret = sd_cmd_set_block_count(sdcard, blocks);
+				if (ret)
+					return 0;
+			}
+
+			blocks_written = sd_cmd_write_blocks(sdcard,
+						(void *)write_buf, start, blocks);
+
+			if (sdcard->cmd_support & SD_SCR_CMD23_SUPPORT) {
+				if (!blocks_written)
+					sd_cmd_stop_transmission(sdcard);
+			} else {
+				ret = sd_cmd_stop_transmission(sdcard);
+				if (ret)
+					return 0;
+			}
+		} else {
+			blocks_written = sd_cmd_write_blocks(sdcard,
+						(void *)write_buf, start, blocks);
 		}
 		if (blocks_written != blocks)
 			return 0;
@@ -1830,6 +1846,7 @@ unsigned int sdcard_block_write(unsigned int start,
 		start += blocks;
 		write_buf += blocks * block_len;
 	}
+
 	return block_count;
 }
 #endif
