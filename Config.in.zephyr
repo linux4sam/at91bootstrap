@@ -1,0 +1,30 @@
+# Copyright (C) 2025 Microchip Technology Inc. and its subsidiaries
+#
+# SPDX-License-Identifier: MIT
+
+menu "Zephyr Image Storage Setup"
+	depends on LOAD_ZEPHYR
+
+config IMG_ADDRESS
+	string "Flash Offset for Zephyr Image"
+	depends on DATAFLASH || FLASH || NANDFLASH
+	default "0x00008000" if FLASH
+	default "0x00008000" if DATAFLASH
+	default "0x00040000" if NANDFLASH
+	default	"0x00000000" if SDCARD
+
+
+config IMG_SIZE
+	string "Zephyr Image Size"
+	depends on DATAFLASH || FLASH || NANDFLASH
+	default	"0x00100000"
+	help
+	  at91bootstrap will copy this size of Zephyr image
+
+config JUMP_ADDR
+	string "The External Ram Address to Load Zephyr Image"
+	default "0x60000000" if SAMA7G5 || SAMA7D65
+	help
+	  The entry point to which the bootstrap will pass control.
+
+endmenu

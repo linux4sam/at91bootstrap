@@ -158,11 +158,24 @@ choice
 	depends on LOAD_SW || JUMP_TO_SW
 	default LOAD_UBOOT
 
+config LOAD_OPTEE
+	bool "OP-TEE OS"
+	select LOAD_OPTEE_OS
+	---help---
+	  Boot OP-TEE OS in Secure World and U-Boot will be loaded
+	  and run in Normal World.
+
 config LOAD_UBOOT
 	bool "U-Boot"
 	---help---
 	  Use this mode to launch a second level boot monitor
 	  such as U-Boot, placed in the last MByte of SDRAM.
+
+config LOAD_ZEPHYR
+	bool "Zephyr"
+	depends on SAMA7G5 || SAMA7D65
+	---help---
+	  Boot a Zephyr image
 
 config LOAD_LINUX
 	select LINUX_IMAGE
@@ -172,7 +185,6 @@ config LOAD_LINUX
 	  No further bootloader required.
 
 config LOAD_ANDROID
-	depends on !LOAD_OPTEE
 	select LINUX_IMAGE
 	bool "Android"
 	---help---
@@ -180,72 +192,24 @@ config LOAD_ANDROID
 	  No further bootloader required.
 
 config LOAD_1MB
-	depends on !LOAD_OPTEE
 	bool "Load 1 MB into start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
 	  which can have a size of up to 1 MByte
 
 config LOAD_4MB
-	depends on !LOAD_OPTEE
 	bool "Load 4 MB into start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
 	  which can have a size of up to 4 MByte
 
 config LOAD_64KB
-	depends on !LOAD_OPTEE
 	bool "Load 64 kB into the start of SDRAM"
 	---help---
 	  Use this mode to load an embedded application
 	  which can have max 64 kB Size
 
 endchoice
-
-config LINUX_IMAGE
-	depends on LOAD_LINUX || LOAD_ANDROID
-	bool
-	help
-	  Select to load linux uImage or zImage to boot
-
-#
-# Kernel Image Storage Setup
-#
-source "Config.in.kernel"
-
-#
-# U-Boot Image Storage Setup
-#
-source "Config.in.u-boot"
-
-#
-# Demo App Image Storage Setup
-#
-source "Config.in.app-image"
-
-config IMAGE_NAME
-	string "Next Software Image File Name"
-	depends on LOAD_SW && FATFS
-	default "Image" if LINUX_IMAGE
-	default "u-boot.bin" if LOAD_UBOOT
-	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
-
-
-source "device/Config.in.mach"
-
-source "Config.in.secure"
-
-config THUMB
-	depends on !SAMA5D4
-	bool "Build in thumb mode"
-	help
-	  Build code in thumb mode
-
-config DISABLE_WATCHDOG
-	bool "Disable Watchdog"
-	default y
-	help
-	  Disable the watchdog in the boostrap
 
 menu "ARM TrustZone Options"
 	depends on CPU_HAS_TRUSTZONE
@@ -309,6 +273,65 @@ config TZC400_SIMPLE_PROFILE
 endchoice
 
 endmenu
+
+config LINUX_IMAGE
+	depends on LOAD_LINUX || LOAD_ANDROID
+	bool
+	help
+	  Select to load linux uImage or zImage to boot
+
+#
+# Kernel Image Storage Setup
+#
+source "Config.in.kernel"
+
+#
+# U-Boot Image Storage Setup
+#
+source "Config.in.u-boot"
+
+#
+# Zephyr Image Storage Setup
+#
+source "Config.in.zephyr"
+
+#
+# Demo App Image Storage Setup
+#
+source "Config.in.app-image"
+
+config IMAGE_NAME
+	string "Next Software Image File Name"
+	depends on LOAD_SW && FATFS && !LOAD_OPTEE
+	default "Image" if LINUX_IMAGE
+	default "u-boot.bin" if LOAD_UBOOT
+	default "zephyr.bin" if LOAD_ZEPHYR
+	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
+
+config IMAGE_NAME
+	string "Software Image File Name (after OP-TEE OS)"
+	depends on LOAD_SW && FATFS && LOAD_OPTEE
+	default "Image" if LINUX_IMAGE
+	default "u-boot.bin" if LOAD_UBOOT || LOAD_OPTEE
+	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
+
+source "fast-boot/Config.in.fastboot"
+
+source "device/Config.in.mach"
+
+source "Config.in.secure"
+
+config THUMB
+	depends on !SAMA5D4
+	bool "Build in thumb mode"
+	help
+	  Build code in thumb mode
+
+config DISABLE_WATCHDOG
+	bool "Disable Watchdog"
+	default y
+	help
+	  Disable the watchdog in the boostrap
 
 config PM
 	bool "Power Management Options"
@@ -575,12 +598,15 @@ config DDR_DRIVER_IMPEDANCE
 	default 40 if DDR_AS4C256M16D3LC_12BCNTR
 	default 40 if DDR_MT41K512M16HA_125
 	default 40 if DDR_MT47H128M16RT_25E_C
+	default 40 if DDR_W9751G6NB
 	default 48 if DDR_IS43LD16128B_25BLI
 	default 48 if DDR_MT52L256M32D1PF_107
 	default 40 if DDR_MT41K128M16JT_125
 	default 40 if DDR_W631GU6NB12I
 	default 40 if DDR_W632GU6NB12I
 	default 40 if DDR_W634GU6NB12I
+	default 40 if DDR_W638GU6QB12
+	default 40 if DDR_W638GU6RB11
 	default 40 if DDR_AS4C512M16D3LA_10BIN
 	default 40 if DDR_AS4C128M16D2A_25BAN
 	default 40 if DDR_EM68D16CBQC_18IH
@@ -598,8 +624,11 @@ config DDR_ODT_IMPEDANCE
 	default 60 if DDR_W631GU6NB12I
 	default 60 if DDR_W632GU6NB12I
 	default 60 if DDR_W634GU6NB12I
+	default 60 if DDR_W638GU6QB12
+	default 60 if DDR_W638GU6RB11
 	default 60 if DDR_AS4C512M16D3LA_10BIN
 	default 50 if DDR_MT47H128M16RT_25E_C
+	default 50 if DDR_W9751G6NB
 	default 50 if DDR_AS4C128M16D2A_25BAN
 	default 50 if DDR_EM68D16CBQC_18IH
 	default 0 if DDR_IS43LD16128B_25BLI

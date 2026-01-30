@@ -12,6 +12,11 @@
 
 #include "debug.h"
 
+#ifdef CONFIG_FAST_BOOT
+#include "fast_boot.h"
+#include "media.h"
+#endif
+
 #define CHUNK_SIZE	0x40000
 
 static int sdcard_loadimage(char *filename, BYTE *dest)
@@ -115,6 +120,14 @@ int load_sdcard(struct image_info *image)
 #endif
 		initialized = true;
 	}
+#ifdef CONFIG_FAST_BOOT
+	if (sdcard_initialize()) {
+		dbg_info("Sdcard initialization failed!\n");
+		return 0;
+	}
+	if (sdcard_fast_boot(image))
+		return 0;
+#endif
 
 	/* mount fs */
 	fret = f_mount(0, &fs);

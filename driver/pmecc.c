@@ -387,18 +387,46 @@ int init_pmecc(struct nand_info *nand)
 	return 0;
 }
 
-void pmecc_enable(void)
+void pmecc_enable(unsigned char wr)
 {
+	unsigned int cfg;
+
+	cfg = pmecc_readl(PMECC_CFG);
+	if (wr) {
+		cfg |= AT91C_PMECC_NANDWR_1;
+		cfg &= (~AT91C_PMECC_AUTO_ENA);
+	} else {
+		cfg |= AT91C_PMECC_AUTO_ENA;
+		cfg &= (~AT91C_PMECC_NANDWR_1);
+	}
+	pmecc_writel(cfg, PMECC_CFG);
 	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
-	pmecc_writel((pmecc_readl(PMECC_CFG) | AT91C_PMECC_AUTO_ENA),
-			PMECC_CFG);
 	pmecc_writel(AT91C_PMECC_ENABLE, PMECC_CTRL);
+	pmecc_writel(AT91C_PMECC_DATA, PMECC_CTRL);
 }
 
-void pmecc_start_data_phase(void)
+void pmecc_wait_ready(void)
 {
-	pmecc_writel(AT91C_PMECC_RST, PMECC_CTRL);
-	pmecc_writel(AT91C_PMECC_ENABLE | AT91C_PMECC_DATA, PMECC_CTRL);
+	/* wait until the PMECC is not ready */
+	while ((pmecc_readl(PMECC_SR) & AT91C_PMECC_BUSY) != 0)
+		;
+}
+
+unsigned int pmecc_get_sectors_per_page(void)
+{
+	switch (PMECC_paramDesc.pageSize) {
+	case AT91C_PMECC_PAGESIZE_1SEC:
+		return 1;
+	case AT91C_PMECC_PAGESIZE_2SEC:
+		return 2;
+	case AT91C_PMECC_PAGESIZE_4SEC:
+		return 4;
+	case AT91C_PMECC_PAGESIZE_8SEC:
+		return 8;
+	default:
+		dbg_info("PMECC: Not supported sector size\n");
+		return 0;
+	}
 }
 
 #ifdef CONFIG_SAMA5D3X
@@ -406,8 +434,7 @@ static int check_pmecc_ecc_data(struct nand_info *nand,
 				unsigned char *buffer)
 {
 	unsigned int i;
-	unsigned char *ecc_data = buffer + nand->pagesize
-				+ nand->ecclayout->eccpos[0];
+	unsigned char *ecc_data = buffer + nand->ecclayout->eccpos[0];
 
 	for (i = 0; i < nand->ecclayout->eccbytes; i++)
 		if (*ecc_data++ != 0xff)
@@ -772,6 +799,7 @@ static unsigned int ErrorCorrection(unsigned long pPMERRLOC,
  * \param pPmeccDescriptor Pointer to a PMECC_paramDesc instance.
  * \param pmeccStatus Value of the PMECC status register.
  * \param pageBuffer Base address of the buffer
+ * \param oob Base address of the oob
  *	containing the page to be corrected.
  * \param ErrorNbr Number of error to correct
  * \return 0 if all errors have been corrected, 1 if too many errors detected
@@ -780,12 +808,13 @@ static unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 		unsigned long pPMERRLOC,
 		struct _PMECC_paramDesc_struct *pPmeccDescriptor,
 		unsigned int pmeccStatus,
-		void *pageBuffer)
+		void *pageBuffer,
+		void *oob)
 {
 	unsigned int sectorNumber = 0;
 	unsigned int sectorBaseAddress, eccBaseAddr;
 	volatile int errorNbr;
-	unsigned int sector_num_per_page, page_size_byte, ecc_byte_per_sector;
+	unsigned int sector_num_per_page, ecc_byte_per_sector;
 	/* Get the PMECC sector size and ecc_bits */
 	unsigned int sector_size =
 		pPmeccDescriptor->sectorSize == AT91C_PMECC_SECTORSZ_512 ?
@@ -798,7 +827,6 @@ static unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 	ecc_byte_per_sector = get_pmecc_bytes(sector_size, ecc_bits);
 	sector_num_per_page = div(pPmeccDescriptor->eccSizeByte,
 					ecc_byte_per_sector);
-	page_size_byte = sector_num_per_page * sector_size;
 
 	while (sectorNumber < sector_num_per_page) {
 
@@ -807,8 +835,7 @@ static unsigned int PMECC_CorrectionAlgo(unsigned long pPMECC,
 
 			sectorBaseAddress = (unsigned int)pageBuffer
 					+ (sectorNumber * sector_size);
-			eccBaseAddr = (unsigned int)pageBuffer
-					+ page_size_byte
+			eccBaseAddr = (unsigned int)oob
 					+ pmecc_readl(PMECC_SADDR)
 					+ (sectorNumber * ecc_byte_per_sector);
 
@@ -859,7 +886,7 @@ static void page_dump(unsigned char *buf, int page_size, int oob_size)
 	dbg_loud("\n");
 }
 
-int pmecc_process(struct nand_info *nand, unsigned char *buffer)
+int pmecc_process(struct nand_info *nand, unsigned char *buffer, unsigned char *oob)
 {
 	int ret = 0;
 	int result;
@@ -873,7 +900,7 @@ int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 	erris = pmecc_readl(PMECC_ISR);
 	if (erris) {
 #ifdef CONFIG_SAMA5D3X
-		if (check_pmecc_ecc_data(nand, buffer) == -1)
+		if (check_pmecc_ecc_data(nand, oob) == -1)
 			return 0;
 #endif
 		/* erris means which sector has errors. for example:
@@ -888,7 +915,8 @@ int pmecc_process(struct nand_info *nand, unsigned char *buffer)
 					AT91C_BASE_PMERRLOC,
 					&PMECC_paramDesc,
 					erris,
-					buffer);
+					buffer,
+					oob);
 
 		if (result != 0) {
 			dbg_info("PMECC: failed to " \

@@ -1299,7 +1299,7 @@ void hw_postinit(void)
 	plla_config.mul = 32; /* 33 * 24 = 792 */
 	plla_config.div = 0;
 	plla_config.count = 0x3f;
-	plla_config.fracr = 0x155556; /* 2^22 / 3 */
+	plla_config.fracr = 0x155555; /* 2^22 / 3 */
 	plla_config.acr = 0x00070010;
 
 	mck0_prescaler = BOARD_PRESCALER_CPUPLL | AT91C_PMC_MDIV_4;

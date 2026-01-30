@@ -32,5 +32,9 @@ extern int sdcard_initialize(void);
 extern unsigned int sdcard_block_read(unsigned int start,
 					unsigned int blkcnt,
 					void *dest);
-
+#ifdef CONFIG_FAST_BOOT
+extern unsigned int sdcard_block_write(unsigned int start,
+				unsigned int block_count,
+				const void *buf);
+#endif
 #endif

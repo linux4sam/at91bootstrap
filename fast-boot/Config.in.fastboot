@@ -1,0 +1,122 @@
+###############################################################################
+# Copyright (C) 2025 Microchip Technology Inc. and its subsidiaries.
+#
+# Subject to your compliance with these terms, you may use Microchip software
+# and any derivatives exclusively with Microchip products. It is your
+# responsibility to comply with third party license terms applicable to your
+# use of third party software (including open source software) that may
+# accompany Microchip software.
+#
+# THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER
+# EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY IMPLIED
+# WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS FOR A
+# PARTICULAR PURPOSE.
+#
+# IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE,
+# INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND
+# WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP HAS
+# BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO THE
+# FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL CLAIMS IN
+# ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT OF FEES, IF ANY,
+# THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
+##############################################################################
+
+menu "Fast Boot Setup"
+	depends on FAST_BOOT
+
+config FASTBOOT_SECURE_ENABLE
+	bool "Enable AES Secure mode for Snapshot Image"
+	default n
+	help
+	  Enable Encrypt|decrypt to write/load snapshot image.
+
+choice
+	prompt "Linux Kernel Revision"
+	default FASTBOOT_KERNEL_6_12
+	help
+	  Since memory management varies greatly from one version of the Linux
+	  kernel to another, the user must choose the correct kernel version.
+
+config FASTBOOT_KERNEL_6_12
+	bool "Kernel revisions 6.12 and above"
+	help
+	  New memory allocation feature in Kernel revisions 6.12, a new system to
+	  profile memory allocation, aiding in debugging and performance
+	  optimization. The feature has been tested in Linux4SAM 2025.04 demo
+	  (based on Linux kernel 6.12.x).
+
+config FASTBOOT_KERNEL_6_11
+	bool "Kernel revisions 6.11.11 and below"
+	help
+	  Use the memory management mechanisms in Kernel 6.11.11 and below.
+	  The memory management mechanisms has been tested in Linux4SAM 2024.10
+	  demo(based on Linux kernel 6.6.x) and Linux4SAM 2024.04 demo(based on
+	  Linux kernel 6.6.x).
+endchoice
+
+config FASTBOOT_MEM_MAP_ADDRESS
+	hex "The Start Virtual Address of Kernel Page Structures"
+	default "0xC0000000"
+	help
+	  The kernel represents every physical page on the system with a struct
+	  page structure. The kernel keeps track of the status of each page frame
+	  in memory using an array of page structures. Each element of this array
+	  corresponds to a page frame in physical memory.
+	  The start virtual address can be retrieved from mem_map module(See "Ultra
+	  -fast Boot User Guide" for detail.
+
+config FASTBOOT_MAX_NB_MEM_MAP
+	hex "The Maximum Number of Mapped Pages"
+	default "0x10000"
+	help
+	  max_mapnr is the limit of maximum number of mapped pages or maximum page
+	  frame number.
+	  The maximum number can be retrieved from mem_map module(See "Ultra-fast
+	  Boot User Guide" for detail.
+
+config FASTBOOT_SIZEOF_PAGE_STRUCT
+	hex "The sizeof 'Page' Structure"
+	default "0x20" if SAMA7D65
+	default "0x20" if SAMA7G5
+	default "0x24" if SAMA5D2
+	help
+	  The offset of "page_type" in "page" structure.
+	  The offset can be retrieved from mem_map module(See "Ultra-fast Boot
+	  User Guide" for detail.
+
+config FASTBOOT_OFFSET_OF_PAGETYPE
+	hex "The Offset of 'page_type' in 'Page' Structure"
+	default "0x18"
+	help
+	  The offset of "page_type" in "page" structure.
+	  The offset can be retrieved from mem_map module(See "Ultra-fast Boot
+	  User Guide" for detail.
+
+config FASTBOOT_OFFSET_OF_PRIVATE
+	hex "The Offset of 'private' in 'Page' Structure"
+	default "0x14"
+	help
+	  The offset of "private" in "page" structure.
+	  The offset can be retrieved from mem_map module(See "Ultra-fast Boot
+	  User Guide" for detail.
+
+config FASTBOOT_IMG_ADDRESS
+	hex "Flash Offset to Store Snapshot Image"
+	depends on DATAFLASH || NANDFLASH
+	default "0x00800000" if DATAFLASH
+	default "0x10000000" if NANDFLASH
+	help
+	  The AT91Bootstrap accesses the entry point for snapshots image stored
+	  in QSPI Flash or NAND Flash.
+
+config FASTBOOT_SD_PARTITION
+	int "SD Partition Number to Store Snapshot Image"
+	depends on SDCARD
+	range 2 4
+	default 3
+	help
+	  Select the partition number (2|3|4), the dedicated partition for
+	  storing fast boot snapshot image.
+	  Note: If not set correctly, the boot partition and Linux partition
+	  may be destroyed!
+endmenu

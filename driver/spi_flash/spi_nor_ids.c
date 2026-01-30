@@ -70,10 +70,18 @@ struct spi_flash_parameters mx66lm1g45g_params = {
 #endif
 #else
 		{ 0, 0, SFLASH_INST_READ, SFLASH_PROTO_1_1_1},
-#endif 
+#endif
 	},
 	{
-		{ SFLASH_INST_PAGE_PROGRAM, SFLASH_PROTO_1_1_1 },
+#ifdef CONFIG_QSPI_OCTAL_IO
+#ifdef CONFIG_QSPI_DTR_ENABLE
+		{ 0x12, SFLASH_PROTO_8D_8D_8D },
+#else
+		{ 0x12, SFLASH_PROTO_8_8_8 },
+#endif
+#else
+		{ SFLASH_INST_PAGE_PROGRAM, SFLASH_PROTO_1_1_1},
+#endif
 	},
 };
 

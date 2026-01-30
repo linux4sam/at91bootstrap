@@ -14,6 +14,9 @@
 #ifdef CONFIG_QSPI_DMA_SUPPORT
 #include "xdmac.h"
 #endif
+#ifdef CONFIG_FAST_BOOT
+#include "fast_boot.h"
+#endif
 
 #ifndef CONFIG_SYS_BASE_QSPI
 #error "CONFIG_SYS_BASE_QSPI is not set"
@@ -140,6 +143,10 @@ int qspi_loadimage(struct image_info *image)
 		return -1;
 	}
 
+#ifdef CONFIG_FAST_BOOT
+	if (qspi_fast_boot(&flash, image))
+		return 0;
+#endif
 	return spi_flash_loadimage(&flash, image);
 }
 
@@ -160,7 +167,7 @@ int qspi_xip(struct spi_flash *flash, void **mem)
 
 
 #define QSPID_XDMA_SIZE_THRESHOLD	32
-void *qspi_memcpy(void *dst, const void *src, int cnt)
+void *qspi_memcpy(void *dst, const void *src, int cnt, bool dtr)
 {
 #ifdef CONFIG_QSPI_DMA_SUPPORT
 	struct xdmac_hwcfg hwcfg;
@@ -191,11 +198,26 @@ void *qspi_memcpy(void *dst, const void *src, int cnt)
 dma_stop:
 		xdmac_transfer_stop(&hwcfg);
 	} else {
-		while (cnt--)
-			*(char *)dst++ = *(char *)src++;
+		if (!dtr) {
+			while (cnt--)
+				*(char *)dst++ = *(char *)src++;
+		} else {
+			while (cnt--)
+				*(unsigned int *)dst++ = *(unsigned int *)src++;
+		}
 	}
 #else
-	memcpy(dst, src, cnt);
+	if (dtr) {
+		if (cnt < QSPID_XDMA_SIZE_THRESHOLD) {
+			while (cnt--)
+				*(unsigned int *)dst++ = *(unsigned int *)src++;
+		} else {
+			while (cnt--)
+				*(unsigned short *)dst++ = *(unsigned short *)src++;
+		}
+	} else {
+		memcpy(dst, src, cnt);
+	}
 #endif
 	return dst;
 }

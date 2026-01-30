@@ -47,8 +47,9 @@ struct _PMECC_paramDesc_struct {
 extern int get_pmecc_bytes(unsigned int sector_size, unsigned int ecc_bits);
 extern int choose_pmecc_info(struct nand_info *nand, struct nand_chip *chip);
 extern int init_pmecc(struct nand_info *nand);
-extern void pmecc_enable(void);
-extern void pmecc_start_data_phase(void);
-extern int pmecc_process(struct nand_info *nand, unsigned char *buffer);
+extern void pmecc_enable(unsigned char wr);
+extern int pmecc_process(struct nand_info *nand, unsigned char *buffer, unsigned char *oob);
+extern void pmecc_wait_ready(void);
+extern unsigned int pmecc_get_sectors_per_page(void);
 
 #endif

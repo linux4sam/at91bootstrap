@@ -112,4 +112,7 @@
 #define PMERRLOC_EL0		0x08C	/* PMECC Error Location 0 Register */
 #endif
 
+#define PMECC_ECC_OFFSET(n)		(PMECC_ECC + ((n) << 6)) /* PMECC sector offset */
+#define PMECC_SECTOR_ECC(n)		(AT91C_BASE_PMECC + PMECC_ECC_OFFSET(n))
+#define PMECC_MAX_PMECCSIZE		448
 #endif /* #ifndef __AT91_NAND_ECC_H__  */

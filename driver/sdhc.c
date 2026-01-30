@@ -826,7 +826,7 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 	unsigned int blocks_remain;
 	unsigned int offset;
 
-	timeout = 0x10000000;
+	timeout = 0xF0000000;
 	while ((--timeout) &&
 	       (sdhc_readl(SDMMC_PSR) & (SDMMC_PSR_CMDINHC | SDMMC_PSR_CMDINHD)))
 		;
@@ -875,7 +875,9 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 		mode |= (data->direction == SD_DATA_DIR_RD) ? SDMMC_TMR_DTDSEL_READ : 0;
 
 		if (sdhc_host.caps_adma2 && (sd_cmd->cmd == SD_CMD_READ_SINGLE_BLOCK ||
-		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK))
+		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK ||
+			sd_cmd->cmd == SD_CMD_WRITE_SINGLE_BLOCK  ||
+			sd_cmd->cmd == SD_CMD_WRITE_MULTIPLE_BLOCK))
 			mode |= SDMMC_TMR_DMAEN;
 
 		sdhc_writeb(SDMMC_TCR, 0xe);
@@ -887,7 +889,9 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 
 		/* for CMD17 and CMD18 we use ADMA to transfer faster */
 		if (sdhc_host.caps_adma2 && (sd_cmd->cmd == SD_CMD_READ_SINGLE_BLOCK ||
-		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK)) {
+		    sd_cmd->cmd == SD_CMD_READ_MULTIPLE_BLOCK ||
+			sd_cmd->cmd == SD_CMD_WRITE_SINGLE_BLOCK  ||
+			sd_cmd->cmd == SD_CMD_WRITE_MULTIPLE_BLOCK)) {
 			/* prepare descriptor table */
 			if (data->blocks > ADMA2_MAX_NUM_DESC * ADMA2_MAX_DESC_BLOCKS)
 				dbg_printf("too many blocks requested at once, error\n");
@@ -936,12 +940,15 @@ static int sdhc_send_command(struct sd_command *sd_cmd, struct sd_data *data)
 
 		/* if we have data but not using block transfer, we use PIO mode */
 		if (data && (!sdhc_host.caps_adma2 || (sd_cmd->cmd != SD_CMD_READ_SINGLE_BLOCK &&
-		    sd_cmd->cmd != SD_CMD_READ_MULTIPLE_BLOCK))) {
+		    sd_cmd->cmd != SD_CMD_READ_MULTIPLE_BLOCK &&
+			sd_cmd->cmd != SD_CMD_WRITE_SINGLE_BLOCK &&
+			sd_cmd->cmd != SD_CMD_WRITE_MULTIPLE_BLOCK
+			))) {
 			sdhc_read_data(data);
 		} else if (data && sdhc_host.caps_adma2) {
 			/* otherwise, ADMA will carry the data for us */
 			/* Let's wait for ADMA to finish transferring */
-			timeout = 1000000;
+			timeout = 0xFFFFFFFF;
 			do {
 				normal_status = sdhc_readw(SDMMC_NISTR);
 				udelay(1);

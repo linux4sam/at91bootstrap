@@ -73,10 +73,10 @@ int main(void)
 #endif
 
 #ifdef CONFIG_BACKUP_MODE
-    ret = backup_mode_resume();
-    if (ret)
-    {
-        /* Backup+Self-Refresh mode detected... */
+	ret = backup_mode_resume();
+#ifndef CONFIG_FAST_BOOT
+	if (ret) {
+		/* Backup+Self-Refresh mode detected... */
 #ifdef CONFIG_REDIRECT_ALL_INTS_AIC
         redirect_interrupts_to_nsaic();
 #endif
@@ -86,6 +86,7 @@ int main(void)
         return ret;
     }
     usart_puts("Backup mode enabled\n");
+#endif
 #endif
 
 #ifdef CONFIG_HW_DISPLAY_BANNER
@@ -118,6 +119,10 @@ int main(void)
     hw_postinit();
 #endif
 
+#ifdef CONFIG_FAST_BOOT
+	init_fast_boot();
+#endif
+
 #ifdef CONFIG_LOAD_SW
 #ifdef USART_BOOT
     flexcomm_usart_init();
@@ -126,10 +131,11 @@ int main(void)
     init_load_image(&image);
 #endif // USART_BOOT
 
-#if defined(CONFIG_SECURE)
-    image.dest -= sizeof(at91_secure_header_t);
+#if defined(CONFIG_SECURE) && !defined(CONFIG_FASTBOOT_SECURE_ENABLE)
+	image.dest -= sizeof(at91_secure_header_t);
 #endif
 
+#if !defined(CONFIG_FAST_BOOT)
 #ifdef CONFIG_MMU
     mmu_tlb_init(tlb);
     mmu_configure(tlb);
@@ -160,10 +166,11 @@ int main(void)
     mmu_disable();
 #endif
 
-#if defined(CONFIG_SECURE)
-    if (!ret)
-        ret = secure_check(&image);
-    image.dest += sizeof(at91_secure_header_t);
+#endif
+#if defined(CONFIG_SECURE) && !defined(CONFIG_FASTBOOT_SECURE_ENABLE)
+	if (!ret)
+		ret = secure_check(&image);
+	image.dest += sizeof(at91_secure_header_t);
 #endif
 
 #endif

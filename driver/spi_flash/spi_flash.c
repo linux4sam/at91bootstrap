@@ -15,7 +15,18 @@ int spi_flash_read_reg(struct spi_flash *flash, u8 inst, u8 *buf, size_t len)
 {
 	struct spi_flash_command cmd;
 
+#if defined(CONFIG_QSPI_OCTAL_IO)
+	if ((flash->reg_proto == SFLASH_PROTO_8D_8D_8D) ||
+		(flash->reg_proto == SFLASH_PROTO_8_8_8)) {
+		spi_flash_command_init(&cmd, inst, 4, SFLASH_TYPE_READ_REG);
+		cmd.addr = 0x0;
+		cmd.num_wait_states = flash->num_wait_states;
+	} else {
+		spi_flash_command_init(&cmd, inst, 0, SFLASH_TYPE_READ_REG);
+	}
+#else
 	spi_flash_command_init(&cmd, inst, 0, SFLASH_TYPE_READ_REG);
+#endif
 	cmd.proto = flash->reg_proto;
 	cmd.data_len = len;
 	cmd.rx_data = buf;
@@ -36,10 +47,11 @@ int spi_flash_write_reg(struct spi_flash *flash, u8 inst,
 
 static int spi_flash_is_ready(struct spi_flash *flash)
 {
-	u8 sr, fsr;
+	u32 sr, fsr;
 	int ret;
 
-	ret = spi_flash_read_sr(flash, &sr);
+	ret = spi_flash_read_sr(flash, (unsigned char *)&sr);
+
 	if (ret < 0)
 		return ret;
 
@@ -49,7 +61,8 @@ static int spi_flash_is_ready(struct spi_flash *flash)
 	if (!(flash->flags & SFLASH_FLG_HAS_FSR))
 		return 1;
 
-	ret = spi_flash_read_reg(flash, SFLASH_INST_READ_FSR, &fsr, 1);
+	ret = spi_flash_read_reg(flash, SFLASH_INST_READ_FSR, (unsigned char *)&fsr, 1);
+
 	if (ret < 0)
 		return ret;
 

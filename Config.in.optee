@@ -2,9 +2,9 @@
 #
 # SPDX-License-Identifier: MIT
 
-config LOAD_OPTEE
+config LOAD_OPTEE_OS
 	bool "Install and start OP-TEE Trusted OS"
-	depends on SDCARD
+	depends on SDCARD && LOAD_OPTEE
 	help
 	  When enabled, OP-TEE will be loaded from NVM and installed in external
 	  RAM or DRAM.
@@ -30,6 +30,7 @@ config OPTEE_IMG_SIZE
 
 config OPTEE_JUMP_ADDR
 	hex "External Ram Address For OP-TEE Image"
+	default "0x60000000" if SAMA7G5 || SAMA7D65
 	default "0x20000000"
 	help
 	  This address is the entry point to which the bootstrap will pass

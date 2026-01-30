@@ -279,10 +279,10 @@ static int qspi_exec(void *priv, const struct spi_flash_command *cmd)
 	/* Stop here for Continuous Read. */
 	if (cmd->tx_data)
 		/* Write data. */
-		qspi_memcpy(qspi->mem + offset, cmd->tx_data, cmd->data_len);
+		qspi_memcpy(qspi->mem + offset, cmd->tx_data, cmd->data_len, false);
 	else if (cmd->rx_data)
 		/* Read data. */
-		qspi_memcpy(cmd->rx_data, qspi->mem + offset, cmd->data_len);
+		qspi_memcpy(cmd->rx_data, qspi->mem + offset, cmd->data_len, false);
 	else
 		/* Stop here for continuous read */
 		return 0;
