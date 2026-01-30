@@ -99,6 +99,14 @@ target_compile_options(
   -Wl,--defsym,MACH_TYPE=9999
 )
 
+if(USART_BOOT)
+  target_compile_definitions(
+    ${PROJECT_NAME}_build
+    PRIVATE
+    USART_BOOT
+  )
+endif()
+
 target_compile_definitions(
   ${PROJECT_NAME}_build
   PRIVATE
@@ -113,7 +121,6 @@ target_compile_definitions(
   CONFIG_DDR_1_GBIT
   CONFIG_PMC_MCK_CLK
   CONFIG_DEBUG
-  USART_BOOT
 )
 
 

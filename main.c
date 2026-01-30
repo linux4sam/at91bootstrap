@@ -119,9 +119,12 @@ int main(void)
 #endif
 
 #ifdef CONFIG_LOAD_SW
-    // init_load_image(&image);
+#ifdef USART_BOOT
     flexcomm_usart_init();
     usart_puts("USART INITED\n");
+#else
+    init_load_image(&image);
+#endif // USART_BOOT
 
 #if defined(CONFIG_SECURE)
     image.dest -= sizeof(at91_secure_header_t);
@@ -136,11 +139,19 @@ int main(void)
     icache_enable();
     dcache_enable();
 #endif
-    // ret = (*load_image)(&image);
-
+#ifdef USART_BOOT
     ret = serial_bootloader_load(&BOOT_CONFIG);
     if (ret)
+    {
         usart_puts("LOADED BINARY\n");
+    }
+    else
+    {
+        usart_puts("FAILED TO LOAD BINARY\n");
+    }
+#else
+    ret = (*load_image)(&image);
+#endif // USART_BOOT
 #ifdef CONFIG_CACHES
     icache_disable();
     dcache_disable();
@@ -156,7 +167,9 @@ int main(void)
 #endif
 
 #endif
-    // load_image_done(ret);
+#ifndef USART_BOOT
+    load_image_done(ret);
+#endif //USART_BOOT
 
 #ifdef CONFIG_SCLK
 #ifdef CONFIG_SCLK_BYPASS
