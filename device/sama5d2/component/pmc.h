@@ -1588,9 +1588,9 @@
 #define PMC_SLPWKCR_REG_OFST           _UINT32_(0x148)     /* (PMC_SLPWKCR) SleepWalking Control Register Offset */
 #define PMC_AUDIO_PLL0_REG_OFST        _UINT32_(0x14C)     /* (PMC_AUDIO_PLL0) Audio PLL Register 0 Offset */
 #define PMC_AUDIO_PLL1_REG_OFST        _UINT32_(0x150)     /* (PMC_AUDIO_PLL1) Audio PLL Register 1 Offset */
-#define __O volatile
-#define __I volatile
-#define __IO volatile
+/* #define __O volatile */
+/* #define __I volatile */
+/* #define __IO volatile */
 #if !(defined(__ASSEMBLER__) || defined(__IAR_SYSTEMS_ASM__))
 /** \brief PMC register API structure */
 typedef struct

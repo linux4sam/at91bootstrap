@@ -13,7 +13,6 @@
 #include "mcp16502.h"
 #include "backup.h"
 #include "secure.h"
-#include "autoconf.h"
 #include "optee.h"
 #include "sfr_aicredir.h"
 #include "flexcomm_usart.h"

@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
-include(ExternalProject)
-set(CMAKE_TOOLCHAIN_FILE sama5d27_toolchain.cmake)
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/sama5d27_toolchain.cmake")
 set(PROJECT_NAME at91bootstrap)
 
 project(
@@ -66,61 +65,73 @@ target_include_directories(
   fs/include
   config/at91bootstrap-config
   lib
-  # SYSTEM
-  # PUBLIC
-  # /opt/local/lib/gcc/arm-none-eabi/14.2.0/include
-  # /opt/local/lib/gcc/arm-none-eabi/14.2.0/include-fixed
-  # /opt/local/lib/gcc/arm-none-eabi/14.2.0/../../../../arm-none-eabi/include
 )
 
 execute_process(
-  COMMAND git describe --tags
+  COMMAND git describe --tags --always --dirty
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
   OUTPUT_VARIABLE VERSION
   OUTPUT_STRIP_TRAILING_WHITESPACE
-  ERROR_QUIET
 )
+
+set(OUTPUT_BINARY_NAME "BOOT.bin")
+set(AT91BOOTSTRAP_VERSION "${VERSION}")
+set(COMPILE_TIME "${current_time}")
+set(LINK_ADDR 0x200000)
+set(JUMP_ADDR 0x23f00000)
+set(TOP_OF_MEMORY 0x210000)
+set(IMAGE_NAME "BUILD.bin")
+set(BANNER "AT91Bootstrap UART ${VERSION} ${current_time}")
+set(BOARD_MAINOSC 24000000)
+set(BOOTSTRAP_DEBUG_LEVEL DEBUG_INFO)
+set(DDR_RAM_START 0x20ff0000)
 
 string(TIMESTAMP current_time)
-
-target_compile_definitions(
-  ${PROJECT_NAME}_build
-  PRIVATE
-  AT91BOOTSTRAP_VERSION="${VERSION}"
-  COMPILE_TIME="${current_time}"
-  LINK_ADDR=0x200000
-  IMG_ADDRESS
-  IMG_SIZE
-  MMU_TABLE_BASE_ADDR
-  JUMP_ADDR=0x23f00000
-  OF_OFFSET
-  OF_ADDRESS
-  CMDLINE_FILE
-  TOP_OF_MEMORY=0x210000
-  MACH_TYPE=9999
-  CMDLINE
-  IMAGE_NAME="BUILD.bin"
-  CONFIG_DEBUG
-  BANNER="AT91Bootstrap mod"
-  BOARD_MAINOSC=24000000
-  CONFIG_DDR2
-  CONFIG_DDR_1_GBIT
-  CONFIG_PMC_MCK_CLK
-  BOOTSTRAP_DEBUG_LEVEL=DEBUG_INFO
-  USART_BOOT
-  DDR_RAM_START=0x20ff0000
-)
 
 target_compile_options(
   ${PROJECT_NAME}_build
   PRIVATE
+  -include ${CMAKE_CURRENT_BINARY_DIR}/version.h
   -Wall
   -g
   -Os
-  -include ${CMAKE_SOURCE_DIR}/config/at91bootstrap-config/autoconf.h
+  -Wl,--defsym,TOP_OF_MEMORY=${TOP_OF_MEMORY}
+  -Wl,--defsym,MACH_TYPE=9999
 )
+
+target_compile_definitions(
+  ${PROJECT_NAME}_build
+  PRIVATE
+  IMG_ADDRESS
+  IMG_SIZE
+  MMU_TABLE_BASE_ADDR
+  OF_OFFSET
+  OF_ADDRESS
+  CMDLINE_FILE
+  CMDLINE
+  CONFIG_DDR2
+  CONFIG_DDR_1_GBIT
+  CONFIG_PMC_MCK_CLK
+  CONFIG_DEBUG
+  USART_BOOT
+)
+
+
+configure_file(
+  version.h.in
+  version.h
+  @ONLY
+)
+
 
 add_custom_command(
   TARGET ${PROJECT_NAME}_build
   POST_BUILD
-  COMMAND arm-none-eabi-objcopy -O binary ${PROJECT_NAME}_build BOOT.bin
+  COMMAND arm-none-eabi-objcopy -O binary ${PROJECT_NAME}_build ${OUTPUT_BINARY_NAME}
 )
+
+add_custom_target(
+  flash
+  COMMAND zsh ${CMAKE_SOURCE_DIR}/cmake/flash.sh ${OUTPUT_BINARY_NAME}
+)
+add_dependencies(flash ${PROJECT_NAME}_build)

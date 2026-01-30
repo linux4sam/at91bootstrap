@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: MIT
 
-#include "autoconf.h"
 #include "common.h"
 #include "hardware.h"
 #include "board.h"
