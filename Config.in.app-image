@@ -7,14 +7,14 @@ menu "Demo Application Image Storage Setup"
 
 config IMG_ADDRESS
 	string "Flash Offset for Demo-App"
-	depends on DATAFLASH || FLASH || NANDFLASH
+	depends on DATAFLASH || FLASH || NANDFLASH || (SDCARD && !FATFS)
 	default "0x00008400" if DATAFLASH
 	default "0x00040000" if NANDFLASH
 	default	"0x00000000" if SDCARD
 
 config IMG_SIZE
 	string "Demo-App Image Size"
-	depends on DATAFLASH || FLASH || NANDFLASH
+	depends on DATAFLASH || FLASH || NANDFLASH || (SDCARD && !FATFS)
 	default	"0x00010000"	if LOAD_64KB
 	default	"0x00100000"	if LOAD_1MB
 	default	"0x00400000"	if LOAD_4MB

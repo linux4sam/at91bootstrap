@@ -164,9 +164,12 @@ config MMC_NONREMOVABLE
 		using the SDMCC_CD signal is bypassed.
 
 config FATFS
-	bool
+	bool "Load image from FAT partition"
 	depends on SDCARD
 	default y if SDCARD
+	help
+	  Load next stage image from FAT12/16/32 partition. Otherwise from raw
+	  block device, image offset must be a multiple 512 bytes.
 
 endmenu
 
