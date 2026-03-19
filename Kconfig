@@ -408,6 +408,7 @@ endmenu
 
 config BACKUP_MODE
 	bool "Enable Backup Mode"
+	depends on CPU_HAS_SECURAM
 	default n
 	help
 	  Enables "Backup mode". Starting with sama5d2, it is possible to put

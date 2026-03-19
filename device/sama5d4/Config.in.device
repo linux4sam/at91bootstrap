@@ -20,6 +20,7 @@ config SAMA5D4
 	select CPU_HAS_SPI
 	select CPU_V7
 	select CPU_HAS_DDRC
+	select CPU_HAS_SECURAM
 	select ALLOW_CPU_CLK_444MHZ
 	select ALLOW_CPU_CLK_510MHZ
 	select ALLOW_CPU_CLK_528MHZ
