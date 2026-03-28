@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (C) 2025 Microchip Technology Inc. and its subsidiaries.
+# Copyright (C) 2026 Microchip Technology Inc. and its subsidiaries.
 #
 # Subject to your compliance with these terms, you may use Microchip software
 # and any derivatives exclusively with Microchip products. It is your
@@ -21,103 +21,218 @@
 # THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS SOFTWARE.
 ##############################################################################
 
+config FAST_BOOT
+	bool "Enable Fast Boot"
+	depends on (SAM9X60 || SAM9X7 || SAMA5D2 || SAMA7G5 || SAMA7D65) && (SDCARD || NANDFLASH)
+	select SHDWC
+	default n
+	help
+	  Enables "Fast Boot". Starting with sama5d2, sama7g5 and sama7d65, the
+	  purpose is to restore a Linux context from a cold boot (power-up).
+	  Resuming from that state requires support in the AT91Bootstrap.
+
 menu "Fast Boot Setup"
 	depends on FAST_BOOT
 
-config FASTBOOT_SECURE_ENABLE
-	bool "Enable AES Secure mode for Snapshot Image"
+choice
+	prompt "Fast Boot Mode"
+	default FASTBOOT_MANUAL_MODE
+	help
+
+config FASTBOOT_AUTO_MODE
+	depends on CPU_HAS_SECURAM && (SDCARD || NANDFLASH)
+	select BACKUP_MODE
+	bool "Automatically save and load snapshot image"
+	help
+	  The at91bootstap no longer uses pre-saved snapshot image; instead,
+	  it saves a snapshot image of its memory before shutting down and
+	  loads that saved snapshot upon the next boot.
+	  It retrieve parameters from securam.
+
+config FASTBOOT_MANUAL_MODE
+	bool "Manually save and load snapshot image"
+	depends on CPU_HAS_SECURAM && (SDCARD || NANDFLASH)
+	select BACKUP_MODE
+	help
+	  The at91bootstap saves the snapshot image and loads it quickly upon boot,
+	  thereby bypassing most steps in the traditional boot process.
+	  All parameters must be configured manually.
+
+config FASTBOOT_PRESAVED_MODE
+	bool "Load pre-saved snapshot image"
+	help
+	  In this mode, the at91bootstap no longer saves memory snapshots,
+	  but instead boots quickly by loading a pre-saved snapshot image.
+endchoice
+
+menu "Snapshot Image Options"
+	depends on FAST_BOOT
+
+config FASTBOOT_ZERO_PAGE
+	bool "Process Zero Page"
+	default n
+	help
+	  When the “Process Zero Page” feature is enabled, all memory pages
+	  containing only zeros are marked and are not included in the snapshot
+	  image, which may reduce the time required to create or load the snapshot
+	  image.
+
+config FASTBOOT_SECURE
+	bool "Enable Secure Snapshot Image"
 	depends on SECURE
 	default n
 	help
 	  Enable Encrypt|decrypt to write/load snapshot image.
-
-choice
-	prompt "Linux Kernel Revision"
-	default FASTBOOT_KERNEL_6_12
-	help
-	  Since memory management varies greatly from one version of the Linux
-	  kernel to another, the user must choose the correct kernel version.
-
-config FASTBOOT_KERNEL_6_12
-	bool "Kernel revisions 6.12 and above"
-	help
-	  New memory allocation feature in Kernel revisions 6.12, a new system to
-	  profile memory allocation, aiding in debugging and performance
-	  optimization. The feature has been tested in Linux4SAM 2025.04 demo
-	  (based on Linux kernel 6.12.x).
-
-config FASTBOOT_KERNEL_6_11
-	bool "Kernel revisions 6.11.11 and below"
-	help
-	  Use the memory management mechanisms in Kernel 6.11.11 and below.
-	  The memory management mechanisms has been tested in Linux4SAM 2024.10
-	  demo(based on Linux kernel 6.6.x) and Linux4SAM 2024.04 demo(based on
-	  Linux kernel 6.6.x).
-endchoice
-
-config FASTBOOT_MEM_MAP_ADDRESS
-	hex "The Start Virtual Address of Kernel Page Structures"
-	default "0xC0000000"
-	help
-	  The kernel represents every physical page on the system with a struct
-	  page structure. The kernel keeps track of the status of each page frame
-	  in memory using an array of page structures. Each element of this array
-	  corresponds to a page frame in physical memory.
-	  The start virtual address can be retrieved from mem_map module(See "Ultra
-	  -fast Boot User Guide" for detail.
-
-config FASTBOOT_MAX_NB_MEM_MAP
-	hex "The Maximum Number of Mapped Pages"
-	default "0x10000"
-	help
-	  max_mapnr is the limit of maximum number of mapped pages or maximum page
-	  frame number.
-	  The maximum number can be retrieved from mem_map module(See "Ultra-fast
-	  Boot User Guide" for detail.
-
-config FASTBOOT_SIZEOF_PAGE_STRUCT
-	hex "The sizeof 'Page' Structure"
-	default "0x20" if SAMA7D65
-	default "0x20" if SAMA7G5
-	default "0x24" if SAMA5D2
-	help
-	  The offset of "page_type" in "page" structure.
-	  The offset can be retrieved from mem_map module(See "Ultra-fast Boot
-	  User Guide" for detail.
-
-config FASTBOOT_OFFSET_OF_PAGETYPE
-	hex "The Offset of 'page_type' in 'Page' Structure"
-	default "0x18"
-	help
-	  The offset of "page_type" in "page" structure.
-	  The offset can be retrieved from mem_map module(See "Ultra-fast Boot
-	  User Guide" for detail.
-
-config FASTBOOT_OFFSET_OF_PRIVATE
-	hex "The Offset of 'private' in 'Page' Structure"
-	default "0x14"
-	help
-	  The offset of "private" in "page" structure.
-	  The offset can be retrieved from mem_map module(See "Ultra-fast Boot
-	  User Guide" for detail.
-
-config FASTBOOT_IMG_ADDRESS
-	hex "Flash Offset to Store Snapshot Image"
-	depends on DATAFLASH || NANDFLASH
-	default "0x00800000" if DATAFLASH
-	default "0x10000000" if NANDFLASH
-	help
-	  The AT91Bootstrap accesses the entry point for snapshots image stored
-	  in QSPI Flash or NAND Flash.
+	  Once “Secure Mode Support” is enabled, snapshot image will also support
+	  secure Mode. The existing “Secure Boot” processes can be used to verify
+	  secure fast boot, and the verification of the snapshot image can be
+	  completed during the Fast Boot process, thereby ensuring security while
+	  significantly reducing boot time. It encrypts snapshot image when they
+	  are saved and decrypts it when they are loaded.
 
 config FASTBOOT_SD_PARTITION
 	int "SD Partition Number to Store Snapshot Image"
 	depends on SDCARD
-	range 2 4
 	default 3
 	help
 	  Select the partition number (2|3|4), the dedicated partition for
 	  storing fast boot snapshot image.
 	  Note: If not set correctly, the boot partition and Linux partition
 	  may be destroyed!
+
+config FASTBOOT_IMG_ADDRESS
+	hex "Flash Offset to Store Snapshot Image"
+	depends on DATAFLASH || NANDFLASH
+	default 0x00800000 if DATAFLASH
+	default 0x10000000 if NANDFLASH
+	help
+	  The AT91Bootstrap accesses the entry point for snapshots image stored
+	  in QSPI Flash or NAND Flash.
+
+config FASTBOOT_IMG_SIZE
+	hex "Flash Size of Snapshot Partition"
+	depends on DATAFLASH || NANDFLASH
+	default 0x10000000 if NANDFLASH
+	help
+	  The size of snapshot partiton.
+endmenu
+
+menu "Memory Mapping Management Options"
+	depends on FASTBOOT_MANUAL_MODE
+
+choice
+	prompt "Linux Kernel Version"
+	depends on FASTBOOT_MANUAL_MODE
+	default FASTBOOT_LINUX_6_12_48
+	help
+	  Since memory management varies greatly from one version of the Linux
+	  kernel to another, the user must choose the correct kernel version.
+
+config FASTBOOT_LINUX_6_12_48
+	bool "Linux 6.12.48 linux4microchip-2025.10"
+
+config FASTBOOT_LINUX_6_12_22
+	bool "Linux 6.12.22 linux4microchip-2025.04"
+
+config FASTBOOT_LINUX_6_10_14
+	bool "Linux 6.10.14"
+
+config FASTBOOT_LINUX_6_6_51
+	bool "Linux 6.6.51 linux4microchip-2024.10"
+
+config FASTBOOT_LINUX_6_6_23
+	bool "Linux 6.6.23 linux4microchip-2024.04"
+
+config FASTBOOT_LINUX_5_15_68
+	bool "Linux 5.15.68 linux4microchip-2022.10"
+endchoice
+
+choice
+	prompt "Linux kernel page size"
+	default FASTBOOT_LINUX_PAGE_4K
+	depends on FASTBOOT_MANUAL_MODE
+	help
+	  Linux kernel MMU page size.
+
+config FASTBOOT_LINUX_PAGE_4K
+	bool "4KB"
+
+config FASTBOOT_LINUX_PAGE_16K
+	bool "16KB"
+endchoice
+
+config FASTBOOT_MEM_MAP_ADDRESS
+	hex "The Start Physical Address of Kernel Page Structures"
+	depends on FASTBOOT_MANUAL_MODE
+	default 0
+	help
+	  The kernel represents every physical page on the system with a struct
+	  page structure. The kernel keeps track of the status of each page frame
+	  in memory using an array of page structures. Each element of this array
+	  corresponds to a page frame in physical memory.
+	  The start physical address can be retrieved from mem_map module.
+	  See "Get Started With the Ultra-Fast Boot Feature Under Linux" for detail.
+
+config FASTBOOT_MAX_NB_MEM_MAP
+	hex "The Maximum Number of Mapped Pages"
+	depends on FASTBOOT_MANUAL_MODE
+	default 0
+	help
+	  max_mapnr is the limit of maximum number of mapped pages or maximum page
+	  frame number. The maximum number can be retrieved from mem_map module.
+	  See "Get Started With the Ultra-Fast Boot Feature Under Linux" for detail.
+
+config FASTBOOT_SIZEOF_PAGE_STRUCT
+	hex "The sizeof 'Page' Structure"
+	depends on FASTBOOT_MANUAL_MODE
+	default 0
+	help
+	  The offset of "page_type" in "page" structure.
+	  The offset can be retrieved from mem_map module.
+	  See "Get Started With the Ultra-Fast Boot Feature Under Linux" for detail.
+
+config FASTBOOT_OFFSET_OF_PAGETYPE
+	hex "The Offset of 'page_type' in 'Page' Structure"
+	depends on FASTBOOT_MANUAL_MODE
+	default 0
+	help
+	  The offset of "page_type" in "page" structure.
+	  The offset can be retrieved from mem_map module.
+	  See "Get Started With the Ultra-Fast Boot Feature Under Linux" for detail.
+
+config FASTBOOT_OFFSET_OF_PRIVATE
+	hex "The Offset of 'private' in 'Page' Structure"
+	depends on FASTBOOT_MANUAL_MODE
+	default 0
+	help
+	  The offset of "private" in "page" structure.
+	  The offset can be retrieved from mem_map module.
+	  See "Get Started With the Ultra-Fast Boot Feature Under Linux" for detail.
+endmenu
+
+menu "Debug features"
+
+config FASTBOOT_CRC
+	bool "Generate CRC-32 Code for Snapshot Image"
+	default n
+	help
+	  Generate CRC-32 code for page data validation.
+
+config FASTBOOT_DUMP
+	bool "Show configuration"
+	default n
+	help
+	  Dump fast boot configuration to debug console.
+
+config FASTBOOT_SECURE_DEBUG
+	bool "Debugging the secure snapshot image"
+	depends on FASTBOOT_SECURE
+	default n
+	help
+	  When this feature is enabled, the system does not load encrypted or signed
+	  programs at boot time; instead, it loads unencrypted and unsigned programs
+	  from external memory. However, the system can encrypt the snapshot image
+	  when saving it and decrypt it upon loading, thereby supporting debugging
+	  of secure snapshot images.
+endmenu
 endmenu

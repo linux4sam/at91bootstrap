@@ -315,8 +315,6 @@ config IMAGE_NAME
 	default "u-boot.bin" if LOAD_UBOOT || LOAD_OPTEE
 	default "softpack.bin" if LOAD_64KB || LOAD_4MB || LOAD_1MB
 
-source "fast-boot/Config.in.fastboot"
-
 source "device/Config.in.mach"
 
 source "Config.in.secure"
@@ -414,6 +412,8 @@ config BACKUP_MODE
 	  Enables "Backup mode". Starting with sama5d2, it is possible to put
 	  use DDR Self Refresh and shutdown the core. Resuming from that state
 	  requires support in the bootloader.
+
+source "fast-boot/Config.in.fastboot"
 
 menu "Board's Workaround Options"
 
