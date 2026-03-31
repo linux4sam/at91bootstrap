@@ -11,6 +11,8 @@ extern unsigned long backup_mode_resume(void);
 
 #ifdef CONFIG_BACKUP_MODE
 	int backup_resume(void);
+	int is_backup(void);
+	int is_restore(void);
 #ifdef CONFIG_PUBL
 	void backup_get_calibration_data(unsigned int *data, unsigned int len);
 #else
@@ -21,8 +23,5 @@ extern unsigned long backup_mode_resume(void);
 	static inline void backup_get_calibration_data(unsigned int *data, unsigned int len) { }
 #endif
 
-#ifdef CONFIG_FAST_BOOT
-int backup_get_resume(void);
-#endif
 #endif	/* #ifndef __BACKUP_H__ */
 

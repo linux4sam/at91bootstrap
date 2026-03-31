@@ -9,6 +9,10 @@
 #include "arch/at91_sfrbu.h"
 #include "usart.h"
 
+#ifdef CONFIG_FAST_BOOT
+#include "fast_boot.h"
+#endif
+
 #undef DEBUG_BKP_SR_INIT
 #if defined(DEBUG_BKP_SR_INIT)
 #define dbg_bkp_sf(fmt_str)	usart_puts("BKP: " fmt_str)
@@ -29,10 +33,21 @@
  */
 static struct at91_pm_bu {
 	int suspended;
-	unsigned long *reserved;
+#define SUS_NONE    0
+#define SUS_BACKUP  1
+#define SUS_RESTORE 2
+	unsigned long reserved;
 	unsigned long *canary;
 	unsigned long resume;
 	unsigned long ddr_phy_calibration[BACKUP_DDR_PHY_CALIBRATION];
+	unsigned long mem_map;
+	unsigned long max_mapnr;
+	unsigned long struct_size;
+	unsigned long page_shift;
+	unsigned long page_type;
+	unsigned long page_off;
+	unsigned long order_off;
+	unsigned long linux_ver;
 } *pm_bu;
 
 /*
@@ -60,7 +75,7 @@ static void backup_mode(void)
 	int ret;
 
 	dbg_bkp_sf("enter backup_mode resuming = -1\n");
-	resuming = 0;
+	resuming = SUS_NONE;
 
 	if (sfrbu_ddr_is_powered())
 		return;
@@ -70,10 +85,10 @@ static void backup_mode(void)
 	} while (ret == 0);
 
 	pm_bu = (struct at91_pm_bu *)AT91C_BASE_SECURAM;
-	if (!pm_bu->suspended)
+	if (pm_bu->suspended == SUS_NONE)
 		return;
 
-	resuming = 1;
+	resuming = pm_bu->suspended;
 	return;
 }
 
@@ -83,20 +98,47 @@ int backup_resume(void)
 	if (resuming == -1)
 		backup_mode();
 
-	if (resuming == 1)
-		dbg_bkp_sf("backup_resume resuming = 1\n");
+	if ((resuming == SUS_BACKUP) || (resuming == SUS_RESTORE)) {
+		dbg_bkp_sf("backup_resume return 1\n");
+		return 1;
+	}
 
-	if (resuming == 0)
-		dbg_bkp_sf("backup_resume resuming = 0\n");
+	return 0;
+}
 
-	return resuming;
+int is_backup(void)
+{
+	dbg_bkp_sf("enter is_backup\n");
+	if (resuming == -1)
+		backup_mode();
+
+	if (resuming == SUS_BACKUP) {
+		dbg_bkp_sf("is_backup resuming = SUS_BACKUP\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+int is_restore(void)
+{
+	dbg_bkp_sf("enter is_restore\n");
+	if (resuming == -1)
+		backup_mode();
+
+	if (resuming == SUS_RESTORE) {
+		dbg_bkp_sf("is_restore resuming = SUS_RESTORE\n");
+		return 1;
+	}
+
+	return 0;
 }
 
 unsigned long backup_mode_resume(void)
 {
 	dbg_loud("BKP: backup_mode_resume, resuming = %d\n", resuming);
 
-	if (!backup_resume())
+	if (!is_backup())
 		return 0;
 
 	if (*pm_bu->canary != 0xa5a5a5a5) {
@@ -130,9 +172,23 @@ void backup_get_calibration_data(unsigned int *data, unsigned int len)
 #endif
 
 #ifdef CONFIG_FAST_BOOT
-int backup_get_resume(void)
+void backup_fast_config(struct fast_config *conf)
 {
-	pm_bu = (struct at91_pm_bu *)AT91C_BASE_SECURAM;
-	return pm_bu->resume;
+	if ((resuming == SUS_BACKUP) ||
+	    (resuming == SUS_RESTORE)) {
+		conf->canary = (unsigned int)pm_bu->canary;
+		conf->resume = pm_bu->resume;
+	}
+
+	if (resuming == SUS_RESTORE) {
+		conf->mem_map = pm_bu->mem_map;
+		conf->max_mapnr = pm_bu->max_mapnr;
+		conf->struct_size = pm_bu->struct_size;
+		conf->page_shift = pm_bu->page_shift;
+		conf->page_type = pm_bu->page_type;
+		conf->page_off = pm_bu->page_off;
+		conf->order_off = pm_bu->order_off;
+		conf->linux_ver = pm_bu->linux_ver;
+	}
 }
 #endif
