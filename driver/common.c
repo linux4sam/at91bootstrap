@@ -133,6 +133,11 @@ void load_image_done(int retval)
 		usart_puts("Done to load image\n");
 #endif
 	}
+	if (retval == 1) {
+#ifdef CONFIG_FAST_BOOT
+		usart_puts("Done to load snapshot\n");
+#endif
+	}
 	if (retval == -1) {
 		usart_puts("Failed to load image\n");
 		while(1);
