@@ -7,6 +7,8 @@
 #ifndef XDMAC_H
 #define XDMAC_H
 
+#include "arch/at91_xdmac.h"
+
 #define DMA_DATA_WIDTH_BYTE			0
 #define DMA_DATA_WIDTH_HALF_WORD	1
 #define DMA_DATA_WIDTH_WORD			2
@@ -22,6 +24,8 @@
 #define DMA_MEM_BURST_4		1
 #define DMA_MEM_BURST_8		2
 #define DMA_MEM_BURST_16	3
+
+#define DMA_MAX_LEN	((XDMAC_CUBC_UBLEN_MASK + 1) >> 1)
 
 struct xdmac_hwcfg {
 	/* Peripheral clock ID. */

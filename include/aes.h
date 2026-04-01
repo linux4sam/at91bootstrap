@@ -45,6 +45,8 @@ typedef struct at91_aes_params {
 	at91_aes_mode_t		mode;
 
 	/* data blocks */
+	unsigned int		chunk_size;
+	unsigned int		data_width;
 	unsigned int		data_length;
 	const void		*input;
 	void			*output;
@@ -84,5 +86,16 @@ int at91_aes_cmac(unsigned int data_length,
 		  unsigned int *cmac,
 		  at91_aes_key_size_t key_size,
 		  const unsigned int *key);
+
+int at91_aes_cbc_config(at91_aes_params_t *params,
+			int encrypt,
+			at91_aes_key_size_t key_size,
+			const unsigned int *key,
+			const unsigned int *iv);
+
+int at91_aes_update(const at91_aes_params_t *params,
+		    unsigned int length,
+		    const unsigned char *input,
+		    unsigned char *output);
 
 #endif /* __AES_H__ */

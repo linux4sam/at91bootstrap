@@ -412,6 +412,68 @@ static inline unsigned int at91_aes_length2blocks(unsigned int data_length,
 	return (data_length >> shift) + ((data_length & mask) ? 1 : 0);
 }
 
+#ifdef CONFIG_SECURE_DMA_SUPPORT
+static int at91_aes_config(at91_aes_params_t *params)
+{
+	/* Reset AES */
+	aes_writel(AES_CR, AES_CR_SWRST);
+
+	if (at91_aes_set_opmode(params->operation, params->mode,
+				params->key_size, &params->data_width,
+				&params->chunk_size))
+		return -1;
+
+	if (at91_aes_set_key(params->key_size, params->key))
+		return -1;
+
+	if (params->mode != AT91_AES_MODE_ECB)
+		at91_aes_set_iv(params->iv);
+
+	aes_writel(AES_IER, AES_INT_DATRDY);
+
+	return 0;
+}
+
+int at91_aes_cbc_config(at91_aes_params_t *params,
+			int encrypt,
+			at91_aes_key_size_t key_size,
+			const unsigned int *key,
+			const unsigned int *iv)
+{
+	if (!params || !key || !iv)
+		return -1;
+
+	params->operation = (encrypt) ? AT91_AES_OP_ENCRYPT : AT91_AES_OP_DECRYPT;
+	params->mode = AT91_AES_MODE_CBC;
+	params->key_size = key_size;
+	params->key = key;
+	params->iv = iv;
+
+	return at91_aes_config(params);
+}
+
+int at91_aes_update(const at91_aes_params_t *params, unsigned int length,
+		    const unsigned char *input, unsigned char *output)
+{
+	unsigned int is_mac = (params->operation == AT91_AES_OP_MAC);
+	unsigned int block_len = DMA_MAX_LEN * params->data_width;
+	unsigned int len;
+
+	while (length) {
+		len = (length > block_len) ? block_len : length;
+
+		if (at91_aes_compute_dma(params->data_width, params->chunk_size,
+					 len, is_mac, input, output))
+			return -1;
+
+		input += len;
+		output += len;
+		length -= len;
+	}
+
+	return 0;
+}
+#endif
 
 static int at91_aes_process(const at91_aes_params_t *params)
 {
