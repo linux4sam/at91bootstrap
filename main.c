@@ -57,9 +57,8 @@ int main(void)
 	slowclk_switch_rc32();
 #endif
 
-#ifdef CONFIG_BACKUP_MODE
+#if defined(CONFIG_BACKUP_MODE) && !defined(CONFIG_FASTBOOT_MANUAL_MODE)
 	ret = backup_mode_resume();
-#ifndef CONFIG_FAST_BOOT
 	if (ret) {
 		/* Backup+Self-Refresh mode detected... */
 #ifdef CONFIG_REDIRECT_ALL_INTS_AIC
@@ -71,7 +70,6 @@ int main(void)
 		return ret;
 	}
 	usart_puts("Backup mode enabled\n");
-#endif
 #endif
 
 #ifdef CONFIG_HW_DISPLAY_BANNER
@@ -104,14 +102,10 @@ int main(void)
 	hw_postinit();
 #endif
 
-#ifdef CONFIG_FAST_BOOT
-	init_fast_boot();
-#endif
-
 #ifdef CONFIG_LOAD_SW
 	init_load_image(&image);
 
-#if defined(CONFIG_SECURE)
+#if defined(CONFIG_SECURE) && !defined(CONFIG_FASTBOOT_SECURE_DEBUG)
 	image.dest -= sizeof(at91_secure_header_t);
 #endif
 
@@ -137,7 +131,7 @@ int main(void)
 #endif
 
 #endif
-#if defined(CONFIG_SECURE)
+#if defined(CONFIG_SECURE) && !defined(CONFIG_FASTBOOT_SECURE_DEBUG)
 	if (!ret)
 		ret = secure_check(&image);
 	image.dest += sizeof(at91_secure_header_t);
