@@ -595,10 +595,12 @@ void at91_sdhc_hw_init(void)
 		{"SDMMC0_VS",  AT91C_PIN_PA(15), 0, PIO_DEFAULT, PIO_PERIPH_B},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#if defined(CONFIG_SD_POWER_OR_RESET_CTRL)
 	const struct pio_desc sdmmc_pins_reset[] = {
 		{"SDMMC0_RST",  AT91C_PIN_PA(2), 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#endif
 #endif
 
 #if defined(CONFIG_SDHC1)
@@ -612,12 +614,17 @@ void at91_sdhc_hw_init(void)
 		{"SDMMC1_VDDSEL", AT91C_PIN_PB(30), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC1_WP",   AT91C_PIN_PB(28), 1, PIO_PULLUP, PIO_PERIPH_A},
 		{"SDMMC1_CD",   AT91C_PIN_PB(29), 0, PIO_PULLUP, PIO_PERIPH_A},
+#if defined(CONFIG_SD_POWER_OR_RESET_CTRL)
+		{"SDMMC1_RST",  AT91C_PIN_PB(21), 0, PIO_DEFAULT, PIO_OUTPUT},
+#endif
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#if defined(CONFIG_SD_POWER_OR_RESET_CTRL)
 	const struct pio_desc sdmmc_pins_pwcycle[] = {
 		{"SDMMC1_RST",  AT91C_PIN_PB(21), 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#endif
 #endif
 
 #if defined(CONFIG_SDHC2)
@@ -631,22 +638,29 @@ void at91_sdhc_hw_init(void)
 		{"SDMMC2_VDDSEL", AT91C_PIN_PD(3), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC2_WP",   AT91C_PIN_PD(1), 1, PIO_PULLUP, PIO_PERIPH_A},
 		{"SDMMC2_CD",   AT91C_PIN_PD(2), 0, PIO_PULLUP, PIO_PERIPH_A},
+#if defined(CONFIG_SD_POWER_OR_RESET_CTRL)
+		{"SDMMC1_RST",  AT91C_PIN_PC(10), 0, PIO_DEFAULT, PIO_OUTPUT},
+#endif
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#if defined(CONFIG_SD_POWER_OR_RESET_CTRL)
 	const struct pio_desc sdmmc_pins_pwcycle[] = {
 		{"SDMMC1_RST",  AT91C_PIN_PC(10), 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
 #endif
+#endif
 
 	pio_configure(sdmmc_pins);
-#if defined(CONFIG_SDHC0)
-	mdelay(500);
+#if defined(CONFIG_SDHC0) && defined(CONFIG_SD_POWER_OR_RESET_CTRL)
+	mdelay(50);
 	pio_configure(sdmmc_pins_reset);
 #endif
 #if defined(CONFIG_SDHC1) || defined(CONFIG_SDHC2)
-	mdelay(500);
+#if defined(CONFIG_SD_POWER_OR_RESET_CTRL)
+	mdelay(50);
 	pio_configure(sdmmc_pins_pwcycle);
+#endif
 #endif
 
 	pmc_enable_periph_clock(CONFIG_SYS_ID_SDHC, PMC_PERIPH_CLK_DIVIDER_NA);

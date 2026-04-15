@@ -170,6 +170,15 @@ config MMC_NONREMOVABLE
 		the device is non removable, and the card detection procedure
 		using the SDMCC_CD signal is bypassed.
 
+config SD_POWER_OR_RESET_CTRL
+	bool "Enable the controllable power or reset pin"
+	depends on SDHC && (SAMA7D65 || SAMA7G5)
+	default n
+	help
+	  Enable the controllable power pin or reset pin.
+	  Add the new configuration option CONFIG_SD_POWER_OR_RESET_CTRL.
+	  You can say y to enable the SDCRAD power pin or the eMMC reset pin.
+
 config FATFS
 	bool
 	depends on SDCARD

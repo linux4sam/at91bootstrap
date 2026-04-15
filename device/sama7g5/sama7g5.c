@@ -728,13 +728,17 @@ void at91_sdhc_hw_init(void)
 		{"SDMMC1_VDDSEL", AT91C_PIN_PC(5), 0, PIO_DEFAULT, PIO_PERIPH_A},
 		{"SDMMC1_WP",   AT91C_PIN_PC(3), 1, PIO_PULLUP, PIO_PERIPH_A},
 		{"SDMMC1_CD",   AT91C_PIN_PC(4), 0, PIO_PULLUP, PIO_PERIPH_A},
+#if defined(CONFIG_SD_POWER_OR_RESET_CTRL)
 		{"SDMMC1_RST",  AT91C_PIN_PB(28), 0, PIO_DEFAULT, PIO_OUTPUT},
+#endif
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#if defined(CONFIG_SD_POWER_OR_RESET_CTRL)
 	const struct pio_desc sdmmc_pins_reset[] = {
 		{"SDMMC1_RST",  AT91C_PIN_PB(28), 1, PIO_DEFAULT, PIO_OUTPUT},
 		{(char *)0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
 	};
+#endif
 #endif
 #if defined(CONFIG_SDHC0)
 	const struct pio_desc sdmmc_pins[] = {
@@ -755,8 +759,8 @@ void at91_sdhc_hw_init(void)
 #endif
 
 	pio_configure(sdmmc_pins);
-#if defined(CONFIG_SDHC1)
-	mdelay(500);
+#if defined(CONFIG_SDHC1) && defined(CONFIG_SD_POWER_OR_RESET_CTRL)
+	mdelay(50);
 	pio_configure(sdmmc_pins_reset);
 #endif
 
