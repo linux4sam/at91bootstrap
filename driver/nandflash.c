@@ -164,10 +164,12 @@ static unsigned int smc_timing_encode_ncycles(unsigned int ncycles)
 
 void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 {
-	unsigned int ncycles, mck_ps, pulse;
+	unsigned int ncycles, mck_ns, mck_ps, pulse;
 	unsigned int nwe_setup, nwe_pulse, nwe_hold, nwe_cycle;
 	unsigned int nrd_hold, nrd_pulse, nrd_cycle, tdf;
-	mck_ps = (1000000000 / MASTER_CLOCK) * 1000;
+	mck_ns = (1000000000 / MASTER_CLOCK);
+	mck_ps = mck_ns * 1000;
+
 	/* 
 	  Set write pulse length
 	  NWE_PULSE = tWP 
@@ -225,6 +227,17 @@ void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 	nrd_cycle = max(ncycles, nrd_cycle);
 
 	/* NCS_RD_PULSE = NRD_CYCLE */
+
+	/* debug output of parameters */
+	dbg_loud("NAND: mode: %u, cs: %u, mck_ps: %u (%u ns), tdf: %u (%u ns)\n",
+		 mode, cs, mck_ps, mck_ns, tdf, tdf * mck_ns);
+	dbg_loud("NAND: NWE: setup: %u (%u ns), pulse: %u (%u ns), hold: %u (%u ns), cycle: %u (%u ns)\n",
+		 nwe_setup, nwe_setup * mck_ns, nwe_pulse, nwe_pulse * mck_ns,
+		 nwe_hold, nwe_hold * mck_ns, nwe_cycle, nwe_cycle * mck_ns);
+	dbg_loud("NAND: NRD: setup: %u (%u ns), pulse: %u (%u ns), hold: %u (%u ns), cycle: %u (%u ns)\n",
+		 0, 0, nrd_pulse, nrd_pulse * mck_ns,
+		 nrd_hold, nrd_hold * mck_ns, nrd_cycle, nrd_cycle * mck_ns);
+
 #if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
     defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5) ||\
     defined(CONFIG_SAMA7D65)
