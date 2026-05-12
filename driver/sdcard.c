@@ -9,7 +9,12 @@
 
 #include "string.h"
 
+#ifdef CONFIG_FATFS
 #include "ff.h"
+#else
+#include "media.h"
+#include "fdt.h"
+#endif
 
 #include "debug.h"
 
@@ -20,6 +25,7 @@
 
 #define CHUNK_SIZE	0x40000
 
+#ifdef CONFIG_FATFS
 static int sdcard_loadimage(char *filename, BYTE *dest)
 {
 	FIL 	file;
@@ -86,7 +92,7 @@ static int sdcard_read_cmd(char *cmdline_file, char *cmdline_args)
 		ret = -1;
 		goto read_fail;
 	}
-        
+
         ret = 0;
 
 read_fail:
@@ -97,11 +103,43 @@ open_fail:
 
 }
 #endif
+#else
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+static int update_image_length(unsigned int offset,
+			       unsigned char *dest,
+			       unsigned char flag)
+{
+	unsigned int length = 512;
+	int ret;
+
+	dbg_info("SD/MMC: update image length from image\n");
+
+	memcpy(dest, (const char *)offset, length);
+
+	if (flag == KERNEL_IMAGE)
+		return kernel_size(dest);
+#ifdef CONFIG_OF_LIBFDT
+	else {
+		ret = check_dt_blob_valid((void *)dest);
+		if (!ret)
+			return of_get_dt_total_size((void *)dest);
+	}
+#endif
+	return -1;
+}
+#endif
+#endif
+
 
 int load_sdcard(struct image_info *image)
 {
+#ifdef CONFIG_FATFS
 	FATFS	fs;
 	FRESULT	fret;
+#else
+	unsigned int start_block;
+	unsigned int block_count;
+#endif
 	int	ret;
 	static bool initialized = false;
 
@@ -130,6 +168,7 @@ int load_sdcard(struct image_info *image)
 		return 0;
 #endif
 
+#ifdef CONFIG_FATFS
 	/* mount fs */
 	fret = f_mount(0, &fs);
 	if (fret != FR_OK) {
@@ -188,4 +227,54 @@ int load_sdcard(struct image_info *image)
 	}
 
 	return 0;
+#else
+	ret = sdcard_initialize();
+	if (ret) {
+		return ret;
+	}
+
+#if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
+	int length = update_image_length(image->offset, image->dest, KERNEL_IMAGE);
+	if (length == -1)
+		return -1;
+
+	image->length = length;
+#endif
+
+	dbg_info("SD/MMC: Copy %x bytes from %x to %x\n",
+		 image->length, image->offset, image->dest);
+
+	start_block = image->offset / 512;
+	block_count = (image->length + 511) / 512;
+
+	ret = sdcard_block_read(start_block, block_count, image->dest);
+	ret = ret == block_count ? 0 : -1;
+	if (ret) {
+		return ret;
+	}
+
+#ifdef CONFIG_OF_LIBFDT
+	if(image->of_dest) {
+		length = update_image_length(image->of_offset,
+						image->of_dest, DT_BLOB);
+		if (length == -1)
+			return -1;
+
+		image->of_length = length;
+
+		dbg_info("SD/MMC: dt blob: Copy %x bytes from %x to %x\n",
+			image->of_length, image->of_offset, image->of_dest);
+
+		start_block = image->of_offset / 512;
+		block_count = (image->of_length + 511) / 512;
+
+		ret = sdcard_block_read(start_block, block_count, image->of_dest);
+		ret = ret == block_count ? 0 : -1;
+		if (ret) {
+			return ret;
+		}
+	}
+#endif
+	return 0;
+#endif
 }

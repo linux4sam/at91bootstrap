@@ -7,7 +7,7 @@ menu "U-Boot Image Storage Setup"
 
 config IMG_ADDRESS
 	string "Flash Offset for U-Boot"
-	depends on DATAFLASH || FLASH || NANDFLASH
+	depends on DATAFLASH || FLASH || NANDFLASH || (SDCARD && !FATFS)
 	default "0x00008000" if FLASH
 	default "0x00008000" if DATAFLASH
 	default "0x00040000" if NANDFLASH
@@ -16,7 +16,7 @@ config IMG_ADDRESS
 
 config IMG_SIZE
 	string "U-Boot Image Size"
-	depends on DATAFLASH || FLASH || NANDFLASH
+	depends on DATAFLASH || FLASH || NANDFLASH || (SDCARD && !FATFS)
 	default	"0x000a0000"
 	help
 	  at91bootstrap will copy this size of U-Boot image
