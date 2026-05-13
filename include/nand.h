@@ -89,6 +89,7 @@ struct nand_info {
 
 #define ZONE_DATA			0x01    /* Sector data zone */
 #define ZONE_INFO			0x02    /* Sector info zone */
+#define ZONE_MARK			0x04    /* Sector bad block mark zone */
 
 /* Nand flash chip status codes */
 #define STATUS_READY			(0x01 << 6)   /* Status code for Ready */
@@ -126,9 +127,12 @@ struct nand_info {
 
 extern void nandflash_smc_conf(unsigned int mode, unsigned int cs);
 #ifdef CONFIG_FAST_BOOT
-extern int nand_flash_read(struct nand_info *nand, unsigned int address, unsigned int length,
-	void *buf);
-extern int nand_flash_write(struct nand_info *nand, unsigned int address, unsigned int length,
-	const void *buf);
+int nand_page_read(struct nand_info *nand,
+		   unsigned int page, unsigned int count, void *buffer);
+int nand_page_write(struct nand_info *nand,
+		    unsigned int page, unsigned int count, void *buffer);
+int nand_block_erase(struct nand_info *nand, unsigned int block);
+int nand_block_is_bad(struct nand_info *nand, unsigned int block);
+int nand_block_mark_bad(struct nand_info *nand, unsigned int block);
 #endif
 #endif /* #ifndef __NAND_H__ */

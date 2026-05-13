@@ -17,6 +17,7 @@
 #include "gpio.h"
 #include "arch/at91_nand_ecc.h"
 #include "debug.h"
+#include "string.h"
 
 #include "nand.h"
 #include "pmecc.h"
@@ -1114,6 +1115,11 @@ static int nand_read_sector(struct nand_info *nand,
 		column_address = 0x00;
 		break;
 
+	case ZONE_MARK:
+		readbytes = nand->buswidth ? 2 : 1;
+		column_address = nand->pagesize;
+		break;
+
 	default:
 		return -1;
 	}
@@ -1179,75 +1185,7 @@ static int nand_read_sector(struct nand_info *nand,
 	return ret;
 }
 #endif /* #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS */
-#ifdef CONFIG_FAST_BOOT
-static int nand_write_sector(struct nand_info *nand,
-				unsigned int row_address,
-				unsigned char *buffer)
-{
-	unsigned int i, j;
-	int ret = 0;
-	unsigned char *pbuf = buffer;
-	unsigned char *pmecc;
-	unsigned char *ecc;
-	unsigned char ecctab[PMECC_MAX_PMECCSIZE];
-	unsigned int nb_sectors_per_page, ecc_bytes_per_sector;
 
-	nand_cs_enable();
-	nand->command(CMD_WRITE_1);
-	write_column_address(nand, 0);
-	write_row_address(nand, row_address);
-
-#ifdef CONFIG_USE_PMECC
-	pmecc_enable(1);
-#endif
-
-#ifdef CONFIG_NAND_DMA_SUPPORT
-	nand_access_with_dma(pbuf, nand->pagesize, 0);
-#else
-	/* Write loop */
-	if (nand->buswidth) {
-		for (i = 0; i < nand->pagesize / 2; i++) {
-			write_word(*(unsigned short *)pbuf);
-			pbuf += 2;
-		}
-	} else {
-		for (i = 0; i < nand->pagesize; i++)
-			write_byte(*pbuf++);
-	}
-#endif
-	/* Send the Random_data_input command (RANDOM_DATA_INPUT) =>  ecc start address */
-	nand->command(CMD_READ_R);
-	write_column_address(nand, nand->pagesize + nand->ecclayout->eccpos[0]);
-
-	pmecc_wait_ready();
-	ecc = ecctab;
-	nb_sectors_per_page = pmecc_get_sectors_per_page();
-	ecc_bytes_per_sector = get_pmecc_bytes(nand->ecc_sector_size, nand->ecc_err_bits);
-	for (i = 0; i < nb_sectors_per_page; i++) {
-		pmecc = (unsigned char *)PMECC_SECTOR_ECC(i);
-		/* Read all EEC registers for this page */
-		for (j = 0; j < ecc_bytes_per_sector; j++)
-			*ecc++ = *pmecc++;
-	}
-
-	ecc = ecctab;
-	if (nand->buswidth) {
-		for (i = 0; i < nand->ecclayout->eccbytes / 2; i++) {
-			write_word(*(unsigned short *)ecc);
-			ecc += 2;
-		}
-	} else {
-		for (i = 0; i < nand->ecclayout->eccbytes; i++)
-			write_byte(*ecc++);
-	}
-	nand->command(CMD_WRITE_2);
-	nand_wait_ready();
-
-	nand_cs_disable();
-
-	return ret;
-}
-#endif
 
 static int nand_check_badblock(struct nand_info *nand,
 				unsigned int block,
@@ -1489,7 +1427,7 @@ int load_nandflash(struct image_info *image)
 
 #ifdef CONFIG_FAST_BOOT
 	if (nandflash_fast_boot(&nand, image))
-		return 0;
+		return 1;
 #endif
 
 #if defined(CONFIG_LOAD_LINUX) || defined(CONFIG_LOAD_ANDROID)
@@ -1528,67 +1466,204 @@ int load_nandflash(struct image_info *image)
 	return 0;
  }
 
-int nand_flash_read(struct nand_info *nand, unsigned int address, unsigned int size, void *buf)
+#ifdef CONFIG_FAST_BOOT
+static int nand_write_sector(struct nand_info *nand,
+			     unsigned int row_address,
+			     unsigned char *buffer,
+			     unsigned int zone_flag)
 {
-	return  nand_loadimage(nand, address, size, (unsigned char *) buf);
+	unsigned int writebytes, i;
+	unsigned int column_address;
+	unsigned char oob[NAND_MAX_PAGE_SPARE_SIZE];
+	unsigned int timeout = 10000; /* Max 10ms delay */
+	unsigned char status;
 
+#ifdef CONFIG_USE_PMECC
+	unsigned int usepmecc = 0;
+
+	if ((zone_flag & ZONE_DATA) == ZONE_DATA) {
+		usepmecc = 1;
+		zone_flag = ZONE_DATA | ZONE_INFO;
+
+		memset(oob, 0xff, NAND_MAX_PAGE_SPARE_SIZE);
+	}
+#endif
+
+	switch (zone_flag) {
+	case ZONE_DATA:
+		writebytes = nand->pagesize;
+		column_address = 0x00;
+		break;
+
+	case ZONE_INFO:
+		writebytes = nand->oobsize;
+		column_address = nand->pagesize;
+		break;
+
+	case ZONE_DATA | ZONE_INFO:
+#ifdef CONFIG_USE_PMECC
+		if (usepmecc)
+			writebytes = nand->pagesize;
+#else
+		writebytes = nand->sectorsize;
+#endif
+		column_address = 0x00;
+		break;
+
+	case ZONE_MARK:
+		writebytes = nand->buswidth ? 2 : 1;
+		column_address = nand->pagesize;
+		break;
+
+	default:
+		return -1;
+	}
+
+	nand_cs_enable();
+
+	nand->command(CMD_WRITE_1);
+
+	write_column_address(nand, column_address);
+	write_row_address(nand, row_address);
+
+#ifdef CONFIG_USE_PMECC
+	if (usepmecc)
+		pmecc_enable(1);
+#endif
+	/* Write loop */
+	if (nand->buswidth) {
+		for (i = 0; i < writebytes / 2; i++) {
+			write_word(((unsigned short *)buffer)[i]);
+		}
+	} else {
+#ifdef CONFIG_NAND_DMA_SUPPORT
+		nand_access_with_dma(buffer, writebytes, 0);
+#else
+		for (i = 0; i < writebytes; i++)
+			write_byte(buffer[i]);
+#endif
+	}
+
+#ifdef CONFIG_USE_PMECC
+	if ((usepmecc) && (zone_flag == (ZONE_DATA | ZONE_INFO))) {
+		pmecc_copy_redundancy(nand, oob + nand->ecclayout->eccpos[0]);
+
+		if (nand->buswidth) {
+			for (i = 0; i < nand->oobsize / 2; i++) {
+				write_word(((unsigned short *)oob)[i]);
+			}
+		} else {
+#ifdef CONFIG_NAND_DMA_SUPPORT
+			nand_access_with_dma(oob, nand->oobsize, 0);
+#else
+			for (i = 0; i < nand->oobsize; i++)
+				write_byte(oob[i]);
+#endif
+		}
+	}
+#endif
+
+	nand->command(CMD_WRITE_2);
+
+	nand_command(CMD_STATUS);
+	status = read_byte(); /* Dummy read, used as delay for tWHR */
+	while ((!((status = read_byte()) & STATUS_READY)) && --timeout)
+		udelay(1);
+
+	nand_cs_disable();
+
+	if ((status & STATUS_ERROR) || !(status & STATUS_READY))
+		return -1;
+
+	return 0;
 }
 
-#ifdef CONFIG_FAST_BOOT
-int nand_flash_write(struct nand_info *nand, unsigned int address, unsigned int length,
-	const void *buf)
+static int nand_erase_block(struct nand_info *nand, unsigned int block)
 {
-	unsigned char *buffer = (unsigned char *)buf;
-	unsigned int writesize;
-	unsigned int block = 0;
-	unsigned int page;
-	unsigned int start_page = 0;
-	unsigned int end_page;
-	unsigned int numpages = 0;
-	unsigned int offsetpage = 0;
-	unsigned int block_remaining = nand->blocksize
-				       - mod(address, nand->blocksize);
-	unsigned int oob[NAND_MAX_PAGE_SPARE_SIZE];
-	int ret;
+	unsigned int row_address = block * nand->pages_block;
+	unsigned int timeout = 100000; /* Max 100ms delay */
+	unsigned int status;
 
-	division(address, nand->blocksize, &block, &start_page);
-	start_page = div(start_page, nand->pagesize);
+	nand_cs_enable();
 
-	while (length > 0) {
-		/* write a buffer corresponding to a block */
-		if (length < block_remaining)
-			writesize = length;
-		else
-			writesize = block_remaining;
+	nand_command(CMD_ERASE_1);
+	write_row_address(nand, row_address);
+	nand_command(CMD_ERASE_2);
 
-		/* adjust the number of pages to write */
-		division(writesize, nand->pagesize, &numpages, &offsetpage);
-		if (offsetpage)
-			numpages++;
+	nand_command(CMD_STATUS);
+	read_byte(); /* Dummy read, used as delay for tWHR */
+	while ((!((status = read_byte()) & STATUS_READY)) && --timeout)
+		udelay(1);
 
-		end_page = start_page + numpages;
+	nand_cs_disable();
 
-		while (1) {
-			if (nand_check_badblock(nand,
-					block, (unsigned char *)oob) != 0) {
-				block++;
-				dbg_info("NAND: Bad block: #%x\n", block);
-			} else
-				break;
-		}
+	if ((status & STATUS_ERROR) || !(status & STATUS_READY))
+		return -1;
 
-		/* write pages of a block */
-		for (page = start_page; page < end_page; page++) {
-			ret = nand_write_sector(nand, block * nand->pages_block + page, buffer);
-			if (ret)
-				return -1;
-			buffer += nand->pagesize;
-		}
-		length -= writesize;
+	return 0;
+}
 
-		block++;
-		start_page = 0;
-		block_remaining = nand->blocksize;
+int nand_page_read(struct nand_info *nand,
+			unsigned int page, unsigned int count, void *buffer)
+{
+	unsigned char *pbuf = buffer;
+
+	for (unsigned int i = 0; i < count; i++) {
+		if (nand_read_sector(nand, page + i, pbuf, ZONE_DATA))
+			return -1;
+
+		pbuf += nand->pagesize;
+	}
+
+	return 0;
+}
+
+int nand_page_write(struct nand_info *nand,
+			unsigned int page, unsigned int count, void *buffer)
+{
+	unsigned char *pbuf = buffer;
+
+	for (unsigned int i = 0; i < count; i++) {
+		if (nand_write_sector(nand, page + i, pbuf, ZONE_DATA))
+			return -1;
+
+		pbuf += nand->pagesize;
+	}
+
+	return 0;
+}
+
+int nand_block_erase(struct nand_info *nand, unsigned int block)
+{
+	return nand_erase_block(nand, block);
+}
+
+int nand_block_is_bad(struct nand_info *nand, unsigned int block)
+{
+	unsigned int page = block * nand->pages_block;
+	unsigned char buffer[2];
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		if (nand_read_sector(nand, page + i, buffer, ZONE_MARK))
+			return -1;
+
+		if ((buffer[0] != 0xff) || (nand->buswidth && (buffer[1] != 0xff)))
+			return -1;
+	}
+
+	return 0;
+}
+
+int nand_block_mark_bad(struct nand_info *nand, unsigned int block)
+{
+	unsigned int page = block * nand->pages_block;
+	unsigned char buffer[2] = {0};
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		if (nand_write_sector(nand, page + i, buffer, ZONE_MARK))
+			return -1;
 	}
 
 	return 0;

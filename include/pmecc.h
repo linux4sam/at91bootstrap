@@ -51,5 +51,6 @@ extern void pmecc_enable(unsigned char wr);
 extern int pmecc_process(struct nand_info *nand, unsigned char *buffer, unsigned char *oob);
 extern void pmecc_wait_ready(void);
 extern unsigned int pmecc_get_sectors_per_page(void);
+extern void pmecc_copy_redundancy(struct nand_info *nand, unsigned char *ecc);
 
 #endif

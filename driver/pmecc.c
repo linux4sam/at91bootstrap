@@ -429,6 +429,21 @@ unsigned int pmecc_get_sectors_per_page(void)
 	}
 }
 
+void pmecc_copy_redundancy(struct nand_info *nand, unsigned char *ecc)
+{
+	unsigned char *pmecc;
+	int sectors = pmecc_get_sectors_per_page();
+	int bytes = get_pmecc_bytes(nand->ecc_sector_size, nand->ecc_err_bits);
+
+	pmecc_wait_ready();
+
+	for (int i = 0; i < sectors; i++) {
+		pmecc = (unsigned char *)PMECC_SECTOR_ECC(i);
+		for (int j = 0; j < bytes; j++)
+			*ecc++ = *pmecc++;
+	}
+}
+
 #ifdef CONFIG_SAMA5D3X
 static int check_pmecc_ecc_data(struct nand_info *nand,
 				unsigned char *buffer)
