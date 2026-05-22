@@ -117,3 +117,5 @@ COBJS-$(CONFIG_CACHES)		+= $(DRIVERS_SRC)/l1cache.o
 COBJS-$(CONFIG_MMU)		+= $(DRIVERS_SRC)/mmu.o
 COBJS-$(CONFIG_XDMAC)	+= $(DRIVERS_SRC)/at91_xdmac.o
 COBJS-$(CONFIG_FAST_BOOT)	+= $(DRIVERS_SRC)/fast_boot_init.o
+COBJS-$(CONFIG_FAST_BOOT)	+= $(DRIVERS_SRC)/restore_sdcard.o
+COBJS-$(CONFIG_FAST_BOOT)	+= $(DRIVERS_SRC)/restore_nandflash.o 
