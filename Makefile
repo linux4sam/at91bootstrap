@@ -170,13 +170,13 @@ LINUX_KERNEL_ARG_STRING := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING))
 LINUX_KERNEL_ARG_STRING_FILE := $(strip $(subst ",,$(CONFIG_LINUX_KERNEL_ARG_STRING_FILE)))
 
 ifeq ($(CONFIG_FAST_BOOT), y)
-LIB_PATH =fast-boot
-ifeq ($(CONFIG_SDCARD), y)
-LIB_NAME =fastboot_sd
-else ifeq ($(CONFIG_QSPI), y)
-LIB_NAME =fastboot_qspi
-else ifeq ($(CONFIG_NANDFLASH), y)
-LIB_NAME =fastboot_nand
+LIB_PATH = fast-boot
+LIBFB-OBJS += $(BUILDDIR)/driver/restore_image.o
+
+ifeq ($(CONFIG_CORE_ARM926EJS), y)
+LIB_NAME =fastboot_sam9
+else
+LIB_NAME =fastboot
 endif
 endif
 
