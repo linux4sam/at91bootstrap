@@ -609,12 +609,12 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 							AT91C_DDRC2_TRC_(NS2CYCLES(ddr_ddram_timings.trc, mck)) |
 							AT91C_DDRC2_TRP_(NS2CYCLES(ddr_ddram_timings.trp, mck)) |
 							AT91C_DDRC2_TRRD_(NS2CYCLES(ddr_ddram_timings.trrd, mck))|
-							AT91C_DDRC2_TWTR_(ddr_ddram_timings.twtr) |
+							AT91C_DDRC2_TWTR_(NS2CYCLES(ddr_ddram_timings.twtr, mck)) |
 							AT91C_DDRC2_TMRD_(ddr_ddram_timings.tmrd)
 						  );
 	ddramc_config->t1pr = ( AT91C_DDRC2_TRFC_(NS2CYCLES(ddr_ddram_timings.trfc, mck)) |
 							AT91C_DDRC2_TXSNR_(NS2CYCLES(ddr_ddram_timings.txsnr, mck)) |
-							AT91C_DDRC2_TXSRD_(NS2CYCLES(ddr_ddram_timings.txsrd, mck)) |
+							AT91C_DDRC2_TXSRD_(ddr_ddram_timings.txsrd) |
 #if defined(CONFIG_LPDDR1)
 							AT91C_DDRC2_TXP_(NS2CYCLES(ddr_ddram_timings.txp, mck))
 #else
