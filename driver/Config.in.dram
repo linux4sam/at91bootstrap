@@ -193,11 +193,18 @@ config DDR_W638GU6QB12
 		Soldered on older X1 revision of SAMA7D65 Curiosity Pro
 
 config DDR_W638GU6RB11
-	bool "DDR3L W638GU6RB11 (SAMA7D65 Curiosity Pro)"
+	bool "DDR3L W638GU6RB11 (SAMA7D65 Curiosity Pro RevX1)"
 	depends on UMCTL2
 	help
 		DDR3L W638GU6RB11 64 Meg x 16 x 8 DDR3L-1866
-		Soldered on official revision of SAMA7D65 Curiosity Pro
+		Soldered on official revision of SAMA7D65 Curiosity Pro X1
+
+config DDR_EM6HF16EBXC_12SH
+	bool "DDR3L EM6HF16EBXC_12SH (SAMA7D65 Curiosity Pro Rev1)"
+	depends on UMCTL2
+	help
+		DDR3L EM6HF16EBXC_12SH 64 Meg x 16 x 8 DDR3L-1600
+		Soldered on official revision of SAMA7D65 Curiosity Pro Rev1
 
 config DDR_MT47H128M16RT_25E_C
 	bool "DDR2 MT47H128M16RT-25E:C (SAMA7G5_DDR2_EB)"
