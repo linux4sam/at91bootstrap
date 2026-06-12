@@ -224,6 +224,20 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	#error "No CLK setting defined"
 #endif
 #endif
+#elif defined(CONFIG_DDR_EM68D16CBQC_18IH_9X60)
+  type = AT91C_DDRC2_MD_DDR2_SDRAM;
+  dbw = AT91C_DDRC2_DBW_16_BITS;
+  col = AT91C_DDRC2_NC_DDR10_SDR9;
+  row = AT91C_DDRC2_NR_14;
+  cas = AT91C_DDRC2_CAS_3;
+/* DDR2 (W971GG6SB = 16 Mwords x 8 Banks x 16 bits), total 2 Gbit in SAM9X60-Curiosity-Pro-Rev1 */
+  bank = AT91C_DDRC2_NB_BANKS_8;
+#if defined(CONFIG_DDR_EXT_TEMP_RANGE)
+  ddramc_config->rtr = 0x30c;
+#else
+  ddramc_config->rtr = 0x618;
+#endif
+
 #elif defined(CONFIG_DDR_AD220032D)
 /* LPDDR2 (AD220032D = 8 Mwords x 8 Banks x 32 bits), total 2 Gbit in SiP on SAMA5D27-WLSOM1-EK */
 	type = AT91C_DDRC2_MD_LPDDR2_SDRAM;

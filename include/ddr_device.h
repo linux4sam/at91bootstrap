@@ -321,6 +321,26 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trpa = 4,
 	.trtp = 2,
 	.tfaw = 9,
+#elif defined(CONFIG_DDR_EM68D16CBQC_18IH_9X60)
+/* DDR2 (EM68D16CBQC = 16 Mwords x 8 Banks x 16 bits), total 2 Gbit in SAM9X60-Curiosity-Pro-Rev1 */
+/* all timings in nCK */
+  .tras = 9,
+  .trcd = 3,
+  .twr = 3,
+  .trc = 12,
+  .trp = 3,
+  .trrd = 2,
+  .twtr = 2,
+  .tmrd = 2,
+  .trfc = 39,
+  .txsnr = 49,
+  .txsrd = 200,
+  .txp = 2,
+  .txard = 3,
+  .txards = 8,
+  .trpa = 4,
+  .trtp = 2,
+  .tfaw = 9,
 #elif defined(CONFIG_DDR_W971GG6SB_D2)
 /* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SiP on the SAMA5D2-SOM-EK */
 /* all timings in nCK */

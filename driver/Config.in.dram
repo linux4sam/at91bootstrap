@@ -56,6 +56,12 @@ config DDR_W972GG6KB_9X60
 	help
 		W972GG6KB 2 Gbits
 
+config DDR_EM68D16CBQC_18IH_9X60
+  bool "DDR2 DDR_EM68D16CBQC_18IH (SAM9X60-Curiosity-Pro-Rev1)"
+  depends on DDRC
+  help
+    EM68D16CBQC 2 Gbits
+
 config DDR_W972GG6KB_D2
 	bool "DDR2 W972GG6KB (SAMA5D2-PTC-EK)"
 	depends on DDRC
