@@ -173,7 +173,7 @@ config LOAD_UBOOT
 
 config LOAD_ZEPHYR
 	bool "Zephyr"
-	depends on SAMA7G5 || SAMA7D65
+	depends on SAMA5D2 || SAMA7G5 || SAMA7D65
 	---help---
 	  Boot a Zephyr image
 
