@@ -301,7 +301,8 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trpa = 3,
 	.trtp = 2,
 	.tfaw = 9,
-#elif defined(CONFIG_DDR_W971GG6SB)
+#elif defined(CONFIG_DDR_W971GG6SB) || defined(CONFIG_DDR_W971GG6SB_D2)
+#if defined(CONFIG_BUS_SPEED_200MHZ)
 /* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SAM9X60D1G SiP */
 /* all timings in nCK */
 	.tras = 8,
@@ -321,6 +322,27 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trpa = 4,
 	.trtp = 2,
 	.tfaw = 9,
+#else	/* CONFIG_BUS_SPEED_166MHZ || CONFIG_BUS_SPEED_164MHZ */
+/* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SAMA5D27C-D1G SiP */
+/* all timings in nCK */
+	.tras = 7,
+	.trcd = 3,
+	.twr = 3,
+	.trc = 9,
+	.trp = 3,
+	.trrd = 2,
+	.twtr = 2,
+	.tmrd = 2,
+	.trfc = 22,
+	.txsnr = 23,
+	.txsrd = 200,
+	.txp = 2,
+	.txard = 2,
+	.txards = 8,
+	.trpa = 4,
+	.trtp = 2,
+	.tfaw = 8,
+#endif
 #elif defined(CONFIG_DDR_EM68D16CBQC_18IH_9X60)
 /* DDR2 (EM68D16CBQC = 16 Mwords x 8 Banks x 16 bits), total 2 Gbit in SAM9X60-Curiosity-Pro-Rev1 */
 /* all timings in nCK */
@@ -341,26 +363,6 @@ static const struct ddram_timings ddr_ddram_timings = {
   .trpa = 4,
   .trtp = 2,
   .tfaw = 9,
-#elif defined(CONFIG_DDR_W971GG6SB_D2)
-/* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SiP on the SAMA5D2-SOM-EK */
-/* all timings in nCK */
-	.tras = 7,
-	.trcd = 3,
-	.twr = 3,
-	.trc = 9,
-	.trp = 3,
-	.trrd = 2,
-	.twtr = 2,
-	.tmrd = 2,
-	.trfc = 22,
-	.txsnr = 23,
-	.txsrd = 200,
-	.txp = 2,
-	.txard = 2,
-	.txards = 8,
-	.trpa = 4,
-	.trtp = 2,
-	.tfaw = 8,
 #elif defined(CONFIG_DDR_W9712G6KB25I)
 /* 2 Mwords x 4 Banks x 16 bits DDR2 SDRAM (128 Mbit) in SAMA5D2 Sip */
 	.tras = 8,
