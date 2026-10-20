@@ -208,15 +208,19 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	bank = AT91C_DDRC2_NB_BANKS_8;
 #endif
 #if defined(CONFIG_DDR_EXT_TEMP_RANGE)
-#if defined(CONFIG_BUS_SPEED_166MHZ)
-	ddramc_config->rtr = 0x2A5;
+#if defined(CONFIG_BUS_SPEED_164MHZ)
+	ddramc_config->rtr = 0x27F;
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x287;
 #elif defined(CONFIG_BUS_SPEED_200MHZ)
 	ddramc_config->rtr = 0x30c;
 #else
 	#error "No CLK setting defined"
 #endif
 #else
-#if defined(CONFIG_BUS_SPEED_166MHZ)
+#if defined(CONFIG_BUS_SPEED_164MHZ)
+	ddramc_config->rtr = 0x4FF;
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
 	ddramc_config->rtr = 0x50E;
 #elif defined(CONFIG_BUS_SPEED_200MHZ)
 	ddramc_config->rtr = 0x618;
