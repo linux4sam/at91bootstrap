@@ -185,7 +185,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	cas = AT91C_DDRC2_CAS_3;
 	bank = AT91C_DDRC2_NB_BANKS_4;
 	ddramc_config->rtr = 0x4FF;
-#elif defined(CONFIG_DDR_W9751G6KB) || defined(CONFIG_DDR_W971GG6SB) || defined(CONFIG_DDR_W971GG6SB_D2)
+#elif defined(CONFIG_DDR_W9751G6KB) || defined(CONFIG_DDR_W971GG6SB)
 	type = AT91C_DDRC2_MD_DDR2_SDRAM;
 	dbw = AT91C_DDRC2_DBW_16_BITS;
 	col = AT91C_DDRC2_NC_DDR10_SDR9;
@@ -194,7 +194,7 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 #if defined(CONFIG_DDR_W9751G6KB)
 /* DDR2 (W9751G6KB = 8 Mwords x 4 Banks x 16 bits), total 512 Mbit in SAM9X60D5M and ATSAMA5D27C-D5M SiP */
 	bank = AT91C_DDRC2_NB_BANKS_4;
-#else // defined(CONFIG_DDR_W971GG6SB) || defined(CONFIG_DDR_W971GG6SB_D2)
+#else // defined(CONFIG_DDR_W971GG6SB)
 /* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SAM9X60D1G and ATSAMA5D27C-D1G SiP */
 	bank = AT91C_DDRC2_NB_BANKS_8;
 #endif

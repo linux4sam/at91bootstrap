@@ -301,7 +301,7 @@ static const struct ddram_timings ddr_ddram_timings = {
 	.trpa = 3,
 	.trtp = 2,
 	.tfaw = 9,
-#elif defined(CONFIG_DDR_W971GG6SB) || defined(CONFIG_DDR_W971GG6SB_D2)
+#elif defined(CONFIG_DDR_W971GG6SB)
 #if defined(CONFIG_BUS_SPEED_200MHZ)
 /* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SAM9X60D1G SiP */
 /* all timings in nCK */

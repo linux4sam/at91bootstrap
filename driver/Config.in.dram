@@ -68,12 +68,6 @@ config DDR_W972GG6KB_D2
 	help
 		Two W972GG6KB 4 Gbits
 
-config DDR_W971GG6SB_D2
-	bool "DDR2 W971GG6SB (SAMA5D2-SOM-EK)"
-	depends on DDRC
-	help
-		DDR2 W971GG6SB 1 Gbit
-
 config DDR_W9712G6KB25I
 	bool "DDR2 W9712G6KB25I (SAMA5D2-SiP)"
 	depends on DDRC
