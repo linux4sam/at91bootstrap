@@ -108,7 +108,7 @@ static int sd_cmd_app_sd_send_op_cmd(struct sd_card *sdcard,
 	command->argu = host->caps_voltages
 				& OCR_VOLTAGE_27_36_MASK;
 
-	if (host->caps_voltages | SD_OCR_VDD_165_195)
+	if (host->caps_voltages & SD_OCR_VDD_165_195)
 		command->argu |= SD_OCR_S18R | SD_OCR_XPC;
 
 	if (capacity_support)

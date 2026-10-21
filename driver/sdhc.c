@@ -458,7 +458,7 @@ static int sdhc_set_ddr(struct sd_card *sdcard)
 
 static int sdhc_set_1v8(struct sd_card *sdcard)
 {
-	if (!(sdcard->host->caps_voltages | SD_OCR_VDD_165_195))
+	if (!(sdcard->host->caps_voltages & SD_OCR_VDD_165_195))
 		return -1;
 
 	sdhc_writew(SDMMC_HC2R, sdhc_readw(SDMMC_HC2R) | SDMMC_HC2R_VS18EN);
@@ -533,8 +533,8 @@ static int sdhc_host_capability(struct sd_card *sdcard)
 #endif
 
 #ifdef CONFIG_SDHC_UHS
-	if ((host->caps_voltages | SD_OCR_VDD_165_195) &&
-		(host->caps_bus_width | BUS_WIDTH_4_BIT) &&
+	if ((host->caps_voltages & SD_OCR_VDD_165_195) &&
+		(host->caps_bus_width & BUS_WIDTH_4_BIT) &&
 		(caps & SDMMC_CA1R_SDR50SUP) &&
 		(caps & SDMMC_CA1R_SDR104SUP) &&
 		(caps & SDMMC_CA1R_DDR50SUP))
