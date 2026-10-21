@@ -124,7 +124,7 @@ int load_sdcard(struct image_info *image)
 #ifdef CONFIG_FAST_BOOT
 	if (sdcard_initialize()) {
 		dbg_info("Sdcard initialization failed!\n");
-		return 0;
+		return -1;
 	}
 	if (sdcard_fast_boot(image))
 		return 0;
