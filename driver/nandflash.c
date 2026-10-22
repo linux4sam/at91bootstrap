@@ -559,6 +559,7 @@ static unsigned short onfi_crc16(unsigned short crc,
 #define PARAMS_OFFSET_OOBSIZE		84
 #define PARAMS_OFFSET_BLOCKSIZE		92
 #define PARAMS_OFFSET_NBBLOCKS		96
+#define PARAMS_OFFSET_ADDR_CYCLE	101
 #define PARAMS_OFFSET_ECC_BITS		112
 
 #define PARAMS_OFFSET_TIMING_MODE	129
@@ -637,6 +638,7 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 	unsigned char manf_id, dev_id;
 	unsigned short features, revision, ext_page_len;
 	unsigned char num_param_page;
+	unsigned char addr_cycles;
 
 	nand_cs_enable();
 	nand_command(CMD_READID);
@@ -696,6 +698,12 @@ static int nandflash_detect_onfi(struct nand_chip *chip)
 							* chip->pagesize;
 	chip->oobsize	= *(unsigned short *)(p + PARAMS_OFFSET_OOBSIZE);
 	chip->buswidth	= features & PARAMS_FEATURE_BUSWIDTH;
+	addr_cycles = *(unsigned char *)(p + PARAMS_OFFSET_ADDR_CYCLE);
+	chip->rowaddr_cycles = addr_cycles & 0x0f;
+
+	if (chip->rowaddr_cycles == 0)
+		return -1;
+
 	chip->eccbits	= *(unsigned char *)(p + PARAMS_OFFSET_ECC_BITS);
 	chip->eccwordsize = 512;
 	chip->timingmode  = *(unsigned short *)(p + PARAMS_OFFSET_TIMING_MODE);
@@ -802,6 +810,8 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	unsigned char manf_id, dev_id;
 	unsigned int chipid;
 	unsigned int i;
+	unsigned int targetsize;
+	unsigned int pages_device;
 
 	nandflash_read_id(&manf_id, &dev_id);
 
@@ -828,6 +838,21 @@ static int nandflash_detect_non_onfi(struct nand_chip *chip)
 	chip->buswidth	= nand_ids[i].buswidth;
 	chip->numblocks = nand_ids[i].numblocks;
 
+	targetsize = chip->numblocks * chip->blocksize;
+	pages_device = div(targetsize, chip->pagesize);
+
+	/*
+	 * Calculate the number of bytes required to represent
+	 * the maximum page address.
+	 */
+	pages_device--;
+	chip->rowaddr_cycles = 0;
+
+	do {
+		chip->rowaddr_cycles++;
+		pages_device >>= 8;
+	} while (pages_device);
+
 	return 0;
 }
 
@@ -847,6 +872,7 @@ static int nand_info_init(struct nand_info *nand, struct nand_chip *chip)
 	nand->oobsize = chip->oobsize;
 	/* Total number of bytes in a sector */
 	nand->sectorsize = nand->pagesize + nand->oobsize;
+	nand->rowaddr_cycles = chip->rowaddr_cycles;
 #ifdef CONFIG_USE_PMECC
 	if (choose_pmecc_info(nand, chip))
 		return -1;
@@ -937,12 +963,10 @@ static void write_column_address(struct nand_info *nand,
 static void write_row_address(struct nand_info *nand,
 				unsigned int row_address)
 {
-	volatile unsigned int num_pages = nand->pages_device;
+	unsigned int i;
 
-	while(num_pages) {
+	for (i = 0; i < nand->rowaddr_cycles; i++) {
 		nand->address(row_address & 0xff);
-
-		num_pages >>= 8;
 		row_address >>= 8;
 	}
 }

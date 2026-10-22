@@ -64,6 +64,7 @@ struct nand_chip {
 	unsigned int	eccwordsize;
 	unsigned short  opt_cmd;
 	unsigned short  timingmode;
+	unsigned char   rowaddr_cycles;
 };
 
 struct nand_info {
@@ -85,6 +86,7 @@ struct nand_info {
 	/* Used by PMECC */
 	int			ecc_sector_size;
 	int			ecc_err_bits;
+	unsigned char	rowaddr_cycles;
 };
 
 #define ZONE_DATA			0x01    /* Sector data zone */
