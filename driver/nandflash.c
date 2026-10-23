@@ -31,6 +31,9 @@
 #ifdef CONFIG_FAST_BOOT
 #include "fast_boot.h"
 #endif
+#if defined(CONFIG_SAMA5D2)
+#include "pmc.h"
+#endif
 
 #ifdef CONFIG_NANDFLASH_SMALL_BLOCKS
 static struct nand_chip nand_ids[] = {
@@ -168,7 +171,15 @@ void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 	unsigned int ncycles, mck_ps, pulse;
 	unsigned int nwe_setup, nwe_pulse, nwe_hold, nwe_cycle;
 	unsigned int nrd_hold, nrd_pulse, nrd_cycle, tdf;
-	mck_ps = (1000000000 / MASTER_CLOCK) * 1000;
+	unsigned int mck = MASTER_CLOCK;
+
+#if defined(CONFIG_SAMA5D2)
+	if (pmc_mck_check_h32mxdiv())
+		mck = div(mck, 2);
+#endif
+
+	mck_ps = div(1000000000u, mck) * 1000;
+
 	/* 
 	  Set write pulse length
 	  NWE_PULSE = tWP 
