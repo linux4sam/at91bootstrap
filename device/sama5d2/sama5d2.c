@@ -732,12 +732,6 @@ void nandflash_hw_init(void)
 	pio_configure(nand_pins);
 	pmc_enable_periph_clock(AT91C_ID_HSMC, PMC_PERIPH_CLK_DIVIDER_NA);
 
-	/* EBI Configuration Register */
-	writel((AT91C_EBICFG_DRIVE0_HIGH |
-		AT91C_EBICFG_PULL0_NONE |
-		AT91C_EBICFG_DRIVE1_HIGH |
-		AT91C_EBICFG_PULL1_NONE), SFR_EBICFG + AT91C_BASE_SFR);
-
 	/* Configure SMC CS3 for NAND/SmartMedia */
 	nandflash_set_smc_timing(TIMING_MODE_0);
 }
