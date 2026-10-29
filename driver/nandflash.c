@@ -165,9 +165,9 @@ static unsigned int smc_timing_encode_ncycles(unsigned int ncycles)
 
 void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 {
-	unsigned int ncycles, mck_ps, pulse;
+	unsigned int ncycles, mck_ps, pulse, setup;
 	unsigned int nwe_setup, nwe_pulse, nwe_hold, nwe_cycle;
-	unsigned int nrd_hold, nrd_pulse, nrd_cycle, tdf;
+	unsigned int nrd_setup, nrd_hold, nrd_pulse, nrd_cycle, tdf;
 	mck_ps = (1000000000 / MASTER_CLOCK) * 1000;
 	/* 
 	  Set write pulse length
@@ -191,6 +191,7 @@ void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 	*/
 	nwe_cycle = DIV_ROUND_UP(nand_onfi_timings[mode].tWC, mck_ps);
 	nwe_cycle = max(ncycles, nwe_cycle);
+
 	/* NRD_HOLD = max(tREH, tRHOH) */
 	nrd_hold = max(nand_onfi_timings[mode].tREH, nand_onfi_timings[mode].tRHOH);
 	nrd_hold = DIV_ROUND_UP(nrd_hold, mck_ps);
@@ -218,9 +219,14 @@ void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 	nrd_pulse = DIV_ROUND_UP(pulse, mck_ps);
 	ncycles += nrd_pulse;
 
+	/* NRD_SETUP = max(tAR, tCLR) */
+	setup = max(nand_onfi_timings[mode].tAR, nand_onfi_timings[mode].tCLR);
+	nrd_setup = DIV_ROUND_UP(setup, mck_ps);
+	ncycles += nrd_setup;
+
 	/*
 	  set read cycle.
-	  NRD_CYCLE = max(tRC, NRD_PULSE + NRD_HOLD) 
+	  NRD_CYCLE = max(tRC, NRD_SETUP + NRD_PULSE + NRD_HOLD)
 	*/
 	nrd_cycle = DIV_ROUND_UP(nand_onfi_timings[mode].tRC, mck_ps);
 	nrd_cycle = max(ncycles, nrd_cycle);
@@ -229,7 +235,9 @@ void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 #if defined(CONFIG_SAMA5D2) || defined(CONFIG_SAMA5D3) ||\
     defined(CONFIG_SAMA5D4) || defined(CONFIG_SAMA7G5) ||\
     defined(CONFIG_SAMA7D65)
-	writel(AT91C_SMC_SETUP_NWE(nwe_setup), ATMEL_BASE_SMC + SMC_SETUP(cs));
+	writel(AT91C_SMC_SETUP_NWE(nwe_setup) |
+	       AT91C_SMC_SETUP_NRD(nrd_setup),
+	       ATMEL_BASE_SMC + SMC_SETUP(cs));
 	writel(AT91C_SMC_PULSE_NWE(nwe_pulse) |
 		       AT91C_SMC_PULSE_NCS_WR(nwe_cycle) |
 		       AT91C_SMC_PULSE_NRD(nrd_pulse) |
@@ -257,7 +265,9 @@ void nandflash_smc_conf(unsigned int mode, unsigned int cs)
 		       AT91C_SMC_TIMINGS_NFSEL,
 		       ATMEL_BASE_SMC + SMC_TIMINGS(cs));
 #else
-	writel(AT91C_SMC_NWESETUP_(nwe_setup), AT91C_BASE_SMC + SMC_SETUP(cs));
+	writel(AT91C_SMC_NWESETUP_(nwe_setup) |
+	       AT91C_SMC_NRDSETUP_(nrd_setup),
+	       AT91C_BASE_SMC + SMC_SETUP(cs));
 	writel(AT91C_SMC_NWEPULSE_(nwe_pulse) |
 		       AT91C_SMC_NCS_WRPULSE_(nwe_cycle) |
 		       AT91C_SMC_NRDPULSE_(nrd_pulse) |
