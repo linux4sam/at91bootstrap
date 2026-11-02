@@ -1372,9 +1372,9 @@ static int nand_loadimage(struct nand_info *nand,
 		while (1) {
 			if (nand_check_badblock(nand,
 					block, buffer) != 0) {
-				block++; /* skip this block */
 				dbg_info("NAND: Bad block:" \
 					" #%x\n", block);
+				block++; /* skip this block */
 			} else
 				break;
 		}
