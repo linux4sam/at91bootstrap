@@ -255,8 +255,10 @@ static int init_pmecc_descripter(struct _PMECC_paramDesc_struct *pmecc_params,
 		pmecc_params->eccEndAddress
 		= nand->ecclayout->eccpos[nand->ecclayout->eccbytes - 1];
 
+#if defined(CONFIG_SAM9X60) || defined(CONFIG_SAM9X7)
 		/* At 133Mhz, this field must be programmed with 2 */
 		pmecc_params->clkCtrl = 2;
+#endif
 
 		pmecc_params->interrupt = 0;
 		pmecc_params->tt = ecc_bits;
@@ -363,7 +365,9 @@ static int init_pmecc_core(struct _PMECC_paramDesc_struct *pmecc_params)
 	pmecc_writel((pmecc_params->spareSize - 1), PMECC_SAREA);
 	pmecc_writel(pmecc_params->eccStartAddress, PMECC_SADDR);
 	pmecc_writel(pmecc_params->eccEndAddress, PMECC_EADDR);
+#if defined(CONFIG_SAM9X60) || defined(CONFIG_SAM9X7)
 	pmecc_writel(pmecc_params->clkCtrl, PMECC_CLK);
+#endif
 	pmecc_writel(0xff, PMECC_IDR);
 
 	pmecc_writel(AT91C_PMECC_ENABLE, PMECC_CTRL);

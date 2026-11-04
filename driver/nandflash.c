@@ -1161,7 +1161,10 @@ static int nand_read_sector(struct nand_info *nand,
 		return -1;
 
 	nand->command(CMD_READ_1);
-	pmecc_enable(0);
+#ifdef CONFIG_USE_PMECC
+	if (usepmecc)
+		pmecc_enable(0);
+#endif
 	/* Read loop */
 	if (nand->buswidth) {
 		if (readbytes >= nand->pagesize) {
