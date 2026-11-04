@@ -176,15 +176,6 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	cas = AT91C_DDRC2_CAS_3;
 	bank = AT91C_DDRC2_NB_BANKS_8;
 	ddramc_config->rtr = 0x30e;
-#elif defined(CONFIG_DDR_W971GG6SB_D2)
-/* DDR2 (W971GG6SB = 8 Mwords x 8 Banks x 16 bits), total 1 Gbit in SiP on the SAMA5D2-SOM-EK */
-	type = AT91C_DDRC2_MD_DDR2_SDRAM;
-	dbw = AT91C_DDRC2_DBW_16_BITS;
-	col = AT91C_DDRC2_NC_DDR10_SDR9;
-	row = AT91C_DDRC2_NR_13;
-	cas = AT91C_DDRC2_CAS_3;
-	bank = AT91C_DDRC2_NB_BANKS_8;
-	ddramc_config->rtr = 0x4FF;
 #elif defined(CONFIG_DDR_W9712G6KB25I)
 /* 2 Mwords x 4 Banks x 16 bits DDR2 SDRAM (128 Mbit) in SAMA5D2 Sip */
 	type = AT91C_DDRC2_MD_DDR2_SDRAM;
@@ -208,15 +199,19 @@ static void ddram_reg_config(struct ddramc_register *ddramc_config)
 	bank = AT91C_DDRC2_NB_BANKS_8;
 #endif
 #if defined(CONFIG_DDR_EXT_TEMP_RANGE)
-#if defined(CONFIG_BUS_SPEED_166MHZ)
-	ddramc_config->rtr = 0x2A5;
+#if defined(CONFIG_BUS_SPEED_164MHZ)
+	ddramc_config->rtr = 0x27F;
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
+	ddramc_config->rtr = 0x287;
 #elif defined(CONFIG_BUS_SPEED_200MHZ)
 	ddramc_config->rtr = 0x30c;
 #else
 	#error "No CLK setting defined"
 #endif
 #else
-#if defined(CONFIG_BUS_SPEED_166MHZ)
+#if defined(CONFIG_BUS_SPEED_164MHZ)
+	ddramc_config->rtr = 0x4FF;
+#elif defined(CONFIG_BUS_SPEED_166MHZ)
 	ddramc_config->rtr = 0x50E;
 #elif defined(CONFIG_BUS_SPEED_200MHZ)
 	ddramc_config->rtr = 0x618;
